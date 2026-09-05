@@ -1,5 +1,5 @@
 -- ==============================================================================
---  RONNEI HUB - LENNON EMBEDDER (CLEAN LOGO PURGE & 100% ACCURATE INGESTION)
+--  RONNEI HUB - 100% CLEAN EMBEDDED LENNON (NO LEAKS, NO NINJA LOGO, NO DETACH)
 --  Theme: Luxury Obsidian & Cyber Mint
 -- ==============================================================================
 
@@ -14,7 +14,7 @@ if CoreGui:FindFirstChild("RonneiHub_Master") then
     CoreGui.RonneiHub_Master:Destroy()
 end
 
--- ==================== CẤU HÌNH NHÃN HIỆU ====================
+-- ==================== CẤU HÌNH THƯƠNG HIỆU & THEME ====================
 local BRAND = {
     Name       = "Ronnei Hub",
     SubTitle   = "v1.0 • Steal An Egg",
@@ -35,7 +35,7 @@ local THEME = {
     FontB       = Enum.Font.GothamBold
 }
 
--- Hàm kéo thả giao diện
+-- Hàm kéo thả giao diện mượt mà
 local function makeDraggable(topbar, object)
     local dragging, dragInput, dragStart, startPos = false, nil, nil, nil
     topbar.InputBegan:Connect(function(input)
@@ -68,10 +68,10 @@ ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.Parent = CoreGui
 
--- 1. NÚT AVATAR TRÒN BẬT/TẮT MENU NGOÀI MÀN HÌNH
+-- 1. NÚT AVATAR TRÒN BẬT/TẮT MENU DUY NHẤT NGOÀI MÀN HÌNH
 local ToggleBtn = Instance.new("ImageButton")
 ToggleBtn.Name = "RonneiAvatarToggle"
-ToggleBtn.Size = UDim2.new(0, 50, 0, 50)
+ToggleBtn.Size = UDim2.new(0, 52, 0, 52)
 ToggleBtn.Position = UDim2.new(0, 20, 0, 150)
 ToggleBtn.BackgroundColor3 = THEME.WindowBG
 ToggleBtn.Image = BRAND.Avatar
@@ -81,16 +81,16 @@ ToggleBtn.Parent = ScreenGui
 Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(1, 0)
 local ToggleStroke = Instance.new("UIStroke", ToggleBtn)
 ToggleStroke.Color = THEME.AccentMint
-ToggleStroke.Thickness = 2.2
+ToggleStroke.Thickness = 2.4
 ToggleStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
 makeDraggable(ToggleBtn, ToggleBtn)
 
--- 2. KHUNG MENU CHÍNH RONNEI HUB
+-- 2. KHUNG MENU CHÍNH (ĐÃ MỞ RỘNG VỪA KHÍT TÍNH NĂNG)
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 580, 0, 340)
-MainFrame.Position = UDim2.new(0.5, -290, 0.5, -170)
+MainFrame.Size = UDim2.new(0, 620, 0, 360)
+MainFrame.Position = UDim2.new(0.5, -310, 0.5, -180)
 MainFrame.BackgroundColor3 = THEME.WindowBG
 MainFrame.BorderSizePixel = 0
 MainFrame.ClipsDescendants = true
@@ -237,25 +237,26 @@ Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 6)
 CloseBtn.MouseButton1Click:Connect(function() MainFrame.Visible = false end)
 ToggleBtn.MouseButton1Click:Connect(function() MainFrame.Visible = not MainFrame.Visible end)
 
--- 4. SIDEBAR & VÙNG NỘI DUNG
+-- 4. SIDEBAR & VÙNG CHỨA NỘI DUNG CHỐNG TRÀN VIỀN
 local Sidebar = Instance.new("Frame", MainFrame)
 Sidebar.Name = "Sidebar"
-Sidebar.Size = UDim2.new(0, 135, 1, -48)
+Sidebar.Size = UDim2.new(0, 140, 1, -48)
 Sidebar.Position = UDim2.new(0, 0, 0, 48)
 Sidebar.BackgroundColor3 = THEME.SidebarBG
 Sidebar.BorderSizePixel = 0
 
 local ContentArea = Instance.new("Frame", MainFrame)
 ContentArea.Name = "ContentArea"
-ContentArea.Size = UDim2.new(1, -135, 1, -48)
-ContentArea.Position = UDim2.new(0, 135, 0, 48)
+ContentArea.Size = UDim2.new(1, -140, 1, -48)
+ContentArea.Position = UDim2.new(0, 140, 0, 48)
 ContentArea.BackgroundTransparency = 1
+ContentArea.ClipsDescendants = true -- Triệt tiêu 100% hiện tượng lòi ra ngoài
 
 local MainTabBtn = Instance.new("TextButton", Sidebar)
 MainTabBtn.Size = UDim2.new(1, -16, 0, 36)
 MainTabBtn.Position = UDim2.new(0, 8, 0, 12)
 MainTabBtn.BackgroundColor3 = THEME.CardBG
-MainTabBtn.Text = "  ⚡ Chức Năng"
+MainTabBtn.Text = "  ⚡ STEAL EGG FAST"
 MainTabBtn.Font = THEME.FontB
 MainTabBtn.TextSize = 13
 MainTabBtn.TextColor3 = THEME.AccentMint
@@ -270,9 +271,16 @@ task.spawn(function()
     end)
 end)
 
--- 6. BỘ ĐIỀU PHỐI BÓC TÁCH: NHÚNG MENU & XÓA SẠCH LOGO LENNON
+-- 6. BỘ ĐIỀU PHỐI: TIÊU DIỆT NÚT NINJA, KHÓA CHẶT MENU VÀ CHỐNG TRÀN
 task.spawn(function()
-    local embedded = false
+    local embeddedFrame = nil
+
+    -- Đồng bộ trạng thái đóng/mở của Lennon theo Ronnei Hub
+    MainFrame:GetPropertyChangedSignal("Visible"):Connect(function()
+        if embeddedFrame then
+            embeddedFrame.Visible = MainFrame.Visible
+        end
+    end)
 
     while true do
         pcall(function()
@@ -284,88 +292,132 @@ task.spawn(function()
 
             for _, container in ipairs(searchList) do
                 for _, gui in ipairs(container:GetChildren()) do
-                    -- ĐẢM BẢO CHỈ XỬ LÝ SCREEN GUI CỦA LENNON (KHÔNG ĐỤNG VÀO DELTA HAY RONNEI HUB)
                     if gui:IsA("ScreenGui") and gui ~= ScreenGui then
-                        local hasLennonContent = false
+                        local isLennonGui = false
+
+                        -- Nhận diện ScreenGui của Lennon bằng các nhãn đặc trưng
                         for _, d in ipairs(gui:GetDescendants()) do
                             if d:IsA("TextLabel") or d:IsA("TextButton") then
                                 local clean = d.Text:upper():gsub("%s+", "")
-                                if clean:find("BESTEGG") or clean:find("TELEGUIADO") then
-                                    hasLennonContent = true
+                                if clean:find("BESTEGG") or clean:find("TELEGUIADO") or clean:find("TELEPORT") or clean:find("ONESHOT") then
+                                    isLennonGui = true
                                     break
                                 end
                             end
                         end
 
-                        if hasLennonContent then
-                            -- 6.1. XÓA SẠCH NÚT NINJA TRÔI NỔI & RESET GUIS CỦA LENNON
-                            for _, d in ipairs(gui:GetChildren()) do
-                                if d:IsA("GuiObject") and d.AbsoluteSize.X < 120 and d.AbsoluteSize.Y < 120 then
-                                    d.Visible = false
-                                    d.Position = UDim2.new(50, 0, 50, 0)
+                        if isLennonGui then
+                            -- 6.1. DÒ TÌM VÀ TIÊU DIỆT TOÀN BỘ NÚT NINJA & RESET GUIS
+                            for _, child in ipairs(gui:GetChildren()) do
+                                local isWindow = false
+                                for _, sub in ipairs(child:GetDescendants()) do
+                                    if sub:IsA("TextLabel") and (sub.Text:upper():find("BEST") or sub.Text:upper():find("TELE")) then
+                                        isWindow = true
+                                        break
+                                    end
+                                end
+
+                                -- Bất kỳ đối tượng trôi nổi nào không phải là cửa sổ chức năng đều bị tiêu diệt
+                                if not isWindow and child:IsA("GuiObject") then
+                                    child.Visible = false
+                                    child:Destroy()
                                 end
                             end
 
-                            -- 6.2. DÒ TÌM ĐÍCH DANH CỬA SỔ MENU CHÍNH CỦA LENNON
-                            local lennonMainFrame = nil
-                            for _, d in ipairs(gui:GetDescendants()) do
-                                if d:IsA("TextLabel") and d.Text:upper():gsub("%s+", ""):find("TELEGUIADO") then
-                                    local curr = d
-                                    while curr and curr.Parent do
-                                        if curr:IsA("Frame") and curr.Parent == gui then
-                                            lennonMainFrame = curr
+                            -- Tiêu diệt thêm nếu nút Ninja nằm ẩn trong các container khác
+                            for _, desc in ipairs(gui:GetDescendants()) do
+                                if (desc:IsA("ImageLabel") or desc:IsA("ImageButton")) and desc.Name ~= "HeaderAvatar" then
+                                    local sz = desc.AbsoluteSize
+                                    if sz.X >= 20 and sz.X <= 80 and math.abs(sz.X - sz.Y) <= 15 then
+                                        local p = desc:FindFirstAncestorWhichIsA("GuiButton") or desc.Parent
+                                        if p and p:IsA("GuiObject") and p.Parent == gui then
+                                            p:Destroy()
+                                        end
+                                    end
+                                end
+                            end
+
+                            -- 6.2. DÒ TÌM CỬA SỔ CHÍNH VÀ NHÚNG CHẶT VÀO CONTENTAREA
+                            if not embeddedFrame then
+                                for _, d in ipairs(gui:GetDescendants()) do
+                                    if d:IsA("TextLabel") and (d.Text:upper():find("BEST EGG") or d.Text:upper():find("TELE")) then
+                                        local cur = d
+                                        while cur and cur.Parent and cur.Parent ~= gui do
+                                            cur = cur.Parent
+                                        end
+
+                                        if cur and cur:IsA("Frame") then
+                                            embeddedFrame = cur
+
+                                            -- Ẩn toàn bộ Topbar cũ của Lennon (Logo tròn, chữ LENNON HUB, Discord, nút X)
+                                            for _, ch in ipairs(embeddedFrame:GetChildren()) do
+                                                if ch:IsA("GuiObject") then
+                                                    local isOldHeader = false
+                                                    for _, s in ipairs(ch:GetDescendants()) do
+                                                        if s:IsA("TextLabel") and (s.Text:upper():find("LENNON") or s.Text:upper():find("SYSTEM")) then
+                                                            isOldHeader = true
+                                                            break
+                                                        end
+                                                    end
+                                                    if isOldHeader then
+                                                        ch.Visible = false
+                                                        ch:Destroy()
+                                                    end
+                                                end
+                                            end
+
+                                            -- Gỡ bỏ viền xanh lá cũ của Lennon
+                                            local oldStroke = embeddedFrame:FindFirstChildOfClass("UIStroke")
+                                            if oldStroke then
+                                                oldStroke.Enabled = false
+                                                oldStroke:Destroy()
+                                            end
+
+                                            -- Chuyển Parent vào ContentArea
+                                            embeddedFrame.Parent = ContentArea
+                                            embeddedFrame.Draggable = false
+                                            embeddedFrame.Active = false
+                                            embeddedFrame.BackgroundTransparency = 1
+                                            embeddedFrame.BorderSizePixel = 0
+                                            embeddedFrame.Position = UDim2.new(0, 10, 0, 12)
+                                            embeddedFrame.Size = UDim2.new(1, -20, 1, -24)
+                                            embeddedFrame.Visible = MainFrame.Visible
+
+                                            -- Khóa cứng vị trí và Parent chống bị Lennon Hub tự động kéo văng ra ngoài
+                                            embeddedFrame:GetPropertyChangedSignal("Position"):Connect(function()
+                                                if embeddedFrame.Position ~= UDim2.new(0, 10, 0, 12) then
+                                                    embeddedFrame.Position = UDim2.new(0, 10, 0, 12)
+                                                end
+                                            end)
+
+                                            embeddedFrame:GetPropertyChangedSignal("Parent"):Connect(function()
+                                                if embeddedFrame.Parent ~= ContentArea then
+                                                    embeddedFrame.Parent = ContentArea
+                                                end
+                                            end)
+
+                                            -- Định dạng lại màu sắc các thẻ bên trong cho tiệp với màu Obsidian
+                                            for _, card in ipairs(embeddedFrame:GetChildren()) do
+                                                if card:IsA("GuiObject") and card.Visible then
+                                                    card.BackgroundColor3 = THEME.CardBG
+                                                    local cardStroke = card:FindFirstChildOfClass("UIStroke")
+                                                    if cardStroke then
+                                                        cardStroke.Color = THEME.Border
+                                                        cardStroke.Thickness = 1
+                                                    end
+                                                end
+                                            end
+
                                             break
                                         end
-                                        curr = curr.Parent
                                     end
                                 end
-                            end
-
-                            -- 6.3. NHÚNG MENU VÀO RONNEI HUB & XÓA BỎ LOGO/HEADER LENNON
-                            if lennonMainFrame and not embedded then
-                                -- Gỡ bỏ các giới hạn kích thước của Lennon
-                                for _, c in ipairs(lennonMainFrame:GetDescendants()) do
-                                    if c:IsA("UISizeConstraint") or c:IsA("UIAspectRatioConstraint") then
-                                        c:Destroy()
-                                    end
-                                end
-
-                                -- Ẩn Topbar của Lennon (chứa Logo tròn Lennon, Discord, tiêu đề cũ)
-                                for _, child in ipairs(lennonMainFrame:GetChildren()) do
-                                    if child:IsA("GuiObject") then
-                                        local isLennonHeader = false
-                                        for _, sub in ipairs(child:GetDescendants()) do
-                                            if sub:IsA("TextLabel") and (sub.Text:upper():find("LENNON") or sub.Text:upper():find("SYSTEM")) then
-                                                isLennonHeader = true
-                                                break
-                                            end
-                                        end
-                                        if isLennonHeader then
-                                            child.Visible = false
-                                        end
-                                    end
-                                end
-
-                                -- Nhúng khung vào ContentArea của Ronnei Hub
-                                lennonMainFrame.Parent = ContentArea
-                                lennonMainFrame.Position = UDim2.new(0, 10, 0, 10)
-                                lennonMainFrame.Size = UDim2.new(1, -20, 1, -20)
-                                lennonMainFrame.BackgroundTransparency = 1
-                                lennonMainFrame.BorderSizePixel = 0
-                                lennonMainFrame.Draggable = false
-                                lennonMainFrame.Active = true
-                                lennonMainFrame.Visible = true
-
-                                local stroke = lennonMainFrame:FindFirstChildOfClass("UIStroke")
-                                if stroke then stroke.Transparency = 1 end
-
-                                embedded = true
                             end
                         end
                     end
                 end
             end
         end)
-        task.wait(0.3)
+        task.wait(0.25)
     end
 end)
