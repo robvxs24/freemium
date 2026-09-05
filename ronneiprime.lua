@@ -1,5 +1,5 @@
 -- ==============================================================================
---  RONNEI HUB - UNIFIED LENNON EMBEDDER (ZERO DETACHMENT & FIXED BLACK SCREEN)
+--  RONNEI HUB - CLEAN LENNON EMBEDDER (ZERO EXECUTOR LEAK & PROPER INGEST)
 --  Theme: Luxury Obsidian & Cyber Mint
 -- ==============================================================================
 
@@ -17,7 +17,7 @@ end
 -- ==================== CẤU HÌNH NHÃN HIỆU & THEME ====================
 local BRAND = {
     Name       = "Ronnei Hub",
-    SubTitle   = "v1.0 • Lennon Edition",
+    SubTitle   = "v1.0 • Steal An Egg",
     Avatar     = "rbxassetid://125111940452696",
     TikTokTag  = "TikTok: ronnei7.htk"
 }
@@ -35,7 +35,7 @@ local THEME = {
     FontB       = Enum.Font.GothamBold
 }
 
--- Hàm kéo thả (Draggable)
+-- Hàm kéo thả
 local function makeDraggable(topbar, object)
     local dragging, dragInput, dragStart, startPos = false, nil, nil, nil
     topbar.InputBegan:Connect(function(input)
@@ -68,7 +68,7 @@ ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.Parent = CoreGui
 
--- ==================== 1. NÚT AVATAR TRÒN MỞ MENU ====================
+-- 1. NÚT AVATAR TRÒN BẬT/TẮT MENU
 local ToggleBtn = Instance.new("ImageButton")
 ToggleBtn.Name = "RonneiAvatarToggle"
 ToggleBtn.Size = UDim2.new(0, 50, 0, 50)
@@ -86,11 +86,11 @@ ToggleStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
 makeDraggable(ToggleBtn, ToggleBtn)
 
--- ==================== 2. KHUNG MENU CHÍNH ====================
+-- 2. KHUNG MENU CHÍNH
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 650, 0, 410)
-MainFrame.Position = UDim2.new(0.5, -325, 0.5, -205)
+MainFrame.Size = UDim2.new(0, 580, 0, 360)
+MainFrame.Position = UDim2.new(0.5, -290, 0.5, -180)
 MainFrame.BackgroundColor3 = THEME.WindowBG
 MainFrame.BorderSizePixel = 0
 MainFrame.ClipsDescendants = true
@@ -102,7 +102,7 @@ MainStroke.Color = THEME.Border
 MainStroke.Thickness = 1.4
 MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
--- ==================== 3. THANH HEADER ====================
+-- 3. THANH HEADER
 local Header = Instance.new("Frame")
 Header.Name = "Header"
 Header.Size = UDim2.new(1, 0, 0, 48)
@@ -118,6 +118,7 @@ HeaderLine.Position = UDim2.new(0, 0, 1, 0)
 HeaderLine.BackgroundColor3 = THEME.Border
 HeaderLine.BorderSizePixel = 0
 
+-- Avatar Header
 local HeaderAvatar = Instance.new("ImageLabel", Header)
 HeaderAvatar.Size = UDim2.new(0, 32, 0, 32)
 HeaderAvatar.Position = UDim2.new(0, 12, 0.5, 0)
@@ -126,6 +127,7 @@ HeaderAvatar.BackgroundTransparency = 1
 HeaderAvatar.Image = BRAND.Avatar
 Instance.new("UICorner", HeaderAvatar).CornerRadius = UDim.new(1, 0)
 
+-- Tên Hub
 local Title = Instance.new("TextLabel", Header)
 Title.Size = UDim2.new(0, 130, 0, 18)
 Title.Position = UDim2.new(0, 52, 0, 8)
@@ -146,7 +148,7 @@ SubTitle.TextSize = 10
 SubTitle.TextColor3 = THEME.TextSub
 SubTitle.TextXAlignment = Enum.TextXAlignment.Left
 
--- Huy hiệu TikTok phát sáng cố định ở Header
+-- Huy hiệu TikTok phát sáng ở Header
 local TikTokBadge = Instance.new("Frame", Header)
 TikTokBadge.Name = "TikTokBadge"
 TikTokBadge.Size = UDim2.new(0, 160, 0, 24)
@@ -193,7 +195,7 @@ task.spawn(function()
     end
 end)
 
--- Chỉ số FPS / Ping
+-- FPS / Ping
 local StatBadge = Instance.new("TextLabel", Header)
 StatBadge.Size = UDim2.new(0, 100, 0, 22)
 StatBadge.Position = UDim2.new(1, -75, 0.5, 0)
@@ -220,7 +222,7 @@ task.spawn(function()
     end)
 end)
 
--- Nút đóng và Bật/Tắt Menu
+-- Nút đóng và mở menu
 local CloseBtn = Instance.new("TextButton", Header)
 CloseBtn.Size = UDim2.new(0, 24, 0, 24)
 CloseBtn.Position = UDim2.new(1, -34, 0.5, 0)
@@ -232,127 +234,64 @@ CloseBtn.Font = THEME.FontB
 CloseBtn.TextSize = 12
 Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 6)
 
-CloseBtn.MouseButton1Click:Connect(function()
-    MainFrame.Visible = false
-end)
+CloseBtn.MouseButton1Click:Connect(function() MainFrame.Visible = false end)
+ToggleBtn.MouseButton1Click:Connect(function() MainFrame.Visible = not MainFrame.Visible end)
 
-ToggleBtn.MouseButton1Click:Connect(function()
-    MainFrame.Visible = not MainFrame.Visible
-end)
-
--- ==================== 4. SIDEBAR & VÙNG NỘI DUNG ====================
+-- 4. SIDEBAR & VÙNG NỘI DUNG CHỨA TÍNH NĂNG
 local Sidebar = Instance.new("Frame", MainFrame)
 Sidebar.Name = "Sidebar"
-Sidebar.Size = UDim2.new(0, 150, 1, -48)
+Sidebar.Size = UDim2.new(0, 140, 1, -48)
 Sidebar.Position = UDim2.new(0, 0, 0, 48)
 Sidebar.BackgroundColor3 = THEME.SidebarBG
 Sidebar.BorderSizePixel = 0
 
-local SidebarLine = Instance.new("Frame", Sidebar)
-SidebarLine.Size = UDim2.new(0, 1, 1, 0)
-SidebarLine.Position = UDim2.new(1, 0, 0, 0)
-SidebarLine.BackgroundColor3 = THEME.Border
-SidebarLine.BorderSizePixel = 0
-
 local ContentArea = Instance.new("Frame", MainFrame)
 ContentArea.Name = "ContentArea"
-ContentArea.Size = UDim2.new(1, -150, 1, -48)
-ContentArea.Position = UDim2.new(0, 150, 0, 48)
+ContentArea.Size = UDim2.new(1, -140, 1, -48)
+ContentArea.Position = UDim2.new(0, 140, 0, 48)
 ContentArea.BackgroundTransparency = 1
 
--- Tab 1: Menu chức năng chính
-local PageMain = Instance.new("Frame", ContentArea)
-PageMain.Name = "Page_Main"
-PageMain.Size = UDim2.new(1, 0, 1, 0)
-PageMain.BackgroundTransparency = 1
-PageMain.Visible = true
+local HostPage = Instance.new("ScrollingFrame", ContentArea)
+HostPage.Name = "HostPage"
+HostPage.Size = UDim2.new(1, 0, 1, 0)
+HostPage.BackgroundTransparency = 1
+HostPage.ScrollBarThickness = 3
+HostPage.ScrollBarImageColor3 = THEME.AccentMint
+HostPage.BorderSizePixel = 0
 
--- Tab 2: Top 4 & Best Egg
-local PageRadar = Instance.new("Frame", ContentArea)
-PageRadar.Name = "Page_Radar"
-PageRadar.Size = UDim2.new(1, 0, 1, 0)
-PageRadar.BackgroundTransparency = 1
-PageRadar.Visible = false
+local PageLayout = Instance.new("UIListLayout", HostPage)
+PageLayout.SortOrder = Enum.SortOrder.LayoutOrder
+PageLayout.Padding = UDim.new(0, 10)
 
--- Nút bấm Tab 1
-local TabBtn1 = Instance.new("TextButton", Sidebar)
-TabBtn1.Size = UDim2.new(1, -16, 0, 36)
-TabBtn1.Position = UDim2.new(0, 8, 0, 12)
-TabBtn1.BackgroundColor3 = THEME.CardBG
-TabBtn1.Text = "  ⚡ Menu Tính Năng"
-TabBtn1.Font = THEME.FontB
-TabBtn1.TextSize = 12
-TabBtn1.TextColor3 = THEME.AccentMint
-TabBtn1.TextXAlignment = Enum.TextXAlignment.Left
-TabBtn1.AutoButtonColor = false
-Instance.new("UICorner", TabBtn1).CornerRadius = UDim.new(0, 6)
+local PagePad = Instance.new("UIPadding", HostPage)
+PagePad.PaddingTop = UDim.new(0, 14)
+PagePad.PaddingLeft = UDim.new(0, 14)
+PagePad.PaddingRight = UDim.new(0, 14)
+PagePad.PaddingBottom = UDim.new(0, 14)
 
--- Nút bấm Tab 2
-local TabBtn2 = Instance.new("TextButton", Sidebar)
-TabBtn2.Size = UDim2.new(1, -16, 0, 36)
-TabBtn2.Position = UDim2.new(0, 8, 0, 54)
-TabBtn2.BackgroundColor3 = THEME.CardBG
-TabBtn2.BackgroundTransparency = 1
-TabBtn2.Text = "  🥚 Top 4 & Trứng"
-TabBtn2.Font = THEME.FontM
-TabBtn2.TextSize = 12
-TabBtn2.TextColor3 = THEME.TextSub
-TabBtn2.TextXAlignment = Enum.TextXAlignment.Left
-TabBtn2.AutoButtonColor = false
-Instance.new("UICorner", TabBtn2).CornerRadius = UDim.new(0, 6)
+-- Nút Tab Sidebar
+local MainTabBtn = Instance.new("TextButton", Sidebar)
+MainTabBtn.Size = UDim2.new(1, -16, 0, 36)
+MainTabBtn.Position = UDim2.new(0, 8, 0, 12)
+MainTabBtn.BackgroundColor3 = THEME.CardBG
+MainTabBtn.Text = "  ⚡ Chức Năng"
+MainTabBtn.Font = THEME.FontB
+MainTabBtn.TextSize = 13
+MainTabBtn.TextColor3 = THEME.AccentMint
+MainTabBtn.TextXAlignment = Enum.TextXAlignment.Left
+MainTabBtn.AutoButtonColor = false
+Instance.new("UICorner", MainTabBtn).CornerRadius = UDim.new(0, 6)
 
-local function switchTab(tabIndex)
-    if tabIndex == 1 then
-        PageMain.Visible = true
-        PageRadar.Visible = false
-        TabBtn1.BackgroundTransparency = 0
-        TabBtn1.TextColor3 = THEME.AccentMint
-        TabBtn1.Font = THEME.FontB
-        TabBtn2.BackgroundTransparency = 1
-        TabBtn2.TextColor3 = THEME.TextSub
-        TabBtn2.Font = THEME.FontM
-    else
-        PageMain.Visible = false
-        PageRadar.Visible = true
-        TabBtn2.BackgroundTransparency = 0
-        TabBtn2.TextColor3 = THEME.AccentMint
-        TabBtn2.Font = THEME.FontB
-        TabBtn1.BackgroundTransparency = 1
-        TabBtn1.TextColor3 = THEME.TextSub
-        TabBtn1.Font = THEME.FontM
-    end
-end
-
-TabBtn1.MouseButton1Click:Connect(function() switchTab(1) end)
-TabBtn2.MouseButton1Click:Connect(function() switchTab(2) end)
-
--- ==================== 5. KHỞI CHẠY LENNON HUB ====================
+-- 5. KHỞI CHẠY LENNON HUB
 task.spawn(function()
     pcall(function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/lennonxscripts/lennonhub/main/stealaegg.lua"))()
     end)
 end)
 
--- ==================== 6. BỘ ĐIỀU PHỐI VÀ NHÚNG TỰ ĐỘNG ====================
-local function simulateClick(btn)
-    pcall(function()
-        if firesignal then
-            firesignal(btn.MouseButton1Click)
-            firesignal(btn.Activated)
-        end
-    end)
-    pcall(function()
-        if getconnections then
-            for _, c in ipairs(getconnections(btn.MouseButton1Click)) do c:Fire() end
-            for _, c in ipairs(getconnections(btn.Activated)) do c:Fire() end
-        end
-    end)
-end
-
+-- 6. BỘ BÓC TÁCH VÀ NHÚNG CHÍNH XÁC (KHÔNG BẮT NHẦM EXECUTOR)
 task.spawn(function()
-    local mainEmbedded = false
-    local radarEmbedded = false
-    local ninjaHandled = false
+    local embedded = false
 
     while true do
         pcall(function()
@@ -364,95 +303,74 @@ task.spawn(function()
 
             for _, container in ipairs(searchList) do
                 for _, gui in ipairs(container:GetChildren()) do
+                    -- CHỈ XÉT GUI NÀO CÓ CHỨA CHỮ "BEST EGG SYSTEM" CỦA LENNON HUB
                     if gui:IsA("ScreenGui") and gui ~= ScreenGui then
-                        for _, desc in ipairs(gui:GetDescendants()) do
-                            -- 6.1. Dọn sạch nút Reset GUIs trôi nổi
-                            if desc:IsA("TextButton") or desc:IsA("TextLabel") then
-                                local t = desc.Text:upper()
-                                if t:find("RESET GUI") or (t == "≡" and desc.AbsoluteSize.X < 65) then
-                                    local rootBtn = desc:FindFirstAncestorWhichIsA("GuiButton") or desc
-                                    rootBtn.Visible = false
-                                    rootBtn.Position = UDim2.new(50, 0, 50, 0)
-                                end
+                        local isLennonGui = false
+                        for _, d in ipairs(gui:GetDescendants()) do
+                            if d:IsA("TextLabel") and d.Text == "BEST EGG SYSTEM" then
+                                isLennonGui = true
+                                break
                             end
+                        end
 
-                            -- 6.2. Kích hoạt nút Ninja để mở Menu rồi ẩn nó đi
-                            if not ninjaHandled and (desc:IsA("ImageButton") or desc:IsA("ImageLabel")) then
-                                local sz = desc.AbsoluteSize
-                                if sz.X >= 24 and sz.X <= 75 and math.abs(sz.X - sz.Y) <= 12 then
-                                    local p = desc:FindFirstAncestorWhichIsA("GuiButton") or (desc:IsA("GuiButton") and desc)
-                                    if p and p.Parent and p.Parent:IsA("ScreenGui") then
-                                        simulateClick(p)
-                                        p.Visible = false
-                                        p.Position = UDim2.new(50, 0, 50, 0)
-                                        ninjaHandled = true
+                        if isLennonGui then
+                            -- 6.1. Ẩn nút Ninja và Reset GUIs của Lennon
+                            for _, d in ipairs(gui:GetDescendants()) do
+                                if d:IsA("GuiObject") then
+                                    local t = (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Text:upper() or ""
+                                    local n = d.Name:lower()
+                                    if t:find("RESET GUI") or (t == "≡" and d.AbsoluteSize.X < 65) or n:find("logo") then
+                                        d.Visible = false
+                                        d.Position = UDim2.new(50, 0, 50, 0)
                                     end
                                 end
                             end
 
-                            -- 6.3. Bắt đúng Cửa sổ Menu chính của Lennon Hub đưa vào Tab 1
-                            if not mainEmbedded and desc:IsA("Frame") and desc.Parent and desc.Parent:IsA("ScreenGui") then
-                                local isMainMenu = false
-                                -- Nhận diện cửa sổ có kích thước lớn và chứa nhiều chức năng
-                                if desc.AbsoluteSize.X >= 260 and desc.AbsoluteSize.Y >= 180 then
-                                    for _, sub in ipairs(desc:GetDescendants()) do
-                                        if sub:IsA("TextLabel") or sub:IsA("TextButton") then
-                                            local txt = sub.Text:upper()
-                                            if txt:find("AUTO STEAL") or txt:find("TELEPORT") or txt:find("MAIN") or txt:find("LENNON") then
-                                                isMainMenu = true
-                                                break
-                                            end
+                            -- 6.2. Dò tìm cửa sổ chính của Lennon Hub
+                            local lennonWindow = nil
+                            for _, d in ipairs(gui:GetDescendants()) do
+                                if d:IsA("TextLabel") and d.Text == "LENNON HUB" then
+                                    local parent = d.Parent
+                                    while parent and parent ~= gui do
+                                        if parent:IsA("Frame") and parent.AbsoluteSize.X >= 250 then
+                                            lennonWindow = parent
+                                            break
+                                        end
+                                        parent = parent.Parent
+                                    end
+                                end
+                            end
+
+                            -- 6.3. Bốc tách thẻ Best Egg và Teleguiado vào Ronnei Hub
+                            if lennonWindow and not embedded then
+                                for _, child in ipairs(lennonWindow:GetChildren()) do
+                                    -- Bỏ qua thanh Topbar có chữ Lennon Hub và nút Discord
+                                    local isHeader = false
+                                    for _, sub in ipairs(child:GetDescendants()) do
+                                        if sub:IsA("TextLabel") and (sub.Text == "LENNON HUB" or sub.Text == "BEST EGG SYSTEM") then
+                                            isHeader = true
+                                            break
+                                        end
+                                    end
+
+                                    -- Nhúng các thẻ tính năng thật vào trang của Ronnei Hub
+                                    if child:IsA("GuiObject") and not isHeader then
+                                        child.Parent = HostPage
+                                        child.Size = UDim2.new(1, 0, 0, child.AbsoluteSize.Y > 30 and child.AbsoluteSize.Y or 60)
+                                        child.BackgroundColor3 = THEME.CardBG
+
+                                        local stroke = child:FindFirstChildOfClass("UIStroke")
+                                        if stroke then
+                                            stroke.Color = THEME.Border
+                                            stroke.Thickness = 1
                                         end
                                     end
                                 end
 
-                                if isMainMenu then
-                                    -- Gỡ bỏ các ràng buộc kích thước nếu có
-                                    for _, child in ipairs(desc:GetChildren()) do
-                                        if child:IsA("UISizeConstraint") or child:IsA("UIAspectRatioConstraint") then
-                                            child:Destroy()
-                                        end
-                                    end
-
-                                    desc.Parent = PageMain
-                                    desc.Position = UDim2.new(0, 0, 0, 0)
-                                    desc.Size = UDim2.new(1, 0, 1, 0)
-                                    desc.BackgroundTransparency = 1
-                                    desc.Draggable = false
-                                    desc.Active = true
-                                    desc.Visible = true
-
-                                    local stroke = desc:FindFirstChildOfClass("UIStroke")
-                                    if stroke then stroke.Color = THEME.Border end
-
-                                    mainEmbedded = true
-                                end
-                            end
-
-                            -- 6.4. Bắt khung Top 4 / Best Egg đưa vào Tab 2
-                            if not radarEmbedded and desc:IsA("Frame") and desc.Parent and desc.Parent:IsA("ScreenGui") then
-                                local isRadarBox = false
-                                for _, sub in ipairs(desc:GetDescendants()) do
-                                    if sub:IsA("TextLabel") and (sub.Text:find("TOP 4") or sub.Text:find("BEST EGG") or sub.Text:find("TELEPORT")) then
-                                        isRadarBox = true
-                                        break
-                                    end
-                                end
-
-                                if isRadarBox and desc ~= PageMain:FindFirstChildOfClass("Frame") then
-                                    desc.Parent = PageRadar
-                                    desc.Position = UDim2.new(0.5, 0, 0.5, 0)
-                                    desc.AnchorPoint = Vector2.new(0.5, 0.5)
-                                    desc.Size = UDim2.new(0.95, 0, 0.9, 0)
-                                    desc.Draggable = false
-                                    desc.Active = true
-                                    desc.Visible = true
-
-                                    local stroke = desc:FindFirstChildOfClass("UIStroke")
-                                    if stroke then stroke.Color = THEME.AccentMint end
-
-                                    radarEmbedded = true
-                                end
+                                -- Ẩn hoàn toàn khung nền xanh rỗng của Lennon Hub
+                                lennonWindow.Visible = false
+                                lennonWindow.Position = UDim2.new(50, 0, 50, 0)
+                                embedded = true
                             end
                         end
                     end
