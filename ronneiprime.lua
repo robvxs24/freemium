@@ -1,5 +1,5 @@
 -- ==============================================================================
---  RONNEI HUB - BULLETPROOF LENNON EMBEDDER (ZERO LOSS & PERSISTENT MODE LOCK)
+--  RONNEI HUB - PERFORMANCE OPTIMIZED & LIVE PET/CASH SYNC & CLEAN EMBEDDER
 --  Theme: Luxury Obsidian & Cyber Mint
 -- ==============================================================================
 
@@ -8,6 +8,7 @@ local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local CoreGui = (gethui and gethui()) or game:GetService("CoreGui")
 local LocalPlayer = game:GetService("Players").LocalPlayer
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Dọn dẹp bản cũ nếu đang chạy
 if CoreGui:FindFirstChild("RonneiHub_Master") then
@@ -23,7 +24,7 @@ local BRAND = {
 }
 
 local THEME = {
-    WindowBG    = Color3.fromRGB(14, 16, 22),       -- Nền Obsidian tối
+    WindowBG    = Color3.fromRGB(14, 16, 22),       -- Nền Obsidian tối sâu
     SidebarBG   = Color3.fromRGB(10, 12, 16),       -- Nền Sidebar kính mờ
     CardBG      = Color3.fromRGB(22, 26, 36),       -- Nền thẻ tính năng
     Border      = Color3.fromRGB(45, 55, 75),       -- Viền kim loại mảnh
@@ -35,7 +36,7 @@ local THEME = {
     FontB       = Enum.Font.GothamBold
 }
 
--- Hàm kéo thả giao diện mượt mà
+-- Hàm kéo thả giao diện mượt mà (Draggable)
 local function makeDraggable(topbar, object)
     local dragging, dragInput, dragStart, startPos = false, nil, nil, nil
     topbar.InputBegan:Connect(function(input)
@@ -68,7 +69,7 @@ ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.Parent = CoreGui
 
--- 1. NÚT AVATAR TRÒN BẬT/TẮT MENU DUY NHẤT NGOÀI MÀN HÌNH
+-- 1. NÚT AVATAR TRÒN MỞ MENU NGOÀI MÀN HÌNH
 local ToggleBtn = Instance.new("ImageButton")
 ToggleBtn.Name = "RonneiAvatarToggle"
 ToggleBtn.Size = UDim2.new(0, 52, 0, 52)
@@ -118,7 +119,7 @@ HeaderLine.Position = UDim2.new(0, 0, 1, 0)
 HeaderLine.BackgroundColor3 = THEME.Border
 HeaderLine.BorderSizePixel = 0
 
--- Avatar Header
+-- Avatar trên Header
 local HeaderAvatar = Instance.new("ImageLabel", Header)
 HeaderAvatar.Size = UDim2.new(0, 32, 0, 32)
 HeaderAvatar.Position = UDim2.new(0, 12, 0.5, 0)
@@ -127,7 +128,7 @@ HeaderAvatar.BackgroundTransparency = 1
 HeaderAvatar.Image = BRAND.Avatar
 Instance.new("UICorner", HeaderAvatar).CornerRadius = UDim.new(1, 0)
 
--- Tiêu đề
+-- Tên Hub
 local Title = Instance.new("TextLabel", Header)
 Title.Size = UDim2.new(0, 130, 0, 18)
 Title.Position = UDim2.new(0, 52, 0, 8)
@@ -156,6 +157,7 @@ TikTokBadge.Position = UDim2.new(0.53, 0, 0.5, 0)
 TikTokBadge.AnchorPoint = Vector2.new(0.5, 0.5)
 TikTokBadge.BackgroundColor3 = THEME.CardBG
 TikTokBadge.BorderSizePixel = 0
+TikTokBadge.ZIndex = 50
 Instance.new("UICorner", TikTokBadge).CornerRadius = UDim.new(1, 0)
 
 local BadgeStroke = Instance.new("UIStroke", TikTokBadge)
@@ -177,6 +179,7 @@ TikTokLabel.Text = BRAND.TikTokTag
 TikTokLabel.Font = THEME.FontB
 TikTokLabel.TextSize = 11
 TikTokLabel.TextColor3 = THEME.TextMain
+TikTokLabel.ZIndex = 51
 
 local TextGrad = Instance.new("UIGradient", TikTokLabel)
 TextGrad.Color = ColorSequence.new({
@@ -191,11 +194,11 @@ task.spawn(function()
         rot = (rot + 3) % 360
         BadgeStrokeGrad.Rotation = rot
         TextGrad.Rotation = rot
-        task.wait(0.03)
+        task.wait(0.04)
     end
 end)
 
--- FPS & Ping
+-- FPS & Ping nhẹ nhàng (Zero-lag)
 local StatBadge = Instance.new("TextLabel", Header)
 StatBadge.Size = UDim2.new(0, 100, 0, 22)
 StatBadge.Position = UDim2.new(1, -75, 0.5, 0)
@@ -208,15 +211,19 @@ StatBadge.Text = "60 FPS | 40ms"
 Instance.new("UICorner", StatBadge).CornerRadius = UDim.new(0, 6)
 
 task.spawn(function()
-    local lastUpdate = tick()
-    local frames = 0
+    local lastTime = tick()
+    local frameCount = 0
     RunService.RenderStepped:Connect(function()
-        frames = frames + 1
-        if tick() - lastUpdate >= 1 then
-            local fps = frames
-            frames = 0
-            lastUpdate = tick()
-            local ping = math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue())
+        frameCount = frameCount + 1
+        local now = tick()
+        if now - lastTime >= 1 then
+            local fps = math.round(frameCount / (now - lastTime))
+            frameCount = 0
+            lastTime = now
+            local ping = 40
+            pcall(function()
+                ping = math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue())
+            end)
             StatBadge.Text = string.format("%d FPS | %dms", fps, ping)
         end
     end)
@@ -237,7 +244,7 @@ Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 6)
 CloseBtn.MouseButton1Click:Connect(function() MainFrame.Visible = false end)
 ToggleBtn.MouseButton1Click:Connect(function() MainFrame.Visible = not MainFrame.Visible end)
 
--- 4. SIDEBAR & VÙNG NỘI DUNG CHỐNG TRÀN VIỀN
+-- 4. SIDEBAR & VÙNG NỘI DUNG
 local Sidebar = Instance.new("Frame", MainFrame)
 Sidebar.Name = "Sidebar"
 Sidebar.Size = UDim2.new(0, 140, 1, -48)
@@ -271,105 +278,50 @@ task.spawn(function()
     end)
 end)
 
--- 6. BỘ ĐIỀU PHỐI KHÓA CỨNG (PERSISTENCE CONTROLLER)
-local lennonMasterWindow = nil
-local lennonScreenGui = nil
+-- 6. THƯ VIỆN BỘ NHỚ ĐỆM ICON PET (PET IMAGE CACHE)
+local PetCache = {
+    ["Ankylosaurus"] = "rbxassetid://13589886566",
+    ["King Mammoth"] = "rbxassetid://13589886780",
+    ["Mantaris"]     = "rbxassetid://13589887012"
+}
 
--- Đồng bộ trạng thái đóng/mở với Ronnei Hub
-MainFrame:GetPropertyChangedSignal("Visible"):Connect(function()
-    if lennonMasterWindow then
-        lennonMasterWindow.Visible = MainFrame.Visible
-    end
-end)
+local function resolvePetTexture(petName)
+    if not petName or petName == "" or petName == "---" then return nil end
+    if PetCache[petName] then return PetCache[petName] end
 
-local function neutralizeNinjaButton(btn)
-    if not btn or not btn:IsA("GuiObject") then return end
-    btn.Visible = false
-    btn.Position = UDim2.new(100, 0, 100, 0)
-    btn.Active = false
-
-    if not btn:GetAttribute("Neutralized") then
-        btn:SetAttribute("Neutralized", true)
-        btn:GetPropertyChangedSignal("Visible"):Connect(function()
-            if btn.Visible then btn.Visible = false end
-        end)
-        btn:GetPropertyChangedSignal("Position"):Connect(function()
-            if btn.Position ~= UDim2.new(100, 0, 100, 0) then
-                btn.Position = UDim2.new(100, 0, 100, 0)
-            end
-        end)
-    end
-end
-
-local function embedLennonSafely(window)
-    if not window or not window:IsA("Frame") then return end
-    lennonMasterWindow = window
-
-    -- Ẩn phần Topbar cũ của Lennon mà KHÔNG dùng :Destroy()
-    for _, child in ipairs(window:GetChildren()) do
-        if child:IsA("GuiObject") then
-            local isHeader = false
-            for _, sub in ipairs(child:GetDescendants()) do
-                if sub:IsA("TextLabel") and (sub.Text == "BEST EGG SYSTEM" or sub.Text == "LENNON HUB") then
-                    isHeader = true
-                    break
+    -- Tự động trích xuất Texture từ ReplicatedStorage của game
+    pcall(function()
+        for _, obj in ipairs(ReplicatedStorage:GetDescendants()) do
+            if obj.Name:lower() == petName:lower() then
+                if obj:IsA("Decal") or obj:IsA("Texture") then
+                    PetCache[petName] = obj.Texture
+                    return
+                elseif obj:IsA("ImageLabel") and obj.Image ~= "" then
+                    PetCache[petName] = obj.Image
+                    return
                 end
             end
-
-            if isHeader then
-                child.Visible = false
-                child.Position = UDim2.new(100, 0, 100, 0)
-                child.Size = UDim2.new(0, 0, 0, 0)
-            end
         end
-    end
+    end)
 
-    -- Gỡ bỏ viền xanh lá cũ
-    local stroke = window:FindFirstChildOfClass("UIStroke")
-    if stroke then stroke.Enabled = false end
-
-    -- Gỡ bỏ giới hạn kích thước
-    for _, c in ipairs(window:GetDescendants()) do
-        if c:IsA("UISizeConstraint") or c:IsA("UIAspectRatioConstraint") then
-            c.Enabled = false
-        end
-    end
-
-    -- Gắn vào ContentArea
-    window.Parent = ContentArea
-    window.Draggable = false
-    window.Active = false
-    window.BackgroundTransparency = 1
-    window.BorderSizePixel = 0
-    window.ClipsDescendants = false
-    window.Position = UDim2.new(0, 8, 0, 10)
-    window.Size = UDim2.new(1, -16, 1, -20)
-    window.Visible = MainFrame.Visible
-
-    -- Khóa chống văng vị trí
-    if not window:GetAttribute("LockedInPlace") then
-        window:SetAttribute("LockedInPlace", true)
-
-        window:GetPropertyChangedSignal("Parent"):Connect(function()
-            if window.Parent ~= ContentArea then
-                task.defer(function()
-                    window.Parent = ContentArea
-                    window.Position = UDim2.new(0, 8, 0, 10)
-                    window.Size = UDim2.new(1, -16, 1, -20)
-                end)
-            end
-        end)
-
-        window:GetPropertyChangedSignal("Visible"):Connect(function()
-            if MainFrame.Visible and not window.Visible then
-                window.Visible = true
-            end
-        end)
-    end
+    return PetCache[petName]
 end
 
--- Vòng lặp giám sát liên tục: xử lý đổi chế độ mà không bị mất
+-- 7. BỘ ĐIỀU PHỐI ĐA TẦNG: BẢO TOÀN 60 FPS, LIVE PET SYNC & TRIỆT TIÊU NINJA
 task.spawn(function()
+    local cachedLennonGui = nil
+    local embeddedFrame = nil
+    local petIconLabel = nil
+    local petNameLabel = nil
+    local petCashLabel = nil
+
+    -- Đồng bộ trạng thái đóng/mở
+    MainFrame:GetPropertyChangedSignal("Visible"):Connect(function()
+        if embeddedFrame then
+            embeddedFrame.Visible = MainFrame.Visible
+        end
+    end)
+
     while true do
         pcall(function()
             local searchList = {CoreGui}
@@ -378,45 +330,89 @@ task.spawn(function()
             end
             if gethui then table.insert(searchList, gethui()) end
 
-            for _, container in ipairs(searchList) do
-                for _, gui in ipairs(container:GetChildren()) do
-                    -- CHỈ XÁC THỰC DUY NHẤT SCREEN GUI CỦA LENNON (TUYỆT ĐỐI KHÔNG CHẠM VÀO DELTA)
-                    if gui:IsA("ScreenGui") and gui ~= ScreenGui then
-                        local isLennon = false
-                        for _, d in ipairs(gui:GetDescendants()) do
-                            if d:IsA("TextLabel") and d.Text == "BEST EGG SYSTEM" then
-                                isLennon = true
-                                break
+            -- 7.1. TRIỆT TIÊU TOÀN BỘ NÚT NINJA NGOÀI MÀN HÌNH
+            for _, cont in ipairs(searchList) do
+                for _, scr in ipairs(cont:GetChildren()) do
+                    if scr:IsA("ScreenGui") and scr ~= ScreenGui then
+                        for _, obj in ipairs(scr:GetChildren()) do
+                            -- Nhận diện các nút trôi nổi có icon ninja hoặc kích thước nhỏ
+                            if obj:IsA("GuiObject") and obj.AbsoluteSize.X <= 90 and obj.AbsoluteSize.Y <= 90 then
+                                obj.Visible = false
+                                obj.Position = UDim2.new(500, 0, 500, 0)
+                                for _, sub in ipairs(obj:GetDescendants()) do
+                                    if sub:IsA("ImageLabel") or sub:IsA("ImageButton") then
+                                        sub.ImageTransparency = 1
+                                    end
+                                end
                             end
                         end
+                    end
+                end
+            end
 
-                        if isLennon then
-                            lennonScreenGui = gui
-
-                            -- 1. Tìm cửa sổ chức năng của Lennon Hub
-                            local targetWindow = nil
+            -- 7.2. TÌM VÀ NHÚNG CỬA SỔ LENNON DUY NHẤT
+            if not embeddedFrame or embeddedFrame.Parent ~= ContentArea then
+                for _, cont in ipairs(searchList) do
+                    for _, gui in ipairs(cont:GetChildren()) do
+                        if gui:IsA("ScreenGui") and gui ~= ScreenGui then
                             for _, d in ipairs(gui:GetDescendants()) do
                                 if d:IsA("TextLabel") and d.Text == "BEST EGG SYSTEM" then
                                     local cur = d
                                     while cur and cur.Parent and cur.Parent ~= gui and cur.Parent ~= ContentArea do
                                         cur = cur.Parent
                                     end
+
                                     if cur and cur:IsA("Frame") then
-                                        targetWindow = cur
+                                        cachedLennonGui = gui
+                                        embeddedFrame = cur
+
+                                        -- Ẩn Topbar cũ của Lennon (Logo, Discord, Title)
+                                        for _, ch in ipairs(embeddedFrame:GetChildren()) do
+                                            if ch:IsA("GuiObject") then
+                                                local isOldHeader = false
+                                                for _, s in ipairs(ch:GetDescendants()) do
+                                                    if s:IsA("TextLabel") and (s.Text == "BEST EGG SYSTEM" or s.Text == "LENNON HUB") then
+                                                        isOldHeader = true
+                                                        break
+                                                    end
+                                                end
+                                                if isOldHeader then
+                                                    ch.Visible = false
+                                                    ch.Size = UDim2.new(0, 0, 0, 0)
+                                                end
+                                            end
+                                        end
+
+                                        -- Xóa viền xanh lá cũ
+                                        local oldStroke = embeddedFrame:FindFirstChildOfClass("UIStroke")
+                                        if oldStroke then oldStroke.Enabled = false end
+
+                                        -- Nhúng vào ContentArea của Ronnei Hub
+                                        embeddedFrame.Parent = ContentArea
+                                        embeddedFrame.Draggable = false
+                                        embeddedFrame.Active = false
+                                        embeddedFrame.BackgroundTransparency = 1
+                                        embeddedFrame.BorderSizePixel = 0
+                                        embeddedFrame.Position = UDim2.new(0, 8, 0, 10)
+                                        embeddedFrame.Size = UDim2.new(1, -16, 1, -20)
+                                        embeddedFrame.Visible = MainFrame.Visible
+
+                                        -- Khóa vị trí chống văng khi đổi chế độ
+                                        if not embeddedFrame:GetAttribute("Locked") then
+                                            embeddedFrame:SetAttribute("Locked", true)
+                                            embeddedFrame:GetPropertyChangedSignal("Parent"):Connect(function()
+                                                if embeddedFrame.Parent ~= ContentArea then
+                                                    task.defer(function()
+                                                        embeddedFrame.Parent = ContentArea
+                                                        embeddedFrame.Position = UDim2.new(0, 8, 0, 10)
+                                                        embeddedFrame.Size = UDim2.new(1, -16, 1, -20)
+                                                    end)
+                                                end
+                                            end)
+                                        end
+
                                         break
                                     end
-                                end
-                            end
-
-                            -- 2. Đưa cửa sổ vào ContentArea
-                            if targetWindow and targetWindow.Parent ~= ContentArea then
-                                embedLennonSafely(targetWindow)
-                            end
-
-                            -- 3. Triệt tiêu nút Ninja và nút Reset GUI ngoài màn hình
-                            for _, child in ipairs(gui:GetChildren()) do
-                                if child ~= targetWindow and child:IsA("GuiObject") then
-                                    neutralizeNinjaButton(child)
                                 end
                             end
                         end
@@ -424,22 +420,65 @@ task.spawn(function()
                 end
             end
 
-            -- Đồng bộ màu sắc thẻ Obsidian Card bên trong
-            if lennonMasterWindow and lennonMasterWindow.Parent == ContentArea then
-                for _, card in ipairs(lennonMasterWindow:GetChildren()) do
-                    if card:IsA("GuiObject") and card.Visible and card.Size.Y.Offset > 20 then
-                        if card.BackgroundColor3 ~= THEME.CardBG then
+            -- 7.3. CẬP NHẬT TRỰC TIẾP HÌNH ẢNH PET & TIỀN ($/S) THEO THỜI GIAN THỰC (LIVE)
+            if embeddedFrame and embeddedFrame.Parent == ContentArea then
+                -- Định dạng màu thẻ tính năng một lần duy nhất (Chống giật FPS)
+                for _, card in ipairs(embeddedFrame:GetChildren()) do
+                    if card:IsA("GuiObject") and card.Visible and card.Size.Y.Offset > 30 then
+                        if not card:GetAttribute("RonneiStyled") then
+                            card:SetAttribute("RonneiStyled", true)
                             card.BackgroundColor3 = THEME.CardBG
+                            local cardStroke = card:FindFirstChildOfClass("UIStroke")
+                            if cardStroke then
+                                cardStroke.Color = THEME.Border
+                                cardStroke.Thickness = 1
+                            end
                         end
-                        local cardStroke = card:FindFirstChildOfClass("UIStroke")
-                        if cardStroke and cardStroke.Color ~= THEME.Border then
-                            cardStroke.Color = THEME.Border
-                            cardStroke.Thickness = 1
+
+                        -- Tìm thẻ Best Egg để bắt các nhãn Text & Icon
+                        local isBestEggCard = false
+                        for _, sub in ipairs(card:GetDescendants()) do
+                            if sub:IsA("TextLabel") and sub.Text:upper():find("BEST EGG") then
+                                isBestEggCard = true
+                                break
+                            end
+                        end
+
+                        if isBestEggCard then
+                            -- Bắt nhãn Tên Pet, Tiền và Icon
+                            for _, desc in ipairs(card:GetDescendants()) do
+                                if desc:IsA("TextLabel") then
+                                    local txt = desc.Text
+                                    if txt:find("%$") or txt:find("K") or txt:find("M") or txt:find("B") then
+                                        petCashLabel = desc
+                                        petCashLabel.TextColor3 = THEME.AccentMint
+                                    elseif txt ~= "BEST EGG" and txt ~= "Mythic" and txt ~= "Cosmic" and txt ~= "Secret" and #txt >= 3 then
+                                        petNameLabel = desc
+                                    end
+                                elseif desc:IsA("ImageLabel") and not desc.Name:find("Arrow") then
+                                    petIconLabel = desc
+                                end
+                            end
+
+                            -- Đồng bộ hình ảnh Pet Live
+                            if petNameLabel and petNameLabel.Text ~= "" then
+                                local currentPet = petNameLabel.Text
+                                local asset = resolvePetTexture(currentPet)
+
+                                if petIconLabel then
+                                    petIconLabel.Visible = true
+                                    petIconLabel.ImageTransparency = 0
+                                    petIconLabel.BackgroundTransparency = 1
+                                    if asset and petIconLabel.Image ~= asset then
+                                        petIconLabel.Image = asset
+                                    end
+                                end
+                            end
                         end
                     end
                 end
             end
         end)
-        task.wait(0.15)
+        task.wait(0.4) -- Chu kỳ 400ms giữ mượt mà 60 FPS mà vẫn đảm bảo Live Update chuẩn xác
     end
 end)
