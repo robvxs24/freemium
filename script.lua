@@ -422,4 +422,83 @@ local function findOnhubWindow()
         for _, obj in ipairs(descs) do
             if (obj:IsA("TextLabel") or obj:IsA("TextButton")) and not obj:IsDescendantOf(PinGui) then
                 local t = obj.Text
-                if t and
+                if t and #t > 0 then
+                    for _, id in ipairs(IDENTIFIERS) do
+                        if t == id or t:find(id, 1, true) then
+                            local p = obj
+                            while p and p.Parent and not p.Parent:IsA("ScreenGui") and p.Parent ~= root do
+                                p = p.Parent
+                            end
+                            if p and (p:IsA("Frame") or p:IsA("CanvasGroup") or p:IsA("GuiObject")) and p.AbsoluteSize.X > 300 and p.AbsoluteSize.Y > 150 then
+                                return p
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        return nil
+    end
+
+    local found = nil
+    if gethui then found = scanRoot(gethui()) end
+    if not found then found = scanRoot(CoreGuiService) end
+    if not found and LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui") then found = scanRoot(LocalPlayer.PlayerGui) end
+    if not found and getinstances then
+        for _, ins in ipairs(getinstances()) do
+            if (ins:IsA("TextLabel") or ins:IsA("TextButton")) and not ins:IsDescendantOf(PinGui) then
+                local t = ins.Text
+                if t == "CONFIG" or t == "CẤU HÌNH" or t == "FARM" or t == "CÀY TIỀN" or t == "START FARM" or t:find("onhub", 1, true) then
+                    local p = ins
+                    while p and p.Parent and not p.Parent:IsA("ScreenGui") and p.Parent ~= game do
+                        p = p.Parent
+                    end
+                    if p and (p:IsA("Frame") or p:IsA("CanvasGroup") or p:IsA("GuiObject")) and p.AbsoluteSize.X > 300 and p.AbsoluteSize.Y > 150 then
+                        return p
+                    end
+                end
+            end
+        end
+    end
+    return found
+end
+
+-- ==================== ĐỒNG BỘ HIỂN THỊ TỰ ĐỘNG THEO CỬA SỔ (CHỐNG MẤT NÚT) ====================
+RunService.RenderStepped:Connect(function()
+    if targetOnhubWindow and targetOnhubWindow.Parent then
+        local winSize = targetOnhubWindow.AbsoluteSize
+        local winPos = targetOnhubWindow.AbsolutePosition
+
+        -- Điều kiện thực tế: ONhub đang mở và hiển thị trên màn hình
+        local isActuallyVisible = targetOnhubWindow.Visible and winSize.Y > 100 and winPos.Y > -200 and winPos.Y < 2000
+
+        if isActuallyVisible then
+            PinBar.Visible = true
+            -- Đặt gọn 310px ở góc trái mép trên: hở trọn vẹn status giữa và 2 nút [-] [X]
+            PinBar.Position = UDim2.new(0, winPos.X + 4, 0, winPos.Y + 3)
+            PinBar.Size = UDim2.new(0, 310, 0, 28)
+        else
+            PinBar.Visible = false
+        end
+    else
+        PinBar.Visible = false
+    end
+end)
+
+-- Vòng lặp duy trì dịch và gắn bộ lắng nghe chống trôi
+task.spawn(function()
+    while true do
+        pcall(function()
+            if not targetOnhubWindow or not targetOnhubWindow.Parent then
+                targetOnhubWindow = findOnhubWindow()
+            end
+
+            if targetOnhubWindow then
+                for _, elem in ipairs(targetOnhubWindow:GetDescendants()) do
+                    hookElement(elem)
+                end
+            end
+        end)
+        task.wait(0.2)
+    end
+end)
