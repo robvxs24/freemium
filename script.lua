@@ -1,6 +1,6 @@
 -- ==============================================================================
---  RONNEI HUB - ULTRA POTATO GRAPHICS + AUTO-BYPASS + FULL TRANSLATOR FOR ONHUB
---  Siêu tối ưu đồ họa (FPS Boost) | Tự vượt Discord | Dịch 100% | Docked Header
+--  RONNEI HUB - ONHUB ALL-IN-ONE MASTER
+--  Tích hợp: Anti Trap + Anti Ragdoll (Ngầm) | Ultra Potato FPS | Auto-Bypass | Việt Hóa
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -10,17 +10,106 @@ local CoreGuiService = game:GetService("CoreGui")
 local Lighting = game:GetService("Lighting")
 local Workspace = game:GetService("Workspace")
 local Terrain = Workspace:FindFirstChildOfClass("Terrain")
-local LocalPlayer = game:GetService("Players").LocalPlayer
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
--- ==================== MODULE SIÊU GIẢM LAG (ULTRA POTATO MODE) ====================
+-- ==================== 1. MODULE ANTI-RAGDOLL (V2 CHẠY NGẦM) ====================
+task.spawn(function()
+    local function applyAntiRagdoll(char)
+        if not char then return end
+        local hum = char:WaitForChild("Humanoid", 5)
+        if not hum then return end
+
+        pcall(function()
+            hum:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
+            hum:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
+        end)
+
+        -- Khóa trạng thái ngã và ép đứng dậy tức thì
+        hum.StateChanged:Connect(function(_, newState)
+            if newState == Enum.HumanoidStateType.Ragdoll or newState == Enum.HumanoidStateType.FallingDown or newState == Enum.HumanoidStateType.PlatformStanding then
+                hum:ChangeState(Enum.HumanoidStateType.GettingUp)
+            end
+        end)
+
+        -- Tự động vô hiệu hóa thuộc tính PlatformStand
+        hum:GetPropertyChangedSignal("PlatformStand"):Connect(function()
+            if hum.PlatformStand then
+                hum.PlatformStand = false
+            end
+        end)
+
+        -- Quét và hủy các thẻ hoặc ràng buộc vật lý gây ragdoll
+        char.ChildAdded:Connect(function(child)
+            local name = child.Name:lower()
+            if name:find("ragdoll") or name:find("knock") or child:IsA("BallSocketConstraint") or child:IsA("HingeConstraint") then
+                task.defer(function()
+                    pcall(function() child:Destroy() end)
+                end)
+            end
+        end)
+    end
+
+    if LocalPlayer.Character then
+        applyAntiRagdoll(LocalPlayer.Character)
+    end
+    LocalPlayer.CharacterAdded:Connect(applyAntiRagdoll)
+end)
+
+-- ==================== 2. MODULE ANTI-TRAP (TRIỆT TIÊU BẪY NGẦM) ====================
+task.spawn(function()
+    local trapKeywords = {"trap", "beartrap", "subspace", "mine", "landmine", "turret", "spike"}
+
+    local function neutralizeTrap(inst)
+        pcall(function()
+            local name = inst.Name:lower()
+            local isTrap = false
+
+            for _, kw in ipairs(trapKeywords) do
+                if name:find(kw, 1, true) then
+                    isTrap = true
+                    break
+                end
+            end
+
+            if isTrap then
+                if inst:IsA("BasePart") then
+                    inst.CanTouch = false
+                    inst.CanCollide = false
+                    local touch = inst:FindFirstChildOfClass("TouchTransmitter")
+                    if touch then touch:Destroy() end
+                elseif inst:IsA("Model") then
+                    for _, part in ipairs(inst:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            part.CanTouch = false
+                            part.CanCollide = false
+                            local touch = part:FindFirstChildOfClass("TouchTransmitter")
+                            if touch then touch:Destroy() end
+                        end
+                    end
+                end
+            end
+        end)
+    end
+
+    -- Quét toàn bộ bẫy hiện có trên map
+    for _, obj in ipairs(Workspace:GetDescendants()) do
+        neutralizeTrap(obj)
+    end
+
+    -- Khóa các bẫy mới sinh ra theo thời gian thực
+    Workspace.DescendantAdded:Connect(function(newObj)
+        neutralizeTrap(newObj)
+    end)
+end)
+
+-- ==================== 3. MODULE SIÊU GIẢM LAG (ULTRA POTATO MODE) ====================
 task.spawn(function()
     pcall(function()
-        -- 1. Ép chất lượng render client về mức thấp nhất
         if settings and settings().Rendering then
             settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
         end
 
-        -- 2. Tối ưu Lighting & triệt tiêu hậu kỳ
         Lighting.GlobalShadows = false
         Lighting.FogEnd = 9e9
         Lighting.Brightness = 1
@@ -31,7 +120,6 @@ task.spawn(function()
             end
         end
 
-        -- 3. Tối ưu Terrain & Nước
         if Terrain then
             Terrain.WaterWaveSize = 0
             Terrain.WaterWaveSpeed = 0
@@ -40,7 +128,6 @@ task.spawn(function()
             pcall(function() sethiddenproperty(Terrain, "Decoration", false) end)
         end
 
-        -- 4. Hàm làm phẳng Part & xóa bỏ hiệu ứng nặng
         local function stripGraphics(obj)
             pcall(function()
                 if obj:IsA("BasePart") then
@@ -58,19 +145,17 @@ task.spawn(function()
             end)
         end
 
-        -- Quét sạch toàn bộ Workspace hiện tại
         for _, desc in ipairs(Workspace:GetDescendants()) do
             stripGraphics(desc)
         end
 
-        -- Lắng nghe đối tượng mới sinh ra (trứng spawn, vfx) để ép tối ưu ngay lập tức
         Workspace.DescendantAdded:Connect(function(newObj)
             stripGraphics(newObj)
         end)
     end)
 end)
 
--- Dọn sạch phiên bản cũ của Ronnei Hub
+-- ==================== 4. DỌN SẠCH PHIÊN BẢN CŨ ====================
 local cleanList = {
     "Ronnei_ONhub_DockedMaster",
     "Ronnei_HeaderDockedMaster",
@@ -79,7 +164,8 @@ local cleanList = {
     "Ronnei_ONhub_UltimateConfig",
     "Ronnei_ONhub_AutoBypassMaster",
     "Ronnei_ONhub_EncryptedMaster",
-    "Ronnei_ONhub_UltraPotatoMaster"
+    "Ronnei_ONhub_UltraPotatoMaster",
+    "Ronnei_ONhub_AntiTrapRagdollMaster"
 }
 for _, name in ipairs(cleanList) do
     pcall(function()
@@ -88,7 +174,7 @@ for _, name in ipairs(cleanList) do
     end)
 end
 
--- ==================== CƠ CHẾ TỰ BỎ QUA BẢNG DISCORD (AUTO-BYPASS) ====================
+-- ==================== 5. CƠ CHẾ TỰ BỎ QUA BẢNG DISCORD ====================
 local function triggerButtonClick(btn)
     if not btn then return end
     if firesignal then
@@ -175,7 +261,7 @@ task.spawn(function()
     end
 end)
 
--- ==================== KHỐI NẠP MÃ HOÁ SCRIPT GỐC ====================
+-- ==================== 6. NẠP MÃ HÓA SCRIPT GỐC ====================
 task.spawn(function()
     pcall(function()
         local _byteStream = {
@@ -197,7 +283,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== CẤU HÌNH GIAO DIỆN RONNEI HUB ====================
+-- ==================== 7. CẤU HÌNH GIAO DIỆN & TỪ ĐIỂN DỊCH ====================
 local THEME = {
     BarBG      = Color3.fromRGB(15, 25, 18),
     CardBG     = Color3.fromRGB(20, 36, 26),
@@ -210,9 +296,8 @@ local THEME = {
     FontM      = Enum.Font.GothamMedium
 }
 
--- ==================== BẢNG TỪ ĐIỂN DỊCH THUẬT TOÀN DIỆN ====================
 local RAW_TRANSLATIONS = {
-    -- 1. TAB CẤU HÌNH: BỘ LỌC MỤC TIÊU (TARGET FILTER)
+    -- Cấu hình: Bộ lọc mục tiêu
     {"Fast mode (grab the closest)", "Chế độ nhanh (nhặt trứng gần nhất)"},
     {"Selected pets only", "Chỉ nhặt thú cưng đã chọn"},
     {"Mutated eggs only", "Chỉ nhặt trứng đột biến"},
@@ -224,7 +309,7 @@ local RAW_TRANSLATIONS = {
     {"Maximum target distance", "Khoảng cách mục tiêu tối đa"},
     {"TARGET FILTER", "BỘ LỌC MỤC TIÊU"},
 
-    -- 2. TAB CẤU HÌNH: TRỌNG SỐ ƯU TIÊN (RANKING WEIGHTS)
+    -- Cấu hình: Trọng số ưu tiên
     {"On, the ranking is $/s by the game's own formula and the weights above are inert (distance only counts when the instant TP is unusable).", "Khi bật, mục tiêu xếp theo $/s theo công thức của game và các trọng số trên sẽ tắt (khoảng cách chỉ tính khi không thể dùng TP tức thì)."},
     {"Rank by pure $/s", "Ưu tiên thuần theo $/giây"},
     {"Rarity weight:", "Trọng số độ hiếm:"},
@@ -237,7 +322,7 @@ local RAW_TRANSLATIONS = {
     {"Distance penalty", "Phạt khoảng cách"},
     {"RANKING WEIGHTS", "TRỌNG SỐ ƯU TIÊN MỤC TIÊU"},
 
-    -- 3. TAB CẤU HÌNH: DI CHUYỂN & AN TOÀN (MOVEMENT AND SAFETY)
+    -- Cấu hình: Di chuyển & An toàn
     {"Approach radius (server accepts 9):", "Bán kính tiếp cận (server nhận 9):"},
     {"Approach radius (server accepts 9)", "Bán kính tiếp cận (server nhận 9)"},
     {"Approach radius", "Bán kính tiếp cận"},
@@ -247,7 +332,7 @@ local RAW_TRANSLATIONS = {
     {"Stop the farm on rollback", "Dừng cày khi bị giật lùi (rollback)"},
     {"MOVEMENT AND SAFETY", "DI CHUYỂN & AN TOÀN"},
 
-    -- 4. TAB CẤU HÌNH: DI CHUYỂN NHANH (FAST TRAVEL)
+    -- Cấu hình: Di chuyển nhanh
     {"Fast hop (chained CFrame steps)", "Nhảy nhanh (bước CFrame liên tục)"},
     {"Instant TP (uses the ragdoll window)", "TP tức thì (dùng khe hở ragdoll)"},
     {"Minimum distance for TP:", "Khoảng cách tối thiểu để TP:"},
@@ -267,7 +352,7 @@ local RAW_TRANSLATIONS = {
     {"GETTING ROLLBACK? Raise the rewind first as it inflates the distance the client-side detector allows per step and costs nothing. Only then lower the step, or raise the interval.", "BỊ GIẬT LÙI? Hãy tăng tua ngược thời gian trước vì nó mở rộng khoảng cách cho phép mỗi bước. Sau đó mới giảm bước hoặc tăng thời gian chờ."},
     {"Every revert forces a retry, so a big step is slower in practice.", "Mỗi lần lùi phải thử lại nên bước lớn thực tế lại chậm hơn."},
 
-    -- 5. TAB CẤU HÌNH: RIFT & GIAO DIỆN (INTERFACE)
+    -- Cấu hình: RIFT & Giao diện
     {"Count pets you already own", "Tính cả thú cưng bạn đã có"},
     {"Plant recipe eggs on the plot", "Đặt trứng công thức lên khu đất"},
     {"Plant index eggs on the plot", "Đặt trứng sưu tập lên khu đất"},
@@ -279,7 +364,7 @@ local RAW_TRANSLATIONS = {
     {"INTERFACE", "GIAO DIỆN"},
     {"RIFT", "MÁY RIFT"},
 
-    -- 6. TAB CÀY TIỀN (FARM) & RUNTIME
+    -- Tab Cày tiền & Runtime
     {"no mode: farming by $/s. RIFT hunts the machine recipe. INDEX hunts what your codex is missing", "Cơ bản: cày theo $/s. RIFT: săn công thức máy. SƯU TẬP: săn trứng thiếu"},
     {"no mode: farming by $/s. RIFT hunts the machine. INDEX hunts what your codex is missing", "Cơ bản: cày theo $/s. RIFT: săn máy. SƯU TẬP: săn trứng thiếu"},
     {"hunts what your codex is missing", "săn trứng còn thiếu"},
@@ -298,12 +383,12 @@ local RAW_TRANSLATIONS = {
     {"INDEX: OFF", "SƯU TẬP: TẮT"},
     {"INDEX: ON", "SƯU TẬP: BẬT"},
 
-    -- 7. THANH TABS
+    -- Sidebar Tabs
     {"FARM", "CÀY TIỀN"},
     {"PETS", "THÚ CƯNG"},
     {"CONFIG", "CẤU HÌNH"},
 
-    -- 8. THÔNG SỐ RUNTIME
+    -- Thông số Runtime
     {"heading to Koi", "Đang tới Cá Koi"},
     {"heading to", "Đang tới"},
     {"delivered", "đã giao"},
@@ -312,7 +397,7 @@ local RAW_TRANSLATIONS = {
     {"idle", "đang chờ"},
     {"studs", "mét"},
 
-    -- 9. TÊN THÚ CƯNG & KHU VỰC
+    -- Tên thú cưng & Khu vực
     {"Burrowing Owl", "Cú Hang"},
     {"Bladehide", "Thằn Lằn Gai"},
     {"Bronto", "Khủng Long Cổ Dài"},
@@ -368,14 +453,14 @@ local function translateText(raw)
     return res
 end
 
--- ==================== TẠO THANH GHIM (310PX GỌN GÀNG) ====================
+-- ==================== 8. TẠO THANH GHIM DOCKED (310PX GỌN GÀNG) ====================
 local isVietnamese = true
 local OriginalTexts = {}
 local targetOnhubWindow = nil
 local isApplyingTranslation = false
 
 local PinGui = Instance.new("ScreenGui")
-PinGui.Name = "Ronnei_ONhub_UltraPotatoMaster"
+PinGui.Name = "Ronnei_ONhub_AntiTrapRagdollMaster"
 PinGui.ResetOnSpawn = false
 PinGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 PinGui.DisplayOrder = 999999
@@ -416,6 +501,7 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
+-- TikTok Badge
 local TikTokBadge = Instance.new("Frame", PinBar)
 TikTokBadge.Size = UDim2.new(0, 135, 0, 20)
 TikTokBadge.Position = UDim2.new(0, 4, 0.5, 0)
@@ -451,6 +537,7 @@ task.spawn(function()
     end
 end)
 
+-- Nút gạt chuyển đổi ON / OFF
 local ControlBox = Instance.new("Frame", PinBar)
 ControlBox.Size = UDim2.new(0, 160, 0, 22)
 ControlBox.Position = UDim2.new(1, -4, 0.5, 0)
@@ -511,7 +598,7 @@ ControlBox.InputBegan:Connect(function(inp)
     end
 end)
 
--- ==================== BỘ QUÉT TẦNG SÂU VÀ DỊCH TỨC THỜI ====================
+-- ==================== 9. BỘ QUÉT TẦNG SÂU VÀ DỊCH TỨC THỜI ====================
 local function applyElemTranslation(elem)
     if isApplyingTranslation then return end
     if not (elem:IsA("TextLabel") or elem:IsA("TextButton")) then return end
@@ -557,7 +644,7 @@ local function hookElement(elem)
     end
 end
 
--- ==================== BỘ TÌM KIẾM CỬA SỔ ONHUB ====================
+-- ==================== 10. BỘ TÌM KIẾM CỬA SỔ ONHUB CHÍNH XÁC 100% ====================
 local IDENTIFIERS = {
     "FARM", "CÀY TIỀN",
     "PETS", "THÚ CƯNG",
@@ -628,7 +715,7 @@ local function findOnhubWindow()
     return found
 end
 
--- ==================== ĐỒNG BỘ HIỂN THỊ TỰ ĐỘNG THEO TRẠNG THÁI MENU ====================
+-- ==================== 11. ĐỒNG BỘ HIỂN THỊ TỰ ĐỘNG ====================
 RunService.RenderStepped:Connect(function()
     if targetOnhubWindow and targetOnhubWindow.Parent then
         local winSize = targetOnhubWindow.AbsoluteSize
