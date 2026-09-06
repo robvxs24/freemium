@@ -1,19 +1,105 @@
 -- ==============================================================================
---  RONNEI HUB - ONHUB ALL-IN-ONE (ANTI-RAGDOLL V2 HARD-LOCKED)
---  Khóa cứng Motor6D + Xóa BallSocket tầng sâu + Anti Trap + Ultra Potato + Bypass + Dịch
+--  RONNEI HUB - ONHUB ALL-IN-ONE MASTER (FLOOR STEAL INTEGRATED)
+--  Tích hợp ngầm: Floor Steal + Anti Trap + Anti Ragdoll v2 + Ultra Potato + Bypass + Dịch
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local CoreGuiService = game:GetService("CoreGui")
+local ProximityPromptService = game:GetService("ProximityPromptService")
 local Lighting = game:GetService("Lighting")
 local Workspace = game:GetService("Workspace")
 local Terrain = Workspace:FindFirstChildOfClass("Terrain")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- ==================== 1. MODULE ANTI-RAGDOLL V2 (HARD-LOCK KHUNG XƯƠNG) ====================
+-- ==================== 1. MODULE FLOOR STEAL & INSTANT GRAB (CHẠY NGẦM) ====================
+task.spawn(function()
+    local STEAL_RANGE = 25 -- Bán kính tự động hút trứng
+
+    local function firePrompt(prompt)
+        if not prompt or not prompt.Parent then return end
+        if fireproximityprompt then
+            pcall(function() fireproximityprompt(prompt, 0) end)
+        else
+            pcall(function()
+                prompt:InputHoldBegin()
+                task.wait(0.01)
+                prompt:InputHoldEnd()
+            end)
+        end
+    end
+
+    local function optimizePrompt(prompt)
+        if prompt:IsA("ProximityPrompt") then
+            -- Ép nhặt 0ms không cần giữ phím và cho phép nhặt xuyên sàn/tường
+            prompt.HoldDuration = 0
+            prompt.RequiresLineOfSight = false
+            prompt.MaxActivationDistance = math.max(prompt.MaxActivationDistance, STEAL_RANGE)
+        end
+    end
+
+    -- Quét toàn bộ ProximityPrompt hiện có
+    for _, desc in ipairs(Workspace:GetDescendants()) do
+        optimizePrompt(desc)
+    end
+    Workspace.DescendantAdded:Connect(optimizePrompt)
+
+    -- Tự động kích hoạt ngay khi vừa chạm vào vùng tương tác
+    ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
+        firePrompt(prompt)
+    end)
+
+    -- Vòng lặp quét ngầm: Tự động hút trứng khi lại gần
+    task.spawn(function()
+        while true do
+            pcall(function()
+                local char = LocalPlayer.Character
+                local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                if hrp then
+                    for _, desc in ipairs(Workspace:GetDescendants()) do
+                        if desc:IsA("ProximityPrompt") and desc.Enabled then
+                            local part = desc:FindFirstAncestorOfClass("BasePart") or (desc.Parent and desc.Parent:IsA("BasePart") and desc.Parent)
+                            if part then
+                                local dist = (hrp.Position - part.Position).Magnitude
+                                if dist <= STEAL_RANGE then
+                                    firePrompt(desc)
+                                end
+                            end
+                        end
+                    end
+                end
+            end)
+            task.wait(0.1)
+        end
+    end)
+
+    -- Phím tắt [B]: Cưỡng chế trộm toàn bộ trứng xung quanh
+    UserInputService.InputBegan:Connect(function(input, gpe)
+        if gpe then return end
+        if input.KeyCode == Enum.KeyCode.B then
+            pcall(function()
+                local char = LocalPlayer.Character
+                local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                if hrp then
+                    for _, desc in ipairs(Workspace:GetDescendants()) do
+                        if desc:IsA("ProximityPrompt") and desc.Enabled then
+                            local part = desc:FindFirstAncestorOfClass("BasePart") or desc.Parent
+                            if part and part:IsA("BasePart") then
+                                if (hrp.Position - part.Position).Magnitude <= (STEAL_RANGE * 1.5) then
+                                    firePrompt(desc)
+                                end
+                            end
+                        end
+                    end
+                end
+            end)
+        end
+    end)
+end)
+
+-- ==================== 2. MODULE ANTI-RAGDOLL V2 (HARD-LOCKED) ====================
 task.spawn(function()
     local activeRagdollLoop = nil
 
@@ -28,7 +114,6 @@ task.spawn(function()
         local hrp = char:WaitForChild("HumanoidRootPart", 6)
         if not hum or not hrp then return end
 
-        -- Vô hiệu hóa 4 trạng thái ngã của Humanoid
         for _, state in ipairs({
             Enum.HumanoidStateType.Ragdoll,
             Enum.HumanoidStateType.FallingDown,
@@ -38,21 +123,17 @@ task.spawn(function()
             pcall(function() hum:SetStateEnabled(state, false) end)
         end
 
-        -- Bộ nhớ đệm giữ toàn bộ khớp xương Motor6D
         local motorCache = {}
         local function registerMotor(m)
             if m:IsA("Motor6D") then
                 motorCache[m] = true
                 m.Enabled = true
                 m:GetPropertyChangedSignal("Enabled"):Connect(function()
-                    if not m.Enabled then
-                        m.Enabled = true
-                    end
+                    if not m.Enabled then m.Enabled = true end
                 end)
             end
         end
 
-        -- Hàm triệt tiêu tức thì mọi ràng buộc vật lý gây ragdoll ở tầng sâu
         local function removeRagdollJoints(inst)
             if inst:IsA("BallSocketConstraint") or inst:IsA("HingeConstraint") or inst:IsA("NoCollisionConstraint") or inst:IsA("SpringConstraint") then
                 task.defer(function() pcall(function() inst:Destroy() end) end)
@@ -62,7 +143,6 @@ task.spawn(function()
             end
         end
 
-        -- Quét toàn bộ cây thư mục nhân vật
         for _, desc in ipairs(char:GetDescendants()) do
             registerMotor(desc)
             removeRagdollJoints(desc)
@@ -73,7 +153,6 @@ task.spawn(function()
             removeRagdollJoints(newDesc)
         end)
 
-        -- Vòng lặp cưỡng chế 60FPS: Ép đứng dậy và khôi phục xương tức thời
         activeRagdollLoop = RunService.Stepped:Connect(function()
             if not char.Parent or not hum.Parent then
                 if activeRagdollLoop then
@@ -83,18 +162,15 @@ task.spawn(function()
                 return
             end
 
-            -- Chặn PlatformStand và Sit
             if hum.PlatformStand then hum.PlatformStand = false end
             if hum.Sit then hum.Sit = false end
 
-            -- Ép mở lại tất cả các khớp nối xương
             for m in pairs(motorCache) do
                 if m.Parent and not m.Enabled then
                     m.Enabled = true
                 end
             end
 
-            -- Ép chuyển về trạng thái hoạt động bình thường
             local curState = hum:GetState()
             if curState == Enum.HumanoidStateType.Ragdoll or curState == Enum.HumanoidStateType.FallingDown or curState == Enum.HumanoidStateType.PlatformStanding or curState == Enum.HumanoidStateType.Physics then
                 hum:ChangeState(Enum.HumanoidStateType.GettingUp)
@@ -103,13 +179,11 @@ task.spawn(function()
         end)
     end
 
-    if LocalPlayer.Character then
-        setupHardAntiRagdoll(LocalPlayer.Character)
-    end
+    if LocalPlayer.Character then setupHardAntiRagdoll(LocalPlayer.Character) end
     LocalPlayer.CharacterAdded:Connect(setupHardAntiRagdoll)
 end)
 
--- ==================== 2. MODULE ANTI-TRAP (TRIỆT TIÊU BẪY TOÀN MAP) ====================
+-- ==================== 3. MODULE ANTI-TRAP (TRIỆT TIÊU BẪY) ====================
 task.spawn(function()
     local trapKeywords = {"trap", "beartrap", "subspace", "mine", "landmine", "turret", "spike"}
 
@@ -154,7 +228,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 3. MODULE SIÊU GIẢM LAG (ULTRA POTATO MODE) ====================
+-- ==================== 4. MODULE SIÊU GIẢM LAG (POTATO MODE) ====================
 task.spawn(function()
     pcall(function()
         if settings and settings().Rendering then
@@ -206,7 +280,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 4. DỌN SẠCH PHIÊN BẢN CŨ ====================
+-- ==================== 5. DỌN SẠCH BẢN GHIM CŨ ====================
 local cleanList = {
     "Ronnei_ONhub_DockedMaster",
     "Ronnei_HeaderDockedMaster",
@@ -217,7 +291,8 @@ local cleanList = {
     "Ronnei_ONhub_EncryptedMaster",
     "Ronnei_ONhub_UltraPotatoMaster",
     "Ronnei_ONhub_AntiTrapRagdollMaster",
-    "Ronnei_ONhub_HardLockedMaster"
+    "Ronnei_ONhub_HardLockedMaster",
+    "Ronnei_ONhub_FloorStealMaster"
 }
 for _, name in ipairs(cleanList) do
     pcall(function()
@@ -226,7 +301,7 @@ for _, name in ipairs(cleanList) do
     end)
 end
 
--- ==================== 5. CƠ CHẾ TỰ BỎ QUA BẢNG DISCORD ====================
+-- ==================== 6. AUTO-BYPASS DISCORD ====================
 local function triggerButtonClick(btn)
     if not btn then return end
     if firesignal then
@@ -235,14 +310,10 @@ local function triggerButtonClick(btn)
     end
     if getconnections then
         pcall(function()
-            for _, conn in ipairs(getconnections(btn.MouseButton1Click)) do
-                conn:Fire()
-            end
+            for _, conn in ipairs(getconnections(btn.MouseButton1Click)) do conn:Fire() end
         end)
         pcall(function()
-            for _, conn in ipairs(getconnections(btn.Activated)) do
-                conn:Fire()
-            end
+            for _, conn in ipairs(getconnections(btn.Activated)) do conn:Fire() end
         end)
     end
 end
@@ -290,12 +361,8 @@ end
 
 for _, root in ipairs(guiRoots) do
     pcall(function()
-        for _, desc in ipairs(root:GetDescendants()) do
-            interceptDiscordModal(desc)
-        end
-        root.DescendantAdded:Connect(function(child)
-            interceptDiscordModal(child)
-        end)
+        for _, desc in ipairs(root:GetDescendants()) do interceptDiscordModal(desc) end
+        root.DescendantAdded:Connect(function(child) interceptDiscordModal(child) end)
     end)
 end
 
@@ -304,16 +371,14 @@ task.spawn(function()
     while tick() - startT < 6 do
         for _, root in ipairs(guiRoots) do
             pcall(function()
-                for _, desc in ipairs(root:GetDescendants()) do
-                    interceptDiscordModal(desc)
-                end
+                for _, desc in ipairs(root:GetDescendants()) do interceptDiscordModal(desc) end
             end)
         end
         task.wait(0.05)
     end
 end)
 
--- ==================== 6. NẠP MÃ HÓA SCRIPT GỐC ====================
+-- ==================== 7. NẠP MÃ HÓA SCRIPT GỐC ====================
 task.spawn(function()
     pcall(function()
         local _byteStream = {
@@ -335,7 +400,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 7. CẤU HÌNH GIAO DIỆN & TỪ ĐIỂN DỊCH ====================
+-- ==================== 8. CẤU HÌNH GIAO DIỆN & TỪ ĐIỂN DỊCH ====================
 local THEME = {
     BarBG      = Color3.fromRGB(15, 25, 18),
     CardBG     = Color3.fromRGB(20, 36, 26),
@@ -349,7 +414,6 @@ local THEME = {
 }
 
 local RAW_TRANSLATIONS = {
-    -- Cấu hình: Bộ lọc mục tiêu
     {"Fast mode (grab the closest)", "Chế độ nhanh (nhặt trứng gần nhất)"},
     {"Selected pets only", "Chỉ nhặt thú cưng đã chọn"},
     {"Mutated eggs only", "Chỉ nhặt trứng đột biến"},
@@ -360,8 +424,6 @@ local RAW_TRANSLATIONS = {
     {"Maximum target distance:", "Khoảng cách mục tiêu tối đa:"},
     {"Maximum target distance", "Khoảng cách mục tiêu tối đa"},
     {"TARGET FILTER", "BỘ LỌC MỤC TIÊU"},
-
-    -- Cấu hình: Trọng số ưu tiên
     {"On, the ranking is $/s by the game's own formula and the weights above are inert (distance only counts when the instant TP is unusable).", "Khi bật, mục tiêu xếp theo $/s theo công thức của game và các trọng số trên sẽ tắt (khoảng cách chỉ tính khi không thể dùng TP tức thì)."},
     {"Rank by pure $/s", "Ưu tiên thuần theo $/giây"},
     {"Rarity weight:", "Trọng số độ hiếm:"},
@@ -373,8 +435,6 @@ local RAW_TRANSLATIONS = {
     {"Distance penalty:", "Phạt khoảng cách:"},
     {"Distance penalty", "Phạt khoảng cách"},
     {"RANKING WEIGHTS", "TRỌNG SỐ ƯU TIÊN MỤC TIÊU"},
-
-    -- Cấu hình: Di chuyển & An toàn
     {"Approach radius (server accepts 9):", "Bán kính tiếp cận (server nhận 9):"},
     {"Approach radius (server accepts 9)", "Bán kính tiếp cận (server nhận 9)"},
     {"Approach radius", "Bán kính tiếp cận"},
@@ -383,8 +443,6 @@ local RAW_TRANSLATIONS = {
     {"Max time per trip", "Thời gian tối đa mỗi chuyến"},
     {"Stop the farm on rollback", "Dừng cày khi bị giật lùi (rollback)"},
     {"MOVEMENT AND SAFETY", "DI CHUYỂN & AN TOÀN"},
-
-    -- Cấu hình: Di chuyển nhanh
     {"Fast hop (chained CFrame steps)", "Nhảy nhanh (bước CFrame liên tục)"},
     {"Instant TP (uses the ragdoll window)", "TP tức thì (dùng khe hở ragdoll)"},
     {"Minimum distance for TP:", "Khoảng cách tối thiểu để TP:"},
@@ -403,8 +461,6 @@ local RAW_TRANSLATIONS = {
     {"Travel speed is step divided by interval. Default 80 / 0.08 = 1000", "Tốc độ di chuyển = bước chia cho thời gian chờ. Mặc định 80 / 0.08 = 1000"},
     {"GETTING ROLLBACK? Raise the rewind first as it inflates the distance the client-side detector allows per step and costs nothing. Only then lower the step, or raise the interval.", "BỊ GIẬT LÙI? Hãy tăng tua ngược thời gian trước vì nó mở rộng khoảng cách cho phép mỗi bước. Sau đó mới giảm bước hoặc tăng thời gian chờ."},
     {"Every revert forces a retry, so a big step is slower in practice.", "Mỗi lần lùi phải thử lại nên bước lớn thực tế lại chậm hơn."},
-
-    -- Cấu hình: RIFT & Giao diện
     {"Count pets you already own", "Tính cả thú cưng bạn đã có"},
     {"Plant recipe eggs on the plot", "Đặt trứng công thức lên khu đất"},
     {"Plant index eggs on the plot", "Đặt trứng sưu tập lên khu đất"},
@@ -415,8 +471,6 @@ local RAW_TRANSLATIONS = {
     {"Platform: mobile (touch, no keyboard). The scale starts automatic from the resolution (base window 620x420 shrunk to fit 92%x 88% of the screen). Touching the slider pins the", "Nền tảng: di động (cảm ứng, không phím). Tỷ lệ tự động theo độ phân giải màn hình (cửa sổ 620x420 thu gọn vừa 92%x 88% màn hình). Chạm thanh trượt để cố định"},
     {"INTERFACE", "GIAO DIỆN"},
     {"RIFT", "MÁY RIFT"},
-
-    -- Tab Cày tiền & Runtime
     {"no mode: farming by $/s. RIFT hunts the machine recipe. INDEX hunts what your codex is missing", "Cơ bản: cày theo $/s. RIFT: săn công thức máy. SƯU TẬP: săn trứng thiếu"},
     {"no mode: farming by $/s. RIFT hunts the machine. INDEX hunts what your codex is missing", "Cơ bản: cày theo $/s. RIFT: săn máy. SƯU TẬP: săn trứng thiếu"},
     {"hunts what your codex is missing", "săn trứng còn thiếu"},
@@ -434,13 +488,9 @@ local RAW_TRANSLATIONS = {
     {"RIFT: ON", "RIFT: BẬT"},
     {"INDEX: OFF", "SƯU TẬP: TẮT"},
     {"INDEX: ON", "SƯU TẬP: BẬT"},
-
-    -- Sidebar Tabs
     {"FARM", "CÀY TIỀN"},
     {"PETS", "THÚ CƯNG"},
     {"CONFIG", "CẤU HÌNH"},
-
-    -- Thông số Runtime
     {"heading to Koi", "Đang tới Cá Koi"},
     {"heading to", "Đang tới"},
     {"delivered", "đã giao"},
@@ -448,8 +498,6 @@ local RAW_TRANSLATIONS = {
     {"lost", "mất"},
     {"idle", "đang chờ"},
     {"studs", "mét"},
-
-    -- Tên thú cưng & Khu vực
     {"Burrowing Owl", "Cú Hang"},
     {"Bladehide", "Thằn Lằn Gai"},
     {"Bronto", "Khủng Long Cổ Dài"},
@@ -477,9 +525,7 @@ local RAW_TRANSLATIONS = {
     {"Prehistoric", "Tiền Sử"}
 }
 
-table.sort(RAW_TRANSLATIONS, function(a, b)
-    return #a[1] > #b[1]
-end)
+table.sort(RAW_TRANSLATIONS, function(a, b) return #a[1] > #b[1] end)
 
 local function replacePlain(str, findStr, repStr)
     if typeof(str) ~= "string" or typeof(findStr) ~= "string" or str == "" or findStr == "" then return str end
@@ -505,14 +551,14 @@ local function translateText(raw)
     return res
 end
 
--- ==================== 8. TẠO THANH GHIM DOCKED (310PX GỌN GÀNG) ====================
+-- ==================== 9. TẠO THANH GHIM DOCKED (310PX) ====================
 local isVietnamese = true
 local OriginalTexts = {}
 local targetOnhubWindow = nil
 local isApplyingTranslation = false
 
 local PinGui = Instance.new("ScreenGui")
-PinGui.Name = "Ronnei_ONhub_HardLockedMaster"
+PinGui.Name = "Ronnei_ONhub_FloorStealMaster"
 PinGui.ResetOnSpawn = false
 PinGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 PinGui.DisplayOrder = 999999
@@ -648,7 +694,7 @@ ControlBox.InputBegan:Connect(function(inp)
     end
 end)
 
--- ==================== 9. BỘ QUÉT TẦNG SÂU VÀ DỊCH TỨC THỜI ====================
+-- ==================== 10. BỘ DỊCH TỨC THỜI ====================
 local function applyElemTranslation(elem)
     if isApplyingTranslation then return end
     if not (elem:IsA("TextLabel") or elem:IsA("TextButton")) then return end
@@ -694,7 +740,7 @@ local function hookElement(elem)
     end
 end
 
--- ==================== 10. BỘ TÌM KIẾM CỬA SỔ ONHUB CHÍNH XÁC ====================
+-- ==================== 11. BỘ TÌM KIẾM CỬA SỔ ONHUB ====================
 local IDENTIFIERS = {
     "FARM", "CÀY TIỀN",
     "PETS", "THÚ CƯNG",
@@ -728,9 +774,7 @@ local function findOnhubWindow()
                                 p = p.Parent
                             end
                             if p and (p:IsA("Frame") or p:IsA("CanvasGroup") or p:IsA("GuiObject")) and p.AbsoluteSize.X > 300 and p.AbsoluteSize.Y > 150 then
-                                if not isDiscordWindow(p) then
-                                    return p
-                                end
+                                if not isDiscordWindow(p) then return p end
                             end
                         end
                     end
@@ -754,9 +798,7 @@ local function findOnhubWindow()
                         p = p.Parent
                     end
                     if p and (p:IsA("Frame") or p:IsA("CanvasGroup") or p:IsA("GuiObject")) and p.AbsoluteSize.X > 300 and p.AbsoluteSize.Y > 150 then
-                        if not isDiscordWindow(p) then
-                            return p
-                        end
+                        if not isDiscordWindow(p) then return p end
                     end
                 end
             end
@@ -765,7 +807,7 @@ local function findOnhubWindow()
     return found
 end
 
--- ==================== 11. ĐỒNG BỘ HIỂN THỊ TỰ ĐỘNG ====================
+-- ==================== 12. ĐỒNG BỘ HIỂN THỊ TỰ ĐỘNG ====================
 RunService.RenderStepped:Connect(function()
     if targetOnhubWindow and targetOnhubWindow.Parent then
         local winSize = targetOnhubWindow.AbsoluteSize
