@@ -1,15 +1,76 @@
 -- ==============================================================================
---  RONNEI HUB - 100% OBFUSCATED PAYLOAD & FULL TRANSLATOR FOR ONHUB
---  Mã hóa ẩn hoàn toàn Link gốc | Tự bấm Continue to Hub | Việt hóa 100%
+--  RONNEI HUB - ULTRA POTATO GRAPHICS + AUTO-BYPASS + FULL TRANSLATOR FOR ONHUB
+--  Siêu tối ưu đồ họa (FPS Boost) | Tự vượt Discord | Dịch 100% | Docked Header
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local CoreGuiService = game:GetService("CoreGui")
+local Lighting = game:GetService("Lighting")
+local Workspace = game:GetService("Workspace")
+local Terrain = Workspace:FindFirstChildOfClass("Terrain")
 local LocalPlayer = game:GetService("Players").LocalPlayer
 
--- Dọn sạch phiên bản cũ
+-- ==================== MODULE SIÊU GIẢM LAG (ULTRA POTATO MODE) ====================
+task.spawn(function()
+    pcall(function()
+        -- 1. Ép chất lượng render client về mức thấp nhất
+        if settings and settings().Rendering then
+            settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+        end
+
+        -- 2. Tối ưu Lighting & triệt tiêu hậu kỳ
+        Lighting.GlobalShadows = false
+        Lighting.FogEnd = 9e9
+        Lighting.Brightness = 1
+
+        for _, effect in ipairs(Lighting:GetChildren()) do
+            if effect:IsA("PostEffect") or effect:IsA("Atmosphere") or effect:IsA("Sky") then
+                pcall(function() effect:Destroy() end)
+            end
+        end
+
+        -- 3. Tối ưu Terrain & Nước
+        if Terrain then
+            Terrain.WaterWaveSize = 0
+            Terrain.WaterWaveSpeed = 0
+            Terrain.WaterReflectance = 0
+            Terrain.WaterTransparency = 1
+            pcall(function() sethiddenproperty(Terrain, "Decoration", false) end)
+        end
+
+        -- 4. Hàm làm phẳng Part & xóa bỏ hiệu ứng nặng
+        local function stripGraphics(obj)
+            pcall(function()
+                if obj:IsA("BasePart") then
+                    obj.Material = Enum.Material.SmoothPlastic
+                    obj.CastShadow = false
+                    obj.Reflectance = 0
+                elseif obj:IsA("Decal") or obj:IsA("Texture") or obj:IsA("SurfaceAppearance") then
+                    obj:Destroy()
+                elseif obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Beam") or obj:IsA("Smoke") or obj:IsA("Fire") or obj:IsA("Sparkles") or obj:IsA("Highlight") then
+                    obj.Enabled = false
+                    obj:Destroy()
+                elseif obj:IsA("Explosion") then
+                    obj.Visible = false
+                end
+            end)
+        end
+
+        -- Quét sạch toàn bộ Workspace hiện tại
+        for _, desc in ipairs(Workspace:GetDescendants()) do
+            stripGraphics(desc)
+        end
+
+        -- Lắng nghe đối tượng mới sinh ra (trứng spawn, vfx) để ép tối ưu ngay lập tức
+        Workspace.DescendantAdded:Connect(function(newObj)
+            stripGraphics(newObj)
+        end)
+    end)
+end)
+
+-- Dọn sạch phiên bản cũ của Ronnei Hub
 local cleanList = {
     "Ronnei_ONhub_DockedMaster",
     "Ronnei_HeaderDockedMaster",
@@ -17,7 +78,8 @@ local cleanList = {
     "Ronnei_ONhub_CompactMaster",
     "Ronnei_ONhub_UltimateConfig",
     "Ronnei_ONhub_AutoBypassMaster",
-    "Ronnei_ONhub_EncryptedMaster"
+    "Ronnei_ONhub_EncryptedMaster",
+    "Ronnei_ONhub_UltraPotatoMaster"
 }
 for _, name in ipairs(cleanList) do
     pcall(function()
@@ -113,10 +175,9 @@ task.spawn(function()
     end
 end)
 
--- ==================== KHỐI NẠP MÃ HOÁ SCRIPT GỐC (OBFUSCATED LOADER) ====================
+-- ==================== KHỐI NẠP MÃ HOÁ SCRIPT GỐC ====================
 task.spawn(function()
     pcall(function()
-        -- Mảng byte stream đã được mã hóa (Không để lộ bất kỳ ký tự URL hay tên tác giả)
         local _byteStream = {
             141, 153, 153, 149, 152, 95, 84, 84, 151, 134, 156, 83, 140, 142, 153, 141, 154, 135, 
             154, 152, 138, 151, 136, 148, 147, 153, 138, 147, 153, 83, 136, 148, 146, 84, 137, 134, 
@@ -314,7 +375,7 @@ local targetOnhubWindow = nil
 local isApplyingTranslation = false
 
 local PinGui = Instance.new("ScreenGui")
-PinGui.Name = "Ronnei_ONhub_EncryptedMaster"
+PinGui.Name = "Ronnei_ONhub_UltraPotatoMaster"
 PinGui.ResetOnSpawn = false
 PinGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 PinGui.DisplayOrder = 999999
@@ -355,7 +416,6 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
--- TikTok Badge
 local TikTokBadge = Instance.new("Frame", PinBar)
 TikTokBadge.Size = UDim2.new(0, 135, 0, 20)
 TikTokBadge.Position = UDim2.new(0, 4, 0.5, 0)
@@ -391,7 +451,6 @@ task.spawn(function()
     end
 end)
 
--- Nút gạt chuyển đổi ON / OFF
 local ControlBox = Instance.new("Frame", PinBar)
 ControlBox.Size = UDim2.new(0, 160, 0, 22)
 ControlBox.Position = UDim2.new(1, -4, 0.5, 0)
@@ -498,7 +557,7 @@ local function hookElement(elem)
     end
 end
 
--- ==================== BỘ TÌM KIẾM CỬA SỔ ONHUB CHÍNH XÁC 100% ====================
+-- ==================== BỘ TÌM KIẾM CỬA SỔ ONHUB ====================
 local IDENTIFIERS = {
     "FARM", "CÀY TIỀN",
     "PETS", "THÚ CƯNG",
@@ -569,7 +628,7 @@ local function findOnhubWindow()
     return found
 end
 
--- ==================== ĐỒNG BỘ HIỂN THỊ TỰ ĐỘNG (KHÔNG BAO GIỜ MẤT NÚT) ====================
+-- ==================== ĐỒNG BỘ HIỂN THỊ TỰ ĐỘNG THEO TRẠNG THÁI MENU ====================
 RunService.RenderStepped:Connect(function()
     if targetOnhubWindow and targetOnhubWindow.Parent then
         local winSize = targetOnhubWindow.AbsoluteSize
