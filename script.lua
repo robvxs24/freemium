@@ -1,6 +1,6 @@
 -- ==============================================================================
---  RONNEI HUB - ONHUB ALL-IN-ONE MASTER
---  Tích hợp: Anti Trap + Anti Ragdoll (Ngầm) | Ultra Potato FPS | Auto-Bypass | Việt Hóa
+--  RONNEI HUB - ONHUB ALL-IN-ONE (ANTI-RAGDOLL V2 HARD-LOCKED)
+--  Khóa cứng Motor6D + Xóa BallSocket tầng sâu + Anti Trap + Ultra Potato + Bypass + Dịch
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -13,50 +13,103 @@ local Terrain = Workspace:FindFirstChildOfClass("Terrain")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- ==================== 1. MODULE ANTI-RAGDOLL (V2 CHẠY NGẦM) ====================
+-- ==================== 1. MODULE ANTI-RAGDOLL V2 (HARD-LOCK KHUNG XƯƠNG) ====================
 task.spawn(function()
-    local function applyAntiRagdoll(char)
+    local activeRagdollLoop = nil
+
+    local function setupHardAntiRagdoll(char)
         if not char then return end
-        local hum = char:WaitForChild("Humanoid", 5)
-        if not hum then return end
+        if activeRagdollLoop then
+            activeRagdollLoop:Disconnect()
+            activeRagdollLoop = nil
+        end
 
-        pcall(function()
-            hum:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
-            hum:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
-        end)
+        local hum = char:WaitForChild("Humanoid", 6)
+        local hrp = char:WaitForChild("HumanoidRootPart", 6)
+        if not hum or not hrp then return end
 
-        -- Khóa trạng thái ngã và ép đứng dậy tức thì
-        hum.StateChanged:Connect(function(_, newState)
-            if newState == Enum.HumanoidStateType.Ragdoll or newState == Enum.HumanoidStateType.FallingDown or newState == Enum.HumanoidStateType.PlatformStanding then
-                hum:ChangeState(Enum.HumanoidStateType.GettingUp)
-            end
-        end)
+        -- Vô hiệu hóa 4 trạng thái ngã của Humanoid
+        for _, state in ipairs({
+            Enum.HumanoidStateType.Ragdoll,
+            Enum.HumanoidStateType.FallingDown,
+            Enum.HumanoidStateType.PlatformStanding,
+            Enum.HumanoidStateType.Physics
+        }) do
+            pcall(function() hum:SetStateEnabled(state, false) end)
+        end
 
-        -- Tự động vô hiệu hóa thuộc tính PlatformStand
-        hum:GetPropertyChangedSignal("PlatformStand"):Connect(function()
-            if hum.PlatformStand then
-                hum.PlatformStand = false
-            end
-        end)
-
-        -- Quét và hủy các thẻ hoặc ràng buộc vật lý gây ragdoll
-        char.ChildAdded:Connect(function(child)
-            local name = child.Name:lower()
-            if name:find("ragdoll") or name:find("knock") or child:IsA("BallSocketConstraint") or child:IsA("HingeConstraint") then
-                task.defer(function()
-                    pcall(function() child:Destroy() end)
+        -- Bộ nhớ đệm giữ toàn bộ khớp xương Motor6D
+        local motorCache = {}
+        local function registerMotor(m)
+            if m:IsA("Motor6D") then
+                motorCache[m] = true
+                m.Enabled = true
+                m:GetPropertyChangedSignal("Enabled"):Connect(function()
+                    if not m.Enabled then
+                        m.Enabled = true
+                    end
                 end)
+            end
+        end
+
+        -- Hàm triệt tiêu tức thì mọi ràng buộc vật lý gây ragdoll ở tầng sâu
+        local function removeRagdollJoints(inst)
+            if inst:IsA("BallSocketConstraint") or inst:IsA("HingeConstraint") or inst:IsA("NoCollisionConstraint") or inst:IsA("SpringConstraint") then
+                task.defer(function() pcall(function() inst:Destroy() end) end)
+            elseif inst:IsA("LocalScript") and (inst.Name:lower():find("ragdoll") or inst.Name:lower():find("knock")) then
+                inst.Disabled = true
+                task.defer(function() pcall(function() inst:Destroy() end) end)
+            end
+        end
+
+        -- Quét toàn bộ cây thư mục nhân vật
+        for _, desc in ipairs(char:GetDescendants()) do
+            registerMotor(desc)
+            removeRagdollJoints(desc)
+        end
+
+        char.DescendantAdded:Connect(function(newDesc)
+            registerMotor(newDesc)
+            removeRagdollJoints(newDesc)
+        end)
+
+        -- Vòng lặp cưỡng chế 60FPS: Ép đứng dậy và khôi phục xương tức thời
+        activeRagdollLoop = RunService.Stepped:Connect(function()
+            if not char.Parent or not hum.Parent then
+                if activeRagdollLoop then
+                    activeRagdollLoop:Disconnect()
+                    activeRagdollLoop = nil
+                end
+                return
+            end
+
+            -- Chặn PlatformStand và Sit
+            if hum.PlatformStand then hum.PlatformStand = false end
+            if hum.Sit then hum.Sit = false end
+
+            -- Ép mở lại tất cả các khớp nối xương
+            for m in pairs(motorCache) do
+                if m.Parent and not m.Enabled then
+                    m.Enabled = true
+                end
+            end
+
+            -- Ép chuyển về trạng thái hoạt động bình thường
+            local curState = hum:GetState()
+            if curState == Enum.HumanoidStateType.Ragdoll or curState == Enum.HumanoidStateType.FallingDown or curState == Enum.HumanoidStateType.PlatformStanding or curState == Enum.HumanoidStateType.Physics then
+                hum:ChangeState(Enum.HumanoidStateType.GettingUp)
+                hum:ChangeState(Enum.HumanoidStateType.Running)
             end
         end)
     end
 
     if LocalPlayer.Character then
-        applyAntiRagdoll(LocalPlayer.Character)
+        setupHardAntiRagdoll(LocalPlayer.Character)
     end
-    LocalPlayer.CharacterAdded:Connect(applyAntiRagdoll)
+    LocalPlayer.CharacterAdded:Connect(setupHardAntiRagdoll)
 end)
 
--- ==================== 2. MODULE ANTI-TRAP (TRIỆT TIÊU BẪY NGẦM) ====================
+-- ==================== 2. MODULE ANTI-TRAP (TRIỆT TIÊU BẪY TOÀN MAP) ====================
 task.spawn(function()
     local trapKeywords = {"trap", "beartrap", "subspace", "mine", "landmine", "turret", "spike"}
 
@@ -92,12 +145,10 @@ task.spawn(function()
         end)
     end
 
-    -- Quét toàn bộ bẫy hiện có trên map
     for _, obj in ipairs(Workspace:GetDescendants()) do
         neutralizeTrap(obj)
     end
 
-    -- Khóa các bẫy mới sinh ra theo thời gian thực
     Workspace.DescendantAdded:Connect(function(newObj)
         neutralizeTrap(newObj)
     end)
@@ -165,7 +216,8 @@ local cleanList = {
     "Ronnei_ONhub_AutoBypassMaster",
     "Ronnei_ONhub_EncryptedMaster",
     "Ronnei_ONhub_UltraPotatoMaster",
-    "Ronnei_ONhub_AntiTrapRagdollMaster"
+    "Ronnei_ONhub_AntiTrapRagdollMaster",
+    "Ronnei_ONhub_HardLockedMaster"
 }
 for _, name in ipairs(cleanList) do
     pcall(function()
@@ -460,7 +512,7 @@ local targetOnhubWindow = nil
 local isApplyingTranslation = false
 
 local PinGui = Instance.new("ScreenGui")
-PinGui.Name = "Ronnei_ONhub_AntiTrapRagdollMaster"
+PinGui.Name = "Ronnei_ONhub_HardLockedMaster"
 PinGui.ResetOnSpawn = false
 PinGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 PinGui.DisplayOrder = 999999
@@ -501,7 +553,6 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
--- TikTok Badge
 local TikTokBadge = Instance.new("Frame", PinBar)
 TikTokBadge.Size = UDim2.new(0, 135, 0, 20)
 TikTokBadge.Position = UDim2.new(0, 4, 0.5, 0)
@@ -537,7 +588,6 @@ task.spawn(function()
     end
 end)
 
--- Nút gạt chuyển đổi ON / OFF
 local ControlBox = Instance.new("Frame", PinBar)
 ControlBox.Size = UDim2.new(0, 160, 0, 22)
 ControlBox.Position = UDim2.new(1, -4, 0.5, 0)
@@ -644,7 +694,7 @@ local function hookElement(elem)
     end
 end
 
--- ==================== 10. BỘ TÌM KIẾM CỬA SỔ ONHUB CHÍNH XÁC 100% ====================
+-- ==================== 10. BỘ TÌM KIẾM CỬA SỔ ONHUB CHÍNH XÁC ====================
 local IDENTIFIERS = {
     "FARM", "CÀY TIỀN",
     "PETS", "THÚ CƯNG",
