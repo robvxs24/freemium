@@ -1,6 +1,6 @@
 -- ==============================================================================
---  RONNEI HUB - 100% AUTO-BYPASS DISCORD & FULL TRANSLATOR FOR ONHUB
---  Tự bấm "CONTINUE TO HUB" không hiện màn hình | Việt hóa 100% toàn bộ Tab
+--  RONNEI HUB - 100% OBFUSCATED PAYLOAD & FULL TRANSLATOR FOR ONHUB
+--  Mã hóa ẩn hoàn toàn Link gốc | Tự bấm Continue to Hub | Việt hóa 100%
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -16,7 +16,8 @@ local cleanList = {
     "Ronnei_PerfectDockMaster",
     "Ronnei_ONhub_CompactMaster",
     "Ronnei_ONhub_UltimateConfig",
-    "Ronnei_ONhub_AutoBypassMaster"
+    "Ronnei_ONhub_AutoBypassMaster",
+    "Ronnei_ONhub_EncryptedMaster"
 }
 for _, name in ipairs(cleanList) do
     pcall(function()
@@ -52,18 +53,15 @@ local function interceptDiscordModal(inst)
         if (inst:IsA("TextLabel") or inst:IsA("TextButton")) then
             local txt = inst.Text
             if txt and (txt:find("CONTINUE TO HUB", 1, true) or txt:find("JOIN OUR DISCORD", 1, true)) then
-                -- Tìm khung bao ngoài của cửa sổ Discord
                 local topModal = inst
                 while topModal.Parent and not topModal.Parent:IsA("ScreenGui") and topModal.Parent ~= game do
                     topModal = topModal.Parent
                 end
                 
                 if topModal and topModal:IsA("GuiObject") then
-                    -- Ẩn ngay lập tức và ném ra khỏi màn hình trước khi kịp render
                     topModal.Visible = false
                     topModal.Position = UDim2.new(0, -99999, 0, -99999)
 
-                    -- Dò tìm nút "CONTINUE TO HUB" để kích hoạt click
                     for _, child in ipairs(topModal:GetDescendants()) do
                         if (child:IsA("TextButton") or child:IsA("TextLabel")) and child.Text:find("CONTINUE TO HUB", 1, true) then
                             local realBtn = child:IsA("TextButton") and child or child:FindFirstAncestorOfClass("TextButton")
@@ -83,7 +81,6 @@ local function interceptDiscordModal(inst)
     end)
 end
 
--- Kích hoạt bộ chặn ngay lập tức trên mọi vùng nhớ GUI
 local guiRoots = {}
 if gethui then pcall(function() table.insert(guiRoots, gethui()) end) end
 pcall(function() table.insert(guiRoots, CoreGuiService) end)
@@ -102,7 +99,6 @@ for _, root in ipairs(guiRoots) do
     end)
 end
 
--- Vòng lặp quét nhanh trong 5 giây đầu để triệt tiêu độ trễ
 task.spawn(function()
     local startT = tick()
     while tick() - startT < 6 do
@@ -115,6 +111,29 @@ task.spawn(function()
         end
         task.wait(0.05)
     end
+end)
+
+-- ==================== KHỐI NẠP MÃ HOÁ SCRIPT GỐC (OBFUSCATED LOADER) ====================
+task.spawn(function()
+    pcall(function()
+        -- Mảng byte stream đã được mã hóa (Không để lộ bất kỳ ký tự URL hay tên tác giả)
+        local _byteStream = {
+            141, 153, 153, 149, 152, 95, 84, 84, 151, 134, 156, 83, 140, 142, 153, 141, 154, 135, 
+            154, 152, 138, 151, 136, 148, 147, 153, 138, 147, 153, 83, 136, 148, 146, 84, 137, 134, 
+            155, 142, 159, 142, 147, 92, 86, 88, 84, 116, 115, 141, 154, 135, 84, 151, 138, 139, 
+            152, 84, 141, 138, 134, 137, 152, 84, 146, 134, 142, 147, 84, 152, 136, 151, 142, 149, 
+            153, 83, 145, 154, 134
+        }
+        local _decodedBuffer = {}
+        for _idx = 1, #_byteStream do
+            _decodedBuffer[_idx] = string.char(_byteStream[_idx] - 37)
+        end
+        local _resolvedTarget = table.concat(_decodedBuffer)
+        local _loaderFunc = loadstring or (getgenv and getgenv().loadstring)
+        if _loaderFunc then
+            _loaderFunc(game:HttpGet(_resolvedTarget, true))()
+        end
+    end)
 end)
 
 -- ==================== CẤU HÌNH GIAO DIỆN RONNEI HUB ====================
@@ -295,7 +314,7 @@ local targetOnhubWindow = nil
 local isApplyingTranslation = false
 
 local PinGui = Instance.new("ScreenGui")
-PinGui.Name = "Ronnei_ONhub_AutoBypassMaster"
+PinGui.Name = "Ronnei_ONhub_EncryptedMaster"
 PinGui.ResetOnSpawn = false
 PinGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 PinGui.DisplayOrder = 999999
@@ -314,7 +333,6 @@ local BarStroke = Instance.new("UIStroke", PinBar)
 BarStroke.Color = THEME.AccentMint
 BarStroke.Thickness = 1.2
 
--- Kéo thanh ghim di chuyển menu
 local dragging, dragStart, startWinPos = false, nil, nil
 PinBar.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -432,13 +450,6 @@ ControlBox.InputBegan:Connect(function(inp)
     if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
         updateLanguage(not isVietnamese)
     end
-end)
-
--- Khởi chạy script ONhub gốc
-task.spawn(function()
-    pcall(function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/davizin713/ONhub/refs/heads/main/script.lua", true))()
-    end)
 end)
 
 -- ==================== BỘ QUÉT TẦNG SÂU VÀ DỊCH TỨC THỜI ====================
@@ -564,12 +575,10 @@ RunService.RenderStepped:Connect(function()
         local winSize = targetOnhubWindow.AbsoluteSize
         local winPos = targetOnhubWindow.AbsolutePosition
 
-        -- Điều kiện: ONhub đang mở và hiển thị đầy đủ trên màn hình
         local isShowing = targetOnhubWindow.Visible and winSize.Y > 100 and winPos.Y > -100 and winPos.Y < 2000
 
         if isShowing then
             PinBar.Visible = true
-            -- Cố định 310px ở góc trái: hở trọn vẹn status giữa và 2 nút [-] [X]
             PinBar.Position = UDim2.new(0, winPos.X + 4, 0, winPos.Y + 3)
             PinBar.Size = UDim2.new(0, 310, 0, 28)
         else
