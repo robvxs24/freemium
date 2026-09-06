@@ -1,6 +1,6 @@
 -- ==============================================================================
---  RONNEI HUB - ONHUB ALL-IN-ONE MASTER (FLOOR STEAL INTEGRATED)
---  Tích hợp ngầm: Floor Steal + Anti Trap + Anti Ragdoll v2 + Ultra Potato + Bypass + Dịch
+--  RONNEI HUB - ONHUB ALL-IN-ONE (INSTANT CLICK & KEYBIND FLOOR STEAL)
+--  Bấm 1 phát nhặt ngay | Phím B hút trứng | Không tự nhặt khi đi ngang qua
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -14,10 +14,8 @@ local Terrain = Workspace:FindFirstChildOfClass("Terrain")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- ==================== 1. MODULE FLOOR STEAL & INSTANT GRAB (CHẠY NGẦM) ====================
+-- ==================== 1. MODULE FLOOR STEAL & INSTANT CLICK (KHÔNG TỰ HÚT KHI ĐI QUA) ====================
 task.spawn(function()
-    local STEAL_RANGE = 25 -- Bán kính tự động hút trứng
-
     local function firePrompt(prompt)
         if not prompt or not prompt.Parent then return end
         if fireproximityprompt then
@@ -33,49 +31,23 @@ task.spawn(function()
 
     local function optimizePrompt(prompt)
         if prompt:IsA("ProximityPrompt") then
-            -- Ép nhặt 0ms không cần giữ phím và cho phép nhặt xuyên sàn/tường
+            -- Chạm/Click 1 phát ăn ngay, không cần giữ và nhặt được xuyên sàn/vật cản
             prompt.HoldDuration = 0
             prompt.RequiresLineOfSight = false
-            prompt.MaxActivationDistance = math.max(prompt.MaxActivationDistance, STEAL_RANGE)
         end
     end
 
-    -- Quét toàn bộ ProximityPrompt hiện có
     for _, desc in ipairs(Workspace:GetDescendants()) do
         optimizePrompt(desc)
     end
     Workspace.DescendantAdded:Connect(optimizePrompt)
 
-    -- Tự động kích hoạt ngay khi vừa chạm vào vùng tương tác
+    -- Khi người chơi chủ động bấm nút nhặt -> Kích hoạt ngay 0ms không chờ giữ
     ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
         firePrompt(prompt)
     end)
 
-    -- Vòng lặp quét ngầm: Tự động hút trứng khi lại gần
-    task.spawn(function()
-        while true do
-            pcall(function()
-                local char = LocalPlayer.Character
-                local hrp = char and char:FindFirstChild("HumanoidRootPart")
-                if hrp then
-                    for _, desc in ipairs(Workspace:GetDescendants()) do
-                        if desc:IsA("ProximityPrompt") and desc.Enabled then
-                            local part = desc:FindFirstAncestorOfClass("BasePart") or (desc.Parent and desc.Parent:IsA("BasePart") and desc.Parent)
-                            if part then
-                                local dist = (hrp.Position - part.Position).Magnitude
-                                if dist <= STEAL_RANGE then
-                                    firePrompt(desc)
-                                end
-                            end
-                        end
-                    end
-                end
-            end)
-            task.wait(0.1)
-        end
-    end)
-
-    -- Phím tắt [B]: Cưỡng chế trộm toàn bộ trứng xung quanh
+    -- Phím tắt [B]: Chủ động kích hoạt Floor Steal hút trứng xung quanh
     UserInputService.InputBegan:Connect(function(input, gpe)
         if gpe then return end
         if input.KeyCode == Enum.KeyCode.B then
@@ -87,7 +59,7 @@ task.spawn(function()
                         if desc:IsA("ProximityPrompt") and desc.Enabled then
                             local part = desc:FindFirstAncestorOfClass("BasePart") or desc.Parent
                             if part and part:IsA("BasePart") then
-                                if (hrp.Position - part.Position).Magnitude <= (STEAL_RANGE * 1.5) then
+                                if (hrp.Position - part.Position).Magnitude <= 35 then
                                     firePrompt(desc)
                                 end
                             end
@@ -292,7 +264,8 @@ local cleanList = {
     "Ronnei_ONhub_UltraPotatoMaster",
     "Ronnei_ONhub_AntiTrapRagdollMaster",
     "Ronnei_ONhub_HardLockedMaster",
-    "Ronnei_ONhub_FloorStealMaster"
+    "Ronnei_ONhub_FloorStealMaster",
+    "Ronnei_ONhub_CleanInteractMaster"
 }
 for _, name in ipairs(cleanList) do
     pcall(function()
@@ -558,7 +531,7 @@ local targetOnhubWindow = nil
 local isApplyingTranslation = false
 
 local PinGui = Instance.new("ScreenGui")
-PinGui.Name = "Ronnei_ONhub_FloorStealMaster"
+PinGui.Name = "Ronnei_ONhub_CleanInteractMaster"
 PinGui.ResetOnSpawn = false
 PinGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 PinGui.DisplayOrder = 999999
