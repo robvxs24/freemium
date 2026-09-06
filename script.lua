@@ -1,6 +1,6 @@
 -- ==============================================================================
---  RONNEI HUB - 100% FULL LOCALIZATION FOR ONHUB (INCLUDING CONFIG TAB)
---  Khắc phục vĩnh viễn lỗi mất nút ON/OFF | Việt hóa toàn diện 100% Cấu Hình
+--  RONNEI HUB - 100% AUTO-BYPASS DISCORD & FULL TRANSLATOR FOR ONHUB
+--  Tự bấm "CONTINUE TO HUB" không hiện màn hình | Việt hóa 100% toàn bộ Tab
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -15,7 +15,8 @@ local cleanList = {
     "Ronnei_HeaderDockedMaster",
     "Ronnei_PerfectDockMaster",
     "Ronnei_ONhub_CompactMaster",
-    "Ronnei_ONhub_UltimateConfig"
+    "Ronnei_ONhub_UltimateConfig",
+    "Ronnei_ONhub_AutoBypassMaster"
 }
 for _, name in ipairs(cleanList) do
     pcall(function()
@@ -24,33 +25,126 @@ for _, name in ipairs(cleanList) do
     end)
 end
 
+-- ==================== CƠ CHẾ TỰ BỎ QUA BẢNG DISCORD (AUTO-BYPASS) ====================
+local function triggerButtonClick(btn)
+    if not btn then return end
+    if firesignal then
+        pcall(function() firesignal(btn.MouseButton1Click) end)
+        pcall(function() firesignal(btn.Activated) end)
+    end
+    if getconnections then
+        pcall(function()
+            for _, conn in ipairs(getconnections(btn.MouseButton1Click)) do
+                conn:Fire()
+            end
+        end)
+        pcall(function()
+            for _, conn in ipairs(getconnections(btn.Activated)) do
+                conn:Fire()
+            end
+        end)
+    end
+end
+
+local function interceptDiscordModal(inst)
+    if not inst then return end
+    pcall(function()
+        if (inst:IsA("TextLabel") or inst:IsA("TextButton")) then
+            local txt = inst.Text
+            if txt and (txt:find("CONTINUE TO HUB", 1, true) or txt:find("JOIN OUR DISCORD", 1, true)) then
+                -- Tìm khung bao ngoài của cửa sổ Discord
+                local topModal = inst
+                while topModal.Parent and not topModal.Parent:IsA("ScreenGui") and topModal.Parent ~= game do
+                    topModal = topModal.Parent
+                end
+                
+                if topModal and topModal:IsA("GuiObject") then
+                    -- Ẩn ngay lập tức và ném ra khỏi màn hình trước khi kịp render
+                    topModal.Visible = false
+                    topModal.Position = UDim2.new(0, -99999, 0, -99999)
+
+                    -- Dò tìm nút "CONTINUE TO HUB" để kích hoạt click
+                    for _, child in ipairs(topModal:GetDescendants()) do
+                        if (child:IsA("TextButton") or child:IsA("TextLabel")) and child.Text:find("CONTINUE TO HUB", 1, true) then
+                            local realBtn = child:IsA("TextButton") and child or child:FindFirstAncestorOfClass("TextButton")
+                            if realBtn then
+                                task.spawn(function()
+                                    for _ = 1, 5 do
+                                        triggerButtonClick(realBtn)
+                                        task.wait(0.04)
+                                    end
+                                end)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end)
+end
+
+-- Kích hoạt bộ chặn ngay lập tức trên mọi vùng nhớ GUI
+local guiRoots = {}
+if gethui then pcall(function() table.insert(guiRoots, gethui()) end) end
+pcall(function() table.insert(guiRoots, CoreGuiService) end)
+if LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui") then
+    table.insert(guiRoots, LocalPlayer.PlayerGui)
+end
+
+for _, root in ipairs(guiRoots) do
+    pcall(function()
+        for _, desc in ipairs(root:GetDescendants()) do
+            interceptDiscordModal(desc)
+        end
+        root.DescendantAdded:Connect(function(child)
+            interceptDiscordModal(child)
+        end)
+    end)
+end
+
+-- Vòng lặp quét nhanh trong 5 giây đầu để triệt tiêu độ trễ
+task.spawn(function()
+    local startT = tick()
+    while tick() - startT < 6 do
+        for _, root in ipairs(guiRoots) do
+            pcall(function()
+                for _, desc in ipairs(root:GetDescendants()) do
+                    interceptDiscordModal(desc)
+                end
+            end)
+        end
+        task.wait(0.05)
+    end
+end)
+
+-- ==================== CẤU HÌNH GIAO DIỆN RONNEI HUB ====================
 local THEME = {
-    BarBG      = Color3.fromRGB(15, 25, 18),       -- Nền xanh rêu tối sâu chuẩn tone ONhub
-    CardBG     = Color3.fromRGB(20, 36, 26),       -- Nền thẻ nút
-    Border     = Color3.fromRGB(40, 80, 50),       -- Viền kim loại xanh
-    AccentMint = Color3.fromRGB(0, 230, 120),      -- Xanh ngọc Cyber Mint
-    ToggleOff  = Color3.fromRGB(38, 43, 56),       -- Nút khi tắt (OFF)
-    TextMain   = Color3.fromRGB(245, 248, 255),    -- Màu chữ chính
-    TextSub    = Color3.fromRGB(150, 180, 160),    -- Màu chữ phụ
+    BarBG      = Color3.fromRGB(15, 25, 18),
+    CardBG     = Color3.fromRGB(20, 36, 26),
+    Border     = Color3.fromRGB(40, 80, 50),
+    AccentMint = Color3.fromRGB(0, 230, 120),
+    ToggleOff  = Color3.fromRGB(38, 43, 56),
+    TextMain   = Color3.fromRGB(245, 248, 255),
+    TextSub    = Color3.fromRGB(150, 180, 160),
     FontB      = Enum.Font.GothamBold,
     FontM      = Enum.Font.GothamMedium
 }
 
--- ==================== BẢNG TỪ ĐIỂN TỔNG HỢP TOÀN BỘ CÁC TAB ====================
+-- ==================== BẢNG TỪ ĐIỂN DỊCH THUẬT TOÀN DIỆN ====================
 local RAW_TRANSLATIONS = {
     -- 1. TAB CẤU HÌNH: BỘ LỌC MỤC TIÊU (TARGET FILTER)
     {"Fast mode (grab the closest)", "Chế độ nhanh (nhặt trứng gần nhất)"},
     {"Selected pets only", "Chỉ nhặt thú cưng đã chọn"},
     {"Mutated eggs only", "Chỉ nhặt trứng đột biến"},
-    {"Skip eggs with a player within [PvP]:", "Bỏ qua trứng có người chơi gần [PvP]:"},
-    {"Skip eggs with a player within [PvP]", "Bỏ qua trứng có người chơi gần [PvP]"},
+    {"Skip eggs with a player within [PvP]:", "Bỏ qua trứng có người gần [PvP]:"},
+    {"Skip eggs with a player within [PvP]", "Bỏ qua trứng có người gần [PvP]"},
     {"Minimum rarity:", "Độ hiếm tối thiểu:"},
     {"Minimum rarity", "Độ hiếm tối thiểu"},
     {"Maximum target distance:", "Khoảng cách mục tiêu tối đa:"},
     {"Maximum target distance", "Khoảng cách mục tiêu tối đa"},
     {"TARGET FILTER", "BỘ LỌC MỤC TIÊU"},
 
-    -- 2. TAB CẤU HÌNH: TRỌNG SỐ ƯU TIÊN MỤC TIÊU (RANKING WEIGHTS)
+    -- 2. TAB CẤU HÌNH: TRỌNG SỐ ƯU TIÊN (RANKING WEIGHTS)
     {"On, the ranking is $/s by the game's own formula and the weights above are inert (distance only counts when the instant TP is unusable).", "Khi bật, mục tiêu xếp theo $/s theo công thức của game và các trọng số trên sẽ tắt (khoảng cách chỉ tính khi không thể dùng TP tức thì)."},
     {"Rank by pure $/s", "Ưu tiên thuần theo $/giây"},
     {"Rarity weight:", "Trọng số độ hiếm:"},
@@ -85,27 +179,19 @@ local RAW_TRANSLATIONS = {
     {"Timestamp rewind per step:", "Tua ngược thời gian mỗi bước:"},
     {"Timestamp rewind per step", "Tua ngược thời gian mỗi bước"},
     {"FAST TRAVEL", "DI CHUYỂN NHANH (TELEPORT)"},
-
-    -- Các đoạn giải thích kỹ thuật trong FAST TRAVEL
     {"The anti-cheat validates distance divided by time. The hop rewinds the timestamp of its samples before every step:", "Chống hack kiểm tra khoảng cách chia cho thời gian. Bước nhảy tua lại mốc thời gian trước mỗi bước:"},
-    {"The anti-cheat validates distance divided by time.", "Chống hack kiểm tra khoảng cách chia cho thời gian."},
-    {"A raw step passes at 85", "Bước thô qua ở 85"},
-    {"and reverts at 100.", "và bị lùi lại ở 100."},
     {"The instant TP needs a ragdoll window opened by the SERVER. It uses a first-area egg as the ticket but does NOT consume it: the strike only DROPS that egg and it returns to its own slot, so the real cost is the ~0.5s to walk over and grab it, not an egg.", "TP tức thì cần khe hở ragdoll do SERVER mở. Nó dùng trứng khu 1 làm vé nhưng KHÔNG mất: đòn đánh chỉ làm RƠI trứng về chỗ cũ, chi phí thực chỉ là ~0.5s đi lại nhặt, không mất trứng."},
-    {"One window = ONE leg of the trip. Measured: the server refuses to pick up any egg for the whole ragdoll (cannot carry eggs while knocked down) and the position exemption dies the instant the ragdoll ends - a TP written 51ms after EndRagdoll already gets relocated. So the TP covers the way OUT and the way back with the egg is always the chained hop.", "Một khe hở = 1 lượt đi. Server từ chối nhặt trứng khi đang ragdoll (không thể cầm trứng khi ngã) và quyền miễn trừ vị trí mất ngay khi hết ragdoll - TP sau 51ms đã bị kéo về. Vì vậy TP dùng cho lượt ĐI, còn lượt VỀ ôm trứng luôn là nhảy bước CFrame."},
+    {"One window = ONE leg of the trip. Measured: the server refuses to pick up any egg for the whole ragdoll (cannot carry eggs while knocked down) and the position exemption dies the instant the ragdoll ends - a TP written 51ms after EndRagdoll already gets relocated. So the TP covers the way OUT and the way back with the egg is always the chained hop.", "Một khe hở = 1 lượt đi. Server từ chối nhặt trứng khi đang ragdoll (không thể cầm trứng khi ngã) và quyền miễn trừ vị trí mất ngay khi hết ragdoll. TP dùng cho lượt ĐI, lượt VỀ luôn là nhảy CFrame."},
     {"No metatable hook is used: __namecall got a kick in a direct test.", "Không dùng hook metatable: __namecall đã bị kick khi thử nghiệm."},
     {"Travel speed is step divided by interval. Default 80 / 0.08 = 1000", "Tốc độ di chuyển = bước chia cho thời gian chờ. Mặc định 80 / 0.08 = 1000"},
     {"GETTING ROLLBACK? Raise the rewind first as it inflates the distance the client-side detector allows per step and costs nothing. Only then lower the step, or raise the interval.", "BỊ GIẬT LÙI? Hãy tăng tua ngược thời gian trước vì nó mở rộng khoảng cách cho phép mỗi bước. Sau đó mới giảm bước hoặc tăng thời gian chờ."},
-    {"Do NOT raise the step hoping to go faster: measured 130", "ĐỪNG tăng bước quá cao để đi nhanh: đo 130"},
-    {"gave 25 reverts and the average COLLAPSED to 135", "bị lùi 25 lần và tốc độ TỤT còn 135"},
     {"Every revert forces a retry, so a big step is slower in practice.", "Mỗi lần lùi phải thử lại nên bước lớn thực tế lại chậm hơn."},
-    {"When it does revert the hub already shrinks the step on its own (80 -> 56 -> 39 -> 30) instead of dropping to walking.", "Khi bị lùi hub sẽ tự giảm bước (80 -> 56 -> 39 -> 30) thay vì chuyển sang đi bộ."},
 
     -- 5. TAB CẤU HÌNH: RIFT & GIAO DIỆN (INTERFACE)
     {"Count pets you already own", "Tính cả thú cưng bạn đã có"},
     {"Plant recipe eggs on the plot", "Đặt trứng công thức lên khu đất"},
     {"Plant index eggs on the plot", "Đặt trứng sưu tập lên khu đất"},
-    {"The machine CONSUMES the 3 pets on trade-in. With the first option on, a pet you already have free in the inventory closes that slot and the hub will not hunt that animal - the bar shows the count (p = pet, o = egg, eq = placed). Turn it off to hunt all three from scratch and keep the pets you have.", "Máy RIFT sẽ TIÊU THỤ 3 thú cưng khi đổi. Bật tùy chọn đầu, thú cưng có sẵn trong túi sẽ lấp ô đó và hub không cần săn con đó nữa - thanh hiển thị số lượng (p = thú, o = trứng, eq = đã đặt). Tắt đi nếu muốn săn mới cả 3 và giữ lại thú cưng đang có."},
+    {"The machine CONSUMES the 3 pets on trade-in. With the first option on, a pet you already have free in the inventory closes that slot and the hub will not hunt that animal - the bar shows the count (p = pet, o = egg, eq = placed). Turn it off to hunt all three from scratch and keep the pets you have.", "Máy RIFT sẽ TIÊU THỤ 3 thú cưng khi đổi. Bật tùy chọn đầu, thú cưng có sẵn trong túi sẽ lấp ô đó và hub không cần săn con đó nữa. Tắt đi nếu muốn săn mới cả 3 và giữ lại thú cưng đang có."},
     {"Floating button (show/hide)", "Nút tròn nổi (hiện/ẩn)"},
     {"Interface scale:", "Tỷ lệ giao diện:"},
     {"Interface scale", "Tỷ lệ giao diện"},
@@ -113,7 +199,7 @@ local RAW_TRANSLATIONS = {
     {"INTERFACE", "GIAO DIỆN"},
     {"RIFT", "MÁY RIFT"},
 
-    -- 6. CÁC MỤC TAB CÀY TIỀN (FARM) & RUNTIME
+    -- 6. TAB CÀY TIỀN (FARM) & RUNTIME
     {"no mode: farming by $/s. RIFT hunts the machine recipe. INDEX hunts what your codex is missing", "Cơ bản: cày theo $/s. RIFT: săn công thức máy. SƯU TẬP: săn trứng thiếu"},
     {"no mode: farming by $/s. RIFT hunts the machine. INDEX hunts what your codex is missing", "Cơ bản: cày theo $/s. RIFT: săn máy. SƯU TẬP: săn trứng thiếu"},
     {"hunts what your codex is missing", "săn trứng còn thiếu"},
@@ -132,12 +218,12 @@ local RAW_TRANSLATIONS = {
     {"INDEX: OFF", "SƯU TẬP: TẮT"},
     {"INDEX: ON", "SƯU TẬP: BẬT"},
 
-    -- 7. THANH TABS BÊN TRÁI
+    -- 7. THANH TABS
     {"FARM", "CÀY TIỀN"},
     {"PETS", "THÚ CƯNG"},
     {"CONFIG", "CẤU HÌNH"},
 
-    -- 8. THÔNG SỐ RUNTIME & TRẠNG THÁI
+    -- 8. THÔNG SỐ RUNTIME
     {"heading to Koi", "Đang tới Cá Koi"},
     {"heading to", "Đang tới"},
     {"delivered", "đã giao"},
@@ -146,7 +232,7 @@ local RAW_TRANSLATIONS = {
     {"idle", "đang chờ"},
     {"studs", "mét"},
 
-    -- 9. TÊN THÚ CƯNG
+    -- 9. TÊN THÚ CƯNG & KHU VỰC
     {"Burrowing Owl", "Cú Hang"},
     {"Bladehide", "Thằn Lằn Gai"},
     {"Bronto", "Khủng Long Cổ Dài"},
@@ -158,8 +244,6 @@ local RAW_TRANSLATIONS = {
     {"Whale Shark", "Cá Mập Voi"},
     {"Beluga Whale", "Cá Voi Trắng"},
     {"Koi", "Cá Koi"},
-
-    -- 10. ĐỘ HIẾM & KHU VỰC
     {"Common", "Thường"},
     {"Rare", "Hiếm"},
     {"Epic", "Sử Thi"},
@@ -176,7 +260,6 @@ local RAW_TRANSLATIONS = {
     {"Prehistoric", "Tiền Sử"}
 }
 
--- Sắp xếp chuỗi dài lên trước để không bị nuốt chuỗi con
 table.sort(RAW_TRANSLATIONS, function(a, b)
     return #a[1] > #b[1]
 end)
@@ -212,7 +295,7 @@ local targetOnhubWindow = nil
 local isApplyingTranslation = false
 
 local PinGui = Instance.new("ScreenGui")
-PinGui.Name = "Ronnei_ONhub_UltimateConfig"
+PinGui.Name = "Ronnei_ONhub_AutoBypassMaster"
 PinGui.ResetOnSpawn = false
 PinGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 PinGui.DisplayOrder = 999999
@@ -231,7 +314,7 @@ local BarStroke = Instance.new("UIStroke", PinBar)
 BarStroke.Color = THEME.AccentMint
 BarStroke.Thickness = 1.2
 
--- Kéo thanh ghim để di chuyển toàn bộ cửa sổ ONhub
+-- Kéo thanh ghim di chuyển menu
 local dragging, dragStart, startWinPos = false, nil, nil
 PinBar.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -254,7 +337,7 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
--- Huy hiệu TikTok Ronnei Hub
+-- TikTok Badge
 local TikTokBadge = Instance.new("Frame", PinBar)
 TikTokBadge.Size = UDim2.new(0, 135, 0, 20)
 TikTokBadge.Position = UDim2.new(0, 4, 0.5, 0)
@@ -290,7 +373,7 @@ task.spawn(function()
     end
 end)
 
--- Nút gạt chuyển đổi ngôn ngữ ON / OFF
+-- Nút gạt chuyển đổi ON / OFF
 local ControlBox = Instance.new("Frame", PinBar)
 ControlBox.Size = UDim2.new(0, 160, 0, 22)
 ControlBox.Position = UDim2.new(1, -4, 0.5, 0)
@@ -358,7 +441,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== BỘ QUÉT TẦNG SÂU VÀ DỊCH TỨC THỜI (ZERO-FLICKER) ====================
+-- ==================== BỘ QUÉT TẦNG SÂU VÀ DỊCH TỨC THỜI ====================
 local function applyElemTranslation(elem)
     if isApplyingTranslation then return end
     if not (elem:IsA("TextLabel") or elem:IsA("TextButton")) then return end
@@ -404,15 +487,23 @@ local function hookElement(elem)
     end
 end
 
--- ==================== BỘ TÌM KIẾM ĐA TAB (KHÔNG BAO GIỜ LẠC CỬA SỔ) ====================
+-- ==================== BỘ TÌM KIẾM CỬA SỔ ONHUB CHÍNH XÁC 100% ====================
 local IDENTIFIERS = {
     "FARM", "CÀY TIỀN",
     "PETS", "THÚ CƯNG",
     "CONFIG", "CẤU HÌNH",
     "START FARM", "BẮT ĐẦU CÀY",
-    "TARGET FILTER", "BỘ LỌC MỤC TIÊU",
-    "onhub"
+    "TARGET FILTER", "BỘ LỌC MỤC TIÊU"
 }
+
+local function isDiscordWindow(win)
+    for _, d in ipairs(win:GetDescendants()) do
+        if (d:IsA("TextLabel") or d:IsA("TextButton")) and (d.Text:find("CONTINUE TO HUB", 1, true) or d.Text:find("JOIN OUR DISCORD", 1, true)) then
+            return true
+        end
+    end
+    return false
+end
 
 local function findOnhubWindow()
     local function scanRoot(root)
@@ -430,7 +521,9 @@ local function findOnhubWindow()
                                 p = p.Parent
                             end
                             if p and (p:IsA("Frame") or p:IsA("CanvasGroup") or p:IsA("GuiObject")) and p.AbsoluteSize.X > 300 and p.AbsoluteSize.Y > 150 then
-                                return p
+                                if not isDiscordWindow(p) then
+                                    return p
+                                end
                             end
                         end
                     end
@@ -448,13 +541,15 @@ local function findOnhubWindow()
         for _, ins in ipairs(getinstances()) do
             if (ins:IsA("TextLabel") or ins:IsA("TextButton")) and not ins:IsDescendantOf(PinGui) then
                 local t = ins.Text
-                if t == "CONFIG" or t == "CẤU HÌNH" or t == "FARM" or t == "CÀY TIỀN" or t == "START FARM" or t:find("onhub", 1, true) then
+                if t == "CONFIG" or t == "CẤU HÌNH" or t == "FARM" or t == "CÀY TIỀN" or t == "START FARM" then
                     local p = ins
                     while p and p.Parent and not p.Parent:IsA("ScreenGui") and p.Parent ~= game do
                         p = p.Parent
                     end
                     if p and (p:IsA("Frame") or p:IsA("CanvasGroup") or p:IsA("GuiObject")) and p.AbsoluteSize.X > 300 and p.AbsoluteSize.Y > 150 then
-                        return p
+                        if not isDiscordWindow(p) then
+                            return p
+                        end
                     end
                 end
             end
@@ -463,18 +558,18 @@ local function findOnhubWindow()
     return found
 end
 
--- ==================== ĐỒNG BỘ HIỂN THỊ TỰ ĐỘNG THEO CỬA SỔ (CHỐNG MẤT NÚT) ====================
+-- ==================== ĐỒNG BỘ HIỂN THỊ TỰ ĐỘNG (KHÔNG BAO GIỜ MẤT NÚT) ====================
 RunService.RenderStepped:Connect(function()
     if targetOnhubWindow and targetOnhubWindow.Parent then
         local winSize = targetOnhubWindow.AbsoluteSize
         local winPos = targetOnhubWindow.AbsolutePosition
 
-        -- Điều kiện thực tế: ONhub đang mở và hiển thị trên màn hình
-        local isActuallyVisible = targetOnhubWindow.Visible and winSize.Y > 100 and winPos.Y > -200 and winPos.Y < 2000
+        -- Điều kiện: ONhub đang mở và hiển thị đầy đủ trên màn hình
+        local isShowing = targetOnhubWindow.Visible and winSize.Y > 100 and winPos.Y > -100 and winPos.Y < 2000
 
-        if isActuallyVisible then
+        if isShowing then
             PinBar.Visible = true
-            -- Đặt gọn 310px ở góc trái mép trên: hở trọn vẹn status giữa và 2 nút [-] [X]
+            -- Cố định 310px ở góc trái: hở trọn vẹn status giữa và 2 nút [-] [X]
             PinBar.Position = UDim2.new(0, winPos.X + 4, 0, winPos.Y + 3)
             PinBar.Size = UDim2.new(0, 310, 0, 28)
         else
@@ -485,7 +580,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- Vòng lặp duy trì dịch và gắn bộ lắng nghe chống trôi
+-- Vòng lặp duy trì dịch
 task.spawn(function()
     while true do
         pcall(function()
