@@ -1,6 +1,6 @@
 -- ==============================================================================
---  RONNEI HUB - ONHUB ALL-IN-ONE (INSTANT CLICK & KEYBIND FLOOR STEAL)
---  Bấm 1 phát nhặt ngay | Phím B hút trứng | Không tự nhặt khi đi ngang qua
+--  RONNEI HUB - ONHUB MASTER EDITION [UPDATE v3.6]
+--  Bảng thông báo v3.6 | Mặc định TP 1200m/Hop 60m | Fix Pet mọi máy | Anti Trap/Ragdoll | Dịch 100%
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -14,7 +14,272 @@ local Terrain = Workspace:FindFirstChildOfClass("Terrain")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- ==================== 1. MODULE FLOOR STEAL & INSTANT CLICK (KHÔNG TỰ HÚT KHI ĐI QUA) ====================
+-- ==================== THEME CẤU HÌNH GIAO DIỆN ====================
+local THEME = {
+    BarBG      = Color3.fromRGB(15, 25, 18),
+    CardBG     = Color3.fromRGB(20, 36, 26),
+    ModalBG    = Color3.fromRGB(12, 20, 15),
+    Border     = Color3.fromRGB(40, 80, 50),
+    AccentMint = Color3.fromRGB(0, 230, 120),
+    ToggleOff  = Color3.fromRGB(38, 43, 56),
+    TextMain   = Color3.fromRGB(245, 248, 255),
+    TextSub    = Color3.fromRGB(160, 190, 170),
+    FontB      = Enum.Font.GothamBold,
+    FontM      = Enum.Font.GothamMedium
+}
+
+-- Dọn sạch phiên bản cũ
+local cleanList = {
+    "Ronnei_ONhub_DockedMaster",
+    "Ronnei_HeaderDockedMaster",
+    "Ronnei_PerfectDockMaster",
+    "Ronnei_ONhub_CompactMaster",
+    "Ronnei_ONhub_UltimateConfig",
+    "Ronnei_ONhub_AutoBypassMaster",
+    "Ronnei_ONhub_EncryptedMaster",
+    "Ronnei_ONhub_UltraPotatoMaster",
+    "Ronnei_ONhub_AntiTrapRagdollMaster",
+    "Ronnei_ONhub_HardLockedMaster",
+    "Ronnei_ONhub_FloorStealMaster",
+    "Ronnei_ONhub_CleanInteractMaster",
+    "Ronnei_ONhub_FinalDeviceFixed",
+    "Ronnei_ONhub_v36_Master"
+}
+for _, name in ipairs(cleanList) do
+    pcall(function()
+        if CoreGuiService:FindFirstChild(name) then CoreGuiService[name]:Destroy() end
+        if gethui and gethui():FindFirstChild(name) then gethui()[name]:Destroy() end
+    end)
+end
+
+local MainGui = Instance.new("ScreenGui")
+MainGui.Name = "Ronnei_ONhub_v36_Master"
+MainGui.ResetOnSpawn = false
+MainGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+MainGui.DisplayOrder = 999999
+MainGui.Parent = (gethui and gethui()) or CoreGuiService
+
+-- ==================== BẢNG THÔNG BÁO CẬP NHẬT v3.6 ====================
+local function createUpdateModal()
+    local Modal = Instance.new("Frame", MainGui)
+    Modal.Name = "UpdateNoticeModal"
+    Modal.Size = UDim2.new(0, 360, 0, 330)
+    Modal.Position = UDim2.new(0.5, -180, 0.5, -165)
+    Modal.BackgroundColor3 = THEME.ModalBG
+    Modal.BorderSizePixel = 0
+    Modal.ZIndex = 200
+
+    Instance.new("UICorner", Modal).CornerRadius = UDim.new(0, 10)
+    local ModalStroke = Instance.new("UIStroke", Modal)
+    ModalStroke.Color = THEME.AccentMint
+    ModalStroke.Thickness = 1.4
+
+    -- Header Modal
+    local Header = Instance.new("Frame", Modal)
+    Header.Size = UDim2.new(1, 0, 0, 42)
+    Header.BackgroundColor3 = THEME.BarBG
+    Header.BorderSizePixel = 0
+    Header.ZIndex = 201
+    Instance.new("UICorner", Header).CornerRadius = UDim.new(0, 10)
+
+    local Title = Instance.new("TextLabel", Header)
+    Title.Size = UDim2.new(1, -50, 1, 0)
+    Title.Position = UDim2.new(0, 14, 0, 0)
+    Title.BackgroundTransparency = 1
+    Title.Text = "RONNEI HUB - BẢN CẬP NHẬT v3.6"
+    Title.Font = THEME.FontB
+    Title.TextSize = 13
+    Title.TextColor3 = THEME.AccentMint
+    Title.TextXAlignment = Enum.TextXAlignment.Left
+    Title.ZIndex = 202
+
+    local CloseBtn = Instance.new("TextButton", Header)
+    CloseBtn.Size = UDim2.new(0, 26, 0, 26)
+    CloseBtn.Position = UDim2.new(1, -34, 0.5, 0)
+    CloseBtn.AnchorPoint = Vector2.new(0, 0.5)
+    CloseBtn.BackgroundColor3 = THEME.CardBG
+    CloseBtn.Text = "✕"
+    CloseBtn.Font = THEME.FontB
+    CloseBtn.TextSize = 12
+    CloseBtn.TextColor3 = Color3.fromRGB(220, 220, 220)
+    CloseBtn.ZIndex = 202
+    Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 6)
+
+    -- Nội dung Changelog (Chỉ hiển thị các tính năng cần cho người dùng biết)
+    local Content = Instance.new("Frame", Modal)
+    Content.Size = UDim2.new(1, -24, 0, 215)
+    Content.Position = UDim2.new(0, 12, 0, 50)
+    Content.BackgroundTransparency = 1
+    Content.ZIndex = 201
+
+    local logList = {
+        "🇻🇳  Việt Hóa 100%: Dịch chuẩn toàn bộ tính năng và tab Cấu Hình.",
+        "📱  Sửa lỗi Pet: Khắc phục bảng danh sách Pet tàng hình trên điện thoại.",
+        "⚡  Ultra Potato FPS: Tối ưu đồ họa sâu, triệt tiêu lag tối đa.",
+        "🛡️  Anti-Ragdoll v2 & Anti-Trap: Chống ngã và vô hiệu hóa bẫy chạy ngầm.",
+        "🥚  Floor Steal 0ms: Chạm là nhặt trứng ngay lập tức, bấm B hút trứng quanh sàn.",
+        "⚙️  Tối ưu cấu hình: Tự nạp khoảng cách TP 1200m & Bước nhảy 60m chuẩn."
+    }
+
+    local yPos = 0
+    for _, log in ipairs(logList) do
+        local row = Instance.new("TextLabel", Content)
+        row.Size = UDim2.new(1, 0, 0, 32)
+        row.Position = UDim2.new(0, 0, 0, yPos)
+        row.BackgroundTransparency = 1
+        row.Text = log
+        row.Font = THEME.FontM
+        row.TextSize = 11
+        row.TextColor3 = THEME.TextMain
+        row.TextXAlignment = Enum.TextXAlignment.Left
+        row.TextWrapped = true
+        row.ZIndex = 202
+        yPos = yPos + 34
+    end
+
+    -- Nút bấm xác nhận đóng bảng
+    local ConfirmBtn = Instance.new("TextButton", Modal)
+    ConfirmBtn.Size = UDim2.new(1, -24, 0, 32)
+    ConfirmBtn.Position = UDim2.new(0, 12, 1, -40)
+    ConfirmBtn.BackgroundColor3 = THEME.CardBG
+    ConfirmBtn.Text = "ĐÃ HIỂU & BẮT ĐẦU"
+    ConfirmBtn.Font = THEME.FontB
+    ConfirmBtn.TextSize = 11
+    ConfirmBtn.TextColor3 = THEME.AccentMint
+    ConfirmBtn.ZIndex = 202
+    Instance.new("UICorner", ConfirmBtn).CornerRadius = UDim.new(0, 6)
+    local BtnStroke = Instance.new("UIStroke", ConfirmBtn)
+    BtnStroke.Color = THEME.AccentMint
+    BtnStroke.Thickness = 1
+
+    local function dismissModal()
+        TweenService:Create(Modal, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Position = UDim2.new(0.5, -180, 0.5, -190),
+            BackgroundTransparency = 1
+        }):Play()
+        task.wait(0.25)
+        Modal:Destroy()
+    end
+
+    CloseBtn.MouseButton1Click:Connect(dismissModal)
+    ConfirmBtn.MouseButton1Click:Connect(dismissModal)
+end
+task.spawn(createUpdateModal)
+
+-- ==================== 1. FIX BẢNG PET & TỐI ƯU HIỂN THỊ ====================
+local function fixPetTableLayout(container)
+    if not container then return end
+    pcall(function()
+        for _, obj in ipairs(container:GetDescendants()) do
+            if obj:IsA("CanvasGroup") then
+                obj.GroupTransparency = 0
+            end
+            if obj:IsA("ScrollingFrame") then
+                obj.Visible = true
+                obj.ClipsDescendants = false
+                obj.ScrollBarImageTransparency = 0.2
+                if obj.CanvasSize.Y.Offset == 0 and obj.CanvasSize.Y.Scale == 0 then
+                    obj.AutomaticCanvasSize = Enum.AutomaticSize.Y
+                    obj.CanvasSize = UDim2.new(0, 0, 2, 0)
+                end
+            end
+            if obj:IsA("Frame") and (obj.Name:lower():find("target") or obj.Name:lower():find("pet") or obj.Name:lower():find("list")) then
+                obj.Visible = true
+                obj.ClipsDescendants = false
+            end
+        end
+    end)
+end
+
+-- ==================== 2. CÀI ĐẶT CHỈ SỐ MẶC ĐỊNH CHO 2 THANH TRƯỢT ====================
+local appliedDefaultSliders = false
+
+local function setSliderValue(sliderFrame, targetVal, minVal, maxVal)
+    pcall(function()
+        local track = nil
+        for _, child in ipairs(sliderFrame:GetDescendants()) do
+            if child:IsA("GuiObject") and child ~= sliderFrame and not child:IsA("TextLabel") then
+                if child.Size.X.Scale > 0.4 or child.AbsoluteSize.X > 80 then
+                    track = child
+                    break
+                end
+            end
+        end
+
+        local pct = math.clamp((targetVal - minVal) / (maxVal - minVal), 0, 1)
+
+        if track and getconnections then
+            local conns = {}
+            for _, c in ipairs(getconnections(track.InputBegan)) do table.insert(conns, c) end
+            for _, c in ipairs(getconnections(track.MouseButton1Down)) do table.insert(conns, c) end
+
+            for _, conn in ipairs(conns) do
+                if conn.Function and debug and debug.getupvalues then
+                    local uvs = debug.getupvalues(conn.Function)
+                    for _, uv in pairs(uvs) do
+                        if type(uv) == "function" then
+                            pcall(function() uv(targetVal) end)
+                        elseif type(uv) == "table" then
+                            for k, _ in pairs(uv) do
+                                if tostring(k):lower():find("dist") and targetVal == 1200 then
+                                    uv[k] = 1200
+                                elseif tostring(k):lower():find("step") and targetVal == 60 then
+                                    uv[k] = 60
+                                end
+                            end
+                        end
+                    end
+                end
+
+                local fakeX = track.AbsolutePosition.X + (track.AbsoluteSize.X * pct)
+                local fakeY = track.AbsolutePosition.Y + (track.AbsoluteSize.Y / 2)
+                local fakeInput = {
+                    Position = Vector3.new(fakeX, fakeY, 0),
+                    UserInputType = Enum.UserInputType.MouseButton1,
+                    UserInputState = Enum.UserInputState.Begin
+                }
+                pcall(function() conn:Fire(fakeInput) end)
+            end
+
+            for _, fill in ipairs(track:GetDescendants()) do
+                if fill:IsA("Frame") and fill ~= track then
+                    fill.Size = UDim2.new(pct, 0, 1, 0)
+                end
+            end
+        end
+    end)
+end
+
+local function applyDefaultSlidersOnce(window)
+    if appliedDefaultSliders or not window then return end
+    local foundTP = false
+    local foundHop = false
+
+    for _, label in ipairs(window:GetDescendants()) do
+        if label:IsA("TextLabel") then
+            local txt = label.Text
+            if txt:find("Khoảng cách tối thiểu để TP") or txt:find("Minimum distance for TP") then
+                local sliderRow = label.Parent
+                if sliderRow then
+                    setSliderValue(sliderRow, 1200, 0, 2000)
+                    foundTP = true
+                end
+            elseif txt:find("Độ dài bước nhảy") or txt:find("Hop step") then
+                local sliderRow = label.Parent
+                if sliderRow then
+                    setSliderValue(sliderRow, 60, 0, 150)
+                    foundHop = true
+                end
+            end
+        end
+    end
+
+    if foundTP and foundHop then
+        appliedDefaultSliders = true
+    end
+end
+
+-- ==================== 3. MODULE FLOOR STEAL & INSTANT CLICK ====================
 task.spawn(function()
     local function firePrompt(prompt)
         if not prompt or not prompt.Parent then return end
@@ -31,7 +296,6 @@ task.spawn(function()
 
     local function optimizePrompt(prompt)
         if prompt:IsA("ProximityPrompt") then
-            -- Chạm/Click 1 phát ăn ngay, không cần giữ và nhặt được xuyên sàn/vật cản
             prompt.HoldDuration = 0
             prompt.RequiresLineOfSight = false
         end
@@ -42,12 +306,10 @@ task.spawn(function()
     end
     Workspace.DescendantAdded:Connect(optimizePrompt)
 
-    -- Khi người chơi chủ động bấm nút nhặt -> Kích hoạt ngay 0ms không chờ giữ
     ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
         firePrompt(prompt)
     end)
 
-    -- Phím tắt [B]: Chủ động kích hoạt Floor Steal hút trứng xung quanh
     UserInputService.InputBegan:Connect(function(input, gpe)
         if gpe then return end
         if input.KeyCode == Enum.KeyCode.B then
@@ -71,7 +333,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 2. MODULE ANTI-RAGDOLL V2 (HARD-LOCKED) ====================
+-- ==================== 4. MODULE ANTI-RAGDOLL V2 ====================
 task.spawn(function()
     local activeRagdollLoop = nil
 
@@ -155,7 +417,7 @@ task.spawn(function()
     LocalPlayer.CharacterAdded:Connect(setupHardAntiRagdoll)
 end)
 
--- ==================== 3. MODULE ANTI-TRAP (TRIỆT TIÊU BẪY) ====================
+-- ==================== 5. MODULE ANTI-TRAP ====================
 task.spawn(function()
     local trapKeywords = {"trap", "beartrap", "subspace", "mine", "landmine", "turret", "spike"}
 
@@ -200,7 +462,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 4. MODULE SIÊU GIẢM LAG (POTATO MODE) ====================
+-- ==================== 6. MODULE POTATO MODE (BẢO VỆ MÔ HÌNH PET) ====================
 task.spawn(function()
     pcall(function()
         if settings and settings().Rendering then
@@ -227,6 +489,12 @@ task.spawn(function()
 
         local function stripGraphics(obj)
             pcall(function()
+                if obj:FindFirstAncestorOfClass("ViewportFrame") 
+                   or obj:FindFirstAncestorOfClass("ScreenGui") 
+                   or (Workspace.CurrentCamera and obj:IsDescendantOf(Workspace.CurrentCamera)) then
+                    return
+                end
+
                 if obj:IsA("BasePart") then
                     obj.Material = Enum.Material.SmoothPlastic
                     obj.CastShadow = false
@@ -252,29 +520,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 5. DỌN SẠCH BẢN GHIM CŨ ====================
-local cleanList = {
-    "Ronnei_ONhub_DockedMaster",
-    "Ronnei_HeaderDockedMaster",
-    "Ronnei_PerfectDockMaster",
-    "Ronnei_ONhub_CompactMaster",
-    "Ronnei_ONhub_UltimateConfig",
-    "Ronnei_ONhub_AutoBypassMaster",
-    "Ronnei_ONhub_EncryptedMaster",
-    "Ronnei_ONhub_UltraPotatoMaster",
-    "Ronnei_ONhub_AntiTrapRagdollMaster",
-    "Ronnei_ONhub_HardLockedMaster",
-    "Ronnei_ONhub_FloorStealMaster",
-    "Ronnei_ONhub_CleanInteractMaster"
-}
-for _, name in ipairs(cleanList) do
-    pcall(function()
-        if CoreGuiService:FindFirstChild(name) then CoreGuiService[name]:Destroy() end
-        if gethui and gethui():FindFirstChild(name) then gethui()[name]:Destroy() end
-    end)
-end
-
--- ==================== 6. AUTO-BYPASS DISCORD ====================
+-- ==================== 7. AUTO-BYPASS DISCORD NGẦM ====================
 local function triggerButtonClick(btn)
     if not btn then return end
     if firesignal then
@@ -351,7 +597,7 @@ task.spawn(function()
     end
 end)
 
--- ==================== 7. NẠP MÃ HÓA SCRIPT GỐC ====================
+-- ==================== 8. NẠP MÃ HÓA SCRIPT GỐC ====================
 task.spawn(function()
     pcall(function()
         local _byteStream = {
@@ -373,19 +619,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 8. CẤU HÌNH GIAO DIỆN & TỪ ĐIỂN DỊCH ====================
-local THEME = {
-    BarBG      = Color3.fromRGB(15, 25, 18),
-    CardBG     = Color3.fromRGB(20, 36, 26),
-    Border     = Color3.fromRGB(40, 80, 50),
-    AccentMint = Color3.fromRGB(0, 230, 120),
-    ToggleOff  = Color3.fromRGB(38, 43, 56),
-    TextMain   = Color3.fromRGB(245, 248, 255),
-    TextSub    = Color3.fromRGB(150, 180, 160),
-    FontB      = Enum.Font.GothamBold,
-    FontM      = Enum.Font.GothamMedium
-}
-
+-- ==================== 9. TỪ ĐIỂN DỊCH THUẬT TOÀN DIỆN ====================
 local RAW_TRANSLATIONS = {
     {"Fast mode (grab the closest)", "Chế độ nhanh (nhặt trứng gần nhất)"},
     {"Selected pets only", "Chỉ nhặt thú cưng đã chọn"},
@@ -524,20 +758,13 @@ local function translateText(raw)
     return res
 end
 
--- ==================== 9. TẠO THANH GHIM DOCKED (310PX) ====================
+-- ==================== 10. THANH GHIM DOCKED (310PX) ====================
 local isVietnamese = true
 local OriginalTexts = {}
 local targetOnhubWindow = nil
 local isApplyingTranslation = false
 
-local PinGui = Instance.new("ScreenGui")
-PinGui.Name = "Ronnei_ONhub_CleanInteractMaster"
-PinGui.ResetOnSpawn = false
-PinGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-PinGui.DisplayOrder = 999999
-PinGui.Parent = (gethui and gethui()) or CoreGuiService
-
-local PinBar = Instance.new("Frame", PinGui)
+local PinBar = Instance.new("Frame", MainGui)
 PinBar.Name = "RonneiCompactBar"
 PinBar.Size = UDim2.new(0, 310, 0, 28)
 PinBar.Position = UDim2.new(0, 0, 0, -100)
@@ -667,11 +894,11 @@ ControlBox.InputBegan:Connect(function(inp)
     end
 end)
 
--- ==================== 10. BỘ DỊCH TỨC THỜI ====================
+-- ==================== 11. BỘ DỊCH TỨC THỜI ====================
 local function applyElemTranslation(elem)
     if isApplyingTranslation then return end
     if not (elem:IsA("TextLabel") or elem:IsA("TextButton")) then return end
-    if elem:IsDescendantOf(PinGui) then return end
+    if elem:IsDescendantOf(MainGui) then return end
 
     local cur = elem.Text
     if not cur or cur == "" then return end
@@ -702,7 +929,7 @@ local function applyElemTranslation(elem)
 end
 
 local function hookElement(elem)
-    if (elem:IsA("TextLabel") or elem:IsA("TextButton")) and not elem:IsDescendantOf(PinGui) then
+    if (elem:IsA("TextLabel") or elem:IsA("TextButton")) and not elem:IsDescendantOf(MainGui) then
         applyElemTranslation(elem)
         if not elem:GetAttribute("Ronnei_Hooked") then
             elem:SetAttribute("Ronnei_Hooked", true)
@@ -713,7 +940,7 @@ local function hookElement(elem)
     end
 end
 
--- ==================== 11. BỘ TÌM KIẾM CỬA SỔ ONHUB ====================
+-- ==================== 12. BỘ TÌM KIẾM CỬA SỔ ONHUB ====================
 local IDENTIFIERS = {
     "FARM", "CÀY TIỀN",
     "PETS", "THÚ CƯNG",
@@ -737,7 +964,7 @@ local function findOnhubWindow()
         local ok, descs = pcall(function() return root:GetDescendants() end)
         if not ok or not descs then return nil end
         for _, obj in ipairs(descs) do
-            if (obj:IsA("TextLabel") or obj:IsA("TextButton")) and not obj:IsDescendantOf(PinGui) then
+            if (obj:IsA("TextLabel") or obj:IsA("TextButton")) and not obj:IsDescendantOf(MainGui) then
                 local t = obj.Text
                 if t and #t > 0 then
                     for _, id in ipairs(IDENTIFIERS) do
@@ -763,7 +990,7 @@ local function findOnhubWindow()
     if not found and LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui") then found = scanRoot(LocalPlayer.PlayerGui) end
     if not found and getinstances then
         for _, ins in ipairs(getinstances()) do
-            if (ins:IsA("TextLabel") or ins:IsA("TextButton")) and not ins:IsDescendantOf(PinGui) then
+            if (ins:IsA("TextLabel") or ins:IsA("TextButton")) and not ins:IsDescendantOf(MainGui) then
                 local t = ins.Text
                 if t == "CONFIG" or t == "CẤU HÌNH" or t == "FARM" or t == "CÀY TIỀN" or t == "START FARM" then
                     local p = ins
@@ -780,7 +1007,7 @@ local function findOnhubWindow()
     return found
 end
 
--- ==================== 12. ĐỒNG BỘ HIỂN THỊ TỰ ĐỘNG ====================
+-- ==================== 13. ĐỒNG BỘ HIỂN THỊ TỰ ĐỘNG ====================
 RunService.RenderStepped:Connect(function()
     if targetOnhubWindow and targetOnhubWindow.Parent then
         local winSize = targetOnhubWindow.AbsoluteSize
@@ -800,7 +1027,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- Vòng lặp duy trì dịch
+-- Vòng lặp duy trì dịch, sửa lỗi hiển thị và thiết lập thanh trượt
 task.spawn(function()
     while true do
         pcall(function()
@@ -809,6 +1036,12 @@ task.spawn(function()
             end
 
             if targetOnhubWindow then
+                fixPetTableLayout(targetOnhubWindow)
+
+                if not appliedDefaultSliders then
+                    applyDefaultSlidersOnce(targetOnhubWindow)
+                end
+
                 for _, elem in ipairs(targetOnhubWindow:GetDescendants()) do
                     hookElement(elem)
                 end
