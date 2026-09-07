@@ -1,6 +1,6 @@
 -- ==============================================================================
---  RONNEI HUB - ONHUB MASTER (PRESET SLIDERS 1200/60 & ORIGINAL PET LAYOUT)
---  Mặc định: TP 1200m | Hop 60m | Giữ nguyên gốc Pet Table | Anti Ragdoll/Trap ngầm
+--  RONNEI HUB - ONHUB MASTER (PRESET 1200m/60m + FAILSAFE TRANSLATOR)
+--  Mặc định: TP 1200m | Hop 60m | Luồng dịch cách ly 100% | Giữ nguyên bảng Pet
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -14,100 +14,64 @@ local Terrain = Workspace:FindFirstChildOfClass("Terrain")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- ==================== 1. CÀI ĐẶT CHỈ SỐ MẶC ĐỊNH CHO 2 THANH TRƯỢT ====================
-local appliedTP = false
-local appliedHop = false
+-- ==================== 1. NẠP MẶC ĐỊNH 2 THANH TRƯỢT (BỘ NHỚ + GIAO DIỆN) ====================
+local presetMemoryDone = false
+local presetUIDone = false
 
-local function applySliderInput(track, pct, targetVal)
-    if not track then return false end
-    local absPos = track.AbsolutePosition
-    local absSize = track.AbsoluteSize
-    if absSize.X <= 0 then return false end
-
-    local targetX = absPos.X + (absSize.X * pct)
-    local targetY = absPos.Y + (absSize.Y / 2)
-
-    local fakeInput = {
-        Position = Vector3.new(targetX, targetY, 0),
-        UserInputType = Enum.UserInputType.MouseButton1,
-        UserInputState = Enum.UserInputState.Begin
-    }
-
-    local fired = false
-    if getconnections then
-        for _, conn in ipairs(getconnections(track.InputBegan)) do
-            pcall(function() conn:Fire(fakeInput) fired = true end)
-        end
-        for _, conn in ipairs(getconnections(track.MouseButton1Down)) do
-            pcall(function() conn:Fire(fakeInput) fired = true end)
-        end
-
-        for _, child in ipairs(track:GetDescendants()) do
-            if child:IsA("GuiButton") then
-                for _, conn in ipairs(getconnections(child.InputBegan)) do
-                    pcall(function() conn:Fire(fakeInput) fired = true end)
-                end
-                for _, conn in ipairs(getconnections(child.MouseButton1Down)) do
-                    pcall(function() conn:Fire(fakeInput) fired = true end)
-                end
-            end
-        end
-
-        for _, conn in ipairs(getconnections(track.InputBegan)) do
-            if conn.Function and debug and debug.getupvalues then
-                pcall(function()
-                    for _, uv in pairs(debug.getupvalues(conn.Function)) do
-                        if type(uv) == "function" then
-                            uv(targetVal)
-                        elseif type(uv) == "table" then
-                            for k in pairs(uv) do
-                                if tostring(k):lower():find("dist") and targetVal == 1200 then
-                                    uv[k] = 1200
-                                elseif tostring(k):lower():find("step") and targetVal == 60 then
-                                    uv[k] = 60
-                                end
+local function applyMemoryPresets()
+    if presetMemoryDone then return end
+    pcall(function()
+        if getgc then
+            for _, obj in ipairs(getgc(true)) do
+                if type(obj) == "table" then
+                    for k, v in pairs(obj) do
+                        local lk = tostring(k):lower()
+                        if type(v) == "number" then
+                            if (lk:find("tp") and (lk:find("dist") or lk:find("min"))) and (v == 600 or v == 1200) then
+                                rawset(obj, k, 1200)
+                            elseif (lk:find("hop") and lk:find("step")) and (v == 80 or v == 60) then
+                                rawset(obj, k, 60)
                             end
                         end
                     end
-                end)
+                end
             end
+            presetMemoryDone = true
         end
-    end
-
-    -- Cập nhật thanh hiển thị màu xanh tương ứng tỷ lệ
-    for _, fill in ipairs(track:GetDescendants()) do
-        if fill:IsA("Frame") and fill ~= track then
-            fill.Size = UDim2.new(pct, 0, 1, 0)
-        end
-    end
-
-    return fired
+    end)
 end
 
-local function applyDefaultSlidersOnce(window)
-    if appliedTP and appliedHop then return end
-    for _, label in ipairs(window:GetDescendants()) do
-        if label:IsA("TextLabel") then
-            local txt = label.Text
-            if not appliedTP and (txt:find("Khoảng cách tối thiểu để TP") or txt:find("Minimum distance for TP")) then
-                local row = label.Parent
-                if row then
-                    for _, desc in ipairs(row:GetDescendants()) do
-                        if desc:IsA("GuiObject") and desc ~= label and desc.AbsoluteSize.X > 40 then
-                            if applySliderInput(desc, 0.40, 1200) then
-                                appliedTP = true
+local function applyUISliderPresets(root)
+    if presetUIDone or not root then return end
+    pcall(function()
+        local tpFound = false
+        local hopFound = false
+
+        for _, label in ipairs(root:GetDescendants()) do
+            if label:IsA("TextLabel") then
+                local txt = label.Text
+                -- Thanh TP: 1200 mét
+                if not tpFound and (txt:find("Khoảng cách tối thiểu để TP") or txt:find("Minimum distance for TP")) then
+                    label.Text = "Khoảng cách tối thiểu để TP: 1200 mét"
+                    local row = label.Parent
+                    if row then
+                        for _, child in ipairs(row:GetDescendants()) do
+                            if child:IsA("Frame") and child.Parent and child.Parent:IsA("Frame") and child.Parent ~= row then
+                                child.Size = UDim2.new(0.6, 0, 1, 0)
+                                tpFound = true
                                 break
                             end
                         end
                     end
-                end
-            elseif not appliedHop and (txt:find("Độ dài bước nhảy") or txt:find("Hop step")) then
-                local row = label.Parent
-                if row then
-                    for _, desc in ipairs(row:GetDescendants()) do
-                        if desc:IsA("GuiObject") and desc ~= label and desc.AbsoluteSize.X > 40 then
-                            if applySliderInput(desc, 0.50, 60) then
-                                appliedHop = true
+                -- Thanh Hop: 60 mét
+                elseif not hopFound and (txt:find("Độ dài bước nhảy") or txt:find("Hop step")) then
+                    label.Text = "Độ dài bước nhảy (thấp = an toàn): 60 mét"
+                    local row = label.Parent
+                    if row then
+                        for _, child in ipairs(row:GetDescendants()) do
+                            if child:IsA("Frame") and child.Parent and child.Parent:IsA("Frame") and child.Parent ~= row then
+                                child.Size = UDim2.new(0.4, 0, 1, 0)
+                                hopFound = true
                                 break
                             end
                         end
@@ -115,7 +79,11 @@ local function applyDefaultSlidersOnce(window)
                 end
             end
         end
-    end
+
+        if tpFound and hopFound then
+            presetUIDone = true
+        end
+    end)
 end
 
 -- ==================== 2. MODULE FLOOR STEAL & INSTANT CLICK ====================
@@ -149,6 +117,7 @@ task.spawn(function()
         firePrompt(prompt)
     end)
 
+    -- Phím tắt B chủ động kích hoạt
     UserInputService.InputBegan:Connect(function(input, gpe)
         if gpe then return end
         if input.KeyCode == Enum.KeyCode.B then
@@ -301,7 +270,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 5. MODULE POTATO MODE ====================
+-- ==================== 5. MODULE POTATO MODE (KHÔNG CAN THIỆP GIAO DIỆN PET) ====================
 task.spawn(function()
     pcall(function()
         if settings and settings().Rendering then
@@ -359,7 +328,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 6. DỌN SẠCH PHIÊN BẢN CŨ ====================
+-- ==================== 6. DỌN SẠCH BẢN GHIM CŨ ====================
 local cleanList = {
     "Ronnei_ONhub_DockedMaster",
     "Ronnei_HeaderDockedMaster",
@@ -374,7 +343,8 @@ local cleanList = {
     "Ronnei_ONhub_FloorStealMaster",
     "Ronnei_ONhub_CleanInteractMaster",
     "Ronnei_ONhub_FinalDeviceFixed",
-    "Ronnei_ONhub_UntouchedPetsMaster"
+    "Ronnei_ONhub_UntouchedPetsMaster",
+    "Ronnei_ONhub_FailsafeMaster"
 }
 for _, name in ipairs(cleanList) do
     pcall(function()
@@ -637,10 +607,9 @@ end
 local isVietnamese = true
 local OriginalTexts = {}
 local targetOnhubWindow = nil
-local isApplyingTranslation = false
 
 local PinGui = Instance.new("ScreenGui")
-PinGui.Name = "Ronnei_ONhub_UntouchedPetsMaster"
+PinGui.Name = "Ronnei_ONhub_FailsafeMaster"
 PinGui.ResetOnSpawn = false
 PinGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 PinGui.DisplayOrder = 999999
@@ -776,9 +745,11 @@ ControlBox.InputBegan:Connect(function(inp)
     end
 end)
 
--- ==================== 11. BỘ DỊCH TỨC THỜI ====================
+-- ==================== 11. BỘ DỊCH TỨC THỜI (CÁCH LY AN TOÀN TUYỆT ĐỐI) ====================
+local translatingSet = {}
+
 local function applyElemTranslation(elem)
-    if isApplyingTranslation then return end
+    if translatingSet[elem] then return end
     if not (elem:IsA("TextLabel") or elem:IsA("TextButton")) then return end
     if elem:IsDescendantOf(PinGui) then return end
 
@@ -795,28 +766,32 @@ local function applyElemTranslation(elem)
     if isVietnamese then
         local vi = translateText(orig)
         if elem.Text ~= vi then
-            isApplyingTranslation = true
-            elem:SetAttribute("Ronnei_LastApplied", vi)
-            elem.Text = vi
-            isApplyingTranslation = false
+            translatingSet[elem] = true
+            pcall(function()
+                elem:SetAttribute("Ronnei_LastApplied", vi)
+                elem.Text = vi
+            end)
+            translatingSet[elem] = nil
         end
     else
         if elem.Text ~= orig then
-            isApplyingTranslation = true
-            elem:SetAttribute("Ronnei_LastApplied", nil)
-            elem.Text = orig
-            isApplyingTranslation = false
+            translatingSet[elem] = true
+            pcall(function()
+                elem:SetAttribute("Ronnei_LastApplied", nil)
+                elem.Text = orig
+            end)
+            translatingSet[elem] = nil
         end
     end
 end
 
 local function hookElement(elem)
     if (elem:IsA("TextLabel") or elem:IsA("TextButton")) and not elem:IsDescendantOf(PinGui) then
-        applyElemTranslation(elem)
+        pcall(applyElemTranslation, elem)
         if not elem:GetAttribute("Ronnei_Hooked") then
             elem:SetAttribute("Ronnei_Hooked", true)
             elem:GetPropertyChangedSignal("Text"):Connect(function()
-                applyElemTranslation(elem)
+                pcall(applyElemTranslation, elem)
             end)
         end
     end
@@ -909,7 +884,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- Vòng lặp duy trì dịch và thiết lập thanh trượt
+-- ==================== 14. VÒNG LẶP DỊCH RIÊNG BIỆT (KHÔNG BAO GIỜ BỊ CRASH) ====================
 task.spawn(function()
     while true do
         pcall(function()
@@ -918,15 +893,35 @@ task.spawn(function()
             end
 
             if targetOnhubWindow then
-                if not (appliedTP and appliedHop) then
-                    applyDefaultSlidersOnce(targetOnhubWindow)
-                end
+                local rootScreen = targetOnhubWindow:FindFirstAncestorOfClass("ScreenGui")
+                local targetContainer = rootScreen or targetOnhubWindow
 
-                for _, elem in ipairs(targetOnhubWindow:GetDescendants()) do
+                for _, elem in ipairs(targetContainer:GetDescendants()) do
                     hookElement(elem)
                 end
             end
         end)
-        task.wait(0.2)
+        task.wait(0.25)
+    end
+end)
+
+-- ==================== 15. VÒNG LẶP ÁP DỤNG THÔNG SỐ SLIDERS (ĐỘC LẬP) ====================
+task.spawn(function()
+    while true do
+        pcall(function()
+            -- Ép bộ nhớ bot chạy 1200 và 60
+            if not presetMemoryDone then
+                applyMemoryPresets()
+            end
+
+            -- Ép giao diện khi cửa sổ được mở
+            if targetOnhubWindow and not presetUIDone then
+                applyUISliderPresets(targetOnhubWindow)
+            end
+        end)
+        if presetMemoryDone and presetUIDone then
+            break -- Đã cài đặt xong hoàn toàn, tự giải phóng vòng lặp
+        end
+        task.wait(0.5)
     end
 end)
