@@ -1,6 +1,6 @@
 -- ==============================================================================
---  RONNEI HUB - ONHUB MASTER (DEFAULT SLIDERS 1200/60 + PET PANEL FIX)
---  Mặc định: TP 1200m | Hop 60m | Fix bảng Pet mọi máy | Anti Ragdoll/Trap ngầm
+--  RONNEI HUB - ONHUB ALL-IN-ONE (INSTANT CLICK & KEYBIND FLOOR STEAL)
+--  Bấm 1 phát nhặt ngay | Phím B hút trứng | Không tự nhặt khi đi ngang qua
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -14,129 +14,7 @@ local Terrain = Workspace:FindFirstChildOfClass("Terrain")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- ==================== 1. FIX BẢNG PET & TỐI ƯU HIỂN THỊ TRÊN MỌI THIẾT BỊ ====================
-local function fixPetTableLayout(container)
-    if not container then return end
-    pcall(function()
-        for _, obj in ipairs(container:GetDescendants()) do
-            -- Sửa lỗi CanvasGroup tàng hình trên GPU di động
-            if obj:IsA("CanvasGroup") then
-                obj.GroupTransparency = 0
-            end
-
-            -- Sửa lỗi khung cuộn danh sách Pet bị thu hẹp về 0
-            if obj:IsA("ScrollingFrame") then
-                obj.Visible = true
-                obj.ClipsDescendants = false
-                obj.ScrollBarImageTransparency = 0.2
-                if obj.CanvasSize.Y.Offset == 0 and obj.CanvasSize.Y.Scale == 0 then
-                    obj.AutomaticCanvasSize = Enum.AutomaticSize.Y
-                    obj.CanvasSize = UDim2.new(0, 0, 2, 0)
-                end
-            end
-
-            -- Chống cắt cụt khung chứa danh sách mục tiêu
-            if obj:IsA("Frame") and (obj.Name:lower():find("target") or obj.Name:lower():find("pet") or obj.Name:lower():find("list")) then
-                obj.Visible = true
-                obj.ClipsDescendants = false
-            end
-        end
-    end)
-end
-
--- ==================== 2. CÀI ĐẶT CHỈ SỐ MẶC ĐỊNH CHO 2 THANH TRƯỢT ====================
-local appliedDefaultSliders = false
-
-local function setSliderValue(sliderFrame, targetVal, minVal, maxVal)
-    pcall(function()
-        local track = nil
-        for _, child in ipairs(sliderFrame:GetDescendants()) do
-            if child:IsA("GuiObject") and child ~= sliderFrame and not child:IsA("TextLabel") then
-                if child.Size.X.Scale > 0.4 or child.AbsoluteSize.X > 80 then
-                    track = child
-                    break
-                end
-            end
-        end
-
-        local pct = math.clamp((targetVal - minVal) / (maxVal - minVal), 0, 1)
-
-        -- 1. Kích hoạt thông qua upvalue callback nội bộ của script gốc
-        if track and getconnections then
-            local conns = {}
-            for _, c in ipairs(getconnections(track.InputBegan)) do table.insert(conns, c) end
-            for _, c in ipairs(getconnections(track.MouseButton1Down)) do table.insert(conns, c) end
-
-            for _, conn in ipairs(conns) do
-                if conn.Function and debug and debug.getupvalues then
-                    local uvs = debug.getupvalues(conn.Function)
-                    for _, uv in pairs(uvs) do
-                        if type(uv) == "function" then
-                            pcall(function() uv(targetVal) end)
-                        elseif type(uv) == "table" then
-                            for k, _ in pairs(uv) do
-                                if tostring(k):lower():find("dist") and targetVal == 1200 then
-                                    uv[k] = 1200
-                                elseif tostring(k):lower():find("step") and targetVal == 60 then
-                                    uv[k] = 60
-                                end
-                            end
-                        end
-                    end
-                end
-
-                -- 2. Giả lập tọa độ chạm chính xác theo tỷ lệ thanh
-                local fakeX = track.AbsolutePosition.X + (track.AbsoluteSize.X * pct)
-                local fakeY = track.AbsolutePosition.Y + (track.AbsoluteSize.Y / 2)
-                local fakeInput = {
-                    Position = Vector3.new(fakeX, fakeY, 0),
-                    UserInputType = Enum.UserInputType.MouseButton1,
-                    UserInputState = Enum.UserInputState.Begin
-                }
-                pcall(function() conn:Fire(fakeInput) end)
-            end
-
-            -- 3. Cập nhật hình ảnh thanh hiển thị màu xanh
-            for _, fill in ipairs(track:GetDescendants()) do
-                if fill:IsA("Frame") and fill ~= track then
-                    fill.Size = UDim2.new(pct, 0, 1, 0)
-                end
-            end
-        end
-    end)
-end
-
-local function applyDefaultSlidersOnce(window)
-    if appliedDefaultSliders or not window then return end
-
-    local foundTP = false
-    local foundHop = false
-
-    for _, label in ipairs(window:GetDescendants()) do
-        if label:IsA("TextLabel") then
-            local txt = label.Text
-            if txt:find("Khoảng cách tối thiểu để TP") or txt:find("Minimum distance for TP") then
-                local sliderRow = label.Parent
-                if sliderRow then
-                    setSliderValue(sliderRow, 1200, 0, 2000)
-                    foundTP = true
-                end
-            elseif txt:find("Độ dài bước nhảy") or txt:find("Hop step") then
-                local sliderRow = label.Parent
-                if sliderRow then
-                    setSliderValue(sliderRow, 60, 0, 150)
-                    foundHop = true
-                end
-            end
-        end
-    end
-
-    if foundTP and foundHop then
-        appliedDefaultSliders = true
-    end
-end
-
--- ==================== 3. MODULE FLOOR STEAL & INSTANT CLICK ====================
+-- ==================== 1. MODULE FLOOR STEAL & INSTANT CLICK (KHÔNG TỰ HÚT KHI ĐI QUA) ====================
 task.spawn(function()
     local function firePrompt(prompt)
         if not prompt or not prompt.Parent then return end
@@ -153,6 +31,7 @@ task.spawn(function()
 
     local function optimizePrompt(prompt)
         if prompt:IsA("ProximityPrompt") then
+            -- Chạm/Click 1 phát ăn ngay, không cần giữ và nhặt được xuyên sàn/vật cản
             prompt.HoldDuration = 0
             prompt.RequiresLineOfSight = false
         end
@@ -163,11 +42,12 @@ task.spawn(function()
     end
     Workspace.DescendantAdded:Connect(optimizePrompt)
 
+    -- Khi người chơi chủ động bấm nút nhặt -> Kích hoạt ngay 0ms không chờ giữ
     ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
         firePrompt(prompt)
     end)
 
-    -- Phím tắt [B] chủ động kích hoạt hút trứng
+    -- Phím tắt [B]: Chủ động kích hoạt Floor Steal hút trứng xung quanh
     UserInputService.InputBegan:Connect(function(input, gpe)
         if gpe then return end
         if input.KeyCode == Enum.KeyCode.B then
@@ -191,7 +71,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 4. MODULE ANTI-RAGDOLL V2 ====================
+-- ==================== 2. MODULE ANTI-RAGDOLL V2 (HARD-LOCKED) ====================
 task.spawn(function()
     local activeRagdollLoop = nil
 
@@ -275,7 +155,7 @@ task.spawn(function()
     LocalPlayer.CharacterAdded:Connect(setupHardAntiRagdoll)
 end)
 
--- ==================== 5. MODULE ANTI-TRAP ====================
+-- ==================== 3. MODULE ANTI-TRAP (TRIỆT TIÊU BẪY) ====================
 task.spawn(function()
     local trapKeywords = {"trap", "beartrap", "subspace", "mine", "landmine", "turret", "spike"}
 
@@ -320,7 +200,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 6. MODULE POTATO MODE (ĐÃ BẢO VỆ MÔ HÌNH PET) ====================
+-- ==================== 4. MODULE SIÊU GIẢM LAG (POTATO MODE) ====================
 task.spawn(function()
     pcall(function()
         if settings and settings().Rendering then
@@ -347,13 +227,6 @@ task.spawn(function()
 
         local function stripGraphics(obj)
             pcall(function()
-                -- BẢO VỆ TUYỆT ĐỐI: Không can thiệp nếu thuộc ViewportFrame, GUI hoặc Camera hiển thị Pet
-                if obj:FindFirstAncestorOfClass("ViewportFrame") 
-                   or obj:FindFirstAncestorOfClass("ScreenGui") 
-                   or (Workspace.CurrentCamera and obj:IsDescendantOf(Workspace.CurrentCamera)) then
-                    return
-                end
-
                 if obj:IsA("BasePart") then
                     obj.Material = Enum.Material.SmoothPlastic
                     obj.CastShadow = false
@@ -379,7 +252,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 7. DỌN SẠCH PHIÊN BẢN CŨ ====================
+-- ==================== 5. DỌN SẠCH BẢN GHIM CŨ ====================
 local cleanList = {
     "Ronnei_ONhub_DockedMaster",
     "Ronnei_HeaderDockedMaster",
@@ -392,8 +265,7 @@ local cleanList = {
     "Ronnei_ONhub_AntiTrapRagdollMaster",
     "Ronnei_ONhub_HardLockedMaster",
     "Ronnei_ONhub_FloorStealMaster",
-    "Ronnei_ONhub_CleanInteractMaster",
-    "Ronnei_ONhub_FinalDeviceFixed"
+    "Ronnei_ONhub_CleanInteractMaster"
 }
 for _, name in ipairs(cleanList) do
     pcall(function()
@@ -402,7 +274,7 @@ for _, name in ipairs(cleanList) do
     end)
 end
 
--- ==================== 8. AUTO-BYPASS DISCORD ====================
+-- ==================== 6. AUTO-BYPASS DISCORD ====================
 local function triggerButtonClick(btn)
     if not btn then return end
     if firesignal then
@@ -479,7 +351,7 @@ task.spawn(function()
     end
 end)
 
--- ==================== 9. NẠP MÃ HÓA SCRIPT GỐC ====================
+-- ==================== 7. NẠP MÃ HÓA SCRIPT GỐC ====================
 task.spawn(function()
     pcall(function()
         local _byteStream = {
@@ -501,7 +373,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 10. CẤU HÌNH GIAO DIỆN & TỪ ĐIỂN DỊCH ====================
+-- ==================== 8. CẤU HÌNH GIAO DIỆN & TỪ ĐIỂN DỊCH ====================
 local THEME = {
     BarBG      = Color3.fromRGB(15, 25, 18),
     CardBG     = Color3.fromRGB(20, 36, 26),
@@ -652,14 +524,14 @@ local function translateText(raw)
     return res
 end
 
--- ==================== 11. TẠO THANH GHIM DOCKED (310PX) ====================
+-- ==================== 9. TẠO THANH GHIM DOCKED (310PX) ====================
 local isVietnamese = true
 local OriginalTexts = {}
 local targetOnhubWindow = nil
 local isApplyingTranslation = false
 
 local PinGui = Instance.new("ScreenGui")
-PinGui.Name = "Ronnei_ONhub_FinalDeviceFixed"
+PinGui.Name = "Ronnei_ONhub_CleanInteractMaster"
 PinGui.ResetOnSpawn = false
 PinGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 PinGui.DisplayOrder = 999999
@@ -795,7 +667,7 @@ ControlBox.InputBegan:Connect(function(inp)
     end
 end)
 
--- ==================== 12. BỘ DỊCH TỨC THỜI ====================
+-- ==================== 10. BỘ DỊCH TỨC THỜI ====================
 local function applyElemTranslation(elem)
     if isApplyingTranslation then return end
     if not (elem:IsA("TextLabel") or elem:IsA("TextButton")) then return end
@@ -841,7 +713,7 @@ local function hookElement(elem)
     end
 end
 
--- ==================== 13. BỘ TÌM KIẾM CỬA SỔ ONHUB ====================
+-- ==================== 11. BỘ TÌM KIẾM CỬA SỔ ONHUB ====================
 local IDENTIFIERS = {
     "FARM", "CÀY TIỀN",
     "PETS", "THÚ CƯNG",
@@ -908,7 +780,7 @@ local function findOnhubWindow()
     return found
 end
 
--- ==================== 14. ĐỒNG BỘ HIỂN THỊ TỰ ĐỘNG ====================
+-- ==================== 12. ĐỒNG BỘ HIỂN THỊ TỰ ĐỘNG ====================
 RunService.RenderStepped:Connect(function()
     if targetOnhubWindow and targetOnhubWindow.Parent then
         local winSize = targetOnhubWindow.AbsoluteSize
@@ -928,7 +800,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- Vòng lặp duy trì dịch, sửa lỗi hiển thị và thiết lập thanh trượt
+-- Vòng lặp duy trì dịch
 task.spawn(function()
     while true do
         pcall(function()
@@ -937,15 +809,6 @@ task.spawn(function()
             end
 
             if targetOnhubWindow then
-                -- Vá lỗi hiển thị bảng Pet liên tục
-                fixPetTableLayout(targetOnhubWindow)
-
-                -- Cài đặt mặc định thanh trượt 1 lần duy nhất
-                if not appliedDefaultSliders then
-                    applyDefaultSlidersOnce(targetOnhubWindow)
-                end
-
-                -- Quét dịch chữ
                 for _, elem in ipairs(targetOnhubWindow:GetDescendants()) do
                     hookElement(elem)
                 end
