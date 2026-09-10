@@ -1,6 +1,6 @@
 -- ==============================================================================
---  RONNEI HUB - STEAL AN EGG (TRUE RAINBOW & CORE SOUND ENGINE)
---  Viền cầu vồng 100% | Âm thanh Bật/Tắt CoreGui | Avatar: 124285855971647
+--  RONNEI HUB - STEAL AN EGG (FULLSCREEN LOADING & CYBER RAINBOW EDITION)
+--  Avatar: 124285855971647 | Full-screen Loading V1 | TikTok: @ronnei7.htk
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -12,18 +12,17 @@ local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- CẤU HÌNH LOGO, LINK & BỘ ÂM THANH CHUẨN ROBLOX TOÀN CẦU
+-- CẤU HÌNH LOGO, LINK & ÂM THANH
 local CONFIG = {
     LogoAssetID = "rbxassetid://124285855971647",
     TikTokURL   = "https://www.tiktok.com/@ronnei7.htk?_r=1&_t=ZS-98ygZG9Gh2G",
-    -- Bộ ID âm thanh CoreGui chính thức từ Roblox (Không bao giờ bị lỗi bản quyền)
-    ToggleOnSFX  = "rbxassetid://9114223175", -- Âm bật ON công nghệ
-    ToggleOffSFX = "rbxassetid://9114223204", -- Âm tắt OFF
-    ClickSFX     = "rbxassetid://9114223164", -- Âm click mở/đóng menu
-    SuccessSFX   = "rbxassetid://9114223245"  -- Âm báo sao chép thành công
+    ToggleOnSFX  = "rbxassetid://9114223175",
+    ToggleOffSFX = "rbxassetid://9114223204",
+    ClickSFX     = "rbxassetid://9114223164",
+    SuccessSFX   = "rbxassetid://9114223245"
 }
 
--- ==================== 1. ENGINE PHÁT ÂM THANH 2D KHÔNG DELAY ====================
+-- ==================== 1. ENGINE PHÁT ÂM THANH ====================
 local function playSFX(soundId, volume, pitch)
     task.spawn(function()
         pcall(function()
@@ -31,11 +30,8 @@ local function playSFX(soundId, volume, pitch)
             snd.SoundId = soundId
             snd.Volume = volume or 1.0
             snd.PlaybackSpeed = pitch or 1.0
-            -- PlayLocalSound truyền âm thẳng vào tai nghe người chơi, không phụ thuộc vị trí nhân vật
             SoundService:PlayLocalSound(snd)
-            task.delay(1.5, function()
-                snd:Destroy()
-            end)
+            task.delay(1.5, function() snd:Destroy() end)
         end)
     end)
 end
@@ -49,15 +45,17 @@ task.spawn(function()
 end)
 
 -- Dọn sạch bản cũ
-local oldGui = CoreGuiService:FindFirstChild("Ronnei_StealAnEgg_Master") or (gethui and gethui():FindFirstChild("Ronnei_StealAnEgg_Master"))
+local parentTarget = (gethui and gethui()) or (LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")) or CoreGuiService
+local oldGui = parentTarget:FindFirstChild("Ronnei_StealAnEgg_Master")
 if oldGui then oldGui:Destroy() end
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "Ronnei_StealAnEgg_Master"
 ScreenGui.ResetOnSpawn = false
+ScreenGui.IgnoreGuiInset = true -- Che phủ toàn màn hình kể cả thanh TopBar
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.DisplayOrder = 999999
-ScreenGui.Parent = (gethui and gethui()) or CoreGuiService
+ScreenGui.Parent = parentTarget
 
 local THEME = {
     MainBG     = Color3.fromRGB(13, 15, 22),
@@ -68,12 +66,9 @@ local THEME = {
     Border     = Color3.fromRGB(45, 55, 75),
     ToggleOff  = Color3.fromRGB(38, 43, 56),
     TextMain   = Color3.fromRGB(245, 248, 255),
-    TextSub    = Color3.fromRGB(150, 165, 185),
-    FontB      = Enum.Font.GothamBold,
-    FontM      = Enum.Font.GothamMedium
+    TextSub    = Color3.fromRGB(150, 165, 185)
 }
 
--- Dải màu 7 sắc cầu vồng quang phổ chuẩn
 local RainbowSequence = ColorSequence.new({
     ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 0, 0)),
     ColorSequenceKeypoint.new(0.16, Color3.fromRGB(255, 127, 0)),
@@ -84,7 +79,7 @@ local RainbowSequence = ColorSequence.new({
     ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 0, 0))
 })
 
--- ==================== 3. DIỆT TẬN GỐC MENU GỐC & NÚT HORIZON ====================
+-- ==================== 3. DIỆT TẬN GỐC MENU EQUINOZ & HORIZON ====================
 local originalEquinozBtn = nil
 local targetEquinozGui = nil
 
@@ -116,15 +111,11 @@ local function neutralizeEquinoz(inst)
     end)
 end
 
-local scanContainers = {CoreGuiService}
-if gethui then table.insert(scanContainers, gethui()) end
-if LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui") then
-    table.insert(scanContainers, LocalPlayer.PlayerGui)
-end
-
-for _, root in ipairs(scanContainers) do
-    for _, desc in ipairs(root:GetDescendants()) do neutralizeEquinoz(desc) end
-    root.DescendantAdded:Connect(neutralizeEquinoz)
+for _, c in ipairs({CoreGuiService, gethui and gethui(), LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")}) do
+    if c then
+        for _, desc in ipairs(c:GetDescendants()) do neutralizeEquinoz(desc) end
+        c.DescendantAdded:Connect(neutralizeEquinoz)
+    end
 end
 
 RunService.RenderStepped:Connect(function()
@@ -149,25 +140,123 @@ local function makeDraggable(targetFrame, dragBar)
         end
     end)
     dragBar.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-            if dragging then
-                local delta = input.Position - dragStart
-                targetFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-            end
+        if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragging then
+            local delta = input.Position - dragStart
+            targetFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
         end
     end)
 end
 
--- ==================== 5. GIAO DIỆN CHÍNH (VIỀN CẦU VỒNG CHUẨN) ====================
+-- ==================== 5. MÀN HÌNH LOADING CHE TOÀN MÀN HÌNH ====================
+local isCurrentlyLoading = false
+
+local function showLoadingScreen(onComplete)
+    isCurrentlyLoading = true
+
+    local LoadOverlay = Instance.new("Frame", ScreenGui)
+    LoadOverlay.Name = "RonneiFullScreenLoader"
+    LoadOverlay.Size = UDim2.new(1, 0, 1, 0)
+    LoadOverlay.Position = UDim2.new(0, 0, 0, 0)
+    LoadOverlay.BackgroundColor3 = Color3.fromRGB(6, 8, 12)
+    LoadOverlay.BackgroundTransparency = 0.15
+    LoadOverlay.ZIndex = 1000000
+
+    local CenterBox = Instance.new("Frame", LoadOverlay)
+    CenterBox.Size = UDim2.new(0, 320, 0, 160)
+    CenterBox.Position = UDim2.new(0.5, 0, 0.5, 0)
+    CenterBox.AnchorPoint = Vector2.new(0.5, 0.5)
+    CenterBox.BackgroundTransparency = 1
+    CenterBox.ZIndex = 1000001
+
+    -- Vòng xoay Spinner Loading
+    local Spinner = Instance.new("Frame", CenterBox)
+    Spinner.Size = UDim2.new(0, 48, 0, 48)
+    Spinner.Position = UDim2.new(0.5, 0, 0, 15)
+    Spinner.AnchorPoint = Vector2.new(0.5, 0)
+    Spinner.BackgroundTransparency = 1
+    Spinner.ZIndex = 1000002
+    Instance.new("UICorner", Spinner).CornerRadius = UDim.new(1, 0)
+
+    local SpinnerStroke = Instance.new("UIStroke", Spinner)
+    SpinnerStroke.Thickness = 3.5
+    SpinnerStroke.Color = Color3.fromRGB(255, 255, 255)
+    
+    local SpinnerGrad = Instance.new("UIGradient", SpinnerStroke)
+    SpinnerGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, THEME.AccentMint),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 200, 255)),
+        ColorSequenceKeypoint.new(1, THEME.AccentMint)
+    })
+    SpinnerGrad.Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 0),
+        NumberSequenceKeypoint.new(0.7, 0.5),
+        NumberSequenceKeypoint.new(1, 1)
+    })
+
+    -- Chữ Tiêu Đề Chính: anti guards wake up V1
+    local LoadTitle = Instance.new("TextLabel", CenterBox)
+    LoadTitle.Size = UDim2.new(1, 0, 0, 26)
+    LoadTitle.Position = UDim2.new(0, 0, 0, 78)
+    LoadTitle.BackgroundTransparency = 1
+    LoadTitle.Text = "ANTI GUARDS WAKE UP V1"
+    LoadTitle.Font = Enum.Font.GothamBold
+    LoadTitle.TextSize = 16
+    LoadTitle.TextColor3 = THEME.TextMain
+    LoadTitle.ZIndex = 1000002
+
+    -- Chữ nhỏ bên dưới: chưa follow tiktok ronnei7.htk là gay
+    local LoadSub = Instance.new("TextLabel", CenterBox)
+    LoadSub.Size = UDim2.new(1, 0, 0, 20)
+    LoadSub.Position = UDim2.new(0, 0, 0, 108)
+    LoadSub.BackgroundTransparency = 1
+    LoadSub.Text = "chưa follow tiktok ronnei7.htk là gay"
+    LoadSub.Font = Enum.Font.GothamMedium
+    LoadSub.TextSize = 12
+    LoadSub.TextColor3 = Color3.fromRGB(255, 105, 120) -- Đỏ hồng cảnh báo nổi bật
+    LoadSub.ZIndex = 1000002
+
+    playSFX(CONFIG.ToggleOnSFX, 1.0, 1.0)
+
+    -- Vòng xoay spinner
+    local spinConn
+    spinConn = RunService.RenderStepped:Connect(function()
+        if Spinner and Spinner.Parent then
+            SpinnerGrad.Rotation = (SpinnerGrad.Rotation + 8) % 360
+        else
+            if spinConn then spinConn:Disconnect() end
+        end
+    end)
+
+    -- Đợi 1.4 giây (khớp thời lượng video load)
+    task.delay(1.4, function()
+        if spinConn then spinConn:Disconnect() end
+
+        -- Hiệu ứng mờ dần (Fade Out) mượt mà
+        local twOverlay = TweenService:Create(LoadOverlay, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+            BackgroundTransparency = 1
+        })
+        TweenService:Create(LoadTitle, TweenInfo.new(0.25), {TextTransparency = 1}):Play()
+        TweenService:Create(LoadSub, TweenInfo.new(0.25), {TextTransparency = 1}):Play()
+        TweenService:Create(SpinnerStroke, TweenInfo.new(0.25), {Transparency = 1}):Play()
+        
+        twOverlay:Play()
+        twOverlay.Completed:Connect(function()
+            LoadOverlay:Destroy()
+            isCurrentlyLoading = false
+            if onComplete then onComplete() end
+        end)
+    end)
+end
+
+-- ==================== 6. GIAO DIỆN CHÍNH (VIỀN CẦU VỒNG RGB) ====================
 local MainFrame = Instance.new("Frame", ScreenGui)
 MainFrame.Name = "RonneiMainCard"
 MainFrame.Size = UDim2.new(0, 275, 0, 175)
-MainFrame.Position = UDim2.new(1, -295, 0, 45)
+MainFrame.Position = UDim2.new(1, -295, 0, 55)
 MainFrame.BackgroundColor3 = THEME.MainBG
 MainFrame.BorderSizePixel = 0
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 12)
 
--- KHUNG VIỀN CẦU VỒNG (Đã ép Color trắng để nhận 100% màu Gradient)
 local MainStroke = Instance.new("UIStroke", MainFrame)
 MainStroke.Thickness = 2.5
 MainStroke.Color = Color3.fromRGB(255, 255, 255)
@@ -225,7 +314,7 @@ Content.Size = UDim2.new(1, -24, 0, 115)
 Content.Position = UDim2.new(0, 12, 0, 52)
 Content.BackgroundTransparency = 1
 
--- NÚT 1: ANTI GUARDS WAKE UP (👑 PREMIUM)
+-- NÚT 1: ANTI GUARDS WAKE UP (👑 PREMIUM TOGGLE)
 local GuardCard = Instance.new("Frame", Content)
 GuardCard.Size = UDim2.new(1, 0, 0, 48)
 GuardCard.BackgroundColor3 = THEME.CardBG
@@ -275,30 +364,23 @@ Instance.new("UICorner", Knob).CornerRadius = UDim.new(1, 0)
 
 local isAntiGuardEnabled = false
 
--- Hàm chuyển đổi trạng thái có âm thanh
-local function setSwitchVisual(state, playSound)
+local function setSwitchVisual(state)
     isAntiGuardEnabled = state
-
-    if playSound then
-        if isAntiGuardEnabled then
-            playSFX(CONFIG.ToggleOnSFX, 1.0, 1.0) -- Âm bật ON
-        else
-            playSFX(CONFIG.ToggleOffSFX, 1.0, 1.0) -- Âm tắt OFF
-        end
-    end
 
     if isAntiGuardEnabled then
         TweenService:Create(Switch, TweenInfo.new(0.2), {BackgroundColor3 = THEME.AccentMint}):Play()
         TweenService:Create(Knob, TweenInfo.new(0.2), {Position = UDim2.new(1, -19, 0.5, 0)}):Play()
         TweenService:Create(GuardStroke, TweenInfo.new(0.2), {Color = THEME.AccentMint}):Play()
     else
+        playSFX(CONFIG.ToggleOffSFX, 1.0, 1.0)
         TweenService:Create(Switch, TweenInfo.new(0.2), {BackgroundColor3 = THEME.ToggleOff}):Play()
         TweenService:Create(Knob, TweenInfo.new(0.2), {Position = UDim2.new(0, 3, 0.5, 0)}):Play()
         TweenService:Create(GuardStroke, TweenInfo.new(0.2), {Color = THEME.Border}):Play()
     end
 end
 
-local function toggleAntiGuard()
+-- Kích hoạt Anti Hit gốc
+local function fireOriginalEquinoz()
     if originalEquinozBtn then
         pcall(function()
             if firesignal then
@@ -309,32 +391,47 @@ local function toggleAntiGuard()
                 for _, conn in ipairs(getconnections(originalEquinozBtn.Activated)) do conn:Fire() end
             end
         end)
-    else
-        setSwitchVisual(not isAntiGuardEnabled, true)
     end
 end
 
-Switch.MouseButton1Click:Connect(toggleAntiGuard)
+-- Xử lý bật/tắt (Khi BẬT sẽ hiện Fullscreen Loading)
+local function handleToggleAntiGuard()
+    if isCurrentlyLoading then return end
+
+    if not isAntiGuardEnabled then
+        -- KHI BẬT: Hiện màn hình loading toàn màn hình trước
+        showLoadingScreen(function()
+            setSwitchVisual(true)
+            fireOriginalEquinoz()
+        end)
+    else
+        -- KHI TẮT: Tắt trực tiếp không cần load
+        setSwitchVisual(false)
+        fireOriginalEquinoz()
+    end
+end
+
+Switch.MouseButton1Click:Connect(handleToggleAntiGuard)
 GuardCard.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        toggleAntiGuard()
+        handleToggleAntiGuard()
     end
 end)
 
 -- Đồng bộ liên tục với nút gốc
 task.spawn(function()
     while true do
-        if originalEquinozBtn then
+        if originalEquinozBtn and not isCurrentlyLoading then
             pcall(function()
                 local t = originalEquinozBtn.Text:upper()
                 if t:find("ON") and not isAntiGuardEnabled then
-                    setSwitchVisual(true, true)
+                    setSwitchVisual(true)
                 elseif t:find("OFF") and isAntiGuardEnabled then
-                    setSwitchVisual(false, true)
+                    setSwitchVisual(false)
                 end
             end)
         end
-        task.wait(0.25)
+        task.wait(0.3)
     end
 end)
 
@@ -372,13 +469,10 @@ TTLabel.TextColor3 = THEME.TextMain
 TTLabel.TextXAlignment = Enum.TextXAlignment.Left
 
 TikTokBtn.MouseButton1Click:Connect(function()
-    playSFX(CONFIG.SuccessSFX, 1.0, 1.0) -- Âm báo copy thành công
+    playSFX(CONFIG.SuccessSFX, 1.0, 1.0)
 
-    if setclipboard then
-        pcall(function() setclipboard(CONFIG.TikTokURL) end)
-    elseif toclipboard then
-        pcall(function() toclipboard(CONFIG.TikTokURL) end)
-    end
+    if setclipboard then pcall(function() setclipboard(CONFIG.TikTokURL) end)
+    elseif toclipboard then pcall(function() toclipboard(CONFIG.TikTokURL) end) end
 
     TTLabel.Text = "✓ Đã sao chép link TikTok!"
     TTLabel.TextColor3 = THEME.AccentMint
@@ -395,7 +489,7 @@ TikTokBtn.MouseButton1Click:Connect(function()
     end)
 end)
 
--- ==================== 6. NÚT TRÒN MỞ MENU (VIỀN CẦU VỒNG CHUẨN) ====================
+-- ==================== 7. NÚT TRÒN MỞ MENU (FLOATING LOGO) ====================
 local ToggleBtn = Instance.new("Frame", ScreenGui)
 ToggleBtn.Name = "RonneiFloatingLogo"
 ToggleBtn.Size = UDim2.new(0, 52, 0, 52)
@@ -404,7 +498,6 @@ ToggleBtn.BackgroundColor3 = THEME.CardBG
 ToggleBtn.ClipsDescendants = true
 Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(1, 0)
 
--- Viền cầu vồng Nút tròn (Ép Color trắng)
 local LogoStroke = Instance.new("UIStroke", ToggleBtn)
 LogoStroke.Thickness = 2.5
 LogoStroke.Color = Color3.fromRGB(255, 255, 255)
@@ -413,11 +506,11 @@ LogoStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 local LogoRainbowGrad = Instance.new("UIGradient", LogoStroke)
 LogoRainbowGrad.Color = RainbowSequence
 
--- Vòng lặp xoay viền cầu vồng mượt mà 60 FPS
+-- Vòng lặp xoay viền cầu vồng 60 FPS
 task.spawn(function()
     local rot = 0
     while ScreenGui.Parent do
-        rot = (rot + 3) % 360
+        rot = (rot + 2.5) % 360
         LogoRainbowGrad.Rotation = rot
         MainRainbowGrad.Rotation = rot
         task.wait(0.02)
@@ -436,7 +529,7 @@ Instance.new("UICorner", LogoImage).CornerRadius = UDim.new(1, 0)
 
 makeDraggable(ToggleBtn)
 
--- Đóng / Mở menu mượt mà kèm âm thanh Click Pop
+-- Đóng / Mở menu
 local isMenuOpen = true
 local function setMenuVisible(state)
     isMenuOpen = state
