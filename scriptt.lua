@@ -1,6 +1,6 @@
 -- ==============================================================================
---  RONNEI HUB - STEAL AN EGG (OFFICIAL VERSION 3.6)
---  Tích hợp ngầm: Anti Ragdoll v2 + Anti Trap | Bảng Update v3.6 | Viền Cầu Vồng
+--  RONNEI HUB - STEAL AN EGG (VERSION 3.6 - ANTI TRAP ONLY)
+--  Chạy ngầm: Anti Trap | Bảng Update v3.6 | Viền Cầu Vồng RGB | Âm Thanh CoreGui
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -37,91 +37,7 @@ local function playSFX(soundId, volume, pitch)
     end)
 end
 
--- ==================== 2. MODULE ANTI-RAGDOLL V2 (CHẠY NGẦM) ====================
-task.spawn(function()
-    local activeRagdollLoop = nil
-
-    local function setupHardAntiRagdoll(char)
-        if not char then return end
-        if activeRagdollLoop then
-            activeRagdollLoop:Disconnect()
-            activeRagdollLoop = nil
-        end
-
-        local hum = char:WaitForChild("Humanoid", 6)
-        local hrp = char:WaitForChild("HumanoidRootPart", 6)
-        if not hum or not hrp then return end
-
-        for _, state in ipairs({
-            Enum.HumanoidStateType.Ragdoll,
-            Enum.HumanoidStateType.FallingDown,
-            Enum.HumanoidStateType.PlatformStanding,
-            Enum.HumanoidStateType.Physics
-        }) do
-            pcall(function() hum:SetStateEnabled(state, false) end)
-        end
-
-        local motorCache = {}
-        local function registerMotor(m)
-            if m:IsA("Motor6D") then
-                motorCache[m] = true
-                m.Enabled = true
-                m:GetPropertyChangedSignal("Enabled"):Connect(function()
-                    if not m.Enabled then m.Enabled = true end
-                end)
-            end
-        end
-
-        local function removeRagdollJoints(inst)
-            if inst:IsA("BallSocketConstraint") or inst:IsA("HingeConstraint") or inst:IsA("NoCollisionConstraint") or inst:IsA("SpringConstraint") then
-                task.defer(function() pcall(function() inst:Destroy() end) end)
-            elseif inst:IsA("LocalScript") and (inst.Name:lower():find("ragdoll") or inst.Name:lower():find("knock")) then
-                inst.Disabled = true
-                task.defer(function() pcall(function() inst:Destroy() end) end)
-            end
-        end
-
-        for _, desc in ipairs(char:GetDescendants()) do
-            registerMotor(desc)
-            removeRagdollJoints(desc)
-        end
-
-        char.DescendantAdded:Connect(function(newDesc)
-            registerMotor(newDesc)
-            removeRagdollJoints(newDesc)
-        end)
-
-        activeRagdollLoop = RunService.Stepped:Connect(function()
-            if not char.Parent or not hum.Parent then
-                if activeRagdollLoop then
-                    activeRagdollLoop:Disconnect()
-                    activeRagdollLoop = nil
-                end
-                return
-            end
-
-            if hum.PlatformStand then hum.PlatformStand = false end
-            if hum.Sit then hum.Sit = false end
-
-            for m in pairs(motorCache) do
-                if m.Parent and not m.Enabled then
-                    m.Enabled = true
-                end
-            end
-
-            local curState = hum:GetState()
-            if curState == Enum.HumanoidStateType.Ragdoll or curState == Enum.HumanoidStateType.FallingDown or curState == Enum.HumanoidStateType.PlatformStanding or curState == Enum.HumanoidStateType.Physics then
-                hum:ChangeState(Enum.HumanoidStateType.GettingUp)
-                hum:ChangeState(Enum.HumanoidStateType.Running)
-            end
-        end)
-    end
-
-    if LocalPlayer.Character then setupHardAntiRagdoll(LocalPlayer.Character) end
-    LocalPlayer.CharacterAdded:Connect(setupHardAntiRagdoll)
-end)
-
--- ==================== 3. MODULE ANTI-TRAP (CHẠY NGẦM) ====================
+-- ==================== 2. MODULE ANTI-TRAP (CHẠY NGẦM) ====================
 task.spawn(function()
     local trapKeywords = {"trap", "beartrap", "subspace", "mine", "landmine", "turret", "spike"}
 
@@ -161,7 +77,7 @@ task.spawn(function()
     Workspace.DescendantAdded:Connect(neutralizeTrap)
 end)
 
--- ==================== 4. KHỞI CHẠY SCRIPT GỐC NGẦM ====================
+-- ==================== 3. KHỞI CHẠY SCRIPT GỐC NGẦM ====================
 task.spawn(function()
     pcall(function()
         script_key = "Trial"
@@ -203,7 +119,7 @@ local RainbowSeq = ColorSequence.new({
     ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 0, 0))
 })
 
--- ==================== 5. DIỆT TẬN GỐC MENU EQUINOZ & NÚT HORIZON ====================
+-- ==================== 4. DIỆT TẬN GỐC MENU EQUINOZ & NÚT HORIZON ====================
 local originalEquinozBtn = nil
 local targetEquinozGui = nil
 
@@ -268,7 +184,7 @@ local function makeDraggable(targetFrame, dragBar)
     end)
 end
 
--- ==================== 6. MENU CHÍNH (MAIN FRAME) ====================
+-- ==================== 5. MENU CHÍNH (MAIN FRAME) ====================
 local MainFrame = Instance.new("Frame", ScreenGui)
 MainFrame.Name = "RonneiMainCard"
 MainFrame.Size = UDim2.new(0, 280, 0, 225)
@@ -511,17 +427,17 @@ local RunningTag = Instance.new("TextLabel", Content)
 RunningTag.Size = UDim2.new(1, 0, 0, 16)
 RunningTag.Position = UDim2.new(0, 0, 0, 142)
 RunningTag.BackgroundTransparency = 1
-RunningTag.Text = "🟢 Anti Ragdoll & Anti Trap: Đang chạy ngầm"
+RunningTag.Text = "🟢 Anti Trap: Đang chạy ngầm"
 RunningTag.Font = Enum.Font.GothamMedium
 RunningTag.TextSize = 9
 RunningTag.TextColor3 = THEME.TextSub
 RunningTag.TextXAlignment = Enum.TextXAlignment.Center
 
--- ==================== 7. BẢNG GHI CHÚ CẬP NHẬT (CHANGELOG BOARD) ====================
+-- ==================== 6. BẢNG GHI CHÚ CẬP NHẬT (CHANGELOG BOARD) ====================
 local NoteCard = Instance.new("Frame", ScreenGui)
 NoteCard.Name = "RonneiChangelogCard"
-NoteCard.Size = UDim2.new(0, 290, 0, 255)
-NoteCard.Position = UDim2.new(0.5, -145, 0.5, -127)
+NoteCard.Size = UDim2.new(0, 290, 0, 230)
+NoteCard.Position = UDim2.new(0.5, -145, 0.5, -115)
 NoteCard.BackgroundColor3 = THEME.MainBG
 NoteCard.BorderSizePixel = 0
 NoteCard.Visible = false
@@ -567,7 +483,6 @@ NoteDivider.Position = UDim2.new(0, 12, 0, 38)
 NoteDivider.BackgroundColor3 = THEME.Border
 NoteDivider.BorderSizePixel = 0
 
--- Khung cuộn nội dung update
 local NoteScroll = Instance.new("ScrollingFrame", NoteCard)
 NoteScroll.Size = UDim2.new(1, -20, 1, -50)
 NoteScroll.Position = UDim2.new(0, 10, 0, 44)
@@ -611,13 +526,12 @@ local function createChangelogItem(icon, title, desc, order)
     iDesc.TextXAlignment = Enum.TextXAlignment.Left
 end
 
--- Danh sách tính năng update v3.6
-createChangelogItem("🛡️", "Anti Ragdoll v2 (Chạy ngầm)", "Khóa cứng Motor6D, triệt tiêu ngã và gục người 60 FPS", 1)
-createChangelogItem("🪤", "Anti Trap (Chạy ngầm)", "Vô hiệu hóa bẫy gấu, mìn subspace, turret trên toàn bản đồ", 2)
-createChangelogItem("👑", "Anti Guards Wake Up [PREMIUM]", "Tối ưu hóa khả năng né đòn đánh của bảo vệ Steal an Egg", 3)
-createChangelogItem("🌈", "Rainbow Chroma Frame", "Viền cầu vồng quang phổ xoay 360 độ siêu nét", 4)
-createChangelogItem("🔊", "Cyber Audio Engine", "Âm thanh CoreGui 2D chuẩn khi click, bật/tắt và sao chép link", 5)
-createChangelogItem("🚫", "Purge Foreign UI", "Xóa sạch 100% cửa sổ Equinoz Hub và icon Horizon cũ", 6)
+-- Danh sách tính năng update v3.6 (Đã gỡ Anti Ragdoll)
+createChangelogItem("🪤", "Anti Trap (Chạy ngầm)", "Vô hiệu hóa bẫy gấu, mìn subspace, turret trên toàn bản đồ", 1)
+createChangelogItem("👑", "Anti Guards Wake Up [PREMIUM]", "Tối ưu hóa khả năng né đòn đánh của bảo vệ Steal an Egg", 2)
+createChangelogItem("🌈", "Rainbow Chroma Frame", "Viền cầu vồng quang phổ xoay 360 độ siêu nét", 3)
+createChangelogItem("🔊", "Cyber Audio Engine", "Âm thanh CoreGui 2D chuẩn khi click, bật/tắt và sao chép link", 4)
+createChangelogItem("🚫", "Purge Foreign UI", "Xóa sạch 100% cửa sổ Equinoz Hub và icon Horizon cũ", 5)
 
 ChangelogBtn.MouseButton1Click:Connect(function()
     playSFX(CONFIG.ClickSFX, 1.0, 1.0)
@@ -629,7 +543,7 @@ NoteClose.MouseButton1Click:Connect(function()
     NoteCard.Visible = false
 end)
 
--- ==================== 8. NÚT TRÒN MỞ MENU (FLOATING LOGO) ====================
+-- ==================== 7. NÚT TRÒN MỞ MENU (FLOATING LOGO) ====================
 local ToggleBtn = Instance.new("Frame", ScreenGui)
 ToggleBtn.Name = "RonneiFloatingLogo"
 ToggleBtn.Size = UDim2.new(0, 52, 0, 52)
