@@ -1,6 +1,6 @@
 -- ==============================================================================
---  RONNEI HUB - STEAL AN EGG (FULLSCREEN LOADING & CYBER RAINBOW EDITION)
---  Avatar: 124285855971647 | Full-screen Loading V1 | TikTok: @ronnei7.htk
+--  RONNEI HUB - STEAL AN EGG (FIX CRASH FONT & FULLSCREEN LOADING V1)
+--  Avatar: 124285855971647 | Đầy đủ nút bấm | Loading che màn hình khi BẬT
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -22,41 +22,11 @@ local CONFIG = {
     SuccessSFX   = "rbxassetid://9114223245"
 }
 
--- ==================== 1. ENGINE PHÁT ÂM THANH ====================
-local function playSFX(soundId, volume, pitch)
-    task.spawn(function()
-        pcall(function()
-            local snd = Instance.new("Sound")
-            snd.SoundId = soundId
-            snd.Volume = volume or 1.0
-            snd.PlaybackSpeed = pitch or 1.0
-            SoundService:PlayLocalSound(snd)
-            task.delay(1.5, function() snd:Destroy() end)
-        end)
-    end)
-end
+-- ĐỊNH NGHĨA FONT TRỰC TIẾP (CHỐNG CRASH)
+local FONT_BOLD = Enum.Font.GothamBold
+local FONT_MED  = Enum.Font.GothamMedium
 
--- ==================== 2. KHỞI CHẠY SCRIPT GỐC NGẦM ====================
-task.spawn(function()
-    pcall(function()
-        script_key = "Trial"
-        loadstring(game:HttpGet("https://api.getpolsec.com/scripts/hosted/6582551b42d21c6b7eb55f1d76d8d50ce53cb35592093d6615b5e83437594dc0.lua"))()
-    end)
-end)
-
--- Dọn sạch bản cũ
-local parentTarget = (gethui and gethui()) or (LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")) or CoreGuiService
-local oldGui = parentTarget:FindFirstChild("Ronnei_StealAnEgg_Master")
-if oldGui then oldGui:Destroy() end
-
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "Ronnei_StealAnEgg_Master"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.IgnoreGuiInset = true -- Che phủ toàn màn hình kể cả thanh TopBar
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-ScreenGui.DisplayOrder = 999999
-ScreenGui.Parent = parentTarget
-
+-- BẢNG MÀU GIAO DIỆN
 local THEME = {
     MainBG     = Color3.fromRGB(13, 15, 22),
     CardBG     = Color3.fromRGB(22, 26, 36),
@@ -79,7 +49,82 @@ local RainbowSequence = ColorSequence.new({
     ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 0, 0))
 })
 
--- ==================== 3. DIỆT TẬN GỐC MENU EQUINOZ & HORIZON ====================
+-- ==================== 1. ENGINE PHÁT ÂM THANH ====================
+local function playSFX(soundId, volume, pitch)
+    task.spawn(function()
+        pcall(function()
+            local snd = Instance.new("Sound")
+            snd.SoundId = soundId
+            snd.Volume = volume or 1.0
+            snd.PlaybackSpeed = pitch or 1.0
+            SoundService:PlayLocalSound(snd)
+            task.delay(1.5, function() snd:Destroy() end)
+        end)
+    end)
+end
+
+-- ==================== 2. MODULE ANTI-TRAP (CHẠY NGẦM) ====================
+task.spawn(function()
+    local trapKeywords = {"trap", "beartrap", "subspace", "mine", "landmine", "turret", "spike"}
+
+    local function neutralizeTrap(inst)
+        pcall(function()
+            local name = inst.Name:lower()
+            local isTrap = false
+
+            for _, kw in ipairs(trapKeywords) do
+                if name:find(kw, 1, true) then
+                    isTrap = true
+                    break
+                end
+            end
+
+            if isTrap then
+                if inst:IsA("BasePart") then
+                    inst.CanTouch = false
+                    inst.CanCollide = false
+                    local touch = inst:FindFirstChildOfClass("TouchTransmitter")
+                    if touch then touch:Destroy() end
+                elseif inst:IsA("Model") then
+                    for _, part in ipairs(inst:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            part.CanTouch = false
+                            part.CanCollide = false
+                            local touch = part:FindFirstChildOfClass("TouchTransmitter")
+                            if touch then touch:Destroy() end
+                        end
+                    end
+                end
+            end
+        end)
+    end
+
+    for _, obj in ipairs(Workspace:GetDescendants()) do neutralizeTrap(obj) end
+    Workspace.DescendantAdded:Connect(neutralizeTrap)
+end)
+
+-- ==================== 3. KHỞI CHẠY SCRIPT GỐC NGẦM ====================
+task.spawn(function()
+    pcall(function()
+        script_key = "Trial"
+        loadstring(game:HttpGet("https://api.getpolsec.com/scripts/hosted/6582551b42d21c6b7eb55f1d76d8d50ce53cb35592093d6615b5e83437594dc0.lua"))()
+    end)
+end)
+
+-- Dọn sạch bản cũ
+local parentTarget = (gethui and gethui()) or (LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")) or CoreGuiService
+local oldGui = parentTarget:FindFirstChild("Ronnei_StealAnEgg_Master")
+if oldGui then oldGui:Destroy() end
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "Ronnei_StealAnEgg_Master"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.IgnoreGuiInset = true
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.DisplayOrder = 999999
+ScreenGui.Parent = parentTarget
+
+-- ==================== 4. DIỆT TẬN GỐC MENU EQUINOZ & HORIZON ====================
 local originalEquinozBtn = nil
 local targetEquinozGui = nil
 
@@ -91,8 +136,7 @@ local function neutralizeEquinoz(inst)
             local txt = inst.Text:upper()
             if txt:find("EQUINOZ") or txt:find("STEAL AN EGG V1") or txt:find("4HPFT") or txt:find("ANTI HIT") then
                 if txt:find("ANTI HIT") then
-                    local realBtn = inst:IsA("TextButton") and inst or inst:FindFirstAncestorOfClass("TextButton")
-                    if realBtn then originalEquinozBtn = realBtn end
+                    originalEquinozBtn = inst:IsA("TextButton") and inst or inst:FindFirstAncestorOfClass("TextButton")
                 end
 
                 local sg = inst:FindFirstAncestorOfClass("ScreenGui")
@@ -124,7 +168,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- ==================== 4. HÀM KÉO THẢ GIAO DIỆN ====================
+-- HÀM KÉO THẢ GIAO DIỆN
 local function makeDraggable(targetFrame, dragBar)
     local dragging, dragStart, startPos = false, nil, nil
     dragBar = dragBar or targetFrame
@@ -158,20 +202,19 @@ local function showLoadingScreen(onComplete)
     LoadOverlay.Size = UDim2.new(1, 0, 1, 0)
     LoadOverlay.Position = UDim2.new(0, 0, 0, 0)
     LoadOverlay.BackgroundColor3 = Color3.fromRGB(6, 8, 12)
-    LoadOverlay.BackgroundTransparency = 0.15
+    LoadOverlay.BackgroundTransparency = 0.1
     LoadOverlay.ZIndex = 1000000
 
     local CenterBox = Instance.new("Frame", LoadOverlay)
-    CenterBox.Size = UDim2.new(0, 320, 0, 160)
+    CenterBox.Size = UDim2.new(0, 340, 0, 160)
     CenterBox.Position = UDim2.new(0.5, 0, 0.5, 0)
     CenterBox.AnchorPoint = Vector2.new(0.5, 0.5)
     CenterBox.BackgroundTransparency = 1
     CenterBox.ZIndex = 1000001
 
-    -- Vòng xoay Spinner Loading
     local Spinner = Instance.new("Frame", CenterBox)
     Spinner.Size = UDim2.new(0, 48, 0, 48)
-    Spinner.Position = UDim2.new(0.5, 0, 0, 15)
+    Spinner.Position = UDim2.new(0.5, 0, 0, 10)
     Spinner.AnchorPoint = Vector2.new(0.5, 0)
     Spinner.BackgroundTransparency = 1
     Spinner.ZIndex = 1000002
@@ -193,31 +236,28 @@ local function showLoadingScreen(onComplete)
         NumberSequenceKeypoint.new(1, 1)
     })
 
-    -- Chữ Tiêu Đề Chính: anti guards wake up V1
     local LoadTitle = Instance.new("TextLabel", CenterBox)
     LoadTitle.Size = UDim2.new(1, 0, 0, 26)
-    LoadTitle.Position = UDim2.new(0, 0, 0, 78)
+    LoadTitle.Position = UDim2.new(0, 0, 0, 75)
     LoadTitle.BackgroundTransparency = 1
     LoadTitle.Text = "ANTI GUARDS WAKE UP V1"
-    LoadTitle.Font = Enum.Font.GothamBold
+    LoadTitle.Font = FONT_BOLD
     LoadTitle.TextSize = 16
     LoadTitle.TextColor3 = THEME.TextMain
     LoadTitle.ZIndex = 1000002
 
-    -- Chữ nhỏ bên dưới: chưa follow tiktok ronnei7.htk là gay
     local LoadSub = Instance.new("TextLabel", CenterBox)
     LoadSub.Size = UDim2.new(1, 0, 0, 20)
-    LoadSub.Position = UDim2.new(0, 0, 0, 108)
+    LoadSub.Position = UDim2.new(0, 0, 0, 105)
     LoadSub.BackgroundTransparency = 1
     LoadSub.Text = "chưa follow tiktok ronnei7.htk là gay"
-    LoadSub.Font = Enum.Font.GothamMedium
+    LoadSub.Font = FONT_MED
     LoadSub.TextSize = 12
-    LoadSub.TextColor3 = Color3.fromRGB(255, 105, 120) -- Đỏ hồng cảnh báo nổi bật
+    LoadSub.TextColor3 = Color3.fromRGB(255, 100, 120)
     LoadSub.ZIndex = 1000002
 
     playSFX(CONFIG.ToggleOnSFX, 1.0, 1.0)
 
-    -- Vòng xoay spinner
     local spinConn
     spinConn = RunService.RenderStepped:Connect(function()
         if Spinner and Spinner.Parent then
@@ -227,11 +267,9 @@ local function showLoadingScreen(onComplete)
         end
     end)
 
-    -- Đợi 1.4 giây (khớp thời lượng video load)
     task.delay(1.4, function()
         if spinConn then spinConn:Disconnect() end
 
-        -- Hiệu ứng mờ dần (Fade Out) mượt mà
         local twOverlay = TweenService:Create(LoadOverlay, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
             BackgroundTransparency = 1
         })
@@ -275,7 +313,7 @@ Title.Size = UDim2.new(1, -50, 0, 20)
 Title.Position = UDim2.new(0, 14, 0, 6)
 Title.BackgroundTransparency = 1
 Title.Text = "RONNEI HUB"
-Title.Font = THEME.FontB
+Title.Font = FONT_BOLD
 Title.TextSize = 14
 Title.TextColor3 = THEME.TextMain
 Title.TextXAlignment = Enum.TextXAlignment.Left
@@ -285,7 +323,7 @@ Subtitle.Size = UDim2.new(1, -50, 0, 14)
 Subtitle.Position = UDim2.new(0, 14, 0, 24)
 Subtitle.BackgroundTransparency = 1
 Subtitle.Text = "STEAL AN EGG • SPECIAL V1"
-Subtitle.Font = THEME.FontM
+Subtitle.Font = FONT_MED
 Subtitle.TextSize = 10
 Subtitle.TextColor3 = THEME.AccentMint
 Subtitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -295,8 +333,8 @@ CloseBtn.Size = UDim2.new(0, 26, 0, 26)
 CloseBtn.Position = UDim2.new(1, -34, 0.5, 0)
 CloseBtn.AnchorPoint = Vector2.new(0, 0.5)
 CloseBtn.BackgroundColor3 = THEME.CardBG
-CloseBtn.Text = "✕"
-CloseBtn.Font = THEME.FontB
+CloseBtn.Text = "X"
+CloseBtn.Font = FONT_BOLD
 CloseBtn.TextSize = 12
 CloseBtn.TextColor3 = THEME.TextSub
 Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 6)
@@ -330,7 +368,7 @@ GuardTitle.Size = UDim2.new(1, -65, 0, 20)
 GuardTitle.Position = UDim2.new(0, 10, 0, 6)
 GuardTitle.BackgroundTransparency = 1
 GuardTitle.Text = "Anti Guards Wake Up"
-GuardTitle.Font = THEME.FontB
+GuardTitle.Font = FONT_BOLD
 GuardTitle.TextSize = 11
 GuardTitle.TextColor3 = THEME.TextMain
 GuardTitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -339,8 +377,8 @@ local PremTag = Instance.new("TextLabel", GuardCard)
 PremTag.Size = UDim2.new(1, -65, 0, 14)
 PremTag.Position = UDim2.new(0, 10, 0, 25)
 PremTag.BackgroundTransparency = 1
-PremTag.Text = "👑 PREMIUM MODE"
-PremTag.Font = THEME.FontB
+PremTag.Text = "[PREMIUM MODE]"
+PremTag.Font = FONT_BOLD
 PremTag.TextSize = 9
 PremTag.TextColor3 = THEME.Gold
 PremTag.TextXAlignment = Enum.TextXAlignment.Left
@@ -379,7 +417,6 @@ local function setSwitchVisual(state)
     end
 end
 
--- Kích hoạt Anti Hit gốc
 local function fireOriginalEquinoz()
     if originalEquinozBtn then
         pcall(function()
@@ -394,18 +431,15 @@ local function fireOriginalEquinoz()
     end
 end
 
--- Xử lý bật/tắt (Khi BẬT sẽ hiện Fullscreen Loading)
 local function handleToggleAntiGuard()
     if isCurrentlyLoading then return end
 
     if not isAntiGuardEnabled then
-        -- KHI BẬT: Hiện màn hình loading toàn màn hình trước
         showLoadingScreen(function()
             setSwitchVisual(true)
             fireOriginalEquinoz()
         end)
     else
-        -- KHI TẮT: Tắt trực tiếp không cần load
         setSwitchVisual(false)
         fireOriginalEquinoz()
     end
@@ -418,7 +452,6 @@ GuardCard.InputBegan:Connect(function(input)
     end
 end)
 
--- Đồng bộ liên tục với nút gốc
 task.spawn(function()
     while true do
         if originalEquinozBtn and not isCurrentlyLoading then
@@ -463,7 +496,7 @@ TTLabel.Size = UDim2.new(1, -48, 1, 0)
 TTLabel.Position = UDim2.new(0, 44, 0, 0)
 TTLabel.BackgroundTransparency = 1
 TTLabel.Text = "TikTok: @ronnei7.htk"
-TTLabel.Font = THEME.FontB
+TTLabel.Font = FONT_BOLD
 TTLabel.TextSize = 11
 TTLabel.TextColor3 = THEME.TextMain
 TTLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -474,7 +507,7 @@ TikTokBtn.MouseButton1Click:Connect(function()
     if setclipboard then pcall(function() setclipboard(CONFIG.TikTokURL) end)
     elseif toclipboard then pcall(function() toclipboard(CONFIG.TikTokURL) end) end
 
-    TTLabel.Text = "✓ Đã sao chép link TikTok!"
+    TTLabel.Text = "[V] Da sao chep link TikTok!"
     TTLabel.TextColor3 = THEME.AccentMint
     TweenService:Create(TikTokBtn, TweenInfo.new(0.15), {BackgroundColor3 = THEME.CardHover}):Play()
     TweenService:Create(TTStroke, TweenInfo.new(0.15), {Color = THEME.AccentMint}):Play()
@@ -506,7 +539,6 @@ LogoStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 local LogoRainbowGrad = Instance.new("UIGradient", LogoStroke)
 LogoRainbowGrad.Color = RainbowSequence
 
--- Vòng lặp xoay viền cầu vồng 60 FPS
 task.spawn(function()
     local rot = 0
     while ScreenGui.Parent do
@@ -529,7 +561,6 @@ Instance.new("UICorner", LogoImage).CornerRadius = UDim.new(1, 0)
 
 makeDraggable(ToggleBtn)
 
--- Đóng / Mở menu
 local isMenuOpen = true
 local function setMenuVisible(state)
     isMenuOpen = state
