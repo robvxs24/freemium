@@ -1,6 +1,6 @@
 -- ==============================================================================
---  RONNEI HUB - STEAL AN EGG (FIX CRASH FONT & FULLSCREEN LOADING V1)
---  Avatar: 124285855971647 | Đầy đủ nút bấm | Loading che màn hình khi BẬT
+--  RONNEI HUB - STEAL AN EGG (TRUE BLACKOUT & INSTANT ON V1)
+--  Avatar: 124285855971647 | Che kín 100% | Bật mượt không đơ | Anti Trap ngầm
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -14,19 +14,17 @@ local LocalPlayer = Players.LocalPlayer
 
 -- CẤU HÌNH LOGO, LINK & ÂM THANH
 local CONFIG = {
-    LogoAssetID = "rbxassetid://124285855971647",
-    TikTokURL   = "https://www.tiktok.com/@ronnei7.htk?_r=1&_t=ZS-98ygZG9Gh2G",
+    LogoAssetID  = "rbxassetid://124285855971647",
+    TikTokURL    = "https://www.tiktok.com/@ronnei7.htk?_r=1&_t=ZS-98ygZG9Gh2G",
     ToggleOnSFX  = "rbxassetid://9114223175",
     ToggleOffSFX = "rbxassetid://9114223204",
     ClickSFX     = "rbxassetid://9114223164",
     SuccessSFX   = "rbxassetid://9114223245"
 }
 
--- ĐỊNH NGHĨA FONT TRỰC TIẾP (CHỐNG CRASH)
 local FONT_BOLD = Enum.Font.GothamBold
 local FONT_MED  = Enum.Font.GothamMedium
 
--- BẢNG MÀU GIAO DIỆN
 local THEME = {
     MainBG     = Color3.fromRGB(13, 15, 22),
     CardBG     = Color3.fromRGB(22, 26, 36),
@@ -111,7 +109,7 @@ task.spawn(function()
     end)
 end)
 
--- Dọn sạch bản cũ
+-- Dọn sạch GUI cũ
 local parentTarget = (gethui and gethui()) or (LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")) or CoreGuiService
 local oldGui = parentTarget:FindFirstChild("Ronnei_StealAnEgg_Master")
 if oldGui then oldGui:Destroy() end
@@ -124,7 +122,7 @@ ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.DisplayOrder = 999999
 ScreenGui.Parent = parentTarget
 
--- ==================== 4. DIỆT TẬN GỐC MENU EQUINOZ & HORIZON ====================
+-- ==================== 4. DIỆT MENU EQUINOZ & HORIZON ====================
 local originalEquinozBtn = nil
 local targetEquinozGui = nil
 
@@ -191,37 +189,44 @@ local function makeDraggable(targetFrame, dragBar)
     end)
 end
 
--- ==================== 5. MÀN HÌNH LOADING CHE TOÀN MÀN HÌNH ====================
+-- ==================== 5. MÀN HÌNH LOADING ĐEN KỊT 100% TOÀN MÀN HÌNH ====================
 local isCurrentlyLoading = false
 
 local function showLoadingScreen(onComplete)
     isCurrentlyLoading = true
 
-    local LoadOverlay = Instance.new("Frame", ScreenGui)
-    LoadOverlay.Name = "RonneiFullScreenLoader"
+    -- Tạo ScreenGui riêng biệt ở tầng cao nhất của Roblox để che toàn diện
+    local LoadGui = Instance.new("ScreenGui")
+    LoadGui.Name = "Ronnei_Blackout_Overlay"
+    LoadGui.DisplayOrder = 2147483647 -- Tầng hiển thị cao nhất tuyệt đối
+    LoadGui.IgnoreGuiInset = true
+    LoadGui.ResetOnSpawn = false
+    LoadGui.Parent = parentTarget
+
+    -- Nền đen tuyền 100% che kín toàn bộ màn hình
+    local LoadOverlay = Instance.new("Frame", LoadGui)
+    LoadOverlay.Name = "BlackoutFrame"
     LoadOverlay.Size = UDim2.new(1, 0, 1, 0)
     LoadOverlay.Position = UDim2.new(0, 0, 0, 0)
-    LoadOverlay.BackgroundColor3 = Color3.fromRGB(6, 8, 12)
-    LoadOverlay.BackgroundTransparency = 0.1
-    LoadOverlay.ZIndex = 1000000
+    LoadOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    LoadOverlay.BackgroundTransparency = 0
+    LoadOverlay.BorderSizePixel = 0
 
     local CenterBox = Instance.new("Frame", LoadOverlay)
     CenterBox.Size = UDim2.new(0, 340, 0, 160)
     CenterBox.Position = UDim2.new(0.5, 0, 0.5, 0)
     CenterBox.AnchorPoint = Vector2.new(0.5, 0.5)
     CenterBox.BackgroundTransparency = 1
-    CenterBox.ZIndex = 1000001
 
     local Spinner = Instance.new("Frame", CenterBox)
-    Spinner.Size = UDim2.new(0, 48, 0, 48)
-    Spinner.Position = UDim2.new(0.5, 0, 0, 10)
+    Spinner.Size = UDim2.new(0, 52, 0, 52)
+    Spinner.Position = UDim2.new(0.5, 0, 0, 5)
     Spinner.AnchorPoint = Vector2.new(0.5, 0)
     Spinner.BackgroundTransparency = 1
-    Spinner.ZIndex = 1000002
     Instance.new("UICorner", Spinner).CornerRadius = UDim.new(1, 0)
 
     local SpinnerStroke = Instance.new("UIStroke", Spinner)
-    SpinnerStroke.Thickness = 3.5
+    SpinnerStroke.Thickness = 4
     SpinnerStroke.Color = Color3.fromRGB(255, 255, 255)
     
     local SpinnerGrad = Instance.new("UIGradient", SpinnerStroke)
@@ -238,23 +243,21 @@ local function showLoadingScreen(onComplete)
 
     local LoadTitle = Instance.new("TextLabel", CenterBox)
     LoadTitle.Size = UDim2.new(1, 0, 0, 26)
-    LoadTitle.Position = UDim2.new(0, 0, 0, 75)
+    LoadTitle.Position = UDim2.new(0, 0, 0, 72)
     LoadTitle.BackgroundTransparency = 1
     LoadTitle.Text = "ANTI GUARDS WAKE UP V1"
     LoadTitle.Font = FONT_BOLD
     LoadTitle.TextSize = 16
     LoadTitle.TextColor3 = THEME.TextMain
-    LoadTitle.ZIndex = 1000002
 
     local LoadSub = Instance.new("TextLabel", CenterBox)
     LoadSub.Size = UDim2.new(1, 0, 0, 20)
-    LoadSub.Position = UDim2.new(0, 0, 0, 105)
+    LoadSub.Position = UDim2.new(0, 0, 0, 102)
     LoadSub.BackgroundTransparency = 1
     LoadSub.Text = "chưa follow tiktok ronnei7.htk là gay"
     LoadSub.Font = FONT_MED
     LoadSub.TextSize = 12
-    LoadSub.TextColor3 = Color3.fromRGB(255, 100, 120)
-    LoadSub.ZIndex = 1000002
+    LoadSub.TextColor3 = Color3.fromRGB(255, 95, 115)
 
     playSFX(CONFIG.ToggleOnSFX, 1.0, 1.0)
 
@@ -267,26 +270,27 @@ local function showLoadingScreen(onComplete)
         end
     end)
 
+    -- Thời lượng load 1.4s
     task.delay(1.4, function()
         if spinConn then spinConn:Disconnect() end
 
-        local twOverlay = TweenService:Create(LoadOverlay, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        local tw = TweenService:Create(LoadOverlay, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
             BackgroundTransparency = 1
         })
-        TweenService:Create(LoadTitle, TweenInfo.new(0.25), {TextTransparency = 1}):Play()
-        TweenService:Create(LoadSub, TweenInfo.new(0.25), {TextTransparency = 1}):Play()
-        TweenService:Create(SpinnerStroke, TweenInfo.new(0.25), {Transparency = 1}):Play()
+        TweenService:Create(LoadTitle, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
+        TweenService:Create(LoadSub, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
+        TweenService:Create(SpinnerStroke, TweenInfo.new(0.2), {Transparency = 1}):Play()
         
-        twOverlay:Play()
-        twOverlay.Completed:Connect(function()
-            LoadOverlay:Destroy()
+        tw:Play()
+        tw.Completed:Connect(function()
+            LoadGui:Destroy()
             isCurrentlyLoading = false
             if onComplete then onComplete() end
         end)
     end)
 end
 
--- ==================== 6. GIAO DIỆN CHÍNH (VIỀN CẦU VỒNG RGB) ====================
+-- ==================== 6. GIAO DIỆN CHÍNH (MAIN MENU) ====================
 local MainFrame = Instance.new("Frame", ScreenGui)
 MainFrame.Name = "RonneiMainCard"
 MainFrame.Size = UDim2.new(0, 275, 0, 175)
@@ -401,47 +405,61 @@ Knob.BorderSizePixel = 0
 Instance.new("UICorner", Knob).CornerRadius = UDim.new(1, 0)
 
 local isAntiGuardEnabled = false
+local syncCooldownUntil = 0 -- Khóa đồng bộ chống lag đơ
 
-local function setSwitchVisual(state)
+-- Chuyển đổi giao diện ngay tức khắc (Không cần chờ)
+local function setSwitchVisualInstant(state)
     isAntiGuardEnabled = state
 
     if isAntiGuardEnabled then
-        TweenService:Create(Switch, TweenInfo.new(0.2), {BackgroundColor3 = THEME.AccentMint}):Play()
-        TweenService:Create(Knob, TweenInfo.new(0.2), {Position = UDim2.new(1, -19, 0.5, 0)}):Play()
-        TweenService:Create(GuardStroke, TweenInfo.new(0.2), {Color = THEME.AccentMint}):Play()
+        Switch.BackgroundColor3 = THEME.AccentMint
+        Knob.Position = UDim2.new(1, -19, 0.5, 0)
+        GuardStroke.Color = THEME.AccentMint
     else
         playSFX(CONFIG.ToggleOffSFX, 1.0, 1.0)
-        TweenService:Create(Switch, TweenInfo.new(0.2), {BackgroundColor3 = THEME.ToggleOff}):Play()
-        TweenService:Create(Knob, TweenInfo.new(0.2), {Position = UDim2.new(0, 3, 0.5, 0)}):Play()
-        TweenService:Create(GuardStroke, TweenInfo.new(0.2), {Color = THEME.Border}):Play()
+        Switch.BackgroundColor3 = THEME.ToggleOff
+        Knob.Position = UDim2.new(0, 3, 0.5, 0)
+        GuardStroke.Color = THEME.Border
     end
 end
 
-local function fireOriginalEquinoz()
-    if originalEquinozBtn then
+-- Kích hoạt nút gốc không gây nghẽn luồng (Chạy ngầm task.spawn)
+local function fireOriginalEquinozAsync()
+    task.spawn(function()
+        if not originalEquinozBtn then return end
         pcall(function()
             if firesignal then
                 firesignal(originalEquinozBtn.MouseButton1Click)
-                firesignal(originalEquinozBtn.Activated)
             elseif getconnections then
-                for _, conn in ipairs(getconnections(originalEquinozBtn.MouseButton1Click)) do conn:Fire() end
-                for _, conn in ipairs(getconnections(originalEquinozBtn.Activated)) do conn:Fire() end
+                local conns = getconnections(originalEquinozBtn.MouseButton1Click)
+                if #conns > 0 then
+                    for _, conn in ipairs(conns) do conn:Fire() end
+                else
+                    for _, conn in ipairs(getconnections(originalEquinozBtn.Activated)) do conn:Fire() end
+                end
             end
         end)
-    end
+    end)
 end
 
 local function handleToggleAntiGuard()
     if isCurrentlyLoading then return end
 
     if not isAntiGuardEnabled then
+        -- 1. Bật sẵn nút xanh ngay lập tức ở background (Khi mở màn che ra là đã bật sẵn)
+        setSwitchVisualInstant(true)
+        syncCooldownUntil = tick() + 3.0 -- Khóa kiểm tra 3 giây để triệt tiêu hiện tượng đơ giật
+
+        -- 2. Che đen kịt 100% toàn màn hình
         showLoadingScreen(function()
-            setSwitchVisual(true)
-            fireOriginalEquinoz()
+            -- Khi màn hình loading kết thúc mới gửi tín hiệu ngầm
+            fireOriginalEquinozAsync()
         end)
     else
-        setSwitchVisual(false)
-        fireOriginalEquinoz()
+        -- KHI TẮT: Tắt trực tiếp không cần load
+        syncCooldownUntil = tick() + 3.0
+        setSwitchVisualInstant(false)
+        fireOriginalEquinozAsync()
     end
 end
 
@@ -452,19 +470,20 @@ GuardCard.InputBegan:Connect(function(input)
     end
 end)
 
+-- Vòng lặp đồng bộ an toàn (Có cooldown bảo vệ)
 task.spawn(function()
     while true do
-        if originalEquinozBtn and not isCurrentlyLoading then
+        if originalEquinozBtn and not isCurrentlyLoading and tick() > syncCooldownUntil then
             pcall(function()
                 local t = originalEquinozBtn.Text:upper()
                 if t:find("ON") and not isAntiGuardEnabled then
-                    setSwitchVisual(true)
+                    setSwitchVisualInstant(true)
                 elseif t:find("OFF") and isAntiGuardEnabled then
-                    setSwitchVisual(false)
+                    setSwitchVisualInstant(false)
                 end
             end)
         end
-        task.wait(0.3)
+        task.wait(0.5)
     end
 end)
 
