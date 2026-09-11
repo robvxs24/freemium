@@ -1,6 +1,7 @@
 -- ==============================================================================
---  RONNEI HUB - STEAL AN EGG (OFFICIAL VERSION 1.3 - ADJUSTED STEAL DELAY)
---  Cập nhật: Nhặt nhanh tối ưu (0.12s) | Tàng hình FE | Anti-Trap Void | Blackout
+--  RONNEI HUB - STEAL AN EGG (OFFICIAL VERSION 1.4)
+--  Mới V1.4: Invisible Steal (-8 studs / Rot 231° / No Anim) + Auto Block
+--  Bảo lưu: Anti-Trap Void (-500m) | Blackout 100% | Fast Steal 0.12s
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -9,18 +10,19 @@ local RunService = game:GetService("RunService")
 local CoreGuiService = game:GetService("CoreGui")
 local SoundService = game:GetService("SoundService")
 local ProximityPromptService = game:GetService("ProximityPromptService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- CẤU HÌNH HỆ THỐNG
+-- CẤU HÌNH HỆ THỐNG V1.4
 local CONFIG = {
-    Version                = "V1.3",
+    Version                = "V1.4",
     LogoAssetID            = "rbxassetid://124285855971647",
     TikTokURL              = "https://www.tiktok.com/@ronnei7.htk?_r=1&_t=ZS-98ygZG9Gh2G",
-    StealHoldDuration      = 0.12, -- Độ trễ nhặt 0.12s (chạm nhẹ là cướp, chống lỗi server)
-    InvisibleDepth         = 12,   -- Dìm sâu 12 studs dưới đất
-    InvisibleRotation      = 226,  -- Xoay 226 độ triệt góc nhìn
+    InvisibleStealDepth    = 8,   -- Chuẩn config: dìm sâu 8 studs
+    InvisibleStealRotation = 231, -- Chuẩn config: xoay góc 231 độ
+    StealHoldDuration      = 0.12,
     ToggleOnSFX            = "rbxassetid://9114223175",
     ToggleOffSFX           = "rbxassetid://9114223204",
     ClickSFX               = "rbxassetid://9114223164",
@@ -66,7 +68,52 @@ local function playSFX(soundId, volume, pitch)
     end)
 end
 
--- ==================== 2. MODULE CƯỚP TRỨNG (0.12S HOLD DELAY) ====================
+-- ==================== 2. HỆ THỐNG AUTO BLOCK PHÒNG VỆ ====================
+local isCurrentlyStealing = false
+local blockTimeoutThread = nil
+
+local function triggerAutoBlock(state)
+    pcall(function()
+        -- Gửi tín hiệu phòng vệ vào các RemoteEvent Block/Shield của game
+        for _, desc in ipairs(ReplicatedStorage:GetDescendants()) do
+            if desc:IsA("RemoteEvent") then
+                local name = desc.Name:lower()
+                if name:find("block") or name:find("shield") or name:find("defend") or name:find("parry") then
+                    desc:FireServer(state)
+                end
+            end
+        end
+
+        local char = LocalPlayer.Character
+        if char then
+            if char:FindFirstChild("Blocking") and char.Blocking:IsA("ValueBase") then
+                char.Blocking.Value = state
+            end
+            char:SetAttribute("Blocking", state)
+            char:SetAttribute("Blocked", state)
+        end
+    end)
+end
+
+local function setStealingState(state)
+    isCurrentlyStealing = state
+    if state then
+        if blockTimeoutThread then
+            task.cancel(blockTimeoutThread)
+            blockTimeoutThread = nil
+        end
+        triggerAutoBlock(true)
+    else
+        -- Duy trì Block thêm 1.5 giây sau khi cướp xong (AUTO_BLOCK_AFTER_STEAL)
+        blockTimeoutThread = task.delay(1.5, function()
+            if not isCurrentlyStealing then
+                triggerAutoBlock(false)
+            end
+        end)
+    end
+end
+
+-- ==================== 3. MODULE CƯỚP TRỨNG & TRIGGER STEAL ====================
 task.spawn(function()
     local function tunePrompt(prompt)
         if prompt:IsA("ProximityPrompt") then
@@ -81,9 +128,9 @@ task.spawn(function()
     for _, desc in ipairs(Workspace:GetDescendants()) do tunePrompt(desc) end
     Workspace.DescendantAdded:Connect(tunePrompt)
 
-    -- Tự động hoàn tất sau 0.12s khi chạm/nhấn giữ
     ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
         pcall(function()
+            setStealingState(true)
             prompt.HoldDuration = CONFIG.StealHoldDuration
             task.delay(CONFIG.StealHoldDuration, function()
                 if fireproximityprompt then
@@ -92,9 +139,27 @@ task.spawn(function()
             end)
         end)
     end)
+
+    ProximityPromptService.PromptButtonHoldEnded:Connect(function()
+        task.delay(0.2, function()
+            local char = LocalPlayer.Character
+            local hasEgg = false
+            if char then
+                for _, item in ipairs(char:GetChildren()) do
+                    if item:IsA("Tool") or item:IsA("Model") or item.Name:lower():find("egg") or item.Name:lower():find("brainrot") then
+                        hasEgg = true
+                        break
+                    end
+                end
+            end
+            if not hasEgg then
+                setStealingState(false)
+            end
+        end)
+    end)
 end)
 
--- ==================== 3. MODULE TÀNG HÌNH & GIẤU TRỨNG (FE SINK) ====================
+-- ==================== 4. MODULE INVISIBLE STEAL (-8 STUDS / 231° / NO ANIM) ====================
 task.spawn(function()
     local activeRootJoint = nil
     local defaultC0 = nil
@@ -126,38 +191,67 @@ task.spawn(function()
             local char = LocalPlayer.Character
             if not char then return end
             local hrp = char:FindFirstChild("HumanoidRootPart")
+            local hum = char:FindFirstChildOfClass("Humanoid")
 
-            -- Dìm thân thể xuống đất
-            if activeRootJoint and defaultC0 then
-                activeRootJoint.C0 = defaultC0 
-                    * CFrame.new(0, -CONFIG.InvisibleDepth, 0) 
-                    * CFrame.Angles(0, math.rad(CONFIG.InvisibleRotation), 0)
+            -- Kiểm tra xem có đang giữ nút cướp hoặc đang vác trứng hay không
+            local isHoldingEgg = false
+            for _, item in ipairs(char:GetChildren()) do
+                if item:IsA("Tool") or item:IsA("Model") or item.Name:lower():find("egg") or item.Name:lower():find("brainrot") then
+                    isHoldingEgg = true
+                    break
+                end
             end
 
-            -- Dìm quả trứng đang cướp
-            if hrp then
-                for _, obj in ipairs(hrp:GetChildren()) do
-                    if obj:IsA("JointInstance") and obj.Name ~= "RootJoint" then
-                        obj.C0 = CFrame.new(0, -CONFIG.InvisibleDepth, 0)
+            local shouldActivateStealStealth = isCurrentlyStealing or isHoldingEgg
+
+            if shouldActivateStealStealth then
+                -- 1. TẮT HOẠT ẢNH NHÂN VẬT (STEAL_DISABLE_ANIM_ENABLED)
+                if hum then
+                    local animator = hum:FindFirstChildOfClass("Animator")
+                    if animator then
+                        for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
+                            track:Stop(0)
+                        end
                     end
                 end
 
-                for _, item in ipairs(char:GetChildren()) do
-                    if item:IsA("Tool") or item:IsA("Model") or item.Name:lower():find("egg") or item.Name:lower():find("brainrot") then
-                        for _, part in ipairs(item:GetDescendants()) do
-                            if part:IsA("BasePart") then
-                                part.CanCollide = false
-                                part.CFrame = hrp.CFrame * CFrame.new(0, -CONFIG.InvisibleDepth, 0)
+                -- 2. ĐỘN THỔ -8 STUDS VÀ XOAY 231 ĐỘ (INVISIBLE_STEAL_DEPTH: 8, ROTATION: 231)
+                if activeRootJoint and defaultC0 then
+                    activeRootJoint.C0 = defaultC0 
+                        * CFrame.new(0, -CONFIG.InvisibleStealDepth, 0) 
+                        * CFrame.Angles(0, math.rad(CONFIG.InvisibleStealRotation), 0)
+                end
+
+                -- 3. DÌM QUẢ TRỨNG THEO ĐỘ SÂU ĐỘN THỔ
+                if hrp then
+                    for _, obj in ipairs(hrp:GetChildren()) do
+                        if obj:IsA("JointInstance") and obj.Name ~= "RootJoint" then
+                            obj.C0 = CFrame.new(0, -CONFIG.InvisibleStealDepth, 0)
+                        end
+                    end
+
+                    for _, item in ipairs(char:GetChildren()) do
+                        if item:IsA("Tool") or item:IsA("Model") or item.Name:lower():find("egg") or item.Name:lower():find("brainrot") then
+                            for _, part in ipairs(item:GetDescendants()) do
+                                if part:IsA("BasePart") then
+                                    part.CanCollide = false
+                                    part.CFrame = hrp.CFrame * CFrame.new(0, -CONFIG.InvisibleStealDepth, 0)
+                                end
                             end
                         end
                     end
+                end
+            else
+                -- Trả lại trạng thái khớp gốc bình thường khi không cướp
+                if activeRootJoint and defaultC0 then
+                    activeRootJoint.C0 = defaultC0
                 end
             end
         end)
     end)
 end)
 
--- ==================== 4. MODULE ANTI-TRAP VOID (-500M CHẠY NGẦM) ====================
+-- ==================== 5. MODULE ANTI-TRAP VOID (-500M CHẠY NGẦM) ====================
 task.spawn(function()
     local trapKeywords = {"trap", "beartrap", "subspace", "mine", "landmine", "turret", "spike"}
     local voidedTraps = {}
@@ -200,7 +294,7 @@ task.spawn(function()
     Workspace.DescendantAdded:Connect(banishTrap)
 end)
 
--- ==================== 5. KHỞI CHẠY SCRIPT GỐC NGẦM ====================
+-- ==================== 6. KHỞI CHẠY SCRIPT GỐC NGẦM ====================
 task.spawn(function()
     pcall(function()
         script_key = "Trial"
@@ -208,7 +302,7 @@ task.spawn(function()
     end)
 end)
 
--- Dọn sạch bản cũ
+-- Dọn sạch GUI cũ
 local parentTarget = (gethui and gethui()) or (LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")) or CoreGuiService
 local oldGui = parentTarget:FindFirstChild("Ronnei_StealAnEgg_Master")
 if oldGui then oldGui:Destroy() end
@@ -221,7 +315,7 @@ ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.DisplayOrder = 999999
 ScreenGui.Parent = parentTarget
 
--- ==================== 6. DIỆT MENU EQUINOZ & HORIZON ====================
+-- ==================== 7. DIỆT MENU EQUINOZ & HORIZON ====================
 local originalEquinozBtn = nil
 local targetEquinozGui = nil
 
@@ -288,7 +382,7 @@ local function makeDraggable(targetFrame, dragBar)
     end)
 end
 
--- ==================== 7. MÀN HÌNH LOADING BLACKOUT 100% ====================
+-- ==================== 8. MÀN HÌNH LOADING BLACKOUT 100% ====================
 local isCurrentlyLoading = false
 
 local function showLoadingScreen(onComplete)
@@ -386,7 +480,7 @@ local function showLoadingScreen(onComplete)
     end)
 end
 
--- ==================== 8. GIAO DIỆN CHÍNH (MAIN MENU) ====================
+-- ==================== 9. GIAO DIỆN CHÍNH (MAIN MENU) ====================
 local MainFrame = Instance.new("Frame", ScreenGui)
 MainFrame.Name = "RonneiMainCard"
 MainFrame.Size = UDim2.new(0, 275, 0, 210)
@@ -630,7 +724,7 @@ TikTokBtn.MouseButton1Click:Connect(function()
     end)
 end)
 
--- NÚT 3: BẬT BẢNG NHẬT KÝ CẬP NHẬT V1.3
+-- NÚT 3: BẬT BẢNG NHẬT KÝ CẬP NHẬT V1.4
 local ChangelogBtn = Instance.new("TextButton", Content)
 ChangelogBtn.Size = UDim2.new(1, 0, 0, 36)
 ChangelogBtn.Position = UDim2.new(0, 0, 0, 100)
@@ -646,7 +740,7 @@ local NoteBtnStroke = Instance.new("UIStroke", ChangelogBtn)
 NoteBtnStroke.Color = THEME.Border
 NoteBtnStroke.Thickness = 1
 
--- ==================== 9. BẢNG NHẬT KÝ CẬP NHẬT (MODAL V1.3) ====================
+-- ==================== 10. BẢNG NHẬT KÝ CẬP NHẬT (MODAL V1.4) ====================
 local NoteCard = Instance.new("Frame", ScreenGui)
 NoteCard.Name = "RonneiChangelogCard"
 NoteCard.Size = UDim2.new(0, 290, 0, 255)
@@ -740,14 +834,15 @@ local function createChangelogItem(icon, title, desc, order)
     iDesc.TextXAlignment = Enum.TextXAlignment.Left
 end
 
--- CHI TIẾT TÍNH NĂNG V1.3
-createChangelogItem("⚡", "Smooth Steal (0.12s Delay)", "Tối ưu nhặt nhanh nhạy vừa phải, chống lỗi server và vượt mặt anti-cheat", 1)
-createChangelogItem("👻", "FE Invisible Steal", "Dìm RootJoint -12 studs + xoay 226°, người khác & bảo vệ không thấy người & trứng", 2)
-createChangelogItem("🪤", "Anti-Trap Void (-500m)", "Tự động dời toàn bộ bẫy gấu, mìn, turret xuống sâu 500m dưới lòng đất", 3)
-createChangelogItem("👑", "Anti Guards Wake Up [PREMIUM]", "Tối ưu hóa né đòn, fix triệt để đơ lag khi bật", 4)
-createChangelogItem("🎬", "True Blackout Loading", "Che phủ đen kịt 100% toàn màn hình khi bật, mở ra là kích hoạt ngay", 5)
-createChangelogItem("🌈", "Rainbow Chroma Frame", "Viền cầu vồng 360 độ siêu nét quanh bảng điều khiển", 6)
-createChangelogItem("🔊", "Cyber Audio Engine", "Âm thanh CoreGui 2D chuẩn khi click, bật/tắt và sao chép link", 7)
+-- CHI TIẾT TÍNH NĂNG V1.4
+createChangelogItem("👻", "Invisible Steal V1.4", "Độn thổ -8 studs + Rot 231° + tự động tắt toàn bộ hoạt ảnh khi cướp", 1)
+createChangelogItem("🛡️", "Auto Block Defense", "Tự động kích hoạt phòng vệ chặn đòn khi cướp và duy trì sau cướp", 2)
+createChangelogItem("⚡", "Fast Smooth Steal", "Thời gian nhặt 0.12s, chạm là cướp ngay, chống lỗi Server", 3)
+createChangelogItem("🪤", "Anti-Trap Void (-500m)", "Tự động dời toàn bộ bẫy gấu, mìn, turret xuống sâu 500m dưới lòng đất", 4)
+createChangelogItem("👑", "Anti Guards Wake Up [PREMIUM]", "Tối ưu hóa né đòn, fix triệt để đơ lag khi bật", 5)
+createChangelogItem("🎬", "True Blackout Loading", "Che phủ đen kịt 100% toàn màn hình khi bật, mở ra là kích hoạt ngay", 6)
+createChangelogItem("🌈", "Rainbow Chroma Frame", "Viền cầu vồng 360 độ siêu nét quanh bảng điều khiển", 7)
+createChangelogItem("🔊", "Cyber Audio Engine", "Âm thanh CoreGui 2D chuẩn khi click, bật/tắt và sao chép link", 8)
 
 ChangelogBtn.MouseButton1Click:Connect(function()
     playSFX(CONFIG.ClickSFX, 1.0, 1.0)
@@ -759,7 +854,7 @@ NoteClose.MouseButton1Click:Connect(function()
     NoteCard.Visible = false
 end)
 
--- ==================== 10. NÚT TRÒN MỞ MENU (FLOATING LOGO) ====================
+-- ==================== 11. NÚT TRÒN MỞ MENU (FLOATING LOGO) ====================
 local ToggleBtn = Instance.new("Frame", ScreenGui)
 ToggleBtn.Name = "RonneiFloatingLogo"
 ToggleBtn.Size = UDim2.new(0, 52, 0, 52)
