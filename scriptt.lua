@@ -1,6 +1,6 @@
 -- ==============================================================================
---  RONNEI HUB - STEAL AN EGG (TRUE BLACKOUT & INSTANT ON V1)
---  Avatar: 124285855971647 | Che kín 100% | Bật mượt không đơ | Anti Trap ngầm
+--  RONNEI HUB - STEAL AN EGG (ANTI TRAP + TRUE BLACKOUT V1)
+--  Avatar: 124285855971647 | Chạy ngầm: Anti Trap | Full Blackout | Viền Rainbow
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -189,21 +189,19 @@ local function makeDraggable(targetFrame, dragBar)
     end)
 end
 
--- ==================== 5. MÀN HÌNH LOADING ĐEN KỊT 100% TOÀN MÀN HÌNH ====================
+-- ==================== 5. MÀN HÌNH LOADING ĐEN KỊT 100% ====================
 local isCurrentlyLoading = false
 
 local function showLoadingScreen(onComplete)
     isCurrentlyLoading = true
 
-    -- Tạo ScreenGui riêng biệt ở tầng cao nhất của Roblox để che toàn diện
     local LoadGui = Instance.new("ScreenGui")
     LoadGui.Name = "Ronnei_Blackout_Overlay"
-    LoadGui.DisplayOrder = 2147483647 -- Tầng hiển thị cao nhất tuyệt đối
+    LoadGui.DisplayOrder = 2147483647
     LoadGui.IgnoreGuiInset = true
     LoadGui.ResetOnSpawn = false
     LoadGui.Parent = parentTarget
 
-    -- Nền đen tuyền 100% che kín toàn bộ màn hình
     local LoadOverlay = Instance.new("Frame", LoadGui)
     LoadOverlay.Name = "BlackoutFrame"
     LoadOverlay.Size = UDim2.new(1, 0, 1, 0)
@@ -270,7 +268,6 @@ local function showLoadingScreen(onComplete)
         end
     end)
 
-    -- Thời lượng load 1.4s
     task.delay(1.4, function()
         if spinConn then spinConn:Disconnect() end
 
@@ -405,9 +402,8 @@ Knob.BorderSizePixel = 0
 Instance.new("UICorner", Knob).CornerRadius = UDim.new(1, 0)
 
 local isAntiGuardEnabled = false
-local syncCooldownUntil = 0 -- Khóa đồng bộ chống lag đơ
+local syncCooldownUntil = 0
 
--- Chuyển đổi giao diện ngay tức khắc (Không cần chờ)
 local function setSwitchVisualInstant(state)
     isAntiGuardEnabled = state
 
@@ -423,7 +419,6 @@ local function setSwitchVisualInstant(state)
     end
 end
 
--- Kích hoạt nút gốc không gây nghẽn luồng (Chạy ngầm task.spawn)
 local function fireOriginalEquinozAsync()
     task.spawn(function()
         if not originalEquinozBtn then return end
@@ -446,17 +441,13 @@ local function handleToggleAntiGuard()
     if isCurrentlyLoading then return end
 
     if not isAntiGuardEnabled then
-        -- 1. Bật sẵn nút xanh ngay lập tức ở background (Khi mở màn che ra là đã bật sẵn)
         setSwitchVisualInstant(true)
-        syncCooldownUntil = tick() + 3.0 -- Khóa kiểm tra 3 giây để triệt tiêu hiện tượng đơ giật
+        syncCooldownUntil = tick() + 3.0
 
-        -- 2. Che đen kịt 100% toàn màn hình
         showLoadingScreen(function()
-            -- Khi màn hình loading kết thúc mới gửi tín hiệu ngầm
             fireOriginalEquinozAsync()
         end)
     else
-        -- KHI TẮT: Tắt trực tiếp không cần load
         syncCooldownUntil = tick() + 3.0
         setSwitchVisualInstant(false)
         fireOriginalEquinozAsync()
@@ -470,7 +461,6 @@ GuardCard.InputBegan:Connect(function(input)
     end
 end)
 
--- Vòng lặp đồng bộ an toàn (Có cooldown bảo vệ)
 task.spawn(function()
     while true do
         if originalEquinozBtn and not isCurrentlyLoading and tick() > syncCooldownUntil then
