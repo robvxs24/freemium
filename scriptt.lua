@@ -1,7 +1,6 @@
 -- ==============================================================================
 --  RONNEI HUB - STEAL AN EGG (OFFICIAL VERSION 1.2)
---  Cập nhật V1.2: Tàng Hình Ngầm (Depth 8 / Rotation 226) | Anti-Trap Void (-500m)
---  Blackout 100% | Bảng Nhật Ký V1.2 | Viền Cầu Vồng RGB | Avatar: 124285855971647
+--  Cập nhật V1.2: Invisible Steal & Egg (Ẩn ngầm) | Anti-Trap Void | Blackout 100%
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -15,16 +14,15 @@ local LocalPlayer = Players.LocalPlayer
 
 -- CẤU HÌNH HỆ THỐNG V1.2
 local CONFIG = {
-    Version      = "V1.2",
-    LogoAssetID  = "rbxassetid://124285855971647",
-    TikTokURL    = "https://www.tiktok.com/@ronnei7.htk?_r=1&_t=ZS-98ygZG9Gh2G",
-    ToggleOnSFX  = "rbxassetid://9114223175",
-    ToggleOffSFX = "rbxassetid://9114223204",
-    ClickSFX     = "rbxassetid://9114223164",
-    SuccessSFX   = "rbxassetid://9114223245",
-    -- Thông số tàng hình trích xuất từ cấu hình
-    InvisibleStealDepth = 8,
-    InvisibleRotation   = 226
+    Version                = "V1.2",
+    LogoAssetID            = "rbxassetid://124285855971647",
+    TikTokURL              = "https://www.tiktok.com/@ronnei7.htk?_r=1&_t=ZS-98ygZG9Gh2G",
+    InvisibleStealDepth    = 8,   -- Chuẩn config: dìm trứng/nhân vật sâu 8 studs
+    InvisibleStealRotation = 226, -- Chuẩn config: góc xoay lệch tầm nhìn 226 độ
+    ToggleOnSFX            = "rbxassetid://9114223175",
+    ToggleOffSFX           = "rbxassetid://9114223204",
+    ClickSFX               = "rbxassetid://9114223164",
+    SuccessSFX             = "rbxassetid://9114223245"
 }
 
 local FONT_BOLD = Enum.Font.GothamBold
@@ -66,46 +64,35 @@ local function playSFX(soundId, volume, pitch)
     end)
 end
 
--- ==================== 2. MODULE TÀNG HÌNH NGẦM (INVISIBLE GHOST V1.2) ====================
+-- ==================== 2. MODULE INVISIBLE STEAL & EGG (CHẠY NGẦM V1.2) ====================
 task.spawn(function()
-    local function applyGhostInvisibility(char)
-        if not char then return end
-        task.wait(0.3)
+    RunService.RenderStepped:Connect(function()
         pcall(function()
-            -- 1. Làm trong suốt toàn bộ cơ thể & phụ kiện dạng bóng ma
-            for _, part in ipairs(char:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.Transparency = 0.65
-                    part.CastShadow = false
-                elseif part:IsA("Decal") then
-                    part.Transparency = 1
-                end
-            end
+            local char = LocalPlayer.Character
+            if not char then return end
 
-            -- 2. Triệt tiêu hiển thị thanh máu và tên trên đầu
-            local hum = char:FindFirstChildOfClass("Humanoid")
-            if hum then
-                hum.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
-                hum.NameDisplayDistance = 0
-                hum.HealthDisplayDistance = 0
-            end
-
-            -- 3. Xử lý tường Base trong suốt (INVISIBLE_BASE_WALLS)
-            for _, obj in ipairs(Workspace:GetDescendants()) do
-                if obj:IsA("BasePart") and (obj.Name:lower():find("base") or obj.Name:lower():find("wall")) then
-                    if obj.Transparency < 0.5 then
-                        obj.Transparency = 0.5
+            -- Quét vật phẩm/trứng đang cầm trên tay hoặc gắn vào nhân vật
+            for _, item in ipairs(char:GetChildren()) do
+                local isEggOrItem = item:IsA("Tool") or item.Name:lower():find("egg") or item.Name:lower():find("brainrot")
+                if isEggOrItem then
+                    for _, part in ipairs(item:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            -- 1. Giấu hoàn toàn hiển thị quả trứng
+                            part.Transparency = 1
+                            part.CanCollide = false
+                            -- 2. Dìm tọa độ hiển thị xuống 8 studs dưới mặt đất
+                            part.CFrame = part.CFrame * CFrame.new(0, -CONFIG.InvisibleStealDepth, 0) * CFrame.Angles(0, math.rad(CONFIG.InvisibleStealRotation), 0)
+                        elseif part:IsA("Decal") or part:IsA("Texture") or part:IsA("ParticleEmitter") or part:IsA("Beam") then
+                            part.Enabled = false
+                        end
                     end
                 end
             end
         end)
-    end
-
-    if LocalPlayer.Character then applyGhostInvisibility(LocalPlayer.Character) end
-    LocalPlayer.CharacterAdded:Connect(applyGhostInvisibility)
+    end)
 end)
 
--- ==================== 3. MODULE ANTI-TRAP VOID (DỜI BẪY XUỐNG 500M) ====================
+-- ==================== 3. MODULE ANTI-TRAP VOID (-500M CHẠY NGẦM) ====================
 task.spawn(function()
     local trapKeywords = {"trap", "beartrap", "subspace", "mine", "landmine", "turret", "spike"}
     local voidedTraps = {}
@@ -334,7 +321,7 @@ local function showLoadingScreen(onComplete)
     end)
 end
 
--- ==================== 7. GIAO DIỆN CHÍNH (MAIN MENU V1.2) ====================
+-- ==================== 7. GIAO DIỆN CHÍNH (MAIN MENU) ====================
 local MainFrame = Instance.new("Frame", ScreenGui)
 MainFrame.Name = "RonneiMainCard"
 MainFrame.Size = UDim2.new(0, 275, 0, 210)
@@ -597,8 +584,8 @@ NoteBtnStroke.Thickness = 1
 -- ==================== 8. BẢNG NHẬT KÝ CẬP NHẬT (MODAL V1.2) ====================
 local NoteCard = Instance.new("Frame", ScreenGui)
 NoteCard.Name = "RonneiChangelogCard"
-NoteCard.Size = UDim2.new(0, 290, 0, 235)
-NoteCard.Position = UDim2.new(0.5, -145, 0.5, -117)
+NoteCard.Size = UDim2.new(0, 290, 0, 245)
+NoteCard.Position = UDim2.new(0.5, -145, 0.5, -122)
 NoteCard.BackgroundColor3 = THEME.MainBG
 NoteCard.BorderSizePixel = 0
 NoteCard.Visible = false
@@ -661,7 +648,7 @@ ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
 local function createChangelogItem(icon, title, desc, order)
     local item = Instance.new("Frame", NoteScroll)
-    item.Size = UDim2.new(1, -8, 0, 44)
+    item.Size = UDim2.new(1, -8, 0, 46)
     item.BackgroundColor3 = THEME.CardBG
     item.BorderSizePixel = 0
     item.LayoutOrder = order
@@ -678,8 +665,8 @@ local function createChangelogItem(icon, title, desc, order)
     iTitle.TextXAlignment = Enum.TextXAlignment.Left
 
     local iDesc = Instance.new("TextLabel", item)
-    iDesc.Size = UDim2.new(1, -12, 0, 18)
-    iDesc.Position = UDim2.new(0, 8, 0, 20)
+    iDesc.Size = UDim2.new(1, -12, 0, 20)
+    iDesc.Position = UDim2.new(0, 8, 0, 22)
     iDesc.BackgroundTransparency = 1
     iDesc.Text = desc
     iDesc.Font = FONT_MED
@@ -688,12 +675,13 @@ local function createChangelogItem(icon, title, desc, order)
     iDesc.TextXAlignment = Enum.TextXAlignment.Left
 end
 
--- CHI TIẾT CẬP NHẬT BẢN V1.2 (TỰ ĐỘNG CẬP NHẬT NỘI DUNG MỚI)
-createChangelogItem("👻", "Invisible Ghost & Steal (V1.2)", "Tàng hình ẩn danh, ẩn Decal/Nametag, áp dụng Invisible Depth 8 & Rotation 226", 1)
+-- CHI TIẾT CẬP NHẬT TỰ ĐỘNG BẢN V1.2
+createChangelogItem("👻", "Invisible Steal & Egg (Mới V1.2)", "Tàng hình người + giấu trứng dưới đất 8 studs (Rot 226°) khi cướp", 1)
 createChangelogItem("🪤", "Anti-Trap Void (-500m)", "Tự động dời toàn bộ bẫy gấu, mìn, turret xuống sâu 500m dưới lòng đất", 2)
-createChangelogItem("👑", "Anti Guards Wake Up [PREMIUM]", "Tối ưu né đòn bảo vệ, phản hồi lập tức không giật lag", 3)
-createChangelogItem("🎬", "True Blackout Loading 100%", "Màn hình đen che phủ tuyệt đối khi bật, mở ra là kích hoạt ngay", 4)
-createChangelogItem("🌈", "Rainbow Chroma Frame", "Viền 7 sắc quang phổ xoay 360 độ 60 FPS quanh khung giao diện", 5)
+createChangelogItem("👑", "Anti Guards Wake Up [PREMIUM]", "Tối ưu hóa né đòn, fix triệt để đơ lag khi bật", 3)
+createChangelogItem("🎬", "True Blackout Loading", "Che phủ đen kịt 100% toàn màn hình khi bật, mở ra là kích hoạt ngay", 4)
+createChangelogItem("🌈", "Rainbow Chroma Frame", "Viền cầu vồng 360 độ siêu nét quanh bảng điều khiển", 5)
+createChangelogItem("🔊", "Cyber Audio Engine", "Âm thanh CoreGui 2D chuẩn khi click, bật/tắt và sao chép link", 6)
 
 ChangelogBtn.MouseButton1Click:Connect(function()
     playSFX(CONFIG.ClickSFX, 1.0, 1.0)
