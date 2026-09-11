@@ -1,6 +1,6 @@
 -- ==============================================================================
---  RONNEI HUB - STEAL AN EGG (OFFICIAL V1.2 - TRUE FE INVISIBLE & HIDE EGG)
---  Tàng hình người khác không thấy | Giấu trứng 100% | Anti-Trap Void (-500m)
+--  RONNEI HUB - STEAL AN EGG (OFFICIAL VERSION 1.2 - INSTANT STEAL & INVISIBLE)
+--  Cập nhật V1.2: Cướp trứng 1 chạm (Instant Steal) | Tàng hình FE | Anti-Trap Void
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -17,9 +17,8 @@ local CONFIG = {
     Version                = "V1.2",
     LogoAssetID            = "rbxassetid://124285855971647",
     TikTokURL              = "https://www.tiktok.com/@ronnei7.htk?_r=1&_t=ZS-98ygZG9Gh2G",
-    -- Thông số tàng hình đồng bộ Server
-    InvisibleDepth         = 12,  -- Dìm sâu 12 studs để che kín cả đầu và phụ kiện
-    InvisibleRotation      = 226, -- Góc xoay lệch góc nhìn 226 độ
+    InvisibleDepth         = 12,  -- Dìm sâu 12 studs che kín thân và trứng
+    InvisibleRotation      = 226, -- Góc xoay lệch camera 226 độ
     ToggleOnSFX            = "rbxassetid://9114223175",
     ToggleOffSFX           = "rbxassetid://9114223204",
     ClickSFX               = "rbxassetid://9114223164",
@@ -65,7 +64,22 @@ local function playSFX(soundId, volume, pitch)
     end)
 end
 
--- ==================== 2. MODULE TÀNG HÌNH & GIẤU TRỨNG (FE SINK V1.2) ====================
+-- ==================== 2. MODULE INSTANT STEAL (CƯỚP TRỨNG 1 CHẠM) ====================
+task.spawn(function()
+    RunService.RenderStepped:Connect(function()
+        pcall(function()
+            for _, obj in ipairs(Workspace:GetDescendants()) do
+                if obj:IsA("ProximityPrompt") then
+                    -- Ép thời gian chờ giữ phím/chạm về 0 ngay lập tức (1 phát ăn luôn)
+                    obj.HoldDuration = 0
+                    obj.MaxActivationDistance = math.max(obj.MaxActivationDistance, 25)
+                end
+            end
+        end)
+    end)
+end)
+
+-- ==================== 3. MODULE TÀNG HÌNH & GIẤU TRỨNG (FE SINK V1.2) ====================
 task.spawn(function()
     local activeRootJoint = nil
     local defaultC0 = nil
@@ -92,30 +106,25 @@ task.spawn(function()
     if LocalPlayer.Character then setupInvisibleEngine(LocalPlayer.Character) end
     LocalPlayer.CharacterAdded:Connect(setupInvisibleEngine)
 
-    -- Áp dụng liên tục 60 FPS: Khóa cứng vị trí cơ thể và dìm toàn bộ trứng dưới đất
     RunService.PreSimulation:Connect(function()
         pcall(function()
             local char = LocalPlayer.Character
             if not char then return end
             local hrp = char:FindFirstChild("HumanoidRootPart")
 
-            -- 1. DÌM TOÀN BỘ CƠ THỂ XUỐNG DƯỚI ĐẤT (NGƯỜI KHÁC KHÔNG THẤY)
             if activeRootJoint and defaultC0 then
                 activeRootJoint.C0 = defaultC0 
                     * CFrame.new(0, -CONFIG.InvisibleDepth, 0) 
                     * CFrame.Angles(0, math.rad(CONFIG.InvisibleRotation), 0)
             end
 
-            -- 2. DÌM TOÀN BỘ QUẢ TRỨNG ĐANG CƯỚP XUỐNG DƯỚI ĐẤT
             if hrp then
-                -- Quét tất cả mối nối (Weld/Motor6D) gắn vào HumanoidRootPart hoặc Torso
                 for _, obj in ipairs(hrp:GetChildren()) do
                     if obj:IsA("JointInstance") and obj.Name ~= "RootJoint" then
                         obj.C0 = CFrame.new(0, -CONFIG.InvisibleDepth, 0)
                     end
                 end
 
-                -- Quét các Model/Vật phẩm trứng trong nhân vật
                 for _, item in ipairs(char:GetChildren()) do
                     if item:IsA("Tool") or item:IsA("Model") or item.Name:lower():find("egg") or item.Name:lower():find("brainrot") then
                         for _, part in ipairs(item:GetDescendants()) do
@@ -131,7 +140,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 3. MODULE ANTI-TRAP VOID (-500M CHẠY NGẦM) ====================
+-- ==================== 4. MODULE ANTI-TRAP VOID (-500M CHẠY NGẦM) ====================
 task.spawn(function()
     local trapKeywords = {"trap", "beartrap", "subspace", "mine", "landmine", "turret", "spike"}
     local voidedTraps = {}
@@ -174,7 +183,7 @@ task.spawn(function()
     Workspace.DescendantAdded:Connect(banishTrap)
 end)
 
--- ==================== 4. KHỞI CHẠY SCRIPT GỐC NGẦM ====================
+-- ==================== 5. KHỞI CHẠY SCRIPT GỐC NGẦM ====================
 task.spawn(function()
     pcall(function()
         script_key = "Trial"
@@ -195,7 +204,7 @@ ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.DisplayOrder = 999999
 ScreenGui.Parent = parentTarget
 
--- ==================== 5. DIỆT MENU EQUINOZ & HORIZON ====================
+-- ==================== 6. DIỆT MENU EQUINOZ & HORIZON ====================
 local originalEquinozBtn = nil
 local targetEquinozGui = nil
 
@@ -262,7 +271,7 @@ local function makeDraggable(targetFrame, dragBar)
     end)
 end
 
--- ==================== 6. MÀN HÌNH LOADING BLACKOUT 100% ====================
+-- ==================== 7. MÀN HÌNH LOADING BLACKOUT 100% ====================
 local isCurrentlyLoading = false
 
 local function showLoadingScreen(onComplete)
@@ -360,7 +369,7 @@ local function showLoadingScreen(onComplete)
     end)
 end
 
--- ==================== 7. GIAO DIỆN CHÍNH (MAIN MENU) ====================
+-- ==================== 8. GIAO DIỆN CHÍNH (MAIN MENU) ====================
 local MainFrame = Instance.new("Frame", ScreenGui)
 MainFrame.Name = "RonneiMainCard"
 MainFrame.Size = UDim2.new(0, 275, 0, 210)
@@ -620,11 +629,11 @@ local NoteBtnStroke = Instance.new("UIStroke", ChangelogBtn)
 NoteBtnStroke.Color = THEME.Border
 NoteBtnStroke.Thickness = 1
 
--- ==================== 8. BẢNG NHẬT KÝ CẬP NHẬT (MODAL V1.2) ====================
+-- ==================== 9. BẢNG NHẬT KÝ CẬP NHẬT (MODAL V1.2) ====================
 local NoteCard = Instance.new("Frame", ScreenGui)
 NoteCard.Name = "RonneiChangelogCard"
-NoteCard.Size = UDim2.new(0, 290, 0, 245)
-NoteCard.Position = UDim2.new(0.5, -145, 0.5, -122)
+NoteCard.Size = UDim2.new(0, 290, 0, 255)
+NoteCard.Position = UDim2.new(0.5, -145, 0.5, -127)
 NoteCard.BackgroundColor3 = THEME.MainBG
 NoteCard.BorderSizePixel = 0
 NoteCard.Visible = false
@@ -687,7 +696,7 @@ ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
 local function createChangelogItem(icon, title, desc, order)
     local item = Instance.new("Frame", NoteScroll)
-    item.Size = UDim2.new(1, -8, 0, 46)
+    item.Size = UDim2.new(1, -8, 0, 44)
     item.BackgroundColor3 = THEME.CardBG
     item.BorderSizePixel = 0
     item.LayoutOrder = order
@@ -704,8 +713,8 @@ local function createChangelogItem(icon, title, desc, order)
     iTitle.TextXAlignment = Enum.TextXAlignment.Left
 
     local iDesc = Instance.new("TextLabel", item)
-    iDesc.Size = UDim2.new(1, -12, 0, 20)
-    iDesc.Position = UDim2.new(0, 8, 0, 22)
+    iDesc.Size = UDim2.new(1, -12, 0, 18)
+    iDesc.Position = UDim2.new(0, 8, 0, 20)
     iDesc.BackgroundTransparency = 1
     iDesc.Text = desc
     iDesc.Font = FONT_MED
@@ -714,12 +723,14 @@ local function createChangelogItem(icon, title, desc, order)
     iDesc.TextXAlignment = Enum.TextXAlignment.Left
 end
 
--- CHI TIẾT TÍNH NĂNG ĐỒNG BỘ MỚI TRÊN V1.2
-createChangelogItem("👻", "Invisible Steal (tàn hình)", "Dìm RootJoint -12 studs + góc xoay 226°, người khác và bảo vệ không thấy người & trứng", 1)
-createChangelogItem("🪤", "Anti-Trap Void (-500m)", "Tự động dời toàn bộ bẫy gấu, mìn, turret xuống sâu 500m dưới lòng đất", 2)
-createChangelogItem("👑", "Anti Guards Wake Up [PREMIUM]", "boss ngủ mãi mãi,chỉ có tác dụng với bạn", 3)
-createChangelogItem("🎬", "True Blackout Loading", "sau khi bật là kích hoạt ngay lập tực không bị delay hay giật lag", 4)
-createChangelogItem("🌈", "Rainbow Chroma Frame", "Viền cầu vồng 360 độ siêu nét quanh bảng điều khiển", 5)
+-- CHI TIẾT TÍNH NĂNG TỰ ĐỘNG CẬP NHẬT TRÊN V1.2
+createChangelogItem("⚡", "Instant Steal (Cướp Trứng 1 Chạm)", "Tự động xóa thời gian giữ nút ProximityPrompt, ấn 1 phát là cướp ngay lập tức", 1)
+createChangelogItem("👻", "FE Invisible Steal (Đồng Bộ Server)", "Hạ RootJoint -12 studs + xoay 226°, giấu người và trứng khỏi mắt đối thủ", 2)
+createChangelogItem("🪤", "Anti-Trap Void (-500m)", "Tự động dời toàn bộ bẫy gấu, mìn, turret xuống sâu 500m dưới lòng đất", 3)
+createChangelogItem("👑", "Anti Guards Wake Up [PREMIUM]", "Tối ưu hóa né đòn, fix triệt để đơ lag khi bật", 4)
+createChangelogItem("🎬", "True Blackout Loading", "Che phủ đen kịt 100% toàn màn hình khi bật, mở ra là kích hoạt ngay", 5)
+createChangelogItem("🌈", "Rainbow Chroma Frame", "Viền cầu vồng 360 độ siêu nét quanh bảng điều khiển", 6)
+createChangelogItem("🔊", "Cyber Audio Engine", "Âm thanh CoreGui 2D chuẩn khi click, bật/tắt và sao chép link", 7)
 
 ChangelogBtn.MouseButton1Click:Connect(function()
     playSFX(CONFIG.ClickSFX, 1.0, 1.0)
@@ -731,7 +742,7 @@ NoteClose.MouseButton1Click:Connect(function()
     NoteCard.Visible = false
 end)
 
--- ==================== 9. NÚT TRÒN MỞ MENU (FLOATING LOGO) ====================
+-- ==================== 10. NÚT TRÒN MỞ MENU (FLOATING LOGO) ====================
 local ToggleBtn = Instance.new("Frame", ScreenGui)
 ToggleBtn.Name = "RonneiFloatingLogo"
 ToggleBtn.Size = UDim2.new(0, 52, 0, 52)
