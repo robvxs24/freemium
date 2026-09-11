@@ -1,6 +1,6 @@
 -- ==============================================================================
 --  RONNEI HUB - STEAL AN EGG (OFFICIAL VERSION 1.4)
---  Mới V1.4: Invisible Steal (-8 studs / Rot 231° / No Anim) + Auto Block
+--  Cập nhật: Invisible Steal Replicated (Độn thổ -8 studs / Rot 231°) + Auto Block
 --  Bảo lưu: Anti-Trap Void (-500m) | Blackout 100% | Fast Steal 0.12s
 -- ==============================================================================
 
@@ -15,12 +15,21 @@ local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- CẤU HÌNH HỆ THỐNG V1.4
+-- GHI ĐÈ CẤU HÌNH GỐC VÀO HỆ THỐNG EXECUTOR
+pcall(function()
+    if writefile then
+        local rawConfig = [[{"INVISIBLE_STEAL_DEPTH":8,"INVISIBLE_STEAL_ROTATION":231,"DESYNC_ENABLED":true,"AUTO_CLONE_ENABLED":true,"STEAL_DISABLE_ANIM_ENABLED":true,"AUTO_BLOCK_ON_STEAL":true,"AUTO_BLOCK_AFTER_STEAL":true,"STEAL_SPEED_ENABLED":true,"STEAL_SPEED_VALUE":21,"AUTO_DESTROY_TURRET_ENABLED":true}]]
+        writefile("StealAnEgg.json", rawConfig)
+        writefile("StealAnEgg_Config.json", rawConfig)
+    end
+end)
+
+-- CẤU HÌNH HỆ THỐNG
 local CONFIG = {
     Version                = "V1.4",
     LogoAssetID            = "rbxassetid://124285855971647",
     TikTokURL              = "https://www.tiktok.com/@ronnei7.htk?_r=1&_t=ZS-98ygZG9Gh2G",
-    InvisibleStealDepth    = 8,   -- Chuẩn config: dìm sâu 8 studs
+    InvisibleStealDepth    = 8,   -- Chuẩn config trích xuất: lặn sâu 8 studs
     InvisibleStealRotation = 231, -- Chuẩn config: xoay góc 231 độ
     StealHoldDuration      = 0.12,
     ToggleOnSFX            = "rbxassetid://9114223175",
@@ -74,7 +83,6 @@ local blockTimeoutThread = nil
 
 local function triggerAutoBlock(state)
     pcall(function()
-        -- Gửi tín hiệu phòng vệ vào các RemoteEvent Block/Shield của game
         for _, desc in ipairs(ReplicatedStorage:GetDescendants()) do
             if desc:IsA("RemoteEvent") then
                 local name = desc.Name:lower()
@@ -104,7 +112,6 @@ local function setStealingState(state)
         end
         triggerAutoBlock(true)
     else
-        -- Duy trì Block thêm 1.5 giây sau khi cướp xong (AUTO_BLOCK_AFTER_STEAL)
         blockTimeoutThread = task.delay(1.5, function()
             if not isCurrentlyStealing then
                 triggerAutoBlock(false)
@@ -113,7 +120,73 @@ local function setStealingState(state)
     end
 end
 
--- ==================== 3. MODULE CƯỚP TRỨNG & TRIGGER STEAL ====================
+-- ==================== 3. CƠ CHẾ INVISIBLE STEAL (ĐỘN THỔ FE REPLICATED) ====================
+local isUnderground = false
+local preStealSurfaceCFrame = nil
+
+local function enterUnderground()
+    if isUnderground then return end
+    local char = LocalPlayer.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if not hrp or not hum then return end
+
+    isUnderground = true
+    preStealSurfaceCFrame = hrp.CFrame
+
+    -- 1. Dập tắt toàn bộ Animation Tracks (STEAL_DISABLE_ANIM_ENABLED)
+    local animator = hum:FindFirstChildOfClass("Animator")
+    if animator then
+        for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
+            track:Stop(0)
+        end
+    end
+
+    -- 2. Tắt va chạm (Noclip) để không bị bật ngược lên sàn
+    for _, part in ipairs(char:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = false
+        end
+    end
+
+    -- 3. Dìm HRP thật xuống dưới sàn 8 studs + xoay 231 độ (Đồng bộ qua Network Ownership)
+    hrp.CFrame = preStealSurfaceCFrame 
+        * CFrame.new(0, -CONFIG.InvisibleStealDepth, 0) 
+        * CFrame.Angles(0, math.rad(CONFIG.InvisibleStealRotation), 0)
+    hrp.AssemblyLinearVelocity = Vector3.zero
+    hrp.AssemblyAngularVelocity = Vector3.zero
+end
+
+local function exitUnderground()
+    if not isUnderground then return end
+    isUnderground = false
+    local char = LocalPlayer.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if hrp and preStealSurfaceCFrame then
+        hrp.CFrame = preStealSurfaceCFrame + Vector3.new(0, 0.5, 0)
+        hrp.AssemblyLinearVelocity = Vector3.zero
+    end
+    preStealSurfaceCFrame = nil
+end
+
+-- Khóa cứng vị trí dưới lòng đất trong toàn bộ thời gian cướp trứng
+RunService.Heartbeat:Connect(function()
+    if isUnderground and preStealSurfaceCFrame then
+        local char = LocalPlayer.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            for _, part in ipairs(char:GetDescendants()) do
+                if part:IsA("BasePart") then part.CanCollide = false end
+            end
+            hrp.CFrame = preStealSurfaceCFrame 
+                * CFrame.new(0, -CONFIG.InvisibleStealDepth, 0) 
+                * CFrame.Angles(0, math.rad(CONFIG.InvisibleStealRotation), 0)
+            hrp.AssemblyLinearVelocity = Vector3.zero
+        end
+    end
+end)
+
+-- ==================== 4. MODULE CƯỚP TRỨNG & TRIGGER TÀNG HÌNH ====================
 task.spawn(function()
     local function tunePrompt(prompt)
         if prompt:IsA("ProximityPrompt") then
@@ -128,9 +201,11 @@ task.spawn(function()
     for _, desc in ipairs(Workspace:GetDescendants()) do tunePrompt(desc) end
     Workspace.DescendantAdded:Connect(tunePrompt)
 
+    -- Khi chạm nút cướp: Kích hoạt độn thổ + Bật phòng thủ ngay tức khắc
     ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
         pcall(function()
             setStealingState(true)
+            enterUnderground()
             prompt.HoldDuration = CONFIG.StealHoldDuration
             task.delay(CONFIG.StealHoldDuration, function()
                 if fireproximityprompt then
@@ -143,109 +218,18 @@ task.spawn(function()
     ProximityPromptService.PromptButtonHoldEnded:Connect(function()
         task.delay(0.2, function()
             local char = LocalPlayer.Character
-            local hasEgg = false
+            local isStillCarryingEgg = false
             if char then
                 for _, item in ipairs(char:GetChildren()) do
                     if item:IsA("Tool") or item:IsA("Model") or item.Name:lower():find("egg") or item.Name:lower():find("brainrot") then
-                        hasEgg = true
+                        isStillCarryingEgg = true
                         break
                     end
                 end
             end
-            if not hasEgg then
+            if not isStillCarryingEgg then
                 setStealingState(false)
-            end
-        end)
-    end)
-end)
-
--- ==================== 4. MODULE INVISIBLE STEAL (-8 STUDS / 231° / NO ANIM) ====================
-task.spawn(function()
-    local activeRootJoint = nil
-    local defaultC0 = nil
-
-    local function setupInvisibleEngine(char)
-        if not char then return end
-        local hrp = char:WaitForChild("HumanoidRootPart", 6)
-        local hum = char:WaitForChild("Humanoid", 6)
-        if not hrp or not hum then return end
-
-        task.wait(0.15)
-        if hum.RigType == Enum.RigType.R15 then
-            local lowerTorso = char:WaitForChild("LowerTorso", 6)
-            activeRootJoint = lowerTorso and lowerTorso:WaitForChild("Root", 6)
-        else
-            activeRootJoint = hrp:WaitForChild("RootJoint", 6)
-        end
-
-        if activeRootJoint then
-            defaultC0 = activeRootJoint.C0
-        end
-    end
-
-    if LocalPlayer.Character then setupInvisibleEngine(LocalPlayer.Character) end
-    LocalPlayer.CharacterAdded:Connect(setupInvisibleEngine)
-
-    RunService.PreSimulation:Connect(function()
-        pcall(function()
-            local char = LocalPlayer.Character
-            if not char then return end
-            local hrp = char:FindFirstChild("HumanoidRootPart")
-            local hum = char:FindFirstChildOfClass("Humanoid")
-
-            -- Kiểm tra xem có đang giữ nút cướp hoặc đang vác trứng hay không
-            local isHoldingEgg = false
-            for _, item in ipairs(char:GetChildren()) do
-                if item:IsA("Tool") or item:IsA("Model") or item.Name:lower():find("egg") or item.Name:lower():find("brainrot") then
-                    isHoldingEgg = true
-                    break
-                end
-            end
-
-            local shouldActivateStealStealth = isCurrentlyStealing or isHoldingEgg
-
-            if shouldActivateStealStealth then
-                -- 1. TẮT HOẠT ẢNH NHÂN VẬT (STEAL_DISABLE_ANIM_ENABLED)
-                if hum then
-                    local animator = hum:FindFirstChildOfClass("Animator")
-                    if animator then
-                        for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
-                            track:Stop(0)
-                        end
-                    end
-                end
-
-                -- 2. ĐỘN THỔ -8 STUDS VÀ XOAY 231 ĐỘ (INVISIBLE_STEAL_DEPTH: 8, ROTATION: 231)
-                if activeRootJoint and defaultC0 then
-                    activeRootJoint.C0 = defaultC0 
-                        * CFrame.new(0, -CONFIG.InvisibleStealDepth, 0) 
-                        * CFrame.Angles(0, math.rad(CONFIG.InvisibleStealRotation), 0)
-                end
-
-                -- 3. DÌM QUẢ TRỨNG THEO ĐỘ SÂU ĐỘN THỔ
-                if hrp then
-                    for _, obj in ipairs(hrp:GetChildren()) do
-                        if obj:IsA("JointInstance") and obj.Name ~= "RootJoint" then
-                            obj.C0 = CFrame.new(0, -CONFIG.InvisibleStealDepth, 0)
-                        end
-                    end
-
-                    for _, item in ipairs(char:GetChildren()) do
-                        if item:IsA("Tool") or item:IsA("Model") or item.Name:lower():find("egg") or item.Name:lower():find("brainrot") then
-                            for _, part in ipairs(item:GetDescendants()) do
-                                if part:IsA("BasePart") then
-                                    part.CanCollide = false
-                                    part.CFrame = hrp.CFrame * CFrame.new(0, -CONFIG.InvisibleStealDepth, 0)
-                                end
-                            end
-                        end
-                    end
-                end
-            else
-                -- Trả lại trạng thái khớp gốc bình thường khi không cướp
-                if activeRootJoint and defaultC0 then
-                    activeRootJoint.C0 = defaultC0
-                end
+                exitUnderground()
             end
         end)
     end)
@@ -835,8 +819,8 @@ local function createChangelogItem(icon, title, desc, order)
 end
 
 -- CHI TIẾT TÍNH NĂNG V1.4
-createChangelogItem("👻", "Invisible Steal V1.4", "Độn thổ -8 studs + Rot 231° + tự động tắt toàn bộ hoạt ảnh khi cướp", 1)
-createChangelogItem("🛡️", "Auto Block Defense", "Tự động kích hoạt phòng vệ chặn đòn khi cướp và duy trì sau cướp", 2)
+createChangelogItem("👻", "Invisible Steal FE Replicated", "Lặn sâu -8 studs + Rot 231° + tắt Anim, người khác & bảo vệ thấy trống trơn", 1)
+createChangelogItem("🛡️", "Auto Block Defense", "Tự động kích hoạt phòng vệ chặn đòn khi cướp và duy trì 1.5s sau cướp", 2)
 createChangelogItem("⚡", "Fast Smooth Steal", "Thời gian nhặt 0.12s, chạm là cướp ngay, chống lỗi Server", 3)
 createChangelogItem("🪤", "Anti-Trap Void (-500m)", "Tự động dời toàn bộ bẫy gấu, mìn, turret xuống sâu 500m dưới lòng đất", 4)
 createChangelogItem("👑", "Anti Guards Wake Up [PREMIUM]", "Tối ưu hóa né đòn, fix triệt để đơ lag khi bật", 5)
