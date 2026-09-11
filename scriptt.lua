@@ -1,6 +1,6 @@
 -- ==============================================================================
---  RONNEI HUB - STEAL AN EGG (ANTI TRAP + TRUE BLACKOUT V1)
---  Avatar: 124285855971647 | Chạy ngầm: Anti Trap | Full Blackout | Viền Rainbow
+--  RONNEI HUB - STEAL AN EGG (OFFICIAL VERSION 1.1)
+--  Cập nhật V1.1: Anti-Trap Void (-500m) | Bảng Nhật Ký | Blackout 100%
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -12,8 +12,9 @@ local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- CẤU HÌNH LOGO, LINK & ÂM THANH
+-- CẤU HÌNH HỆ THỐNG V1.1
 local CONFIG = {
+    Version      = "V1.1",
     LogoAssetID  = "rbxassetid://124285855971647",
     TikTokURL    = "https://www.tiktok.com/@ronnei7.htk?_r=1&_t=ZS-98ygZG9Gh2G",
     ToggleOnSFX  = "rbxassetid://9114223175",
@@ -61,15 +62,15 @@ local function playSFX(soundId, volume, pitch)
     end)
 end
 
--- ==================== 2. MODULE ANTI-TRAP (CHẠY NGẦM) ====================
+-- ==================== 2. MODULE ANTI-TRAP VOID (DỜI BẪY XUỐNG 500M) ====================
 task.spawn(function()
     local trapKeywords = {"trap", "beartrap", "subspace", "mine", "landmine", "turret", "spike"}
+    local voidedTraps = {}
 
-    local function neutralizeTrap(inst)
+    local function banishTrap(inst)
         pcall(function()
             local name = inst.Name:lower()
             local isTrap = false
-
             for _, kw in ipairs(trapKeywords) do
                 if name:find(kw, 1, true) then
                     isTrap = true
@@ -77,10 +78,12 @@ task.spawn(function()
                 end
             end
 
-            if isTrap then
+            if isTrap and not voidedTraps[inst] then
+                voidedTraps[inst] = true
                 if inst:IsA("BasePart") then
                     inst.CanTouch = false
                     inst.CanCollide = false
+                    inst.CFrame = inst.CFrame - Vector3.new(0, 500, 0)
                     local touch = inst:FindFirstChildOfClass("TouchTransmitter")
                     if touch then touch:Destroy() end
                 elseif inst:IsA("Model") then
@@ -88,6 +91,7 @@ task.spawn(function()
                         if part:IsA("BasePart") then
                             part.CanTouch = false
                             part.CanCollide = false
+                            part.CFrame = part.CFrame - Vector3.new(0, 500, 0)
                             local touch = part:FindFirstChildOfClass("TouchTransmitter")
                             if touch then touch:Destroy() end
                         end
@@ -97,8 +101,8 @@ task.spawn(function()
         end)
     end
 
-    for _, obj in ipairs(Workspace:GetDescendants()) do neutralizeTrap(obj) end
-    Workspace.DescendantAdded:Connect(neutralizeTrap)
+    for _, obj in ipairs(Workspace:GetDescendants()) do banishTrap(obj) end
+    Workspace.DescendantAdded:Connect(banishTrap)
 end)
 
 -- ==================== 3. KHỞI CHẠY SCRIPT GỐC NGẦM ====================
@@ -109,7 +113,7 @@ task.spawn(function()
     end)
 end)
 
--- Dọn sạch GUI cũ
+-- Dọn sạch bản cũ
 local parentTarget = (gethui and gethui()) or (LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")) or CoreGuiService
 local oldGui = parentTarget:FindFirstChild("Ronnei_StealAnEgg_Master")
 if oldGui then oldGui:Destroy() end
@@ -166,7 +170,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- HÀM KÉO THẢ GIAO DIỆN
+-- HÀM KÉO THẢ
 local function makeDraggable(targetFrame, dragBar)
     local dragging, dragStart, startPos = false, nil, nil
     dragBar = dragBar or targetFrame
@@ -189,7 +193,7 @@ local function makeDraggable(targetFrame, dragBar)
     end)
 end
 
--- ==================== 5. MÀN HÌNH LOADING ĐEN KỊT 100% ====================
+-- ==================== 5. MÀN HÌNH LOADING BLACKOUT 100% ====================
 local isCurrentlyLoading = false
 
 local function showLoadingScreen(onComplete)
@@ -290,7 +294,7 @@ end
 -- ==================== 6. GIAO DIỆN CHÍNH (MAIN MENU) ====================
 local MainFrame = Instance.new("Frame", ScreenGui)
 MainFrame.Name = "RonneiMainCard"
-MainFrame.Size = UDim2.new(0, 275, 0, 175)
+MainFrame.Size = UDim2.new(0, 275, 0, 210)
 MainFrame.Position = UDim2.new(1, -295, 0, 55)
 MainFrame.BackgroundColor3 = THEME.MainBG
 MainFrame.BorderSizePixel = 0
@@ -323,7 +327,7 @@ local Subtitle = Instance.new("TextLabel", Header)
 Subtitle.Size = UDim2.new(1, -50, 0, 14)
 Subtitle.Position = UDim2.new(0, 14, 0, 24)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "STEAL AN EGG • SPECIAL V1"
+Subtitle.Text = "STEAL AN EGG • SPECIAL " .. CONFIG.Version
 Subtitle.Font = FONT_MED
 Subtitle.TextSize = 10
 Subtitle.TextColor3 = THEME.AccentMint
@@ -349,13 +353,13 @@ Divider.BackgroundColor3 = THEME.Border
 Divider.BorderSizePixel = 0
 
 local Content = Instance.new("Frame", MainFrame)
-Content.Size = UDim2.new(1, -24, 0, 115)
-Content.Position = UDim2.new(0, 12, 0, 52)
+Content.Size = UDim2.new(1, -24, 0, 155)
+Content.Position = UDim2.new(0, 12, 0, 50)
 Content.BackgroundTransparency = 1
 
--- NÚT 1: ANTI GUARDS WAKE UP (👑 PREMIUM TOGGLE)
+-- NÚT 1: ANTI GUARDS WAKE UP (PREMIUM TOGGLE)
 local GuardCard = Instance.new("Frame", Content)
-GuardCard.Size = UDim2.new(1, 0, 0, 48)
+GuardCard.Size = UDim2.new(1, 0, 0, 46)
 GuardCard.BackgroundColor3 = THEME.CardBG
 GuardCard.BorderSizePixel = 0
 Instance.new("UICorner", GuardCard).CornerRadius = UDim.new(0, 8)
@@ -366,7 +370,7 @@ GuardStroke.Thickness = 1
 
 local GuardTitle = Instance.new("TextLabel", GuardCard)
 GuardTitle.Size = UDim2.new(1, -65, 0, 20)
-GuardTitle.Position = UDim2.new(0, 10, 0, 6)
+GuardTitle.Position = UDim2.new(0, 10, 0, 5)
 GuardTitle.BackgroundTransparency = 1
 GuardTitle.Text = "Anti Guards Wake Up"
 GuardTitle.Font = FONT_BOLD
@@ -376,7 +380,7 @@ GuardTitle.TextXAlignment = Enum.TextXAlignment.Left
 
 local PremTag = Instance.new("TextLabel", GuardCard)
 PremTag.Size = UDim2.new(1, -65, 0, 14)
-PremTag.Position = UDim2.new(0, 10, 0, 25)
+PremTag.Position = UDim2.new(0, 10, 0, 24)
 PremTag.BackgroundTransparency = 1
 PremTag.Text = "[PREMIUM MODE]"
 PremTag.Font = FONT_BOLD
@@ -479,8 +483,8 @@ end)
 
 -- NÚT 2: SAO CHÉP LINK TIKTOK
 local TikTokBtn = Instance.new("TextButton", Content)
-TikTokBtn.Size = UDim2.new(1, 0, 0, 44)
-TikTokBtn.Position = UDim2.new(0, 0, 0, 56)
+TikTokBtn.Size = UDim2.new(1, 0, 0, 42)
+TikTokBtn.Position = UDim2.new(0, 0, 0, 52)
 TikTokBtn.BackgroundColor3 = THEME.CardBG
 TikTokBtn.Text = ""
 TikTokBtn.AutoButtonColor = false
@@ -491,7 +495,7 @@ TTStroke.Color = THEME.Border
 TTStroke.Thickness = 1
 
 local TTIcon = Instance.new("ImageLabel", TikTokBtn)
-TTIcon.Size = UDim2.new(0, 26, 0, 26)
+TTIcon.Size = UDim2.new(0, 24, 0, 24)
 TTIcon.Position = UDim2.new(0, 10, 0.5, 0)
 TTIcon.AnchorPoint = Vector2.new(0, 0.5)
 TTIcon.BackgroundTransparency = 1
@@ -502,7 +506,7 @@ Instance.new("UICorner", TTIcon).CornerRadius = UDim.new(0, 6)
 
 local TTLabel = Instance.new("TextLabel", TikTokBtn)
 TTLabel.Size = UDim2.new(1, -48, 1, 0)
-TTLabel.Position = UDim2.new(0, 44, 0, 0)
+TTLabel.Position = UDim2.new(0, 42, 0, 0)
 TTLabel.BackgroundTransparency = 1
 TTLabel.Text = "TikTok: @ronnei7.htk"
 TTLabel.Font = FONT_BOLD
@@ -531,7 +535,134 @@ TikTokBtn.MouseButton1Click:Connect(function()
     end)
 end)
 
--- ==================== 7. NÚT TRÒN MỞ MENU (FLOATING LOGO) ====================
+-- NÚT 3: BẬT BẢNG NHẬT KÝ CẬP NHẬT V1.1
+local ChangelogBtn = Instance.new("TextButton", Content)
+ChangelogBtn.Size = UDim2.new(1, 0, 0, 36)
+ChangelogBtn.Position = UDim2.new(0, 0, 0, 100)
+ChangelogBtn.BackgroundColor3 = THEME.CardBG
+ChangelogBtn.Text = "📋  Nhật Ký Cập Nhật " .. CONFIG.Version
+ChangelogBtn.Font = FONT_BOLD
+ChangelogBtn.TextSize = 11
+ChangelogBtn.TextColor3 = THEME.AccentMint
+ChangelogBtn.AutoButtonColor = false
+Instance.new("UICorner", ChangelogBtn).CornerRadius = UDim.new(0, 8)
+
+local NoteBtnStroke = Instance.new("UIStroke", ChangelogBtn)
+NoteBtnStroke.Color = THEME.Border
+NoteBtnStroke.Thickness = 1
+
+-- ==================== 7. BẢNG NHẬT KÝ CẬP NHẬT (MODAL V1.1) ====================
+local NoteCard = Instance.new("Frame", ScreenGui)
+NoteCard.Name = "RonneiChangelogCard"
+NoteCard.Size = UDim2.new(0, 290, 0, 225)
+NoteCard.Position = UDim2.new(0.5, -145, 0.5, -112)
+NoteCard.BackgroundColor3 = THEME.MainBG
+NoteCard.BorderSizePixel = 0
+NoteCard.Visible = false
+Instance.new("UICorner", NoteCard).CornerRadius = UDim.new(0, 12)
+
+local NoteRainbowStroke = Instance.new("UIStroke", NoteCard)
+NoteRainbowStroke.Thickness = 2.5
+NoteRainbowStroke.Color = Color3.fromRGB(255, 255, 255)
+NoteRainbowStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+local NoteRainbowGrad = Instance.new("UIGradient", NoteRainbowStroke)
+NoteRainbowGrad.Color = RainbowSequence
+
+local NoteHeader = Instance.new("Frame", NoteCard)
+NoteHeader.Size = UDim2.new(1, 0, 0, 38)
+NoteHeader.BackgroundTransparency = 1
+
+local NoteTitle = Instance.new("TextLabel", NoteHeader)
+NoteTitle.Size = UDim2.new(1, -40, 1, 0)
+NoteTitle.Position = UDim2.new(0, 14, 0, 0)
+NoteTitle.BackgroundTransparency = 1
+NoteTitle.Text = "NHẬT KÝ BẢN " .. CONFIG.Version
+NoteTitle.Font = FONT_BOLD
+NoteTitle.TextSize = 13
+NoteTitle.TextColor3 = THEME.TextMain
+NoteTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+local NoteClose = Instance.new("TextButton", NoteHeader)
+NoteClose.Size = UDim2.new(0, 24, 0, 24)
+NoteClose.Position = UDim2.new(1, -30, 0.5, 0)
+NoteClose.AnchorPoint = Vector2.new(0, 0.5)
+NoteClose.BackgroundColor3 = THEME.CardBG
+NoteClose.Text = "✕"
+NoteClose.Font = FONT_BOLD
+NoteClose.TextSize = 11
+NoteClose.TextColor3 = THEME.TextSub
+Instance.new("UICorner", NoteClose).CornerRadius = UDim.new(0, 6)
+
+makeDraggable(NoteCard, NoteHeader)
+
+local NoteDivider = Instance.new("Frame", NoteCard)
+NoteDivider.Size = UDim2.new(1, -24, 0, 1)
+NoteDivider.Position = UDim2.new(0, 12, 0, 38)
+NoteDivider.BackgroundColor3 = THEME.Border
+NoteDivider.BorderSizePixel = 0
+
+local NoteScroll = Instance.new("ScrollingFrame", NoteCard)
+NoteScroll.Size = UDim2.new(1, -20, 1, -48)
+NoteScroll.Position = UDim2.new(0, 10, 0, 44)
+NoteScroll.BackgroundTransparency = 1
+NoteScroll.BorderSizePixel = 0
+NoteScroll.ScrollBarThickness = 3
+NoteScroll.ScrollBarImageColor3 = THEME.AccentMint
+NoteScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+NoteScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+
+local ListLayout = Instance.new("UIListLayout", NoteScroll)
+ListLayout.Padding = UDim.new(0, 6)
+ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+local function createChangelogItem(icon, title, desc, order)
+    local item = Instance.new("Frame", NoteScroll)
+    item.Size = UDim2.new(1, -8, 0, 44)
+    item.BackgroundColor3 = THEME.CardBG
+    item.BorderSizePixel = 0
+    item.LayoutOrder = order
+    Instance.new("UICorner", item).CornerRadius = UDim.new(0, 6)
+
+    local iTitle = Instance.new("TextLabel", item)
+    iTitle.Size = UDim2.new(1, -12, 0, 18)
+    iTitle.Position = UDim2.new(0, 8, 0, 4)
+    iTitle.BackgroundTransparency = 1
+    iTitle.Text = icon .. " " .. title
+    iTitle.Font = FONT_BOLD
+    iTitle.TextSize = 10
+    iTitle.TextColor3 = THEME.AccentMint
+    iTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+    local iDesc = Instance.new("TextLabel", item)
+    iDesc.Size = UDim2.new(1, -12, 0, 18)
+    iDesc.Position = UDim2.new(0, 8, 0, 20)
+    iDesc.BackgroundTransparency = 1
+    iDesc.Text = desc
+    iDesc.Font = FONT_MED
+    iDesc.TextSize = 9
+    iDesc.TextColor3 = THEME.TextSub
+    iDesc.TextXAlignment = Enum.TextXAlignment.Left
+end
+
+-- CHI TIẾT CẬP NHẬT BẢN V1.1
+createChangelogItem("🪤", "Anti-Trap Void (-500m)", "Tự động dời toàn bộ bẫy gấu, mìn, turret xuống sâu 500m dưới lòng đất", 1)
+createChangelogItem("👑", "Anti Guards Wake Up [PREMIUM]", "Tối ưu hóa né đòn, fix triệt để đơ lag khi bật", 2)
+createChangelogItem("🎬", "True Blackout Loading", "Che phủ đen kịt 100% toàn màn hình khi bật, mở ra là kích hoạt ngay", 3)
+createChangelogItem("🌈", "Rainbow Chroma Frame", "Viền cầu vồng 360 độ siêu nét quanh bảng điều khiển", 4)
+createChangelogItem("🔊", "Cyber Audio Engine", "Âm thanh CoreGui 2D chuẩn khi click, bật/tắt và sao chép link", 5)
+
+ChangelogBtn.MouseButton1Click:Connect(function()
+    playSFX(CONFIG.ClickSFX, 1.0, 1.0)
+    NoteCard.Visible = not NoteCard.Visible
+end)
+
+NoteClose.MouseButton1Click:Connect(function()
+    playSFX(CONFIG.ClickSFX, 1.0, 0.9)
+    NoteCard.Visible = false
+end)
+
+-- ==================== 8. NÚT TRÒN MỞ MENU (FLOATING LOGO) ====================
 local ToggleBtn = Instance.new("Frame", ScreenGui)
 ToggleBtn.Name = "RonneiFloatingLogo"
 ToggleBtn.Size = UDim2.new(0, 52, 0, 52)
@@ -554,6 +685,7 @@ task.spawn(function()
         rot = (rot + 2.5) % 360
         LogoRainbowGrad.Rotation = rot
         MainRainbowGrad.Rotation = rot
+        NoteRainbowGrad.Rotation = rot
         task.wait(0.02)
     end
 end)
@@ -578,7 +710,7 @@ local function setMenuVisible(state)
     if isMenuOpen then
         MainFrame.Visible = true
         TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-            Size = UDim2.new(0, 275, 0, 175)
+            Size = UDim2.new(0, 275, 0, 210)
         }):Play()
     else
         local tw = TweenService:Create(MainFrame, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
