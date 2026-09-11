@@ -1,6 +1,6 @@
 -- ==============================================================================
---  RONNEI HUB - STEAL AN EGG (OFFICIAL VERSION 1.2 - FE REPLICATED INVISIBLE)
---  Cập nhật V1.2: Tàng hình đồng bộ Server (-8 studs) | Giấu trứng | Anti-Trap
+--  RONNEI HUB - STEAL AN EGG (OFFICIAL V1.2 - TRUE FE INVISIBLE & HIDE EGG)
+--  Tàng hình người khác không thấy | Giấu trứng 100% | Anti-Trap Void (-500m)
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -17,9 +17,9 @@ local CONFIG = {
     Version                = "V1.2",
     LogoAssetID            = "rbxassetid://124285855971647",
     TikTokURL              = "https://www.tiktok.com/@ronnei7.htk?_r=1&_t=ZS-98ygZG9Gh2G",
-    -- Thông số tàng hình chuẩn trích xuất từ file config
-    InvisibleStealDepth    = 8,   -- Dìm thân thể và trứng sâu 8 studs dưới sàn
-    InvisibleStealRotation = 226, -- Góc xoay lệch camera 226 độ
+    -- Thông số tàng hình đồng bộ Server
+    InvisibleDepth         = 12,  -- Dìm sâu 12 studs để che kín cả đầu và phụ kiện
+    InvisibleRotation      = 226, -- Góc xoay lệch góc nhìn 226 độ
     ToggleOnSFX            = "rbxassetid://9114223175",
     ToggleOffSFX           = "rbxassetid://9114223204",
     ClickSFX               = "rbxassetid://9114223164",
@@ -65,19 +65,18 @@ local function playSFX(soundId, volume, pitch)
     end)
 end
 
--- ==================== 2. MODULE TÀNG HÌNH ĐỒNG BỘ SERVER (FE DESYNC SINK) ====================
+-- ==================== 2. MODULE TÀNG HÌNH & GIẤU TRỨNG (FE SINK V1.2) ====================
 task.spawn(function()
-    local defaultC0 = nil
     local activeRootJoint = nil
+    local defaultC0 = nil
 
-    local function setupFEInvisible(char)
+    local function setupInvisibleEngine(char)
         if not char then return end
         local hrp = char:WaitForChild("HumanoidRootPart", 6)
         local hum = char:WaitForChild("Humanoid", 6)
         if not hrp or not hum then return end
 
-        task.wait(0.2)
-        -- Nhận diện Rig R15 hoặc R6
+        task.wait(0.15)
         if hum.RigType == Enum.RigType.R15 then
             local lowerTorso = char:WaitForChild("LowerTorso", 6)
             activeRootJoint = lowerTorso and lowerTorso:WaitForChild("Root", 6)
@@ -90,32 +89,43 @@ task.spawn(function()
         end
     end
 
-    if LocalPlayer.Character then setupFEInvisible(LocalPlayer.Character) end
-    LocalPlayer.CharacterAdded:Connect(setupFEInvisible)
+    if LocalPlayer.Character then setupInvisibleEngine(LocalPlayer.Character) end
+    LocalPlayer.CharacterAdded:Connect(setupInvisibleEngine)
 
-    -- Đồng bộ liên tục 60 FPS: Khi ôm trứng hoặc di chuyển, ép toàn bộ thân thể + trứng biến mất khỏi mắt người khác
-    RunService.Stepped:Connect(function()
+    -- Áp dụng liên tục 60 FPS: Khóa cứng vị trí cơ thể và dìm toàn bộ trứng dưới đất
+    RunService.PreSimulation:Connect(function()
         pcall(function()
             local char = LocalPlayer.Character
-            if not char or not activeRootJoint or not defaultC0 then return end
+            if not char then return end
+            local hrp = char:FindFirstChild("HumanoidRootPart")
 
-            -- Kiểm tra xem có đang cướp trứng hoặc cầm tool hay không
-            local isStealingEgg = false
-            for _, item in ipairs(char:GetChildren()) do
-                if item:IsA("Tool") or item.Name:lower():find("egg") or item.Name:lower():find("brainrot") then
-                    isStealingEgg = true
-                    break
-                end
+            -- 1. DÌM TOÀN BỘ CƠ THỂ XUỐNG DƯỚI ĐẤT (NGƯỜI KHÁC KHÔNG THẤY)
+            if activeRootJoint and defaultC0 then
+                activeRootJoint.C0 = defaultC0 
+                    * CFrame.new(0, -CONFIG.InvisibleDepth, 0) 
+                    * CFrame.Angles(0, math.rad(CONFIG.InvisibleRotation), 0)
             end
 
-            -- Áp dụng độ lệch Network Ownership: Dìm 8 studs xuống đất + xoay 226 độ
-            -- Tác động vào RootJoint sẽ Replicate trực tiếp sang màn hình của tất cả người chơi khác
-            if isStealingEgg then
-                activeRootJoint.C0 = defaultC0 
-                    * CFrame.new(0, -CONFIG.InvisibleStealDepth, 0) 
-                    * CFrame.Angles(0, math.rad(CONFIG.InvisibleStealRotation), 0)
-            else
-                activeRootJoint.C0 = defaultC0
+            -- 2. DÌM TOÀN BỘ QUẢ TRỨNG ĐANG CƯỚP XUỐNG DƯỚI ĐẤT
+            if hrp then
+                -- Quét tất cả mối nối (Weld/Motor6D) gắn vào HumanoidRootPart hoặc Torso
+                for _, obj in ipairs(hrp:GetChildren()) do
+                    if obj:IsA("JointInstance") and obj.Name ~= "RootJoint" then
+                        obj.C0 = CFrame.new(0, -CONFIG.InvisibleDepth, 0)
+                    end
+                end
+
+                -- Quét các Model/Vật phẩm trứng trong nhân vật
+                for _, item in ipairs(char:GetChildren()) do
+                    if item:IsA("Tool") or item:IsA("Model") or item.Name:lower():find("egg") or item.Name:lower():find("brainrot") then
+                        for _, part in ipairs(item:GetDescendants()) do
+                            if part:IsA("BasePart") then
+                                part.CanCollide = false
+                                part.CFrame = hrp.CFrame * CFrame.new(0, -CONFIG.InvisibleDepth, 0)
+                            end
+                        end
+                    end
+                end
             end
         end)
     end)
@@ -705,7 +715,7 @@ local function createChangelogItem(icon, title, desc, order)
 end
 
 -- CHI TIẾT TÍNH NĂNG ĐỒNG BỘ MỚI TRÊN V1.2
-createChangelogItem("👻", "FE Invisible Steal (Đồng Bộ Server)", "Hạ RootJoint 8 studs dưới sàn + xoay 226°, người khác và quái không thấy người & trứng", 1)
+createChangelogItem("👻", "FE Invisible Steal (Fix Triệt Để)", "Dìm RootJoint -12 studs + góc xoay 226°, người khác và bảo vệ không thấy người & trứng", 1)
 createChangelogItem("🪤", "Anti-Trap Void (-500m)", "Tự động dời toàn bộ bẫy gấu, mìn, turret xuống sâu 500m dưới lòng đất", 2)
 createChangelogItem("👑", "Anti Guards Wake Up [PREMIUM]", "Tối ưu hóa né đòn, fix triệt để đơ lag khi bật", 3)
 createChangelogItem("🎬", "True Blackout Loading", "Che phủ đen kịt 100% toàn màn hình khi bật, mở ra là kích hoạt ngay", 4)
