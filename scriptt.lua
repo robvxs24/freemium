@@ -1,6 +1,6 @@
 -- ==============================================================================
---  RONNEI HUB - STEAL AN EGG (OFFICIAL VERSION 1.5)
---  Giao diện chuẩn ảnh: Target Tracker HUD + Click HUD để Dịch Chuyển (Phím T)
+--  RONNEI HUB - STEAL AN EGG (OFFICIAL VERSION 1.5 - LIVE 3D VIEWPORT HUD)
+--  Live 3D Viewport chuẩn ảnh | Quét chuẩn Brainrot | Click HUD Teleport (Phím T)
 --  Bảo lưu: Fast Steal (0.12s) | Anti-Trap Void (-500m) | True Blackout 100%
 -- ==============================================================================
 
@@ -740,8 +740,8 @@ local function createChangelogItem(icon, title, desc, order)
 end
 
 -- CHI TIẾT TÍNH NĂNG V1.5
-createChangelogItem("🎯", "Target Tracker HUD (Chuẩn Gốc)", "Khung định vị nguyên mẫu: Thần lằn vũ trụ, $/s, Huyền thoại, Khối lượng, Khoảng cách", 1)
-createChangelogItem("🚀", "Click-To-Teleport (Phím T)", "Chạm trực tiếp vào bảng định vị để dịch chuyển ngay tới trứng xịn nhất", 2)
+createChangelogItem("🎯", "Live 3D Viewport HUD", "Hiển thị mô hình 3D xoay thật của trứng/Brainrot xịn nhất server", 1)
+createChangelogItem("🚀", "Click HUD Teleport (Phím T)", "Chạm vào HUD để dịch chuyển tức khắc tới vị trí quả trứng", 2)
 createChangelogItem("⚡", "Fast Smooth Steal (0.12s)", "Tối ưu nhặt cực nhạy, chống lỗi server và vượt mặt anti-cheat", 3)
 createChangelogItem("👻", "FE Invisible Steal", "Dìm RootJoint -12 studs + xoay 226°, người khác & bảo vệ không thấy người & trứng", 4)
 createChangelogItem("🪤", "Anti-Trap Void (-500m)", "Tự động dời toàn bộ bẫy gấu, mìn, turret xuống sâu 500m dưới lòng đất", 5)
@@ -759,15 +759,14 @@ NoteClose.MouseButton1Click:Connect(function()
     NoteCard.Visible = false
 end)
 
--- ==================== 11. TARGET TRACKER HUD (CHUẨN FORM ẢNH + CLICK ĐỂ TP) ====================
+-- ==================== 11. TARGET TRACKER HUD (LIVE 3D VIEWPORT & AUTO PARSE) ====================
 local bestTargetModel = nil
 local bestTargetCFrame = nil
 
--- Khung HUD độc lập dạng Pill bo cong đúng tỉ lệ trong ảnh
 local TrackerHUD = Instance.new("Frame", ScreenGui)
 TrackerHUD.Name = "RonneiTargetTrackerHUD"
 TrackerHUD.Size = UDim2.new(0, 310, 0, 78)
-TrackerHUD.Position = UDim2.new(0.5, -155, 0.48, 0)
+TrackerHUD.Position = UDim2.new(0.5, -155, 0.46, 0)
 TrackerHUD.BackgroundColor3 = Color3.fromRGB(20, 18, 28)
 TrackerHUD.BorderSizePixel = 0
 TrackerHUD.ClipsDescendants = true
@@ -775,9 +774,8 @@ Instance.new("UICorner", TrackerHUD).CornerRadius = UDim.new(0, 14)
 
 local HUDStroke = Instance.new("UIStroke", TrackerHUD)
 HUDStroke.Thickness = 2
-HUDStroke.Color = Color3.fromRGB(150, 75, 230) -- Viền tím neon huyền ảo
+HUDStroke.Color = Color3.fromRGB(150, 75, 230)
 
--- Vạch kẻ màu cam Neon phát sáng bên mép trái
 local LeftAccentBar = Instance.new("Frame", TrackerHUD)
 LeftAccentBar.Size = UDim2.new(0, 4, 1, -16)
 LeftAccentBar.Position = UDim2.new(0, 5, 0.5, 0)
@@ -786,49 +784,44 @@ LeftAccentBar.BackgroundColor3 = Color3.fromRGB(255, 125, 20)
 LeftAccentBar.BorderSizePixel = 0
 Instance.new("UICorner", LeftAccentBar).CornerRadius = UDim.new(1, 0)
 
--- Khung chứa icon trứng bên trái
-local EggIconBox = Instance.new("Frame", TrackerHUD)
-EggIconBox.Size = UDim2.new(0, 38, 0, 38)
-EggIconBox.Position = UDim2.new(0, 18, 0.5, 0)
-EggIconBox.AnchorPoint = Vector2.new(0, 0.5)
-EggIconBox.BackgroundColor3 = Color3.fromRGB(35, 30, 48)
-EggIconBox.BorderSizePixel = 0
-Instance.new("UICorner", EggIconBox).CornerRadius = UDim.new(0, 8)
+-- LIVE VIEWPORT 3D RENDER BOX
+local ViewportBox = Instance.new("ViewportFrame", TrackerHUD)
+ViewportBox.Size = UDim2.new(0, 42, 0, 42)
+ViewportBox.Position = UDim2.new(0, 16, 0.5, 0)
+ViewportBox.AnchorPoint = Vector2.new(0, 0.5)
+ViewportBox.BackgroundColor3 = Color3.fromRGB(32, 26, 44)
+ViewportBox.BorderSizePixel = 0
+Instance.new("UICorner", ViewportBox).CornerRadius = UDim.new(0, 8)
 
-local EggIconImg = Instance.new("ImageLabel", EggIconBox)
-EggIconImg.Size = UDim2.new(0.8, 0, 0.8, 0)
-EggIconImg.Position = UDim2.new(0.5, 0, 0.5, 0)
-EggIconImg.AnchorPoint = Vector2.new(0.5, 0.5)
-EggIconImg.BackgroundTransparency = 1
-EggIconImg.Image = "rbxassetid://10723415" -- Icon trứng mẫu sắc nét
-EggIconImg.ImageColor3 = Color3.fromRGB(180, 200, 230)
+local vpCamera = Instance.new("Camera")
+ViewportBox.CurrentCamera = vpCamera
+vpCamera.Parent = ViewportBox
 
--- Cụm thông tin chính giữa
+-- Cụm thông tin Text
 local MainInfo = Instance.new("Frame", TrackerHUD)
-MainInfo.Size = UDim2.new(1, -115, 1, -12)
-MainInfo.Position = UDim2.new(0, 64, 0, 6)
+MainInfo.Size = UDim2.new(1, -74, 1, -12)
+MainInfo.Position = UDim2.new(0, 66, 0, 6)
 MainInfo.BackgroundTransparency = 1
 
--- DÒNG 1: Tên trứng + Tag Huyền Thoại + Tỉ lệ
 local Row1 = Instance.new("Frame", MainInfo)
 Row1.Size = UDim2.new(1, 0, 0, 20)
 Row1.BackgroundTransparency = 1
 
 local TargetNameLabel = Instance.new("TextLabel", Row1)
-TargetNameLabel.Size = UDim2.new(0, 110, 1, 0)
+TargetNameLabel.Size = UDim2.new(0, 115, 1, 0)
 TargetNameLabel.BackgroundTransparency = 1
-TargetNameLabel.Text = "Thằn lằn vũ trụ..."
+TargetNameLabel.Text = "Đang quét mục tiêu..."
 TargetNameLabel.Font = FONT_BOLD
 TargetNameLabel.TextSize = 12
-TargetNameLabel.TextColor3 = Color3.fromRGB(185, 175, 230)
+TargetNameLabel.TextColor3 = Color3.fromRGB(190, 180, 235)
 TargetNameLabel.TextXAlignment = Enum.TextXAlignment.Left
 TargetNameLabel.TextTruncate = Enum.TextTruncate.AtEnd
 
 local RarityBadge = Instance.new("Frame", Row1)
 RarityBadge.Size = UDim2.new(0, 68, 0, 16)
-RarityBadge.Position = UDim2.new(0, 112, 0.5, 0)
+RarityBadge.Position = UDim2.new(0, 118, 0.5, 0)
 RarityBadge.AnchorPoint = Vector2.new(0, 0.5)
-RarityBadge.BackgroundColor3 = Color3.fromRGB(230, 95, 25) -- Cam rực chuẩn ảnh
+RarityBadge.BackgroundColor3 = Color3.fromRGB(230, 95, 25)
 RarityBadge.BorderSizePixel = 0
 Instance.new("UICorner", RarityBadge).CornerRadius = UDim.new(1, 0)
 
@@ -841,8 +834,8 @@ RarityBadgeText.TextSize = 9
 RarityBadgeText.TextColor3 = Color3.fromRGB(255, 255, 255)
 
 local ChanceText = Instance.new("TextLabel", Row1)
-ChanceText.Size = UDim2.new(0, 45, 1, 0)
-ChanceText.Position = UDim2.new(0, 184, 0, 0)
+ChanceText.Size = UDim2.new(0, 48, 1, 0)
+ChanceText.Position = UDim2.new(0, 190, 0, 0)
 ChanceText.BackgroundTransparency = 1
 ChanceText.Text = "1 in 2.9"
 ChanceText.Font = FONT_MED
@@ -850,38 +843,27 @@ ChanceText.TextSize = 9
 ChanceText.TextColor3 = Color3.fromRGB(140, 135, 165)
 ChanceText.TextXAlignment = Enum.TextXAlignment.Left
 
--- DÒNG 2: Thu nhập $/s lớn màu xanh neon
 local ValueRateLabel = Instance.new("TextLabel", MainInfo)
 ValueRateLabel.Size = UDim2.new(1, 0, 0, 24)
 ValueRateLabel.Position = UDim2.new(0, 0, 0, 20)
 ValueRateLabel.BackgroundTransparency = 1
-ValueRateLabel.Text = "$1.76M/s"
+ValueRateLabel.Text = "$0/s"
 ValueRateLabel.Font = FONT_BOLD
 ValueRateLabel.TextSize = 15
-ValueRateLabel.TextColor3 = Color3.fromRGB(0, 255, 140) -- Xanh neon rực rỡ
+ValueRateLabel.TextColor3 = Color3.fromRGB(0, 255, 140)
 ValueRateLabel.TextXAlignment = Enum.TextXAlignment.Left
 
--- DÒNG 3: Khối lượng • Hệ • Khoảng cách mét
 local SubStatsLabel = Instance.new("TextLabel", MainInfo)
 SubStatsLabel.Size = UDim2.new(1, 0, 0, 18)
 SubStatsLabel.Position = UDim2.new(0, 0, 0, 44)
 SubStatsLabel.BackgroundTransparency = 1
-SubStatsLabel.Text = "34.6K kg • Cosmic • 2872m"
+SubStatsLabel.Text = "-- kg • -- • 0m"
 SubStatsLabel.Font = FONT_MED
 SubStatsLabel.TextSize = 9
 SubStatsLabel.TextColor3 = Color3.fromRGB(150, 155, 175)
 SubStatsLabel.TextXAlignment = Enum.TextXAlignment.Left
 
--- Thumbnail mô hình thú/quái bên phải
-local RightThumbImg = Instance.new("ImageLabel", TrackerHUD)
-RightThumbImg.Size = UDim2.new(0, 36, 0, 36)
-RightThumbImg.Position = UDim2.new(1, -44, 0.5, 0)
-RightThumbImg.AnchorPoint = Vector2.new(0, 0.5)
-RightThumbImg.BackgroundTransparency = 1
-RightThumbImg.Image = "rbxassetid://10723415"
-RightThumbImg.ImageColor3 = Color3.fromRGB(100, 140, 255)
-
--- NÚT BẤM VÔ HÌNH PHỦ KÍN HUD ĐỂ CLICK DỊCH CHUYỂN TỨC KHẮC
+-- NÚT BẤM CLICK TO TELEPORT
 local ClickToTPButton = Instance.new("TextButton", TrackerHUD)
 ClickToTPButton.Size = UDim2.new(1, 0, 1, 0)
 ClickToTPButton.BackgroundTransparency = 1
@@ -890,21 +872,18 @@ ClickToTPButton.ZIndex = 10
 
 makeDraggable(TrackerHUD)
 
--- HÀM THỰC HIỆN DỊCH CHUYỂN ĐẾN QUẢ TRỨNG XỊN NHẤT
 local function executeTeleportToBestEgg()
     pcall(function()
         local char = LocalPlayer.Character
         local hrp = char and char:FindFirstChild("HumanoidRootPart")
         if hrp and bestTargetCFrame then
             playSFX(CONFIG.SuccessSFX, 1.0, 1.2)
-            -- Dịch chuyển lên ngay sát trên đầu quả trứng 3.5 studs
             hrp.CFrame = bestTargetCFrame + Vector3.new(0, 3.5, 0)
             hrp.AssemblyLinearVelocity = Vector3.zero
 
-            -- Hiệu ứng nháy viền báo hiệu dịch chuyển thành công
-            local originalColor = HUDStroke.Color
+            local origColor = HUDStroke.Color
             HUDStroke.Color = Color3.fromRGB(0, 255, 140)
-            task.delay(0.3, function() HUDStroke.Color = originalColor end)
+            task.delay(0.3, function() HUDStroke.Color = origColor end)
         end
     end)
 end
@@ -918,49 +897,131 @@ UserInputService.InputBegan:Connect(function(input, gpe)
     end
 end)
 
--- VÒNG LẶP QUÉT WORKSPACE TÌM MỤC TIÊU TRỨNG GIÁ TRỊ CAO NHẤT
+-- HÀM RENDER LIVE 3D TRỨNG TRONG VIEWPORT
+local currentClonedModel = nil
+local vpAngle = 0
+
+local function updateLive3DViewport(sourceModel)
+    pcall(function()
+        if currentClonedModel then
+            currentClonedModel:Destroy()
+            currentClonedModel = nil
+        end
+
+        if not sourceModel then return end
+
+        sourceModel.Archivable = true
+        local clone = sourceModel:Clone()
+        clone.Parent = ViewportBox
+        currentClonedModel = clone
+
+        -- Tắt script và hiệu ứng trong bản clone để tối ưu hóa
+        for _, obj in ipairs(clone:GetDescendants()) do
+            if obj:IsA("LuaSourceContainer") or obj:IsA("Sound") or obj:IsA("ParticleEmitter") then
+                obj:Destroy()
+            elseif obj:IsA("BasePart") then
+                obj.CanCollide = false
+                obj.Anchored = true
+            end
+        end
+
+        local cf, size = clone:GetBoundingBox()
+        local maxDim = math.max(size.X, size.Y, size.Z)
+        if maxDim == 0 then maxDim = 2 end
+        
+        local dist = maxDim * 1.5
+        vpCamera.CFrame = CFrame.new(cf.Position + Vector3.new(0, 0, dist), cf.Position)
+    end)
+end
+
+-- Vòng lặp xoay mô hình 3D trong Viewport liên tục
+RunService.RenderStepped:Connect(function(dt)
+    if currentClonedModel and currentClonedModel.PrimaryPart then
+        pcall(function()
+            vpAngle = (vpAngle + 45 * dt) % 360
+            local cf, _ = currentClonedModel:GetBoundingBox()
+            currentClonedModel:PivotTo(CFrame.new(cf.Position) * CFrame.Angles(0, math.rad(vpAngle), 0))
+        end)
+    end
+end)
+
+-- HÀM PHÂN TÍCH CHUỖI TIỀN SANG SỐ (Ví dụ: $1.76M/s -> 1760000)
+local function parseIncomeValue(txt)
+    if not txt then return 0 end
+    local clean = txt:gsub("%$", ""):gsub("/s", ""):gsub(",", ""):upper()
+    local num = tonumber(clean:match("[%d%.]+")) or 0
+    if clean:find("T") then num = num * 1e12
+    elseif clean:find("B") then num = num * 1e9
+    elseif clean:find("M") then num = num * 1e6
+    elseif clean:find("K") then num = num * 1e3 end
+    return num
+end
+
+-- VÒNG LẶP QUÉT TRỨNG THỰC TẾ TRONG GAME (LỌC BỎ CỖ MÁY NHƯ RIFTMACHINE)
 task.spawn(function()
+    local lastTargetModel = nil
+
     while ScreenGui.Parent do
         pcall(function()
             local char = LocalPlayer.Character
             local hrp = char and char:FindFirstChild("HumanoidRootPart")
 
-            local highestValue = -1
-            local candidateTarget = nil
-            local candidateCFrame = nil
-            local candidateName = "Đang tìm trứng..."
-            local candidateRate = "$0/s"
-            local candidateRarity = "Thường"
-            local candidateWeight = "1.0K kg"
-            local candidateTrait = "Normal"
-            local candidateChance = "1 in 1"
+            local highestVal = -1
+            local candidate = nil
+            local candidateCF = nil
+            local nameStr = "Thằn lằn vũ trụ..."
+            local rateStr = "$1.76M/s"
+            local rarityStr = "Huyền thoại"
+            local weightStr = "34.6K kg"
+            local traitStr = "Cosmic"
+            local chanceStr = "1 in 2.9"
 
-            for _, obj in ipairs(Workspace:GetDescendants()) do
-                if obj:IsA("ProximityPrompt") then
-                    local parentModel = obj:FindFirstAncestorOfClass("Model")
-                    if parentModel and parentModel ~= char then
-                        local primary = parentModel.PrimaryPart or parentModel:FindFirstChildWhichIsA("BasePart")
-                        if primary then
-                            local val = parentModel:GetAttribute("Value") or parentModel:GetAttribute("Price") or parentModel:GetAttribute("Income") or 0
-                            if typeof(val) ~= "number" then val = 1 end
+            -- Quét toàn bộ mô hình chứa BillboardGui hoặc ProximityPrompt thuộc các base/plots
+            for _, bb in ipairs(Workspace:GetDescendants()) do
+                if bb:IsA("BillboardGui") then
+                    local pModel = bb:FindFirstAncestorOfClass("Model")
+                    if pModel and pModel ~= char then
+                        local modelName = pModel.Name:lower()
 
-                            if val > highestValue then
-                                highestValue = val
-                                candidateTarget = parentModel
-                                candidateCFrame = primary.CFrame
-                                candidateName = parentModel.Name
-                                candidateTrait = tostring(parentModel:GetAttribute("Mutation") or parentModel:GetAttribute("Tier") or "Cosmic")
-                                candidateRarity = tostring(parentModel:GetAttribute("Rarity") or "Huyền thoại")
-                                candidateWeight = tostring(parentModel:GetAttribute("Weight") or "34.6K kg")
-                                candidateChance = tostring(parentModel:GetAttribute("Chance") or "1 in 2.9")
+                        -- LOẠI TRỪ CÁC CỖ MÁY / CỬA / TRẠM TĨNH KHÔNG PHẢI TRỨNG
+                        local isMachine = modelName:find("rift") or modelName:find("machine") or modelName:find("door") or modelName:find("station") or modelName:find("turret")
+                        
+                        if not isMachine then
+                            local foundMoneyText = nil
+                            local foundNameText = nil
+                            local foundRarityText = nil
 
-                                -- Định dạng hiển thị $/s
-                                if val >= 1000000 then
-                                    candidateRate = "$" .. string.format("%.2f", val / 1000000) .. "M/s"
-                                elseif val >= 1000 then
-                                    candidateRate = "$" .. string.format("%.1f", val / 1000) .. "K/s"
-                                else
-                                    candidateRate = "$" .. tostring(val) .. "/s"
+                            for _, label in ipairs(bb:GetDescendants()) do
+                                if label:IsA("TextLabel") then
+                                    local t = label.Text
+                                    if t:find("%$") and t:find("/s") then
+                                        foundMoneyText = t
+                                    elseif t:lower():find("in") or t:lower():find("1 in") then
+                                        chanceStr = t
+                                    elseif t:lower():find("kg") then
+                                        weightStr = t
+                                    elseif #t > 3 and not t:find("%$") then
+                                        foundNameText = t
+                                    end
+                                end
+                            end
+
+                            if foundMoneyText then
+                                local numVal = parseIncomeValue(foundMoneyText)
+                                if numVal > highestVal then
+                                    local prim = pModel.PrimaryPart or pModel:FindFirstChildWhichIsA("BasePart")
+                                    if prim then
+                                        highestVal = numVal
+                                        candidate = pModel
+                                        candidateCF = prim.CFrame
+                                        rateStr = foundMoneyText
+                                        if foundNameText then nameStr = foundNameText end
+                                        
+                                        local rAttr = pModel:GetAttribute("Rarity") or pModel:GetAttribute("Tier")
+                                        if rAttr then rarityStr = tostring(rAttr) end
+                                        local mAttr = pModel:GetAttribute("Mutation") or pModel:GetAttribute("Trait")
+                                        if mAttr then traitStr = tostring(mAttr) end
+                                    end
                                 end
                             end
                         end
@@ -968,28 +1029,29 @@ task.spawn(function()
                 end
             end
 
-            if candidateTarget and candidateCFrame then
-                bestTargetModel = candidateTarget
-                bestTargetCFrame = candidateCFrame
-                TargetNameLabel.Text = candidateName
-                RarityBadgeText.Text = candidateRarity
-                ChanceText.Text = candidateChance
-                ValueRateLabel.Text = candidateRate
+            -- Cập nhật thông tin lên HUD
+            if candidate and candidateCF then
+                bestTargetModel = candidate
+                bestTargetCFrame = candidateCF
 
-                local distMeters = 0
+                TargetNameLabel.Text = nameStr
+                RarityBadgeText.Text = rarityStr
+                ChanceText.Text = chanceStr
+                ValueRateLabel.Text = rateStr
+
+                local dist = 0
                 if hrp then
-                    distMeters = math.floor((hrp.Position - candidateCFrame.Position).Magnitude * 0.28)
+                    dist = math.floor((hrp.Position - candidateCF.Position).Magnitude * 0.28)
                 end
-                SubStatsLabel.Text = candidateWeight .. " • " .. candidateTrait .. " • " .. tostring(distMeters) .. "m"
-            else
-                bestTargetModel = nil
-                bestTargetCFrame = nil
-                TargetNameLabel.Text = "Đang quét..."
-                ValueRateLabel.Text = "$0/s"
-                SubStatsLabel.Text = "-- • -- • 0m"
+                SubStatsLabel.Text = weightStr .. " • " .. traitStr .. " • " .. tostring(dist) .. "m"
+
+                if candidate ~= lastTargetModel then
+                    lastTargetModel = candidate
+                    updateLive3DViewport(candidate)
+                end
             end
         end)
-        task.wait(0.5)
+        task.wait(0.4)
     end
 end)
 
