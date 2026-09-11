@@ -1,6 +1,6 @@
 -- ==============================================================================
 --  RONNEI HUB - STEAL AN EGG (OFFICIAL VERSION 1.5)
---  Mới V1.5: Target Tracker HUD (Định vị trứng xịn nhất) + Nút Dịch Chuyển (Phím T)
+--  Giao diện chuẩn ảnh: Target Tracker HUD + Click HUD để Dịch Chuyển (Phím T)
 --  Bảo lưu: Fast Steal (0.12s) | Anti-Trap Void (-500m) | True Blackout 100%
 -- ==============================================================================
 
@@ -37,7 +37,6 @@ local THEME = {
     CardBG     = Color3.fromRGB(22, 26, 36),
     CardHover  = Color3.fromRGB(30, 36, 50),
     AccentMint = Color3.fromRGB(0, 230, 120),
-    AccentCyan = Color3.fromRGB(0, 200, 255),
     Gold       = Color3.fromRGB(255, 200, 40),
     Border     = Color3.fromRGB(45, 55, 75),
     ToggleOff  = Color3.fromRGB(38, 43, 56),
@@ -741,8 +740,8 @@ local function createChangelogItem(icon, title, desc, order)
 end
 
 -- CHI TIẾT TÍNH NĂNG V1.5
-createChangelogItem("🎯", "Target Tracker HUD (Mới V1.5)", "HUD định vị trứng xịn nhất: Tên, $/s, Rarity, Khối lượng và Khoảng cách thực", 1)
-createChangelogItem("🚀", "Instant Teleport (Phím T)", "Dịch chuyển tức thời đến thẳng quả trứng xịn nhất để cướp", 2)
+createChangelogItem("🎯", "Target Tracker HUD (Chuẩn Gốc)", "Khung định vị nguyên mẫu: Thần lằn vũ trụ, $/s, Huyền thoại, Khối lượng, Khoảng cách", 1)
+createChangelogItem("🚀", "Click-To-Teleport (Phím T)", "Chạm trực tiếp vào bảng định vị để dịch chuyển ngay tới trứng xịn nhất", 2)
 createChangelogItem("⚡", "Fast Smooth Steal (0.12s)", "Tối ưu nhặt cực nhạy, chống lỗi server và vượt mặt anti-cheat", 3)
 createChangelogItem("👻", "FE Invisible Steal", "Dìm RootJoint -12 studs + xoay 226°, người khác & bảo vệ không thấy người & trứng", 4)
 createChangelogItem("🪤", "Anti-Trap Void (-500m)", "Tự động dời toàn bộ bẫy gấu, mìn, turret xuống sâu 500m dưới lòng đất", 5)
@@ -760,107 +759,157 @@ NoteClose.MouseButton1Click:Connect(function()
     NoteCard.Visible = false
 end)
 
--- ==================== 11. TARGET TRACKER HUD & TELEPORT ENGINE (V1.5) ====================
+-- ==================== 11. TARGET TRACKER HUD (CHUẨN FORM ẢNH + CLICK ĐỂ TP) ====================
 local bestTargetModel = nil
 local bestTargetCFrame = nil
 
--- Tạo khung HUD định vị ở giữa phía trên màn hình
+-- Khung HUD độc lập dạng Pill bo cong đúng tỉ lệ trong ảnh
 local TrackerHUD = Instance.new("Frame", ScreenGui)
 TrackerHUD.Name = "RonneiTargetTrackerHUD"
-TrackerHUD.Size = UDim2.new(0, 240, 0, 115)
-TrackerHUD.Position = UDim2.new(0.5, -120, 0, 45)
-TrackerHUD.BackgroundColor3 = THEME.MainBG
+TrackerHUD.Size = UDim2.new(0, 310, 0, 78)
+TrackerHUD.Position = UDim2.new(0.5, -155, 0.48, 0)
+TrackerHUD.BackgroundColor3 = Color3.fromRGB(20, 18, 28)
 TrackerHUD.BorderSizePixel = 0
-Instance.new("UICorner", TrackerHUD).CornerRadius = UDim.new(0, 10)
+TrackerHUD.ClipsDescendants = true
+Instance.new("UICorner", TrackerHUD).CornerRadius = UDim.new(0, 14)
 
-local TrackerStroke = Instance.new("UIStroke", TrackerHUD)
-TrackerStroke.Thickness = 2
-TrackerStroke.Color = Color3.fromRGB(255, 255, 255)
-local TrackerRainbowGrad = Instance.new("UIGradient", TrackerStroke)
-TrackerRainbowGrad.Color = RainbowSequence
+local HUDStroke = Instance.new("UIStroke", TrackerHUD)
+HUDStroke.Thickness = 2
+HUDStroke.Color = Color3.fromRGB(150, 75, 230) -- Viền tím neon huyền ảo
+
+-- Vạch kẻ màu cam Neon phát sáng bên mép trái
+local LeftAccentBar = Instance.new("Frame", TrackerHUD)
+LeftAccentBar.Size = UDim2.new(0, 4, 1, -16)
+LeftAccentBar.Position = UDim2.new(0, 5, 0.5, 0)
+LeftAccentBar.AnchorPoint = Vector2.new(0, 0.5)
+LeftAccentBar.BackgroundColor3 = Color3.fromRGB(255, 125, 20)
+LeftAccentBar.BorderSizePixel = 0
+Instance.new("UICorner", LeftAccentBar).CornerRadius = UDim.new(1, 0)
+
+-- Khung chứa icon trứng bên trái
+local EggIconBox = Instance.new("Frame", TrackerHUD)
+EggIconBox.Size = UDim2.new(0, 38, 0, 38)
+EggIconBox.Position = UDim2.new(0, 18, 0.5, 0)
+EggIconBox.AnchorPoint = Vector2.new(0, 0.5)
+EggIconBox.BackgroundColor3 = Color3.fromRGB(35, 30, 48)
+EggIconBox.BorderSizePixel = 0
+Instance.new("UICorner", EggIconBox).CornerRadius = UDim.new(0, 8)
+
+local EggIconImg = Instance.new("ImageLabel", EggIconBox)
+EggIconImg.Size = UDim2.new(0.8, 0, 0.8, 0)
+EggIconImg.Position = UDim2.new(0.5, 0, 0.5, 0)
+EggIconImg.AnchorPoint = Vector2.new(0.5, 0.5)
+EggIconImg.BackgroundTransparency = 1
+EggIconImg.Image = "rbxassetid://10723415" -- Icon trứng mẫu sắc nét
+EggIconImg.ImageColor3 = Color3.fromRGB(180, 200, 230)
+
+-- Cụm thông tin chính giữa
+local MainInfo = Instance.new("Frame", TrackerHUD)
+MainInfo.Size = UDim2.new(1, -115, 1, -12)
+MainInfo.Position = UDim2.new(0, 64, 0, 6)
+MainInfo.BackgroundTransparency = 1
+
+-- DÒNG 1: Tên trứng + Tag Huyền Thoại + Tỉ lệ
+local Row1 = Instance.new("Frame", MainInfo)
+Row1.Size = UDim2.new(1, 0, 0, 20)
+Row1.BackgroundTransparency = 1
+
+local TargetNameLabel = Instance.new("TextLabel", Row1)
+TargetNameLabel.Size = UDim2.new(0, 110, 1, 0)
+TargetNameLabel.BackgroundTransparency = 1
+TargetNameLabel.Text = "Thằn lằn vũ trụ..."
+TargetNameLabel.Font = FONT_BOLD
+TargetNameLabel.TextSize = 12
+TargetNameLabel.TextColor3 = Color3.fromRGB(185, 175, 230)
+TargetNameLabel.TextXAlignment = Enum.TextXAlignment.Left
+TargetNameLabel.TextTruncate = Enum.TextTruncate.AtEnd
+
+local RarityBadge = Instance.new("Frame", Row1)
+RarityBadge.Size = UDim2.new(0, 68, 0, 16)
+RarityBadge.Position = UDim2.new(0, 112, 0.5, 0)
+RarityBadge.AnchorPoint = Vector2.new(0, 0.5)
+RarityBadge.BackgroundColor3 = Color3.fromRGB(230, 95, 25) -- Cam rực chuẩn ảnh
+RarityBadge.BorderSizePixel = 0
+Instance.new("UICorner", RarityBadge).CornerRadius = UDim.new(1, 0)
+
+local RarityBadgeText = Instance.new("TextLabel", RarityBadge)
+RarityBadgeText.Size = UDim2.new(1, 0, 1, 0)
+RarityBadgeText.BackgroundTransparency = 1
+RarityBadgeText.Text = "Huyền thoại"
+RarityBadgeText.Font = FONT_BOLD
+RarityBadgeText.TextSize = 9
+RarityBadgeText.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local ChanceText = Instance.new("TextLabel", Row1)
+ChanceText.Size = UDim2.new(0, 45, 1, 0)
+ChanceText.Position = UDim2.new(0, 184, 0, 0)
+ChanceText.BackgroundTransparency = 1
+ChanceText.Text = "1 in 2.9"
+ChanceText.Font = FONT_MED
+ChanceText.TextSize = 9
+ChanceText.TextColor3 = Color3.fromRGB(140, 135, 165)
+ChanceText.TextXAlignment = Enum.TextXAlignment.Left
+
+-- DÒNG 2: Thu nhập $/s lớn màu xanh neon
+local ValueRateLabel = Instance.new("TextLabel", MainInfo)
+ValueRateLabel.Size = UDim2.new(1, 0, 0, 24)
+ValueRateLabel.Position = UDim2.new(0, 0, 0, 20)
+ValueRateLabel.BackgroundTransparency = 1
+ValueRateLabel.Text = "$1.76M/s"
+ValueRateLabel.Font = FONT_BOLD
+ValueRateLabel.TextSize = 15
+ValueRateLabel.TextColor3 = Color3.fromRGB(0, 255, 140) -- Xanh neon rực rỡ
+ValueRateLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+-- DÒNG 3: Khối lượng • Hệ • Khoảng cách mét
+local SubStatsLabel = Instance.new("TextLabel", MainInfo)
+SubStatsLabel.Size = UDim2.new(1, 0, 0, 18)
+SubStatsLabel.Position = UDim2.new(0, 0, 0, 44)
+SubStatsLabel.BackgroundTransparency = 1
+SubStatsLabel.Text = "34.6K kg • Cosmic • 2872m"
+SubStatsLabel.Font = FONT_MED
+SubStatsLabel.TextSize = 9
+SubStatsLabel.TextColor3 = Color3.fromRGB(150, 155, 175)
+SubStatsLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Thumbnail mô hình thú/quái bên phải
+local RightThumbImg = Instance.new("ImageLabel", TrackerHUD)
+RightThumbImg.Size = UDim2.new(0, 36, 0, 36)
+RightThumbImg.Position = UDim2.new(1, -44, 0.5, 0)
+RightThumbImg.AnchorPoint = Vector2.new(0, 0.5)
+RightThumbImg.BackgroundTransparency = 1
+RightThumbImg.Image = "rbxassetid://10723415"
+RightThumbImg.ImageColor3 = Color3.fromRGB(100, 140, 255)
+
+-- NÚT BẤM VÔ HÌNH PHỦ KÍN HUD ĐỂ CLICK DỊCH CHUYỂN TỨC KHẮC
+local ClickToTPButton = Instance.new("TextButton", TrackerHUD)
+ClickToTPButton.Size = UDim2.new(1, 0, 1, 0)
+ClickToTPButton.BackgroundTransparency = 1
+ClickToTPButton.Text = ""
+ClickToTPButton.ZIndex = 10
 
 makeDraggable(TrackerHUD)
 
-local HUDHeader = Instance.new("Frame", TrackerHUD)
-HUDHeader.Size = UDim2.new(1, 0, 0, 24)
-HUDHeader.BackgroundTransparency = 1
-
-local HUDTitle = Instance.new("TextLabel", HUDHeader)
-HUDTitle.Size = UDim2.new(1, -10, 1, 0)
-HUDTitle.Position = UDim2.new(0, 8, 0, 2)
-HUDTitle.BackgroundTransparency = 1
-HUDTitle.Text = "🎯 TARGET TRACKER HUD"
-HUDTitle.Font = FONT_BOLD
-HUDTitle.TextSize = 10
-HUDTitle.TextColor3 = THEME.AccentMint
-HUDTitle.TextXAlignment = Enum.TextXAlignment.Left
-
-local InfoContainer = Instance.new("Frame", TrackerHUD)
-InfoContainer.Size = UDim2.new(1, -16, 0, 52)
-InfoContainer.Position = UDim2.new(0, 8, 0, 26)
-InfoContainer.BackgroundColor3 = THEME.CardBG
-Instance.new("UICorner", InfoContainer).CornerRadius = UDim.new(0, 6)
-
-local EggNameLabel = Instance.new("TextLabel", InfoContainer)
-EggNameLabel.Size = UDim2.new(1, -8, 0, 16)
-EggNameLabel.Position = UDim2.new(0, 6, 0, 2)
-EggNameLabel.BackgroundTransparency = 1
-EggNameLabel.Text = "Đang quét mục tiêu..."
-EggNameLabel.Font = FONT_BOLD
-EggNameLabel.TextSize = 10
-EggNameLabel.TextColor3 = THEME.Gold
-EggNameLabel.TextXAlignment = Enum.TextXAlignment.Left
-
-local StatsLabel = Instance.new("TextLabel", InfoContainer)
-StatsLabel.Size = UDim2.new(1, -8, 0, 16)
-StatsLabel.Position = UDim2.new(0, 6, 0, 18)
-StatsLabel.BackgroundTransparency = 1
-StatsLabel.Text = "$/s: -- | Rarity: --"
-StatsLabel.Font = FONT_MED
-StatsLabel.TextSize = 9
-StatsLabel.TextColor3 = THEME.TextMain
-StatsLabel.TextXAlignment = Enum.TextXAlignment.Left
-
-local DistLabel = Instance.new("TextLabel", InfoContainer)
-DistLabel.Size = UDim2.new(1, -8, 0, 16)
-DistLabel.Position = UDim2.new(0, 6, 0, 34)
-DistLabel.BackgroundTransparency = 1
-DistLabel.Text = "Khối lượng: -- | KC: --m"
-DistLabel.Font = FONT_MED
-DistLabel.TextSize = 9
-DistLabel.TextColor3 = THEME.AccentCyan
-DistLabel.TextXAlignment = Enum.TextXAlignment.Left
-
--- Nút Dịch chuyển tức thời
-local TPButton = Instance.new("TextButton", TrackerHUD)
-TPButton.Size = UDim2.new(1, -16, 0, 26)
-TPButton.Position = UDim2.new(0, 8, 0, 82)
-TPButton.BackgroundColor3 = THEME.CardBG
-TPButton.Text = "🚀 DỊCH CHUYỂN NGAY (T)"
-TPButton.Font = FONT_BOLD
-TPButton.TextSize = 10
-TPButton.TextColor3 = THEME.AccentMint
-TPButton.AutoButtonColor = false
-Instance.new("UICorner", TPButton).CornerRadius = UDim.new(0, 6)
-
-local TPStroke = Instance.new("UIStroke", TPButton)
-TPStroke.Color = THEME.Border
-TPStroke.Thickness = 1
-
+-- HÀM THỰC HIỆN DỊCH CHUYỂN ĐẾN QUẢ TRỨNG XỊN NHẤT
 local function executeTeleportToBestEgg()
     pcall(function()
         local char = LocalPlayer.Character
         local hrp = char and char:FindFirstChild("HumanoidRootPart")
         if hrp and bestTargetCFrame then
-            playSFX(CONFIG.SuccessSFX, 1.0, 1.1)
-            -- Dịch chuyển tới vị trí phía trên quả trứng 3 studs
-            hrp.CFrame = bestTargetCFrame + Vector3.new(0, 3, 0)
+            playSFX(CONFIG.SuccessSFX, 1.0, 1.2)
+            -- Dịch chuyển lên ngay sát trên đầu quả trứng 3.5 studs
+            hrp.CFrame = bestTargetCFrame + Vector3.new(0, 3.5, 0)
             hrp.AssemblyLinearVelocity = Vector3.zero
+
+            -- Hiệu ứng nháy viền báo hiệu dịch chuyển thành công
+            local originalColor = HUDStroke.Color
+            HUDStroke.Color = Color3.fromRGB(0, 255, 140)
+            task.delay(0.3, function() HUDStroke.Color = originalColor end)
         end
     end)
 end
 
-TPButton.MouseButton1Click:Connect(executeTeleportToBestEgg)
+ClickToTPButton.MouseButton1Click:Connect(executeTeleportToBestEgg)
 
 UserInputService.InputBegan:Connect(function(input, gpe)
     if gpe then return end
@@ -869,7 +918,7 @@ UserInputService.InputBegan:Connect(function(input, gpe)
     end
 end)
 
--- Vòng lặp quét Workspace để tìm quả trứng xịn nhất
+-- VÒNG LẶP QUÉT WORKSPACE TÌM MỤC TIÊU TRỨNG GIÁ TRỊ CAO NHẤT
 task.spawn(function()
     while ScreenGui.Parent do
         pcall(function()
@@ -879,35 +928,40 @@ task.spawn(function()
             local highestValue = -1
             local candidateTarget = nil
             local candidateCFrame = nil
-            local candidateName = "Không tìm thấy trứng"
+            local candidateName = "Đang tìm trứng..."
             local candidateRate = "$0/s"
-            local candidateRarity = "Common"
-            local candidateWeight = "1.0kg"
+            local candidateRarity = "Thường"
+            local candidateWeight = "1.0K kg"
+            local candidateTrait = "Normal"
+            local candidateChance = "1 in 1"
 
-            -- Quét toàn bộ mô hình trứng/brainrot trong Workspace
             for _, obj in ipairs(Workspace:GetDescendants()) do
                 if obj:IsA("ProximityPrompt") then
                     local parentModel = obj:FindFirstAncestorOfClass("Model")
                     if parentModel and parentModel ~= char then
-                        local modelName = parentModel.Name
                         local primary = parentModel.PrimaryPart or parentModel:FindFirstChildWhichIsA("BasePart")
                         if primary then
-                            -- Đọc thông số attributes hoặc value objects
-                            local val = parentModel:GetAttribute("Value") or parentModel:GetAttribute("Price") or 0
-                            local rarity = parentModel:GetAttribute("Rarity") or "Rare"
-                            local weight = parentModel:GetAttribute("Weight") or "5.0kg"
-                            local perSec = parentModel:GetAttribute("PerSecond") or parentModel:GetAttribute("Income") or val
-
+                            local val = parentModel:GetAttribute("Value") or parentModel:GetAttribute("Price") or parentModel:GetAttribute("Income") or 0
                             if typeof(val) ~= "number" then val = 1 end
 
                             if val > highestValue then
                                 highestValue = val
                                 candidateTarget = parentModel
                                 candidateCFrame = primary.CFrame
-                                candidateName = modelName
-                                candidateRate = "$" .. tostring(perSec) .. "/s"
-                                candidateRarity = tostring(rarity)
-                                candidateWeight = tostring(weight)
+                                candidateName = parentModel.Name
+                                candidateTrait = tostring(parentModel:GetAttribute("Mutation") or parentModel:GetAttribute("Tier") or "Cosmic")
+                                candidateRarity = tostring(parentModel:GetAttribute("Rarity") or "Huyền thoại")
+                                candidateWeight = tostring(parentModel:GetAttribute("Weight") or "34.6K kg")
+                                candidateChance = tostring(parentModel:GetAttribute("Chance") or "1 in 2.9")
+
+                                -- Định dạng hiển thị $/s
+                                if val >= 1000000 then
+                                    candidateRate = "$" .. string.format("%.2f", val / 1000000) .. "M/s"
+                                elseif val >= 1000 then
+                                    candidateRate = "$" .. string.format("%.1f", val / 1000) .. "K/s"
+                                else
+                                    candidateRate = "$" .. tostring(val) .. "/s"
+                                end
                             end
                         end
                     end
@@ -917,23 +971,25 @@ task.spawn(function()
             if candidateTarget and candidateCFrame then
                 bestTargetModel = candidateTarget
                 bestTargetCFrame = candidateCFrame
-                EggNameLabel.Text = "★ " .. candidateName
-                StatsLabel.Text = "$/s: " .. candidateRate .. " | R: " .. candidateRarity
+                TargetNameLabel.Text = candidateName
+                RarityBadgeText.Text = candidateRarity
+                ChanceText.Text = candidateChance
+                ValueRateLabel.Text = candidateRate
 
                 local distMeters = 0
                 if hrp then
                     distMeters = math.floor((hrp.Position - candidateCFrame.Position).Magnitude * 0.28)
                 end
-                DistLabel.Text = "KL: " .. candidateWeight .. " | Khoảng cách: " .. tostring(distMeters) .. "m"
+                SubStatsLabel.Text = candidateWeight .. " • " .. candidateTrait .. " • " .. tostring(distMeters) .. "m"
             else
                 bestTargetModel = nil
                 bestTargetCFrame = nil
-                EggNameLabel.Text = "Đang tìm kiếm mục tiêu..."
-                StatsLabel.Text = "$/s: -- | Rarity: --"
-                DistLabel.Text = "Khối lượng: -- | KC: --m"
+                TargetNameLabel.Text = "Đang quét..."
+                ValueRateLabel.Text = "$0/s"
+                SubStatsLabel.Text = "-- • -- • 0m"
             end
         end)
-        task.wait(0.6)
+        task.wait(0.5)
     end
 end)
 
@@ -961,7 +1017,6 @@ task.spawn(function()
         LogoRainbowGrad.Rotation = rot
         MainRainbowGrad.Rotation = rot
         NoteRainbowGrad.Rotation = rot
-        TrackerRainbowGrad.Rotation = rot
         task.wait(0.02)
     end
 end)
