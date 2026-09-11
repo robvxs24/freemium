@@ -1,6 +1,6 @@
 -- ==============================================================================
---  RONNEI HUB - STEAL AN EGG (OFFICIAL VERSION 1.3)
---  Mới: Instant Steal 1 Chạm | Tàng hình FE | Anti-Trap Void | Blackout 100%
+--  RONNEI HUB - STEAL AN EGG (OFFICIAL VERSION 1.3 - ADJUSTED STEAL DELAY)
+--  Cập nhật: Nhặt nhanh tối ưu (0.12s) | Tàng hình FE | Anti-Trap Void | Blackout
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -13,13 +13,14 @@ local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- CẤU HÌNH HỆ THỐNG V1.3
+-- CẤU HÌNH HỆ THỐNG
 local CONFIG = {
     Version                = "V1.3",
     LogoAssetID            = "rbxassetid://124285855971647",
     TikTokURL              = "https://www.tiktok.com/@ronnei7.htk?_r=1&_t=ZS-98ygZG9Gh2G",
-    InvisibleDepth         = 12,  -- Dìm sâu 12 studs dưới đất
-    InvisibleRotation      = 226, -- Xoay 226 độ triệt góc nhìn
+    StealHoldDuration      = 0.12, -- Độ trễ nhặt 0.12s (chạm nhẹ là cướp, chống lỗi server)
+    InvisibleDepth         = 12,   -- Dìm sâu 12 studs dưới đất
+    InvisibleRotation      = 226,  -- Xoay 226 độ triệt góc nhìn
     ToggleOnSFX            = "rbxassetid://9114223175",
     ToggleOffSFX           = "rbxassetid://9114223204",
     ClickSFX               = "rbxassetid://9114223164",
@@ -65,11 +66,11 @@ local function playSFX(soundId, volume, pitch)
     end)
 end
 
--- ==================== 2. MODULE INSTANT STEAL (BẤM 1 PHÁT CƯỚP LUÔN) ====================
+-- ==================== 2. MODULE CƯỚP TRỨNG (0.12S HOLD DELAY) ====================
 task.spawn(function()
-    local function hookPrompt(prompt)
+    local function tunePrompt(prompt)
         if prompt:IsA("ProximityPrompt") then
-            prompt.HoldDuration = 0 -- Triệt tiêu hoàn toàn thời gian giữ phím (0 giây)
+            prompt.HoldDuration = CONFIG.StealHoldDuration
             prompt.RequiresLineOfSight = false
             pcall(function()
                 prompt.MaxActivationDistance = math.max(prompt.MaxActivationDistance, 25)
@@ -77,16 +78,18 @@ task.spawn(function()
         end
     end
 
-    for _, desc in ipairs(Workspace:GetDescendants()) do hookPrompt(desc) end
-    Workspace.DescendantAdded:Connect(hookPrompt)
+    for _, desc in ipairs(Workspace:GetDescendants()) do tunePrompt(desc) end
+    Workspace.DescendantAdded:Connect(tunePrompt)
 
-    -- Kích hoạt tức khắc ngay mili-giây đầu tiên khi vừa bấm/chạm vào
+    -- Tự động hoàn tất sau 0.12s khi chạm/nhấn giữ
     ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
         pcall(function()
-            prompt.HoldDuration = 0
-            if fireproximityprompt then
-                fireproximityprompt(prompt)
-            end
+            prompt.HoldDuration = CONFIG.StealHoldDuration
+            task.delay(CONFIG.StealHoldDuration, function()
+                if fireproximityprompt then
+                    fireproximityprompt(prompt)
+                end
+            end)
         end)
     end)
 end)
@@ -124,14 +127,14 @@ task.spawn(function()
             if not char then return end
             local hrp = char:FindFirstChild("HumanoidRootPart")
 
-            -- Dìm thân thể xuống đất (FE Replicated)
+            -- Dìm thân thể xuống đất
             if activeRootJoint and defaultC0 then
                 activeRootJoint.C0 = defaultC0 
                     * CFrame.new(0, -CONFIG.InvisibleDepth, 0) 
                     * CFrame.Angles(0, math.rad(CONFIG.InvisibleRotation), 0)
             end
 
-            -- Dìm quả trứng đang cướp xuống đất
+            -- Dìm quả trứng đang cướp
             if hrp then
                 for _, obj in ipairs(hrp:GetChildren()) do
                     if obj:IsA("JointInstance") and obj.Name ~= "RootJoint" then
@@ -737,8 +740,8 @@ local function createChangelogItem(icon, title, desc, order)
     iDesc.TextXAlignment = Enum.TextXAlignment.Left
 end
 
--- CHI TIẾT TÍNH NĂNG ĐỒNG BỘ TRÊN V1.3
-createChangelogItem("⚡", "Instant Steal (Mới V1.3)", "Hạ HoldDuration về 0s, không cần giữ nút, ấn/chạm 1 phát cướp trứng ngay", 1)
+-- CHI TIẾT TÍNH NĂNG V1.3
+createChangelogItem("⚡", "Smooth Steal (0.12s Delay)", "Tối ưu nhặt nhanh nhạy vừa phải, chống lỗi server và vượt mặt anti-cheat", 1)
 createChangelogItem("👻", "FE Invisible Steal", "Dìm RootJoint -12 studs + xoay 226°, người khác & bảo vệ không thấy người & trứng", 2)
 createChangelogItem("🪤", "Anti-Trap Void (-500m)", "Tự động dời toàn bộ bẫy gấu, mìn, turret xuống sâu 500m dưới lòng đất", 3)
 createChangelogItem("👑", "Anti Guards Wake Up [PREMIUM]", "Tối ưu hóa né đòn, fix triệt để đơ lag khi bật", 4)
