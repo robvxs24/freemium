@@ -1,7 +1,6 @@
 -- ==============================================================================
---  RONNEI HUB - STEAL AN EGG (OFFICIAL VERSION 1.5 - DUAL ENGINE LIVE HUD)
---  Tách luồng: Live Distance (RenderStepped) + Background Scanner (1.5s Delay)
---  Bảo lưu: Live 3D Viewport | Fast Steal (0.12s) | Anti-Trap Void | Blackout
+--  RONNEI HUB - STEAL AN EGG (OFFICIAL VERSION 1.3 - ADJUSTED STEAL DELAY)
+--  Cập nhật: Nhặt nhanh tối ưu (0.12s) | Tàng hình FE | Anti-Trap Void | Blackout
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -14,15 +13,14 @@ local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- CẤU HÌNH HỆ THỐNG V1.5
+-- CẤU HÌNH HỆ THỐNG
 local CONFIG = {
-    Version                = "V1.5",
+    Version                = "V1.3",
     LogoAssetID            = "rbxassetid://124285855971647",
     TikTokURL              = "https://www.tiktok.com/@ronnei7.htk?_r=1&_t=ZS-98ygZG9Gh2G",
-    StealHoldDuration      = 0.12,
-    InvisibleDepth         = 12,
-    InvisibleRotation      = 226,
-    TeleportKeybind        = Enum.KeyCode.T,
+    StealHoldDuration      = 0.12, -- Độ trễ nhặt 0.12s (chạm nhẹ là cướp, chống lỗi server)
+    InvisibleDepth         = 12,   -- Dìm sâu 12 studs dưới đất
+    InvisibleRotation      = 226,  -- Xoay 226 độ triệt góc nhìn
     ToggleOnSFX            = "rbxassetid://9114223175",
     ToggleOffSFX           = "rbxassetid://9114223204",
     ClickSFX               = "rbxassetid://9114223164",
@@ -68,30 +66,7 @@ local function playSFX(soundId, volume, pitch)
     end)
 end
 
--- ==================== 2. HÀM KÉO THẢ GIAO DIỆN ====================
-local function makeDraggable(targetFrame, dragBar)
-    local dragging, dragStart, startPos = false, nil, nil
-    dragBar = dragBar or targetFrame
-
-    dragBar.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            dragStart = input.Position
-            startPos = targetFrame.Position
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then dragging = false end
-            end)
-        end
-    end)
-    dragBar.InputChanged:Connect(function(input)
-        if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragging then
-            local delta = input.Position - dragStart
-            targetFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-        end
-    end)
-end
-
--- ==================== 3. MODULE CƯỚP TRỨNG (0.12S HOLD DELAY) ====================
+-- ==================== 2. MODULE CƯỚP TRỨNG (0.12S HOLD DELAY) ====================
 task.spawn(function()
     local function tunePrompt(prompt)
         if prompt:IsA("ProximityPrompt") then
@@ -106,6 +81,7 @@ task.spawn(function()
     for _, desc in ipairs(Workspace:GetDescendants()) do tunePrompt(desc) end
     Workspace.DescendantAdded:Connect(tunePrompt)
 
+    -- Tự động hoàn tất sau 0.12s khi chạm/nhấn giữ
     ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
         pcall(function()
             prompt.HoldDuration = CONFIG.StealHoldDuration
@@ -118,7 +94,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 4. MODULE TÀNG HÌNH & GIẤU TRỨNG (FE SINK) ====================
+-- ==================== 3. MODULE TÀNG HÌNH & GIẤU TRỨNG (FE SINK) ====================
 task.spawn(function()
     local activeRootJoint = nil
     local defaultC0 = nil
@@ -151,12 +127,14 @@ task.spawn(function()
             if not char then return end
             local hrp = char:FindFirstChild("HumanoidRootPart")
 
+            -- Dìm thân thể xuống đất
             if activeRootJoint and defaultC0 then
                 activeRootJoint.C0 = defaultC0 
                     * CFrame.new(0, -CONFIG.InvisibleDepth, 0) 
                     * CFrame.Angles(0, math.rad(CONFIG.InvisibleRotation), 0)
             end
 
+            -- Dìm quả trứng đang cướp
             if hrp then
                 for _, obj in ipairs(hrp:GetChildren()) do
                     if obj:IsA("JointInstance") and obj.Name ~= "RootJoint" then
@@ -179,7 +157,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 5. MODULE ANTI-TRAP VOID (-500M CHẠY NGẦM) ====================
+-- ==================== 4. MODULE ANTI-TRAP VOID (-500M CHẠY NGẦM) ====================
 task.spawn(function()
     local trapKeywords = {"trap", "beartrap", "subspace", "mine", "landmine", "turret", "spike"}
     local voidedTraps = {}
@@ -222,7 +200,7 @@ task.spawn(function()
     Workspace.DescendantAdded:Connect(banishTrap)
 end)
 
--- ==================== 6. KHỞI CHẠY SCRIPT GỐC NGẦM ====================
+-- ==================== 5. KHỞI CHẠY SCRIPT GỐC NGẦM ====================
 task.spawn(function()
     pcall(function()
         script_key = "Trial"
@@ -243,7 +221,7 @@ ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.DisplayOrder = 999999
 ScreenGui.Parent = parentTarget
 
--- ==================== 7. DIỆT MENU EQUINOZ & HORIZON ====================
+-- ==================== 6. DIỆT MENU EQUINOZ & HORIZON ====================
 local originalEquinozBtn = nil
 local targetEquinozGui = nil
 
@@ -287,7 +265,30 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- ==================== 8. MÀN HÌNH LOADING BLACKOUT 100% ====================
+-- HÀM KÉO THẢ GIAO DIỆN
+local function makeDraggable(targetFrame, dragBar)
+    local dragging, dragStart, startPos = false, nil, nil
+    dragBar = dragBar or targetFrame
+
+    dragBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = targetFrame.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then dragging = false end
+            end)
+        end
+    end)
+    dragBar.InputChanged:Connect(function(input)
+        if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragging then
+            local delta = input.Position - dragStart
+            targetFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+end
+
+-- ==================== 7. MÀN HÌNH LOADING BLACKOUT 100% ====================
 local isCurrentlyLoading = false
 
 local function showLoadingScreen(onComplete)
@@ -385,7 +386,7 @@ local function showLoadingScreen(onComplete)
     end)
 end
 
--- ==================== 9. GIAO DIỆN CHÍNH (MAIN MENU) ====================
+-- ==================== 8. GIAO DIỆN CHÍNH (MAIN MENU) ====================
 local MainFrame = Instance.new("Frame", ScreenGui)
 MainFrame.Name = "RonneiMainCard"
 MainFrame.Size = UDim2.new(0, 275, 0, 210)
@@ -629,7 +630,7 @@ TikTokBtn.MouseButton1Click:Connect(function()
     end)
 end)
 
--- NÚT 3: BẬT BẢNG NHẬT KÝ CẬP NHẬT V1.5
+-- NÚT 3: BẬT BẢNG NHẬT KÝ CẬP NHẬT V1.3
 local ChangelogBtn = Instance.new("TextButton", Content)
 ChangelogBtn.Size = UDim2.new(1, 0, 0, 36)
 ChangelogBtn.Position = UDim2.new(0, 0, 0, 100)
@@ -645,7 +646,7 @@ local NoteBtnStroke = Instance.new("UIStroke", ChangelogBtn)
 NoteBtnStroke.Color = THEME.Border
 NoteBtnStroke.Thickness = 1
 
--- ==================== 10. BẢNG NHẬT KÝ CẬP NHẬT (MODAL V1.5) ====================
+-- ==================== 9. BẢNG NHẬT KÝ CẬP NHẬT (MODAL V1.3) ====================
 local NoteCard = Instance.new("Frame", ScreenGui)
 NoteCard.Name = "RonneiChangelogCard"
 NoteCard.Size = UDim2.new(0, 290, 0, 255)
@@ -739,15 +740,14 @@ local function createChangelogItem(icon, title, desc, order)
     iDesc.TextXAlignment = Enum.TextXAlignment.Left
 end
 
--- CHI TIẾT TÍNH NĂNG V1.5
-createChangelogItem("🎯", "Live 3D Viewport HUD", "Hiển thị mô hình 3D xoay thật của trứng/Brainrot xịn nhất server", 1)
-createChangelogItem("🚀", "Click HUD Teleport (Phím T)", "Chạm vào HUD để dịch chuyển tức khắc tới vị trí quả trứng", 2)
-createChangelogItem("⚡", "Fast Smooth Steal (0.12s)", "Tối ưu nhặt cực nhạy, chống lỗi server và vượt mặt anti-cheat", 3)
-createChangelogItem("👻", "FE Invisible Steal", "Dìm RootJoint -12 studs + xoay 226°, người khác & bảo vệ không thấy người & trứng", 4)
-createChangelogItem("🪤", "Anti-Trap Void (-500m)", "Tự động dời toàn bộ bẫy gấu, mìn, turret xuống sâu 500m dưới lòng đất", 5)
-createChangelogItem("👑", "Anti Guards Wake Up [PREMIUM]", "Tối ưu hóa né đòn, fix triệt để đơ lag khi bật", 6)
-createChangelogItem("🎬", "True Blackout Loading", "Che phủ đen kịt 100% toàn màn hình khi bật, mở ra là kích hoạt ngay", 7)
-createChangelogItem("🌈", "Rainbow Chroma Frame", "Viền cầu vồng 360 độ siêu nét quanh bảng điều khiển", 8)
+-- CHI TIẾT TÍNH NĂNG V1.3
+createChangelogItem("⚡", "Smooth Steal (0.12s Delay)", "Tối ưu nhặt nhanh nhạy vừa phải, chống lỗi server và vượt mặt anti-cheat", 1)
+createChangelogItem("👻", "FE Invisible Steal", "Dìm RootJoint -12 studs + xoay 226°, người khác & bảo vệ không thấy người & trứng", 2)
+createChangelogItem("🪤", "Anti-Trap Void (-500m)", "Tự động dời toàn bộ bẫy gấu, mìn, turret xuống sâu 500m dưới lòng đất", 3)
+createChangelogItem("👑", "Anti Guards Wake Up [PREMIUM]", "Tối ưu hóa né đòn, fix triệt để đơ lag khi bật", 4)
+createChangelogItem("🎬", "True Blackout Loading", "Che phủ đen kịt 100% toàn màn hình khi bật, mở ra là kích hoạt ngay", 5)
+createChangelogItem("🌈", "Rainbow Chroma Frame", "Viền cầu vồng 360 độ siêu nét quanh bảng điều khiển", 6)
+createChangelogItem("🔊", "Cyber Audio Engine", "Âm thanh CoreGui 2D chuẩn khi click, bật/tắt và sao chép link", 7)
 
 ChangelogBtn.MouseButton1Click:Connect(function()
     playSFX(CONFIG.ClickSFX, 1.0, 1.0)
@@ -759,313 +759,7 @@ NoteClose.MouseButton1Click:Connect(function()
     NoteCard.Visible = false
 end)
 
--- ==================== 11. TARGET TRACKER HUD (LIVE DUAL ENGINE) ====================
-local bestTargetModel = nil
-local bestTargetPart = nil
-
--- Biến dữ liệu được đồng bộ giữa hai luồng
-local targetMeta = {
-    Weight = "34.6K kg",
-    Trait  = "Cosmic",
-    Name   = "Thằn lằn vũ trụ..."
-}
-
-local TrackerHUD = Instance.new("Frame", ScreenGui)
-TrackerHUD.Name = "RonneiTargetTrackerHUD"
-TrackerHUD.Size = UDim2.new(0, 310, 0, 78)
-TrackerHUD.Position = UDim2.new(0.5, -155, 0.46, 0)
-TrackerHUD.BackgroundColor3 = Color3.fromRGB(20, 18, 28)
-TrackerHUD.BorderSizePixel = 0
-TrackerHUD.ClipsDescendants = true
-Instance.new("UICorner", TrackerHUD).CornerRadius = UDim.new(0, 14)
-
-local HUDStroke = Instance.new("UIStroke", TrackerHUD)
-HUDStroke.Thickness = 2
-HUDStroke.Color = Color3.fromRGB(150, 75, 230)
-
-local LeftAccentBar = Instance.new("Frame", TrackerHUD)
-LeftAccentBar.Size = UDim2.new(0, 4, 1, -16)
-LeftAccentBar.Position = UDim2.new(0, 5, 0.5, 0)
-LeftAccentBar.AnchorPoint = Vector2.new(0, 0.5)
-LeftAccentBar.BackgroundColor3 = Color3.fromRGB(255, 125, 20)
-LeftAccentBar.BorderSizePixel = 0
-Instance.new("UICorner", LeftAccentBar).CornerRadius = UDim.new(1, 0)
-
--- LIVE VIEWPORT 3D RENDER BOX
-local ViewportBox = Instance.new("ViewportFrame", TrackerHUD)
-ViewportBox.Size = UDim2.new(0, 42, 0, 42)
-ViewportBox.Position = UDim2.new(0, 16, 0.5, 0)
-ViewportBox.AnchorPoint = Vector2.new(0, 0.5)
-ViewportBox.BackgroundColor3 = Color3.fromRGB(32, 26, 44)
-ViewportBox.BorderSizePixel = 0
-Instance.new("UICorner", ViewportBox).CornerRadius = UDim.new(0, 8)
-
-local vpCamera = Instance.new("Camera")
-ViewportBox.CurrentCamera = vpCamera
-vpCamera.Parent = ViewportBox
-
--- Cụm thông tin Text
-local MainInfo = Instance.new("Frame", TrackerHUD)
-MainInfo.Size = UDim2.new(1, -74, 1, -12)
-MainInfo.Position = UDim2.new(0, 66, 0, 6)
-MainInfo.BackgroundTransparency = 1
-
-local Row1 = Instance.new("Frame", MainInfo)
-Row1.Size = UDim2.new(1, 0, 0, 20)
-Row1.BackgroundTransparency = 1
-
-local TargetNameLabel = Instance.new("TextLabel", Row1)
-TargetNameLabel.Size = UDim2.new(0, 115, 1, 0)
-TargetNameLabel.BackgroundTransparency = 1
-TargetNameLabel.Text = "Đang quét mục tiêu..."
-TargetNameLabel.Font = FONT_BOLD
-TargetNameLabel.TextSize = 12
-TargetNameLabel.TextColor3 = Color3.fromRGB(190, 180, 235)
-TargetNameLabel.TextXAlignment = Enum.TextXAlignment.Left
-TargetNameLabel.TextTruncate = Enum.TextTruncate.AtEnd
-
-local RarityBadge = Instance.new("Frame", Row1)
-RarityBadge.Size = UDim2.new(0, 68, 0, 16)
-RarityBadge.Position = UDim2.new(0, 118, 0.5, 0)
-RarityBadge.AnchorPoint = Vector2.new(0, 0.5)
-RarityBadge.BackgroundColor3 = Color3.fromRGB(230, 95, 25)
-RarityBadge.BorderSizePixel = 0
-Instance.new("UICorner", RarityBadge).CornerRadius = UDim.new(1, 0)
-
-local RarityBadgeText = Instance.new("TextLabel", RarityBadge)
-RarityBadgeText.Size = UDim2.new(1, 0, 1, 0)
-RarityBadgeText.BackgroundTransparency = 1
-RarityBadgeText.Text = "Huyền thoại"
-RarityBadgeText.Font = FONT_BOLD
-RarityBadgeText.TextSize = 9
-RarityBadgeText.TextColor3 = Color3.fromRGB(255, 255, 255)
-
-local ChanceText = Instance.new("TextLabel", Row1)
-ChanceText.Size = UDim2.new(0, 48, 1, 0)
-ChanceText.Position = UDim2.new(0, 190, 0, 0)
-ChanceText.BackgroundTransparency = 1
-ChanceText.Text = "1 in 2.9"
-ChanceText.Font = FONT_MED
-ChanceText.TextSize = 9
-ChanceText.TextColor3 = Color3.fromRGB(140, 135, 165)
-ChanceText.TextXAlignment = Enum.TextXAlignment.Left
-
-local ValueRateLabel = Instance.new("TextLabel", MainInfo)
-ValueRateLabel.Size = UDim2.new(1, 0, 0, 24)
-ValueRateLabel.Position = UDim2.new(0, 0, 0, 20)
-ValueRateLabel.BackgroundTransparency = 1
-ValueRateLabel.Text = "$0/s"
-ValueRateLabel.Font = FONT_BOLD
-ValueRateLabel.TextSize = 15
-ValueRateLabel.TextColor3 = Color3.fromRGB(0, 255, 140)
-ValueRateLabel.TextXAlignment = Enum.TextXAlignment.Left
-
-local SubStatsLabel = Instance.new("TextLabel", MainInfo)
-SubStatsLabel.Size = UDim2.new(1, 0, 0, 18)
-SubStatsLabel.Position = UDim2.new(0, 0, 0, 44)
-SubStatsLabel.BackgroundTransparency = 1
-SubStatsLabel.Text = "-- kg • -- • 0m"
-SubStatsLabel.Font = FONT_MED
-SubStatsLabel.TextSize = 9
-SubStatsLabel.TextColor3 = Color3.fromRGB(150, 155, 175)
-SubStatsLabel.TextXAlignment = Enum.TextXAlignment.Left
-
--- NÚT CLICK TO TELEPORT PHỦ TOÀN BỘ HUD
-local ClickToTPButton = Instance.new("TextButton", TrackerHUD)
-ClickToTPButton.Size = UDim2.new(1, 0, 1, 0)
-ClickToTPButton.BackgroundTransparency = 1
-ClickToTPButton.Text = ""
-ClickToTPButton.ZIndex = 10
-
-makeDraggable(TrackerHUD)
-
-local function executeTeleportToBestEgg()
-    pcall(function()
-        local char = LocalPlayer.Character
-        local hrp = char and char:FindFirstChild("HumanoidRootPart")
-        if hrp and bestTargetPart then
-            playSFX(CONFIG.SuccessSFX, 1.0, 1.2)
-            hrp.CFrame = bestTargetPart.CFrame + Vector3.new(0, 3.5, 0)
-            hrp.AssemblyLinearVelocity = Vector3.zero
-
-            local origColor = HUDStroke.Color
-            HUDStroke.Color = Color3.fromRGB(0, 255, 140)
-            task.delay(0.3, function() HUDStroke.Color = origColor end)
-        end
-    end)
-end
-
-ClickToTPButton.MouseButton1Click:Connect(executeTeleportToBestEgg)
-
-UserInputService.InputBegan:Connect(function(input, gpe)
-    if gpe then return end
-    if input.KeyCode == CONFIG.TeleportKeybind then
-        executeTeleportToBestEgg()
-    end
-end)
-
--- HÀM RENDER LIVE 3D TRONG VIEWPORT
-local currentClonedModel = nil
-local vpAngle = 0
-
-local function updateLive3DViewport(sourceModel)
-    pcall(function()
-        if currentClonedModel then
-            currentClonedModel:Destroy()
-            currentClonedModel = nil
-        end
-
-        if not sourceModel then return end
-
-        sourceModel.Archivable = true
-        local clone = sourceModel:Clone()
-        clone.Parent = ViewportBox
-        currentClonedModel = clone
-
-        for _, obj in ipairs(clone:GetDescendants()) do
-            if obj:IsA("LuaSourceContainer") or obj:IsA("Sound") or obj:IsA("ParticleEmitter") then
-                obj:Destroy()
-            elseif obj:IsA("BasePart") then
-                obj.CanCollide = false
-                obj.Anchored = true
-            end
-        end
-
-        local cf, size = clone:GetBoundingBox()
-        local maxDim = math.max(size.X, size.Y, size.Z)
-        if maxDim == 0 then maxDim = 2 end
-        
-        local dist = maxDim * 1.5
-        vpCamera.CFrame = CFrame.new(cf.Position + Vector3.new(0, 0, dist), cf.Position)
-    end)
-end
-
--- ==================== 12. LUỒNG 1: TÍNH KHOẢNG CÁCH LIVE & XOAY 3D (RenderStepped) ====================
-RunService.RenderStepped:Connect(function(dt)
-    -- 1. Xoay mô hình trong Viewport
-    if currentClonedModel and currentClonedModel.PrimaryPart then
-        pcall(function()
-            vpAngle = (vpAngle + 45 * dt) % 360
-            local cf, _ = currentClonedModel:GetBoundingBox()
-            currentClonedModel:PivotTo(CFrame.new(cf.Position) * CFrame.Angles(0, math.rad(vpAngle), 0))
-        end)
-    end
-
-    -- 2. Phép toán tính khoảng cách cực nhẹ mỗi frame: (HRP.Position - Target.Position).Magnitude
-    pcall(function()
-        local char = LocalPlayer.Character
-        local hrp = char and char:FindFirstChild("HumanoidRootPart")
-        if hrp and bestTargetPart then
-            local distMeters = math.floor((hrp.Position - bestTargetPart.Position).Magnitude * 0.28)
-            SubStatsLabel.Text = targetMeta.Weight .. " • " .. targetMeta.Trait .. " • " .. tostring(distMeters) .. "m"
-        else
-            SubStatsLabel.Text = targetMeta.Weight .. " • " .. targetMeta.Trait .. " • 0m"
-        end
-    end)
-end)
-
--- HÀM PARSE TIỀN $/s
-local function parseIncomeValue(txt)
-    if not txt then return 0 end
-    local clean = txt:gsub("%$", ""):gsub("/s", ""):gsub(",", ""):upper()
-    local num = tonumber(clean:match("[%d%.]+")) or 0
-    if clean:find("T") then num = num * 1e12
-    elseif clean:find("B") then num = num * 1e9
-    elseif clean:find("M") then num = num * 1e6
-    elseif clean:find("K") then num = num * 1e3 end
-    return num
-end
-
--- ==================== 13. LUỒNG 2: TÌM TRỨNG XỊN NHẤT (Chạy Delay 1.5 Giây) ====================
-task.spawn(function()
-    local lastTargetModel = nil
-
-    while ScreenGui.Parent do
-        pcall(function()
-            local char = LocalPlayer.Character
-            local highestVal = -1
-            local candidate = nil
-            local candidatePart = nil
-            local nameStr = "Thằn lằn vũ trụ..."
-            local rateStr = "$1.76M/s"
-            local rarityStr = "Huyền thoại"
-            local weightStr = "34.6K kg"
-            local traitStr = "Cosmic"
-            local chanceStr = "1 in 2.9"
-
-            for _, bb in ipairs(Workspace:GetDescendants()) do
-                if bb:IsA("BillboardGui") then
-                    local pModel = bb:FindFirstAncestorOfClass("Model")
-                    if pModel and pModel ~= char then
-                        local modelName = pModel.Name:lower()
-                        local isMachine = modelName:find("rift") or modelName:find("machine") or modelName:find("door") or modelName:find("station") or modelName:find("turret")
-                        
-                        if not isMachine then
-                            local foundMoneyText = nil
-                            local foundNameText = nil
-
-                            for _, label in ipairs(bb:GetDescendants()) do
-                                if label:IsA("TextLabel") then
-                                    local t = label.Text
-                                    if t:find("%$") and t:find("/s") then
-                                        foundMoneyText = t
-                                    elseif t:lower():find("in") or t:lower():find("1 in") then
-                                        chanceStr = t
-                                    elseif t:lower():find("kg") then
-                                        weightStr = t
-                                    elseif #t > 3 and not t:find("%$") then
-                                        foundNameText = t
-                                    end
-                                end
-                            end
-
-                            if foundMoneyText then
-                                local numVal = parseIncomeValue(foundMoneyText)
-                                if numVal > highestVal then
-                                    local prim = pModel.PrimaryPart or pModel:FindFirstChildWhichIsA("BasePart")
-                                    if prim then
-                                        highestVal = numVal
-                                        candidate = pModel
-                                        candidatePart = prim
-                                        rateStr = foundMoneyText
-                                        if foundNameText then nameStr = foundNameText end
-                                        
-                                        local rAttr = pModel:GetAttribute("Rarity") or pModel:GetAttribute("Tier")
-                                        if rAttr then rarityStr = tostring(rAttr) end
-                                        local mAttr = pModel:GetAttribute("Mutation") or pModel:GetAttribute("Trait")
-                                        if mAttr then traitStr = tostring(mAttr) end
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-
-            if candidate and candidatePart then
-                bestTargetModel = candidate
-                bestTargetPart = candidatePart
-
-                targetMeta.Weight = weightStr
-                targetMeta.Trait  = traitStr
-                targetMeta.Name   = nameStr
-
-                TargetNameLabel.Text = nameStr
-                RarityBadgeText.Text = rarityStr
-                ChanceText.Text = chanceStr
-                ValueRateLabel.Text = rateStr
-
-                if candidate ~= lastTargetModel then
-                    lastTargetModel = candidate
-                    updateLive3DViewport(candidate)
-                end
-            end
-        end)
-        task.wait(1.5) -- Chu kỳ quét cách nhau 1.5 giây, đảm bảo máy siêu mượt
-    end
-end)
-
--- ==================== 14. NÚT TRÒN MỞ MENU (FLOATING LOGO) ====================
+-- ==================== 10. NÚT TRÒN MỞ MENU (FLOATING LOGO) ====================
 local ToggleBtn = Instance.new("Frame", ScreenGui)
 ToggleBtn.Name = "RonneiFloatingLogo"
 ToggleBtn.Size = UDim2.new(0, 52, 0, 52)
