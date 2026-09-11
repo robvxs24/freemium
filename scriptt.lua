@@ -715,12 +715,11 @@ local function createChangelogItem(icon, title, desc, order)
 end
 
 -- CHI TIẾT TÍNH NĂNG ĐỒNG BỘ MỚI TRÊN V1.2
-createChangelogItem("👻", "FE Invisible Steal (Fix Triệt Để)", "Dìm RootJoint -12 studs + góc xoay 226°, người khác và bảo vệ không thấy người & trứng", 1)
+createChangelogItem("👻", "Invisible Steal (tàn hình)", "Dìm RootJoint -12 studs + góc xoay 226°, người khác và bảo vệ không thấy người & trứng", 1)
 createChangelogItem("🪤", "Anti-Trap Void (-500m)", "Tự động dời toàn bộ bẫy gấu, mìn, turret xuống sâu 500m dưới lòng đất", 2)
-createChangelogItem("👑", "Anti Guards Wake Up [PREMIUM]", "Tối ưu hóa né đòn, fix triệt để đơ lag khi bật", 3)
-createChangelogItem("🎬", "True Blackout Loading", "Che phủ đen kịt 100% toàn màn hình khi bật, mở ra là kích hoạt ngay", 4)
+createChangelogItem("👑", "Anti Guards Wake Up [PREMIUM]", "boss ngủ mãi mãi,chỉ có tác dụng với bạn", 3)
+createChangelogItem("🎬", "True Blackout Loading", "sau khi bật là kích hoạt ngay lập tực không bị delay hay giật lag", 4)
 createChangelogItem("🌈", "Rainbow Chroma Frame", "Viền cầu vồng 360 độ siêu nét quanh bảng điều khiển", 5)
-createChangelogItem("🔊", "Cyber Audio Engine", "Âm thanh CoreGui 2D chuẩn khi click, bật/tắt và sao chép link", 6)
 
 ChangelogBtn.MouseButton1Click:Connect(function()
     playSFX(CONFIG.ClickSFX, 1.0, 1.0)
