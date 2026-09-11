@@ -1,7 +1,7 @@
 -- ==============================================================================
---  RONNEI HUB - STEAL AN EGG (OFFICIAL VERSION 1.5 - LIVE 3D VIEWPORT HUD)
---  Live 3D Viewport chuẩn ảnh | Quét chuẩn Brainrot | Click HUD Teleport (Phím T)
---  Bảo lưu: Fast Steal (0.12s) | Anti-Trap Void (-500m) | True Blackout 100%
+--  RONNEI HUB - STEAL AN EGG (OFFICIAL VERSION 1.5 - DUAL ENGINE LIVE HUD)
+--  Tách luồng: Live Distance (RenderStepped) + Background Scanner (1.5s Delay)
+--  Bảo lưu: Live 3D Viewport | Fast Steal (0.12s) | Anti-Trap Void | Blackout
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -759,9 +759,16 @@ NoteClose.MouseButton1Click:Connect(function()
     NoteCard.Visible = false
 end)
 
--- ==================== 11. TARGET TRACKER HUD (LIVE 3D VIEWPORT & AUTO PARSE) ====================
+-- ==================== 11. TARGET TRACKER HUD (LIVE DUAL ENGINE) ====================
 local bestTargetModel = nil
-local bestTargetCFrame = nil
+local bestTargetPart = nil
+
+-- Biến dữ liệu được đồng bộ giữa hai luồng
+local targetMeta = {
+    Weight = "34.6K kg",
+    Trait  = "Cosmic",
+    Name   = "Thằn lằn vũ trụ..."
+}
 
 local TrackerHUD = Instance.new("Frame", ScreenGui)
 TrackerHUD.Name = "RonneiTargetTrackerHUD"
@@ -863,7 +870,7 @@ SubStatsLabel.TextSize = 9
 SubStatsLabel.TextColor3 = Color3.fromRGB(150, 155, 175)
 SubStatsLabel.TextXAlignment = Enum.TextXAlignment.Left
 
--- NÚT BẤM CLICK TO TELEPORT
+-- NÚT CLICK TO TELEPORT PHỦ TOÀN BỘ HUD
 local ClickToTPButton = Instance.new("TextButton", TrackerHUD)
 ClickToTPButton.Size = UDim2.new(1, 0, 1, 0)
 ClickToTPButton.BackgroundTransparency = 1
@@ -876,9 +883,9 @@ local function executeTeleportToBestEgg()
     pcall(function()
         local char = LocalPlayer.Character
         local hrp = char and char:FindFirstChild("HumanoidRootPart")
-        if hrp and bestTargetCFrame then
+        if hrp and bestTargetPart then
             playSFX(CONFIG.SuccessSFX, 1.0, 1.2)
-            hrp.CFrame = bestTargetCFrame + Vector3.new(0, 3.5, 0)
+            hrp.CFrame = bestTargetPart.CFrame + Vector3.new(0, 3.5, 0)
             hrp.AssemblyLinearVelocity = Vector3.zero
 
             local origColor = HUDStroke.Color
@@ -897,7 +904,7 @@ UserInputService.InputBegan:Connect(function(input, gpe)
     end
 end)
 
--- HÀM RENDER LIVE 3D TRỨNG TRONG VIEWPORT
+-- HÀM RENDER LIVE 3D TRONG VIEWPORT
 local currentClonedModel = nil
 local vpAngle = 0
 
@@ -915,7 +922,6 @@ local function updateLive3DViewport(sourceModel)
         clone.Parent = ViewportBox
         currentClonedModel = clone
 
-        -- Tắt script và hiệu ứng trong bản clone để tối ưu hóa
         for _, obj in ipairs(clone:GetDescendants()) do
             if obj:IsA("LuaSourceContainer") or obj:IsA("Sound") or obj:IsA("ParticleEmitter") then
                 obj:Destroy()
@@ -934,8 +940,9 @@ local function updateLive3DViewport(sourceModel)
     end)
 end
 
--- Vòng lặp xoay mô hình 3D trong Viewport liên tục
+-- ==================== 12. LUỒNG 1: TÍNH KHOẢNG CÁCH LIVE & XOAY 3D (RenderStepped) ====================
 RunService.RenderStepped:Connect(function(dt)
+    -- 1. Xoay mô hình trong Viewport
     if currentClonedModel and currentClonedModel.PrimaryPart then
         pcall(function()
             vpAngle = (vpAngle + 45 * dt) % 360
@@ -943,9 +950,21 @@ RunService.RenderStepped:Connect(function(dt)
             currentClonedModel:PivotTo(CFrame.new(cf.Position) * CFrame.Angles(0, math.rad(vpAngle), 0))
         end)
     end
+
+    -- 2. Phép toán tính khoảng cách cực nhẹ mỗi frame: (HRP.Position - Target.Position).Magnitude
+    pcall(function()
+        local char = LocalPlayer.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        if hrp and bestTargetPart then
+            local distMeters = math.floor((hrp.Position - bestTargetPart.Position).Magnitude * 0.28)
+            SubStatsLabel.Text = targetMeta.Weight .. " • " .. targetMeta.Trait .. " • " .. tostring(distMeters) .. "m"
+        else
+            SubStatsLabel.Text = targetMeta.Weight .. " • " .. targetMeta.Trait .. " • 0m"
+        end
+    end)
 end)
 
--- HÀM PHÂN TÍCH CHUỖI TIỀN SANG SỐ (Ví dụ: $1.76M/s -> 1760000)
+-- HÀM PARSE TIỀN $/s
 local function parseIncomeValue(txt)
     if not txt then return 0 end
     local clean = txt:gsub("%$", ""):gsub("/s", ""):gsub(",", ""):upper()
@@ -957,18 +976,16 @@ local function parseIncomeValue(txt)
     return num
 end
 
--- VÒNG LẶP QUÉT TRỨNG THỰC TẾ TRONG GAME (LỌC BỎ CỖ MÁY NHƯ RIFTMACHINE)
+-- ==================== 13. LUỒNG 2: TÌM TRỨNG XỊN NHẤT (Chạy Delay 1.5 Giây) ====================
 task.spawn(function()
     local lastTargetModel = nil
 
     while ScreenGui.Parent do
         pcall(function()
             local char = LocalPlayer.Character
-            local hrp = char and char:FindFirstChild("HumanoidRootPart")
-
             local highestVal = -1
             local candidate = nil
-            local candidateCF = nil
+            local candidatePart = nil
             local nameStr = "Thằn lằn vũ trụ..."
             local rateStr = "$1.76M/s"
             local rarityStr = "Huyền thoại"
@@ -976,20 +993,16 @@ task.spawn(function()
             local traitStr = "Cosmic"
             local chanceStr = "1 in 2.9"
 
-            -- Quét toàn bộ mô hình chứa BillboardGui hoặc ProximityPrompt thuộc các base/plots
             for _, bb in ipairs(Workspace:GetDescendants()) do
                 if bb:IsA("BillboardGui") then
                     local pModel = bb:FindFirstAncestorOfClass("Model")
                     if pModel and pModel ~= char then
                         local modelName = pModel.Name:lower()
-
-                        -- LOẠI TRỪ CÁC CỖ MÁY / CỬA / TRẠM TĨNH KHÔNG PHẢI TRỨNG
                         local isMachine = modelName:find("rift") or modelName:find("machine") or modelName:find("door") or modelName:find("station") or modelName:find("turret")
                         
                         if not isMachine then
                             local foundMoneyText = nil
                             local foundNameText = nil
-                            local foundRarityText = nil
 
                             for _, label in ipairs(bb:GetDescendants()) do
                                 if label:IsA("TextLabel") then
@@ -1013,7 +1026,7 @@ task.spawn(function()
                                     if prim then
                                         highestVal = numVal
                                         candidate = pModel
-                                        candidateCF = prim.CFrame
+                                        candidatePart = prim
                                         rateStr = foundMoneyText
                                         if foundNameText then nameStr = foundNameText end
                                         
@@ -1029,21 +1042,18 @@ task.spawn(function()
                 end
             end
 
-            -- Cập nhật thông tin lên HUD
-            if candidate and candidateCF then
+            if candidate and candidatePart then
                 bestTargetModel = candidate
-                bestTargetCFrame = candidateCF
+                bestTargetPart = candidatePart
+
+                targetMeta.Weight = weightStr
+                targetMeta.Trait  = traitStr
+                targetMeta.Name   = nameStr
 
                 TargetNameLabel.Text = nameStr
                 RarityBadgeText.Text = rarityStr
                 ChanceText.Text = chanceStr
                 ValueRateLabel.Text = rateStr
-
-                local dist = 0
-                if hrp then
-                    dist = math.floor((hrp.Position - candidateCF.Position).Magnitude * 0.28)
-                end
-                SubStatsLabel.Text = weightStr .. " • " .. traitStr .. " • " .. tostring(dist) .. "m"
 
                 if candidate ~= lastTargetModel then
                     lastTargetModel = candidate
@@ -1051,11 +1061,11 @@ task.spawn(function()
                 end
             end
         end)
-        task.wait(0.4)
+        task.wait(1.5) -- Chu kỳ quét cách nhau 1.5 giây, đảm bảo máy siêu mượt
     end
 end)
 
--- ==================== 12. NÚT TRÒN MỞ MENU (FLOATING LOGO) ====================
+-- ==================== 14. NÚT TRÒN MỞ MENU (FLOATING LOGO) ====================
 local ToggleBtn = Instance.new("Frame", ScreenGui)
 ToggleBtn.Name = "RonneiFloatingLogo"
 ToggleBtn.Size = UDim2.new(0, 52, 0, 52)
