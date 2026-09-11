@@ -1,6 +1,6 @@
 -- ==============================================================================
---  RONNEI HUB - STEAL AN EGG (OFFICIAL VERSION 1.2 - INSTANT STEAL & INVISIBLE)
---  Cập nhật V1.2: Cướp trứng 1 chạm (Instant Steal) | Tàng hình FE | Anti-Trap Void
+--  RONNEI HUB - STEAL AN EGG (OFFICIAL VERSION 1.3)
+--  Mới: Instant Steal 1 Chạm | Tàng hình FE | Anti-Trap Void | Blackout 100%
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -8,17 +8,18 @@ local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local CoreGuiService = game:GetService("CoreGui")
 local SoundService = game:GetService("SoundService")
+local ProximityPromptService = game:GetService("ProximityPromptService")
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- CẤU HÌNH HỆ THỐNG V1.2
+-- CẤU HÌNH HỆ THỐNG V1.3
 local CONFIG = {
-    Version                = "V1.2",
+    Version                = "V1.3",
     LogoAssetID            = "rbxassetid://124285855971647",
     TikTokURL              = "https://www.tiktok.com/@ronnei7.htk?_r=1&_t=ZS-98ygZG9Gh2G",
-    InvisibleDepth         = 12,  -- Dìm sâu 12 studs che kín thân và trứng
-    InvisibleRotation      = 226, -- Góc xoay lệch camera 226 độ
+    InvisibleDepth         = 12,  -- Dìm sâu 12 studs dưới đất
+    InvisibleRotation      = 226, -- Xoay 226 độ triệt góc nhìn
     ToggleOnSFX            = "rbxassetid://9114223175",
     ToggleOffSFX           = "rbxassetid://9114223204",
     ClickSFX               = "rbxassetid://9114223164",
@@ -64,22 +65,33 @@ local function playSFX(soundId, volume, pitch)
     end)
 end
 
--- ==================== 2. MODULE INSTANT STEAL (CƯỚP TRỨNG 1 CHẠM) ====================
+-- ==================== 2. MODULE INSTANT STEAL (BẤM 1 PHÁT CƯỚP LUÔN) ====================
 task.spawn(function()
-    RunService.RenderStepped:Connect(function()
+    local function hookPrompt(prompt)
+        if prompt:IsA("ProximityPrompt") then
+            prompt.HoldDuration = 0 -- Triệt tiêu hoàn toàn thời gian giữ phím (0 giây)
+            prompt.RequiresLineOfSight = false
+            pcall(function()
+                prompt.MaxActivationDistance = math.max(prompt.MaxActivationDistance, 25)
+            end)
+        end
+    end
+
+    for _, desc in ipairs(Workspace:GetDescendants()) do hookPrompt(desc) end
+    Workspace.DescendantAdded:Connect(hookPrompt)
+
+    -- Kích hoạt tức khắc ngay mili-giây đầu tiên khi vừa bấm/chạm vào
+    ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
         pcall(function()
-            for _, obj in ipairs(Workspace:GetDescendants()) do
-                if obj:IsA("ProximityPrompt") then
-                    -- Ép thời gian chờ giữ phím/chạm về 0 ngay lập tức (1 phát ăn luôn)
-                    obj.HoldDuration = 0
-                    obj.MaxActivationDistance = math.max(obj.MaxActivationDistance, 25)
-                end
+            prompt.HoldDuration = 0
+            if fireproximityprompt then
+                fireproximityprompt(prompt)
             end
         end)
     end)
 end)
 
--- ==================== 3. MODULE TÀNG HÌNH & GIẤU TRỨNG (FE SINK V1.2) ====================
+-- ==================== 3. MODULE TÀNG HÌNH & GIẤU TRỨNG (FE SINK) ====================
 task.spawn(function()
     local activeRootJoint = nil
     local defaultC0 = nil
@@ -112,12 +124,14 @@ task.spawn(function()
             if not char then return end
             local hrp = char:FindFirstChild("HumanoidRootPart")
 
+            -- Dìm thân thể xuống đất (FE Replicated)
             if activeRootJoint and defaultC0 then
                 activeRootJoint.C0 = defaultC0 
                     * CFrame.new(0, -CONFIG.InvisibleDepth, 0) 
                     * CFrame.Angles(0, math.rad(CONFIG.InvisibleRotation), 0)
             end
 
+            -- Dìm quả trứng đang cướp xuống đất
             if hrp then
                 for _, obj in ipairs(hrp:GetChildren()) do
                     if obj:IsA("JointInstance") and obj.Name ~= "RootJoint" then
@@ -613,7 +627,7 @@ TikTokBtn.MouseButton1Click:Connect(function()
     end)
 end)
 
--- NÚT 3: BẬT BẢNG NHẬT KÝ CẬP NHẬT V1.2
+-- NÚT 3: BẬT BẢNG NHẬT KÝ CẬP NHẬT V1.3
 local ChangelogBtn = Instance.new("TextButton", Content)
 ChangelogBtn.Size = UDim2.new(1, 0, 0, 36)
 ChangelogBtn.Position = UDim2.new(0, 0, 0, 100)
@@ -629,7 +643,7 @@ local NoteBtnStroke = Instance.new("UIStroke", ChangelogBtn)
 NoteBtnStroke.Color = THEME.Border
 NoteBtnStroke.Thickness = 1
 
--- ==================== 9. BẢNG NHẬT KÝ CẬP NHẬT (MODAL V1.2) ====================
+-- ==================== 9. BẢNG NHẬT KÝ CẬP NHẬT (MODAL V1.3) ====================
 local NoteCard = Instance.new("Frame", ScreenGui)
 NoteCard.Name = "RonneiChangelogCard"
 NoteCard.Size = UDim2.new(0, 290, 0, 255)
@@ -696,7 +710,7 @@ ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
 local function createChangelogItem(icon, title, desc, order)
     local item = Instance.new("Frame", NoteScroll)
-    item.Size = UDim2.new(1, -8, 0, 44)
+    item.Size = UDim2.new(1, -8, 0, 46)
     item.BackgroundColor3 = THEME.CardBG
     item.BorderSizePixel = 0
     item.LayoutOrder = order
@@ -713,8 +727,8 @@ local function createChangelogItem(icon, title, desc, order)
     iTitle.TextXAlignment = Enum.TextXAlignment.Left
 
     local iDesc = Instance.new("TextLabel", item)
-    iDesc.Size = UDim2.new(1, -12, 0, 18)
-    iDesc.Position = UDim2.new(0, 8, 0, 20)
+    iDesc.Size = UDim2.new(1, -12, 0, 20)
+    iDesc.Position = UDim2.new(0, 8, 0, 22)
     iDesc.BackgroundTransparency = 1
     iDesc.Text = desc
     iDesc.Font = FONT_MED
@@ -723,9 +737,9 @@ local function createChangelogItem(icon, title, desc, order)
     iDesc.TextXAlignment = Enum.TextXAlignment.Left
 end
 
--- CHI TIẾT TÍNH NĂNG TỰ ĐỘNG CẬP NHẬT TRÊN V1.2
-createChangelogItem("⚡", "Instant Steal (Cướp Trứng 1 Chạm)", "Tự động xóa thời gian giữ nút ProximityPrompt, ấn 1 phát là cướp ngay lập tức", 1)
-createChangelogItem("👻", "FE Invisible Steal (Đồng Bộ Server)", "Hạ RootJoint -12 studs + xoay 226°, giấu người và trứng khỏi mắt đối thủ", 2)
+-- CHI TIẾT TÍNH NĂNG ĐỒNG BỘ TRÊN V1.3
+createChangelogItem("⚡", "Instant Steal (Mới V1.3)", "Hạ HoldDuration về 0s, không cần giữ nút, ấn/chạm 1 phát cướp trứng ngay", 1)
+createChangelogItem("👻", "FE Invisible Steal", "Dìm RootJoint -12 studs + xoay 226°, người khác & bảo vệ không thấy người & trứng", 2)
 createChangelogItem("🪤", "Anti-Trap Void (-500m)", "Tự động dời toàn bộ bẫy gấu, mìn, turret xuống sâu 500m dưới lòng đất", 3)
 createChangelogItem("👑", "Anti Guards Wake Up [PREMIUM]", "Tối ưu hóa né đòn, fix triệt để đơ lag khi bật", 4)
 createChangelogItem("🎬", "True Blackout Loading", "Che phủ đen kịt 100% toàn màn hình khi bật, mở ra là kích hoạt ngay", 5)
