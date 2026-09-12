@@ -1,6 +1,6 @@
 -- ==============================================================================
---  RONNEI HUB - STEAL AN EGG (OFFICIAL VERSION 1.3 - ADJUSTED STEAL DELAY)
---  Cập nhật: Nhặt nhanh tối ưu (0.12s) | Tàng hình FE | Anti-Trap Void | Blackout
+--  RONNEI HUB - STEAL AN EGG (OFFICIAL VERSION 1.3 - ORIGINAL ENGINE)
+--  Loader: Polsec Hosted | Fast Steal (0.12s) | Anti-Trap Void | Blackout 100%
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -13,18 +13,18 @@ local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- CẤU HÌNH HỆ THỐNG
+-- CẤU HÌNH HỆ THỐNG V1.3
 local CONFIG = {
-    Version                = "V1.3",
-    LogoAssetID            = "rbxassetid://124285855971647",
-    TikTokURL              = "https://www.tiktok.com/@ronnei7.htk?_r=1&_t=ZS-98ygZG9Gh2G",
-    StealHoldDuration      = 0.12, -- Độ trễ nhặt 0.12s (chạm nhẹ là cướp, chống lỗi server)
-    InvisibleDepth         = 12,   -- Dìm sâu 12 studs dưới đất
-    InvisibleRotation      = 226,  -- Xoay 226 độ triệt góc nhìn
-    ToggleOnSFX            = "rbxassetid://9114223175",
-    ToggleOffSFX           = "rbxassetid://9114223204",
-    ClickSFX               = "rbxassetid://9114223164",
-    SuccessSFX             = "rbxassetid://9114223245"
+    Version           = "V1.3",
+    LogoAssetID       = "rbxassetid://124285855971647",
+    TikTokURL         = "https://www.tiktok.com/@ronnei7.htk?_r=1&_t=ZS-98ygZG9Gh2G",
+    StealHoldDuration = 0.12,
+    InvisibleDepth    = 12,
+    InvisibleRotation = 226,
+    ToggleOnSFX       = "rbxassetid://9114223175",
+    ToggleOffSFX      = "rbxassetid://9114223204",
+    ClickSFX          = "rbxassetid://9114223164",
+    SuccessSFX        = "rbxassetid://9114223245"
 }
 
 local FONT_BOLD = Enum.Font.GothamBold
@@ -81,7 +81,6 @@ task.spawn(function()
     for _, desc in ipairs(Workspace:GetDescendants()) do tunePrompt(desc) end
     Workspace.DescendantAdded:Connect(tunePrompt)
 
-    -- Tự động hoàn tất sau 0.12s khi chạm/nhấn giữ
     ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
         pcall(function()
             prompt.HoldDuration = CONFIG.StealHoldDuration
@@ -127,14 +126,12 @@ task.spawn(function()
             if not char then return end
             local hrp = char:FindFirstChild("HumanoidRootPart")
 
-            -- Dìm thân thể xuống đất
             if activeRootJoint and defaultC0 then
                 activeRootJoint.C0 = defaultC0 
                     * CFrame.new(0, -CONFIG.InvisibleDepth, 0) 
                     * CFrame.Angles(0, math.rad(CONFIG.InvisibleRotation), 0)
             end
 
-            -- Dìm quả trứng đang cướp
             if hrp then
                 for _, obj in ipairs(hrp:GetChildren()) do
                     if obj:IsA("JointInstance") and obj.Name ~= "RootJoint" then
@@ -200,7 +197,7 @@ task.spawn(function()
     Workspace.DescendantAdded:Connect(banishTrap)
 end)
 
--- ==================== 5. KHỞI CHẠY SCRIPT GỐC NGẦM ====================
+-- ==================== 5. KHỞI CHẠY SCRIPT GỐC ====================
 task.spawn(function()
     pcall(function()
         script_key = "Trial"
@@ -740,7 +737,6 @@ local function createChangelogItem(icon, title, desc, order)
     iDesc.TextXAlignment = Enum.TextXAlignment.Left
 end
 
--- CHI TIẾT TÍNH NĂNG V1.3
 createChangelogItem("⚡", "Smooth Steal (0.12s Delay)", "Tối ưu nhặt nhanh nhạy vừa phải, chống lỗi server và vượt mặt anti-cheat", 1)
 createChangelogItem("👻", "FE Invisible Steal", "Dìm RootJoint -12 studs + xoay 226°, người khác & bảo vệ không thấy người & trứng", 2)
 createChangelogItem("🪤", "Anti-Trap Void (-500m)", "Tự động dời toàn bộ bẫy gấu, mìn, turret xuống sâu 500m dưới lòng đất", 3)
