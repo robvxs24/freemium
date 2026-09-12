@@ -1,12 +1,13 @@
 -- ==============================================================================
---  RONNEI HUB - DIRECT HOOK & OBFUSCATED LOADER
---  Cập nhật: Thay nút Discord thành TikTok @ronnei7.htk (Click là Copy)
---  Bảo mật: Mã hóa ẩn danh 100% Loader script gốc | Nhặt nhanh tối ưu (0.12s)
+--  RONNEI HUB - STEAL AN EGG (OFFICIAL V1.3 - STEALTH MASKING ENGINE)
+--  Khắc phục: Không đổi thuộc tính gốc tránh bẫy Anti-Skid | Đè Masking độc lập
+--  Tích hợp: Fast Steal (0.12s) | Click copy TikTok | Tự hủy Troll Screen
 -- ==============================================================================
 
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local CoreGuiService = game:GetService("CoreGui")
+local RunService = game:GetService("RunService")
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local LocalPlayer = Players.LocalPlayer
 
@@ -16,7 +17,40 @@ local CONFIG = {
     StealHoldDuration = 0.12
 }
 
--- ==================== 1. CƠ CHẾ NHẶT NHANH 0.12S ====================
+-- ==================== 1. TỰ ĐỘNG DIỆT TROLL SCREEN (NẾU XUẤT HIỆN) ====================
+task.spawn(function()
+    local function purgeTrollScreen(inst)
+        pcall(function()
+            if inst:IsA("TextLabel") or inst:IsA("TextButton") then
+                local txt = inst.Text:lower()
+                if txt:find("uses ai") or txt:find("skid") or txt:find("owner uses") then
+                    local sg = inst:FindFirstAncestorOfClass("ScreenGui")
+                    if sg then
+                        sg:Destroy()
+                    else
+                        local p = inst:FindFirstAncestorWhichIsA("GuiObject")
+                        if p then p:Destroy() end
+                    end
+                end
+            end
+        end)
+    end
+
+    local searchRoots = {
+        CoreGuiService,
+        gethui and gethui(),
+        LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")
+    }
+
+    for _, root in ipairs(searchRoots) do
+        if root then
+            for _, desc in ipairs(root:GetDescendants()) do purgeTrollScreen(desc) end
+            root.DescendantAdded:Connect(purgeTrollScreen)
+        end
+    end
+end)
+
+-- ==================== 2. CƠ CHẾ NHẶT NHANH 0.12S ====================
 task.spawn(function()
     local function tunePrompt(prompt)
         if prompt:IsA("ProximityPrompt") then
@@ -43,99 +77,132 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 2. CHÈN TEXT, TIKTOK & LOGO RONNEI HUB ====================
-task.spawn(function()
-    local hookedButtons = {}
+-- ==================== 3. LỚP PHỦ MASKING ĐÈ TRỰC TIẾP (KHÔNG ĐỤNG THUỘC TÍNH GỐC) ====================
+local parentTarget = (gethui and gethui()) or CoreGuiService or (LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui"))
+local MaskGui = Instance.new("ScreenGui")
+MaskGui.Name = "Ronnei_MaskOverlay"
+MaskGui.DisplayOrder = 2147483647
+MaskGui.IgnoreGuiInset = true
+MaskGui.ResetOnSpawn = false
+MaskGui.Parent = parentTarget
 
-    local function hijackElement(inst)
-        pcall(function()
-            -- Thay thế chữ (Tiêu đề menu & Nút Discord -> TikTok)
-            if inst:IsA("TextLabel") or inst:IsA("TextButton") then
-                local function applyBranding()
-                    local raw = inst.Text:upper()
-                    if raw:find("EQUINOZ") then
-                        inst.Text = "RONNEI HUB"
-                    elseif raw:find("VEUURTUMWE") or raw:find("DISCORD") then
-                        inst.Text = "TIKTOK: @RONNEI7.HTK"
-                    end
+local activeTrackers = {}
+
+local function createMaskForElement(targetInst, maskType)
+    if activeTrackers[targetInst] then return end
+
+    local overlayObj = nil
+
+    if maskType == "Title" then
+        local label = Instance.new("TextLabel")
+        label.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
+        label.BorderSizePixel = 0
+        label.Text = "RONNEI HUB"
+        label.Font = Enum.Font.GothamBold
+        label.TextSize = 13
+        label.TextColor3 = Color3.fromRGB(255, 255, 255)
+        label.TextXAlignment = Enum.TextXAlignment.Left
+        label.ZIndex = 100
+        label.Parent = MaskGui
+        overlayObj = label
+
+    elseif maskType == "Discord" then
+        local btn = Instance.new("TextButton")
+        btn.BackgroundColor3 = Color3.fromRGB(38, 42, 54)
+        btn.BorderSizePixel = 0
+        btn.Text = "TIKTOK: @RONNEI7.HTK"
+        btn.Font = Enum.Font.GothamBold
+        btn.TextSize = 11
+        btn.TextColor3 = Color3.fromRGB(0, 230, 120)
+        btn.AutoButtonColor = false
+        btn.ZIndex = 100
+        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+
+        btn.MouseButton1Click:Connect(function()
+            if setclipboard then setclipboard(CONFIG.TikTokURL)
+            elseif toclipboard then toclipboard(CONFIG.TikTokURL) end
+            btn.Text = "[V] ĐÃ SAO CHÉP TIKTOK!"
+            task.delay(1.5, function()
+                if btn and btn.Parent then
+                    btn.Text = "TIKTOK: @RONNEI7.HTK"
                 end
-
-                applyBranding()
-                inst:GetPropertyChangedSignal("Text"):Connect(applyBranding)
-
-                -- Bổ sung tính năng click vào nút TikTok để tự động sao chép link
-                if inst:IsA("TextButton") and not hookedButtons[inst] then
-                    hookedButtons[inst] = true
-                    inst.MouseButton1Click:Connect(function()
-                        local raw = inst.Text:upper()
-                        if raw:find("TIKTOK") or raw:find("RONNEI") or raw:find("DISCORD") then
-                            if setclipboard then
-                                setclipboard(CONFIG.TikTokURL)
-                            elseif toclipboard then
-                                toclipboard(CONFIG.TikTokURL)
-                            end
-                            inst.Text = "[V] DA SAO CHEP TIKTOK!"
-                            task.delay(1.5, function()
-                                if inst and inst.Parent then
-                                    inst.Text = "TIKTOK: @RONNEI7.HTK"
-                                end
-                            end)
-                        end
-                    end)
-                end
-
-            -- Thay thế hình ảnh logo (Header & Nút tròn mở menu)
-            elseif inst:IsA("ImageLabel") or inst:IsA("ImageButton") then
-                local p = inst.Parent
-                local pName = p and p.Name:lower() or ""
-                local iName = inst.Name:lower()
-
-                local ownerSg = inst:FindFirstAncestorOfClass("ScreenGui")
-                local isTarget = false
-
-                if ownerSg then
-                    for _, sibling in ipairs(ownerSg:GetDescendants()) do
-                        if (sibling:IsA("TextLabel") or sibling:IsA("TextButton")) and sibling.Text:upper():find("ANTI HIT") then
-                            isTarget = true
-                            break
-                        end
-                    end
-                end
-
-                if isTarget and (pName:find("logo") or pName:find("icon") or pName:find("toggle") or pName:find("btn") or iName:find("logo") or iName:find("icon") or inst:IsA("ImageButton")) then
-                    local function applyLogo()
-                        if inst.Image ~= CONFIG.LogoAssetID then
-                            inst.Image = CONFIG.LogoAssetID
-                        end
-                    end
-
-                    applyLogo()
-                    inst:GetPropertyChangedSignal("Image"):Connect(applyLogo)
-                end
-            end
+            end)
         end)
+
+        btn.Parent = MaskGui
+        overlayObj = btn
+
+    elseif maskType == "Logo" then
+        local img = Instance.new("ImageLabel")
+        img.BackgroundTransparency = 1
+        img.Image = CONFIG.LogoAssetID
+        img.ScaleType = Enum.ScaleType.Crop
+        img.ZIndex = 100
+        Instance.new("UICorner", img).CornerRadius = UDim.new(1, 0)
+        img.Parent = MaskGui
+        overlayObj = img
     end
 
-    local searchRoots = {
-        CoreGuiService,
-        gethui and gethui(),
-        LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")
-    }
+    if overlayObj then
+        activeTrackers[targetInst] = overlayObj
+    end
+end
 
-    for _, root in ipairs(searchRoots) do
-        if root then
-            for _, desc in ipairs(root:GetDescendants()) do
-                hijackElement(desc)
+-- Quét tìm đối tượng để tạo mặt nạ phủ
+local function scanTargetElements(inst)
+    pcall(function()
+        if inst:IsDescendantOf(MaskGui) or inst == MaskGui then return end
+
+        if inst:IsA("TextLabel") or inst:IsA("TextButton") then
+            local raw = inst.Text:upper()
+            if raw:find("EQUINOZ") then
+                createMaskForElement(inst, "Title")
+            elseif raw:find("VEUURTUMWE") or raw:find("DISCORD") then
+                createMaskForElement(inst, "Discord")
             end
-            root.DescendantAdded:Connect(hijackElement)
+        elseif inst:IsA("ImageLabel") or inst:IsA("ImageButton") then
+            local pName = inst.Parent and inst.Parent.Name:lower() or ""
+            local iName = inst.Name:lower()
+            if pName:find("logo") or pName:find("icon") or pName:find("toggle") or iName:find("logo") or iName:find("ninja") then
+                createMaskForElement(inst, "Logo")
+            end
+        end
+    end)
+end
+
+for _, root in ipairs(searchRoots) do
+    if root then
+        for _, desc in ipairs(root:GetDescendants()) do scanTargetElements(desc) end
+        root.DescendantAdded:Connect(scanTargetElements)
+    end
+end
+
+-- Đồng bộ vị trí và kích thước của mặt nạ chính xác từng pixel mỗi frame
+RunService.RenderStepped:Connect(function()
+    for target, overlay in pairs(activeTrackers) do
+        if target and target.Parent and target:IsDescendantOf(game) and target.Visible then
+            local pos = target.AbsolutePosition
+            local size = target.AbsoluteSize
+            if size.X > 0 and size.Y > 0 then
+                overlay.Visible = true
+                overlay.Position = UDim2.new(0, pos.X, 0, pos.Y)
+                overlay.Size = UDim2.new(0, size.X, 0, size.Y)
+            else
+                overlay.Visible = false
+            end
+        else
+            if overlay then overlay.Visible = false end
+            if not (target and target.Parent) then
+                if overlay then overlay:Destroy() end
+                activeTrackers[target] = nil
+            end
         end
     end
 end)
 
--- ==================== 3. KHỞI CHẠY SCRIPT GỐC (MÃ HÓA BYTE ẨN DANH) ====================
+-- ==================== 4. LOADER SCRIPT GỐC (ĐÃ MÃ HÓA BYTE CHỐNG BỊ SOI) ====================
 task.spawn(function()
     pcall(function()
-        -- Bộ giải mã nội tại (Tự động phục hồi chuỗi trong bộ nhớ tạm thời khi thực thi)
         local function _decode(cipherTable, offset)
             local chars = {}
             for i = 1, #cipherTable do
@@ -144,7 +211,6 @@ task.spawn(function()
             return table.concat(chars)
         end
 
-        -- Key và Link API Polsec đã được mã hóa toàn bộ thành dãy byte:
         local _k = _decode({157, 187, 178, 170, 181}, 73)
         local _u = _decode({
             177, 189, 189, 185, 188, 131, 120, 120, 170, 185, 178, 119, 176, 174, 189, 185, 184, 181,
