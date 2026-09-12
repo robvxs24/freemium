@@ -1,6 +1,6 @@
 -- ==============================================================================
---  RONNEI HUB - STEAL AN EGG (OFFICIAL V1.3 - FULL TEXT & CLEAN VIEW)
---  Fix: Tiêu đề liền mạch RONNEI HUB | Full dấu tiếng Việt | Ẩn sạch Logo Ninja
+--  RONNEI HUB - STEAL AN EGG (OFFICIAL V1.3 - PRESERVE GAME INTERFACE)
+--  Khắc phục: Giữ 100% UI game mặc định | Chỉ ẩn menu Equinoz & Nút Ninja
 --  Bảo lưu: Fast Steal (0.12s) | Anti-Trap Void (-500m) | FE Invisibility | Blackout
 -- ==============================================================================
 
@@ -10,7 +10,6 @@ local RunService = game:GetService("RunService")
 local CoreGuiService = game:GetService("CoreGui")
 local SoundService = game:GetService("SoundService")
 local ProximityPromptService = game:GetService("ProximityPromptService")
-local HttpService = game:GetService("HttpService")
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -54,7 +53,7 @@ local RainbowSequence = ColorSequence.new({
     ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 0, 0))
 })
 
--- ==================== 1. ENGINE ÂM THANH ====================
+-- ==================== 1. ENGINE PHÁT ÂM THANH ====================
 local function playSFX(soundId, volume, pitch)
     task.spawn(function()
         pcall(function()
@@ -68,75 +67,69 @@ local function playSFX(soundId, volume, pitch)
     end)
 end
 
--- ==================== 2. TẠO KHUNG GUI VÔ DANH (CHỐNG PHÁT HIỆN) ====================
+-- ==================== 2. KHỞI TẠO SCREEN GUI ====================
 local parentTarget = (gethui and gethui()) or CoreGuiService or (LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui"))
-local sysTag = "RobloxApp_" .. HttpService:GenerateGUID(false):sub(1, 8)
+local oldGui = parentTarget:FindFirstChild("Ronnei_StealAnEgg_Master")
+if oldGui then pcall(function() oldGui:Destroy() end) end
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = sysTag
+ScreenGui.Name = "Ronnei_StealAnEgg_Master"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.DisplayOrder = 999999
 ScreenGui.Parent = parentTarget
 
--- ==================== 3. TRIỆT TIÊU MENU EQUINOZ VÀ NÚT NINJA HORIZON ====================
+-- ==================== 3. CHỈ ẨN ĐÚNG EQUINOZ & LOGO NINJA (GIỮ NGUYÊN UI GAME) ====================
 local originalEquinozBtn = nil
-local hiddenThirdPartyFrames = {}
+local targetedThirdPartyFrames = {}
 
-local function purgeThirdParty(inst)
+local function filterAndHideThirdParty(inst)
     pcall(function()
         if inst:IsDescendantOf(ScreenGui) or inst == ScreenGui then return end
-
-        -- 1. Triệt hạ màn hình troll "uses AI"
-        if inst:IsA("TextLabel") or inst:IsA("TextButton") then
-            local txt = inst.Text:lower()
-            if txt:find("uses ai") or txt:find("owner uses") or txt:find("veuurtumwe") then
-                local sg = inst:FindFirstAncestorOfClass("ScreenGui")
-                if sg and sg ~= ScreenGui then sg:Destroy() else inst:Destroy() end
-                return
-            end
-        end
 
         local ownerSg = inst:FindFirstAncestorOfClass("ScreenGui")
         if not ownerSg or ownerSg == ScreenGui then return end
 
-        local shouldHide = false
-
-        -- 2. Quét menu văn bản Equinoz & bắt nút Anti Hit
-        if inst:IsA("TextLabel") or inst:IsA("TextButton") then
-            local t = inst.Text:upper()
-            if t:find("EQUINOZ") or t:find("ANTI HIT") or t:find("STEAL AN EGG V1") or t:find("HORIZON") then
-                shouldHide = true
-                if t:find("ANTI HIT") then
-                    originalEquinozBtn = inst:IsA("TextButton") and inst or inst:FindFirstAncestorOfClass("TextButton")
+        -- Bỏ qua toàn bộ UI của hệ thống Roblox và UI mặc định của game trong PlayerGui
+        local sgName = ownerSg.Name:lower()
+        if sgName:find("chat") or sgName:find("touch") or sgName:find("gui") and not (sgName:find("equinoz") or sgName:find("horizon")) then
+            -- Kiểm tra nếu là UI game thông thường (Mục lục, Cửa hàng, Nâng cấp) thì không đụng vào
+            if inst:IsA("TextLabel") or inst:IsA("TextButton") then
+                local txt = inst.Text:lower()
+                if txt:find("mục lục") or txt:find("cửa hàng") or txt:find("nâng cấp") or txt:find("chế độ") then
+                    return
                 end
             end
         end
 
-        -- 3. Quét nút tròn/vuông logo Ninja Horizon trôi nổi
-        if inst:IsA("ImageLabel") or inst:IsA("ImageButton") then
-            local iName = inst.Name:lower()
-            local pName = inst.Parent and inst.Parent.Name:lower() or ""
-
-            if iName:find("ninja") or iName:find("logo") or iName:find("horizon") or iName:find("toggle")
-               or pName:find("ninja") or pName:find("logo") or pName:find("horizon") or pName:find("toggle") then
-                shouldHide = true
-            end
-
-            -- Bắt các floating toggle button cỡ nhỏ ngoài giao diện gốc Roblox
-            local isRobloxNative = inst:FindFirstAncestor("RobloxGui") or inst:FindFirstAncestor("TopBarApp") or inst:FindFirstAncestor("PlayerList")
-            if not isRobloxNative and inst.AbsoluteSize.X > 0 and inst.AbsoluteSize.X <= 75 and inst.AbsoluteSize.Y <= 75 then
-                shouldHide = true
+        -- 1. Bắt menu Equinoz thông qua Text nhận diện
+        if inst:IsA("TextLabel") or inst:IsA("TextButton") then
+            local txt = inst.Text:upper()
+            if txt:find("EQUINOZ") or txt:find("VEUURTUMWE") or (txt:find("ANTI HIT") and not txt:find("RONNEI")) then
+                if txt:find("ANTI HIT") then
+                    originalEquinozBtn = inst:IsA("TextButton") and inst or inst:FindFirstAncestorOfClass("TextButton")
+                end
+                
+                -- Gom khung menu chính của Equinoz
+                local mainFrame = inst:FindFirstAncestorWhichIsA("Frame") or inst:FindFirstAncestorOfClass("CanvasGroup")
+                if mainFrame and not mainFrame:IsDescendantOf(ScreenGui) then
+                    targetedThirdPartyFrames[mainFrame] = true
+                end
             end
         end
 
-        if shouldHide then
-            for _, child in ipairs(ownerSg:GetChildren()) do
-                if child:IsA("GuiObject") then
-                    hiddenThirdPartyFrames[child] = true
-                    child.Visible = false
-                    child.Position = UDim2.new(50, 0, 50, 0)
+        -- 2. Bắt nút tròn Logo Ninja của Horizon/Equinoz
+        if inst:IsA("ImageLabel") or inst:IsA("ImageButton") then
+            local p = inst.Parent
+            local pName = p and p.Name:lower() or ""
+            local iName = inst.Name:lower()
+            local img = inst.Image
+
+            -- Nhận diện nút toggle Ninja
+            if (pName:find("ninja") or pName:find("open") or iName:find("ninja") or iName:find("logo")) and not img:find("124285855971647") then
+                if p and p:IsA("GuiObject") and not p:IsDescendantOf(ScreenGui) then
+                    targetedThirdPartyFrames[p] = true
                 end
             end
         end
@@ -145,36 +138,24 @@ end
 
 for _, c in ipairs({CoreGuiService, gethui and gethui(), LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")}) do
     if c then
-        for _, desc in ipairs(c:GetDescendants()) do purgeThirdParty(desc) end
-        c.DescendantAdded:Connect(purgeThirdParty)
+        for _, desc in ipairs(c:GetDescendants()) do filterAndHideThirdParty(desc) end
+        c.DescendantAdded:Connect(filterAndHideThirdParty)
     end
 end
 
--- Khóa cứng tàng hình cho mọi menu/nút ngoài
+-- Khóa cứng chỉ ẩn những khung của Equinoz/Horizon đã được nhận diện
 RunService.RenderStepped:Connect(function()
-    for frame in pairs(hiddenThirdPartyFrames) do
+    for frame in pairs(targetedThirdPartyFrames) do
         if frame and frame.Parent then
-            pcall(function()
-                frame.Visible = false
-                frame.Position = UDim2.new(50, 0, 50, 0)
-                frame.BackgroundTransparency = 1
-                for _, sub in ipairs(frame:GetDescendants()) do
-                    if sub:IsA("GuiObject") then
-                        sub.Visible = false
-                        sub.BackgroundTransparency = 1
-                    end
-                    if sub:IsA("TextLabel") or sub:IsA("TextButton") then sub.TextTransparency = 1 end
-                    if sub:IsA("ImageLabel") or sub:IsA("ImageButton") then sub.ImageTransparency = 1 end
-                    if sub:IsA("UIStroke") then sub.Transparency = 1 end
-                end
-            end)
+            frame.Visible = false
+            frame.Position = UDim2.new(50, 0, 50, 0)
         else
-            hiddenThirdPartyFrames[frame] = nil
+            targetedThirdPartyFrames[frame] = nil
         end
     end
 end)
 
--- ==================== 4. FAST STEAL ENGINE (0.12S) ====================
+-- ==================== 4. MODULE CƯỚP TRỨNG (0.12S HOLD DELAY) ====================
 task.spawn(function()
     local function tunePrompt(prompt)
         if prompt:IsA("ProximityPrompt") then
@@ -201,7 +182,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 5. FE INVISIBILITY (-12 STUDS & 226°) ====================
+-- ==================== 5. MODULE TÀNG HÌNH & GIẤU TRỨNG (FE SINK) ====================
 task.spawn(function()
     local activeRootJoint = nil
     local defaultC0 = nil
@@ -262,7 +243,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 6. ANTI-TRAP VOID ENGINE (-500M) ====================
+-- ==================== 6. MODULE ANTI-TRAP VOID (-500M CHẠY NGẦM) ====================
 task.spawn(function()
     local trapKeywords = {"trap", "beartrap", "subspace", "mine", "landmine", "turret", "spike"}
     local voidedTraps = {}
@@ -305,7 +286,7 @@ task.spawn(function()
     Workspace.DescendantAdded:Connect(banishTrap)
 end)
 
--- ==================== 7. CHẠY SCRIPT GỐC NGẦM ====================
+-- ==================== 7. KHỞI CHẠY SCRIPT GỐC ====================
 task.spawn(function()
     pcall(function()
         script_key = "Trial"
@@ -342,14 +323,16 @@ local function showLoadingScreen(onComplete)
     isCurrentlyLoading = true
 
     local LoadGui = Instance.new("ScreenGui")
-    LoadGui.Name = "SysLoad_" .. HttpService:GenerateGUID(false):sub(1, 6)
+    LoadGui.Name = "Ronnei_Blackout_Overlay"
     LoadGui.DisplayOrder = 2147483647
     LoadGui.IgnoreGuiInset = true
     LoadGui.ResetOnSpawn = false
     LoadGui.Parent = parentTarget
 
     local LoadOverlay = Instance.new("Frame", LoadGui)
+    LoadOverlay.Name = "BlackoutFrame"
     LoadOverlay.Size = UDim2.new(1, 0, 1, 0)
+    LoadOverlay.Position = UDim2.new(0, 0, 0, 0)
     LoadOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     LoadOverlay.BackgroundTransparency = 0
     LoadOverlay.BorderSizePixel = 0
@@ -396,7 +379,7 @@ local function showLoadingScreen(onComplete)
     LoadSub.Size = UDim2.new(1, 0, 0, 20)
     LoadSub.Position = UDim2.new(0, 0, 0, 102)
     LoadSub.BackgroundTransparency = 1
-    LoadSub.Text = "chưa follow tiktok ronnei7.htk là gay"
+    LoadSub.Text = "dang kich hoat che do bao ve..."
     LoadSub.Font = FONT_MED
     LoadSub.TextSize = 12
     LoadSub.TextColor3 = Color3.fromRGB(255, 95, 115)
@@ -431,9 +414,9 @@ local function showLoadingScreen(onComplete)
     end)
 end
 
--- ==================== 9. GIAO DIỆN CHÍNH (CHUẨN CHỮ RONNEI HUB) ====================
+-- ==================== 9. GIAO DIỆN CHÍNH (MAIN MENU) ====================
 local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Name = "Box_" .. HttpService:GenerateGUID(false):sub(1, 6)
+MainFrame.Name = "RonneiMainCard"
 MainFrame.Size = UDim2.new(0, 275, 0, 210)
 MainFrame.Position = UDim2.new(1, -295, 0, 55)
 MainFrame.BackgroundColor3 = THEME.MainBG
@@ -452,7 +435,6 @@ local Header = Instance.new("Frame", MainFrame)
 Header.Size = UDim2.new(1, 0, 0, 42)
 Header.BackgroundTransparency = 1
 
--- Tiêu đề nguyên khối, không ngắt quãng
 local Title = Instance.new("TextLabel", Header)
 Title.Size = UDim2.new(1, -50, 0, 20)
 Title.Position = UDim2.new(0, 14, 0, 6)
@@ -657,7 +639,7 @@ TikTokBtn.MouseButton1Click:Connect(function()
     if setclipboard then pcall(function() setclipboard(CONFIG.TikTokURL) end)
     elseif toclipboard then pcall(function() toclipboard(CONFIG.TikTokURL) end) end
 
-    TTLabel.Text = "[✓] Đã sao chép link TikTok!"
+    TTLabel.Text = "[V] Da sao chep link TikTok!"
     TTLabel.TextColor3 = THEME.AccentMint
     TweenService:Create(TikTokBtn, TweenInfo.new(0.15), {BackgroundColor3 = THEME.CardHover}):Play()
     TweenService:Create(TTStroke, TweenInfo.new(0.15), {Color = THEME.AccentMint}):Play()
@@ -672,12 +654,12 @@ TikTokBtn.MouseButton1Click:Connect(function()
     end)
 end)
 
--- NÚT 3: BẬT BẢNG NHẬT KÝ (FULL DẤU TIẾNG VIỆT)
+-- NÚT 3: BẬT BẢNG NHẬT KÝ CẬP NHẬT V1.3
 local ChangelogBtn = Instance.new("TextButton", Content)
 ChangelogBtn.Size = UDim2.new(1, 0, 0, 36)
 ChangelogBtn.Position = UDim2.new(0, 0, 0, 100)
 ChangelogBtn.BackgroundColor3 = THEME.CardBG
-ChangelogBtn.Text = "📋  Nhật Ký Cập Nhật " .. CONFIG.Version
+ChangelogBtn.Text = "Nhat Ky Cap Nhat " .. CONFIG.Version
 ChangelogBtn.Font = FONT_BOLD
 ChangelogBtn.TextSize = 11
 ChangelogBtn.TextColor3 = THEME.AccentMint
@@ -690,7 +672,7 @@ NoteBtnStroke.Thickness = 1
 
 -- ==================== 10. BẢNG NHẬT KÝ (MODAL V1.3) ====================
 local NoteCard = Instance.new("Frame", ScreenGui)
-NoteCard.Name = "Modal_" .. HttpService:GenerateGUID(false):sub(1, 6)
+NoteCard.Name = "RonneiChangelogCard"
 NoteCard.Size = UDim2.new(0, 290, 0, 255)
 NoteCard.Position = UDim2.new(0.5, -145, 0.5, -127)
 NoteCard.BackgroundColor3 = THEME.MainBG
@@ -714,7 +696,7 @@ local NoteTitle = Instance.new("TextLabel", NoteHeader)
 NoteTitle.Size = UDim2.new(1, -40, 1, 0)
 NoteTitle.Position = UDim2.new(0, 14, 0, 0)
 NoteTitle.BackgroundTransparency = 1
-NoteTitle.Text = "NHẬT KÝ BẢN " .. CONFIG.Version
+NoteTitle.Text = "NHAT KY BAN " .. CONFIG.Version
 NoteTitle.Font = FONT_BOLD
 NoteTitle.TextSize = 13
 NoteTitle.TextColor3 = THEME.TextMain
@@ -725,7 +707,7 @@ NoteClose.Size = UDim2.new(0, 24, 0, 24)
 NoteClose.Position = UDim2.new(1, -30, 0.5, 0)
 NoteClose.AnchorPoint = Vector2.new(0, 0.5)
 NoteClose.BackgroundColor3 = THEME.CardBG
-NoteClose.Text = "✕"
+NoteClose.Text = "X"
 NoteClose.Font = FONT_BOLD
 NoteClose.TextSize = 11
 NoteClose.TextColor3 = THEME.TextSub
@@ -782,13 +764,13 @@ local function createChangelogItem(icon, title, desc, order)
     iDesc.TextXAlignment = Enum.TextXAlignment.Left
 end
 
-createChangelogItem("⚡", "Smooth Steal (0.12s Delay)", "Tối ưu nhặt nhanh vừa phải, chống lỗi server", 1)
-createChangelogItem("👻", "FE Invisible Steal", "Dìm RootJoint -12 studs + xoay 226 độ đồng bộ", 2)
-createChangelogItem("🪤", "Anti-Trap Void (-500m)", "Tự động dời bẫy gấu, mìn, turret xuống -500m", 3)
-createChangelogItem("👑", "Anti Guards Wake Up [PREMIUM]", "Tối ưu hóa né đòn, giữ nguyên tính năng phòng thủ", 4)
-createChangelogItem("🎬", "True Blackout Loading", "Che phủ đen 100% toàn màn hình khi bật công tắc", 5)
-createChangelogItem("🌈", "Rainbow Chroma Frame", "Viền cầu vồng 360 độ sắc nét", 6)
-createChangelogItem("🔊", "Cyber Audio Engine", "Âm thanh CoreGui 2D chuẩn phản hồi", 7)
+createChangelogItem("⚡", "Smooth Steal (0.12s Delay)", "Toi uu nhat nhanh vua phai, chong loi server", 1)
+createChangelogItem("👻", "FE Invisible Steal", "Dim RootJoint -12 studs + xoay 226 do dong bo", 2)
+createChangelogItem("🪤", "Anti-Trap Void (-500m)", "Tu dong doi bay gau, min, turret xuong -500m", 3)
+createChangelogItem("👑", "Anti Guards Wake Up [PREMIUM]", "Toi uu hoa ne don, giu nguyen tinh nang phong thu", 4)
+createChangelogItem("🎬", "True Blackout Loading", "Che phu den 100% toan man hinh khi bat cong tac", 5)
+createChangelogItem("🌈", "Rainbow Chroma Frame", "Vien cau vong 360 do sac net", 6)
+createChangelogItem("🔊", "Cyber Audio Engine", "Am thanh CoreGui 2D chuan phan hoi", 7)
 
 ChangelogBtn.MouseButton1Click:Connect(function()
     playSFX(CONFIG.ClickSFX, 1.0, 1.0)
@@ -802,7 +784,7 @@ end)
 
 -- ==================== 11. NÚT TRÒN MỞ MENU (FLOATING LOGO) ====================
 local ToggleBtn = Instance.new("Frame", ScreenGui)
-ToggleBtn.Name = "Float_" .. HttpService:GenerateGUID(false):sub(1, 6)
+ToggleBtn.Name = "RonneiFloatingLogo"
 ToggleBtn.Size = UDim2.new(0, 52, 0, 52)
 ToggleBtn.Position = UDim2.new(0, 20, 0.35, 0)
 ToggleBtn.BackgroundColor3 = THEME.CardBG
