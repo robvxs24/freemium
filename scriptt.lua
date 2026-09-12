@@ -1,6 +1,6 @@
 -- ==============================================================================
---  RONNEI HUB - STEAL AN EGG (V1.3 - GHOST CLOAK & PERMANENT EQUINOZ HIDE)
---  Khắc phục triệt để: Xóa sạch dấu vết DOM | Ép tàng hình 100% Equinoz & Horizon
+--  RONNEI HUB - STEAL AN EGG (OFFICIAL V1.3 - FULL TEXT & CLEAN VIEW)
+--  Fix: Tiêu đề liền mạch RONNEI HUB | Full dấu tiếng Việt | Ẩn sạch Logo Ninja
 --  Bảo lưu: Fast Steal (0.12s) | Anti-Trap Void (-500m) | FE Invisibility | Blackout
 -- ==============================================================================
 
@@ -19,7 +19,7 @@ local LocalPlayer = Players.LocalPlayer
 local CONFIG = {
     Version           = "V1.3",
     LogoAssetID       = "rbxassetid://124285855971647",
-    TikTokURL         = "https://www.tiktok.com/@" .. "ron" .. "nei7.htk",
+    TikTokURL         = "https://www.tiktok.com/@ronnei7.htk?_r=1&_t=ZS-98ygZG9Gh2G",
     StealHoldDuration = 0.12,
     InvisibleDepth    = 12,
     InvisibleRotation = 226,
@@ -68,7 +68,7 @@ local function playSFX(soundId, volume, pitch)
     end)
 end
 
--- ==================== 2. TẠO KHUNG GUI VÔ DANH (CHỐNG BỘ LỌC TÊN) ====================
+-- ==================== 2. TẠO KHUNG GUI VÔ DANH (CHỐNG PHÁT HIỆN) ====================
 local parentTarget = (gethui and gethui()) or CoreGuiService or (LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui"))
 local sysTag = "RobloxApp_" .. HttpService:GenerateGUID(false):sub(1, 8)
 
@@ -80,48 +80,64 @@ ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.DisplayOrder = 999999
 ScreenGui.Parent = parentTarget
 
--- ==================== 3. DIỆT PAYLOAD TROLL & ÉP TÀNG HÌNH EQUINOZ/HORIZON ====================
+-- ==================== 3. TRIỆT TIÊU MENU EQUINOZ VÀ NÚT NINJA HORIZON ====================
 local originalEquinozBtn = nil
-local targetEquinozGui = nil
+local hiddenThirdPartyFrames = {}
 
-local function neutralizeThirdParty(inst)
+local function purgeThirdParty(inst)
     pcall(function()
         if inst:IsDescendantOf(ScreenGui) or inst == ScreenGui then return end
 
-        -- Diệt màn hình troll "uses AI" ngay khi vừa tạo
+        -- 1. Triệt hạ màn hình troll "uses AI"
         if inst:IsA("TextLabel") or inst:IsA("TextButton") then
             local txt = inst.Text:lower()
             if txt:find("uses ai") or txt:find("owner uses") or txt:find("veuurtumwe") then
                 local sg = inst:FindFirstAncestorOfClass("ScreenGui")
-                if sg and sg ~= ScreenGui then
-                    sg:Destroy()
-                else
-                    inst.Parent:Destroy()
-                end
+                if sg and sg ~= ScreenGui then sg:Destroy() else inst:Destroy() end
                 return
             end
         end
 
-        -- Nhận diện và gán tàng hình toàn diện cho Equinoz & Horizon
         local ownerSg = inst:FindFirstAncestorOfClass("ScreenGui")
-        if ownerSg and ownerSg ~= ScreenGui then
-            local isEquinoz = false
-            if inst:IsA("TextLabel") or inst:IsA("TextButton") then
-                local t = inst.Text:upper()
-                if t:find("EQUINOZ") or t:find("ANTI HIT") or t:find("STEAL AN EGG V1") then
-                    isEquinoz = true
-                    if t:find("ANTI HIT") then
-                        originalEquinozBtn = inst:IsA("TextButton") and inst or inst:FindFirstAncestorOfClass("TextButton")
-                    end
-                end
-            elseif inst:IsA("ImageLabel") or inst:IsA("ImageButton") then
-                if inst.Name:lower():find("logo") or inst.Name:lower():find("ninja") then
-                    isEquinoz = true
+        if not ownerSg or ownerSg == ScreenGui then return end
+
+        local shouldHide = false
+
+        -- 2. Quét menu văn bản Equinoz & bắt nút Anti Hit
+        if inst:IsA("TextLabel") or inst:IsA("TextButton") then
+            local t = inst.Text:upper()
+            if t:find("EQUINOZ") or t:find("ANTI HIT") or t:find("STEAL AN EGG V1") or t:find("HORIZON") then
+                shouldHide = true
+                if t:find("ANTI HIT") then
+                    originalEquinozBtn = inst:IsA("TextButton") and inst or inst:FindFirstAncestorOfClass("TextButton")
                 end
             end
+        end
 
-            if isEquinoz then
-                targetEquinozGui = ownerSg
+        -- 3. Quét nút tròn/vuông logo Ninja Horizon trôi nổi
+        if inst:IsA("ImageLabel") or inst:IsA("ImageButton") then
+            local iName = inst.Name:lower()
+            local pName = inst.Parent and inst.Parent.Name:lower() or ""
+
+            if iName:find("ninja") or iName:find("logo") or iName:find("horizon") or iName:find("toggle")
+               or pName:find("ninja") or pName:find("logo") or pName:find("horizon") or pName:find("toggle") then
+                shouldHide = true
+            end
+
+            -- Bắt các floating toggle button cỡ nhỏ ngoài giao diện gốc Roblox
+            local isRobloxNative = inst:FindFirstAncestor("RobloxGui") or inst:FindFirstAncestor("TopBarApp") or inst:FindFirstAncestor("PlayerList")
+            if not isRobloxNative and inst.AbsoluteSize.X > 0 and inst.AbsoluteSize.X <= 75 and inst.AbsoluteSize.Y <= 75 then
+                shouldHide = true
+            end
+        end
+
+        if shouldHide then
+            for _, child in ipairs(ownerSg:GetChildren()) do
+                if child:IsA("GuiObject") then
+                    hiddenThirdPartyFrames[child] = true
+                    child.Visible = false
+                    child.Position = UDim2.new(50, 0, 50, 0)
+                end
             end
         end
     end)
@@ -129,33 +145,32 @@ end
 
 for _, c in ipairs({CoreGuiService, gethui and gethui(), LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")}) do
     if c then
-        for _, desc in ipairs(c:GetDescendants()) do neutralizeThirdParty(desc) end
-        c.DescendantAdded:Connect(neutralizeThirdParty)
+        for _, desc in ipairs(c:GetDescendants()) do purgeThirdParty(desc) end
+        c.DescendantAdded:Connect(purgeThirdParty)
     end
 end
 
--- Triệt tiêu hoàn toàn sự hiện diện hình ảnh nhưng vẫn giữ logic phím trong RAM
+-- Khóa cứng tàng hình cho mọi menu/nút ngoài
 RunService.RenderStepped:Connect(function()
-    if targetEquinozGui and targetEquinozGui.Parent then
-        pcall(function()
-            for _, obj in ipairs(targetEquinozGui:GetDescendants()) do
-                if obj:IsA("GuiObject") then
-                    obj.BackgroundTransparency = 1
-                    obj.Size = UDim2.new(0, 0, 0, 0)
-                    obj.Visible = false
-                    obj.Position = UDim2.new(100, 0, 100, 0)
+    for frame in pairs(hiddenThirdPartyFrames) do
+        if frame and frame.Parent then
+            pcall(function()
+                frame.Visible = false
+                frame.Position = UDim2.new(50, 0, 50, 0)
+                frame.BackgroundTransparency = 1
+                for _, sub in ipairs(frame:GetDescendants()) do
+                    if sub:IsA("GuiObject") then
+                        sub.Visible = false
+                        sub.BackgroundTransparency = 1
+                    end
+                    if sub:IsA("TextLabel") or sub:IsA("TextButton") then sub.TextTransparency = 1 end
+                    if sub:IsA("ImageLabel") or sub:IsA("ImageButton") then sub.ImageTransparency = 1 end
+                    if sub:IsA("UIStroke") then sub.Transparency = 1 end
                 end
-                if obj:IsA("TextLabel") or obj:IsA("TextButton") then
-                    obj.TextTransparency = 1
-                end
-                if obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
-                    obj.ImageTransparency = 1
-                end
-                if obj:IsA("UIStroke") then
-                    obj.Transparency = 1
-                end
-            end
-        end)
+            end)
+        else
+            hiddenThirdPartyFrames[frame] = nil
+        end
     end
 end)
 
@@ -381,7 +396,7 @@ local function showLoadingScreen(onComplete)
     LoadSub.Size = UDim2.new(1, 0, 0, 20)
     LoadSub.Position = UDim2.new(0, 0, 0, 102)
     LoadSub.BackgroundTransparency = 1
-    LoadSub.Text = "dang kich hoat che do bao ve..."
+    LoadSub.Text = "chưa follow tiktok ronnei7.htk là gay"
     LoadSub.Font = FONT_MED
     LoadSub.TextSize = 12
     LoadSub.TextColor3 = Color3.fromRGB(255, 95, 115)
@@ -416,7 +431,7 @@ local function showLoadingScreen(onComplete)
     end)
 end
 
--- ==================== 9. GIAO DIỆN CHÍNH (ĐÃ LÀM SẠCH DOM 100%) ====================
+-- ==================== 9. GIAO DIỆN CHÍNH (CHUẨN CHỮ RONNEI HUB) ====================
 local MainFrame = Instance.new("Frame", ScreenGui)
 MainFrame.Name = "Box_" .. HttpService:GenerateGUID(false):sub(1, 6)
 MainFrame.Size = UDim2.new(0, 275, 0, 210)
@@ -437,26 +452,16 @@ local Header = Instance.new("Frame", MainFrame)
 Header.Size = UDim2.new(1, 0, 0, 42)
 Header.BackgroundTransparency = 1
 
--- Tách cụm chữ để bộ lọc string.find("ronn") của Equinoz không thể quét trúng
-local TitlePart1 = Instance.new("TextLabel", Header)
-TitlePart1.Size = UDim2.new(0, 36, 0, 20)
-TitlePart1.Position = UDim2.new(0, 14, 0, 6)
-TitlePart1.BackgroundTransparency = 1
-TitlePart1.Text = "RON"
-TitlePart1.Font = FONT_BOLD
-TitlePart1.TextSize = 14
-TitlePart1.TextColor3 = THEME.TextMain
-TitlePart1.TextXAlignment = Enum.TextXAlignment.Left
-
-local TitlePart2 = Instance.new("TextLabel", Header)
-TitlePart2.Size = UDim2.new(0, 100, 0, 20)
-TitlePart2.Position = UDim2.new(0, 50, 0, 6)
-TitlePart2.BackgroundTransparency = 1
-TitlePart2.Text = "NEI HUB"
-TitlePart2.Font = FONT_BOLD
-TitlePart2.TextSize = 14
-TitlePart2.TextColor3 = THEME.TextMain
-TitlePart2.TextXAlignment = Enum.TextXAlignment.Left
+-- Tiêu đề nguyên khối, không ngắt quãng
+local Title = Instance.new("TextLabel", Header)
+Title.Size = UDim2.new(1, -50, 0, 20)
+Title.Position = UDim2.new(0, 14, 0, 6)
+Title.BackgroundTransparency = 1
+Title.Text = "RONNEI HUB"
+Title.Font = FONT_BOLD
+Title.TextSize = 14
+Title.TextColor3 = THEME.TextMain
+Title.TextXAlignment = Enum.TextXAlignment.Left
 
 local Subtitle = Instance.new("TextLabel", Header)
 Subtitle.Size = UDim2.new(1, -50, 0, 14)
@@ -640,7 +645,7 @@ local TTLabel = Instance.new("TextLabel", TikTokBtn)
 TTLabel.Size = UDim2.new(1, -48, 1, 0)
 TTLabel.Position = UDim2.new(0, 42, 0, 0)
 TTLabel.BackgroundTransparency = 1
-TTLabel.Text = "TikTok: @" .. "ron" .. "nei7.htk"
+TTLabel.Text = "TikTok: @ronnei7.htk"
 TTLabel.Font = FONT_BOLD
 TTLabel.TextSize = 11
 TTLabel.TextColor3 = THEME.TextMain
@@ -652,14 +657,14 @@ TikTokBtn.MouseButton1Click:Connect(function()
     if setclipboard then pcall(function() setclipboard(CONFIG.TikTokURL) end)
     elseif toclipboard then pcall(function() toclipboard(CONFIG.TikTokURL) end) end
 
-    TTLabel.Text = "[V] Da sao chep link TikTok!"
+    TTLabel.Text = "[✓] Đã sao chép link TikTok!"
     TTLabel.TextColor3 = THEME.AccentMint
     TweenService:Create(TikTokBtn, TweenInfo.new(0.15), {BackgroundColor3 = THEME.CardHover}):Play()
     TweenService:Create(TTStroke, TweenInfo.new(0.15), {Color = THEME.AccentMint}):Play()
 
     task.delay(2, function()
         if TikTokBtn.Parent then
-            TTLabel.Text = "TikTok: @" .. "ron" .. "nei7.htk"
+            TTLabel.Text = "TikTok: @ronnei7.htk"
             TTLabel.TextColor3 = THEME.TextMain
             TweenService:Create(TikTokBtn, TweenInfo.new(0.2), {BackgroundColor3 = THEME.CardBG}):Play()
             TweenService:Create(TTStroke, TweenInfo.new(0.2), {Color = THEME.Border}):Play()
@@ -667,12 +672,12 @@ TikTokBtn.MouseButton1Click:Connect(function()
     end)
 end)
 
--- NÚT 3: BẬT BẢNG NHẬT KÝ CẬP NHẬT V1.3
+-- NÚT 3: BẬT BẢNG NHẬT KÝ (FULL DẤU TIẾNG VIỆT)
 local ChangelogBtn = Instance.new("TextButton", Content)
 ChangelogBtn.Size = UDim2.new(1, 0, 0, 36)
 ChangelogBtn.Position = UDim2.new(0, 0, 0, 100)
 ChangelogBtn.BackgroundColor3 = THEME.CardBG
-ChangelogBtn.Text = "Nhat Ky Cap Nhat " .. CONFIG.Version
+ChangelogBtn.Text = "📋  Nhật Ký Cập Nhật " .. CONFIG.Version
 ChangelogBtn.Font = FONT_BOLD
 ChangelogBtn.TextSize = 11
 ChangelogBtn.TextColor3 = THEME.AccentMint
@@ -709,7 +714,7 @@ local NoteTitle = Instance.new("TextLabel", NoteHeader)
 NoteTitle.Size = UDim2.new(1, -40, 1, 0)
 NoteTitle.Position = UDim2.new(0, 14, 0, 0)
 NoteTitle.BackgroundTransparency = 1
-NoteTitle.Text = "NHAT KY BAN " .. CONFIG.Version
+NoteTitle.Text = "NHẬT KÝ BẢN " .. CONFIG.Version
 NoteTitle.Font = FONT_BOLD
 NoteTitle.TextSize = 13
 NoteTitle.TextColor3 = THEME.TextMain
@@ -720,7 +725,7 @@ NoteClose.Size = UDim2.new(0, 24, 0, 24)
 NoteClose.Position = UDim2.new(1, -30, 0.5, 0)
 NoteClose.AnchorPoint = Vector2.new(0, 0.5)
 NoteClose.BackgroundColor3 = THEME.CardBG
-NoteClose.Text = "X"
+NoteClose.Text = "✕"
 NoteClose.Font = FONT_BOLD
 NoteClose.TextSize = 11
 NoteClose.TextColor3 = THEME.TextSub
@@ -777,13 +782,13 @@ local function createChangelogItem(icon, title, desc, order)
     iDesc.TextXAlignment = Enum.TextXAlignment.Left
 end
 
-createChangelogItem("⚡", "Smooth Steal (0.12s Delay)", "Toi uu nhat nhanh vua phai, chong loi server", 1)
-createChangelogItem("👻", "FE Invisible Steal", "Dim RootJoint -12 studs + xoay 226 do dong bo", 2)
-createChangelogItem("🪤", "Anti-Trap Void (-500m)", "Tu dong doi bay gau, min, turret xuong -500m", 3)
-createChangelogItem("👑", "Anti Guards Wake Up [PREMIUM]", "Toi uu hoa ne don, giu nguyen tinh nang phong thu", 4)
-createChangelogItem("🎬", "True Blackout Loading", "Che phu den 100% toan man hinh khi bat cong tac", 5)
-createChangelogItem("🌈", "Rainbow Chroma Frame", "Vien cau vong 360 do sac net", 6)
-createChangelogItem("🔊", "Cyber Audio Engine", "Am thanh CoreGui 2D chuan phan hoi", 7)
+createChangelogItem("⚡", "Smooth Steal (0.12s Delay)", "Tối ưu nhặt nhanh vừa phải, chống lỗi server", 1)
+createChangelogItem("👻", "FE Invisible Steal", "Dìm RootJoint -12 studs + xoay 226 độ đồng bộ", 2)
+createChangelogItem("🪤", "Anti-Trap Void (-500m)", "Tự động dời bẫy gấu, mìn, turret xuống -500m", 3)
+createChangelogItem("👑", "Anti Guards Wake Up [PREMIUM]", "Tối ưu hóa né đòn, giữ nguyên tính năng phòng thủ", 4)
+createChangelogItem("🎬", "True Blackout Loading", "Che phủ đen 100% toàn màn hình khi bật công tắc", 5)
+createChangelogItem("🌈", "Rainbow Chroma Frame", "Viền cầu vồng 360 độ sắc nét", 6)
+createChangelogItem("🔊", "Cyber Audio Engine", "Âm thanh CoreGui 2D chuẩn phản hồi", 7)
 
 ChangelogBtn.MouseButton1Click:Connect(function()
     playSFX(CONFIG.ClickSFX, 1.0, 1.0)
