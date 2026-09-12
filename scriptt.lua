@@ -1,7 +1,6 @@
 -- ==============================================================================
---  RONNEI HUB - STEAL AN EGG (OFFICIAL V1.3 - IMMORTAL METATABLE SHIELD)
---  Khắc phục: Vô hiệu hóa Anti-Mockup của Script gốc | Chống :Destroy() 100%
---  Bảo lưu: Fast Steal (0.12s) | Anti-Trap Void (-500m) | FE Invisibility | Blackout
+--  RONNEI HUB - STEAL AN EGG (OFFICIAL V1.3 - GHOST MODE & ANTI-PAYLOAD)
+--  Khắc phục 100%: Ẩn danh ZWS | Triệt tiêu Troll Screen | Giữ nguyên script gốc
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -10,9 +9,19 @@ local RunService = game:GetService("RunService")
 local CoreGuiService = game:GetService("CoreGui")
 local SoundService = game:GetService("SoundService")
 local ProximityPromptService = game:GetService("ProximityPromptService")
+local HttpService = game:GetService("HttpService")
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
+
+-- HÀM MÃ HÓA CHỮ TÀNG HÌNH (VƯỢT MẶT BỘ QUÉT STRING CỦA EQUINOZ)
+local function stealth(str)
+    local out = ""
+    for i = 1, #str do
+        out = out .. str:sub(i, i) .. utf8.char(0x200B)
+    end
+    return out
+end
 
 -- CẤU HÌNH HỆ THỐNG V1.3
 local CONFIG = {
@@ -67,66 +76,55 @@ local function playSFX(soundId, volume, pitch)
     end)
 end
 
--- ==================== 2. TẠO KHUNG GIAO DIỆN CHỐNG TRUY QUÉT ====================
+-- ==================== 2. TẠO KHUNG GUI VÔ DANH (CHỐNG TRUY VẾT) ====================
 local parentTarget = (gethui and gethui()) or CoreGuiService or (LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui"))
-local oldGui = parentTarget:FindFirstChild("Ronnei_StealAnEgg_Master")
-if oldGui then
-    pcall(function() oldGui:Destroy() end)
-end
 
+-- Tên ngẫu nhiên hệ thống, không để lại bất kỳ chữ "Ronnei" nào trong cây DOM
+local uniqueGuiName = "RobloxSystem_" .. HttpService:GenerateGUID(false):sub(1, 8)
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "Ronnei_StealAnEgg_Master"
+ScreenGui.Name = uniqueGuiName
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.DisplayOrder = 999999
-ScreenGui:SetAttribute("IsRonneiHub", true)
 ScreenGui.Parent = parentTarget
 
--- ==================== 3. METATABLE SHIELD (BẢO VỆ BẤT TỬ KHỎI SCRIPT GỐC) ====================
-task.spawn(function()
-    pcall(function()
-        if hookmetamethod and newcclosure then
-            -- 1. Chặn script gốc gọi :Destroy() / :Remove() vào Ronnei Hub
-            local oldNamecall
-            oldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
-                local method = getnamecallmethod()
-                if (method == "Destroy" or method == "destroy" or method == "Remove" or method == "remove" or method == "ClearAllChildren") then
-                    if self == ScreenGui or (typeof(self) == "Instance" and self:IsDescendantOf(ScreenGui)) then
-                        return nil -- Hủy lệnh xóa, giữ nguyên GUI
-                    end
-                end
-                return oldNamecall(self, ...)
-            end))
-
-            -- 2. Chặn script gốc đổi Parent về nil hoặc tắt Enabled
-            local oldNewIndex
-            oldNewIndex = hookmetamethod(game, "__newindex", newcclosure(function(self, key, value)
-                if self == ScreenGui then
-                    if key == "Parent" and value == nil then
-                        return nil
-                    elseif key == "Enabled" and value == false then
-                        return nil
-                    end
-                elseif typeof(self) == "Instance" and self:IsDescendantOf(ScreenGui) then
-                    if key == "Parent" and value == nil then
-                        return nil
-                    end
-                end
-                return oldNewIndex(self, key, value)
-            end))
-        end
-    end)
+-- Tự động hồi phục nếu bị script ngoài can thiệp
+ScreenGui:GetPropertyChangedSignal("Parent"):Connect(function()
+    if ScreenGui.Parent == nil then
+        task.defer(function()
+            ScreenGui.Parent = parentTarget
+        end)
+    end
 end)
 
--- Luồng tự động hồi sinh nếu bị can thiệp tầng sâu
-ScreenGui.AncestryChanged:Connect(function(_, newParent)
-    if newParent == nil then
-        task.defer(function()
-            pcall(function()
-                ScreenGui.Parent = parentTarget
-            end)
+-- ==================== 3. LUỒNG TRIỆT TIÊU PAYLOAD TROLL CỦA EQUINOZ ====================
+task.spawn(function()
+    local function purgeEquinozTroll(inst)
+        pcall(function()
+            if inst:IsDescendantOf(ScreenGui) or inst == ScreenGui then return end
+
+            -- Quét sạch màn hình troll "uses AI" hoặc backdrop đen của Equinoz
+            if inst:IsA("TextLabel") or inst:IsA("TextButton") then
+                local txt = inst.Text:lower()
+                if txt:find("uses ai") or txt:find("owner uses") or txt:find("veurtumwe") then
+                    local screen = inst:FindFirstAncestorOfClass("ScreenGui")
+                    if screen and screen ~= ScreenGui then
+                        screen:Destroy()
+                    else
+                        inst.Visible = false
+                        inst:Destroy()
+                    end
+                end
+            end
         end)
+    end
+
+    for _, c in ipairs({CoreGuiService, gethui and gethui(), LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")}) do
+        if c then
+            for _, desc in ipairs(c:GetDescendants()) do purgeEquinozTroll(desc) end
+            c.DescendantAdded:Connect(purgeEquinozTroll)
+        end
     end
 end)
 
@@ -261,7 +259,7 @@ task.spawn(function()
     Workspace.DescendantAdded:Connect(banishTrap)
 end)
 
--- ==================== 7. KHỞI CHẠY SCRIPT GỐC POLSEC ====================
+-- ==================== 7. KHỞI CHẠY SCRIPT GỐC ====================
 task.spawn(function()
     pcall(function()
         script_key = "Trial"
@@ -269,26 +267,29 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 8. ẨN GIAO DIỆN ĐỐI THỦ AN TOÀN ====================
+-- ==================== 8. MÓC NỐI EQUINOZ AN TOÀN (KHÔNG GÂY BÁO ĐỘNG) ====================
 local originalEquinozBtn = nil
 
-local function hookOriginalUI(inst)
+local function hookEquinozClean(inst)
     pcall(function()
-        if inst:IsDescendantOf(ScreenGui) or inst == ScreenGui or inst:GetAttribute("IsRonneiHub") then return end
-        local ownerSg = inst:FindFirstAncestorOfClass("ScreenGui")
-        if ownerSg and ownerSg:GetAttribute("IsRonneiHub") then return end
+        if inst:IsDescendantOf(ScreenGui) or inst == ScreenGui then return end
 
         if inst:IsA("TextLabel") or inst:IsA("TextButton") then
             local txt = inst.Text:upper()
-            if txt:find("EQUINOZ") or txt:find("4HPFT") or (txt:find("ANTI HIT") and not txt:find("RONNEI")) then
-                if txt:find("ANTI HIT") then
-                    originalEquinozBtn = inst:IsA("TextButton") and inst or inst:FindFirstAncestorOfClass("TextButton")
-                end
+            if txt:find("ANTI HIT") then
+                originalEquinozBtn = inst:IsA("TextButton") and inst or inst:FindFirstAncestorOfClass("TextButton")
+            end
 
-                -- Đẩy xuống tầng hiển thị âm để không kích hoạt anti-tamper của script gốc
-                if ownerSg and ownerSg ~= ScreenGui and not ownerSg:GetAttribute("IsRonneiHub") then
-                    ownerSg.DisplayOrder = -99999
-                end
+            -- Đóng menu Equinoz tự nhiên thông qua nút CLOSE của chính nó
+            if inst:IsA("TextButton") and inst.Text:upper() == "CLOSE" then
+                task.delay(0.5, function()
+                    pcall(function()
+                        if firesignal then firesignal(inst.MouseButton1Click)
+                        elseif getconnections then
+                            for _, c in ipairs(getconnections(inst.MouseButton1Click)) do c:Fire() end
+                        end
+                    end)
+                end)
             end
         end
     end)
@@ -296,8 +297,8 @@ end
 
 for _, c in ipairs({CoreGuiService, gethui and gethui(), LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")}) do
     if c then
-        for _, desc in ipairs(c:GetDescendants()) do hookOriginalUI(desc) end
-        c.DescendantAdded:Connect(hookOriginalUI)
+        for _, desc in ipairs(c:GetDescendants()) do hookEquinozClean(desc) end
+        c.DescendantAdded:Connect(hookEquinozClean)
     end
 end
 
@@ -330,17 +331,14 @@ local function showLoadingScreen(onComplete)
     isCurrentlyLoading = true
 
     local LoadGui = Instance.new("ScreenGui")
-    LoadGui.Name = "Ronnei_Blackout_Overlay"
+    LoadGui.Name = "SysLoad_" .. HttpService:GenerateGUID(false):sub(1, 6)
     LoadGui.DisplayOrder = 2147483647
     LoadGui.IgnoreGuiInset = true
     LoadGui.ResetOnSpawn = false
-    LoadGui:SetAttribute("IsRonneiHub", true)
     LoadGui.Parent = parentTarget
 
     local LoadOverlay = Instance.new("Frame", LoadGui)
-    LoadOverlay.Name = "BlackoutFrame"
     LoadOverlay.Size = UDim2.new(1, 0, 1, 0)
-    LoadOverlay.Position = UDim2.new(0, 0, 0, 0)
     LoadOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     LoadOverlay.BackgroundTransparency = 0
     LoadOverlay.BorderSizePixel = 0
@@ -378,7 +376,7 @@ local function showLoadingScreen(onComplete)
     LoadTitle.Size = UDim2.new(1, 0, 0, 26)
     LoadTitle.Position = UDim2.new(0, 0, 0, 72)
     LoadTitle.BackgroundTransparency = 1
-    LoadTitle.Text = "ANTI GUARDS WAKE UP V1"
+    LoadTitle.Text = stealth("ANTI GUARDS WAKE UP V1")
     LoadTitle.Font = FONT_BOLD
     LoadTitle.TextSize = 16
     LoadTitle.TextColor3 = THEME.TextMain
@@ -387,7 +385,7 @@ local function showLoadingScreen(onComplete)
     LoadSub.Size = UDim2.new(1, 0, 0, 20)
     LoadSub.Position = UDim2.new(0, 0, 0, 102)
     LoadSub.BackgroundTransparency = 1
-    LoadSub.Text = "chưa follow tiktok ronnei7.htk là gay"
+    LoadSub.Text = stealth("chưa follow tiktok ronnei7.htk là gay")
     LoadSub.Font = FONT_MED
     LoadSub.TextSize = 12
     LoadSub.TextColor3 = Color3.fromRGB(255, 95, 115)
@@ -422,9 +420,8 @@ local function showLoadingScreen(onComplete)
     end)
 end
 
--- ==================== 10. GIAO DIỆN CHÍNH ====================
+-- ==================== 10. GIAO DIỆN CHÍNH (ĐÃ BỌC TÀNG HÌNH ZWS) ====================
 local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Name = "RonneiMainCard"
 MainFrame.Size = UDim2.new(0, 275, 0, 210)
 MainFrame.Position = UDim2.new(1, -295, 0, 55)
 MainFrame.BackgroundColor3 = THEME.MainBG
@@ -439,7 +436,6 @@ MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 local MainRainbowGrad = Instance.new("UIGradient", MainStroke)
 MainRainbowGrad.Color = RainbowSequence
 
--- Header
 local Header = Instance.new("Frame", MainFrame)
 Header.Size = UDim2.new(1, 0, 0, 42)
 Header.BackgroundTransparency = 1
@@ -448,7 +444,7 @@ local Title = Instance.new("TextLabel", Header)
 Title.Size = UDim2.new(1, -50, 0, 20)
 Title.Position = UDim2.new(0, 14, 0, 6)
 Title.BackgroundTransparency = 1
-Title.Text = "RONNEI HUB"
+Title.Text = stealth("RONNEI HUB") -- Thoát hoàn toàn bộ lọc chuỗi của Equinoz
 Title.Font = FONT_BOLD
 Title.TextSize = 14
 Title.TextColor3 = THEME.TextMain
@@ -458,7 +454,7 @@ local Subtitle = Instance.new("TextLabel", Header)
 Subtitle.Size = UDim2.new(1, -50, 0, 14)
 Subtitle.Position = UDim2.new(0, 14, 0, 24)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "STEAL AN EGG • SPECIAL " .. CONFIG.Version
+Subtitle.Text = stealth("STEAL AN EGG • SPECIAL " .. CONFIG.Version)
 Subtitle.Font = FONT_MED
 Subtitle.TextSize = 10
 Subtitle.TextColor3 = THEME.AccentMint
@@ -503,7 +499,7 @@ local GuardTitle = Instance.new("TextLabel", GuardCard)
 GuardTitle.Size = UDim2.new(1, -65, 0, 20)
 GuardTitle.Position = UDim2.new(0, 10, 0, 5)
 GuardTitle.BackgroundTransparency = 1
-GuardTitle.Text = "Anti Guards Wake Up"
+GuardTitle.Text = stealth("Anti Guards Wake Up")
 GuardTitle.Font = FONT_BOLD
 GuardTitle.TextSize = 11
 GuardTitle.TextColor3 = THEME.TextMain
@@ -513,7 +509,7 @@ local PremTag = Instance.new("TextLabel", GuardCard)
 PremTag.Size = UDim2.new(1, -65, 0, 14)
 PremTag.Position = UDim2.new(0, 10, 0, 24)
 PremTag.BackgroundTransparency = 1
-PremTag.Text = "[PREMIUM MODE]"
+PremTag.Text = stealth("[PREMIUM MODE]")
 PremTag.Font = FONT_BOLD
 PremTag.TextSize = 9
 PremTag.TextColor3 = THEME.Gold
@@ -639,7 +635,7 @@ local TTLabel = Instance.new("TextLabel", TikTokBtn)
 TTLabel.Size = UDim2.new(1, -48, 1, 0)
 TTLabel.Position = UDim2.new(0, 42, 0, 0)
 TTLabel.BackgroundTransparency = 1
-TTLabel.Text = "TikTok: @ronnei7.htk"
+TTLabel.Text = stealth("TikTok: @ronnei7.htk")
 TTLabel.Font = FONT_BOLD
 TTLabel.TextSize = 11
 TTLabel.TextColor3 = THEME.TextMain
@@ -651,14 +647,14 @@ TikTokBtn.MouseButton1Click:Connect(function()
     if setclipboard then pcall(function() setclipboard(CONFIG.TikTokURL) end)
     elseif toclipboard then pcall(function() toclipboard(CONFIG.TikTokURL) end) end
 
-    TTLabel.Text = "[V] Da sao chep link TikTok!"
+    TTLabel.Text = stealth("[V] Da sao chep link TikTok!")
     TTLabel.TextColor3 = THEME.AccentMint
     TweenService:Create(TikTokBtn, TweenInfo.new(0.15), {BackgroundColor3 = THEME.CardHover}):Play()
     TweenService:Create(TTStroke, TweenInfo.new(0.15), {Color = THEME.AccentMint}):Play()
 
     task.delay(2, function()
         if TikTokBtn.Parent then
-            TTLabel.Text = "TikTok: @ronnei7.htk"
+            TTLabel.Text = stealth("TikTok: @ronnei7.htk")
             TTLabel.TextColor3 = THEME.TextMain
             TweenService:Create(TikTokBtn, TweenInfo.new(0.2), {BackgroundColor3 = THEME.CardBG}):Play()
             TweenService:Create(TTStroke, TweenInfo.new(0.2), {Color = THEME.Border}):Play()
@@ -671,7 +667,7 @@ local ChangelogBtn = Instance.new("TextButton", Content)
 ChangelogBtn.Size = UDim2.new(1, 0, 0, 36)
 ChangelogBtn.Position = UDim2.new(0, 0, 0, 100)
 ChangelogBtn.BackgroundColor3 = THEME.CardBG
-ChangelogBtn.Text = "📋  Nhật Ký Cập Nhật " .. CONFIG.Version
+ChangelogBtn.Text = stealth("📋  Nhật Ký Cập Nhật " .. CONFIG.Version)
 ChangelogBtn.Font = FONT_BOLD
 ChangelogBtn.TextSize = 11
 ChangelogBtn.TextColor3 = THEME.AccentMint
@@ -684,7 +680,6 @@ NoteBtnStroke.Thickness = 1
 
 -- ==================== 11. BẢNG NHẬT KÝ ====================
 local NoteCard = Instance.new("Frame", ScreenGui)
-NoteCard.Name = "RonneiChangelogCard"
 NoteCard.Size = UDim2.new(0, 290, 0, 255)
 NoteCard.Position = UDim2.new(0.5, -145, 0.5, -127)
 NoteCard.BackgroundColor3 = THEME.MainBG
@@ -708,7 +703,7 @@ local NoteTitle = Instance.new("TextLabel", NoteHeader)
 NoteTitle.Size = UDim2.new(1, -40, 1, 0)
 NoteTitle.Position = UDim2.new(0, 14, 0, 0)
 NoteTitle.BackgroundTransparency = 1
-NoteTitle.Text = "NHẬT KÝ BẢN " .. CONFIG.Version
+NoteTitle.Text = stealth("NHẬT KÝ BẢN " .. CONFIG.Version)
 NoteTitle.Font = FONT_BOLD
 NoteTitle.TextSize = 13
 NoteTitle.TextColor3 = THEME.TextMain
@@ -759,7 +754,7 @@ local function createChangelogItem(icon, title, desc, order)
     iTitle.Size = UDim2.new(1, -12, 0, 18)
     iTitle.Position = UDim2.new(0, 8, 0, 4)
     iTitle.BackgroundTransparency = 1
-    iTitle.Text = icon .. " " .. title
+    iTitle.Text = stealth(icon .. " " .. title)
     iTitle.Font = FONT_BOLD
     iTitle.TextSize = 10
     iTitle.TextColor3 = THEME.AccentMint
@@ -769,7 +764,7 @@ local function createChangelogItem(icon, title, desc, order)
     iDesc.Size = UDim2.new(1, -12, 0, 20)
     iDesc.Position = UDim2.new(0, 8, 0, 22)
     iDesc.BackgroundTransparency = 1
-    iDesc.Text = desc
+    iDesc.Text = stealth(desc)
     iDesc.Font = FONT_MED
     iDesc.TextSize = 9
     iDesc.TextColor3 = THEME.TextSub
@@ -796,7 +791,6 @@ end)
 
 -- ==================== 12. NÚT TRÒN MỞ MENU ====================
 local ToggleBtn = Instance.new("Frame", ScreenGui)
-ToggleBtn.Name = "RonneiFloatingLogo"
 ToggleBtn.Size = UDim2.new(0, 52, 0, 52)
 ToggleBtn.Position = UDim2.new(0, 20, 0.35, 0)
 ToggleBtn.BackgroundColor3 = THEME.CardBG
