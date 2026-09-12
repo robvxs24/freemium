@@ -1,6 +1,7 @@
 -- ==============================================================================
---  RONNEI HUB - STEAL AN EGG (OFFICIAL V1.3 - FIXED PERMANENT GUI)
---  Fix triệt để: Chống tự hủy GUI | Khóa dọn nhầm | Giữ 100% logic V1.3
+--  RONNEI HUB - STEAL AN EGG (OFFICIAL V1.3 - IMMORTAL METATABLE SHIELD)
+--  Khắc phục: Vô hiệu hóa Anti-Mockup của Script gốc | Chống :Destroy() 100%
+--  Bảo lưu: Fast Steal (0.12s) | Anti-Trap Void (-500m) | FE Invisibility | Blackout
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -13,6 +14,7 @@ local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
+-- CẤU HÌNH HỆ THỐNG V1.3
 local CONFIG = {
     Version           = "V1.3",
     LogoAssetID       = "rbxassetid://124285855971647",
@@ -51,7 +53,7 @@ local RainbowSequence = ColorSequence.new({
     ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 0, 0))
 })
 
--- ==================== 1. ENGINE ÂM THANH ====================
+-- ==================== 1. ENGINE PHÁT ÂM THANH ====================
 local function playSFX(soundId, volume, pitch)
     task.spawn(function()
         pcall(function()
@@ -65,10 +67,12 @@ local function playSFX(soundId, volume, pitch)
     end)
 end
 
--- ==================== 2. TẠO GUI CHỐNG XÓA ====================
+-- ==================== 2. TẠO KHUNG GIAO DIỆN CHỐNG TRUY QUÉT ====================
 local parentTarget = (gethui and gethui()) or CoreGuiService or (LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui"))
 local oldGui = parentTarget:FindFirstChild("Ronnei_StealAnEgg_Master")
-if oldGui then oldGui:Destroy() end
+if oldGui then
+    pcall(function() oldGui:Destroy() end)
+end
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "Ronnei_StealAnEgg_Master"
@@ -76,10 +80,57 @@ ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.DisplayOrder = 999999
-ScreenGui:SetAttribute("IsRonneiHub", true) -- CỜ BẢO VỆ CHỐNG TỰ HỦY
+ScreenGui:SetAttribute("IsRonneiHub", true)
 ScreenGui.Parent = parentTarget
 
--- ==================== 3. CƠ CHẾ FAST STEAL (0.12S) ====================
+-- ==================== 3. METATABLE SHIELD (BẢO VỆ BẤT TỬ KHỎI SCRIPT GỐC) ====================
+task.spawn(function()
+    pcall(function()
+        if hookmetamethod and newcclosure then
+            -- 1. Chặn script gốc gọi :Destroy() / :Remove() vào Ronnei Hub
+            local oldNamecall
+            oldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
+                local method = getnamecallmethod()
+                if (method == "Destroy" or method == "destroy" or method == "Remove" or method == "remove" or method == "ClearAllChildren") then
+                    if self == ScreenGui or (typeof(self) == "Instance" and self:IsDescendantOf(ScreenGui)) then
+                        return nil -- Hủy lệnh xóa, giữ nguyên GUI
+                    end
+                end
+                return oldNamecall(self, ...)
+            end))
+
+            -- 2. Chặn script gốc đổi Parent về nil hoặc tắt Enabled
+            local oldNewIndex
+            oldNewIndex = hookmetamethod(game, "__newindex", newcclosure(function(self, key, value)
+                if self == ScreenGui then
+                    if key == "Parent" and value == nil then
+                        return nil
+                    elseif key == "Enabled" and value == false then
+                        return nil
+                    end
+                elseif typeof(self) == "Instance" and self:IsDescendantOf(ScreenGui) then
+                    if key == "Parent" and value == nil then
+                        return nil
+                    end
+                end
+                return oldNewIndex(self, key, value)
+            end))
+        end
+    end)
+end)
+
+-- Luồng tự động hồi sinh nếu bị can thiệp tầng sâu
+ScreenGui.AncestryChanged:Connect(function(_, newParent)
+    if newParent == nil then
+        task.defer(function()
+            pcall(function()
+                ScreenGui.Parent = parentTarget
+            end)
+        end)
+    end
+end)
+
+-- ==================== 4. MODULE CƯỚP TRỨNG (0.12S HOLD DELAY) ====================
 task.spawn(function()
     local function tunePrompt(prompt)
         if prompt:IsA("ProximityPrompt") then
@@ -106,7 +157,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 4. TÀNG HÌNH FE REPLICATED ====================
+-- ==================== 5. MODULE TÀNG HÌNH & GIẤU TRỨNG (FE SINK) ====================
 task.spawn(function()
     local activeRootJoint = nil
     local defaultC0 = nil
@@ -167,7 +218,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 5. ANTI-TRAP VOID (-500M) ====================
+-- ==================== 6. MODULE ANTI-TRAP VOID (-500M CHẠY NGẦM) ====================
 task.spawn(function()
     local trapKeywords = {"trap", "beartrap", "subspace", "mine", "landmine", "turret", "spike"}
     local voidedTraps = {}
@@ -210,7 +261,7 @@ task.spawn(function()
     Workspace.DescendantAdded:Connect(banishTrap)
 end)
 
--- ==================== 6. CHẠY SCRIPT GỐC ====================
+-- ==================== 7. KHỞI CHẠY SCRIPT GỐC POLSEC ====================
 task.spawn(function()
     pcall(function()
         script_key = "Trial"
@@ -218,13 +269,11 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 7. DỌN GIAO DIỆN ĐỐI THỦ (ĐÃ BẢO VỆ CHỐNG XÓA NHẦM) ====================
+-- ==================== 8. ẨN GIAO DIỆN ĐỐI THỦ AN TOÀN ====================
 local originalEquinozBtn = nil
-local targetEquinozGui = nil
 
-local function neutralizeEquinoz(inst)
+local function hookOriginalUI(inst)
     pcall(function()
-        -- NẾU THUỘC RONNEI HUB THÌ BỎ QUA NGAY LẬP TỨC
         if inst:IsDescendantOf(ScreenGui) or inst == ScreenGui or inst:GetAttribute("IsRonneiHub") then return end
         local ownerSg = inst:FindFirstAncestorOfClass("ScreenGui")
         if ownerSg and ownerSg:GetAttribute("IsRonneiHub") then return end
@@ -236,15 +285,9 @@ local function neutralizeEquinoz(inst)
                     originalEquinozBtn = inst:IsA("TextButton") and inst or inst:FindFirstAncestorOfClass("TextButton")
                 end
 
+                -- Đẩy xuống tầng hiển thị âm để không kích hoạt anti-tamper của script gốc
                 if ownerSg and ownerSg ~= ScreenGui and not ownerSg:GetAttribute("IsRonneiHub") then
-                    targetEquinozGui = ownerSg
-                    ownerSg.Enabled = false
-                    for _, child in ipairs(ownerSg:GetDescendants()) do
-                        if child:IsA("GuiObject") then
-                            child.Visible = false
-                            child.Position = UDim2.new(10, 0, 10, 0)
-                        end
-                    end
+                    ownerSg.DisplayOrder = -99999
                 end
             end
         end
@@ -253,16 +296,10 @@ end
 
 for _, c in ipairs({CoreGuiService, gethui and gethui(), LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")}) do
     if c then
-        for _, desc in ipairs(c:GetDescendants()) do neutralizeEquinoz(desc) end
-        c.DescendantAdded:Connect(neutralizeEquinoz)
+        for _, desc in ipairs(c:GetDescendants()) do hookOriginalUI(desc) end
+        c.DescendantAdded:Connect(hookOriginalUI)
     end
 end
-
-RunService.RenderStepped:Connect(function()
-    if targetEquinozGui and targetEquinozGui.Parent and not targetEquinozGui:GetAttribute("IsRonneiHub") then
-        targetEquinozGui.Enabled = false
-    end
-end)
 
 local function makeDraggable(targetFrame, dragBar)
     local dragging, dragStart, startPos = false, nil, nil
@@ -286,7 +323,7 @@ local function makeDraggable(targetFrame, dragBar)
     end)
 end
 
--- ==================== 8. MÀN HÌNH LOADING BLACKOUT ====================
+-- ==================== 9. MÀN HÌNH LOADING BLACKOUT ====================
 local isCurrentlyLoading = false
 
 local function showLoadingScreen(onComplete)
@@ -385,7 +422,7 @@ local function showLoadingScreen(onComplete)
     end)
 end
 
--- ==================== 9. GIAO DIỆN CHÍNH ====================
+-- ==================== 10. GIAO DIỆN CHÍNH ====================
 local MainFrame = Instance.new("Frame", ScreenGui)
 MainFrame.Name = "RonneiMainCard"
 MainFrame.Size = UDim2.new(0, 275, 0, 210)
@@ -645,7 +682,7 @@ local NoteBtnStroke = Instance.new("UIStroke", ChangelogBtn)
 NoteBtnStroke.Color = THEME.Border
 NoteBtnStroke.Thickness = 1
 
--- ==================== 10. BẢNG NHẬT KÝ ====================
+-- ==================== 11. BẢNG NHẬT KÝ ====================
 local NoteCard = Instance.new("Frame", ScreenGui)
 NoteCard.Name = "RonneiChangelogCard"
 NoteCard.Size = UDim2.new(0, 290, 0, 255)
@@ -757,7 +794,7 @@ NoteClose.MouseButton1Click:Connect(function()
     NoteCard.Visible = false
 end)
 
--- ==================== 11. NÚT TRÒN MỞ MENU ====================
+-- ==================== 12. NÚT TRÒN MỞ MENU ====================
 local ToggleBtn = Instance.new("Frame", ScreenGui)
 ToggleBtn.Name = "RonneiFloatingLogo"
 ToggleBtn.Size = UDim2.new(0, 52, 0, 52)
