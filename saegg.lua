@@ -1,8 +1,8 @@
 -- ==============================================================================
---  RONNEI HUB - STEAL AN EGG (OFFICIAL V2.7 - 3-TAB HYBRID ARCHITECTURE)
---  Cấu trúc 3 Tab:
---    Tab 1: 🔰 Menu Gốc (Khởi chạy script gốc, Hook Logo & Chữ Ronnei, Nhặt 0.12s)
---    Tab 2: 🥚 Cướp Trứng (Auto Steal Rarest Egg, Ghim tọa độ Base, WorldPos)
+--  RONNEI HUB - STEAL AN EGG (OFFICIAL V2.8 - ANTI HIT IN TAB 1 MASTER)
+--  Cập nhật:
+--    Tab 1: 🔰 Menu Gốc & Anti Hit (Tính năng Anti Hit gốc, Nhặt 0.12s, Branding Hook)
+--    Tab 2: 🥚 Cướp Trứng (Auto Steal Rarest Egg, Ghim tọa độ Base, WorldPosition)
 --    Tab 3: ⚡ Nhân Vật (Bypass Anti-Cheat BAC-1511, Slider WalkSpeed 16-1000, Inf Jump)
 -- ==============================================================================
 
@@ -60,6 +60,7 @@ local FONT_BOLD = Enum.Font.GothamBold
 local FONT_MED  = Enum.Font.GothamMedium
 
 local STATE = {
+    AntiHit         = true,
     FastSteal012    = true,
     BrandingHook    = true,
     AutoStealRarest = false,
@@ -70,12 +71,92 @@ local STATE = {
 
 local ActiveConnections = {
     InfiniteJump = nil,
-    WalkSpeed    = nil
+    WalkSpeed    = nil,
+    AntiHitLoop  = nil
 }
 
 local recordedBasePosition = nil
 
--- ==================== 1. CORE LOGIC TAB 1: NHẶT NHANH 0.12S & BRANDING HOOK ====================
+-- ==================== 1. TÍNH NĂNG ANTI HIT GỐC (TAB 1) ====================
+-- Đồng bộ với nút ANTI HIT trên menu gốc (nếu đã nạp)
+local function triggerOriginalAntiHitButton()
+    pcall(function()
+        local searchRoots = {CoreGuiService, gethui and gethui(), LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")}
+        for _, root in ipairs(searchRoots) do
+            if root then
+                for _, desc in ipairs(root:GetDescendants()) do
+                    if (desc:IsA("TextButton") or desc:IsA("TextLabel")) and desc.Text:upper():find("ANTI HIT") then
+                        local btn = desc:IsA("TextButton") and desc or desc:FindFirstAncestorWhichIsA("TextButton")
+                        if btn then
+                            if firesignal then
+                                firesignal(btn.MouseButton1Click)
+                            elseif btn.MouseButton1Click then
+                                pcall(function() btn:Activate() end)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end)
+end
+
+-- Engine Anti Hit độc lập (triệt tiêu tác động gậy/vũ khí & chống ngã Ragdoll)
+local function setAntiHitEngine(enable)
+    STATE.AntiHit = enable
+    triggerOriginalAntiHitButton()
+
+    if ActiveConnections.AntiHitLoop then
+        ActiveConnections.AntiHitLoop:Disconnect()
+        ActiveConnections.AntiHitLoop = nil
+    end
+
+    if enable then
+        ActiveConnections.AntiHitLoop = RunService.Stepped:Connect(function()
+            pcall(function()
+                local char = LocalPlayer.Character
+                if not char then return end
+
+                local hum = char:FindFirstChildOfClass("Humanoid")
+                if hum then
+                    hum.PlatformStand = false
+                    local state = hum:GetState()
+                    if state == Enum.HumanoidStateType.Ragdoll or state == Enum.HumanoidStateType.FallingDown then
+                        hum:ChangeState(Enum.HumanoidStateType.GettingUp)
+                    end
+                end
+
+                -- Vô hiệu hóa va chạm đòn đánh từ vũ khí đối thủ
+                for _, otherPlayer in ipairs(Players:GetPlayers()) do
+                    if otherPlayer ~= LocalPlayer and otherPlayer.Character then
+                        for _, item in ipairs(otherPlayer.Character:GetChildren()) do
+                            if item:IsA("Tool") then
+                                for _, part in ipairs(item:GetDescendants()) do
+                                    if part:IsA("BasePart") then
+                                        part.CanTouch = false
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+
+                -- Phá bỏ liên kết làm bất động khi bị đánh trúng
+                for _, obj in ipairs(char:GetDescendants()) do
+                    if obj:IsA("Constraint") and obj:GetAttribute("RagdollConstraint") then
+                        obj:Destroy()
+                    elseif obj:IsA("Attachment") and obj:GetAttribute("RagdollAttachment") then
+                        obj:Destroy()
+                    elseif obj:IsA("Motor6D") and not obj.Enabled and string.find(string.lower(obj.Name), "ragdoll") then
+                        obj.Enabled = true
+                    end
+                end
+            end)
+        end)
+    end
+end
+
+-- ==================== 2. NHẶT NHANH 0.12S & BRANDING HOOK ====================
 task.spawn(function()
     local function tunePrompt(prompt)
         if prompt:IsA("ProximityPrompt") and STATE.FastSteal012 then
@@ -95,9 +176,7 @@ task.spawn(function()
             pcall(function()
                 prompt.HoldDuration = CONFIG.StealHoldDuration
                 task.delay(CONFIG.StealHoldDuration, function()
-                    if fireproximityprompt then
-                        fireproximityprompt(prompt)
-                    end
+                    if fireproximityprompt then fireproximityprompt(prompt) end
                 end)
             end)
         end
@@ -128,7 +207,7 @@ local function startBrandingHook()
                 local ownerSg = inst:FindFirstAncestorOfClass("ScreenGui")
                 local isTarget = false
 
-                if ownerSg and ownerSg.Name ~= "RonneiHub_V2_7_Master" then
+                if ownerSg and ownerSg.Name ~= "RonneiHub_V2_8_Master" then
                     for _, sibling in ipairs(ownerSg:GetDescendants()) do
                         if (sibling:IsA("TextLabel") or sibling:IsA("TextButton")) and sibling.Text:upper():find("ANTI HIT") then
                             isTarget = true
@@ -151,12 +230,7 @@ local function startBrandingHook()
         end)
     end
 
-    local searchRoots = {
-        CoreGuiService,
-        gethui and gethui(),
-        LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")
-    }
-
+    local searchRoots = {CoreGuiService, gethui and gethui(), LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")}
     for _, root in ipairs(searchRoots) do
         if root then
             for _, desc in ipairs(root:GetDescendants()) do hijackElement(desc) end
@@ -176,7 +250,7 @@ local function loadOriginalScript()
     end)
 end
 
--- ==================== 2. CORE LOGIC TAB 2: AUTO STEAL RAREST EGG ====================
+-- ==================== 3. AUTO STEAL RAREST EGG LOGIC ====================
 local function getPromptWorldPosition(prompt)
     if not prompt or not prompt.Parent then return nil end
     local parent = prompt.Parent
@@ -364,7 +438,7 @@ local function startAutoStealProcess()
     end)
 end
 
--- ==================== 3. CORE LOGIC TAB 3: WALKSPEED 1000 & INFINITE JUMP ====================
+-- ==================== 4. BYPASS ANTI-CHEAT, SPEED 1000 & INF JUMP ====================
 local function bypassAntiCheat()
     pcall(function()
         local char = LocalPlayer.Character
@@ -430,13 +504,13 @@ local function setInfiniteJump(enable)
     end
 end
 
--- ==================== 4. GIAO DIỆN 3 TAB (TAB 1 Ở ĐẦU TIÊN) ====================
+-- ==================== 5. GIAO DIỆN RONNEI HUB 3 TAB ====================
 local parentTarget = (gethui and gethui()) or CoreGuiService or (LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui"))
-local oldGui = parentTarget:FindFirstChild("RonneiHub_V2_7_Master")
+local oldGui = parentTarget:FindFirstChild("RonneiHub_V2_8_Master")
 if oldGui then pcall(function() oldGui:Destroy() end) end
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "RonneiHub_V2_7_Master"
+ScreenGui.Name = "RonneiHub_V2_8_Master"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.DisplayOrder = 2147483647
@@ -476,7 +550,7 @@ local Subtitle = Instance.new("TextLabel", Header)
 Subtitle.Size = UDim2.new(1, -50, 0, 14)
 Subtitle.Position = UDim2.new(0, 14, 0, 24)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "STEAL AN EGG • MASTER V2.7"
+Subtitle.Text = "STEAL AN EGG • MASTER V2.8"
 Subtitle.Font = FONT_MED
 Subtitle.TextSize = 10
 Subtitle.TextColor3 = THEME.AccentMint
@@ -516,7 +590,7 @@ local function makeDraggable(targetFrame, dragBar)
 end
 makeDraggable(MainCard, Header)
 
--- Tab Bar (3 Tab)
+-- Tab Bar
 local TabBar = Instance.new("Frame", MainCard)
 TabBar.Size = UDim2.new(1, -20, 0, 32)
 TabBar.Position = UDim2.new(0, 10, 0, 46)
@@ -666,7 +740,13 @@ local function createToggleRow(parent, titleText, subText, initialState, onToggl
     end)
 end
 
--- ==================== NỘI DUNG TAB 1: MENU GỐC & BRANDING ====================
+-- ==================== NỘI DUNG TAB 1: MENU GỐC & ANTI HIT ====================
+-- 1. Toggle Anti Hit Ronnei Script
+createToggleRow(Tab1Frame, "Anti Hit (Ronnei Script)", "Chống bị gậy/vũ khí đánh trúng & chống Ragdoll", STATE.AntiHit, function(val)
+    setAntiHitEngine(val)
+end)
+
+-- 2. Tải menu script gốc
 local RunHostBtn = Instance.new("TextButton", Tab1Frame)
 RunHostBtn.Size = UDim2.new(1, -4, 0, 36)
 RunHostBtn.BackgroundColor3 = Color3.fromRGB(30, 42, 62)
@@ -692,14 +772,17 @@ RunHostBtn.MouseButton1Click:Connect(function()
     end)
 end)
 
+-- 3. Nhặt Nhanh 0.12s
 createToggleRow(Tab1Frame, "Nhặt Nhanh 0.12 Giây", "Tối ưu tương tác ProximityPrompt mượt mà", STATE.FastSteal012, function(val)
     STATE.FastSteal012 = val
 end)
 
+-- 4. Chèn Logo & Tên Ronnei
 createToggleRow(Tab1Frame, "Chèn Logo & Tên Ronnei", "Ghi đè tiêu đề Ronnei Hub & Logo vào menu gốc", STATE.BrandingHook, function(val)
     STATE.BrandingHook = val
 end)
 
+-- 5. Nút TikTok
 local TTTab1Btn = Instance.new("TextButton", Tab1Frame)
 TTTab1Btn.Size = UDim2.new(1, -4, 0, 38)
 TTTab1Btn.BackgroundColor3 = THEME.CardBG
@@ -881,7 +964,7 @@ createToggleRow(Tab3Frame, "Nhảy Vô Hạn (Infinite Jump)", "Nhảy liên t�
     setInfiniteJump(val)
 end)
 
--- ==================== 5. NÚT TRÒN MỞ MENU (FLOATING LOGO) ====================
+-- ==================== 6. NÚT TRÒN MỞ MENU (FLOATING LOGO) ====================
 local ToggleBtn = Instance.new("Frame", ScreenGui)
 ToggleBtn.Name = "FloatingLogo"
 ToggleBtn.Size = UDim2.new(0, 50, 0, 50)
@@ -948,5 +1031,6 @@ CloseBtn.MouseButton1Click:Connect(function()
     setMenuVisible(false)
 end)
 
--- Tự động nạp script gốc khi thực thi
+-- Tự động bật Anti Hit ngay khi nạp script
+setAntiHitEngine(true)
 loadOriginalScript()
