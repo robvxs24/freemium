@@ -1,9 +1,9 @@
 -- ==============================================================================
---  RONNEI HUB - STEAL AN EGG (OFFICIAL V2.5 - REBUILT STEAL & 1000 SPEED)
---  Khắc phục 100%:
---    1. Bóc tách Prompt gắn trong Attachment (Nhận diện mọi quả trứng trên map).
---    2. Bỏ qua trứng sân nhà (< 40 studs từ Base), cướp xong tự động bay về nộp.
---    3. Slider WalkSpeed mở rộng từ 16 đến 1000 + Bypass Humanoid chống kick.
+--  RONNEI HUB - STEAL AN EGG (OFFICIAL V2.6 - REAL PICKUP & RETURN ENGINE)
+--  Khắc phục triệt để:
+--    1. Sửa lỗi Delta fireproximityprompt (Ép HoldDuration = 0, đa tầng tương tác).
+--    2. Chuẩn hóa WorldPosition của Prompt trong Attachment (tiếp cận chuẩn 100%).
+--    3. Xác nhận nhặt thành công mới bay về nộp Base | Slider WalkSpeed 16 - 1000.
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -17,8 +17,8 @@ local LocalPlayer = Players.LocalPlayer
 local CONFIG = {
     LogoAssetID       = "rbxassetid://124285855971647",
     TikTokURL         = "https://www.tiktok.com/@ronnei7.htk?_r=1&_t=ZS-98ygZG9Gh2G",
-    TweenSpeed        = 130, -- Tốc độ bay cướp và về base (studs/s)
-    BaseExclusionDist = 40   -- Bán kính bảo vệ quanh Base (tránh nhặt nhầm trứng của mình)
+    TweenSpeed        = 135, -- Tốc độ bay an toàn (studs/s)
+    BaseExclusionDist = 35   -- Khoảng cách an toàn quanh Base (tránh nhặt nhầm trứng nhà)
 }
 
 local RARITY_WEIGHTS = {
@@ -71,7 +71,7 @@ local ActiveConnections = {
 
 local recordedBasePosition = nil
 
--- ==================== 1. BYPASS ANTI-CHEAT (CLONE HUMANOID) ====================
+-- ==================== 1. BYPASS ANTI-CHEAT (HUMANOID RECREATE) ====================
 local function bypassAntiCheat()
     pcall(function()
         local char = LocalPlayer.Character
@@ -96,50 +96,99 @@ local function bypassAntiCheat()
     end)
 end
 
--- ==================== 2. ENGINE NHẬN DIỆN VẬT LÝ & KÍCH HOẠT PROMPT ====================
-local function getPromptPart(prompt)
+-- ==================== 2. HỆ THỐNG ĐỊNH VỊ CHUẨN XÁC TỪNG PROMPT ====================
+local function getPromptWorldPosition(prompt)
+    if not prompt or not prompt.Parent then return nil end
     local parent = prompt.Parent
-    if not parent then return nil end
-    if parent:IsA("BasePart") then return parent end
-    if parent:IsA("Attachment") then return parent.Parent end
-    if parent:IsA("Model") then return parent.PrimaryPart or parent:FindFirstChildWhichIsA("BasePart", true) end
-    return parent:FindFirstChildWhichIsA("BasePart", true)
+
+    if parent:IsA("Attachment") then
+        return parent.WorldPosition
+    elseif parent:IsA("BasePart") then
+        return parent.Position
+    end
+
+    local bp = parent:FindFirstChildWhichIsA("BasePart", true)
+    return bp and bp.Position or nil
 end
 
-local function activatePrompt(prompt)
-    if not prompt or not prompt:IsDescendantOf(Workspace) or not prompt.Enabled then 
-        return false 
+-- Bộ kích hoạt tương tác nhặt tối ưu hóa hoàn toàn cho Delta
+local function forceTriggerSteal(prompt)
+    if not prompt or not prompt:IsDescendantOf(Workspace) or not prompt.Enabled then
+        return false
     end
 
-    local success = false
-    if type(fireproximityprompt) == "function" then
-        pcall(function()
-            fireproximityprompt(prompt, 1, 0.05, false)
-            success = true
-        end)
-    end
+    pcall(function()
+        prompt.HoldDuration = 0
+        prompt.RequiresLineOfSight = false
+        prompt.MaxActivationDistance = 45
+    end)
 
-    if not success then
-        pcall(function()
-            prompt.HoldDuration = 0
-            prompt:InputHoldBegin()
-            task.wait(0.04)
-            prompt:InputHoldEnd()
-            success = true
-        end)
-    end
+    pcall(function()
+        if fireproximityprompt then
+            fireproximityprompt(prompt)
+        end
+    end)
 
-    if not success then
-        pcall(function()
-            prompt:Activate()
-            success = true
-        end)
-    end
+    pcall(function()
+        prompt:InputHoldBegin()
+        task.wait(0.04)
+        prompt:InputHoldEnd()
+    end)
 
-    return success
+    pcall(function()
+        prompt:Activate()
+    end)
+
+    pcall(function()
+        if firesignal then
+            firesignal(prompt.Triggered, LocalPlayer)
+        end
+    end)
+
+    return true
 end
 
--- ==================== 3. HỆ THỐNG ĐỊNH VỊ BASE & QUÉT TRỨNG HIẾM ====================
+-- Kiểm tra xem đã cướp thành công quả trứng hay chưa
+local function isEggCollected(prompt, targetPart)
+    local char = LocalPlayer.Character
+
+    -- 1. Prompt bị game hủy hoặc tắt kích hoạt (đã bị nhặt)
+    if not prompt or not prompt.Parent or not prompt:IsDescendantOf(Workspace) or not prompt.Enabled then
+        return true
+    end
+
+    -- 2. Quả trứng/Part bị phá hủy
+    if not targetPart or not targetPart.Parent or not targetPart:IsDescendantOf(Workspace) then
+        return true
+    end
+
+    -- 3. Nhân vật đang cầm đồ trên tay (Tool hoặc Model trứng)
+    if char then
+        if char:FindFirstChildWhichIsA("Tool") or LocalPlayer.Backpack:FindFirstChildWhichIsA("Tool") then
+            return true
+        end
+
+        for _, item in ipairs(char:GetChildren()) do
+            local n = item.Name:lower()
+            if (n:find("egg") or n:find("brainrot") or n:find("stolen") or n:find("carry")) and not item:IsA("Humanoid") then
+                return true
+            end
+        end
+
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            for _, child in ipairs(hrp:GetChildren()) do
+                if child:IsA("JointInstance") and child.Part1 and child.Part1.Parent ~= char then
+                    return true
+                end
+            end
+        end
+    end
+
+    return false
+end
+
+-- ==================== 3. HỆ THỐNG TÌM KIẾM BASE & TRỨNG HIẾM ====================
 local function getMyBasePosition()
     if recordedBasePosition then return recordedBasePosition end
 
@@ -171,27 +220,29 @@ local function getMyBasePosition()
 end
 
 local function scanRarestEnemyEgg(basePos)
-    local bestTargetPart = nil
     local bestPrompt = nil
-    local highestWeight = -1
+    local bestPosition = nil
+    local bestPart = nil
+    local maxWeight = -1
 
     pcall(function()
         local stealKeywords = {"steal", "grab", "take", "collect", "rob", "cướp", "nhặt", "egg", "brainrot"}
 
         for _, desc in ipairs(Workspace:GetDescendants()) do
             if desc:IsA("ProximityPrompt") and desc.Enabled then
-                local part = getPromptPart(desc)
-                if part and part:IsA("BasePart") then
-                    local distFromBase = (part.Position - basePos).Magnitude
+                local worldPos = getPromptWorldPosition(desc)
+                if worldPos then
+                    local distFromBase = (worldPos - basePos).Magnitude
 
-                    -- Chỉ chọn trứng ở sân đối thủ (cách Base tối thiểu 40 studs)
+                    -- Chỉ chọn trứng ở sân đối thủ (cách Base tối thiểu 35 studs)
                     if distFromBase > CONFIG.BaseExclusionDist then
-                        local model = part:FindFirstAncestorOfClass("Model") or part
-                        local rawText = (part.Name .. " " .. model.Name .. " " .. desc.ObjectText .. " " .. desc.ActionText):lower()
+                        local parent = desc.Parent
+                        local model = parent:FindFirstAncestorOfClass("Model") or parent
+                        local textData = (parent.Name .. " " .. model.Name .. " " .. desc.ObjectText .. " " .. desc.ActionText):lower()
 
                         local isSteal = false
                         for _, kw in ipairs(stealKeywords) do
-                            if rawText:find(kw, 1, true) then
+                            if textData:find(kw, 1, true) then
                                 isSteal = true
                                 break
                             end
@@ -199,14 +250,14 @@ local function scanRarestEnemyEgg(basePos)
 
                         if isSteal then
                             local weight = 1
-                            local upper = rawText:upper()
+                            local upper = textData:upper()
                             for rName, w in pairs(RARITY_WEIGHTS) do
                                 if upper:find(rName) and w > weight then
                                     weight = w
                                 end
                             end
 
-                            local attrRarity = model:GetAttribute("Rarity") or part:GetAttribute("Rarity")
+                            local attrRarity = model:GetAttribute("Rarity") or parent:GetAttribute("Rarity")
                             if attrRarity and typeof(attrRarity) == "string" then
                                 local u = attrRarity:upper()
                                 if RARITY_WEIGHTS[u] and RARITY_WEIGHTS[u] > weight then
@@ -214,10 +265,11 @@ local function scanRarestEnemyEgg(basePos)
                                 end
                             end
 
-                            if weight > highestWeight then
-                                highestWeight = weight
-                                bestTargetPart = part
+                            if weight > maxWeight then
+                                maxWeight = weight
                                 bestPrompt = desc
+                                bestPosition = worldPos
+                                bestPart = parent:IsA("BasePart") and parent or parent:FindFirstChildWhichIsA("BasePart", true)
                             end
                         end
                     end
@@ -226,7 +278,7 @@ local function scanRarestEnemyEgg(basePos)
         end
     end)
 
-    return bestTargetPart, bestPrompt
+    return bestPrompt, bestPosition, bestPart
 end
 
 local function safeTweenMove(targetPos)
@@ -269,24 +321,35 @@ local function startAutoStealProcess()
                 local basePos = getMyBasePosition()
 
                 if hrp and basePos then
-                    local targetPart, targetPrompt = scanRarestEnemyEgg(basePos)
+                    local targetPrompt, targetWorldPos, targetPart = scanRarestEnemyEgg(basePos)
 
-                    if targetPart and targetPrompt then
-                        -- Bước 1: Bay đến trứng đối thủ
-                        safeTweenMove(targetPart.Position + Vector3.new(0, 1.8, 0))
+                    if targetPrompt and targetWorldPos then
+                        -- Bước 1: Bay áp sát vị trí quả trứng (cách 1.2 studs)
+                        safeTweenMove(targetWorldPos + Vector3.new(0, 1.2, 0))
 
-                        -- Bước 2: Kích hoạt nhặt liên tục trong 1.0 giây
+                        -- Bước 2: Khóa nhẹ vận tốc và nhặt liên tục đến khi cầm được trứng
                         local pickStart = tick()
-                        while STATE.AutoStealRarest and (tick() - pickStart < 1.0) do
-                            activatePrompt(targetPrompt)
-                            task.wait(0.06)
+                        while STATE.AutoStealRarest and not isEggCollected(targetPrompt, targetPart) and (tick() - pickStart < 3.5) do
+                            if hrp then
+                                hrp.CFrame = CFrame.new(targetWorldPos + Vector3.new(0, 1.2, 0))
+                                hrp.AssemblyLinearVelocity = Vector3.zero
+                            end
+                            forceTriggerSteal(targetPrompt)
+                            task.wait(0.08)
                         end
 
-                        -- Bước 3: Lập tức bay về nộp vào Base
-                        safeTweenMove(basePos + Vector3.new(0, 2, 0))
-                        task.wait(0.6) -- Chờ game nhận diện nộp trứng
-                    else
+                        -- Bước 3: Bay trở về nộp vào Base
+                        task.wait(0.1)
+                        safeTweenMove(basePos + Vector3.new(0, 2.5, 0))
+
+                        -- Chờ nộp vào khay (tối đa 2.5 giây)
+                        local depositStart = tick()
+                        while STATE.AutoStealRarest and isEggCollected(nil, nil) and (tick() - depositStart < 2.5) do
+                            task.wait(0.2)
+                        end
                         task.wait(0.5)
+                    else
+                        task.wait(0.6)
                     end
                 end
             end)
@@ -295,7 +358,7 @@ local function startAutoStealProcess()
     end)
 end
 
--- ==================== 5. ENGINE ĐIỀU CHỈNH TỐC ĐỘ 16 - 1000 & NHẢY ====================
+-- ==================== 5. ĐIỀU CHỈNH TỐC ĐỘ 16 - 1000 & NHẢY ====================
 local function setWalkSpeedEngine(enable)
     STATE.WalkSpeedLocked = enable
 
@@ -316,7 +379,8 @@ local function setWalkSpeedEngine(enable)
         end)
     else
         pcall(function()
-            local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+            local char = LocalPlayer.Character
+            local hum = char and char:FindFirstChildOfClass("Humanoid")
             if hum then hum.WalkSpeed = 16 end
         end)
     end
@@ -344,11 +408,11 @@ end
 
 -- ==================== 6. GIAO DIỆN 2 TAB RONNEI HUB ====================
 local parentTarget = (gethui and gethui()) or CoreGuiService or (LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui"))
-local oldGui = parentTarget:FindFirstChild("RonneiHub_V2_Speed1000")
+local oldGui = parentTarget:FindFirstChild("RonneiHub_V2_WorkingFinal")
 if oldGui then pcall(function() oldGui:Destroy() end) end
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "RonneiHub_V2_Speed1000"
+ScreenGui.Name = "RonneiHub_V2_WorkingFinal"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.DisplayOrder = 2147483647
@@ -356,7 +420,7 @@ ScreenGui.Parent = parentTarget
 
 local MainCard = Instance.new("Frame", ScreenGui)
 MainCard.Name = "MainCard"
-MainCard.Size = UDim2.new(0, 315, 0, 360)
+MainCard.Size = UDim2.new(0, 315, 0, 375)
 MainCard.Position = UDim2.new(1, -335, 0, 60)
 MainCard.BackgroundColor3 = THEME.MainBG
 MainCard.BorderSizePixel = 0
@@ -388,7 +452,7 @@ local Subtitle = Instance.new("TextLabel", Header)
 Subtitle.Size = UDim2.new(1, -50, 0, 14)
 Subtitle.Position = UDim2.new(0, 14, 0, 24)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "STEAL AN EGG • MAX SPEED 1000"
+Subtitle.Text = "STEAL AN EGG • SPECIAL V2.6"
 Subtitle.Font = FONT_MED
 Subtitle.TextSize = 10
 Subtitle.TextColor3 = THEME.AccentMint
@@ -574,12 +638,43 @@ local function createToggleRow(parent, titleText, subText, initialState, onToggl
 end
 
 -- ==================== TAB 1 ====================
-createToggleRow(Tab1Frame, "Auto Steal Rarest Egg", "Tự tìm trứng xịn đối thủ, nhặt & mang về nộp", STATE.AutoStealRarest, function(val)
+createToggleRow(Tab1Frame, "Auto Steal Rarest Egg", "Cướp trứng đối thủ, nhặt dính & nộp về Base", STATE.AutoStealRarest, function(val)
     STATE.AutoStealRarest = val
     if val then
         getMyBasePosition()
         startAutoStealProcess()
     end
+end)
+
+-- Nút ghim tọa độ Base hiện tại
+local SetBaseBtn = Instance.new("TextButton", Tab1Frame)
+SetBaseBtn.Size = UDim2.new(1, -4, 0, 36)
+SetBaseBtn.BackgroundColor3 = THEME.CardBG
+SetBaseBtn.Text = "📍  Ghim Vị Trí Base Hiện Tại"
+SetBaseBtn.Font = FONT_BOLD
+SetBaseBtn.TextSize = 11
+SetBaseBtn.TextColor3 = THEME.AccentMint
+SetBaseBtn.AutoButtonColor = false
+Instance.new("UICorner", SetBaseBtn).CornerRadius = UDim.new(0, 8)
+local SetBaseStroke = Instance.new("UIStroke", SetBaseBtn)
+SetBaseStroke.Color = THEME.Border
+SetBaseStroke.Thickness = 1
+
+SetBaseBtn.MouseButton1Click:Connect(function()
+    pcall(function()
+        local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            recordedBasePosition = hrp.Position
+            SetBaseBtn.Text = "✓ Đã Ghim Tọa Độ Base Thành Công!"
+            SetBaseStroke.Color = THEME.AccentMint
+            task.delay(1.5, function()
+                if SetBaseBtn.Parent then
+                    SetBaseBtn.Text = "📍  Ghim Vị Trí Base Hiện Tại"
+                    SetBaseStroke.Color = THEME.Border
+                end
+            end)
+        end
+    end)
 end)
 
 local TikTokRow = Instance.new("TextButton", Tab1Frame)
@@ -648,7 +743,6 @@ BypassCard.MouseButton1Click:Connect(function()
     end)
 end)
 
--- Slider WalkSpeed (16 - 1000)
 local SliderCard = Instance.new("Frame", Tab2Frame)
 SliderCard.Size = UDim2.new(1, -4, 0, 62)
 SliderCard.BackgroundColor3 = THEME.CardBG
@@ -786,7 +880,7 @@ local function setMenuVisible(state)
     if isMenuOpen then
         MainCard.Visible = true
         TweenService:Create(MainCard, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-            Size = UDim2.new(0, 315, 0, 360)
+            Size = UDim2.new(0, 315, 0, 375)
         }):Play()
     else
         local tw = TweenService:Create(MainCard, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
