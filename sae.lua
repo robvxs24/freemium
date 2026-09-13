@@ -1,9 +1,9 @@
 -- ==============================================================================
---  RONNEI HUB - STEAL AN EGG (OFFICIAL V2.4 - PETE ENGINE ARCHITECTURE)
---  Tích hợp kỹ thuật Pete Hub:
---    1. Humanoid Clone Bypass: Cắt đứt mã độc BAC-1511, mở khóa WalkSpeed & Fly.
---    2. 3-Layer Prompt Activator: Nhặt dính 100% qua InputHoldBegin/End.
---    3. Auto Steal Rarest: Lọc bỏ Base mình, cướp trứng xịn nhất và nộp về Base.
+--  RONNEI HUB - STEAL AN EGG (OFFICIAL V2.5 - REBUILT STEAL & 1000 SPEED)
+--  Khắc phục 100%:
+--    1. Bóc tách Prompt gắn trong Attachment (Nhận diện mọi quả trứng trên map).
+--    2. Bỏ qua trứng sân nhà (< 40 studs từ Base), cướp xong tự động bay về nộp.
+--    3. Slider WalkSpeed mở rộng từ 16 đến 1000 + Bypass Humanoid chống kick.
 -- ==============================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -15,9 +15,10 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
 local CONFIG = {
-    LogoAssetID    = "rbxassetid://124285855971647",
-    TikTokURL      = "https://www.tiktok.com/@ronnei7.htk?_r=1&_t=ZS-98ygZG9Gh2G",
-    TweenSpeed     = 125
+    LogoAssetID       = "rbxassetid://124285855971647",
+    TikTokURL         = "https://www.tiktok.com/@ronnei7.htk?_r=1&_t=ZS-98ygZG9Gh2G",
+    TweenSpeed        = 130, -- Tốc độ bay cướp và về base (studs/s)
+    BaseExclusionDist = 40   -- Bán kính bảo vệ quanh Base (tránh nhặt nhầm trứng của mình)
 }
 
 local RARITY_WEIGHTS = {
@@ -68,7 +69,9 @@ local ActiveConnections = {
     WalkSpeed    = nil
 }
 
--- ==================== 1. BYPASS ANTI-CHEAT (HUMANOID RECREATION) ====================
+local recordedBasePosition = nil
+
+-- ==================== 1. BYPASS ANTI-CHEAT (CLONE HUMANOID) ====================
 local function bypassAntiCheat()
     pcall(function()
         local char = LocalPlayer.Character
@@ -86,20 +89,29 @@ local function bypassAntiCheat()
             local newHum = char:FindFirstChildOfClass("Humanoid")
             if newHum then
                 cam.CameraSubject = newHum
+                newHum.WalkSpeed = STATE.WalkSpeedValue
             end
             cam.CFrame = camPos
         end
     end)
 end
 
--- ==================== 2. BỘ KÍCH HOẠT PROMPT 3 TẦNG (TỪ PETE HUB) ====================
+-- ==================== 2. ENGINE NHẬN DIỆN VẬT LÝ & KÍCH HOẠT PROMPT ====================
+local function getPromptPart(prompt)
+    local parent = prompt.Parent
+    if not parent then return nil end
+    if parent:IsA("BasePart") then return parent end
+    if parent:IsA("Attachment") then return parent.Parent end
+    if parent:IsA("Model") then return parent.PrimaryPart or parent:FindFirstChildWhichIsA("BasePart", true) end
+    return parent:FindFirstChildWhichIsA("BasePart", true)
+end
+
 local function activatePrompt(prompt)
     if not prompt or not prompt:IsDescendantOf(Workspace) or not prompt.Enabled then 
         return false 
     end
 
     local success = false
-    -- Tầng 1: Executor API chuẩn
     if type(fireproximityprompt) == "function" then
         pcall(function()
             fireproximityprompt(prompt, 1, 0.05, false)
@@ -107,18 +119,16 @@ local function activatePrompt(prompt)
         end)
     end
 
-    -- Tầng 2: Giả lập tín hiệu nhấn giữ phím
     if not success then
         pcall(function()
-            prompt.HoldDuration = 0.05
+            prompt.HoldDuration = 0
             prompt:InputHoldBegin()
-            task.wait(0.05)
+            task.wait(0.04)
             prompt:InputHoldEnd()
             success = true
         end)
     end
 
-    -- Tầng 3: Kích hoạt trực tiếp
     if not success then
         pcall(function()
             prompt:Activate()
@@ -129,116 +139,83 @@ local function activatePrompt(prompt)
     return success
 end
 
--- ==================== 3. HỆ THỐNG PHÁT HIỆN BASE & TRỨNG ====================
-local function isHoldingEgg(char)
-    if not char then return false end
-    if char:FindFirstChildWhichIsA("Tool") then return true end
-    if LocalPlayer.Backpack:FindFirstChildWhichIsA("Tool") then return true end
-
-    for _, child in ipairs(char:GetChildren()) do
-        local n = child.Name:lower()
-        if (n:find("egg") or n:find("brainrot") or n:find("carry") or n:find("stolen")) and not child:IsA("Humanoid") then
-            return true
-        end
-    end
-
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    if hrp then
-        for _, obj in ipairs(hrp:GetChildren()) do
-            if obj:IsA("JointInstance") and obj.Part1 and obj.Part1.Parent ~= char then
-                return true
-            end
-        end
-    end
-
-    return false
-end
-
-local function getMyPlot()
-    local plotsFolder = Workspace:FindFirstChild("Plots") or Workspace:FindFirstChild("Bases") or Workspace:FindFirstChild("Tycoons")
-    if not plotsFolder then return nil end
-
-    for _, plot in ipairs(plotsFolder:GetChildren()) do
-        local ownerAttr = plot:GetAttribute("Owner") or plot:GetAttribute("Player") or plot:GetAttribute("UserId")
-        if ownerAttr == LocalPlayer.Name or ownerAttr == LocalPlayer.UserId or tostring(ownerAttr) == tostring(LocalPlayer.UserId) then
-            return plot
-        end
-
-        local ownerVal = plot:FindFirstChild("Owner") or plot:FindFirstChild("Player")
-        if ownerVal then
-            if typeof(ownerVal.Value) == "Instance" and ownerVal.Value == LocalPlayer then
-                return plot
-            elseif tostring(ownerVal.Value) == LocalPlayer.Name or tostring(ownerVal.Value) == tostring(LocalPlayer.UserId) then
-                return plot
-            end
-        end
-
-        if plot.Name:lower():find(LocalPlayer.Name:lower()) then
-            return plot
-        end
-    end
-    return nil
-end
-
-local function getPlotDeliveryPosition(plot)
-    if not plot then
-        local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-        return hrp and hrp.Position or Vector3.new(0, 0, 0)
-    end
-
-    local candidates = {"DeliveryZone", "Delivery", "Deposit", "Drop", "Collector", "Nest", "EggSlots", "Base", "Spawn"}
-    for _, name in ipairs(candidates) do
-        local part = plot:FindFirstChild(name, true)
-        if part and part:IsA("BasePart") then
-            return part.Position + Vector3.new(0, 2, 0)
-        end
-    end
-    return plot:GetPivot().Position + Vector3.new(0, 2, 0)
-end
-
-local function findRarestEnemyEgg(myPlot)
-    local bestTargetPart = nil
-    local bestPrompt = nil
-    local maxWeight = -1
+-- ==================== 3. HỆ THỐNG ĐỊNH VỊ BASE & QUÉT TRỨNG HIẾM ====================
+local function getMyBasePosition()
+    if recordedBasePosition then return recordedBasePosition end
 
     pcall(function()
-        local stealKeywords = {"steal", "grab", "take", "collect", "rob", "loot", "pickpocket", "snatch", "egg", "cướp"}
+        local plots = Workspace:FindFirstChild("Plots") or Workspace:FindFirstChild("Bases") or Workspace:FindFirstChild("Tycoons")
+        if plots then
+            for _, plot in ipairs(plots:GetChildren()) do
+                local owner = plot:GetAttribute("Owner") or plot:GetAttribute("Player") or (plot:FindFirstChild("Owner") and plot.Owner.Value)
+                if tostring(owner) == LocalPlayer.Name or tostring(owner) == tostring(LocalPlayer.UserId) or plot.Name:lower():find(LocalPlayer.Name:lower()) then
+                    local deposit = plot:FindFirstChild("DeliveryZone", true) or plot:FindFirstChild("Deposit", true) or plot:FindFirstChild("Collector", true)
+                    if deposit and deposit:IsA("BasePart") then
+                        recordedBasePosition = deposit.Position
+                        return
+                    else
+                        recordedBasePosition = plot:GetPivot().Position
+                        return
+                    end
+                end
+            end
+        end
+    end)
+
+    if not recordedBasePosition then
+        local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then recordedBasePosition = hrp.Position end
+    end
+
+    return recordedBasePosition or Vector3.new(0, 0, 0)
+end
+
+local function scanRarestEnemyEgg(basePos)
+    local bestTargetPart = nil
+    local bestPrompt = nil
+    local highestWeight = -1
+
+    pcall(function()
+        local stealKeywords = {"steal", "grab", "take", "collect", "rob", "cướp", "nhặt", "egg", "brainrot"}
+
         for _, desc in ipairs(Workspace:GetDescendants()) do
             if desc:IsA("ProximityPrompt") and desc.Enabled then
-                local part = desc.Parent
+                local part = getPromptPart(desc)
                 if part and part:IsA("BasePart") then
-                    local isInsideMyPlot = (myPlot and part:IsDescendantOf(myPlot))
-                    if not isInsideMyPlot then
-                        local model = part:FindFirstAncestorOfClass("Model") or part
-                        local textData = (part.Name .. " " .. model.Name .. " " .. desc.ObjectText .. " " .. desc.ActionText):lower()
+                    local distFromBase = (part.Position - basePos).Magnitude
 
-                        local isStealAction = false
+                    -- Chỉ chọn trứng ở sân đối thủ (cách Base tối thiểu 40 studs)
+                    if distFromBase > CONFIG.BaseExclusionDist then
+                        local model = part:FindFirstAncestorOfClass("Model") or part
+                        local rawText = (part.Name .. " " .. model.Name .. " " .. desc.ObjectText .. " " .. desc.ActionText):lower()
+
+                        local isSteal = false
                         for _, kw in ipairs(stealKeywords) do
-                            if textData:find(kw, 1, true) then
-                                isStealAction = true
+                            if rawText:find(kw, 1, true) then
+                                isSteal = true
                                 break
                             end
                         end
 
-                        if isStealAction then
+                        if isSteal then
                             local weight = 1
-                            local upperText = textData:upper()
-                            for rarityName, val in pairs(RARITY_WEIGHTS) do
-                                if upperText:find(rarityName) and val > weight then
-                                    weight = val
+                            local upper = rawText:upper()
+                            for rName, w in pairs(RARITY_WEIGHTS) do
+                                if upper:find(rName) and w > weight then
+                                    weight = w
                                 end
                             end
 
-                            local rAttr = model:GetAttribute("Rarity") or part:GetAttribute("Rarity")
-                            if rAttr and typeof(rAttr) == "string" then
-                                local u = rAttr:upper()
+                            local attrRarity = model:GetAttribute("Rarity") or part:GetAttribute("Rarity")
+                            if attrRarity and typeof(attrRarity) == "string" then
+                                local u = attrRarity:upper()
                                 if RARITY_WEIGHTS[u] and RARITY_WEIGHTS[u] > weight then
                                     weight = RARITY_WEIGHTS[u]
                                 end
                             end
 
-                            if weight > maxWeight then
-                                maxWeight = weight
+                            if weight > highestWeight then
+                                highestWeight = weight
                                 bestTargetPart = part
                                 bestPrompt = desc
                             end
@@ -262,9 +239,9 @@ local function safeTweenMove(targetPos)
     end
 
     local dist = (hrp.Position - targetPos).Magnitude
-    local travelTime = math.clamp(dist / CONFIG.TweenSpeed, 0.35, 4.5)
+    local duration = math.clamp(dist / CONFIG.TweenSpeed, 0.35, 4.0)
 
-    local tween = TweenService:Create(hrp, TweenInfo.new(travelTime, Enum.EasingStyle.Linear), {
+    local tween = TweenService:Create(hrp, TweenInfo.new(duration, Enum.EasingStyle.Linear), {
         CFrame = CFrame.new(targetPos)
     })
 
@@ -277,7 +254,7 @@ local function safeTweenMove(targetPos)
     end)
 
     while not finished and STATE.AutoStealRarest do
-        task.wait(0.05)
+        task.wait(0.04)
     end
     return finished
 end
@@ -289,44 +266,36 @@ local function startAutoStealProcess()
             pcall(function()
                 local char = LocalPlayer.Character
                 local hrp = char and char:FindFirstChild("HumanoidRootPart")
-                local myPlot = getMyPlot()
-                local deliveryPos = getPlotDeliveryPosition(myPlot)
+                local basePos = getMyBasePosition()
 
-                if hrp and not isHoldingEgg(char) then
-                    local targetPart, targetPrompt = findRarestEnemyEgg(myPlot)
+                if hrp and basePos then
+                    local targetPart, targetPrompt = scanRarestEnemyEgg(basePos)
 
                     if targetPart and targetPrompt then
-                        -- Bay đến quả trứng
-                        safeTweenMove(targetPart.Position + Vector3.new(0, 1.5, 0))
+                        -- Bước 1: Bay đến trứng đối thủ
+                        safeTweenMove(targetPart.Position + Vector3.new(0, 1.8, 0))
 
-                        -- Kích hoạt nhặt bằng bộ 3 tầng
+                        -- Bước 2: Kích hoạt nhặt liên tục trong 1.0 giây
                         local pickStart = tick()
-                        while STATE.AutoStealRarest and not isHoldingEgg(char) and (tick() - pickStart < 4.0) do
+                        while STATE.AutoStealRarest and (tick() - pickStart < 1.0) do
                             activatePrompt(targetPrompt)
-                            task.wait(0.08)
+                            task.wait(0.06)
                         end
 
-                        -- Cầm được trứng thì bay về nộp
-                        if isHoldingEgg(char) then
-                            safeTweenMove(deliveryPos)
-
-                            local depositStart = tick()
-                            while isHoldingEgg(char) and (tick() - depositStart < 4.0) and STATE.AutoStealRarest do
-                                task.wait(0.2)
-                            end
-                        end
+                        -- Bước 3: Lập tức bay về nộp vào Base
+                        safeTweenMove(basePos + Vector3.new(0, 2, 0))
+                        task.wait(0.6) -- Chờ game nhận diện nộp trứng
+                    else
+                        task.wait(0.5)
                     end
-                elseif hrp and isHoldingEgg(char) then
-                    safeTweenMove(deliveryPos)
-                    task.wait(0.5)
                 end
             end)
-            task.wait(0.8)
+            task.wait(0.4)
         end
     end)
 end
 
--- ==================== 5. ĐIỀU CHỈNH WALKSPEED & NHẢY VÔ HẠN ====================
+-- ==================== 5. ENGINE ĐIỀU CHỈNH TỐC ĐỘ 16 - 1000 & NHẢY ====================
 local function setWalkSpeedEngine(enable)
     STATE.WalkSpeedLocked = enable
 
@@ -347,8 +316,7 @@ local function setWalkSpeedEngine(enable)
         end)
     else
         pcall(function()
-            local char = LocalPlayer.Character
-            local hum = char and char:FindFirstChildOfClass("Humanoid")
+            local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
             if hum then hum.WalkSpeed = 16 end
         end)
     end
@@ -365,8 +333,7 @@ local function setInfiniteJump(enable)
     if enable then
         ActiveConnections.InfiniteJump = UserInputService.JumpRequest:Connect(function()
             pcall(function()
-                local char = LocalPlayer.Character
-                local hum = char and char:FindFirstChildOfClass("Humanoid")
+                local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
                 if hum then
                     hum:ChangeState(Enum.HumanoidStateType.Jumping)
                 end
@@ -375,13 +342,13 @@ local function setInfiniteJump(enable)
     end
 end
 
--- ==================== 6. GIAO DIỆN RONNEI HUB 2 TAB ====================
+-- ==================== 6. GIAO DIỆN 2 TAB RONNEI HUB ====================
 local parentTarget = (gethui and gethui()) or CoreGuiService or (LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui"))
-local oldGui = parentTarget:FindFirstChild("RonneiHub_V2_Pete")
+local oldGui = parentTarget:FindFirstChild("RonneiHub_V2_Speed1000")
 if oldGui then pcall(function() oldGui:Destroy() end) end
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "RonneiHub_V2_Pete"
+ScreenGui.Name = "RonneiHub_V2_Speed1000"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.DisplayOrder = 2147483647
@@ -421,7 +388,7 @@ local Subtitle = Instance.new("TextLabel", Header)
 Subtitle.Size = UDim2.new(1, -50, 0, 14)
 Subtitle.Position = UDim2.new(0, 14, 0, 24)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "STEAL AN EGG • SPECIAL V2.4"
+Subtitle.Text = "STEAL AN EGG • MAX SPEED 1000"
 Subtitle.Font = FONT_MED
 Subtitle.TextSize = 10
 Subtitle.TextColor3 = THEME.AccentMint
@@ -461,7 +428,6 @@ local function makeDraggable(targetFrame, dragBar)
 end
 makeDraggable(MainCard, Header)
 
--- Tab Bar
 local TabBar = Instance.new("Frame", MainCard)
 TabBar.Size = UDim2.new(1, -24, 0, 32)
 TabBar.Position = UDim2.new(0, 12, 0, 46)
@@ -608,9 +574,10 @@ local function createToggleRow(parent, titleText, subText, initialState, onToggl
 end
 
 -- ==================== TAB 1 ====================
-createToggleRow(Tab1Frame, "Auto Steal Rarest Egg", "Cướp trứng đối thủ, nhặt 3 tầng & mang về Base", STATE.AutoStealRarest, function(val)
+createToggleRow(Tab1Frame, "Auto Steal Rarest Egg", "Tự tìm trứng xịn đối thủ, nhặt & mang về nộp", STATE.AutoStealRarest, function(val)
     STATE.AutoStealRarest = val
     if val then
+        getMyBasePosition()
         startAutoStealProcess()
     end
 end)
@@ -654,11 +621,10 @@ TikTokRow.MouseButton1Click:Connect(function()
 end)
 
 -- ==================== TAB 2 ====================
--- Nút Bypass Anti-Cheat (Pete Method)
 local BypassCard = Instance.new("TextButton", Tab2Frame)
 BypassCard.Size = UDim2.new(1, -4, 0, 36)
 BypassCard.BackgroundColor3 = Color3.fromRGB(40, 30, 60)
-BypassCard.Text = "🛡️  Kích Hoạt Bypass Anti-Cheat"
+BypassCard.Text = "🛡️  Bypass Anti-Cheat (BAC-1511)"
 BypassCard.Font = FONT_BOLD
 BypassCard.TextSize = 11
 BypassCard.TextColor3 = Color3.fromRGB(210, 190, 255)
@@ -670,19 +636,19 @@ BypassStroke.Thickness = 1
 
 BypassCard.MouseButton1Click:Connect(function()
     bypassAntiCheat()
-    BypassCard.Text = "✓ Đã Bypass Anti-Cheat!"
+    BypassCard.Text = "✓ Đã Kích Hoạt Bypass!"
     BypassCard.BackgroundColor3 = Color3.fromRGB(30, 60, 40)
     BypassStroke.Color = THEME.AccentMint
     task.delay(2, function()
         if BypassCard.Parent then
-            BypassCard.Text = "🛡️  Kích Hoạt Bypass Anti-Cheat"
+            BypassCard.Text = "🛡️  Bypass Anti-Cheat (BAC-1511)"
             BypassCard.BackgroundColor3 = Color3.fromRGB(40, 30, 60)
             BypassStroke.Color = Color3.fromRGB(80, 60, 120)
         end
     end)
 end)
 
--- Slider WalkSpeed
+-- Slider WalkSpeed (16 - 1000)
 local SliderCard = Instance.new("Frame", Tab2Frame)
 SliderCard.Size = UDim2.new(1, -4, 0, 62)
 SliderCard.BackgroundColor3 = THEME.CardBG
@@ -730,7 +696,7 @@ SliderKnob.Position = UDim2.new(0, 0, 0.5, 0)
 SliderKnob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 Instance.new("UICorner", SliderKnob).CornerRadius = UDim.new(1, 0)
 
-local minSpeed, maxSpeed = 16, 300
+local minSpeed, maxSpeed = 16, 1000
 local isSliding = false
 
 local function updateSlider(inputPositionX)
@@ -843,7 +809,7 @@ CloseBtn.MouseButton1Click:Connect(function()
     setMenuVisible(false)
 end)
 
--- Tự động chạy Bypass Anti-Cheat khi nạp script
+-- Tự động chạy Bypass Anti-Cheat khi vừa bật script
 task.spawn(function()
     task.wait(0.5)
     bypassAntiCheat()
