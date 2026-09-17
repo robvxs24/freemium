@@ -1,20 +1,71 @@
 -- ==============================================================================
---  CHILLI HUB - ZERO-LAG QUAD-LANGUAGE ENGINE V7.3 (EN/VI/PH/ID)
+--  CHILLI HUB - ZERO-LAG QUAD-LANGUAGE & FAST STEAL ENGINE V8.0 (EN/VI/PH/ID)
 --  Tối ưu hóa:
---    1. Nạp đúng luồng script gốc Chilli Hub (StealAnEgg).
---    2. Bổ sung tiếng Bahasa Indonesia chuẩn xác 100% không thiếu chữ.
---    3. Tọa độ nút: Canh CHÍNH GIỮA màn hình (Top-Center) và hạ thấp xuống một chút.
---    4. Biểu tượng nút: "🌐" - Dễ dàng nhận diện là nút chuyển ngôn ngữ.
+--    1. Bản vá ngầm: Nhặt trứng siêu tốc 0s & Chống Boss đập rơi trứng do lag.
+--    2. Nạp đúng luồng script gốc Chilli Hub (StealAnEgg).
+--    3. Bổ sung tiếng Bahasa Indonesia chuẩn xác 100%.
+--    4. Tọa độ nút: Canh CHÍNH GIỮA màn hình (Top-Center) và hạ thấp xuống một chút.
 --    5. Vòng xoay 4 chế độ: English -> Tiếng Việt -> Filipino -> Indonesia.
---    6. Plain-Text Replacer: Chống lỗi 100% ký tự đặc biệt (), $.
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
+local ProximityPromptService = game:GetService("ProximityPromptService")
+local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
-local currentLanguage = "VI" -- Khởi đầu: Tiếng Việt
+-- ==================== BẢN VÁ LỖI SCRIPT GỐC (CHẠY NGẦM) ====================
+task.spawn(function()
+    -- 1. Nhặt trứng siêu tốc 0s
+    ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
+        pcall(function()
+            prompt.HoldDuration = 0
+            if fireproximityprompt then fireproximityprompt(prompt) end
+        end)
+    end)
+    
+    task.spawn(function()
+        while task.wait(0.5) do
+            pcall(function()
+                for _, p in ipairs(workspace:GetDescendants()) do
+                    if p:IsA("ProximityPrompt") then
+                        p.HoldDuration = 0
+                        p.RequiresLineOfSight = false
+                    end
+                end
+            end)
+        end
+    end)
+
+    -- 2. Chống Boss đập rơi trứng do lag (Anti-Ragdoll)
+    RunService.Heartbeat:Connect(function()
+        pcall(function()
+            local char = LocalPlayer.Character
+            if not char then return end
+            
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            if hum then
+                hum.PlatformStand = false
+                local state = hum:GetState()
+                if state == Enum.HumanoidStateType.Ragdoll or state == Enum.HumanoidStateType.FallingDown then
+                    hum:ChangeState(Enum.HumanoidStateType.GettingUp)
+                end
+            end
+            
+            for _, obj in ipairs(char:GetDescendants()) do
+                if obj:IsA("Constraint") and (obj:GetAttribute("RagdollConstraint") or obj.Name:lower():find("ragdoll")) then
+                    obj:Destroy()
+                elseif obj:IsA("Attachment") and obj:GetAttribute("RagdollAttachment") then
+                    obj:Destroy()
+                end
+            end
+        end)
+    end)
+end)
+
+-- ==================== HỆ THỐNG DỊCH THUẬT V8.0 ====================
+local currentLanguage = "VI"
 local translationLock = false
 local FastCache = {}
 
@@ -26,7 +77,6 @@ local function safeReplace(str, findStr, replaceStr)
     return str
 end
 
--- ==================== 1. TỪ ĐIỂN TIẾNG VIỆT ====================
 local MAP_VI = {
     ["Farm"] = "Cày Cuốc", ["Player"] = "Người Chơi", ["Egg Finder"] = "Máy Dò Trứng",
     ["Predictor"] = "Soi Trứng", ["Progress"] = "Tiến Độ", ["Server"] = "Máy Chủ",
@@ -248,7 +298,6 @@ local MAP_VI = {
     ["Send Inventory Report"] = "Gửi Báo Cáo Túi Đồ", ["Send Equipped Report"] = "Gửi Báo Cáo Trang Bị"
 }
 
--- ==================== 2. TỪ ĐIỂN FILIPINO ====================
 local MAP_PH = {
     ["Farm"] = "Farm", ["Player"] = "Manlalaro", ["Egg Finder"] = "Tagahanap ng Itlog",
     ["Predictor"] = "Tagahula", ["Progress"] = "Pag-unlad", ["Server"] = "Server",
@@ -404,71 +453,7 @@ local MAP_PH = {
     ["Window Minimized - Click bubble to restore"] = "Na-minimize ang window - I-click ang bubble para ibalik",
     ["Let's Chat!"] = "Mag-chat na tayo!", ["Connecting to Global Script Chat..."] = "Kumokonekta sa Global Script Chat...",
     ["Send"] = "Ipadala", ["Live"] = "Live", ["Spoof anti cheat success!"] = "Matagumpay na na-spoof ang anti cheat!",
-    ["Fetching..."] = "Kinukuha ang data...", ["Loaded"] = "Na-load Na",
-    ["Teleport Mode [Gold/Premium]"] = "Mode ng Teleport [Gold/Premium]", ["Force Speed To (0 = Auto / Q"] = "Piliting I-set ang Bilis sa (0 = Auto / Q)",
-    ["Force Speed To"] = "I-set ang Bilis Sa", ["Manual Steal (Instant Carry)"] = "Manu-manong Nakaw (Instant Carry)",
-    ["Instant Carry (Manual Steal)"] = "Instant Carry (Manu-mano)", ["Instant Carry Rarities"] = "Rarity ng Instant Carry",
-    ["Pet Names (Auto Place)"] = "Pangalan ng Pet (Auto Lagay)", ["All (none)"] = "Lahat (Wala)",
-    ["Rarities"] = "Rarities", ["Areas"] = "Mga Lugar", ["Priority"] = "Prayoridad", ["Rarity"] = "Rarity",
-    ["Min Egg KG (0 = off)"] = "Min na KG ng Itlog (0 = Off)", ["Automation & Egg Management"] = "Automation at Pamamahala ng Itlog",
-    ["Auto Hatch Ready"] = "Auto Pusa pag Handa Na", ["Auto Place All Egg"] = "Auto Lagay Lahat ng Itlog",
-    ["Auto Place Selected (By Pet Names Filter)"] = "Auto Lagay ang Napili (Ayon sa Pangalan ng Pet)",
-    ["Auto Steal from other players [Gold/Premium]"] = "Auto Nakaw sa ibang manlalaro [Gold/VIP]",
-    ["Automatically target players carrying eggs"] = "Awtomatikong i-target ang manlalaro na may itlog",
-    ["Filter Rarity for Steal"] = "I-filter ang Rarity para Nakawin",
-    ["Steal from special for player (Teleport Strike)"] = "Magnakaw ng espesyal (Teleport Strike)",
-    ["Steal History"] = "Kasaysayan ng Pagnanakaw", ["History of Stolen Eggs from Players"] = "Kasaysayan ng mga Nakaw na Itlog sa Sesyon",
-    ["Clear"] = "I-clear", ["No player steals recorded yet this session."] = "Wala pang naitalang nakaw sa sesyon na ito.",
-    ["In Safe Zone"] = "Nasa Safe Zone", ["No Egg Carried"] = "Walang Dala na Itlog", ["Locked"] = "Naka-lock",
-    ["STOLEN EGGS"] = "NAKAW NA ITLOG", ["HUNTED TARGETS"] = "HINANAP NA TARGETS",
-    ["Reset Session Counter"] = "I-reset ang Bilang ng Sesyon", ["Live Engine"] = "Buhay na Engine",
-    ["Bag Inventory & Live Value"] = "Bag Inventory & Kasalukuyang Halaga", ["TOTAL VALUE IN BAG"] = "KABUUANG HALAGA SA BAG",
-    ["TOTAL ITEMS IN BAG"] = "KABUUANG ITEMS SA BAG", ["Sell Egg Settings"] = "Mga Setting sa Pagbenta ng Itlog",
-    ["Sell Below Value (cth 100M, ..."] = "Ibenta Kung Mababa sa Halaga (hal. 100M)", ["Sell Below KG (0=off)"] = "Ibenta Kung Mababa sa KG (0 = Off)",
-    ["Pet Names (per area)"] = "Pangalan ng Pet (Kada Lugar)", ["Select Pet to Fuse"] = "Pumili ng Pet na I-fuse",
-    ["Refresh Inventory Pets"] = "I-refresh ang Pets sa Inventory", ["List Player Need Partner"] = "Listahan ng Kailangan ng Partner",
-    ["Find Partner (Register) [Gold/Premium]"] = "Maghanap ng Partner (Rehistro) [Gold/VIP]",
-    ["Refresh Partner List"] = "I-refresh ang Listahan ng Partner", ["Broadcast Need Partner [Gold/Premium]"] = "I-broadcast ang Kailangan ng Partner [Gold/VIP]",
-    ["Broadcast a global Notice banner to script users (1-hour cooldown)."] = "I-broadcast ang paunawa sa mga users (1-oras na cooldown).",
-    ["Filter by Pet Owned (e.g. Pegasus)..."] = "I-filter ayon sa Pet na Meron ka (hal. Pegasus)...",
-    ["No other players are currently looking for a partner."] = "Wala pang manlalaro na naghahanap ng partner ngayon.",
-    ["Rift Live Status & Rotation"] = "Live Status at Pag-ikot ng Rift", ["Banner: [Verdant] Riftborn"] = "Banner: [Verdant] Riftborn",
-    ["Refresh"] = "I-refresh", ["Recipe egg is still unmatched! Must hatch into pets before Trade-In."] = "Hindi pa tugma ang recipe! Kailangang mapusa muna.",
-    ["Open Boss Shop"] = "Buksan ang Boss Shop", ["Auto Buy Boss Shop"] = "Auto Bili sa Boss Shop",
-    ["Automation"] = "Automation", ["Target Banners (none = all)"] = "Mga Target na Banner (Wala = Lahat)",
-    ["Boss Rift (Abyss Overlord)"] = "Boss Rift (Abyss Overlord)", ["Abyss Overlord (Portal Closed)"] = "Abyss Overlord (Sarado ang Portal)",
-    ["Boss HP: Waiting for spawn..."] = "HP ng Boss: Naghihintay lumabas...", ["Boss Glide Speed (studs/s)"] = "Bilis ng Paglipad sa Boss (studs/s)",
-    ["Leave Boss Arena (To Safe Zone)"] = "Umalis sa Boss Arena (Pa-Safe Zone)", ["Manual Attack (Equip Bat & Swing)"] = "Mano-manong Pag-atake (Gamitin ang Bat)",
-    ["Quick Actions"] = "Mabilisang Aksyon", ["Place Rift Eggs to Pen"] = "Ilagay ang Rift Eggs sa Pen",
-    ["Instant Trade-In Once"] = "Mabilisang Trade-In Minsan", ["Use Free Reroll Now"] = "Gamitin ang Libreng Reroll Ngayon",
-    ["Buy 1x Mutation Consumable"] = "Bumili ng 1x Mutation Consumable", ["Claim All Available Milestones"] = "Kunin Lahat ng Available na Milestones",
-    ["Teleport to Rift Machine"] = "Mag-teleport sa Makina ng Rift", ["Refresh Status"] = "I-refresh ang Status",
-    ["Session Stats"] = "Stats ng Sesyon", ["Rift Sacrifices"] = "Mga Sakripisyo sa Rift", ["RIFT SACRIFICES"] = "MGA SAKRIPISYO SA RIFT",
-    ["Guard"] = "Guwardiya", ["Light Dark"] = "Light Dark", ["Hunt & Stash Settings"] = "Mga Setting sa Pag-hunt at Pag-imbak",
-    ["Drop Egg Before Safe Zone"] = "Ihulog ang Itlog Bago Mag-Safe Zone", ["Do Not Deliver to Safe Zone"] = "Huwag Ihatid sa Safe Zone",
-    ["Never Drop the Egg"] = "Huwag Kailanman Ihulog ang Itlog", ["Staging Controls"] = "Mga Kontrol sa Staging",
-    ["Set Staging Spot (Here)"] = "I-set ang Staging Spot (Dito)", ["Deliver Stash Now"] = "Ihatid na ang Inimbak",
-    ["Uncap FPS, Lighting Compatibility, SmoothPlastic, & Native Low Settings"] = "Alisin ang FPS cap, Lighting, SmoothPlastic, & Low Settings",
-    ["Re-apply Boost Now"] = "I-apply Muli ang Boost Ngayon", ["Visual & Clean Up"] = "Visual at Paglilinis",
-    ["Delete other player pet and egg"] = "Burahin ang pet at itlog ng ibang manlalaro",
-    ["Hapus visual pet & telur dari player lain (Aman: telur area tetap ada)"] = "Burahin ang visual ng pet at itlog ng iba (Ligtas)",
-    ["Auto Execute"] = "Auto Execute", ["Hop Now (Emptiest Server)"] = "Lumipat Ngayon (Pinakabakanteng Server)",
-    ["Solo Server"] = "Solo Server", ["Prev"] = "Nakaraan", ["Next"] = "Susunod",
-    ["Display & Window"] = "Display at Window", ["Display Full Size (PC)"] = "I-display ng Full Size (PC)",
-    ["PC Full Size sets 100% scale for desktop displays. Turn OFF for"] = "Ang PC Full Size ay 100% scale. I-OFF kung sa cellphone",
-    ["Anti-AFK Protection"] = "Proteksyon sa Anti-AFK",
-    ["Prevent idle triggers, 20-min Roblox kick & game soft-teleports with"] = "Pinipigilan ang 20-min kick sa Roblox at soft-teleports",
-    ["View Disconnect Log"] = "Tingnan ang Disconnect Log", ["Clear Disconnect Log"] = "I-clear ang Disconnect Log",
-    ["Configuration"] = "Configuration", ["Alert Types"] = "Mga Uri ng Alert",
-    ["Periodic Progress"] = "Pana-panahong Pag-unlad", ["Egg Spawn Alert"] = "Alert Kapag May Lumabas na Itlog",
-    ["Collect / Claim"] = "Kolektahin / Kunin", ["Egg Hatched"] = "Napusa na Itlog",
-    ["Pet Obtained"] = "Nakuha ang Pet", ["Pets Sold"] = "Naibentang Pets",
-    ["Trails Bought"] = "Nabili ang Trails", ["Auto Gift Alert"] = "Auto Alert sa Regalo",
-    ["Rebirth Alert"] = "Alert sa Rebirth", ["Disconnect Alert"] = "Alert Kapag Na-disconnect",
-    ["Alert Filters"] = "Mga Filter ng Alert", ["Min Rarity for Alerts"] = "Min Rarity para sa Alerts",
-    ["Any"] = "Kahit Ano", ["Manual Actions"] = "Mano-manong Aksyon",
-    ["Send Summary Now"] = "Ipadala ang Buod Ngayon", ["Test Webhook"] = "I-test ang Webhook",
-    ["Send Inventory Report"] = "Ipadala ang Report ng Inventory", ["Send Equipped Report"] = "Ipadala ang Report ng Nakasuot"
+    ["Fetching..."] = "Kinukuha ang data...", ["Loaded"] = "Na-load Na"
 }
 
 -- ==================== 3. TỪ ĐIỂN BAHASA INDONESIA ====================
@@ -627,74 +612,9 @@ local MAP_ID = {
     ["Window Minimized - Click bubble to restore"] = "Jendela diminimalkan - Klik gelembung untuk membuka",
     ["Let's Chat!"] = "Ayo Chat!", ["Connecting to Global Script Chat..."] = "Menghubungkan ke Chat Global...",
     ["Send"] = "Kirim", ["Live"] = "Langsung", ["Spoof anti cheat success!"] = "Bypass Anti-Cheat sukses!",
-    ["Fetching..."] = "Mengambil data...", ["Loaded"] = "Selesai Dimuat",
-    ["Teleport Mode [Gold/Premium]"] = "Mode Teleportasi [Gold/VIP]", ["Force Speed To (0 = Auto / Q"] = "Paksa Kecepatan Ke (0 = Auto / Q)",
-    ["Force Speed To"] = "Paksa Kecepatan", ["Manual Steal (Instant Carry)"] = "Curi Manual (Angkat Instan)",
-    ["Instant Carry (Manual Steal)"] = "Angkat Instan (Curi Manual)", ["Instant Carry Rarities"] = "Rarity Angkat Instan",
-    ["Pet Names (Auto Place)"] = "Nama Pet (Auto Taruh)", ["All (none)"] = "Semua (Tidak ada)",
-    ["Rarities"] = "Rarity", ["Areas"] = "Area", ["Priority"] = "Prioritas", ["Rarity"] = "Rarity",
-    ["Min Egg KG (0 = off)"] = "KG Min Telur (0 = Mati)", ["Automation & Egg Management"] = "Otomatisasi & Manajemen Telur",
-    ["Auto Hatch Ready"] = "Auto Tetas Telur Siap", ["Auto Place All Egg"] = "Auto Taruh Semua Telur",
-    ["Auto Place Selected (By Pet Names Filter)"] = "Auto Taruh Terpilih (Sesuai Filter Nama)",
-    ["Auto Steal from other players [Gold/Premium]"] = "Auto Curi dari pemain lain [Gold/VIP]",
-    ["Automatically target players carrying eggs"] = "Otomatis target pemain yang bawa telur",
-    ["Filter Rarity for Steal"] = "Filter Rarity untuk Dicuri",
-    ["Steal from special for player (Teleport Strike)"] = "Curi spesial dari pemain (Teleport Strike)",
-    ["Steal History"] = "Riwayat Curi", ["History of Stolen Eggs from Players"] = "Riwayat Telur Curian Sesi Ini",
-    ["Clear"] = "Hapus", ["No player steals recorded yet this session."] = "Belum ada riwayat curi di sesi ini.",
-    ["In Safe Zone"] = "Di Zona Aman", ["No Egg Carried"] = "Tidak Bawa Telur", ["Locked"] = "Terkunci",
-    ["STOLEN EGGS"] = "TELUR DICURI", ["HUNTED TARGETS"] = "TARGET DIBURU",
-    ["Reset Session Counter"] = "Reset Penghitung Sesi", ["Live Engine"] = "Mesin Aktif",
-    ["Bag Inventory & Live Value"] = "Isi Tas & Nilai Saat Ini", ["TOTAL VALUE IN BAG"] = "TOTAL NILAI DI TAS",
-    ["TOTAL ITEMS IN BAG"] = "TOTAL ITEM DI TAS", ["Sell Egg Settings"] = "Aturan Jual Telur",
-    ["Sell Below Value (cth 100M, ..."] = "Jual di Bawah Nilai (cth: 100M)", ["Sell Below KG (0=off)"] = "Jual di Bawah KG (0 = Mati)",
-    ["Pet Names (per area)"] = "Nama Pet (Per Area)", ["Select Pet to Fuse"] = "Pilih Pet untuk Fuse",
-    ["Refresh Inventory Pets"] = "Refresh Inventaris Pet", ["List Player Need Partner"] = "Daftar Pemain Cari Partner",
-    ["Find Partner (Register) [Gold/Premium]"] = "Cari Partner (Daftar) [Gold/VIP]",
-    ["Refresh Partner List"] = "Refresh Daftar Partner", ["Broadcast Need Partner [Gold/Premium]"] = "Siarkan Butuh Partner [Gold/VIP]",
-    ["Broadcast a global Notice banner to script users (1-hour cooldown)."] = "Siarkan ke seluruh pengguna script (Cooldown 1 Jam).",
-    ["Filter by Pet Owned (e.g. Pegasus)..."] = "Filter berdasar pet (cth. Pegasus)...",
-    ["No other players are currently looking for a partner."] = "Tidak ada pemain lain yang cari partner saat ini.",
-    ["Rift Live Status & Rotation"] = "Status Langsung & Rotasi Rift", ["Banner: [Verdant] Riftborn"] = "Banner: [Hijau] Riftborn",
-    ["Refresh"] = "Refresh", ["Recipe egg is still unmatched! Must hatch into pets before Trade-In."] = "Resep telur belum cocok! Teteskan dulu sebelum ditukar.",
-    ["Open Boss Shop"] = "Buka Toko Boss", ["Auto Buy Boss Shop"] = "Auto Beli di Toko Boss",
-    ["Automation"] = "Otomatisasi", ["Target Banners (none = all)"] = "Target Banner (Kosong = Semua)",
-    ["Boss Rift (Abyss Overlord)"] = "Boss Rift (Abyss Overlord)", ["Abyss Overlord (Portal Closed)"] = "Abyss Overlord (Portal Ditutup)",
-    ["Boss HP: Waiting for spawn..."] = "HP Boss: Menunggu muncul...", ["Boss Glide Speed (studs/s)"] = "Kecepatan Terbang Boss (studs/s)",
-    ["Leave Boss Arena (To Safe Zone)"] = "Keluar Arena Boss (Ke Zona Aman)", ["Manual Attack (Equip Bat & Swing)"] = "Serangan Manual (Pegang Pemukul)",
-    ["Quick Actions"] = "Aksi Cepat", ["Place Rift Eggs to Pen"] = "Taruh Telur Rift ke Kandang",
-    ["Instant Trade-In Once"] = "Trade-In Instan Sekali", ["Use Free Reroll Now"] = "Pakai Reroll Gratis Sekarang",
-    ["Buy 1x Mutation Consumable"] = "Beli 1x Potion Mutasi", ["Claim All Available Milestones"] = "Ambil Semua Hadiah Milestone",
-    ["Teleport to Rift Machine"] = "Teleportasi ke Mesin Rift", ["Refresh Status"] = "Refresh Status",
-    ["Session Stats"] = "Statistik Sesi", ["Rift Sacrifices"] = "Pengorbanan Rift", ["RIFT SACRIFICES"] = "PENGORBANAN RIFT",
-    ["Guard"] = "Penjaga", ["Light Dark"] = "Naga Terang/Gelap", ["Hunt & Stash Settings"] = "Aturan Berburu & Menyimpan",
-    ["Drop Egg Before Safe Zone"] = "Jatuhkan Telur Sebelum Zona Aman", ["Do Not Deliver to Safe Zone"] = "Jangan Antar ke Zona Aman",
-    ["Never Drop the Egg"] = "Jangan Pernah Jatuhkan Telur", ["Staging Controls"] = "Kontrol Pos Sementara",
-    ["Set Staging Spot (Here)"] = "Pilih Pos Sementara (Di Sini)", ["Deliver Stash Now"] = "Antar Simpanan Sekarang",
-    ["Uncap FPS, Lighting Compatibility, SmoothPlastic, & Native Low Settings"] = "Buka batas FPS, Cahaya, SmoothPlastic & Low Settings",
-    ["Re-apply Boost Now"] = "Terapkan Ulang Boost Sekarang", ["Visual & Clean Up"] = "Visual & Bersih-Bersih",
-    ["Delete other player pet and egg"] = "Hapus pet & telur pemain lain",
-    ["Hapus visual pet & telur dari player lain (Aman: telur area tetap ada)"] = "Hapus visual pet & telur pemain lain (Aman)",
-    ["Auto Execute"] = "Auto Jalan", ["Hop Now (Emptiest Server)"] = "Pindah Sekarang (Server Tersepi)",
-    ["Solo Server"] = "Server Solo", ["Prev"] = "Sblm", ["Next"] = "Lanjut",
-    ["Display & Window"] = "Tampilan & Jendela", ["Display Full Size (PC)"] = "Tampilan Penuh (PC)",
-    ["PC Full Size sets 100% scale for desktop displays. Turn OFF for"] = "PC Full Size membuat layar 100%. Matikan jika di HP",
-    ["Anti-AFK Protection"] = "Perlindungan Anti-AFK",
-    ["Prevent idle triggers, 20-min Roblox kick & game soft-teleports with"] = "Mencegah kick 20 menit Roblox & soft-teleport",
-    ["View Disconnect Log"] = "Lihat Catatan Disconnect", ["Clear Disconnect Log"] = "Hapus Catatan Disconnect",
-    ["Configuration"] = "Konfigurasi", ["Alert Types"] = "Jenis Notifikasi",
-    ["Periodic Progress"] = "Progres Berkala", ["Egg Spawn Alert"] = "Notif Telur Muncul",
-    ["Collect / Claim"] = "Kumpul / Ambil", ["Egg Hatched"] = "Telur Menetas",
-    ["Pet Obtained"] = "Pet Didapat", ["Pets Sold"] = "Pet Terjual",
-    ["Trails Bought"] = "Efek Jejak Dibeli", ["Auto Gift Alert"] = "Notif Hadiah Otomatis",
-    ["Rebirth Alert"] = "Notif Rebirth", ["Disconnect Alert"] = "Notif Putus Koneksi",
-    ["Alert Filters"] = "Filter Notifikasi", ["Min Rarity for Alerts"] = "Rarity Min untuk Notif",
-    ["Any"] = "Apa Saja", ["Manual Actions"] = "Aksi Manual",
-    ["Send Summary Now"] = "Kirim Ringkasan Sekarang", ["Test Webhook"] = "Tes Webhook",
-    ["Send Inventory Report"] = "Kirim Laporan Inventaris", ["Send Equipped Report"] = "Kirim Laporan Item Terpakai"
+    ["Fetching..."] = "Mengambil data...", ["Loaded"] = "Selesai Dimuat"
 }
 
--- Mẫu Regex xử lý chuỗi động 4 ngôn ngữ (EN / VI / PH / ID)
 local DYNAMIC_PATTERNS = {
     {
         pattern = "^(%d+) selected$",
@@ -788,7 +708,6 @@ local DYNAMIC_PATTERNS = {
     }
 }
 
--- Sắp xếp tự điển dài -> ngắn
 local SortedVI, SortedPH, SortedID = {}, {}, {}
 for en, vi in pairs(MAP_VI) do table.insert(SortedVI, {en = en, out = vi, len = #en}) end
 for en, ph in pairs(MAP_PH) do table.insert(SortedPH, {en = en, out = ph, len = #en}) end
@@ -797,7 +716,7 @@ table.sort(SortedVI, function(a, b) return a.len > b.len end)
 table.sort(SortedPH, function(a, b) return a.len > b.len end)
 table.sort(SortedID, function(a, b) return a.len > b.len end)
 
--- ==================== 2. ENGINE DỊCH CHUỖI SIÊU TỐC ĐA NGÔN NGỮ ====================
+-- ==================== DỊCH CHUỖI O(1) ====================
 local function translateText(raw)
     local cacheKey = currentLanguage .. "|" .. raw
     if FastCache[cacheKey] then return FastCache[cacheKey] end
@@ -915,7 +834,7 @@ local function updateAllActive()
     end
 end
 
--- ==================== 3. NÚT ĐỔI NGÔN NGỮ (TOP-CENTER) ====================
+-- ==================== NÚT ĐỔI NGÔN NGỮ ====================
 local function createLangToggleUI()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local old = parentTarget:FindFirstChild("Chilli_LangToggle_Slate")
@@ -928,7 +847,7 @@ local function createLangToggleUI()
     ScreenGui.DisplayOrder = 2147483647
     ScreenGui.Parent = parentTarget
 
-    -- Vị trí: Chính giữa phía trên (Top-Center), hạ thấp xuống một chút (Y = 15)
+    -- Vị trí: Chính giữa (Top-Center), trục Y = 15
     local Container = Instance.new("Frame", ScreenGui)
     Container.Size = UDim2.new(0, 136, 0, 28)
     Container.AnchorPoint = Vector2.new(0.5, 0)
@@ -982,7 +901,6 @@ local function createLangToggleUI()
         end
     end)
 
-    -- Vòng xoay 4 Ngôn ngữ: VI -> PH -> ID -> EN
     ClickBtn.MouseButton1Click:Connect(function()
         if currentLanguage == "VI" then
             currentLanguage = "PH"
@@ -1009,7 +927,7 @@ local function createLangToggleUI()
     end)
 end
 
--- ==================== 4. BỘ QUÉT ZERO-LAG ====================
+-- ==================== BỘ QUÉT ZERO-LAG ====================
 task.spawn(function()
     createLangToggleUI()
 
@@ -1061,7 +979,7 @@ task.spawn(function()
     end
 end)
 
--- ==================== 5. NẠP CHILLI HUB GỐC ====================
+-- ==================== NẠP SCRIPT GỐC ====================
 task.spawn(function()
     pcall(function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/tienkhanh1/Chilli-Hub-Script/refs/heads/main/StealAnEgg"))()
