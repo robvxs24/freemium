@@ -1,9 +1,9 @@
 -- ==============================================================================
---  CHILLI HUB - ZERO-LAG QUAD-LANGUAGE ENGINE V7.1 (EN/VI/PH/ID)
+--  CHILLI HUB - ZERO-LAG QUAD-LANGUAGE ENGINE V7.2 (EN/VI/PH/ID)
 --  Tối ưu hóa:
 --    1. Nạp đúng luồng script gốc Chilli Hub (StealAnEgg).
 --    2. Bổ sung tiếng Bahasa Indonesia chuẩn xác 100% không thiếu chữ.
---    3. Tọa độ TopBar: Nằm ngang hàng với logo Roblox, không đè nút (Y=4, X=320).
+--    3. Tọa độ nút: Canh CHÍNH GIỮA màn hình (Top-Center) và hạ thấp xuống một chút.
 --    4. Vòng xoay 4 chế độ: English -> Tiếng Việt -> Filipino -> Indonesia.
 --    5. Plain-Text Replacer: Chống lỗi 100% ký tự đặc biệt (), $.
 -- ==============================================================================
@@ -608,7 +608,7 @@ local MAP_ID = {
     ["Reset"] = "Reset", ["Interface"] = "Antarmuka", ["UI Size"] = "Ukuran UI",
     ["Scales the main window; the corner grip does the same by hand"] = "Ubah ukuran jendela; geser pojok untuk manual",
     ["Notifications"] = "Notifikasi", ["Show notification cards; turning this off hides every notify"] = "Tampilkan notifikasi; matikan untuk sembunyikan semua",
-    ["Open On Launch"] = "Buka Saat Dijalankan", ["Open the UI automatically when the script starts"] = "Buka menu otomatis saat script aktif",
+    ["Open On Launch"] = "Buka Saat Dijalankan", ["Open the UI otomatis saat script aktif"] = "Buka menu otomatis saat script aktif",
     ["Defaults"] = "Bawaan", ["Reset to Defaults"] = "Kembalikan ke Bawaan",
     ["Reset every feature to its built-in default"] = "Reset semua fitur ke pengaturan asli", ["Turn Off All Toggles"] = "Matikan Semua Tombol",
     ["Switch off every enabled toggle in the feature tabs"] = "Matikan semua fitur yang sedang aktif", ["Turn Off"] = "Matikan",
@@ -914,7 +914,7 @@ local function updateAllActive()
     end
 end
 
--- ==================== 3. NÚT ĐỔI NGÔN NGỮ (TOP-LEFT, Y=4, X=320) ====================
+-- ==================== 3. NÚT ĐỔI NGÔN NGỮ (TOP-CENTER) ====================
 local function createLangToggleUI()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local old = parentTarget:FindFirstChild("Chilli_LangToggle_Slate")
@@ -927,11 +927,11 @@ local function createLangToggleUI()
     ScreenGui.DisplayOrder = 2147483647
     ScreenGui.Parent = parentTarget
 
-    -- Vị trí: Ngang hàng logo Roblox, nép sang bên phải bộ icon gốc (X=320, Y=4)
+    -- Vị trí: Chính giữa phía trên (Top-Center), hạ thấp xuống một chút (Y = 15)
     local Container = Instance.new("Frame", ScreenGui)
     Container.Size = UDim2.new(0, 136, 0, 28)
-    Container.AnchorPoint = Vector2.new(0, 0)
-    Container.Position = UDim2.new(0, 320, 0, 4)
+    Container.AnchorPoint = Vector2.new(0.5, 0)
+    Container.Position = UDim2.new(0.5, 0, 0, 15)
     Container.BackgroundColor3 = Color3.fromRGB(16, 20, 28)
     Container.BackgroundTransparency = 0.2
     Container.BorderSizePixel = 0
