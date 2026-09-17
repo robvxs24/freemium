@@ -1,10 +1,10 @@
 -- ==============================================================================
---  CHILLI HUB - ZERO-LAG QUAD-LANGUAGE & FAST STEAL ENGINE V8.0 (EN/VI/PH/ID)
+--  CHILLI HUB - ZERO-LAG SUNSET ENGINE V8.5 (EN/VI/PH/ID)
 --  Tối ưu hóa:
---    1. Bản vá ngầm: Nhặt trứng siêu tốc 0s & Chống Boss đập rơi trứng do lag.
---    2. Nạp đúng luồng script gốc Chilli Hub (StealAnEgg).
---    3. Bổ sung tiếng Bahasa Indonesia chuẩn xác 100%.
---    4. Tọa độ nút: Canh CHÍNH GIỮA màn hình (Top-Center) và hạ thấp xuống một chút.
+--    1. Sửa lỗi đơ máy lúc khởi động: Quét phân luồng thực sự (Yielding Thread).
+--    2. Bỏ Anti-Ragdoll theo yêu cầu, chỉ giữ lại Nhặt Trứng Siêu Tốc (0s).
+--    3. Tích hợp Sunset FPS Booster: Bản đồ SmoothPlastic nhẹ máy, giờ hoàng hôn.
+--    4. Cấu hình Bloom: Trứng biến thành Neon phát sáng rực rỡ nhưng không chói mắt.
 --    5. Vòng xoay 4 chế độ: English -> Tiếng Việt -> Filipino -> Indonesia.
 -- ==============================================================================
 
@@ -13,11 +13,73 @@ local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
 local LocalPlayer = Players.LocalPlayer
 
--- ==================== BẢN VÁ LỖI SCRIPT GỐC (CHẠY NGẦM) ====================
+-- ==================== 1. MODULE FPS BOOST & SHADER HOÀNG HÔN ====================
 task.spawn(function()
-    -- 1. Nhặt trứng siêu tốc 0s
+    pcall(function()
+        -- Chỉnh thời gian và ánh sáng Hoàng Hôn (Ấm áp, không tối)
+        Lighting.GlobalShadows = false
+        Lighting.TimeOfDay = "17:30:00"
+        Lighting.Ambient = Color3.fromRGB(150, 110, 95)
+        Lighting.OutdoorAmbient = Color3.fromRGB(130, 90, 80)
+        Lighting.Brightness = 1.2
+        Lighting.ColorShift_Bottom = Color3.fromRGB(255, 140, 100)
+        Lighting.ColorShift_Top = Color3.fromRGB(255, 190, 150)
+        Lighting.FogEnd = 100000 -- Tắt sương mù giảm lag
+
+        -- Xóa các hiệu ứng gây lag cũ
+        for _, v in ipairs(Lighting:GetChildren()) do
+            if v:IsA("BlurEffect") or v:IsA("SunRaysEffect") or v:IsA("ColorCorrectionEffect") or v:IsA("BloomEffect") or v:IsA("Atmosphere") then
+                v:Destroy()
+            end
+        end
+
+        -- Thêm Bloom nhẹ để làm trứng Neon phát sáng
+        local bloom = Instance.new("BloomEffect", Lighting)
+        bloom.Intensity = 0.8
+        bloom.Size = 24
+        bloom.Threshold = 1.5 -- Chỉ những vật thể thật sự sáng (Neon) mới tỏa sáng
+
+        -- Quét tối ưu hóa bản đồ (Chống lag khởi động bằng Yield)
+        local count = 0
+        for _, obj in ipairs(workspace:GetDescendants()) do
+            if obj:IsA("BasePart") then
+                obj.CastShadow = false
+                local name = obj.Name:lower()
+                local pName = (obj.Parent and obj.Parent.Name:lower()) or ""
+                
+                -- Nếu là trứng -> Phát sáng Neon. Còn lại -> SmoothPlastic giảm lag
+                if name:find("egg") or pName:find("egg") then
+                    obj.Material = Enum.Material.Neon
+                else
+                    obj.Material = Enum.Material.SmoothPlastic
+                end
+            end
+            count = count + 1
+            if count % 200 == 0 then RunService.Heartbeat:Wait() end
+        end
+
+        -- Tự động áp dụng cho các vật thể mới xuất hiện (Trứng mới sinh ra)
+        workspace.DescendantAdded:Connect(function(obj)
+            if obj:IsA("BasePart") then
+                obj.CastShadow = false
+                task.wait() -- Tránh lag khi spawn nhiều
+                local name = obj.Name:lower()
+                local pName = (obj.Parent and obj.Parent.Name:lower()) or ""
+                if name:find("egg") or pName:find("egg") then
+                    obj.Material = Enum.Material.Neon
+                else
+                    obj.Material = Enum.Material.SmoothPlastic
+                end
+            end
+        end)
+    end)
+end)
+
+-- ==================== 2. NHẶT TRỨNG NHANH (0s) ====================
+task.spawn(function()
     ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
         pcall(function()
             prompt.HoldDuration = 0
@@ -25,46 +87,25 @@ task.spawn(function()
         end)
     end)
     
-    task.spawn(function()
-        while task.wait(0.5) do
-            pcall(function()
-                for _, p in ipairs(workspace:GetDescendants()) do
-                    if p:IsA("ProximityPrompt") then
-                        p.HoldDuration = 0
-                        p.RequiresLineOfSight = false
-                    end
-                end
-            end)
+    local count = 0
+    for _, p in ipairs(workspace:GetDescendants()) do
+        if p:IsA("ProximityPrompt") then
+            p.HoldDuration = 0
+            p.RequiresLineOfSight = false
         end
-    end)
+        count = count + 1
+        if count % 150 == 0 then task.wait() end
+    end
 
-    -- 2. Chống Boss đập rơi trứng do lag (Anti-Ragdoll)
-    RunService.Heartbeat:Connect(function()
-        pcall(function()
-            local char = LocalPlayer.Character
-            if not char then return end
-            
-            local hum = char:FindFirstChildOfClass("Humanoid")
-            if hum then
-                hum.PlatformStand = false
-                local state = hum:GetState()
-                if state == Enum.HumanoidStateType.Ragdoll or state == Enum.HumanoidStateType.FallingDown then
-                    hum:ChangeState(Enum.HumanoidStateType.GettingUp)
-                end
-            end
-            
-            for _, obj in ipairs(char:GetDescendants()) do
-                if obj:IsA("Constraint") and (obj:GetAttribute("RagdollConstraint") or obj.Name:lower():find("ragdoll")) then
-                    obj:Destroy()
-                elseif obj:IsA("Attachment") and obj:GetAttribute("RagdollAttachment") then
-                    obj:Destroy()
-                end
-            end
-        end)
+    workspace.DescendantAdded:Connect(function(p)
+        if p:IsA("ProximityPrompt") then
+            p.HoldDuration = 0
+            p.RequiresLineOfSight = false
+        end
     end)
 end)
 
--- ==================== HỆ THỐNG DỊCH THUẬT V8.0 ====================
+-- ==================== 3. HỆ THỐNG DỊCH THUẬT V8.5 ====================
 local currentLanguage = "VI"
 local translationLock = false
 local FastCache = {}
@@ -456,7 +497,6 @@ local MAP_PH = {
     ["Fetching..."] = "Kinukuha ang data...", ["Loaded"] = "Na-load Na"
 }
 
--- ==================== 3. TỪ ĐIỂN BAHASA INDONESIA ====================
 local MAP_ID = {
     ["Farm"] = "Farming", ["Player"] = "Pemain", ["Egg Finder"] = "Pencari Telur",
     ["Predictor"] = "Prediktor", ["Progress"] = "Kemajuan", ["Server"] = "Server",
@@ -716,7 +756,6 @@ table.sort(SortedVI, function(a, b) return a.len > b.len end)
 table.sort(SortedPH, function(a, b) return a.len > b.len end)
 table.sort(SortedID, function(a, b) return a.len > b.len end)
 
--- ==================== DỊCH CHUỖI O(1) ====================
 local function translateText(raw)
     local cacheKey = currentLanguage .. "|" .. raw
     if FastCache[cacheKey] then return FastCache[cacheKey] end
@@ -834,7 +873,7 @@ local function updateAllActive()
     end
 end
 
--- ==================== NÚT ĐỔI NGÔN NGỮ ====================
+-- ==================== 4. NÚT ĐỔI NGÔN NGỮ CHÍNH GIỮA MÀN HÌNH ====================
 local function createLangToggleUI()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local old = parentTarget:FindFirstChild("Chilli_LangToggle_Slate")
@@ -847,11 +886,10 @@ local function createLangToggleUI()
     ScreenGui.DisplayOrder = 2147483647
     ScreenGui.Parent = parentTarget
 
-    -- Vị trí: Chính giữa (Top-Center), trục Y = 15
     local Container = Instance.new("Frame", ScreenGui)
     Container.Size = UDim2.new(0, 136, 0, 28)
     Container.AnchorPoint = Vector2.new(0.5, 0)
-    Container.Position = UDim2.new(0.5, 0, 0, 15)
+    Container.Position = UDim2.new(0.5, 0, 0, 15) -- Center X, Y = 15 pixels down
     Container.BackgroundColor3 = Color3.fromRGB(16, 20, 28)
     Container.BackgroundTransparency = 0.2
     Container.BorderSizePixel = 0
@@ -927,7 +965,7 @@ local function createLangToggleUI()
     end)
 end
 
--- ==================== BỘ QUÉT ZERO-LAG ====================
+-- ==================== 5. BỘ QUÉT ZERO-LAG ====================
 task.spawn(function()
     createLangToggleUI()
 
@@ -956,9 +994,7 @@ task.spawn(function()
                     if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
                         hookElement(desc)
                         count = count + 1
-                        if count % 40 == 0 then
-                            task.wait() 
-                        end
+                        if count % 40 == 0 then task.wait() end
                     end
                 end
             end
@@ -979,7 +1015,7 @@ task.spawn(function()
     end
 end)
 
--- ==================== NẠP SCRIPT GỐC ====================
+-- ==================== 6. NẠP CHILLI HUB GỐC ====================
 task.spawn(function()
     pcall(function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/tienkhanh1/Chilli-Hub-Script/refs/heads/main/StealAnEgg"))()
