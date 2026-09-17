@@ -1,11 +1,12 @@
 -- ==============================================================================
---  CHILLI HUB - ZERO-LAG QUAD-LANGUAGE ENGINE V7.2 (EN/VI/PH/ID)
+--  CHILLI HUB - ZERO-LAG QUAD-LANGUAGE ENGINE V7.3 (EN/VI/PH/ID)
 --  Tối ưu hóa:
 --    1. Nạp đúng luồng script gốc Chilli Hub (StealAnEgg).
 --    2. Bổ sung tiếng Bahasa Indonesia chuẩn xác 100% không thiếu chữ.
 --    3. Tọa độ nút: Canh CHÍNH GIỮA màn hình (Top-Center) và hạ thấp xuống một chút.
---    4. Vòng xoay 4 chế độ: English -> Tiếng Việt -> Filipino -> Indonesia.
---    5. Plain-Text Replacer: Chống lỗi 100% ký tự đặc biệt (), $.
+--    4. Biểu tượng nút: "🌐" - Dễ dàng nhận diện là nút chuyển ngôn ngữ.
+--    5. Vòng xoay 4 chế độ: English -> Tiếng Việt -> Filipino -> Indonesia.
+--    6. Plain-Text Replacer: Chống lỗi 100% ký tự đặc biệt (), $.
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -608,7 +609,7 @@ local MAP_ID = {
     ["Reset"] = "Reset", ["Interface"] = "Antarmuka", ["UI Size"] = "Ukuran UI",
     ["Scales the main window; the corner grip does the same by hand"] = "Ubah ukuran jendela; geser pojok untuk manual",
     ["Notifications"] = "Notifikasi", ["Show notification cards; turning this off hides every notify"] = "Tampilkan notifikasi; matikan untuk sembunyikan semua",
-    ["Open On Launch"] = "Buka Saat Dijalankan", ["Open the UI otomatis saat script aktif"] = "Buka menu otomatis saat script aktif",
+    ["Open On Launch"] = "Buka Saat Dijalankan", ["Open the UI automatically when the script starts"] = "Buka menu otomatis saat script aktif",
     ["Defaults"] = "Bawaan", ["Reset to Defaults"] = "Kembalikan ke Bawaan",
     ["Reset every feature to its built-in default"] = "Reset semua fitur ke pengaturan asli", ["Turn Off All Toggles"] = "Matikan Semua Tombol",
     ["Switch off every enabled toggle in the feature tabs"] = "Matikan semua fitur yang sedang aktif", ["Turn Off"] = "Matikan",
@@ -945,8 +946,8 @@ local function createLangToggleUI()
     Icon.Size = UDim2.new(0, 22, 1, 0)
     Icon.Position = UDim2.new(0, 8, 0, 0)
     Icon.BackgroundTransparency = 1
-    Icon.Text = "🌶️"
-    Icon.TextSize = 12
+    Icon.Text = "🌐"
+    Icon.TextSize = 14
 
     local Label = Instance.new("TextLabel", Container)
     Label.Size = UDim2.new(1, -36, 1, 0)
