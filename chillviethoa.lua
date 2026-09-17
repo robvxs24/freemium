@@ -1,11 +1,10 @@
 -- ==============================================================================
---  CHILLI HUB - ZERO-LAG SUNSET ENGINE V8.5 (EN/VI/PH/ID)
+--  CHILLI HUB - ULTRA ZERO-LAG ENGINE V9.0 (EN/VI/PH/ID)
 --  Tối ưu hóa:
---    1. Sửa lỗi đơ máy lúc khởi động: Quét phân luồng thực sự (Yielding Thread).
---    2. Bỏ Anti-Ragdoll theo yêu cầu, chỉ giữ lại Nhặt Trứng Siêu Tốc (0s).
---    3. Tích hợp Sunset FPS Booster: Bản đồ SmoothPlastic nhẹ máy, giờ hoàng hôn.
---    4. Cấu hình Bloom: Trứng biến thành Neon phát sáng rực rỡ nhưng không chói mắt.
---    5. Vòng xoay 4 chế độ: English -> Tiếng Việt -> Filipino -> Indonesia.
+--    1. Recursive Chunking: Quét map đệ quy ngầm, loại bỏ 100% hiện tượng đơ khởi động.
+--    2. Xóa rác đồ họa: Vô hiệu hóa toàn bộ Decal/Texture vô ích của game.
+--    3. Khởi động trễ an toàn: Nhường 1.5s cho UI gốc load trước khi áp dụng dịch thuật.
+--    4. Vòng xoay 4 ngôn ngữ và Nút bấm Frosted Slate Top-Center.
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -16,10 +15,10 @@ local RunService = game:GetService("RunService")
 local Lighting = game:GetService("Lighting")
 local LocalPlayer = Players.LocalPlayer
 
--- ==================== 1. MODULE FPS BOOST & SHADER HOÀNG HÔN ====================
+-- ==================== 1. MODULE HOÀNG HÔN & CHỐNG ĐƠ KHỞI ĐỘNG (RECURSIVE) ====================
 task.spawn(function()
+    -- Xử lý ánh sáng lập tức (Không gây lag)
     pcall(function()
-        -- Chỉnh thời gian và ánh sáng Hoàng Hôn (Ấm áp, không tối)
         Lighting.GlobalShadows = false
         Lighting.TimeOfDay = "17:30:00"
         Lighting.Ambient = Color3.fromRGB(150, 110, 95)
@@ -27,58 +26,68 @@ task.spawn(function()
         Lighting.Brightness = 1.2
         Lighting.ColorShift_Bottom = Color3.fromRGB(255, 140, 100)
         Lighting.ColorShift_Top = Color3.fromRGB(255, 190, 150)
-        Lighting.FogEnd = 100000 -- Tắt sương mù giảm lag
+        Lighting.FogEnd = 9e9
 
-        -- Xóa các hiệu ứng gây lag cũ
         for _, v in ipairs(Lighting:GetChildren()) do
-            if v:IsA("BlurEffect") or v:IsA("SunRaysEffect") or v:IsA("ColorCorrectionEffect") or v:IsA("BloomEffect") or v:IsA("Atmosphere") then
+            if v:IsA("PostEffect") or v:IsA("Atmosphere") then
                 v:Destroy()
             end
         end
 
-        -- Thêm Bloom nhẹ để làm trứng Neon phát sáng
         local bloom = Instance.new("BloomEffect", Lighting)
         bloom.Intensity = 0.8
         bloom.Size = 24
-        bloom.Threshold = 1.5 -- Chỉ những vật thể thật sự sáng (Neon) mới tỏa sáng
+        bloom.Threshold = 1.5
+    end)
 
-        -- Quét tối ưu hóa bản đồ (Chống lag khởi động bằng Yield)
-        local count = 0
-        for _, obj in ipairs(workspace:GetDescendants()) do
+    -- Đệ quy quét map từ từ trong nền (Triệt tiêu 100% đơ máy)
+    local function processGraphics(parent)
+        local children = parent:GetChildren()
+        for i, obj in ipairs(children) do
             if obj:IsA("BasePart") then
                 obj.CastShadow = false
                 local name = obj.Name:lower()
                 local pName = (obj.Parent and obj.Parent.Name:lower()) or ""
                 
-                -- Nếu là trứng -> Phát sáng Neon. Còn lại -> SmoothPlastic giảm lag
                 if name:find("egg") or pName:find("egg") then
                     obj.Material = Enum.Material.Neon
                 else
                     obj.Material = Enum.Material.SmoothPlastic
                 end
+            elseif obj:IsA("Decal") or obj:IsA("Texture") then
+                obj.Transparency = 1 -- Xóa chi tiết rác trên tường/đất
             end
-            count = count + 1
-            if count % 200 == 0 then RunService.Heartbeat:Wait() end
+            
+            -- Nhường CPU mỗi 30 parts, giữ FPS luôn ổn định
+            if i % 30 == 0 then RunService.Heartbeat:Wait() end
+            
+            -- Quét tiếp vào trong thư mục
+            processGraphics(obj)
         end
+    end
 
-        -- Tự động áp dụng cho các vật thể mới xuất hiện (Trứng mới sinh ra)
-        workspace.DescendantAdded:Connect(function(obj)
-            if obj:IsA("BasePart") then
-                obj.CastShadow = false
-                task.wait() -- Tránh lag khi spawn nhiều
-                local name = obj.Name:lower()
-                local pName = (obj.Parent and obj.Parent.Name:lower()) or ""
-                if name:find("egg") or pName:find("egg") then
-                    obj.Material = Enum.Material.Neon
-                else
-                    obj.Material = Enum.Material.SmoothPlastic
-                end
+    task.spawn(function()
+        pcall(function() processGraphics(workspace) end)
+    end)
+
+    -- Áp dụng cho vật thể mới
+    workspace.DescendantAdded:Connect(function(obj)
+        if obj:IsA("BasePart") then
+            obj.CastShadow = false
+            local name = obj.Name:lower()
+            local pName = (obj.Parent and obj.Parent.Name:lower()) or ""
+            if name:find("egg") or pName:find("egg") then
+                obj.Material = Enum.Material.Neon
+            else
+                obj.Material = Enum.Material.SmoothPlastic
             end
-        end)
+        elseif obj:IsA("Decal") or obj:IsA("Texture") then
+            obj.Transparency = 1
+        end
     end)
 end)
 
--- ==================== 2. NHẶT TRỨNG NHANH (0s) ====================
+-- ==================== 2. NHẶT TRỨNG NHANH 0s ====================
 task.spawn(function()
     ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
         pcall(function()
@@ -87,15 +96,18 @@ task.spawn(function()
         end)
     end)
     
-    local count = 0
-    for _, p in ipairs(workspace:GetDescendants()) do
-        if p:IsA("ProximityPrompt") then
-            p.HoldDuration = 0
-            p.RequiresLineOfSight = false
+    local function scanPrompts(parent)
+        for i, p in ipairs(parent:GetChildren()) do
+            if p:IsA("ProximityPrompt") then
+                p.HoldDuration = 0
+                p.RequiresLineOfSight = false
+            end
+            if i % 50 == 0 then task.wait() end
+            scanPrompts(p)
         end
-        count = count + 1
-        if count % 150 == 0 then task.wait() end
     end
+    
+    task.spawn(function() pcall(function() scanPrompts(workspace) end) end)
 
     workspace.DescendantAdded:Connect(function(p)
         if p:IsA("ProximityPrompt") then
@@ -105,7 +117,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 3. HỆ THỐNG DỊCH THUẬT V8.5 ====================
+-- ==================== 3. HỆ THỐNG DỊCH THUẬT V9.0 ====================
 local currentLanguage = "VI"
 local translationLock = false
 local FastCache = {}
@@ -315,28 +327,7 @@ local MAP_VI = {
     ["Guard"] = "Thú Cưỡi", ["Light Dark"] = "Quang Ám Long", ["Hunt & Stash Settings"] = "Cài Đặt Săn & Giấu Đồ",
     ["Drop Egg Before Safe Zone"] = "Thả Trứng Trước Vùng An Toàn", ["Do Not Deliver to Safe Zone"] = "Không Nộp Vào Vùng An Toàn",
     ["Never Drop the Egg"] = "Tuyệt Đối Không Làm Rơi Trứng", ["Staging Controls"] = "Điều Khiển Điểm Trung Chuyển",
-    ["Set Staging Spot (Here)"] = "Đặt Điểm Trung Chuyển (Tại Đây)", ["Deliver Stash Now"] = "Nộp Toàn Bộ Trứng Đang Giấu",
-    ["Uncap FPS, Lighting Compatibility, SmoothPlastic, & Native Low Settings"] = "Mở khóa FPS, Tối ưu ánh sáng, Bật Nhựa Mịn & Giảm đồ họa",
-    ["Re-apply Boost Now"] = "Kích Hoạt Lại Tăng Tốc Ngay", ["Visual & Clean Up"] = "Hình Ảnh & Dọn Dẹp Bản Đồ",
-    ["Delete other player pet and egg"] = "Ẩn Thú Cưng & Trứng Người Khác",
-    ["Hapus visual pet & telur dari player lain (Aman: telur area tetap ada)"] = "Xóa hình ảnh thú & trứng người khác (An toàn: trứng khu vực vẫn giữ)",
-    ["Auto Execute"] = "Tự Khởi Chạy", ["Hop Now (Emptiest Server)"] = "Đổi Server Ngay (Phòng Trống Nhất)",
-    ["Solo Server"] = "Phòng Đơn", ["Prev"] = "Trước", ["Next"] = "Sau",
-    ["Display & Window"] = "Màn Hình & Giao Diện", ["Display Full Size (PC)"] = "Hiển Thị Toàn Màn Hình (PC)",
-    ["PC Full Size sets 100% scale for desktop displays. Turn OFF for"] = "Chế độ toàn màn hình 100% cho PC. Hãy TẮT nếu dùng điện thoại",
-    ["Anti-AFK Protection"] = "Bảo Vệ Chống Treo Máy (Anti-AFK)",
-    ["Prevent idle triggers, 20-min Roblox kick & game soft-teleports with"] = "Ngăn chặn bị văng game sau 20 phút và tránh dịch chuyển mềm",
-    ["View Disconnect Log"] = "Xem Nhật Ký Ngắt Kết Nối", ["Clear Disconnect Log"] = "Xóa Nhật Ký Ngắt Kết Nối",
-    ["Configuration"] = "Cấu Hình", ["Alert Types"] = "Các Loại Thông Báo",
-    ["Periodic Progress"] = "Báo Tiến Trình Định Kỳ", ["Egg Spawn Alert"] = "Báo Trứng Xuất Hiện",
-    ["Collect / Claim"] = "Báo Nhặt / Nhận Thưởng", ["Egg Hatched"] = "Báo Trứng Nở",
-    ["Pet Obtained"] = "Báo Nhận Thú Cưng", ["Pets Sold"] = "Báo Đã Bán Thú",
-    ["Trails Bought"] = "Báo Mua Vệt Sáng", ["Auto Gift Alert"] = "Báo Quà Tự Động",
-    ["Rebirth Alert"] = "Báo Chuyển Sinh (Rebirth)", ["Disconnect Alert"] = "Báo Khi Mất Kết Nối",
-    ["Alert Filters"] = "Bộ Lọc Cảnh Báo", ["Min Rarity for Alerts"] = "Độ Hiếm Tối Thiểu Để Báo",
-    ["Any"] = "Bất Kỳ", ["Manual Actions"] = "Thao Tác Thủ Công",
-    ["Send Summary Now"] = "Gửi Báo Cáo Tổng Hợp Ngay", ["Test Webhook"] = "Kiểm Tra Gửi Webhook",
-    ["Send Inventory Report"] = "Gửi Báo Cáo Túi Đồ", ["Send Equipped Report"] = "Gửi Báo Cáo Trang Bị"
+    ["Set Staging Spot (Here)"] = "Đặt Điểm Trung Chuyển (Tại Đây)", ["Deliver Stash Now"] = "Nộp Toàn Bộ Trứng Đang Giấu"
 }
 
 local MAP_PH = {
@@ -494,7 +485,71 @@ local MAP_PH = {
     ["Window Minimized - Click bubble to restore"] = "Na-minimize ang window - I-click ang bubble para ibalik",
     ["Let's Chat!"] = "Mag-chat na tayo!", ["Connecting to Global Script Chat..."] = "Kumokonekta sa Global Script Chat...",
     ["Send"] = "Ipadala", ["Live"] = "Live", ["Spoof anti cheat success!"] = "Matagumpay na na-spoof ang anti cheat!",
-    ["Fetching..."] = "Kinukuha ang data...", ["Loaded"] = "Na-load Na"
+    ["Fetching..."] = "Kinukuha ang data...", ["Loaded"] = "Na-load Na",
+    ["Teleport Mode [Gold/Premium]"] = "Mode ng Teleport [Gold/Premium]", ["Force Speed To (0 = Auto / Q"] = "Piliting I-set ang Bilis sa (0 = Auto / Q)",
+    ["Force Speed To"] = "I-set ang Bilis Sa", ["Manual Steal (Instant Carry)"] = "Manu-manong Nakaw (Instant Carry)",
+    ["Instant Carry (Manual Steal)"] = "Instant Carry (Manu-mano)", ["Instant Carry Rarities"] = "Rarity ng Instant Carry",
+    ["Pet Names (Auto Place)"] = "Pangalan ng Pet (Auto Lagay)", ["All (none)"] = "Lahat (Wala)",
+    ["Rarities"] = "Rarities", ["Areas"] = "Mga Lugar", ["Priority"] = "Prayoridad", ["Rarity"] = "Rarity",
+    ["Min Egg KG (0 = off)"] = "Min na KG ng Itlog (0 = Off)", ["Automation & Egg Management"] = "Automation at Pamamahala ng Itlog",
+    ["Auto Hatch Ready"] = "Auto Pusa pag Handa Na", ["Auto Place All Egg"] = "Auto Lagay Lahat ng Itlog",
+    ["Auto Place Selected (By Pet Names Filter)"] = "Auto Lagay ang Napili (Ayon sa Pangalan ng Pet)",
+    ["Auto Steal from other players [Gold/Premium]"] = "Auto Nakaw sa ibang manlalaro [Gold/VIP]",
+    ["Automatically target players carrying eggs"] = "Awtomatikong i-target ang manlalaro na may itlog",
+    ["Filter Rarity for Steal"] = "I-filter ang Rarity para Nakawin",
+    ["Steal from special for player (Teleport Strike)"] = "Magnakaw ng espesyal (Teleport Strike)",
+    ["Steal History"] = "Kasaysayan ng Pagnanakaw", ["History of Stolen Eggs from Players"] = "Kasaysayan ng mga Nakaw na Itlog sa Sesyon",
+    ["Clear"] = "I-clear", ["No player steals recorded yet this session."] = "Wala pang naitalang nakaw sa sesyon na ito.",
+    ["In Safe Zone"] = "Nasa Safe Zone", ["No Egg Carried"] = "Walang Dala na Itlog", ["Locked"] = "Naka-lock",
+    ["STOLEN EGGS"] = "NAKAW NA ITLOG", ["HUNTED TARGETS"] = "HINANAP NA TARGETS",
+    ["Reset Session Counter"] = "I-reset ang Bilang ng Sesyon", ["Live Engine"] = "Buhay na Engine",
+    ["Bag Inventory & Live Value"] = "Bag Inventory & Kasalukuyang Halaga", ["TOTAL VALUE IN BAG"] = "KABUUANG HALAGA SA BAG",
+    ["TOTAL ITEMS IN BAG"] = "KABUUANG ITEMS SA BAG", ["Sell Egg Settings"] = "Mga Setting sa Pagbenta ng Itlog",
+    ["Sell Below Value (cth 100M, ..."] = "Ibenta Kung Mababa sa Halaga (hal. 100M)", ["Sell Below KG (0=off)"] = "Ibenta Kung Mababa sa KG (0 = Off)",
+    ["Pet Names (per area)"] = "Pangalan ng Pet (Kada Lugar)", ["Select Pet to Fuse"] = "Pumili ng Pet na I-fuse",
+    ["Refresh Inventory Pets"] = "I-refresh ang Pets sa Inventory", ["List Player Need Partner"] = "Listahan ng Kailangan ng Partner",
+    ["Find Partner (Register) [Gold/Premium]"] = "Maghanap ng Partner (Rehistro) [Gold/VIP]",
+    ["Refresh Partner List"] = "I-refresh ang Listahan ng Partner", ["Broadcast Need Partner [Gold/Premium]"] = "I-broadcast ang Kailangan ng Partner [Gold/VIP]",
+    ["Broadcast a global Notice banner to script users (1-hour cooldown)."] = "I-broadcast ang paunawa sa mga users (1-oras na cooldown).",
+    ["Filter by Pet Owned (e.g. Pegasus)..."] = "I-filter ayon sa Pet na Meron ka (hal. Pegasus)...",
+    ["No other players are currently looking for a partner."] = "Wala pang manlalaro na naghahanap ng partner ngayon.",
+    ["Rift Live Status & Rotation"] = "Live Status at Pag-ikot ng Rift", ["Banner: [Verdant] Riftborn"] = "Banner: [Verdant] Riftborn",
+    ["Refresh"] = "I-refresh", ["Recipe egg is still unmatched! Must hatch into pets before Trade-In."] = "Hindi pa tugma ang recipe! Kailangang mapusa muna.",
+    ["Open Boss Shop"] = "Buksan ang Boss Shop", ["Auto Buy Boss Shop"] = "Auto Bili sa Boss Shop",
+    ["Automation"] = "Automation", ["Target Banners (none = all)"] = "Mga Target na Banner (Wala = Lahat)",
+    ["Boss Rift (Abyss Overlord)"] = "Boss Rift (Abyss Overlord)", ["Abyss Overlord (Portal Closed)"] = "Abyss Overlord (Sarado ang Portal)",
+    ["Boss HP: Waiting for spawn..."] = "HP ng Boss: Naghihintay lumabas...", ["Boss Glide Speed (studs/s)"] = "Bilis ng Paglipad sa Boss (studs/s)",
+    ["Leave Boss Arena (To Safe Zone)"] = "Umalis sa Boss Arena (Pa-Safe Zone)", ["Manual Attack (Equip Bat & Swing)"] = "Mano-manong Pag-atake (Gamitin ang Bat)",
+    ["Quick Actions"] = "Mabilisang Aksyon", ["Place Rift Eggs to Pen"] = "Ilagay ang Rift Eggs sa Pen",
+    ["Instant Trade-In Once"] = "Mabilisang Trade-In Minsan", ["Use Free Reroll Now"] = "Gamitin ang Libreng Reroll Ngayon",
+    ["Buy 1x Mutation Consumable"] = "Bumili ng 1x Mutation Consumable", ["Claim All Available Milestones"] = "Kunin Lahat ng Available na Milestones",
+    ["Teleport to Rift Machine"] = "Mag-teleport sa Makina ng Rift", ["Refresh Status"] = "I-refresh ang Status",
+    ["Session Stats"] = "Stats ng Sesyon", ["Rift Sacrifices"] = "Mga Sakripisyo sa Rift", ["RIFT SACRIFICES"] = "MGA SAKRIPISYO SA RIFT",
+    ["Guard"] = "Guwardiya", ["Light Dark"] = "Light Dark", ["Hunt & Stash Settings"] = "Mga Setting sa Pag-hunt at Pag-imbak",
+    ["Drop Egg Before Safe Zone"] = "Ihulog ang Itlog Bago Mag-Safe Zone", ["Do Not Deliver to Safe Zone"] = "Huwag Ihatid sa Safe Zone",
+    ["Never Drop the Egg"] = "Huwag Kailanman Ihulog ang Itlog", ["Staging Controls"] = "Mga Kontrol sa Staging",
+    ["Set Staging Spot (Here)"] = "I-set ang Staging Spot (Dito)", ["Deliver Stash Now"] = "Ihatid na ang Inimbak",
+    ["Uncap FPS, Lighting Compatibility, SmoothPlastic, & Native Low Settings"] = "Alisin ang FPS cap, Lighting, SmoothPlastic, & Low Settings",
+    ["Re-apply Boost Now"] = "I-apply Muli ang Boost Ngayon", ["Visual & Clean Up"] = "Visual at Paglilinis",
+    ["Delete other player pet and egg"] = "Burahin ang pet at itlog ng ibang manlalaro",
+    ["Hapus visual pet & telur dari player lain (Aman: telur area tetap ada)"] = "Burahin ang visual ng pet at itlog ng iba (Ligtas)",
+    ["Auto Execute"] = "Auto Execute", ["Hop Now (Emptiest Server)"] = "Lumipat Ngayon (Pinakabakanteng Server)",
+    ["Solo Server"] = "Solo Server", ["Prev"] = "Nakaraan", ["Next"] = "Susunod",
+    ["Display & Window"] = "Display at Window", ["Display Full Size (PC)"] = "I-display ng Full Size (PC)",
+    ["PC Full Size sets 100% scale for desktop displays. Turn OFF for"] = "Ang PC Full Size ay 100% scale. I-OFF kung sa cellphone",
+    ["Anti-AFK Protection"] = "Proteksyon sa Anti-AFK",
+    ["Prevent idle triggers, 20-min Roblox kick & game soft-teleports with"] = "Pinipigilan ang 20-min kick sa Roblox at soft-teleports",
+    ["View Disconnect Log"] = "Tingnan ang Disconnect Log", ["Clear Disconnect Log"] = "I-clear ang Disconnect Log",
+    ["Configuration"] = "Configuration", ["Alert Types"] = "Mga Uri ng Alert",
+    ["Periodic Progress"] = "Pana-panahong Pag-unlad", ["Egg Spawn Alert"] = "Alert Kapag May Lumabas na Itlog",
+    ["Collect / Claim"] = "Kolektahin / Kunin", ["Egg Hatched"] = "Napusa na Itlog",
+    ["Pet Obtained"] = "Nakuha ang Pet", ["Pets Sold"] = "Naibentang Pets",
+    ["Trails Bought"] = "Nabili ang Trails", ["Auto Gift Alert"] = "Auto Alert sa Regalo",
+    ["Rebirth Alert"] = "Alert sa Rebirth", ["Disconnect Alert"] = "Alert Kapag Na-disconnect",
+    ["Alert Filters"] = "Mga Filter ng Alert", ["Min Rarity for Alerts"] = "Min Rarity para sa Alerts",
+    ["Any"] = "Kahit Ano", ["Manual Actions"] = "Mano-manong Aksyon",
+    ["Send Summary Now"] = "Ipadala ang Buod Ngayon", ["Test Webhook"] = "I-test ang Webhook",
+    ["Send Inventory Report"] = "Ipadala ang Report ng Inventory", ["Send Equipped Report"] = "Ipadala ang Report ng Nakasuot"
 }
 
 local MAP_ID = {
@@ -652,7 +707,71 @@ local MAP_ID = {
     ["Window Minimized - Click bubble to restore"] = "Jendela diminimalkan - Klik gelembung untuk membuka",
     ["Let's Chat!"] = "Ayo Chat!", ["Connecting to Global Script Chat..."] = "Menghubungkan ke Chat Global...",
     ["Send"] = "Kirim", ["Live"] = "Langsung", ["Spoof anti cheat success!"] = "Bypass Anti-Cheat sukses!",
-    ["Fetching..."] = "Mengambil data...", ["Loaded"] = "Selesai Dimuat"
+    ["Fetching..."] = "Mengambil data...", ["Loaded"] = "Selesai Dimuat",
+    ["Teleport Mode [Gold/Premium]"] = "Mode Teleportasi [Gold/VIP]", ["Force Speed To (0 = Auto / Q"] = "Paksa Kecepatan Ke (0 = Auto / Q)",
+    ["Force Speed To"] = "Paksa Kecepatan", ["Manual Steal (Instant Carry)"] = "Curi Manual (Angkat Instan)",
+    ["Instant Carry (Manual Steal)"] = "Angkat Instan (Curi Manual)", ["Instant Carry Rarities"] = "Rarity Angkat Instan",
+    ["Pet Names (Auto Place)"] = "Nama Pet (Auto Taruh)", ["All (none)"] = "Semua (Tidak ada)",
+    ["Rarities"] = "Rarity", ["Areas"] = "Area", ["Priority"] = "Prioritas", ["Rarity"] = "Rarity",
+    ["Min Egg KG (0 = off)"] = "KG Min Telur (0 = Mati)", ["Automation & Egg Management"] = "Otomatisasi & Manajemen Telur",
+    ["Auto Hatch Ready"] = "Auto Tetas Telur Siap", ["Auto Place All Egg"] = "Auto Taruh Semua Telur",
+    ["Auto Place Selected (By Pet Names Filter)"] = "Auto Taruh Terpilih (Sesuai Filter Nama)",
+    ["Auto Steal from other players [Gold/Premium]"] = "Auto Curi dari pemain lain [Gold/VIP]",
+    ["Automatically target players carrying eggs"] = "Otomatis target pemain yang bawa telur",
+    ["Filter Rarity for Steal"] = "Filter Rarity untuk Dicuri",
+    ["Steal from special for player (Teleport Strike)"] = "Curi spesial dari pemain (Teleport Strike)",
+    ["Steal History"] = "Riwayat Curi", ["History of Stolen Eggs from Players"] = "Riwayat Telur Curian Sesi Ini",
+    ["Clear"] = "Hapus", ["No player steals recorded yet this session."] = "Belum ada riwayat curi di sesi ini.",
+    ["In Safe Zone"] = "Di Zona Aman", ["No Egg Carried"] = "Tidak Bawa Telur", ["Locked"] = "Terkunci",
+    ["STOLEN EGGS"] = "TELUR DICURI", ["HUNTED TARGETS"] = "TARGET DIBURU",
+    ["Reset Session Counter"] = "Reset Penghitung Sesi", ["Live Engine"] = "Mesin Aktif",
+    ["Bag Inventory & Live Value"] = "Isi Tas & Nilai Saat Ini", ["TOTAL VALUE IN BAG"] = "TOTAL NILAI DI TAS",
+    ["TOTAL ITEMS IN BAG"] = "TOTAL ITEM DI TAS", ["Sell Egg Settings"] = "Aturan Jual Telur",
+    ["Sell Below Value (cth 100M, ..."] = "Jual di Bawah Nilai (cth: 100M)", ["Sell Below KG (0=off)"] = "Jual di Bawah KG (0 = Mati)",
+    ["Pet Names (per area)"] = "Nama Pet (Per Area)", ["Select Pet to Fuse"] = "Pilih Pet untuk Fuse",
+    ["Refresh Inventory Pets"] = "Refresh Inventaris Pet", ["List Player Need Partner"] = "Daftar Pemain Cari Partner",
+    ["Find Partner (Register) [Gold/Premium]"] = "Cari Partner (Daftar) [Gold/VIP]",
+    ["Refresh Partner List"] = "Refresh Daftar Partner", ["Broadcast Need Partner [Gold/Premium]"] = "Siarkan Butuh Partner [Gold/VIP]",
+    ["Broadcast a global Notice banner to script users (1-hour cooldown)."] = "Siarkan ke seluruh pengguna script (Cooldown 1 Jam).",
+    ["Filter by Pet Owned (e.g. Pegasus)..."] = "Filter berdasar pet (cth. Pegasus)...",
+    ["No other players are currently looking for a partner."] = "Tidak ada pemain lain yang cari partner saat ini.",
+    ["Rift Live Status & Rotation"] = "Status Langsung & Rotasi Rift", ["Banner: [Verdant] Riftborn"] = "Banner: [Hijau] Riftborn",
+    ["Refresh"] = "Refresh", ["Recipe egg is still unmatched! Must hatch into pets before Trade-In."] = "Resep telur belum cocok! Teteskan dulu sebelum ditukar.",
+    ["Open Boss Shop"] = "Buka Toko Boss", ["Auto Buy Boss Shop"] = "Auto Beli di Toko Boss",
+    ["Automation"] = "Otomatisasi", ["Target Banners (none = all)"] = "Target Banner (Kosong = Semua)",
+    ["Boss Rift (Abyss Overlord)"] = "Boss Rift (Abyss Overlord)", ["Abyss Overlord (Portal Closed)"] = "Abyss Overlord (Portal Ditutup)",
+    ["Boss HP: Waiting for spawn..."] = "HP Boss: Menunggu muncul...", ["Boss Glide Speed (studs/s)"] = "Kecepatan Terbang Boss (studs/s)",
+    ["Leave Boss Arena (To Safe Zone)"] = "Keluar Arena Boss (Ke Zona Aman)", ["Manual Attack (Equip Bat & Swing)"] = "Serangan Manual (Pegang Pemukul)",
+    ["Quick Actions"] = "Aksi Cepat", ["Place Rift Eggs to Pen"] = "Taruh Telur Rift ke Kandang",
+    ["Instant Trade-In Once"] = "Trade-In Instan Sekali", ["Use Free Reroll Now"] = "Pakai Reroll Gratis Sekarang",
+    ["Buy 1x Mutation Consumable"] = "Beli 1x Potion Mutasi", ["Claim All Available Milestones"] = "Ambil Semua Hadiah Milestone",
+    ["Teleport to Rift Machine"] = "Teleportasi ke Mesin Rift", ["Refresh Status"] = "Refresh Status",
+    ["Session Stats"] = "Statistik Sesi", ["Rift Sacrifices"] = "Pengorbanan Rift", ["RIFT SACRIFICES"] = "PENGORBANAN RIFT",
+    ["Guard"] = "Penjaga", ["Light Dark"] = "Naga Terang/Gelap", ["Hunt & Stash Settings"] = "Aturan Berburu & Menyimpan",
+    ["Drop Egg Before Safe Zone"] = "Jatuhkan Telur Sebelum Zona Aman", ["Do Not Deliver to Safe Zone"] = "Jangan Antar ke Zona Aman",
+    ["Never Drop the Egg"] = "Jangan Pernah Jatuhkan Telur", ["Staging Controls"] = "Kontrol Pos Sementara",
+    ["Set Staging Spot (Here)"] = "Pilih Pos Sementara (Di Sini)", ["Deliver Stash Now"] = "Antar Simpanan Sekarang",
+    ["Uncap FPS, Lighting Compatibility, SmoothPlastic, & Native Low Settings"] = "Buka batas FPS, Cahaya, SmoothPlastic & Low Settings",
+    ["Re-apply Boost Now"] = "Terapkan Ulang Boost Sekarang", ["Visual & Clean Up"] = "Visual & Bersih-Bersih",
+    ["Delete other player pet and egg"] = "Hapus pet & telur pemain lain",
+    ["Hapus visual pet & telur dari player lain (Aman: telur area tetap ada)"] = "Hapus visual pet & telur pemain lain (Aman)",
+    ["Auto Execute"] = "Auto Jalan", ["Hop Now (Emptiest Server)"] = "Pindah Sekarang (Server Tersepi)",
+    ["Solo Server"] = "Server Solo", ["Prev"] = "Sblm", ["Next"] = "Lanjut",
+    ["Display & Window"] = "Tampilan & Jendela", ["Display Full Size (PC)"] = "Tampilan Penuh (PC)",
+    ["PC Full Size sets 100% scale for desktop displays. Turn OFF for"] = "PC Full Size membuat layar 100%. Matikan jika di HP",
+    ["Anti-AFK Protection"] = "Perlindungan Anti-AFK",
+    ["Prevent idle triggers, 20-min Roblox kick & game soft-teleports with"] = "Mencegah kick 20 menit Roblox & soft-teleport",
+    ["View Disconnect Log"] = "Lihat Catatan Disconnect", ["Clear Disconnect Log"] = "Hapus Catatan Disconnect",
+    ["Configuration"] = "Konfigurasi", ["Alert Types"] = "Jenis Notifikasi",
+    ["Periodic Progress"] = "Progres Berkala", ["Egg Spawn Alert"] = "Notif Telur Muncul",
+    ["Collect / Claim"] = "Kumpul / Ambil", ["Egg Hatched"] = "Telur Menetas",
+    ["Pet Obtained"] = "Pet Didapat", ["Pets Sold"] = "Pet Terjual",
+    ["Trails Bought"] = "Efek Jejak Dibeli", ["Auto Gift Alert"] = "Notif Hadiah Otomatis",
+    ["Rebirth Alert"] = "Notif Rebirth", ["Disconnect Alert"] = "Notif Putus Koneksi",
+    ["Alert Filters"] = "Filter Notifikasi", ["Min Rarity for Alerts"] = "Rarity Min untuk Notif",
+    ["Any"] = "Apa Saja", ["Manual Actions"] = "Aksi Manual",
+    ["Send Summary Now"] = "Kirim Ringkasan Sekarang", ["Test Webhook"] = "Tes Webhook",
+    ["Send Inventory Report"] = "Kirim Laporan Inventaris", ["Send Equipped Report"] = "Kirim Laporan Item Terpakai"
 }
 
 local DYNAMIC_PATTERNS = {
@@ -832,7 +951,9 @@ local function hookElement(inst)
     inst:SetAttribute("HasTranslateHook", true)
 
     table.insert(TrackedElements, inst)
-    applyTranslation(inst)
+    
+    -- Delay áp dụng dịch một nhịp để script gốc rải xong UI (Giảm lag)
+    task.defer(function() applyTranslation(inst) end)
 
     inst:GetPropertyChangedSignal("Text"):Connect(function()
         if not translationLock then
@@ -862,18 +983,7 @@ local function hookElement(inst)
     end)
 end
 
-local function updateAllActive()
-    for i = #TrackedElements, 1, -1 do
-        local el = TrackedElements[i]
-        if el and el.Parent then
-            applyTranslation(el)
-        else
-            table.remove(TrackedElements, i)
-        end
-    end
-end
-
--- ==================== 4. NÚT ĐỔI NGÔN NGỮ CHÍNH GIỮA MÀN HÌNH ====================
+-- ==================== 4. NÚT ĐỔI NGÔN NGỮ CHÍNH GIỮA MÀN HÌNH (Y=15) ====================
 local function createLangToggleUI()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local old = parentTarget:FindFirstChild("Chilli_LangToggle_Slate")
@@ -886,10 +996,11 @@ local function createLangToggleUI()
     ScreenGui.DisplayOrder = 2147483647
     ScreenGui.Parent = parentTarget
 
+    -- Vị trí: Chính giữa phía trên (Top-Center), hạ thấp xuống một chút (Y = 15)
     local Container = Instance.new("Frame", ScreenGui)
     Container.Size = UDim2.new(0, 136, 0, 28)
     Container.AnchorPoint = Vector2.new(0.5, 0)
-    Container.Position = UDim2.new(0.5, 0, 0, 15) -- Center X, Y = 15 pixels down
+    Container.Position = UDim2.new(0.5, 0, 0, 15)
     Container.BackgroundColor3 = Color3.fromRGB(16, 20, 28)
     Container.BackgroundTransparency = 0.2
     Container.BorderSizePixel = 0
@@ -961,11 +1072,19 @@ local function createLangToggleUI()
             TweenService:Create(Label, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(240, 130, 130)}):Play()
             TweenService:Create(Stroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(160, 45, 45)}):Play()
         end
-        updateAllActive()
+        
+        for i = #TrackedElements, 1, -1 do
+            local el = TrackedElements[i]
+            if el and el.Parent then
+                applyTranslation(el)
+            else
+                table.remove(TrackedElements, i)
+            end
+        end
     end)
 end
 
--- ==================== 5. BỘ QUÉT ZERO-LAG ====================
+-- ==================== 5. BỘ QUÉT ZERO-LAG ĐỆ QUY (RECURSIVE YIELD) ====================
 task.spawn(function()
     createLangToggleUI()
 
@@ -975,6 +1094,28 @@ task.spawn(function()
         LocalPlayer:FindFirstChild("PlayerGui")
     }
 
+    -- Móc đệ quy phân mảnh không giật
+    local function scanUIChunked(parent)
+        local children = parent:GetChildren()
+        for i, desc in ipairs(children) do
+            if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
+                hookElement(desc)
+            end
+            if i % 15 == 0 then RunService.Heartbeat:Wait() end
+            scanUIChunked(desc)
+        end
+    end
+
+    -- Đợi 1.5s để script gốc vẽ xong UI rồi mới đè bản dịch lên (Chống lag)
+    task.delay(1.5, function()
+        for _, root in ipairs(searchRoots) do
+            if root then
+                pcall(function() scanUIChunked(root) end)
+            end
+        end
+    end)
+
+    -- Móc cho các phần tử sau 1.5s
     for _, root in ipairs(searchRoots) do
         if root then
             root.DescendantAdded:Connect(function(desc)
@@ -982,35 +1123,6 @@ task.spawn(function()
                     hookElement(desc)
                 end
             end)
-        end
-    end
-
-    task.spawn(function()
-        for _, root in ipairs(searchRoots) do
-            if root then
-                local allItems = root:GetDescendants()
-                local count = 0
-                for _, desc in ipairs(allItems) do
-                    if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
-                        hookElement(desc)
-                        count = count + 1
-                        if count % 40 == 0 then task.wait() end
-                    end
-                end
-            end
-        end
-    end)
-
-    while true do
-        task.wait(2.5)
-        for _, root in ipairs(searchRoots) do
-            if root then
-                for _, desc in ipairs(root:GetDescendants()) do
-                    if (desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox")) and not desc:GetAttribute("HasTranslateHook") then
-                        hookElement(desc)
-                    end
-                end
-            end
         end
     end
 end)
