@@ -1,9 +1,9 @@
 -- ==============================================================================
---  CHILLI HUB - ZERO-LAG QUAD-LANGUAGE ENGINE V7.0 (EN/VI/PH/ID)
+--  CHILLI HUB - ZERO-LAG QUAD-LANGUAGE ENGINE V7.1 (EN/VI/PH/ID)
 --  Tối ưu hóa:
 --    1. Nạp đúng luồng script gốc Chilli Hub (StealAnEgg).
 --    2. Bổ sung tiếng Bahasa Indonesia chuẩn xác 100% không thiếu chữ.
---    3. Dời nút chuyển ngôn ngữ sang góc TRÊN BÊN TRÁI (Top-Left) theo yêu cầu.
+--    3. Tọa độ TopBar: Nằm ngang hàng với logo Roblox, không đè nút (Y=4, X=320).
 --    4. Vòng xoay 4 chế độ: English -> Tiếng Việt -> Filipino -> Indonesia.
 --    5. Plain-Text Replacer: Chống lỗi 100% ký tự đặc biệt (), $.
 -- ==============================================================================
@@ -796,7 +796,7 @@ table.sort(SortedVI, function(a, b) return a.len > b.len end)
 table.sort(SortedPH, function(a, b) return a.len > b.len end)
 table.sort(SortedID, function(a, b) return a.len > b.len end)
 
--- ==================== 2. ENGINE DỊCH CHUỖI SIÊU TỐC ====================
+-- ==================== 2. ENGINE DỊCH CHUỖI SIÊU TỐC ĐA NGÔN NGỮ ====================
 local function translateText(raw)
     local cacheKey = currentLanguage .. "|" .. raw
     if FastCache[cacheKey] then return FastCache[cacheKey] end
@@ -914,7 +914,7 @@ local function updateAllActive()
     end
 end
 
--- ==================== 3. NÚT ĐỔI NGÔN NGỮ BÊN TRÁI (TOP-LEFT) ====================
+-- ==================== 3. NÚT ĐỔI NGÔN NGỮ (TOP-LEFT, Y=4, X=320) ====================
 local function createLangToggleUI()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local old = parentTarget:FindFirstChild("Chilli_LangToggle_Slate")
@@ -927,11 +927,11 @@ local function createLangToggleUI()
     ScreenGui.DisplayOrder = 2147483647
     ScreenGui.Parent = parentTarget
 
+    -- Vị trí: Ngang hàng logo Roblox, nép sang bên phải bộ icon gốc (X=320, Y=4)
     local Container = Instance.new("Frame", ScreenGui)
     Container.Size = UDim2.new(0, 136, 0, 28)
     Container.AnchorPoint = Vector2.new(0, 0)
-    -- Vị trí Top-Left ngay dưới các icon của Roblox (Theo ảnh anh cung cấp)
-    Container.Position = UDim2.new(0, 65, 0, 55)
+    Container.Position = UDim2.new(0, 320, 0, 4)
     Container.BackgroundColor3 = Color3.fromRGB(16, 20, 28)
     Container.BackgroundTransparency = 0.2
     Container.BorderSizePixel = 0
