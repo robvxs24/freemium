@@ -1,11 +1,11 @@
 -- ==============================================================================
---  CHILLI HUB - ZERO-LAG TRIPLE LANGUAGE ENGINE V6.0 (EN / VI / PH)
+--  CHILLI HUB - ZERO-LAG QUAD-LANGUAGE ENGINE V7.0 (EN/VI/PH/ID)
 --  Tối ưu hóa:
 --    1. Nạp đúng luồng script gốc Chilli Hub (StealAnEgg).
---    2. Bổ sung ngôn ngữ Filipino (Philippines) với chuẩn Taglish game thủ.
---    3. Plain-Text Replacer: Chống lỗi 100% ký tự đặc biệt (), $.
---    4. Vòng xoay ngôn ngữ 3 chế độ (Anh -> Việt -> Phi).
---    5. Nút bấm Frosted Slate tối giản, không tụt FPS khi khởi chạy.
+--    2. Bổ sung tiếng Bahasa Indonesia chuẩn xác 100% không thiếu chữ.
+--    3. Dời nút chuyển ngôn ngữ sang góc TRÊN BÊN TRÁI (Top-Left) theo yêu cầu.
+--    4. Vòng xoay 4 chế độ: English -> Tiếng Việt -> Filipino -> Indonesia.
+--    5. Plain-Text Replacer: Chống lỗi 100% ký tự đặc biệt (), $.
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -13,7 +13,7 @@ local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local LocalPlayer = Players.LocalPlayer
 
-local currentLanguage = "VI" -- Bắt đầu bằng Tiếng Việt (EN, VI, PH)
+local currentLanguage = "VI" -- Khởi đầu: Tiếng Việt
 local translationLock = false
 local FastCache = {}
 
@@ -247,7 +247,7 @@ local MAP_VI = {
     ["Send Inventory Report"] = "Gửi Báo Cáo Túi Đồ", ["Send Equipped Report"] = "Gửi Báo Cáo Trang Bị"
 }
 
--- ==================== 2. TỪ ĐIỂN FILIPINO (TAGLISH GAMER) ====================
+-- ==================== 2. TỪ ĐIỂN FILIPINO ====================
 local MAP_PH = {
     ["Farm"] = "Farm", ["Player"] = "Manlalaro", ["Egg Finder"] = "Tagahanap ng Itlog",
     ["Predictor"] = "Tagahula", ["Progress"] = "Pag-unlad", ["Server"] = "Server",
@@ -470,73 +470,349 @@ local MAP_PH = {
     ["Send Inventory Report"] = "Ipadala ang Report ng Inventory", ["Send Equipped Report"] = "Ipadala ang Report ng Nakasuot"
 }
 
--- Mẫu Regex xử lý chuỗi động đa ngôn ngữ
+-- ==================== 3. TỪ ĐIỂN BAHASA INDONESIA ====================
+local MAP_ID = {
+    ["Farm"] = "Farming", ["Player"] = "Pemain", ["Egg Finder"] = "Pencari Telur",
+    ["Predictor"] = "Prediktor", ["Progress"] = "Kemajuan", ["Server"] = "Server",
+    ["Misc"] = "Lainnya", ["Creator"] = "Pembuat", ["Discord"] = "Discord",
+    ["Quick & Keys"] = "Akses Cepat", ["Settings"] = "Pengaturan", ["Config"] = "Konfigurasi",
+    ["Farm Tab > Auto Steal"] = "Tab Farm > Auto Curi",
+    ["Farm Tab > Auto Place Egg"] = "Tab Farm > Auto Taruh Telur",
+    ["Farm Tab > Auto Treadmill"] = "Tab Farm > Auto Treadmill",
+    ["Farm Tab > Auto Hatch & Equip"] = "Tab Farm > Auto Tetas & Pakai",
+    ["Farm Tab > Auto Sell"] = "Tab Farm > Auto Jual",
+    ["Farm Tab > Auto Fuse Machine"] = "Tab Farm > Auto Mesin Fuse",
+    ["Farm Tab > Auto Favorite"] = "Tab Farm > Auto Favorit",
+    ["Farm Tab > Auto Rift & Boss"] = "Tab Farm > Auto Rift & Boss",
+    ["Player Tab > ESP"] = "Tab Pemain > ESP (Tembus Pandang)",
+    ["Player Tab > Movement"] = "Tab Pemain > Gerakan",
+    ["Player Tab > Character"] = "Tab Pemain > Karakter",
+    ["Egg Finder Tab > Egg Finder"] = "Tab Cari Telur > Pencari Telur",
+    ["Predictor Tab > Discord Webhook"] = "Tab Prediksi > Webhook Discord",
+    ["Predictor Tab > Egg Predictor"] = "Tab Prediksi > Prediksi Telur",
+    ["Predictor Tab > Fuse Predictor"] = "Tab Prediksi > Prediksi Fuse",
+    ["Progress Tab > Auto Progression"] = "Tab Kemajuan > Progres Otomatis",
+    ["Server Tab > Server"] = "Tab Server > Server",
+    ["Misc Tab > Performance"] = "Tab Lain > Performa",
+    ["Misc Tab > Utility"] = "Tab Lain > Utilitas",
+    ["Discord Tab > Creator Event"] = "Tab Discord > Event Kreator",
+    ["Discord Tab > Community"] = "Tab Discord > Komunitas",
+    ["Quick & Keys Tab > Quick Access"] = "Tab Shortcut > Akses Cepat",
+    ["Quick & Keys Tab > Quick Bar & Keybinds"] = "Tab Shortcut > Bar Cepat & Tombol",
+    ["Settings Tab > Interface"] = "Tab Setting > Antarmuka",
+    ["Settings Tab > Defaults"] = "Tab Setting > Bawaan",
+    ["Config Tab > Config"] = "Tab Config > Konfigurasi",
+    ["Config Tab > Profiles"] = "Tab Config > Profil",
+    ["Config Tab > Import/Export"] = "Tab Config > Impor/Ekspor",
+    ["Auto Steal"] = "Auto Curi", ["Target Areas"] = "Area Target",
+    ["Min Rarity"] = "Rarity Minimum", ["Steal eggs of the chosen rarity and every rarity above it"] = "Curi telur dari rarity yang dipilih ke atas",
+    ["Min Value To Steal"] = "Nilai Minimum Curi", ["Skip eggs worth less than this (0 = off)"] = "Lewati telur yang lebih murah dari ini (0 = Mati)",
+    ["Target Specific Eggs"] = "Target Telur Spesifik", ["Only steal these eggs (empty = all)"] = "Hanya curi telur ini (kosong = semua)",
+    ["Prioritize Rift Recipe Eggs"] = "Prioritas Telur Resep Rift", ["Steal eggs the Rift recipe needs first"] = "Curi telur yang dibutuhkan resep Rift dulu",
+    ["Steal Priority"] = "Prioritas Mencuri", ["Highest Value"] = "Nilai Tertinggi",
+    ["Tween Speed"] = "Kecepatan Tween", ["Anti Guard V1"] = "Anti Penjaga V1",
+    ["Not recommended to use with Auto Steal"] = "Tidak disarankan dipakai dengan Auto Curi",
+    ["Auto Place Egg"] = "Auto Taruh Telur", ["Place Egg Rule"] = "Aturan Taruh Telur",
+    ["Place Egg Priority"] = "Prioritas Taruh Telur", ["Biggest Size"] = "Ukuran Terbesar",
+    ["Always"] = "Selalu", ["Auto Treadmill"] = "Auto Treadmill",
+    ["Stay On Treadmill"] = "Tetap di Treadmill", ["Re-mount the belt whenever the ride drops"] = "Naik lagi jika terjatuh",
+    ["Auto Hatch & Equip"] = "Auto Tetas & Pakai", ["Auto Hatch"] = "Auto Tetas",
+    ["Auto Equip Best"] = "Auto Pakai Terbaik", ["Equip Best when a better pet appears"] = "Otomatis pakai jika ada pet lebih baik",
+    ["Auto Sell"] = "Auto Jual", ["Auto Sell Pet"] = "Auto Jual Pet",
+    ["Sell Pets Now"] = "Jual Pet Sekarang", ["Sell Pet Rule"] = "Aturan Jual Pet",
+    ["Which checks must pass to sell"] = "Syarat yang harus dipenuhi untuk jual", ["Rarity Only"] = "Hanya Rarity",
+    ["Pet Max Rarity"] = "Rarity Maks Pet", ["Sell pets at or below this rarity"] = "Jual pet dari rarity ini ke bawah",
+    ["Pet Value Threshold"] = "Batas Nilai Pet", ["Sell pets worth less than this (0 = off)"] = "Jual pet yang lebih murah dari ini (0 = Mati)",
+    ["Keep Mutated Pets"] = "Simpan Pet Mutasi", ["Never sell mutated pets"] = "Jangan pernah jual pet mutasi",
+    ["Blacklist Sell Pets"] = "Daftar Hitam Jual Pet", ["These pets are never sold"] = "Pet ini tidak akan pernah dijual",
+    ["Auto Sell Egg"] = "Auto Jual Telur", ["Sell bag eggs matching the rules below"] = "Jual telur di tas sesuai aturan di bawah",
+    ["Sell Eggs Now"] = "Jual Telur Sekarang", ["Sell matching eggs once"] = "Jual telur yang cocok sekali saja",
+    ["Sell Egg Rule"] = "Aturan Jual Telur", ["Egg Max Rarity"] = "Rarity Maks Telur",
+    ["Sell eggs at or below this rarity"] = "Jual telur dari rarity ini ke bawah", ["Egg Value Threshold"] = "Batas Nilai Telur",
+    ["Sell eggs worth less than this (0 = off)"] = "Jual telur yang lebih murah dari ini (0 = Mati)", ["Keep Mutated Eggs"] = "Simpan Telur Mutasi",
+    ["Never sell mutated eggs"] = "Jangan pernah jual telur mutasi", ["Blacklist Sell Eggs"] = "Daftar Hitam Jual Telur",
+    ["These eggs are never sold"] = "Telur ini tidak akan pernah dijual",
+    ["Auto Fuse Machine"] = "Auto Mesin Fuse", ["Fuse 3 same pets into an egg, nonstop"] = "Gabungkan 3 pet sama jadi telur, nonstop",
+    ["Fuse Priority Mode"] = "Prioritas Fuse", ["Lowest Rarity First"] = "Rarity Terendah Dulu",
+    ["Pets To Use"] = "Pet yang Dipakai", ["Lowest To Highest"] = "Terendah ke Tertinggi",
+    ["Max Rarity to Fuse"] = "Rarity Maks untuk Fuse", ["Specific Species to Fuse"] = "Spesies Khusus untuk Fuse",
+    ["Only fuse these species (empty = all)"] = "Hanya fuse spesies ini (kosong = semua)", ["Skip Mutated Pets"] = "Lewati Pet Mutasi",
+    ["Eject Incomplete Slots"] = "Keluarkan Slot Tidak Lengkap", ["Take out pets that can't make a set"] = "Keluarkan pet yang tidak bisa jadi 1 set",
+    ["Auto Favorite"] = "Auto Favorit", ["Auto Favorite Pet"] = "Auto Favorit Pet",
+    ["Favorite pets matching the rules below"] = "Favoritkan pet sesuai aturan di bawah", ["Favorite Pets Now"] = "Favoritkan Pet Sekarang",
+    ["Favorite matching pets once"] = "Favoritkan pet yang cocok sekali saja", ["Favorite Rule"] = "Aturan Favorit",
+    ["Pass any check or all checks"] = "Penuhi salah satu atau semua syarat", ["Match All"] = "Cocok Semua",
+    ["Favorite Min Rarity"] = "Rarity Min Favorit", ["Favorite pets of the chosen rarity and every rarity above it"] = "Favoritkan pet dari rarity ini ke atas",
+    ["Favorite Mutations"] = "Favorit Mutasi", ["Mutation check (empty = skip)"] = "Cek mutasi (kosong = lewati)",
+    ["Favorite Min Value"] = "Nilai Min Favorit", ["Value check (0 = skip)"] = "Cek nilai (0 = lewati)",
+    ["Always Favorite Species"] = "Selalu Favoritkan Spesies", ["Always favorite these species"] = "Selalu favoritkan spesies ini",
+    ["Auto Favorite Equipped"] = "Auto Favorit yang Dipakai", ["Keep equipped pets favorited"] = "Tetap favoritkan pet yang sedang dipakai",
+    ["Auto Unfavorite Equipped"] = "Auto Hapus Favorit yang Dipakai", ["Unfavorite equipped pets not in the rules"] = "Hapus favorit jika tidak ada di aturan",
+    ["Favorite Equipped Now"] = "Favoritkan yang Dipakai Sekarang", ["Favorite all equipped pets once"] = "Favoritkan semua pet yang dipakai sekali saja",
+    ["Unfavorite Equipped Now"] = "Hapus Favorit yang Dipakai Sekarang", ["Unfavorite all equipped pets once"] = "Hapus favorit semua pet yang dipakai sekali",
+    ["Auto Rift & Boss"] = "Auto Rift & Boss", ["Auto Rift Sacrifice"] = "Auto Pengorbanan Rift",
+    ["Trade the 3 required pets into the Rift machine"] = "Masukkan 3 pet yang diminta ke mesin Rift", ["Auto Reroll Rift Recipe"] = "Auto Reroll Resep Rift",
+    ["Reroll the recipe when a pet is missing and free rerolls remain"] = "Ganti resep jika pet kurang dan masih ada reroll gratis", ["Auto Claim Boss Mastery"] = "Auto Ambil Mastery Boss",
+    ["Claim milestone rewards as soon as the kill count allows"] = "Ambil hadiah pencapaian setelah jumlah kill cukup", ["Auto Fight Boss"] = "Auto Lawan Boss",
+    ["Auto Progression"] = "Kemajuan Otomatis", ["Auto Buy Trail"] = "Auto Beli Efek Jejak",
+    ["Automatically buy available trails when affordable"] = "Otomatis beli efek jejak jika uang cukup", ["Auto Upgrade Base"] = "Auto Upgrade Markas",
+    ["Automatically upgrade base when money is available"] = "Otomatis upgrade markas jika uang cukup", ["Auto Upgrade Treadmill"] = "Auto Upgrade Treadmill",
+    ["Automatically upgrade treadmill when money is available"] = "Otomatis upgrade treadmill jika uang cukup", ["Auto Claim"] = "Auto Ambil Hadiah",
+    ["Claim offline money & index rewards"] = "Ambil uang offline & hadiah indeks",
+    ["ESP"] = "ESP (Tembus Pandang)", ["ESP Eggs"] = "ESP Telur",
+    ["ESP Fixed Size"] = "Ukuran ESP Tetap", ["ESP Own Base Eggs"] = "ESP Telur di Markas Sendiri",
+    ["Also show the eggs placed in your own base"] = "Tampilkan juga telur di markasmu", ["ESP Min Rarity"] = "Rarity Min ESP",
+    ["Show eggs of the chosen rarity and every rarity above it"] = "Tampilkan telur dari rarity ini ke atas", ["ESP Show Info"] = "Tampilkan Info ESP",
+    ["ESP Min Value"] = "Nilai Min ESP", ["ESP Egg Size"] = "Ukuran ESP Telur",
+    ["ESP Guards"] = "ESP Penjaga", ["ESP Guard Size"] = "Ukuran ESP Penjaga",
+    ["ESP Players"] = "ESP Pemain", ["ESP Player Info"] = "Info ESP Pemain",
+    ["ESP Player Size"] = "Ukuran ESP Pemain", ["Movement"] = "Gerakan",
+    ["Speed Boost"] = "Peningkatan Kecepatan", ["Boost Speed"] = "Kecepatan Tambahan",
+    ["Infinite Jump"] = "Lompat Tak Terbatas", ["Character"] = "Karakter",
+    ["Anti Ragdoll"] = "Anti Jatuh (Ragdoll)", ["Anti Trap"] = "Anti Perangkap",
+    ["Traps from other players cannot catch you"] = "Perangkap pemain lain tidak bisa menangkapmu", ["Instant Steal"] = "Curi Instan",
+    ["IDLE"] = "DIAM", ["Turn on Egg Finder to start hunting"] = "Nyalakan Pencari Telur untuk mulai berburu",
+    ["Keep hopping servers until a matching egg is found"] = "Pindah server terus sampai nemu telur yang cocok", ["Link To Auto Steal Filters"] = "Hubungkan ke Filter Auto Curi",
+    ["Share one set of filters with Auto Steal, both sides stay in step"] = "Pakai filter yang sama dengan Auto Curi", ["Min Value To Find"] = "Nilai Min Pencarian",
+    ["Hop Only When Rarity Appears"] = "Pindah Hanya Jika Rarity Muncul", ["Wait for the chosen rarity to appear, then hop until night"] = "Tunggu rarity muncul, lalu pindah server sampai malam",
+    ["Rarity That Must Appear"] = "Rarity Wajib Muncul", ["Hop starts when this rarity or higher appears"] = "Mulai pindah saat rarity ini muncul",
+    ["Hop Delay"] = "Jeda Pindah Server", ["Egg Predictor"] = "Prediktor Telur",
+    ["Sort By"] = "Urutkan Berdasarkan", ["Value"] = "Nilai",
+    ["Preview Card"] = "Pratinjau Kartu", ["Search eggs..."] = "Cari telur...",
+    ["Tap an egg below to preview it"] = "Sentuh telur di bawah untuk melihat detail", ["In inventory"] = "Di inventaris",
+    ["Hold egg"] = "Sedang dipegang", ["Fuse Predictor"] = "Prediktor Fuse",
+    ["Machine is empty"] = "Mesin kosong", ["Load 3 pets of the same species to see the result odds"] = "Masukkan 3 pet spesies sama untuk lihat peluang hasil",
+    ["Search"] = "Cari", ["Auto Load Script"] = "Auto Jalankan Script",
+    ["Server Hop Mode"] = "Mode Pindah Server", ["Least Players"] = "Pemain Paling Sedikit",
+    ["Server Hop"] = "Pindah Server", ["Job ID"] = "ID Server",
+    ["Paste a server Job ID..."] = "Tempel ID server di sini...", ["Join Job ID"] = "Masuk via ID",
+    ["Copy Current Job ID"] = "Salin ID Server Saat Ini", ["Rejoin Server"] = "Masuk Ulang Server",
+    ["Join"] = "Masuk", ["Copy"] = "Salin", ["Rejoin"] = "Masuk Ulang", ["Hop"] = "Pindah",
+    ["Performance"] = "Performa", ["FPS Cap"] = "Batas FPS",
+    ["Optimizer"] = "Pengoptimal Maksimal", ["Strip shadows, textures and effects for the highest FPS"] = "Hapus bayangan, tekstur, dan efek demi FPS tinggi",
+    ["FPS and Ping"] = "FPS dan Ping", ["FPS and Ping Size"] = "Ukuran Teks FPS & Ping",
+    ["Utility"] = "Utilitas", ["Anti AFK"] = "Anti AFK",
+    ["Creator Event"] = "Event Kreator", ["INVITE LINK"] = "LINK UNDANGAN",
+    ["Copy Link"] = "Salin Link", ["WHAT YOU GET"] = "APA YANG ANDA DAPATKAN",
+    ["New Scripts & Updates"] = "Script & Update Baru", ["Patch notes and new game scripts are posted there first."] = "Catatan update & script baru diposting di sana duluan.",
+    ["Giveaways"] = "Bagi-Bagi Hadiah (Giveaway)", ["Member giveaways and events are announced in the server."] = "Giveaway member & event diumumkan di server.",
+    ["Support"] = "Dukungan", ["Ask for help, report bugs and get answers from the team."] = "Minta bantuan, lapor bug, dan dapatkan jawaban.",
+    ["Suggestions"] = "Saran", ["Request features and vote on what gets added next."] = "Minta fitur & voting update selanjutnya.",
+    ["Paste the copied link into your browser or the Discord app to join."] = "Tempel link di browser atau Discord untuk bergabung.",
+    ["Copy Discord Link"] = "Salin Link Discord", ["Click"] = "Klik",
+    ["Quick Access"] = "Akses Cepat", ["Show Quick Bars"] = "Tampilkan Bar Cepat",
+    ["Floating quick bars; drag a header to move one"] = "Bar melayang; geser judul untuk memindahkan", ["Visible Quick Bars"] = "Bar Cepat Aktif",
+    ["Quick Bar Size"] = "Ukuran Bar Cepat", ["Quick Bar & Keybinds"] = "Bar Cepat & Tombol Shortcut",
+    ["Reset Quick Access"] = "Reset Akses Cepat", ["Restore default items, bars and positions"] = "Kembalikan posisi & item bawaan",
+    ["Reset Keybinds"] = "Reset Shortcut", ["Restore the defaults set in code"] = "Kembalikan tombol bawaan script",
+    ["Reset"] = "Reset", ["Interface"] = "Antarmuka", ["UI Size"] = "Ukuran UI",
+    ["Scales the main window; the corner grip does the same by hand"] = "Ubah ukuran jendela; geser pojok untuk manual",
+    ["Notifications"] = "Notifikasi", ["Show notification cards; turning this off hides every notify"] = "Tampilkan notifikasi; matikan untuk sembunyikan semua",
+    ["Open On Launch"] = "Buka Saat Dijalankan", ["Open the UI automatically when the script starts"] = "Buka menu otomatis saat script aktif",
+    ["Defaults"] = "Bawaan", ["Reset to Defaults"] = "Kembalikan ke Bawaan",
+    ["Reset every feature to its built-in default"] = "Reset semua fitur ke pengaturan asli", ["Turn Off All Toggles"] = "Matikan Semua Tombol",
+    ["Switch off every enabled toggle in the feature tabs"] = "Matikan semua fitur yang sedang aktif", ["Turn Off"] = "Matikan",
+    ["Auto Save Config"] = "Auto Simpan Config", ["Auto Load Config"] = "Auto Muat Config",
+    ["New Config Name"] = "Nama Config Baru", ["Create New Config"] = "Buat Config Baru",
+    ["Save Config"] = "Simpan Config", ["Import Config Text"] = "Impor Teks Config",
+    ["Destination"] = "Tujuan", ["Webhook URL"] = "URL Webhook",
+    ["Notify Egg Finder Match"] = "Notif Pencari Telur Cocok", ["Post the egg Egg Finder stops hopping for"] = "Kirim info telur yang baru ditemukan",
+    ["Notify Stolen Eggs"] = "Notif Telur Berhasil Dicuri", ["Post every egg you bring home"] = "Kirim info tiap telur yang dibawa pulang",
+    ["None"] = "Tidak Ada", ["Off"] = "Mati", ["Filter features..."] = "Filter fitur...",
+    ["Favorite"] = "Favorit", ["Unfavorite"] = "Hapus Favorit", ["Sell"] = "Jual",
+    ["Mythic"] = "Mythic", ["Secret"] = "Secret", ["Divine"] = "Divine",
+    ["Eternal"] = "Eternal", ["Cosmic"] = "Cosmic", ["Legendary"] = "Legendary",
+    ["Match All"] = "Cocok Semua", ["Rarity Only"] = "Hanya Rarity",
+    ["Window Minimized - Click bubble to restore"] = "Jendela diminimalkan - Klik gelembung untuk membuka",
+    ["Let's Chat!"] = "Ayo Chat!", ["Connecting to Global Script Chat..."] = "Menghubungkan ke Chat Global...",
+    ["Send"] = "Kirim", ["Live"] = "Langsung", ["Spoof anti cheat success!"] = "Bypass Anti-Cheat sukses!",
+    ["Fetching..."] = "Mengambil data...", ["Loaded"] = "Selesai Dimuat",
+    ["Teleport Mode [Gold/Premium]"] = "Mode Teleportasi [Gold/VIP]", ["Force Speed To (0 = Auto / Q"] = "Paksa Kecepatan Ke (0 = Auto / Q)",
+    ["Force Speed To"] = "Paksa Kecepatan", ["Manual Steal (Instant Carry)"] = "Curi Manual (Angkat Instan)",
+    ["Instant Carry (Manual Steal)"] = "Angkat Instan (Curi Manual)", ["Instant Carry Rarities"] = "Rarity Angkat Instan",
+    ["Pet Names (Auto Place)"] = "Nama Pet (Auto Taruh)", ["All (none)"] = "Semua (Tidak ada)",
+    ["Rarities"] = "Rarity", ["Areas"] = "Area", ["Priority"] = "Prioritas", ["Rarity"] = "Rarity",
+    ["Min Egg KG (0 = off)"] = "KG Min Telur (0 = Mati)", ["Automation & Egg Management"] = "Otomatisasi & Manajemen Telur",
+    ["Auto Hatch Ready"] = "Auto Tetas Telur Siap", ["Auto Place All Egg"] = "Auto Taruh Semua Telur",
+    ["Auto Place Selected (By Pet Names Filter)"] = "Auto Taruh Terpilih (Sesuai Filter Nama)",
+    ["Auto Steal from other players [Gold/Premium]"] = "Auto Curi dari pemain lain [Gold/VIP]",
+    ["Automatically target players carrying eggs"] = "Otomatis target pemain yang bawa telur",
+    ["Filter Rarity for Steal"] = "Filter Rarity untuk Dicuri",
+    ["Steal from special for player (Teleport Strike)"] = "Curi spesial dari pemain (Teleport Strike)",
+    ["Steal History"] = "Riwayat Curi", ["History of Stolen Eggs from Players"] = "Riwayat Telur Curian Sesi Ini",
+    ["Clear"] = "Hapus", ["No player steals recorded yet this session."] = "Belum ada riwayat curi di sesi ini.",
+    ["In Safe Zone"] = "Di Zona Aman", ["No Egg Carried"] = "Tidak Bawa Telur", ["Locked"] = "Terkunci",
+    ["STOLEN EGGS"] = "TELUR DICURI", ["HUNTED TARGETS"] = "TARGET DIBURU",
+    ["Reset Session Counter"] = "Reset Penghitung Sesi", ["Live Engine"] = "Mesin Aktif",
+    ["Bag Inventory & Live Value"] = "Isi Tas & Nilai Saat Ini", ["TOTAL VALUE IN BAG"] = "TOTAL NILAI DI TAS",
+    ["TOTAL ITEMS IN BAG"] = "TOTAL ITEM DI TAS", ["Sell Egg Settings"] = "Aturan Jual Telur",
+    ["Sell Below Value (cth 100M, ..."] = "Jual di Bawah Nilai (cth: 100M)", ["Sell Below KG (0=off)"] = "Jual di Bawah KG (0 = Mati)",
+    ["Pet Names (per area)"] = "Nama Pet (Per Area)", ["Select Pet to Fuse"] = "Pilih Pet untuk Fuse",
+    ["Refresh Inventory Pets"] = "Refresh Inventaris Pet", ["List Player Need Partner"] = "Daftar Pemain Cari Partner",
+    ["Find Partner (Register) [Gold/Premium]"] = "Cari Partner (Daftar) [Gold/VIP]",
+    ["Refresh Partner List"] = "Refresh Daftar Partner", ["Broadcast Need Partner [Gold/Premium]"] = "Siarkan Butuh Partner [Gold/VIP]",
+    ["Broadcast a global Notice banner to script users (1-hour cooldown)."] = "Siarkan ke seluruh pengguna script (Cooldown 1 Jam).",
+    ["Filter by Pet Owned (e.g. Pegasus)..."] = "Filter berdasar pet (cth. Pegasus)...",
+    ["No other players are currently looking for a partner."] = "Tidak ada pemain lain yang cari partner saat ini.",
+    ["Rift Live Status & Rotation"] = "Status Langsung & Rotasi Rift", ["Banner: [Verdant] Riftborn"] = "Banner: [Hijau] Riftborn",
+    ["Refresh"] = "Refresh", ["Recipe egg is still unmatched! Must hatch into pets before Trade-In."] = "Resep telur belum cocok! Teteskan dulu sebelum ditukar.",
+    ["Open Boss Shop"] = "Buka Toko Boss", ["Auto Buy Boss Shop"] = "Auto Beli di Toko Boss",
+    ["Automation"] = "Otomatisasi", ["Target Banners (none = all)"] = "Target Banner (Kosong = Semua)",
+    ["Boss Rift (Abyss Overlord)"] = "Boss Rift (Abyss Overlord)", ["Abyss Overlord (Portal Closed)"] = "Abyss Overlord (Portal Ditutup)",
+    ["Boss HP: Waiting for spawn..."] = "HP Boss: Menunggu muncul...", ["Boss Glide Speed (studs/s)"] = "Kecepatan Terbang Boss (studs/s)",
+    ["Leave Boss Arena (To Safe Zone)"] = "Keluar Arena Boss (Ke Zona Aman)", ["Manual Attack (Equip Bat & Swing)"] = "Serangan Manual (Pegang Pemukul)",
+    ["Quick Actions"] = "Aksi Cepat", ["Place Rift Eggs to Pen"] = "Taruh Telur Rift ke Kandang",
+    ["Instant Trade-In Once"] = "Trade-In Instan Sekali", ["Use Free Reroll Now"] = "Pakai Reroll Gratis Sekarang",
+    ["Buy 1x Mutation Consumable"] = "Beli 1x Potion Mutasi", ["Claim All Available Milestones"] = "Ambil Semua Hadiah Milestone",
+    ["Teleport to Rift Machine"] = "Teleportasi ke Mesin Rift", ["Refresh Status"] = "Refresh Status",
+    ["Session Stats"] = "Statistik Sesi", ["Rift Sacrifices"] = "Pengorbanan Rift", ["RIFT SACRIFICES"] = "PENGORBANAN RIFT",
+    ["Guard"] = "Penjaga", ["Light Dark"] = "Naga Terang/Gelap", ["Hunt & Stash Settings"] = "Aturan Berburu & Menyimpan",
+    ["Drop Egg Before Safe Zone"] = "Jatuhkan Telur Sebelum Zona Aman", ["Do Not Deliver to Safe Zone"] = "Jangan Antar ke Zona Aman",
+    ["Never Drop the Egg"] = "Jangan Pernah Jatuhkan Telur", ["Staging Controls"] = "Kontrol Pos Sementara",
+    ["Set Staging Spot (Here)"] = "Pilih Pos Sementara (Di Sini)", ["Deliver Stash Now"] = "Antar Simpanan Sekarang",
+    ["Uncap FPS, Lighting Compatibility, SmoothPlastic, & Native Low Settings"] = "Buka batas FPS, Cahaya, SmoothPlastic & Low Settings",
+    ["Re-apply Boost Now"] = "Terapkan Ulang Boost Sekarang", ["Visual & Clean Up"] = "Visual & Bersih-Bersih",
+    ["Delete other player pet and egg"] = "Hapus pet & telur pemain lain",
+    ["Hapus visual pet & telur dari player lain (Aman: telur area tetap ada)"] = "Hapus visual pet & telur pemain lain (Aman)",
+    ["Auto Execute"] = "Auto Jalan", ["Hop Now (Emptiest Server)"] = "Pindah Sekarang (Server Tersepi)",
+    ["Solo Server"] = "Server Solo", ["Prev"] = "Sblm", ["Next"] = "Lanjut",
+    ["Display & Window"] = "Tampilan & Jendela", ["Display Full Size (PC)"] = "Tampilan Penuh (PC)",
+    ["PC Full Size sets 100% scale for desktop displays. Turn OFF for"] = "PC Full Size membuat layar 100%. Matikan jika di HP",
+    ["Anti-AFK Protection"] = "Perlindungan Anti-AFK",
+    ["Prevent idle triggers, 20-min Roblox kick & game soft-teleports with"] = "Mencegah kick 20 menit Roblox & soft-teleport",
+    ["View Disconnect Log"] = "Lihat Catatan Disconnect", ["Clear Disconnect Log"] = "Hapus Catatan Disconnect",
+    ["Configuration"] = "Konfigurasi", ["Alert Types"] = "Jenis Notifikasi",
+    ["Periodic Progress"] = "Progres Berkala", ["Egg Spawn Alert"] = "Notif Telur Muncul",
+    ["Collect / Claim"] = "Kumpul / Ambil", ["Egg Hatched"] = "Telur Menetas",
+    ["Pet Obtained"] = "Pet Didapat", ["Pets Sold"] = "Pet Terjual",
+    ["Trails Bought"] = "Efek Jejak Dibeli", ["Auto Gift Alert"] = "Notif Hadiah Otomatis",
+    ["Rebirth Alert"] = "Notif Rebirth", ["Disconnect Alert"] = "Notif Putus Koneksi",
+    ["Alert Filters"] = "Filter Notifikasi", ["Min Rarity for Alerts"] = "Rarity Min untuk Notif",
+    ["Any"] = "Apa Saja", ["Manual Actions"] = "Aksi Manual",
+    ["Send Summary Now"] = "Kirim Ringkasan Sekarang", ["Test Webhook"] = "Tes Webhook",
+    ["Send Inventory Report"] = "Kirim Laporan Inventaris", ["Send Equipped Report"] = "Kirim Laporan Item Terpakai"
+}
+
+-- Mẫu Regex xử lý chuỗi động 4 ngôn ngữ (EN / VI / PH / ID)
 local DYNAMIC_PATTERNS = {
     {
         pattern = "^(%d+) selected$",
-        format  = function(lang, count) return (lang == "VI") and ("Đã chọn " .. count) or ("Napili " .. count) end
+        format  = function(lang, count) 
+            if lang == "VI" then return "Đã chọn " .. count 
+            elseif lang == "PH" then return "Napili " .. count 
+            elseif lang == "ID" then return "Terpilih " .. count 
+            end return count .. " selected" 
+        end
     },
     {
         pattern = "^IN INVENTORY %((%d+)%)$",
-        format  = function(lang, count) return (lang == "VI") and ("TRONG TÚI ĐỒ (" .. count .. ")") or ("NASA INVENTORY (" .. count .. ")") end
+        format  = function(lang, count) 
+            if lang == "VI" then return "TRONG TÚI ĐỒ (" .. count .. ")"
+            elseif lang == "PH" then return "NASA INVENTORY (" .. count .. ")"
+            elseif lang == "ID" then return "DI INVENTARIS (" .. count .. ")"
+            end return "IN INVENTORY (" .. count .. ")"
+        end
     },
     {
         pattern = "^Eggs placed (%d+)%/(%d+) %- (%d+)%/(%d+) pets equipped, (%d+) in bag$",
-        format  = function(lang, e1, e2, p1, p2, b1) return (lang == "VI") and ("Đã đặt " .. e1 .. "/" .. e2 .. " trứng - " .. p1 .. "/" .. p2 .. " thú trang bị, " .. b1 .. " trong túi") or ("Nailagay na itlog " .. e1 .. "/" .. e2 .. " - " .. p1 .. "/" .. p2 .. " pets ang gamit, " .. b1 .. " sa bag") end
+        format  = function(lang, e1, e2, p1, p2, b1) 
+            if lang == "VI" then return "Đã đặt " .. e1 .. "/" .. e2 .. " trứng - " .. p1 .. "/" .. p2 .. " thú trang bị, " .. b1 .. " trong túi"
+            elseif lang == "PH" then return "Nailagay na itlog " .. e1 .. "/" .. e2 .. " - " .. p1 .. "/" .. p2 .. " pets ang gamit, " .. b1 .. " sa bag"
+            elseif lang == "ID" then return "Ditaruh " .. e1 .. "/" .. e2 .. " telur - " .. p1 .. "/" .. p2 .. " pet dipakai, " .. b1 .. " di tas"
+            end return "Eggs placed " .. e1 .. "/" .. e2 .. " - " .. p1 .. "/" .. p2 .. " pets equipped, " .. b1 .. " in bag"
+        end
     },
     {
         pattern = "^Pet matches %- (%d+) pets for %$(.-)$",
-        format  = function(lang, count, val) return (lang == "VI") and ("Thú khớp lệnh - " .. count .. " thú, tổng giá $" .. val) or ("Tumugma ang pet - " .. count .. " pets sa halagang $" .. val) end
+        format  = function(lang, count, val) 
+            if lang == "VI" then return "Thú khớp lệnh - " .. count .. " thú, tổng giá $" .. val
+            elseif lang == "PH" then return "Tumugma ang pet - " .. count .. " pets sa halagang $" .. val
+            elseif lang == "ID" then return "Pet cocok - " .. count .. " pet harga $" .. val
+            end return "Pet matches - " .. count .. " pets for $" .. val
+        end
     },
     {
         pattern = "^Egg matches %- (%d+) eggs for %$(.-)$",
-        format  = function(lang, count, val) return (lang == "VI") and ("Trứng khớp lệnh - " .. count .. " trứng, tổng giá $" .. val) or ("Tumugma ang itlog - " .. count .. " itlog sa halagang $" .. val) end
+        format  = function(lang, count, val) 
+            if lang == "VI" then return "Trứng khớp lệnh - " .. count .. " trứng, tổng giá $" .. val
+            elseif lang == "PH" then return "Tumugma ang itlog - " .. count .. " itlog sa halagang $" .. val
+            elseif lang == "ID" then return "Telur cocok - " .. count .. " telur harga $" .. val
+            end return "Egg matches - " .. count .. " eggs for $" .. val
+        end
     },
     {
         pattern = "^Next fuse %- (%d+) (.-) for %$(.-)$",
-        format  = function(lang, count, name, val) return (lang == "VI") and ("Ghép tiếp theo - " .. count .. " " .. name .. " tốn $" .. val) or ("Susunod na fuse - " .. count .. " " .. name .. " halaga $" .. val) end
+        format  = function(lang, count, name, val) 
+            if lang == "VI" then return "Ghép tiếp theo - " .. count .. " " .. name .. " tốn $" .. val
+            elseif lang == "PH" then return "Susunod na fuse - " .. count .. " " .. name .. " halaga $" .. val
+            elseif lang == "ID" then return "Fuse selanjutnya - " .. count .. " " .. name .. " biaya $" .. val
+            end return "Next fuse - " .. count .. " " .. name .. " for $" .. val
+        end
     },
     {
         pattern = "^Favorite matches %- (%d+) pets, (%d+) to mark %| (%d+) favorited$",
-        format  = function(lang, mCount, mark, fav) return (lang == "VI") and ("Khớp khóa thú - " .. mCount .. " con, " .. mark .. " cần khóa | " .. fav .. " đã khóa") or ("Tumugma ang paborito - " .. mCount .. " pets, " .. mark .. " i-mark | " .. fav .. " paborito na") end
+        format  = function(lang, mCount, mark, fav) 
+            if lang == "VI" then return "Khớp khóa thú - " .. mCount .. " con, " .. mark .. " cần khóa | " .. fav .. " đã khóa"
+            elseif lang == "PH" then return "Tumugma ang paborito - " .. mCount .. " pets, " .. mark .. " i-mark | " .. fav .. " paborito na"
+            elseif lang == "ID" then return "Favorit cocok - " .. mCount .. " pet, " .. mark .. " ditandai | " .. fav .. " favorit"
+            end return "Favorite matches - " .. mCount .. " pets, " .. mark .. " to mark | " .. fav .. " favorited"
+        end
     },
     {
         pattern = "^Riftborn %- needs (.-) %- pity (%d+)%/(%d+) %- free rerolls (%d+) %- rotates in (.-) %- boss portal (.-)$",
-        format  = function(lang, needs, pity1, pity2, reroll, timeStr, status) return (lang == "VI") and ("Riftborn - Cần: " .. needs .. " - Bảo hiểm: " .. pity1 .. "/" .. pity2 .. " - Quay free: " .. reroll .. " - Đổi sau " .. timeStr .. " - Cổng Boss: " .. (status == "closed" and "Đóng" or "Mở")) or ("Riftborn - Kailangan: " .. needs .. " - Awa: " .. pity1 .. "/" .. pity2 .. " - Libreng reroll: " .. reroll .. " - Iikot sa " .. timeStr .. " - Portal ng boss: " .. (status == "closed" and "Sarado" or "Bukas")) end
+        format  = function(lang, needs, pity1, pity2, reroll, timeStr, status) 
+            if lang == "VI" then return "Riftborn - Cần: " .. needs .. " - Bảo hiểm: " .. pity1 .. "/" .. pity2 .. " - Quay free: " .. reroll .. " - Đổi sau " .. timeStr .. " - Cổng Boss: " .. (status == "closed" and "Đóng" or "Mở")
+            elseif lang == "PH" then return "Riftborn - Kailangan: " .. needs .. " - Awa: " .. pity1 .. "/" .. pity2 .. " - Libreng reroll: " .. reroll .. " - Iikot sa " .. timeStr .. " - Portal ng boss: " .. (status == "closed" and "Sarado" or "Bukas")
+            elseif lang == "ID" then return "Riftborn - Butuh: " .. needs .. " - Awa: " .. pity1 .. "/" .. pity2 .. " - Reroll gratis: " .. reroll .. " - Ganti dlm " .. timeStr .. " - Portal Boss: " .. (status == "closed" and "Tutup" or "Buka")
+            end return "Riftborn - needs " .. needs .. " - pity " .. pity1 .. "/" .. pity2 .. " - free rerolls " .. reroll .. " - rotates in " .. timeStr .. " - boss portal " .. status
+        end
     },
     {
         pattern = "^(%d+) eggs %- (%d+) ready %- (%d+) growing %- (%d+) in bag %- Total (.-)$",
-        format  = function(lang, e1, r1, g1, b1, t1) return (lang == "VI") and (e1 .. " trứng - " .. r1 .. " xong - " .. g1 .. " đang lớn - " .. b1 .. " trong túi - Tổng " .. t1) or (e1 .. " itlog - " .. r1 .. " handa - " .. g1 .. " lumalaki - " .. b1 .. " sa bag - Kabuuan " .. t1) end
+        format  = function(lang, e1, r1, g1, b1, t1) 
+            if lang == "VI" then return e1 .. " trứng - " .. r1 .. " xong - " .. g1 .. " đang lớn - " .. b1 .. " trong túi - Tổng " .. t1
+            elseif lang == "PH" then return e1 .. " itlog - " .. r1 .. " handa - " .. g1 .. " lumalaki - " .. b1 .. " sa bag - Kabuuan " .. t1
+            elseif lang == "ID" then return e1 .. " telur - " .. r1 .. " siap - " .. g1 .. " tumbuh - " .. b1 .. " di tas - Total " .. t1
+            end return e1 .. " eggs - " .. r1 .. " ready - " .. g1 .. " growing - " .. b1 .. " in bag - Total " .. t1
+        end
     },
     {
         pattern = "^Players (%d+)%/(%d+)$",
-        format  = function(lang, p1, p2) return (lang == "VI") and ("Người chơi: " .. p1 .. "/" .. p2) or ("Mga Manlalaro: " .. p1 .. "/" .. p2) end
+        format  = function(lang, p1, p2) 
+            if lang == "VI" then return "Người chơi: " .. p1 .. "/" .. p2
+            elseif lang == "PH" then return "Mga Manlalaro: " .. p1 .. "/" .. p2
+            elseif lang == "ID" then return "Pemain: " .. p1 .. "/" .. p2
+            end return "Players " .. p1 .. "/" .. p2
+        end
     }
 }
 
--- Sắp xếp tự điển dài -> ngắn (Plain-Text Rules)
-local SortedVI, SortedPH = {}, {}
+-- Sắp xếp tự điển dài -> ngắn
+local SortedVI, SortedPH, SortedID = {}, {}, {}
 for en, vi in pairs(MAP_VI) do table.insert(SortedVI, {en = en, out = vi, len = #en}) end
 for en, ph in pairs(MAP_PH) do table.insert(SortedPH, {en = en, out = ph, len = #en}) end
+for en, id in pairs(MAP_ID) do table.insert(SortedID, {en = en, out = id, len = #en}) end
 table.sort(SortedVI, function(a, b) return a.len > b.len end)
 table.sort(SortedPH, function(a, b) return a.len > b.len end)
+table.sort(SortedID, function(a, b) return a.len > b.len end)
 
--- ==================== 2. ENGINE DỊCH CHUỖI SIÊU TỐC ĐA NGÔN NGỮ ====================
+-- ==================== 2. ENGINE DỊCH CHUỖI SIÊU TỐC ====================
 local function translateText(raw)
     local cacheKey = currentLanguage .. "|" .. raw
     if FastCache[cacheKey] then return FastCache[cacheKey] end
 
     local trimmed = raw:gsub("^%s*(.-)%s*$", "%1")
-    local exactMatch = (currentLanguage == "VI") and MAP_VI[trimmed] or MAP_PH[trimmed]
+    local exactMatch = nil
+    if currentLanguage == "VI" then exactMatch = MAP_VI[trimmed]
+    elseif currentLanguage == "PH" then exactMatch = MAP_PH[trimmed]
+    elseif currentLanguage == "ID" then exactMatch = MAP_ID[trimmed] end
 
-    -- 1. O(1) Exact HashMap Lookup
     if exactMatch then
         local res = safeReplace(raw, trimmed, exactMatch)
         FastCache[cacheKey] = res
         return res
     end
 
-    -- 2. Khớp chuỗi động Regex
     for _, item in ipairs(DYNAMIC_PATTERNS) do
         local matches = {trimmed:match(item.pattern)}
         if #matches > 0 then
@@ -546,10 +822,12 @@ local function translateText(raw)
         end
     end
 
-    -- 3. Khớp cụm từ dài nhất bằng Plain-Text
     local result = raw
     local matched = false
-    local sortedMap = (currentLanguage == "VI") and SortedVI or SortedPH
+    local sortedMap = SortedVI
+    if currentLanguage == "PH" then sortedMap = SortedPH
+    elseif currentLanguage == "ID" then sortedMap = SortedID end
+
     for _, item in ipairs(sortedMap) do
         if result:find(item.en, 1, true) then
             result = safeReplace(result, item.en, item.out)
@@ -603,7 +881,10 @@ local function hookElement(inst)
             local isKnown = false
             
             if currentLanguage ~= "EN" then
-                local sortedMap = (currentLanguage == "VI") and SortedVI or SortedPH
+                local sortedMap = SortedVI
+                if currentLanguage == "PH" then sortedMap = SortedPH
+                elseif currentLanguage == "ID" then sortedMap = SortedID end
+
                 for _, item in ipairs(sortedMap) do
                     if current:find(item.out, 1, true) then
                         isKnown = true
@@ -633,7 +914,7 @@ local function updateAllActive()
     end
 end
 
--- ==================== 3. NÚT ĐỔI NGÔN NGỮ 3 CHẾ ĐỘ ====================
+-- ==================== 3. NÚT ĐỔI NGÔN NGỮ BÊN TRÁI (TOP-LEFT) ====================
 local function createLangToggleUI()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local old = parentTarget:FindFirstChild("Chilli_LangToggle_Slate")
@@ -647,8 +928,10 @@ local function createLangToggleUI()
     ScreenGui.Parent = parentTarget
 
     local Container = Instance.new("Frame", ScreenGui)
-    Container.Size = UDim2.new(0, 126, 0, 28)
-    Container.Position = UDim2.new(1, -140, 0, 14)
+    Container.Size = UDim2.new(0, 136, 0, 28)
+    Container.AnchorPoint = Vector2.new(0, 0)
+    -- Vị trí Top-Left ngay dưới các icon của Roblox (Theo ảnh anh cung cấp)
+    Container.Position = UDim2.new(0, 65, 0, 55)
     Container.BackgroundColor3 = Color3.fromRGB(16, 20, 28)
     Container.BackgroundTransparency = 0.2
     Container.BorderSizePixel = 0
@@ -698,6 +981,7 @@ local function createLangToggleUI()
         end
     end)
 
+    -- Vòng xoay 4 Ngôn ngữ: VI -> PH -> ID -> EN
     ClickBtn.MouseButton1Click:Connect(function()
         if currentLanguage == "VI" then
             currentLanguage = "PH"
@@ -705,6 +989,11 @@ local function createLangToggleUI()
             TweenService:Create(Label, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(245, 205, 110)}):Play()
             TweenService:Create(Stroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(160, 135, 60)}):Play()
         elseif currentLanguage == "PH" then
+            currentLanguage = "ID"
+            Label.Text = "Indonesia"
+            TweenService:Create(Label, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(130, 220, 240)}):Play()
+            TweenService:Create(Stroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(60, 140, 160)}):Play()
+        elseif currentLanguage == "ID" then
             currentLanguage = "EN"
             Label.Text = "English"
             TweenService:Create(Label, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(215, 180, 180)}):Play()
