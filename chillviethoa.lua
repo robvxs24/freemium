@@ -1,17 +1,15 @@
 -- ==============================================================================
---  CHILLI HUB - ULTRA ZERO-LAG SUNSET ENGINE V9.5 (EN/VI/PH/ID)
+--  CHILLI HUB - ULTRA ZERO-LAG & NOSTALGIC SUNSET ENGINE V9.7 (EN/VI/PH/ID)
 --  Tối ưu hóa:
---    1. Asynchronous Loading: Tách luồng khởi chạy, loại bỏ 100% đơ máy lúc đầu.
---    2. Sunset 2.0: Hoàng hôn Synthwave (Cam-Tím), tăng tương phản, tắt sương mù.
---    3. Trứng Neon: Tỏa sáng rực rỡ trong nền SmoothPlastic siêu nhẹ.
---    4. Recursive Chunking: Quét đệ quy ngầm mượt mà không rớt FPS.
---    5. Vòng xoay 4 ngôn ngữ và Nút bấm Frosted Slate (Chính giữa màn hình).
+--    1. ĐÃ XÓA NHẶT NHANH (Fast Steal) theo yêu cầu để đảm bảo an toàn tối đa.
+--    2. Nostalgic Shader: Ánh sáng chiều tà (Golden hour), tone ấm, tương phản nhẹ.
+--    3. Recursive Chunking: Quét map đệ quy ngầm, loại bỏ 100% hiện tượng đơ khởi động.
+--    4. Vòng xoay 4 ngôn ngữ và Nút bấm Frosted Slate Top-Center.
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
-local ProximityPromptService = game:GetService("ProximityPromptService")
 local RunService = game:GetService("RunService")
 local Lighting = game:GetService("Lighting")
 local LocalPlayer = Players.LocalPlayer
@@ -23,37 +21,38 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 2. MODULE HOÀNG HÔN 2.0 & TỐI ƯU HÓA BẢN ĐỒ ====================
--- Delay 3.5s để script gốc load xong hoàn toàn, tránh giành giật CPU
+-- ==================== 2. MODULE HOÀNG HÔN HOÀI NIỆM & CHỐNG LAG ====================
+-- Nhường 3.5s cho UI gốc load, chống đơ main thread
 task.delay(3.5, function()
     pcall(function()
-        -- Tắt bóng đổ, chỉnh màu Hoàng Hôn (Cam - Tím nhạt)
+        -- Shader Hoàng Hôn Chân Thực (Golden Hour)
         Lighting.GlobalShadows = false
-        Lighting.TimeOfDay = "17:45:00"
-        Lighting.Ambient = Color3.fromRGB(140, 100, 120)
-        Lighting.OutdoorAmbient = Color3.fromRGB(180, 110, 80)
-        Lighting.Brightness = 1.3
-        Lighting.ColorShift_Bottom = Color3.fromRGB(255, 120, 180) -- Ánh tím hắt từ dưới
-        Lighting.ColorShift_Top = Color3.fromRGB(255, 180, 100)    -- Ánh cam hắt từ trên
-        Lighting.FogEnd = 9e9 -- Xóa sương mù, nhìn xuyên map
+        Lighting.TimeOfDay = "17:15:00" -- Chiều tà vàng ruộm
+        Lighting.Ambient = Color3.fromRGB(110, 100, 90) -- Bóng râm xám ấm
+        Lighting.OutdoorAmbient = Color3.fromRGB(160, 130, 100) -- Nắng vàng nhẹ nhàng
+        Lighting.Brightness = 1.0
+        Lighting.ColorShift_Bottom = Color3.fromRGB(130, 110, 90)
+        Lighting.ColorShift_Top = Color3.fromRGB(255, 235, 210)
+        Lighting.FogEnd = 9e9 -- Xóa sương mù
 
-        -- Dọn sạch hiệu ứng cũ gây lag
+        -- Dọn dẹp rác hậu kỳ của game
         for _, v in ipairs(Lighting:GetChildren()) do
             if v:IsA("PostEffect") or v:IsA("Atmosphere") then
                 v:Destroy()
             end
         end
 
-        -- Tăng độ rực màu và tương phản cho map đẹp hơn
+        -- Tương phản hoài niệm (Hơi ngả ấm Sepia)
         local cc = Instance.new("ColorCorrectionEffect", Lighting)
-        cc.Saturation = 0.3
-        cc.Contrast = 0.15
+        cc.Saturation = 0.15
+        cc.Contrast = 0.05
+        cc.TintColor = Color3.fromRGB(255, 250, 240)
 
-        -- Hiệu ứng phát sáng cho Trứng
+        -- Bloom dịu nhẹ (Trứng sáng không bị lóa)
         local bloom = Instance.new("BloomEffect", Lighting)
-        bloom.Intensity = 1.2
-        bloom.Size = 28
-        bloom.Threshold = 0.8 
+        bloom.Intensity = 0.35 
+        bloom.Size = 14
+        bloom.Threshold = 1.2 
 
         -- Quét map chuyển SmoothPlastic & Neon (Phân luồng siêu nhẹ)
         local function processGraphics(parent)
@@ -73,7 +72,7 @@ task.delay(3.5, function()
                     obj.Transparency = 1
                 end
                 
-                -- Nghỉ 1 nhịp sau mỗi 50 parts để chống đơ máy
+                -- Nghỉ 1 nhịp sau mỗi 50 parts để FPS mượt tuyệt đối
                 if i % 50 == 0 then RunService.RenderStepped:Wait() end
                 processGraphics(obj)
             end
@@ -82,7 +81,7 @@ task.delay(3.5, function()
         task.spawn(function() pcall(function() processGraphics(workspace) end) end)
 
         workspace.DescendantAdded:Connect(function(obj)
-            task.defer(function() -- Defer để không cản trở lúc spawn
+            task.defer(function() 
                 if obj:IsA("BasePart") then
                     obj.CastShadow = false
                     local name = obj.Name:lower()
@@ -100,37 +99,7 @@ task.delay(3.5, function()
     end)
 end)
 
--- ==================== 3. NHẶT TRỨNG NHANH 0s ====================
-task.spawn(function()
-    ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
-        pcall(function()
-            prompt.HoldDuration = 0
-            if fireproximityprompt then fireproximityprompt(prompt) end
-        end)
-    end)
-    
-    local function scanPrompts(parent)
-        for i, p in ipairs(parent:GetChildren()) do
-            if p:IsA("ProximityPrompt") then
-                p.HoldDuration = 0
-                p.RequiresLineOfSight = false
-            end
-            if i % 100 == 0 then RunService.Heartbeat:Wait() end
-            scanPrompts(p)
-        end
-    end
-    
-    task.spawn(function() pcall(function() scanPrompts(workspace) end) end)
-
-    workspace.DescendantAdded:Connect(function(p)
-        if p:IsA("ProximityPrompt") then
-            p.HoldDuration = 0
-            p.RequiresLineOfSight = false
-        end
-    end)
-end)
-
--- ==================== 4. HỆ THỐNG DỊCH THUẬT QUAD-LANGUAGE ====================
+-- ==================== 3. HỆ THỐNG DỊCH THUẬT QUAD-LANGUAGE ====================
 local currentLanguage = "VI"
 local translationLock = false
 local FastCache = {}
@@ -297,50 +266,7 @@ local MAP_VI = {
     ["Window Minimized - Click bubble to restore"] = "Cửa sổ đã thu nhỏ - Bấm bong bóng để mở lại",
     ["Let's Chat!"] = "Trò Chuyện Nào!", ["Connecting to Global Script Chat..."] = "Đang kết nối chat thế giới...",
     ["Send"] = "Gửi", ["Live"] = "Trực Tiếp", ["Spoof anti cheat success!"] = "Đã vượt qua Anti-Cheat thành công!",
-    ["Fetching..."] = "Đang Tải Dữ Liệu...", ["Loaded"] = "Đã Nạp Xong",
-    ["Teleport Mode [Gold/Premium]"] = "Dịch Chuyển [Gold/VIP]", ["Force Speed To (0 = Auto / Q"] = "Ép Tốc Độ (0 = Tự Động / Q)",
-    ["Force Speed To"] = "Ép Tốc Độ", ["Manual Steal (Instant Carry)"] = "Cướp Thủ Công (Nhặt Tức Thì)",
-    ["Instant Carry (Manual Steal)"] = "Nhặt Tức Thì (Thủ Công)", ["Instant Carry Rarities"] = "Độ Hiếm Nhặt Tức Thì",
-    ["Pet Names (Auto Place)"] = "Tên Thú Cưng (Tự Đặt)", ["All (none)"] = "Tất Cả (Không Chọn)",
-    ["Rarities"] = "Độ Hiếm", ["Areas"] = "Khu Vực", ["Priority"] = "Ưu Tiên", ["Rarity"] = "Độ Hiếm",
-    ["Min Egg KG (0 = off)"] = "KG Trứng Tối Thiểu (0 = Tắt)", ["Automation & Egg Management"] = "Tự Động & Quản Lý Trứng",
-    ["Auto Hatch Ready"] = "Tự Ấp Trứng Sẵn Sàng", ["Auto Place All Egg"] = "Tự Đặt Mọi Quả Trứng",
-    ["Auto Place Selected (By Pet Names Filter)"] = "Tự Đặt Trứng Chọn Theo Tên Thú",
-    ["Auto Steal from other players [Gold/Premium]"] = "Tự Cướp Từ Người Khác [Gold/VIP]",
-    ["Automatically target players carrying eggs"] = "Tự Nhắm Người Đang Cầm Trứng",
-    ["Filter Rarity for Steal"] = "Lọc Độ Hiếm Để Cướp",
-    ["Steal from special for player (Teleport Strike)"] = "Cướp Đặc Biệt (Đòn Dịch Chuyển)",
-    ["Steal History"] = "Lịch Sử Cướp", ["History of Stolen Eggs from Players"] = "Lịch Sử Cướp Trứng Phiên Này",
-    ["Clear"] = "Xóa", ["No player steals recorded yet this session."] = "Chưa có lượt cướp nào trong phiên.",
-    ["In Safe Zone"] = "Trong Vùng An Toàn", ["No Egg Carried"] = "Không Cầm Trứng", ["Locked"] = "Đã Khóa",
-    ["STOLEN EGGS"] = "TRỨNG ĐÃ CƯỚP", ["HUNTED TARGETS"] = "MỤC TIÊU ĐÃ SĂN",
-    ["Reset Session Counter"] = "Đặt Lại Bộ Đếm Phiên", ["Live Engine"] = "Đang Hoạt Động",
-    ["Bag Inventory & Live Value"] = "Túi Đồ & Giá Trị Thực", ["TOTAL VALUE IN BAG"] = "TỔNG GIÁ TRỊ TÚI",
-    ["TOTAL ITEMS IN BAG"] = "TỔNG SỐ LƯỢNG TÚI", ["Sell Egg Settings"] = "Cài Đặt Bán Trứng",
-    ["Sell Below Value (cth 100M, ..."] = "Bán Dưới Mức Giá (VD: 100M,...)", ["Sell Below KG (0=off)"] = "Bán Dưới KG (0 = Tắt)",
-    ["Pet Names (per area)"] = "Tên Thú (Theo Khu Vực)", ["Select Pet to Fuse"] = "Chọn Thú Cưng Để Ghép",
-    ["Refresh Inventory Pets"] = "Làm Mới Túi Thú Cưng", ["List Player Need Partner"] = "Danh Sách Người Cần Ghép",
-    ["Find Partner (Register) [Gold/Premium]"] = "Tìm Bạn Ghép (Đăng Ký) [Gold/VIP]",
-    ["Refresh Partner List"] = "Làm Mới Danh Sách Bạn Ghép", ["Broadcast Need Partner [Gold/Premium]"] = "Phát Thông Báo Cần Ghép [Gold/VIP]",
-    ["Broadcast a global Notice banner to script users (1-hour cooldown)."] = "Phát thông báo toàn cầu đến người dùng script (Hồi chiêu 1 giờ).",
-    ["Filter by Pet Owned (e.g. Pegasus)..."] = "Lọc theo thú đang có (VD: Pegasus)...",
-    ["No other players are currently looking for a partner."] = "Hiện không có người chơi nào tìm bạn ghép.",
-    ["Rift Live Status & Rotation"] = "Trạng Thái Trực Tiếp & Lượt Đổi Rift", ["Banner: [Verdant] Riftborn"] = "Banner: [Lục Bảo] Riftborn",
-    ["Refresh"] = "Làm Mới", ["Recipe egg is still unmatched! Must hatch into pets before Trade-In."] = "Chưa đúng công thức! Cần ấp thành thú trước khi Hiến Tế.",
-    ["Open Boss Shop"] = "Mở Cửa Hàng Boss", ["Auto Buy Boss Shop"] = "Tự Mua Shop Boss",
-    ["Automation"] = "Tự Động Hóa", ["Target Banners (none = all)"] = "Banner Mục Tiêu (Trống = Tất Cả)",
-    ["Boss Rift (Abyss Overlord)"] = "Boss Rift (Chúa Tể Vực Thẳm)", ["Abyss Overlord (Portal Closed)"] = "Chúa Tể Vực Thẳm (Cổng Đang Đóng)",
-    ["Boss HP: Waiting for spawn..."] = "Máu Boss: Đang chờ xuất hiện...", ["Boss Glide Speed (studs/s)"] = "Tốc Độ Bay Đánh Boss (studs/s)",
-    ["Leave Boss Arena (To Safe Zone)"] = "Rời Đấu Trường (Về Vùng An Toàn)", ["Manual Attack (Equip Bat & Swing)"] = "Tấn Công Thủ Công (Cầm Gậy & Vung)",
-    ["Quick Actions"] = "Thao Tác Nhanh", ["Place Rift Eggs to Pen"] = "Đặt Trứng Rift Vào Chuồng",
-    ["Instant Trade-In Once"] = "Hiến Tế Nhanh 1 Lần", ["Use Free Reroll Now"] = "Dùng Lượt Quay Miễn Phí Ngay",
-    ["Buy 1x Mutation Consumable"] = "Mua 1x Thuốc Đột Biến", ["Claim All Available Milestones"] = "Nhận Tất Cả Mốc Thưởng",
-    ["Teleport to Rift Machine"] = "Dịch Chuyển Đến Máy Rift", ["Refresh Status"] = "Làm Mới Trạng Thái",
-    ["Session Stats"] = "Thống Kê Phiên", ["Rift Sacrifices"] = "Lượt Hiến Tế Rift", ["RIFT SACRIFICES"] = "LƯỢT HIẾN TẾ RIFT",
-    ["Guard"] = "Thú Cưỡi", ["Light Dark"] = "Quang Ám Long", ["Hunt & Stash Settings"] = "Cài Đặt Săn & Giấu Đồ",
-    ["Drop Egg Before Safe Zone"] = "Thả Trứng Trước Vùng An Toàn", ["Do Not Deliver to Safe Zone"] = "Không Nộp Vào Vùng An Toàn",
-    ["Never Drop the Egg"] = "Tuyệt Đối Không Làm Rơi Trứng", ["Staging Controls"] = "Điều Khiển Điểm Trung Chuyển",
-    ["Set Staging Spot (Here)"] = "Đặt Điểm Trung Chuyển (Tại Đây)", ["Deliver Stash Now"] = "Nộp Toàn Bộ Trứng Đang Giấu"
+    ["Fetching..."] = "Đang Tải Dữ Liệu...", ["Loaded"] = "Đã Nạp Xong"
 }
 
 local MAP_PH = {
@@ -567,7 +493,7 @@ local MAP_ID = {
     ["Pets To Use"] = "Pet yang Dipakai", ["Lowest To Highest"] = "Terendah ke Tertinggi",
     ["Max Rarity to Fuse"] = "Rarity Maks untuk Fuse", ["Specific Species to Fuse"] = "Spesies Khusus untuk Fuse",
     ["Only fuse these species (empty = all)"] = "Hanya fuse spesies ini (kosong = semua)", ["Skip Mutated Pets"] = "Lewati Pet Mutasi",
-    ["Eject Incomplete Slots"] = "Keluarkan Slot Tidak Lengkap", ["Take out pets that can't make a set"] = "Keluarkan pet yang tidak bisa jadi 1 set",
+    ["Eject Incomplete Slots"] = "Keluarkan Slot Tidak Lengkap", ["Take out pet yang tidak bisa jadi 1 set"] = "Keluarkan pet yang tidak bisa jadi 1 set",
     ["Auto Favorite"] = "Auto Favorit", ["Auto Favorite Pet"] = "Auto Favorit Pet",
     ["Favorite pets matching the rules below"] = "Favoritkan pet sesuai aturan di bawah", ["Favorite Pets Now"] = "Favoritkan Pet Sekarang",
     ["Favorite matching pets once"] = "Favoritkan pet yang cocok sekali saja", ["Favorite Rule"] = "Aturan Favorit",
@@ -878,7 +804,7 @@ local function updateAllActive()
     end
 end
 
--- ==================== 5. NÚT ĐỔI NGÔN NGỮ (TOP-CENTER) ====================
+-- ==================== 4. NÚT ĐỔI NGÔN NGỮ (TOP-CENTER) ====================
 local function createLangToggleUI()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local old = parentTarget:FindFirstChild("Chilli_LangToggle_Slate")
@@ -970,7 +896,7 @@ local function createLangToggleUI()
     end)
 end
 
--- ==================== 6. BỘ QUÉT ZERO-LAG ĐƯỢC DEFER SAU CÙNG ====================
+-- ==================== 5. BỘ QUÉT ZERO-LAG ĐƯỢC DEFER SAU CÙNG ====================
 task.delay(4.5, function()
     createLangToggleUI()
 
