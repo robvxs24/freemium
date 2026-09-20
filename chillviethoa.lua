@@ -1,15 +1,16 @@
 -- ==============================================================================
---  CHILLI HUB - ULTRA ZERO-LAG & NOSTALGIC SUNSET ENGINE V9.7 (EN/VI/PH/ID)
+--  CHILLI HUB - ULTRA ZERO-LAG & NOSTALGIC SUNSET ENGINE V10.0 (EN/VI/PH/ID)
 --  Tối ưu hóa:
---    1. ĐÃ XÓA NHẶT NHANH (Fast Steal) theo yêu cầu để đảm bảo an toàn tối đa.
+--    1. Cập nhật 100% tiếng sự kiện mới: Dr Scramble Event, Auto Hunt Drone, Vault.
 --    2. Nostalgic Shader: Ánh sáng chiều tà (Golden hour), tone ấm, tương phản nhẹ.
 --    3. Recursive Chunking: Quét map đệ quy ngầm, loại bỏ 100% hiện tượng đơ khởi động.
---    4. Vòng xoay 4 ngôn ngữ và Nút bấm Frosted Slate Top-Center.
+--    4. Vòng xoay 4 ngôn ngữ và Nút bấm Frosted Slate (Top-Center).
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
+local ProximityPromptService = game:GetService("ProximityPromptService")
 local RunService = game:GetService("RunService")
 local Lighting = game:GetService("Lighting")
 local LocalPlayer = Players.LocalPlayer
@@ -35,20 +36,17 @@ task.delay(3.5, function()
         Lighting.ColorShift_Top = Color3.fromRGB(255, 235, 210)
         Lighting.FogEnd = 9e9 -- Xóa sương mù
 
-        -- Dọn dẹp rác hậu kỳ của game
         for _, v in ipairs(Lighting:GetChildren()) do
             if v:IsA("PostEffect") or v:IsA("Atmosphere") then
                 v:Destroy()
             end
         end
 
-        -- Tương phản hoài niệm (Hơi ngả ấm Sepia)
         local cc = Instance.new("ColorCorrectionEffect", Lighting)
         cc.Saturation = 0.15
         cc.Contrast = 0.05
         cc.TintColor = Color3.fromRGB(255, 250, 240)
 
-        -- Bloom dịu nhẹ (Trứng sáng không bị lóa)
         local bloom = Instance.new("BloomEffect", Lighting)
         bloom.Intensity = 0.35 
         bloom.Size = 14
@@ -72,7 +70,6 @@ task.delay(3.5, function()
                     obj.Transparency = 1
                 end
                 
-                -- Nghỉ 1 nhịp sau mỗi 50 parts để FPS mượt tuyệt đối
                 if i % 50 == 0 then RunService.RenderStepped:Wait() end
                 processGraphics(obj)
             end
@@ -99,7 +96,7 @@ task.delay(3.5, function()
     end)
 end)
 
--- ==================== 3. HỆ THỐNG DỊCH THUẬT QUAD-LANGUAGE ====================
+-- ==================== 3. HỆ THỐNG DỊCH THUẬT QUAD-LANGUAGE (V10.0) ====================
 local currentLanguage = "VI"
 local translationLock = false
 local FastCache = {}
@@ -113,10 +110,34 @@ local function safeReplace(str, findStr, replaceStr)
 end
 
 local MAP_VI = {
+    -- Các Tab Chính
     ["Farm"] = "Cày Cuốc", ["Player"] = "Người Chơi", ["Egg Finder"] = "Máy Dò Trứng",
     ["Predictor"] = "Soi Trứng", ["Progress"] = "Tiến Độ", ["Server"] = "Máy Chủ",
     ["Misc"] = "Linh Tinh", ["Creator"] = "Tác Giả", ["Discord"] = "Discord",
     ["Quick & Keys"] = "Phím Tắt", ["Settings"] = "Cài Đặt", ["Config"] = "Cấu Hình",
+    
+    -- === DR SCRAMBLE EVENT (SỰ KIỆN MỚI) ===
+    ["Dr Scramble Event"] = "Sự Kiện Dr Scramble",
+    ["Auto Hunt Drones"] = "Tự Động Săn Drone",
+    ["Kill drones during outbreaks for Samples and Drone Parts"] = "Tiêu diệt drone khi bùng phát để lấy Mẫu Vật và Phụ Tùng",
+    ["Hunt Priority"] = "Ưu Tiên Săn",
+    ["Most HP First"] = "Nhiều Máu Nhất Trước",
+    ["Drone Types"] = "Loại Drone",
+    ["Hunt Travel Method"] = "Cách Thức Di Chuyển",
+    ["Teleport only to drones within 50 studs, farther ones are tweened"] = "Dịch chuyển nếu dưới 50 studs, xa hơn sẽ dùng Tween bay tới",
+    ["Hunt Tween Speed"] = "Tốc Độ Bay (Tween) Săn",
+    ["Only Until Vault Parts Found"] = "Dừng Khi Đủ Phụ Tùng Hầm",
+    ["Auto Collect Lost Parts"] = "Tự Nhặt Phụ Tùng Rơi",
+    ["Collect the 2 Lost Parts for the vault"] = "Thu thập đủ 2 Phụ Tùng Rơi để mở hầm",
+    ["Auto Open Vault"] = "Tự Động Mở Hầm Chứa",
+    ["Open the vault when all 5 parts are found"] = "Tự mở khóa hầm khi đã thu thập đủ 5 phụ tùng",
+    ["Auto Buy Scramble Shop"] = "Tự Động Mua Shop Scramble",
+    ["Buy the picked items with Samples"] = "Dùng Mẫu Vật để mua các món đồ đã chọn",
+    ["Scramble Shop Items"] = "Vật Phẩm Cửa Hàng Scramble",
+    ["Keep Samples"] = "Giữ Lại Mẫu Vật (Không mua hết)",
+    ["Go To Secret Cave"] = "Đi Đến Hang Động Bí Ẩn (Secret)",
+    
+    -- Các menu điều hướng
     ["Farm Tab > Auto Steal"] = "Tab Cày Cuốc > Tự Động Cướp",
     ["Farm Tab > Auto Place Egg"] = "Tab Cày Cuốc > Tự Đặt Trứng",
     ["Farm Tab > Auto Treadmill"] = "Tab Cày Cuốc > Tự Chạy Máy Tập",
@@ -145,6 +166,8 @@ local MAP_VI = {
     ["Config Tab > Config"] = "Tab Cấu Hình > Cấu Hình",
     ["Config Tab > Profiles"] = "Tab Cấu Hình > Hồ Sơ",
     ["Config Tab > Import/Export"] = "Tab Cấu Hình > Nhập/Xuất",
+    
+    -- Các tính năng
     ["Auto Steal"] = "Tự Động Cướp", ["Target Areas"] = "Khu Vực Mục Tiêu",
     ["Min Rarity"] = "Độ Hiếm Tối Thiểu", ["Steal eggs of the chosen rarity and every rarity above it"] = "Cướp trứng từ độ hiếm đã chọn trở lên",
     ["Min Value To Steal"] = "Giá Trị Cướp Tối Thiểu", ["Skip eggs worth less than this (0 = off)"] = "Bỏ qua trứng rẻ hơn mức này (0 = Tắt)",
@@ -270,10 +293,34 @@ local MAP_VI = {
 }
 
 local MAP_PH = {
+    -- Tabs
     ["Farm"] = "Farm", ["Player"] = "Manlalaro", ["Egg Finder"] = "Tagahanap ng Itlog",
     ["Predictor"] = "Tagahula", ["Progress"] = "Pag-unlad", ["Server"] = "Server",
     ["Misc"] = "Iba pa", ["Creator"] = "Lumikha", ["Discord"] = "Discord",
     ["Quick & Keys"] = "Mabilisang Susi", ["Settings"] = "Mga Setting", ["Config"] = "Config",
+    
+    -- === DR SCRAMBLE EVENT ===
+    ["Dr Scramble Event"] = "Kaganapan ni Dr Scramble",
+    ["Auto Hunt Drones"] = "Auto Hunt Drones",
+    ["Kill drones during outbreaks for Samples and Drone Parts"] = "Patayin ang drones pag may outbreak para sa Samples at Parts",
+    ["Hunt Priority"] = "Prayoridad sa Pag-hunt",
+    ["Most HP First"] = "Pinakamaraming HP Muna",
+    ["Drone Types"] = "Mga Uri ng Drone",
+    ["Hunt Travel Method"] = "Paraan ng Paggalaw sa Pag-hunt",
+    ["Teleport only to drones within 50 studs, farther ones are tweened"] = "Mag-teleport lang sa 50 studs, pag malayo ay mag-tween",
+    ["Hunt Tween Speed"] = "Bilis ng Tween sa Pag-hunt",
+    ["Only Until Vault Parts Found"] = "Hanggang Makuha ang Vault Parts Lang",
+    ["Auto Collect Lost Parts"] = "Auto Kolekta ng Nawawalang Parts",
+    ["Collect the 2 Lost Parts for the vault"] = "Kolektahin ang 2 Nawawalang Parts para sa vault",
+    ["Auto Open Vault"] = "Auto Bukas ng Vault",
+    ["Open the vault when all 5 parts are found"] = "Buksan ang vault pag nakuha na ang 5 parts",
+    ["Auto Buy Scramble Shop"] = "Auto Bili sa Scramble Shop",
+    ["Buy the picked items with Samples"] = "Bilhin ang napiling items gamit ang Samples",
+    ["Scramble Shop Items"] = "Mga Items sa Scramble Shop",
+    ["Keep Samples"] = "Itago ang Samples",
+    ["Go To Secret Cave"] = "Pumunta sa Sikretong Kuweba",
+    
+    -- Breadcrumbs
     ["Farm Tab > Auto Steal"] = "Farm Tab > Auto Nakaw",
     ["Farm Tab > Auto Place Egg"] = "Farm Tab > Auto Lagay ng Itlog",
     ["Farm Tab > Auto Treadmill"] = "Farm Tab > Auto Treadmill",
@@ -428,10 +475,34 @@ local MAP_PH = {
 }
 
 local MAP_ID = {
+    -- Tabs
     ["Farm"] = "Farming", ["Player"] = "Pemain", ["Egg Finder"] = "Pencari Telur",
     ["Predictor"] = "Prediktor", ["Progress"] = "Kemajuan", ["Server"] = "Server",
     ["Misc"] = "Lainnya", ["Creator"] = "Pembuat", ["Discord"] = "Discord",
     ["Quick & Keys"] = "Akses Cepat", ["Settings"] = "Pengaturan", ["Config"] = "Konfigurasi",
+    
+    -- === DR SCRAMBLE EVENT ===
+    ["Dr Scramble Event"] = "Event Dr Scramble",
+    ["Auto Hunt Drones"] = "Auto Hunt Drone",
+    ["Kill drones during outbreaks for Samples and Drone Parts"] = "Bunuh drone saat wabah untuk Sampel dan Suku Cadang",
+    ["Hunt Priority"] = "Prioritas Berburu",
+    ["Most HP First"] = "HP Terbanyak Dulu",
+    ["Drone Types"] = "Jenis Drone",
+    ["Hunt Travel Method"] = "Metode Gerak Berburu",
+    ["Teleport only to drones within 50 studs, farther ones are tweened"] = "Teleport hanya dalam 50 stud, yang jauh pakai tween",
+    ["Hunt Tween Speed"] = "Kecepatan Tween Berburu",
+    ["Only Until Vault Parts Found"] = "Hanya Sampai Bagian Brankas Ketemu",
+    ["Auto Collect Lost Parts"] = "Auto Kumpul Suku Cadang Hilang",
+    ["Collect the 2 Lost Parts for the vault"] = "Kumpulkan 2 Suku Cadang Hilang untuk brankas",
+    ["Auto Open Vault"] = "Auto Buka Brankas",
+    ["Open the vault when all 5 parts are found"] = "Buka brankas saat 5 bagian ketemu",
+    ["Auto Buy Scramble Shop"] = "Auto Beli di Scramble Shop",
+    ["Buy the picked items with Samples"] = "Beli item yang dipilih pakai Sampel",
+    ["Scramble Shop Items"] = "Item Scramble Shop",
+    ["Keep Samples"] = "Simpan Sampel",
+    ["Go To Secret Cave"] = "Pergi ke Gua Rahasia",
+    
+    -- Breadcrumbs
     ["Farm Tab > Auto Steal"] = "Tab Farm > Auto Curi",
     ["Farm Tab > Auto Place Egg"] = "Tab Farm > Auto Taruh Telur",
     ["Farm Tab > Auto Treadmill"] = "Tab Farm > Auto Treadmill",
@@ -493,7 +564,7 @@ local MAP_ID = {
     ["Pets To Use"] = "Pet yang Dipakai", ["Lowest To Highest"] = "Terendah ke Tertinggi",
     ["Max Rarity to Fuse"] = "Rarity Maks untuk Fuse", ["Specific Species to Fuse"] = "Spesies Khusus untuk Fuse",
     ["Only fuse these species (empty = all)"] = "Hanya fuse spesies ini (kosong = semua)", ["Skip Mutated Pets"] = "Lewati Pet Mutasi",
-    ["Eject Incomplete Slots"] = "Keluarkan Slot Tidak Lengkap", ["Take out pet yang tidak bisa jadi 1 set"] = "Keluarkan pet yang tidak bisa jadi 1 set",
+    ["Eject Incomplete Slots"] = "Keluarkan Slot Tidak Lengkap", ["Take out pets that can't make a set"] = "Keluarkan pet yang tidak bisa jadi 1 set",
     ["Auto Favorite"] = "Auto Favorit", ["Auto Favorite Pet"] = "Auto Favorit Pet",
     ["Favorite pets matching the rules below"] = "Favoritkan pet sesuai aturan di bawah", ["Favorite Pets Now"] = "Favoritkan Pet Sekarang",
     ["Favorite matching pets once"] = "Favoritkan pet yang cocok sekali saja", ["Favorite Rule"] = "Aturan Favorit",
@@ -585,7 +656,27 @@ local MAP_ID = {
     ["Fetching..."] = "Mengambil data...", ["Loaded"] = "Selesai Dimuat"
 }
 
+-- Mẫu Regex xử lý chuỗi động đa ngôn ngữ
 local DYNAMIC_PATTERNS = {
+    -- Regex đếm số lượng Mẫu Vật & Phụ Tùng sự kiện Dr Scramble
+    {
+        pattern = "^Samples (%d+) %- Lost (%d+)/(%d+) Drone (.-) %- Outbreak in (.-)$",
+        format  = function(lang, s, l1, l2, d, t) 
+            if lang == "VI" then return "Mẫu vật " .. s .. " - Đã rơi " .. l1 .. "/" .. l2 .. " - Drone " .. d .. " - Bùng phát sau " .. t
+            elseif lang == "PH" then return "Samples " .. s .. " - Nawala " .. l1 .. "/" .. l2 .. " - Drone " .. d .. " - Outbreak sa " .. t
+            elseif lang == "ID" then return "Sampel " .. s .. " - Hilang " .. l1 .. "/" .. l2 .. " - Drone " .. d .. " - Wabah dlm " .. t
+            end return "Samples " .. s .. " - Lost " .. l1 .. "/" .. l2 .. " - Drone " .. d .. " - Outbreak in " .. t
+        end
+    },
+    {
+        pattern = "^Lost Parts on map (%d+)/(%d+) %- Collected (%d+)/(%d+)$",
+        format  = function(lang, m1, m2, c1, c2) 
+            if lang == "VI" then return "Phụ Tùng Rơi trên map " .. m1 .. "/" .. m2 .. " - Đã nhặt " .. c1 .. "/" .. c2
+            elseif lang == "PH" then return "Nawawalang Parts sa map " .. m1 .. "/" .. m2 .. " - Nakolekta " .. c1 .. "/" .. c2
+            elseif lang == "ID" then return "Suku Cadang Hilang di map " .. m1 .. "/" .. m2 .. " - Terkumpul " .. c1 .. "/" .. c2
+            end return "Lost Parts on map " .. m1 .. "/" .. m2 .. " - Collected " .. c1 .. "/" .. c2
+        end
+    },
     {
         pattern = "^(%d+) selected$",
         format  = function(lang, count) 
