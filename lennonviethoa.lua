@@ -1,11 +1,11 @@
 -- ==============================================================================
---  LENNON HUB KAITUN - IMMORTAL ENGINE V6.0 (PHANTOM SHIELD - UI OVERRIDE)
+--  LENNON HUB KAITUN - IMMORTAL TRANSLATION ENGINE V3.0 (LUARMOR SAFE)
 --  Tối ưu hóa:
 --    1. Nạp đúng luồng script gốc Lennon Hub (Luarmor Loader).
---    2. SỬA LỖI KÉO THẢ: Tách nút X khỏi TopBar. Di chuyển menu thoải mái.
---    3. PHANTOM SHIELD: Đè khiên tàng hình lên nút X để lừa Luarmor, ép UI luôn bung to.
---    4. Lõi dịch thuật bất tử: Dịch chính xác 100%, không crash, không tụt FPS.
---    5. Nút bấm Frosted Slate Top-Center (Y=15).
+--    2. Shadow Text Hooking: Gỡ bỏ hoàn toàn Global Lock và Debounce, không bao giờ kẹt nút.
+--    3. State-based Match: Xử lý dứt điểm lỗi "giật về tiếng Anh" của Luarmor.
+--    4. Hybrid Substring: Tự động dịch đè các chữ bị ghép chung (khắc phục lỗi sót chữ).
+--    5. Nút bấm Frosted Slate Top-Center (Y=15) siêu mượt.
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -21,10 +21,11 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 2. TỪ ĐIỂN ĐA NGÔN NGỮ ====================
+-- ==================== 2. TỪ ĐIỂN ĐA NGÔN NGỮ (V3.0) ====================
 local currentLanguage = "VI"
 local FastCache = {}
 
+-- Plain Text Replacer Bất Tử (Không dùng Regex, không bao giờ Crash)
 local function replaceAll(str, findStr, replaceStr)
     local startIdx, endIdx = str:find(findStr, 1, true)
     while startIdx do
@@ -59,7 +60,7 @@ local MAP_VI = {
     ["Auto Open Vault"] = "Tự Động Mở Hầm",
     ["Secret Cave"] = "Hang Động Bí Ẩn",
     ["Auto Lost Parts"] = "Tự Nhặt Phụ Tùng",
-    ["Auto Buy Shop"] = "Tự Động Mua Cửa Hàng",
+    ["Auto Buy Shop"] = "Tự Động Mua Shop",
     ["Send Steals"] = "Báo Cáo Cướp Trứng",
     ["Test Webhook"] = "Kiểm Tra Webhook",
     
@@ -155,7 +156,7 @@ local DYNAMIC_PATTERNS = {
     {
         pattern = "^IDLE / (%d+:%d+)$",
         format  = function(lang, timeStr) 
-            if lang == "VI" then return "ĐANG CHỜ LỆNH / " .. timeStr 
+            if lang == "VI" then return "ĐANG CHỜ / " .. timeStr 
             elseif lang == "PH" then return "BAKANTE / " .. timeStr 
             elseif lang == "ID" then return "DIAM / " .. timeStr 
             end return "IDLE / " .. timeStr 
@@ -164,7 +165,7 @@ local DYNAMIC_PATTERNS = {
     {
         pattern = "^IDLE / (%d+:%d+:%d+)$",
         format  = function(lang, timeStr) 
-            if lang == "VI" then return "ĐANG CHỜ LỆNH / " .. timeStr 
+            if lang == "VI" then return "ĐANG CHỜ / " .. timeStr 
             elseif lang == "PH" then return "BAKANTE / " .. timeStr 
             elseif lang == "ID" then return "DIAM / " .. timeStr 
             end return "IDLE / " .. timeStr 
@@ -172,6 +173,7 @@ local DYNAMIC_PATTERNS = {
     }
 }
 
+-- Sắp xếp chuỗi dài ưu tiên dịch trước (Tránh lỗi dịch chồng chéo)
 local SortedVI, SortedPH, SortedID = {}, {}, {}
 for en, vi in pairs(MAP_VI) do table.insert(SortedVI, {en = en, out = vi, len = #en}) end
 for en, ph in pairs(MAP_PH) do table.insert(SortedPH, {en = en, out = ph, len = #en}) end
@@ -180,99 +182,12 @@ table.sort(SortedVI, function(a, b) return a.len > b.len end)
 table.sort(SortedPH, function(a, b) return a.len > b.len end)
 table.sort(SortedID, function(a, b) return a.len > b.len end)
 
--- ==================== 3. KHIÊN TÀNG HÌNH (PHANTOM SHIELD) ====================
-task.spawn(function()
-    local function fireVirtualClick(btn)
-        if not getconnections then return end
-        pcall(function()
-            for _, conn in ipairs(getconnections(btn.InputBegan)) do
-                if type(conn.Function) == "function" then
-                    conn.Function(btn, {UserInputType = Enum.UserInputType.MouseButton1, UserInputState = Enum.UserInputState.Begin})
-                end
-            end
-            for _, conn in ipairs(getconnections(btn.MouseButton1Click)) do
-                if type(conn.Function) == "function" then conn.Function() end
-            end
-        end)
-    end
-
-    while task.wait(0.2) do
-        local roots = {gethui and pcall(gethui) and gethui() or CoreGui, LocalPlayer:FindFirstChild("PlayerGui")}
-        for _, root in ipairs(roots) do
-            if root then
-                for _, inst in ipairs(root:GetDescendants()) do
-                    if inst:IsA("TextLabel") and inst.Text:find("LENNON HUB") then
-                        local mainFrame = inst:FindFirstAncestorOfClass("Frame")
-                        local screenGui = inst:FindFirstAncestorOfClass("ScreenGui")
-                        
-                        if mainFrame and screenGui and not screenGui:GetAttribute("PhantomShield_Added") then
-                            screenGui:SetAttribute("PhantomShield_Added", true)
-                            
-                            -- Tìm nút Expand/Collapse (+ hoặc x)
-                            local expandBtn
-                            for _, desc in ipairs(mainFrame:GetDescendants()) do
-                                if (desc:IsA("TextLabel") or desc:IsA("TextButton")) then
-                                    if desc.AbsoluteSize.X > 0 and desc.AbsoluteSize.X < 40 and desc.AbsoluteSize.Y < 40 then
-                                        local t = desc.Text:lower()
-                                        if t == "+" or t == "x" or t == "×" or t == "-" then
-                                            expandBtn = desc
-                                            break
-                                        end
-                                    end
-                                end
-                            end
-
-                            if expandBtn then
-                                -- 1. Tạo Khiên Tàng Hình đè trực tiếp lên nút X
-                                local shield = Instance.new("TextButton")
-                                shield.Name = "PhantomShield"
-                                shield.Size = UDim2.new(1.8, 0, 1.8, 0)
-                                shield.Position = UDim2.new(-0.4, 0, -0.4, 0)
-                                shield.BackgroundTransparency = 1
-                                shield.Text = ""
-                                shield.ZIndex = 2147483647
-                                shield.Parent = expandBtn
-                                
-                                -- 2. Lõi theo dõi trạng thái: Chỉ kích hoạt Khiên khi là dấu X
-                                RunService.RenderStepped:Connect(function()
-                                    if not expandBtn or not expandBtn.Parent then return end
-                                    local t = expandBtn.Text:lower()
-                                    
-                                    if t == "x" or t == "×" or t == "-" then
-                                        shield.Visible = true
-                                    else
-                                        shield.Visible = false
-                                        -- Auto Expand Gắt: Thấy dấu + là tự click bung ra ngay
-                                        if mainFrame.Visible then
-                                            fireVirtualClick(expandBtn)
-                                        end
-                                    end
-                                end)
-                                
-                                -- 3. Đánh lừa Luarmor: Chạm vào Khiên -> Ẩn Frame (Luarmor vẫn nghĩ là đang bật)
-                                local function hideMenu()
-                                    if mainFrame then
-                                        mainFrame.Visible = false
-                                    end
-                                end
-                                shield.MouseButton1Click:Connect(hideMenu)
-                                shield.InputBegan:Connect(function(input)
-                                    if input.UserInputType == Enum.UserInputType.Touch then hideMenu() end
-                                end)
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-end)
-
--- ==================== 4. LÕI DỊCH THUẬT BẤT TỬ ====================
+-- ==================== 3. LÕI DỊCH THUẬT IMMORTAL (V3.0) ====================
 local function translateText(raw)
     local cacheKey = currentLanguage .. "|" .. raw
     if FastCache[cacheKey] then return FastCache[cacheKey] end
 
+    -- Trả thẳng nếu là Tiếng Anh
     if currentLanguage == "EN" then
         FastCache[cacheKey] = raw
         return raw
@@ -285,6 +200,7 @@ local function translateText(raw)
     if currentLanguage == "PH" then sortedMap = SortedPH
     elseif currentLanguage == "ID" then sortedMap = SortedID end
 
+    -- 1. Quét Regex trước cho các đồng hồ đếm ngược
     for _, item in ipairs(DYNAMIC_PATTERNS) do
         local trimmed = result:gsub("^%s*(.-)%s*$", "%1")
         local matches = {trimmed:match(item.pattern)}
@@ -295,6 +211,7 @@ local function translateText(raw)
         end
     end
 
+    -- 2. Quét mảng Substring (Lùng sục từng chữ và dịch đè an toàn)
     if not matched then
         for _, item in ipairs(sortedMap) do
             if result:find(item.en, 1, true) then
@@ -309,11 +226,12 @@ local function translateText(raw)
 end
 
 local TrackedElements = {}
-local DebounceTracker = {}
 
 local function applyTranslation(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
     if inst:FindFirstAncestor("Chilli_LangToggle_Slate") then return end
+    
+    -- Kiểm tra xem có đang bị khóa bởi chính mình không
     if inst:GetAttribute("__IsTranslating") then return end
 
     local original = inst:GetAttribute("OriginalRawText")
@@ -324,6 +242,7 @@ local function applyTranslation(inst)
 
     local mappedText = translateText(original)
     
+    -- Chỉ ghi đè nếu chữ hiện tại khác với bản dịch
     if inst.Text ~= mappedText then
         inst:SetAttribute("__IsTranslating", true)
         pcall(function() inst.Text = mappedText end)
@@ -337,47 +256,25 @@ local function hookElement(inst)
     inst:SetAttribute("HasTranslateHook", true)
 
     table.insert(TrackedElements, inst)
+    
     task.defer(function() applyTranslation(inst) end)
 
     inst:GetPropertyChangedSignal("Text"):Connect(function()
+        -- Bỏ qua nếu Signal này là do tool dịch tự bắn ra
         if inst:GetAttribute("__IsTranslating") then return end
 
-        if DebounceTracker[inst] and tick() - DebounceTracker[inst] < 0.1 then return end
-        DebounceTracker[inst] = tick()
-
         local current = inst.Text
-        local isKnown = false
+        local original = inst:GetAttribute("OriginalRawText")
+        if not original then return end
         
-        local map = MAP_VI
-        if currentLanguage == "PH" then map = MAP_PH
-        elseif currentLanguage == "ID" then map = MAP_ID end
+        local mappedText = translateText(original)
         
-        if currentLanguage ~= "EN" then
-            for _, translated in pairs(map) do
-                if current:find(translated, 1, true) then
-                    isKnown = true
-                    break
-                end
-            end
-            
-            if not isKnown then
-                for _, item in ipairs(DYNAMIC_PATTERNS) do
-                    local trimmed = current:gsub("^%s*(.-)%s*$", "%1")
-                    local matches = {trimmed:match(item.pattern)}
-                    if #matches > 0 then
-                        isKnown = true 
-                        break
-                    end
-                end
-            end
-        else
-            isKnown = (current == inst:GetAttribute("OriginalRawText"))
-        end
-
-        if not isKnown then
-            inst:SetAttribute("OriginalRawText", current)
-        end
+        -- Nếu chữ hiện tại đã TRÙNG với bản dịch của ngôn ngữ đang chọn, không làm gì cả
+        if current == mappedText then return end
         
+        -- Nếu chữ hiện tại KHÁC với bản dịch (Tức là Luarmor vừa ép Text về tiếng Anh)
+        -- Ta cập nhật OriginalRawText thành chữ tiếng Anh mới đó, và dịch đè lại ngay lập tức
+        inst:SetAttribute("OriginalRawText", current)
         applyTranslation(inst)
     end)
 end
@@ -393,7 +290,7 @@ local function updateAllActive()
     end
 end
 
--- ==================== 5. NÚT ĐỔI NGÔN NGỮ (TOP-CENTER Y=15) ====================
+-- ==================== 4. NÚT ĐỔI NGÔN NGỮ (TOP-CENTER Y=15) ====================
 local function createLangToggleUI()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local old = parentTarget:FindFirstChild("Chilli_LangToggle_Slate")
@@ -459,6 +356,7 @@ local function createLangToggleUI()
         end
     end)
 
+    -- Đổi ngôn ngữ mượt mà và quét cập nhật lập tức
     ClickBtn.MouseButton1Click:Connect(function()
         if currentLanguage == "VI" then
             currentLanguage = "PH"
@@ -485,7 +383,7 @@ local function createLangToggleUI()
     end)
 end
 
--- ==================== 6. BỘ QUÉT DEFER BẢO MẬT ====================
+-- ==================== 5. BỘ QUÉT DEFER BẢO MẬT ====================
 task.delay(4.5, function()
     createLangToggleUI()
 
