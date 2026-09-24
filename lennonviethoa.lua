@@ -1,10 +1,10 @@
 -- ==============================================================================
---  LENNON HUB KAITUN - IMMORTAL ENGINE V5.0 (PERFECT UI CONTROL)
+--  LENNON HUB KAITUN - IMMORTAL ENGINE V6.0 (PHANTOM SHIELD - UI OVERRIDE)
 --  Tối ưu hóa:
 --    1. Nạp đúng luồng script gốc Lennon Hub (Luarmor Loader).
---    2. SỬA LỖI KÉO THẢ: Tách biệt hoàn toàn lệnh Close khỏi TopBar (Kéo mượt mà).
---    3. AGGRESSIVE AUTO-EXPAND: Ép Luarmor luôn phải bung to menu, bỏ qua bảng nhỏ.
---    4. Lõi dịch thuật bất tử (V3.0): Dịch chính xác 100%, không crash, không tụt FPS.
+--    2. SỬA LỖI KÉO THẢ: Tách nút X khỏi TopBar. Di chuyển menu thoải mái.
+--    3. PHANTOM SHIELD: Đè khiên tàng hình lên nút X để lừa Luarmor, ép UI luôn bung to.
+--    4. Lõi dịch thuật bất tử: Dịch chính xác 100%, không crash, không tụt FPS.
 --    5. Nút bấm Frosted Slate Top-Center (Y=15).
 -- ==============================================================================
 
@@ -180,16 +180,18 @@ table.sort(SortedVI, function(a, b) return a.len > b.len end)
 table.sort(SortedPH, function(a, b) return a.len > b.len end)
 table.sort(SortedID, function(a, b) return a.len > b.len end)
 
--- ==================== 3. QUẢN LÝ UI NÂNG CAO (SMART EXPAND & PERFECT CLOSE) ====================
+-- ==================== 3. KHIÊN TÀNG HÌNH (PHANTOM SHIELD) ====================
 task.spawn(function()
-    local function forceClick(btn)
+    local function fireVirtualClick(btn)
         if not getconnections then return end
         pcall(function()
             for _, conn in ipairs(getconnections(btn.InputBegan)) do
-                conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.Begin})
+                if type(conn.Function) == "function" then
+                    conn.Function(btn, {UserInputType = Enum.UserInputType.MouseButton1, UserInputState = Enum.UserInputState.Begin})
+                end
             end
             for _, conn in ipairs(getconnections(btn.MouseButton1Click)) do
-                conn:Fire()
+                if type(conn.Function) == "function" then conn.Function() end
             end
         end)
     end
@@ -203,11 +205,14 @@ task.spawn(function()
                         local mainFrame = inst:FindFirstAncestorOfClass("Frame")
                         local screenGui = inst:FindFirstAncestorOfClass("ScreenGui")
                         
-                        if mainFrame and screenGui then
+                        if mainFrame and screenGui and not screenGui:GetAttribute("PhantomShield_Added") then
+                            screenGui:SetAttribute("PhantomShield_Added", true)
+                            
+                            -- Tìm nút Expand/Collapse (+ hoặc x)
                             local expandBtn
-                            for _, desc in ipairs(screenGui:GetDescendants()) do
+                            for _, desc in ipairs(mainFrame:GetDescendants()) do
                                 if (desc:IsA("TextLabel") or desc:IsA("TextButton")) then
-                                    if desc.AbsoluteSize.X > 0 and desc.AbsoluteSize.X < 50 and desc.AbsoluteSize.Y < 50 then
+                                    if desc.AbsoluteSize.X > 0 and desc.AbsoluteSize.X < 40 and desc.AbsoluteSize.Y < 40 then
                                         local t = desc.Text:lower()
                                         if t == "+" or t == "x" or t == "×" or t == "-" then
                                             expandBtn = desc
@@ -218,26 +223,42 @@ task.spawn(function()
                             end
 
                             if expandBtn then
-                                -- TỰ ĐỘNG BUNG TO: Nếu menu đang hiện và là dấu +, ép click ngay lập tức
-                                if mainFrame.Visible and (expandBtn.Text == "+" or expandBtn.Text == "") then
-                                    forceClick(expandBtn)
-                                end
-
-                                -- CHỈ GÀI VÀO NÚT X (Đã gỡ khỏi TopBar để kéo thả thoải mái)
-                                if not expandBtn:GetAttribute("HookedClose_V5") then
-                                    expandBtn:SetAttribute("HookedClose_V5", true)
-                                    expandBtn.InputBegan:Connect(function(input)
-                                        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                                            local t = expandBtn.Text:lower()
-                                            if t == "x" or t == "×" or t == "-" then
-                                                -- Ẩn MainFrame hoàn toàn (Thay vì thu nhỏ)
-                                                task.delay(0.05, function()
-                                                    mainFrame.Visible = false
-                                                end)
-                                            end
+                                -- 1. Tạo Khiên Tàng Hình đè trực tiếp lên nút X
+                                local shield = Instance.new("TextButton")
+                                shield.Name = "PhantomShield"
+                                shield.Size = UDim2.new(1.8, 0, 1.8, 0)
+                                shield.Position = UDim2.new(-0.4, 0, -0.4, 0)
+                                shield.BackgroundTransparency = 1
+                                shield.Text = ""
+                                shield.ZIndex = 2147483647
+                                shield.Parent = expandBtn
+                                
+                                -- 2. Lõi theo dõi trạng thái: Chỉ kích hoạt Khiên khi là dấu X
+                                RunService.RenderStepped:Connect(function()
+                                    if not expandBtn or not expandBtn.Parent then return end
+                                    local t = expandBtn.Text:lower()
+                                    
+                                    if t == "x" or t == "×" or t == "-" then
+                                        shield.Visible = true
+                                    else
+                                        shield.Visible = false
+                                        -- Auto Expand Gắt: Thấy dấu + là tự click bung ra ngay
+                                        if mainFrame.Visible then
+                                            fireVirtualClick(expandBtn)
                                         end
-                                    end)
+                                    end
+                                end)
+                                
+                                -- 3. Đánh lừa Luarmor: Chạm vào Khiên -> Ẩn Frame (Luarmor vẫn nghĩ là đang bật)
+                                local function hideMenu()
+                                    if mainFrame then
+                                        mainFrame.Visible = false
+                                    end
                                 end
+                                shield.MouseButton1Click:Connect(hideMenu)
+                                shield.InputBegan:Connect(function(input)
+                                    if input.UserInputType == Enum.UserInputType.Touch then hideMenu() end
+                                end)
                             end
                         end
                     end
