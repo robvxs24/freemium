@@ -1,9 +1,9 @@
 -- ==============================================================================
---  LENNON HUB KAITUN - PURE O(1) TRANSLATION ENGINE V1.2 (LUARMOR SAFE)
+--  LENNON HUB KAITUN - HYBRID TRANSLATION ENGINE V2.0 (LUARMOR SAFE)
 --  Tối ưu hóa:
 --    1. Nạp đúng luồng script gốc Lennon Hub (Luarmor Loader).
---    2. Cấu trúc Pure O(1) Hash Map: Loại bỏ vòng lặp chuỗi, tốc độ xử lý tức thời.
---    3. Bảo vệ Tên Pet: Chỉ dịch chính xác 100% các từ khóa Rarity (Secret, Cosmic...), không dịch nhầm vào tên Pet.
+--    2. Hybrid Substring Matcher: Tự động dịch TẤT CẢ các đoạn text bị ghép chung, khắc phục triệt để lỗi sót chữ.
+--    3. Khôi phục hoàn toàn 4 ngôn ngữ: VI, EN, PH, ID (Chuyển đổi mượt mà không lỗi).
 --    4. Luarmor Bypass: Thêm bộ đệm (Debounce) chống Crash do vòng lặp Text động.
 --    5. Nút bấm Frosted Slate Top-Center (Y=15).
 -- ==============================================================================
@@ -21,13 +21,20 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 2. PURE O(1) DICTIONARIES ====================
+-- ==================== 2. TỪ ĐIỂN HYBRID ĐA NGÔN NGỮ ====================
 local currentLanguage = "VI"
 local translationLock = false
 local FastCache = {}
 
+local function escapePattern(str)
+    return str:gsub("([%^%$%(%)%%%.%[%]%*%+%-%?])", "%%%1")
+end
+
+local function replaceAll(str, findStr, replaceStr)
+    return str:gsub(escapePattern(findStr), replaceStr:gsub("%%", "%%%%"))
+end
+
 local MAP_VI = {
-    -- Các Tab & Nút cơ bản
     ["LENNON HUB"] = "LENNON HUB",
     ["KAITUN"] = "CÀY CUỐC (KAITUN)",
     ["DR. SCRAMBLE"] = "SỰ KIỆN DR. SCRAMBLE",
@@ -36,34 +43,28 @@ local MAP_VI = {
     ["AUTO STEAL"] = "TỰ ĐỘNG CƯỚP",
     ["ONE SHOT"] = "MỘT LẦN",
     ["LOOP"] = "LẶP LẠI",
-    ["IDLE"] = "ĐANG CHỜ LỆNH",
-    ["Auto steal running automations on hold"] = "Đang tự động cướp, các tính năng khác tạm dừng",
     ["START"] = "BẮT ĐẦU",
     ["STOP"] = "DỪNG LẠI",
+    ["RARITY FILTER"] = "BỘ LỌC ĐỘ HIẾM",
+    ["DISCORD WEBHOOK URL"] = "ĐƯỜNG DẪN WEBHOOK DISCORD",
     
-    -- Chức năng Kaitun
     ["Auto Treadmill"] = "Tự Động Chạy Máy Tập",
     ["Auto Hatch Eggs"] = "Tự Động Ấp Trứng",
     ["Anti-AFK"] = "Chống Treo Máy (AFK)",
-    ["Auto Place Eggs"] = "Tự Đặt Trứng Vào Chuồng",
+    ["Auto Place Eggs"] = "Tự Đặt Trứng",
     ["Offline Earnings"] = "Nhận Tiền Offline",
     ["Anti-Trap"] = "Chống Dính Bẫy",
-    
-    -- Chức năng Dr Scramble
     ["Auto Hunt Drones"] = "Tự Động Săn Drone",
     ["Auto Open Vault"] = "Tự Động Mở Hầm",
     ["Secret Cave"] = "Hang Động Bí Ẩn",
     ["Auto Lost Parts"] = "Tự Nhặt Phụ Tùng",
-    ["Auto Buy Shop"] = "Tự Động Mua Cửa Hàng",
-    
-    -- Chức năng Webhook
-    ["DISCORD WEBHOOK URL"] = "ĐƯỜNG DẪN WEBHOOK DISCORD",
+    ["Auto Buy Shop"] = "Tự Động Mua Shop",
     ["Send Steals"] = "Báo Cáo Cướp Trứng",
     ["Test Webhook"] = "Kiểm Tra Webhook",
+    
+    ["Auto steal running automations on hold"] = "Đang tự động cướp, các tính năng khác tạm dừng",
     ["No steals logged yet"] = "Chưa có lượt cướp nào được ghi lại",
     
-    -- Lọc Độ Hiếm (Chỉ khớp 100%)
-    ["RARITY FILTER"] = "BỘ LỌC ĐỘ HIẾM",
     ["Secret"] = "Bí Ẩn (Secret)",
     ["Eternal"] = "Vĩnh Cửu (Eternal)",
     ["Divine"] = "Thánh Thần (Divine)",
@@ -80,10 +81,11 @@ local MAP_PH = {
     ["AUTO STEAL"] = "AUTO NAKAW",
     ["ONE SHOT"] = "ISANG BESES",
     ["LOOP"] = "PAULIT-ULIT",
-    ["IDLE"] = "BAKANTE",
-    ["Auto steal running automations on hold"] = "Umaandar ang auto nakaw, naka-pause ang iba",
     ["START"] = "SIMULAN",
     ["STOP"] = "IHINTO",
+    ["RARITY FILTER"] = "FILTER NG RARITY",
+    ["DISCORD WEBHOOK URL"] = "DISCORD WEBHOOK URL",
+    
     ["Auto Treadmill"] = "Auto Treadmill",
     ["Auto Hatch Eggs"] = "Auto Pusa ng Itlog",
     ["Anti-AFK"] = "Laban sa AFK",
@@ -93,13 +95,14 @@ local MAP_PH = {
     ["Auto Hunt Drones"] = "Auto Hunt Drones",
     ["Auto Open Vault"] = "Auto Bukas ng Vault",
     ["Secret Cave"] = "Sikretong Kuweba",
-    ["Auto Lost Parts"] = "Auto Kolekta ng Nawawalang Parts",
+    ["Auto Lost Parts"] = "Auto Kolekta ng Parts",
     ["Auto Buy Shop"] = "Auto Bili sa Shop",
-    ["DISCORD WEBHOOK URL"] = "DISCORD WEBHOOK URL",
     ["Send Steals"] = "Ipadala ang mga Nakaw",
     ["Test Webhook"] = "I-test ang Webhook",
+    
+    ["Auto steal running automations on hold"] = "Umaandar ang auto nakaw, naka-pause ang iba",
     ["No steals logged yet"] = "Wala pang nakaw na naitala",
-    ["RARITY FILTER"] = "FILTER NG RARITY",
+    
     ["Secret"] = "Secret",
     ["Eternal"] = "Eternal",
     ["Divine"] = "Divine",
@@ -116,10 +119,11 @@ local MAP_ID = {
     ["AUTO STEAL"] = "AUTO CURI",
     ["ONE SHOT"] = "SEKALI SAJA",
     ["LOOP"] = "TERUS MENERUS",
-    ["IDLE"] = "DIAM",
-    ["Auto steal running automations on hold"] = "Auto curi jalan, otomatisasi lain ditahan",
     ["START"] = "MULAI",
     ["STOP"] = "BERHENTI",
+    ["RARITY FILTER"] = "FILTER RARITY",
+    ["DISCORD WEBHOOK URL"] = "URL WEBHOOK DISCORD",
+    
     ["Auto Treadmill"] = "Auto Treadmill",
     ["Auto Hatch Eggs"] = "Auto Tetas Telur",
     ["Anti-AFK"] = "Anti AFK",
@@ -131,11 +135,12 @@ local MAP_ID = {
     ["Secret Cave"] = "Gua Rahasia",
     ["Auto Lost Parts"] = "Auto Ambil Suku Cadang",
     ["Auto Buy Shop"] = "Auto Beli di Toko",
-    ["DISCORD WEBHOOK URL"] = "URL WEBHOOK DISCORD",
     ["Send Steals"] = "Kirim Info Curi",
     ["Test Webhook"] = "Tes Webhook",
+    
+    ["Auto steal running automations on hold"] = "Auto curi jalan, otomatisasi lain ditahan",
     ["No steals logged yet"] = "Belum ada curian tercatat",
-    ["RARITY FILTER"] = "FILTER RARITY",
+    
     ["Secret"] = "Secret",
     ["Eternal"] = "Eternal",
     ["Divine"] = "Divine",
@@ -143,12 +148,21 @@ local MAP_ID = {
     ["Cosmic"] = "Cosmic"
 }
 
--- Mẫu Regex cho các bộ đếm thời gian động
+-- Xử lý linh hoạt Regex đếm thời gian
 local DYNAMIC_PATTERNS = {
     {
         pattern = "^IDLE / (%d+:%d+)$",
         format  = function(lang, timeStr) 
-            if lang == "VI" then return "ĐANG CHỜ LỆNH / " .. timeStr 
+            if lang == "VI" then return "ĐANG CHỜ / " .. timeStr 
+            elseif lang == "PH" then return "BAKANTE / " .. timeStr 
+            elseif lang == "ID" then return "DIAM / " .. timeStr 
+            end return "IDLE / " .. timeStr 
+        end
+    },
+    {
+        pattern = "^IDLE / (%d+:%d+:%d+)$",
+        format  = function(lang, timeStr) 
+            if lang == "VI" then return "ĐANG CHỜ / " .. timeStr 
             elseif lang == "PH" then return "BAKANTE / " .. timeStr 
             elseif lang == "ID" then return "DIAM / " .. timeStr 
             end return "IDLE / " .. timeStr 
@@ -156,48 +170,56 @@ local DYNAMIC_PATTERNS = {
     }
 }
 
--- ==================== 3. CỖ MÁY DỊCH PURE O(1) ====================
+-- Sắp xếp chuỗi dài dịch trước, chuỗi ngắn dịch sau để chống lỗi chèn ép text
+local SortedVI, SortedPH, SortedID = {}, {}, {}
+for en, vi in pairs(MAP_VI) do table.insert(SortedVI, {en = en, out = vi, len = #en}) end
+for en, ph in pairs(MAP_PH) do table.insert(SortedPH, {en = en, out = ph, len = #en}) end
+for en, id in pairs(MAP_ID) do table.insert(SortedID, {en = en, out = id, len = #en}) end
+table.sort(SortedVI, function(a, b) return a.len > b.len end)
+table.sort(SortedPH, function(a, b) return a.len > b.len end)
+table.sort(SortedID, function(a, b) return a.len > b.len end)
+
+-- ==================== 3. LÕI DỊCH THUẬT HYBRID ====================
 local function translateText(raw)
     local cacheKey = currentLanguage .. "|" .. raw
     if FastCache[cacheKey] then return FastCache[cacheKey] end
 
-    -- Xóa khoảng trắng thừa ở 2 đầu
-    local trimmed = raw:gsub("^%s*(.-)%s*$", "%1")
-    
-    -- Chọn bảng từ điển
-    local map = MAP_VI
-    if currentLanguage == "PH" then map = MAP_PH
-    elseif currentLanguage == "ID" then map = MAP_ID
-    elseif currentLanguage == "EN" then
+    -- Trả thẳng về EN nếu người dùng đổi sang English
+    if currentLanguage == "EN" then
         FastCache[cacheKey] = raw
         return raw
     end
 
-    -- 1. ƯU TIÊN 1: Khớp chính xác 100% (O(1) Hash Map Lookup)
-    -- Không dùng vòng lặp, nếu có từ khóa trong Map thì thay ngay lập tức
-    if map[trimmed] then
-        -- Giữ nguyên khoảng trắng gốc của UI (nếu có) bằng cách dùng chuỗi thay thế
-        local startIdx, endIdx = raw:find(trimmed, 1, true)
-        if startIdx then
-            local res = raw:sub(1, startIdx - 1) .. map[trimmed] .. raw:sub(endIdx + 1)
-            FastCache[cacheKey] = res
-            return res
-        end
-    end
+    local result = raw
+    local matched = false
 
-    -- 2. ƯU TIÊN 2: Khớp Regex cho đồng hồ đếm ngược (Chạy cực nhẹ vì mảng rất nhỏ)
+    local sortedMap = SortedVI
+    if currentLanguage == "PH" then sortedMap = SortedPH
+    elseif currentLanguage == "ID" then sortedMap = SortedID end
+
+    -- 1. Quét Regex trước cho các đồng hồ đếm ngược
     for _, item in ipairs(DYNAMIC_PATTERNS) do
+        local trimmed = result:gsub("^%s*(.-)%s*$", "%1")
         local matches = {trimmed:match(item.pattern)}
         if #matches > 0 then
-            local res = item.format(currentLanguage, unpack(matches))
-            FastCache[cacheKey] = res
-            return res
+            result = item.format(currentLanguage, unpack(matches))
+            matched = true
+            break
         end
     end
 
-    -- Nếu không có trong từ điển thì lưu nguyên gốc để lần sau không phải check lại
-    FastCache[cacheKey] = raw
-    return raw
+    -- 2. Quét mảng Substring (Lùng sục từng chữ và dịch đè trong các chuỗi nối)
+    if not matched then
+        for _, item in ipairs(sortedMap) do
+            if result:find(item.en, 1, true) then
+                result = replaceAll(result, item.en, item.out)
+                matched = true
+            end
+        end
+    end
+
+    FastCache[cacheKey] = matched and result or raw
+    return FastCache[cacheKey]
 end
 
 local TrackedElements = {}
@@ -239,13 +261,12 @@ local function hookElement(inst)
             local current = inst.Text
             local isKnown = false
             
-            -- Kiểm tra xem Text hiện tại có phải là bản dịch không
+            -- Reverse Lookup: Kiểm tra xem Text có chứa bản dịch của ngôn ngữ hiện tại không
             local map = MAP_VI
             if currentLanguage == "PH" then map = MAP_PH
             elseif currentLanguage == "ID" then map = MAP_ID end
             
             if currentLanguage ~= "EN" then
-                -- Kiểm tra O(1) ngược (Reverse lookup) bằng cách quét value, chỉ quét 1 lần khi có text mới
                 for _, translated in pairs(map) do
                     if current:find(translated, 1, true) then
                         isKnown = true
@@ -253,13 +274,11 @@ local function hookElement(inst)
                     end
                 end
                 
-                -- Check regex
                 if not isKnown then
                     for _, item in ipairs(DYNAMIC_PATTERNS) do
                         local trimmed = current:gsub("^%s*(.-)%s*$", "%1")
                         local matches = {trimmed:match(item.pattern)}
                         if #matches > 0 then
-                            -- Nếu cấu trúc giống định dạng sau khi dịch, coi như known
                             isKnown = true 
                             break
                         end
@@ -269,7 +288,7 @@ local function hookElement(inst)
                 isKnown = (current == inst:GetAttribute("OriginalRawText"))
             end
 
-            -- Nếu Text mới hoàn toàn từ game (VD: Tên Pet mới, thời gian mới) -> Cập nhật Original
+            -- Nếu Game bắn ra Text tiếng Anh mới -> Cập nhật Original và dịch lại
             if not isKnown then
                 inst:SetAttribute("OriginalRawText", current)
             end
@@ -290,7 +309,7 @@ local function updateAllActive()
     end
 end
 
--- ==================== 4. NÚT ĐỔI NGÔN NGỮ ====================
+-- ==================== 4. NÚT ĐỔI NGÔN NGỮ (TOP-CENTER Y=15) ====================
 local function createLangToggleUI()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local old = parentTarget:FindFirstChild("Chilli_LangToggle_Slate")
@@ -378,7 +397,7 @@ local function createLangToggleUI()
             TweenService:Create(Label, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(240, 130, 130)}):Play()
             TweenService:Create(Stroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(160, 45, 45)}):Play()
         end
-        updateAllActive()
+        updateAllActive() -- Cập nhật toàn bộ Text khi đổi ngôn ngữ
     end)
 end
 
