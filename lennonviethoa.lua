@@ -1,10 +1,10 @@
 -- ==============================================================================
---  LENNON HUB KAITUN - HYBRID TRANSLATION ENGINE V2.0 (LUARMOR SAFE)
+--  LENNON HUB KAITUN - BULLETPROOF HYBRID ENGINE V2.1 (LUARMOR SAFE)
 --  Tối ưu hóa:
 --    1. Nạp đúng luồng script gốc Lennon Hub (Luarmor Loader).
---    2. Hybrid Substring Matcher: Tự động dịch TẤT CẢ các đoạn text bị ghép chung, khắc phục triệt để lỗi sót chữ.
---    3. Khôi phục hoàn toàn 4 ngôn ngữ: VI, EN, PH, ID (Chuyển đổi mượt mà không lỗi).
---    4. Luarmor Bypass: Thêm bộ đệm (Debounce) chống Crash do vòng lặp Text động.
+--    2. SỬA LỖI SẬP ENGINE: Chuyển sang Pure Plain-Text Replacer, loại bỏ hoàn toàn lỗi ngầm Lua `gsub`.
+--    3. Hybrid Matcher: Dịch chuẩn xác mọi chuỗi bị ghép chung trong Luarmor.
+--    4. Luarmor Bypass: Thêm bộ đệm (Debounce) chống Crash vòng lặp.
 --    5. Nút bấm Frosted Slate Top-Center (Y=15).
 -- ==============================================================================
 
@@ -14,24 +14,26 @@ local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
--- ==================== 1. NẠP LUARMOR SCRIPT GỐC (ƯU TIÊN SỐ 1) ====================
+-- ==================== 1. NẠP LUARMOR SCRIPT GỐC ====================
 task.spawn(function()
     pcall(function()
         loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/4595fe31a5f7a8b4f4dd7071f3119ef7.lua"))()
     end)
 end)
 
--- ==================== 2. TỪ ĐIỂN HYBRID ĐA NGÔN NGỮ ====================
+-- ==================== 2. TỪ ĐIỂN ĐA NGÔN NGỮ (V2.1) ====================
 local currentLanguage = "VI"
 local translationLock = false
 local FastCache = {}
 
-local function escapePattern(str)
-    return str:gsub("([%^%$%(%)%%%.%[%]%*%+%-%?])", "%%%1")
-end
-
+-- Plain Text Replacer Bất Tử (Chống lỗi gsub 2 return values)
 local function replaceAll(str, findStr, replaceStr)
-    return str:gsub(escapePattern(findStr), replaceStr:gsub("%%", "%%%%"))
+    local startIdx, endIdx = str:find(findStr, 1, true)
+    while startIdx do
+        str = str:sub(1, startIdx - 1) .. replaceStr .. str:sub(endIdx + 1)
+        startIdx, endIdx = str:find(findStr, startIdx + #replaceStr, true)
+    end
+    return str
 end
 
 local MAP_VI = {
@@ -148,7 +150,6 @@ local MAP_ID = {
     ["Cosmic"] = "Cosmic"
 }
 
--- Xử lý linh hoạt Regex đếm thời gian
 local DYNAMIC_PATTERNS = {
     {
         pattern = "^IDLE / (%d+:%d+)$",
@@ -170,7 +171,7 @@ local DYNAMIC_PATTERNS = {
     }
 }
 
--- Sắp xếp chuỗi dài dịch trước, chuỗi ngắn dịch sau để chống lỗi chèn ép text
+-- Sắp xếp chuỗi dài ưu tiên dịch trước (Tránh lỗi dịch chồng chéo)
 local SortedVI, SortedPH, SortedID = {}, {}, {}
 for en, vi in pairs(MAP_VI) do table.insert(SortedVI, {en = en, out = vi, len = #en}) end
 for en, ph in pairs(MAP_PH) do table.insert(SortedPH, {en = en, out = ph, len = #en}) end
@@ -179,12 +180,12 @@ table.sort(SortedVI, function(a, b) return a.len > b.len end)
 table.sort(SortedPH, function(a, b) return a.len > b.len end)
 table.sort(SortedID, function(a, b) return a.len > b.len end)
 
--- ==================== 3. LÕI DỊCH THUẬT HYBRID ====================
+-- ==================== 3. LÕI DỊCH THUẬT BULLETPROOF (V2.1) ====================
 local function translateText(raw)
     local cacheKey = currentLanguage .. "|" .. raw
     if FastCache[cacheKey] then return FastCache[cacheKey] end
 
-    -- Trả thẳng về EN nếu người dùng đổi sang English
+    -- Nút tắt dịch: Nếu là EN thì trả thẳng, không xử lý
     if currentLanguage == "EN" then
         FastCache[cacheKey] = raw
         return raw
@@ -208,7 +209,7 @@ local function translateText(raw)
         end
     end
 
-    -- 2. Quét mảng Substring (Lùng sục từng chữ và dịch đè trong các chuỗi nối)
+    -- 2. Quét mảng Substring cực nhẹ (Lùng sục từng chữ và dịch đè an toàn)
     if not matched then
         for _, item in ipairs(sortedMap) do
             if result:find(item.en, 1, true) then
@@ -254,19 +255,20 @@ local function hookElement(inst)
 
     inst:GetPropertyChangedSignal("Text"):Connect(function()
         if not translationLock then
-            -- Chống Crash do Luarmor re-render vòng lặp
+            -- Chống Crash do Luarmor liên tục spam Text
             if DebounceTracker[inst] and tick() - DebounceTracker[inst] < 0.1 then return end
             DebounceTracker[inst] = tick()
 
             local current = inst.Text
             local isKnown = false
             
-            -- Reverse Lookup: Kiểm tra xem Text có chứa bản dịch của ngôn ngữ hiện tại không
+            -- Reverse Lookup: Kiểm tra xem Text hiện tại có phải là bản dịch không
             local map = MAP_VI
             if currentLanguage == "PH" then map = MAP_PH
             elseif currentLanguage == "ID" then map = MAP_ID end
             
             if currentLanguage ~= "EN" then
+                -- Quét chìm tìm chữ đã dịch
                 for _, translated in pairs(map) do
                     if current:find(translated, 1, true) then
                         isKnown = true
@@ -274,6 +276,7 @@ local function hookElement(inst)
                     end
                 end
                 
+                -- Quét regex nếu chưa thấy
                 if not isKnown then
                     for _, item in ipairs(DYNAMIC_PATTERNS) do
                         local trimmed = current:gsub("^%s*(.-)%s*$", "%1")
@@ -288,7 +291,7 @@ local function hookElement(inst)
                 isKnown = (current == inst:GetAttribute("OriginalRawText"))
             end
 
-            -- Nếu Game bắn ra Text tiếng Anh mới -> Cập nhật Original và dịch lại
+            -- Nếu game cập nhật Text mới hoàn toàn -> Ghi đè vào Original và dịch ngay
             if not isKnown then
                 inst:SetAttribute("OriginalRawText", current)
             end
@@ -375,6 +378,7 @@ local function createLangToggleUI()
         end
     end)
 
+    -- Vòng lặp đổi 4 ngôn ngữ (Sẽ re-render lại TẤT CẢ UI đang hiện trên màn hình)
     ClickBtn.MouseButton1Click:Connect(function()
         if currentLanguage == "VI" then
             currentLanguage = "PH"
@@ -397,7 +401,7 @@ local function createLangToggleUI()
             TweenService:Create(Label, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(240, 130, 130)}):Play()
             TweenService:Create(Stroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(160, 45, 45)}):Play()
         end
-        updateAllActive() -- Cập nhật toàn bộ Text khi đổi ngôn ngữ
+        updateAllActive()
     end)
 end
 
