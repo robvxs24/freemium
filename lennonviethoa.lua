@@ -1,9 +1,9 @@
 -- ==============================================================================
---  LENNON HUB KAITUN - BULLETPROOF HYBRID ENGINE V2.1 (LUARMOR SAFE)
+--  LENNON HUB KAITUN - BULLETPROOF HYBRID ENGINE V2.2 (LUARMOR SAFE)
 --  Tối ưu hóa:
 --    1. Nạp đúng luồng script gốc Lennon Hub (Luarmor Loader).
---    2. SỬA LỖI SẬP ENGINE: Chuyển sang Pure Plain-Text Replacer, loại bỏ hoàn toàn lỗi ngầm Lua `gsub`.
---    3. Hybrid Matcher: Dịch chuẩn xác mọi chuỗi bị ghép chung trong Luarmor.
+--    2. Bổ sung trạng thái động: "LOOP READY" khi bật công tắc Auto Steal.
+--    3. SỬA LỖI SẬP ENGINE: Chuyển sang Pure Plain-Text Replacer.
 --    4. Luarmor Bypass: Thêm bộ đệm (Debounce) chống Crash vòng lặp.
 --    5. Nút bấm Frosted Slate Top-Center (Y=15).
 -- ==============================================================================
@@ -21,12 +21,12 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 2. TỪ ĐIỂN ĐA NGÔN NGỮ (V2.1) ====================
+-- ==================== 2. TỪ ĐIỂN ĐA NGÔN NGỮ (V2.2) ====================
 local currentLanguage = "VI"
 local translationLock = false
 local FastCache = {}
 
--- Plain Text Replacer Bất Tử (Chống lỗi gsub 2 return values)
+-- Plain Text Replacer Bất Tử
 local function replaceAll(str, findStr, replaceStr)
     local startIdx, endIdx = str:find(findStr, 1, true)
     while startIdx do
@@ -44,6 +44,7 @@ local MAP_VI = {
     ["BEST EGG"] = "TRỨNG TỐT NHẤT",
     ["AUTO STEAL"] = "TỰ ĐỘNG CƯỚP",
     ["ONE SHOT"] = "MỘT LẦN",
+    ["LOOP READY"] = "SẴN SÀNG LẶP",
     ["LOOP"] = "LẶP LẠI",
     ["START"] = "BẮT ĐẦU",
     ["STOP"] = "DỪNG LẠI",
@@ -82,6 +83,7 @@ local MAP_PH = {
     ["BEST EGG"] = "PINAKAMAGANDANG ITLOG",
     ["AUTO STEAL"] = "AUTO NAKAW",
     ["ONE SHOT"] = "ISANG BESES",
+    ["LOOP READY"] = "HANDANG UMULIT",
     ["LOOP"] = "PAULIT-ULIT",
     ["START"] = "SIMULAN",
     ["STOP"] = "IHINTO",
@@ -120,6 +122,7 @@ local MAP_ID = {
     ["BEST EGG"] = "TELUR TERBAIK",
     ["AUTO STEAL"] = "AUTO CURI",
     ["ONE SHOT"] = "SEKALI SAJA",
+    ["LOOP READY"] = "SIAP BERULANG",
     ["LOOP"] = "TERUS MENERUS",
     ["START"] = "MULAI",
     ["STOP"] = "BERHENTI",
@@ -171,7 +174,6 @@ local DYNAMIC_PATTERNS = {
     }
 }
 
--- Sắp xếp chuỗi dài ưu tiên dịch trước (Tránh lỗi dịch chồng chéo)
 local SortedVI, SortedPH, SortedID = {}, {}, {}
 for en, vi in pairs(MAP_VI) do table.insert(SortedVI, {en = en, out = vi, len = #en}) end
 for en, ph in pairs(MAP_PH) do table.insert(SortedPH, {en = en, out = ph, len = #en}) end
@@ -180,12 +182,11 @@ table.sort(SortedVI, function(a, b) return a.len > b.len end)
 table.sort(SortedPH, function(a, b) return a.len > b.len end)
 table.sort(SortedID, function(a, b) return a.len > b.len end)
 
--- ==================== 3. LÕI DỊCH THUẬT BULLETPROOF (V2.1) ====================
+-- ==================== 3. LÕI DỊCH THUẬT BULLETPROOF ====================
 local function translateText(raw)
     local cacheKey = currentLanguage .. "|" .. raw
     if FastCache[cacheKey] then return FastCache[cacheKey] end
 
-    -- Nút tắt dịch: Nếu là EN thì trả thẳng, không xử lý
     if currentLanguage == "EN" then
         FastCache[cacheKey] = raw
         return raw
@@ -198,7 +199,6 @@ local function translateText(raw)
     if currentLanguage == "PH" then sortedMap = SortedPH
     elseif currentLanguage == "ID" then sortedMap = SortedID end
 
-    -- 1. Quét Regex trước cho các đồng hồ đếm ngược
     for _, item in ipairs(DYNAMIC_PATTERNS) do
         local trimmed = result:gsub("^%s*(.-)%s*$", "%1")
         local matches = {trimmed:match(item.pattern)}
@@ -209,7 +209,6 @@ local function translateText(raw)
         end
     end
 
-    -- 2. Quét mảng Substring cực nhẹ (Lùng sục từng chữ và dịch đè an toàn)
     if not matched then
         for _, item in ipairs(sortedMap) do
             if result:find(item.en, 1, true) then
@@ -255,20 +254,17 @@ local function hookElement(inst)
 
     inst:GetPropertyChangedSignal("Text"):Connect(function()
         if not translationLock then
-            -- Chống Crash do Luarmor liên tục spam Text
             if DebounceTracker[inst] and tick() - DebounceTracker[inst] < 0.1 then return end
             DebounceTracker[inst] = tick()
 
             local current = inst.Text
             local isKnown = false
             
-            -- Reverse Lookup: Kiểm tra xem Text hiện tại có phải là bản dịch không
             local map = MAP_VI
             if currentLanguage == "PH" then map = MAP_PH
             elseif currentLanguage == "ID" then map = MAP_ID end
             
             if currentLanguage ~= "EN" then
-                -- Quét chìm tìm chữ đã dịch
                 for _, translated in pairs(map) do
                     if current:find(translated, 1, true) then
                         isKnown = true
@@ -276,7 +272,6 @@ local function hookElement(inst)
                     end
                 end
                 
-                -- Quét regex nếu chưa thấy
                 if not isKnown then
                     for _, item in ipairs(DYNAMIC_PATTERNS) do
                         local trimmed = current:gsub("^%s*(.-)%s*$", "%1")
@@ -291,7 +286,6 @@ local function hookElement(inst)
                 isKnown = (current == inst:GetAttribute("OriginalRawText"))
             end
 
-            -- Nếu game cập nhật Text mới hoàn toàn -> Ghi đè vào Original và dịch ngay
             if not isKnown then
                 inst:SetAttribute("OriginalRawText", current)
             end
@@ -312,7 +306,7 @@ local function updateAllActive()
     end
 end
 
--- ==================== 4. NÚT ĐỔI NGÔN NGỮ (TOP-CENTER Y=15) ====================
+-- ==================== 4. NÚT ĐỔI NGÔN NGỮ ====================
 local function createLangToggleUI()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local old = parentTarget:FindFirstChild("Chilli_LangToggle_Slate")
@@ -378,7 +372,6 @@ local function createLangToggleUI()
         end
     end)
 
-    -- Vòng lặp đổi 4 ngôn ngữ (Sẽ re-render lại TẤT CẢ UI đang hiện trên màn hình)
     ClickBtn.MouseButton1Click:Connect(function()
         if currentLanguage == "VI" then
             currentLanguage = "PH"
@@ -405,7 +398,7 @@ local function createLangToggleUI()
     end)
 end
 
--- ==================== 5. BỘ QUÉT DEFER (CHỐNG PHÁT HIỆN BỞI LUARMOR) ====================
+-- ==================== 5. BỘ QUÉT DEFER ====================
 task.delay(4.5, function()
     createLangToggleUI()
 
