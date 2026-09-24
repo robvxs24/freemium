@@ -1,11 +1,11 @@
 -- ==============================================================================
---  LENNON HUB KAITUN - IMMORTAL ENGINE V4.0 (SMART UI & LUARMOR SAFE)
+--  LENNON HUB KAITUN - IMMORTAL ENGINE V5.0 (PERFECT UI CONTROL)
 --  Tối ưu hóa:
 --    1. Nạp đúng luồng script gốc Lennon Hub (Luarmor Loader).
---    2. Smart UI Manager: Bỏ qua giao diện thu nhỏ, Tự động mở rộng (Expand) khi khởi động.
---    3. Phantom Close: Biến nút 'X' thành nút tắt hẳn menu (Đánh lừa Luarmor).
---    4. Lõi dịch thuật bất tử (V3.0): Không crash, không tụt FPS, vượt mọi rào cản.
---    5. Nút bấm Frosted Slate Top-Center (Y=15) siêu mượt.
+--    2. SỬA LỖI KÉO THẢ: Tách biệt hoàn toàn lệnh Close khỏi TopBar (Kéo mượt mà).
+--    3. AGGRESSIVE AUTO-EXPAND: Ép Luarmor luôn phải bung to menu, bỏ qua bảng nhỏ.
+--    4. Lõi dịch thuật bất tử (V3.0): Dịch chính xác 100%, không crash, không tụt FPS.
+--    5. Nút bấm Frosted Slate Top-Center (Y=15).
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -21,7 +21,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 2. TỪ ĐIỂN ĐA NGÔN NGỮ (V4.0) ====================
+-- ==================== 2. TỪ ĐIỂN ĐA NGÔN NGỮ ====================
 local currentLanguage = "VI"
 local FastCache = {}
 
@@ -155,7 +155,7 @@ local DYNAMIC_PATTERNS = {
     {
         pattern = "^IDLE / (%d+:%d+)$",
         format  = function(lang, timeStr) 
-            if lang == "VI" then return "ĐANG CHỜ / " .. timeStr 
+            if lang == "VI" then return "ĐANG CHỜ LỆNH / " .. timeStr 
             elseif lang == "PH" then return "BAKANTE / " .. timeStr 
             elseif lang == "ID" then return "DIAM / " .. timeStr 
             end return "IDLE / " .. timeStr 
@@ -164,7 +164,7 @@ local DYNAMIC_PATTERNS = {
     {
         pattern = "^IDLE / (%d+:%d+:%d+)$",
         format  = function(lang, timeStr) 
-            if lang == "VI" then return "ĐANG CHỜ / " .. timeStr 
+            if lang == "VI" then return "ĐANG CHỜ LỆNH / " .. timeStr 
             elseif lang == "PH" then return "BAKANTE / " .. timeStr 
             elseif lang == "ID" then return "DIAM / " .. timeStr 
             end return "IDLE / " .. timeStr 
@@ -180,46 +180,36 @@ table.sort(SortedVI, function(a, b) return a.len > b.len end)
 table.sort(SortedPH, function(a, b) return a.len > b.len end)
 table.sort(SortedID, function(a, b) return a.len > b.len end)
 
--- ==================== 3. QUẢN LÝ UI NÂNG CAO (SMART EXPAND & CLOSE) ====================
+-- ==================== 3. QUẢN LÝ UI NÂNG CAO (SMART EXPAND & PERFECT CLOSE) ====================
 task.spawn(function()
-    local function fireVirtualClick(guiObj)
+    local function forceClick(btn)
         if not getconnections then return end
-        local targets = {guiObj, guiObj.Parent}
-        for _, target in ipairs(targets) do
-            if target then
-                for _, evt in ipairs({"MouseButton1Click", "MouseButton1Down", "MouseButton1Up"}) do
-                    pcall(function()
-                        for _, conn in ipairs(getconnections(target[evt])) do conn:Fire() end
-                    end)
-                end
-                pcall(function()
-                    for _, conn in ipairs(getconnections(target.InputBegan)) do
-                        conn:Fire({UserInputType = Enum.UserInputType.MouseButton1, UserInputState = Enum.UserInputState.Begin})
-                    end
-                end)
+        pcall(function()
+            for _, conn in ipairs(getconnections(btn.InputBegan)) do
+                conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.Begin})
             end
-        end
+            for _, conn in ipairs(getconnections(btn.MouseButton1Click)) do
+                conn:Fire()
+            end
+        end)
     end
 
-    while task.wait(1) do
+    while task.wait(0.2) do
         local roots = {gethui and pcall(gethui) and gethui() or CoreGui, LocalPlayer:FindFirstChild("PlayerGui")}
         for _, root in ipairs(roots) do
             if root then
                 for _, inst in ipairs(root:GetDescendants()) do
-                    -- Tìm đúng Main GUI của Lennon Hub
                     if inst:IsA("TextLabel") and inst.Text:find("LENNON HUB") then
+                        local mainFrame = inst:FindFirstAncestorOfClass("Frame")
                         local screenGui = inst:FindFirstAncestorOfClass("ScreenGui")
-                        if screenGui and not screenGui:GetAttribute("SmartUI_Hooked") then
-                            screenGui:SetAttribute("SmartUI_Hooked", true)
-                            
-                            -- Tìm nút Expand/Collapse (+ hoặc x)
+                        
+                        if mainFrame and screenGui then
                             local expandBtn
                             for _, desc in ipairs(screenGui:GetDescendants()) do
                                 if (desc:IsA("TextLabel") or desc:IsA("TextButton")) then
-                                    local t = desc.Text:lower()
-                                    if t == "+" or t == "x" or t == "×" or t == "-" then
-                                        -- Lọc nút góc trên (Size nhỏ)
-                                        if desc.AbsoluteSize.X < 50 and desc.AbsoluteSize.Y < 50 then
+                                    if desc.AbsoluteSize.X > 0 and desc.AbsoluteSize.X < 50 and desc.AbsoluteSize.Y < 50 then
+                                        local t = desc.Text:lower()
+                                        if t == "+" or t == "x" or t == "×" or t == "-" then
                                             expandBtn = desc
                                             break
                                         end
@@ -228,37 +218,23 @@ task.spawn(function()
                             end
 
                             if expandBtn then
-                                local mainFrame = expandBtn:FindFirstAncestorOfClass("Frame")
-                                while mainFrame and mainFrame.Parent and not mainFrame.Parent:IsA("ScreenGui") do
-                                    mainFrame = mainFrame.Parent
+                                -- TỰ ĐỘNG BUNG TO: Nếu menu đang hiện và là dấu +, ép click ngay lập tức
+                                if mainFrame.Visible and (expandBtn.Text == "+" or expandBtn.Text == "") then
+                                    forceClick(expandBtn)
                                 end
 
-                                -- Tự động bung bảng to khi vừa mở lên
-                                if expandBtn.Text == "+" then
-                                    task.delay(0.5, function() fireVirtualClick(expandBtn) end)
-                                end
-
-                                -- Đánh lừa Luarmor: Bấm X là tắt luôn bảng, không thu nhỏ
-                                local function onInput(input)
-                                    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                                        local t = expandBtn.Text:lower()
-                                        if t == "x" or t == "×" or t == "-" then
-                                            if mainFrame then
+                                -- CHỈ GÀI VÀO NÚT X (Đã gỡ khỏi TopBar để kéo thả thoải mái)
+                                if not expandBtn:GetAttribute("HookedClose_V5") then
+                                    expandBtn:SetAttribute("HookedClose_V5", true)
+                                    expandBtn.InputBegan:Connect(function(input)
+                                        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                                            local t = expandBtn.Text:lower()
+                                            if t == "x" or t == "×" or t == "-" then
+                                                -- Ẩn MainFrame hoàn toàn (Thay vì thu nhỏ)
                                                 task.delay(0.05, function()
                                                     mainFrame.Visible = false
                                                 end)
                                             end
-                                        end
-                                    end
-                                end
-                                expandBtn.InputBegan:Connect(onInput)
-                                if expandBtn.Parent then expandBtn.Parent.InputBegan:Connect(onInput) end
-
-                                -- Khi bảng bị tắt và mở lại bằng nút Logo, tự động bung to nếu nó đang thu nhỏ
-                                if mainFrame then
-                                    mainFrame:GetPropertyChangedSignal("Visible"):Connect(function()
-                                        if mainFrame.Visible and expandBtn.Text == "+" then
-                                            task.delay(0.1, function() fireVirtualClick(expandBtn) end)
                                         end
                                     end)
                                 end
@@ -271,7 +247,7 @@ task.spawn(function()
     end
 end)
 
--- ==================== 4. LÕI DỊCH THUẬT IMMORTAL ====================
+-- ==================== 4. LÕI DỊCH THUẬT BẤT TỬ ====================
 local function translateText(raw)
     local cacheKey = currentLanguage .. "|" .. raw
     if FastCache[cacheKey] then return FastCache[cacheKey] end
@@ -312,6 +288,7 @@ local function translateText(raw)
 end
 
 local TrackedElements = {}
+local DebounceTracker = {}
 
 local function applyTranslation(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
@@ -344,14 +321,42 @@ local function hookElement(inst)
     inst:GetPropertyChangedSignal("Text"):Connect(function()
         if inst:GetAttribute("__IsTranslating") then return end
 
+        if DebounceTracker[inst] and tick() - DebounceTracker[inst] < 0.1 then return end
+        DebounceTracker[inst] = tick()
+
         local current = inst.Text
-        local original = inst:GetAttribute("OriginalRawText")
-        if not original then return end
+        local isKnown = false
         
-        local mappedText = translateText(original)
-        if current == mappedText then return end
+        local map = MAP_VI
+        if currentLanguage == "PH" then map = MAP_PH
+        elseif currentLanguage == "ID" then map = MAP_ID end
         
-        inst:SetAttribute("OriginalRawText", current)
+        if currentLanguage ~= "EN" then
+            for _, translated in pairs(map) do
+                if current:find(translated, 1, true) then
+                    isKnown = true
+                    break
+                end
+            end
+            
+            if not isKnown then
+                for _, item in ipairs(DYNAMIC_PATTERNS) do
+                    local trimmed = current:gsub("^%s*(.-)%s*$", "%1")
+                    local matches = {trimmed:match(item.pattern)}
+                    if #matches > 0 then
+                        isKnown = true 
+                        break
+                    end
+                end
+            end
+        else
+            isKnown = (current == inst:GetAttribute("OriginalRawText"))
+        end
+
+        if not isKnown then
+            inst:SetAttribute("OriginalRawText", current)
+        end
+        
         applyTranslation(inst)
     end)
 end
@@ -367,7 +372,7 @@ local function updateAllActive()
     end
 end
 
--- ==================== 5. NÚT ĐỔI NGÔN NGỮ ====================
+-- ==================== 5. NÚT ĐỔI NGÔN NGỮ (TOP-CENTER Y=15) ====================
 local function createLangToggleUI()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local old = parentTarget:FindFirstChild("Chilli_LangToggle_Slate")
