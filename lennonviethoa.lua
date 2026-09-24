@@ -1,11 +1,11 @@
 -- ==============================================================================
---  LENNON HUB KAITUN - BULLETPROOF HYBRID ENGINE V2.2 (LUARMOR SAFE)
+--  LENNON HUB KAITUN - IMMORTAL TRANSLATION ENGINE V3.0 (LUARMOR SAFE)
 --  Tối ưu hóa:
 --    1. Nạp đúng luồng script gốc Lennon Hub (Luarmor Loader).
---    2. Bổ sung trạng thái động: "LOOP READY" khi bật công tắc Auto Steal.
---    3. SỬA LỖI SẬP ENGINE: Chuyển sang Pure Plain-Text Replacer.
---    4. Luarmor Bypass: Thêm bộ đệm (Debounce) chống Crash vòng lặp.
---    5. Nút bấm Frosted Slate Top-Center (Y=15).
+--    2. Shadow Text Hooking: Gỡ bỏ hoàn toàn Global Lock và Debounce, không bao giờ kẹt nút.
+--    3. State-based Match: Xử lý dứt điểm lỗi "giật về tiếng Anh" của Luarmor.
+--    4. Hybrid Substring: Tự động dịch đè các chữ bị ghép chung (khắc phục lỗi sót chữ).
+--    5. Nút bấm Frosted Slate Top-Center (Y=15) siêu mượt.
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -21,12 +21,11 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 2. TỪ ĐIỂN ĐA NGÔN NGỮ (V2.2) ====================
+-- ==================== 2. TỪ ĐIỂN ĐA NGÔN NGỮ (V3.0) ====================
 local currentLanguage = "VI"
-local translationLock = false
 local FastCache = {}
 
--- Plain Text Replacer Bất Tử
+-- Plain Text Replacer Bất Tử (Không dùng Regex, không bao giờ Crash)
 local function replaceAll(str, findStr, replaceStr)
     local startIdx, endIdx = str:find(findStr, 1, true)
     while startIdx do
@@ -174,6 +173,7 @@ local DYNAMIC_PATTERNS = {
     }
 }
 
+-- Sắp xếp chuỗi dài ưu tiên dịch trước (Tránh lỗi dịch chồng chéo)
 local SortedVI, SortedPH, SortedID = {}, {}, {}
 for en, vi in pairs(MAP_VI) do table.insert(SortedVI, {en = en, out = vi, len = #en}) end
 for en, ph in pairs(MAP_PH) do table.insert(SortedPH, {en = en, out = ph, len = #en}) end
@@ -182,11 +182,12 @@ table.sort(SortedVI, function(a, b) return a.len > b.len end)
 table.sort(SortedPH, function(a, b) return a.len > b.len end)
 table.sort(SortedID, function(a, b) return a.len > b.len end)
 
--- ==================== 3. LÕI DỊCH THUẬT BULLETPROOF ====================
+-- ==================== 3. LÕI DỊCH THUẬT IMMORTAL (V3.0) ====================
 local function translateText(raw)
     local cacheKey = currentLanguage .. "|" .. raw
     if FastCache[cacheKey] then return FastCache[cacheKey] end
 
+    -- Trả thẳng nếu là Tiếng Anh
     if currentLanguage == "EN" then
         FastCache[cacheKey] = raw
         return raw
@@ -199,6 +200,7 @@ local function translateText(raw)
     if currentLanguage == "PH" then sortedMap = SortedPH
     elseif currentLanguage == "ID" then sortedMap = SortedID end
 
+    -- 1. Quét Regex trước cho các đồng hồ đếm ngược
     for _, item in ipairs(DYNAMIC_PATTERNS) do
         local trimmed = result:gsub("^%s*(.-)%s*$", "%1")
         local matches = {trimmed:match(item.pattern)}
@@ -209,6 +211,7 @@ local function translateText(raw)
         end
     end
 
+    -- 2. Quét mảng Substring (Lùng sục từng chữ và dịch đè an toàn)
     if not matched then
         for _, item in ipairs(sortedMap) do
             if result:find(item.en, 1, true) then
@@ -223,11 +226,13 @@ local function translateText(raw)
 end
 
 local TrackedElements = {}
-local DebounceTracker = {}
 
 local function applyTranslation(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
     if inst:FindFirstAncestor("Chilli_LangToggle_Slate") then return end
+    
+    -- Kiểm tra xem có đang bị khóa bởi chính mình không
+    if inst:GetAttribute("__IsTranslating") then return end
 
     local original = inst:GetAttribute("OriginalRawText")
     if not original then
@@ -236,10 +241,12 @@ local function applyTranslation(inst)
     end
 
     local mappedText = translateText(original)
+    
+    -- Chỉ ghi đè nếu chữ hiện tại khác với bản dịch
     if inst.Text ~= mappedText then
-        translationLock = true
-        inst.Text = mappedText
-        translationLock = false
+        inst:SetAttribute("__IsTranslating", true)
+        pcall(function() inst.Text = mappedText end)
+        inst:SetAttribute("__IsTranslating", false)
     end
 end
 
@@ -253,45 +260,22 @@ local function hookElement(inst)
     task.defer(function() applyTranslation(inst) end)
 
     inst:GetPropertyChangedSignal("Text"):Connect(function()
-        if not translationLock then
-            if DebounceTracker[inst] and tick() - DebounceTracker[inst] < 0.1 then return end
-            DebounceTracker[inst] = tick()
+        -- Bỏ qua nếu Signal này là do tool dịch tự bắn ra
+        if inst:GetAttribute("__IsTranslating") then return end
 
-            local current = inst.Text
-            local isKnown = false
-            
-            local map = MAP_VI
-            if currentLanguage == "PH" then map = MAP_PH
-            elseif currentLanguage == "ID" then map = MAP_ID end
-            
-            if currentLanguage ~= "EN" then
-                for _, translated in pairs(map) do
-                    if current:find(translated, 1, true) then
-                        isKnown = true
-                        break
-                    end
-                end
-                
-                if not isKnown then
-                    for _, item in ipairs(DYNAMIC_PATTERNS) do
-                        local trimmed = current:gsub("^%s*(.-)%s*$", "%1")
-                        local matches = {trimmed:match(item.pattern)}
-                        if #matches > 0 then
-                            isKnown = true 
-                            break
-                        end
-                    end
-                end
-            else
-                isKnown = (current == inst:GetAttribute("OriginalRawText"))
-            end
-
-            if not isKnown then
-                inst:SetAttribute("OriginalRawText", current)
-            end
-            
-            applyTranslation(inst)
-        end
+        local current = inst.Text
+        local original = inst:GetAttribute("OriginalRawText")
+        if not original then return end
+        
+        local mappedText = translateText(original)
+        
+        -- Nếu chữ hiện tại đã TRÙNG với bản dịch của ngôn ngữ đang chọn, không làm gì cả
+        if current == mappedText then return end
+        
+        -- Nếu chữ hiện tại KHÁC với bản dịch (Tức là Luarmor vừa ép Text về tiếng Anh)
+        -- Ta cập nhật OriginalRawText thành chữ tiếng Anh mới đó, và dịch đè lại ngay lập tức
+        inst:SetAttribute("OriginalRawText", current)
+        applyTranslation(inst)
     end)
 end
 
@@ -306,7 +290,7 @@ local function updateAllActive()
     end
 end
 
--- ==================== 4. NÚT ĐỔI NGÔN NGỮ ====================
+-- ==================== 4. NÚT ĐỔI NGÔN NGỮ (TOP-CENTER Y=15) ====================
 local function createLangToggleUI()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local old = parentTarget:FindFirstChild("Chilli_LangToggle_Slate")
@@ -372,6 +356,7 @@ local function createLangToggleUI()
         end
     end)
 
+    -- Đổi ngôn ngữ mượt mà và quét cập nhật lập tức
     ClickBtn.MouseButton1Click:Connect(function()
         if currentLanguage == "VI" then
             currentLanguage = "PH"
@@ -398,7 +383,7 @@ local function createLangToggleUI()
     end)
 end
 
--- ==================== 5. BỘ QUÉT DEFER ====================
+-- ==================== 5. BỘ QUÉT DEFER BẢO MẬT ====================
 task.delay(4.5, function()
     createLangToggleUI()
 
