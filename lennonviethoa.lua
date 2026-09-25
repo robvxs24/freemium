@@ -1,10 +1,10 @@
 -- ==============================================================================
---  LENNON HUB KAITUN - IMMORTAL ENGINE V4.0 (SMART UI & LUARMOR SAFE)
+--  LENNON HUB KAITUN - IMMORTAL TRANSLATION ENGINE V3.0 (LUARMOR SAFE)
 --  Tối ưu hóa:
 --    1. Nạp đúng luồng script gốc Lennon Hub (Luarmor Loader).
---    2. Smart UI Manager: Bỏ qua giao diện thu nhỏ, Tự động mở rộng (Expand) khi khởi động.
---    3. Phantom Close: Biến nút 'X' thành nút tắt hẳn menu (Đánh lừa Luarmor).
---    4. Lõi dịch thuật bất tử (V3.0): Không crash, không tụt FPS, vượt mọi rào cản.
+--    2. Shadow Text Hooking: Gỡ bỏ hoàn toàn Global Lock và Debounce, không bao giờ kẹt nút.
+--    3. State-based Match: Xử lý dứt điểm lỗi "giật về tiếng Anh" của Luarmor.
+--    4. Hybrid Substring: Tự động dịch đè các chữ bị ghép chung (khắc phục lỗi sót chữ).
 --    5. Nút bấm Frosted Slate Top-Center (Y=15) siêu mượt.
 -- ==============================================================================
 
@@ -21,10 +21,11 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 2. TỪ ĐIỂN ĐA NGÔN NGỮ (V4.0) ====================
+-- ==================== 2. TỪ ĐIỂN ĐA NGÔN NGỮ (V3.0) ====================
 local currentLanguage = "VI"
 local FastCache = {}
 
+-- Plain Text Replacer Bất Tử (Không dùng Regex, không bao giờ Crash)
 local function replaceAll(str, findStr, replaceStr)
     local startIdx, endIdx = str:find(findStr, 1, true)
     while startIdx do
@@ -59,7 +60,7 @@ local MAP_VI = {
     ["Auto Open Vault"] = "Tự Động Mở Hầm",
     ["Secret Cave"] = "Hang Động Bí Ẩn",
     ["Auto Lost Parts"] = "Tự Nhặt Phụ Tùng",
-    ["Auto Buy Shop"] = "Tự Động Mua Cửa Hàng",
+    ["Auto Buy Shop"] = "Tự Động Mua Shop",
     ["Send Steals"] = "Báo Cáo Cướp Trứng",
     ["Test Webhook"] = "Kiểm Tra Webhook",
     
@@ -172,6 +173,7 @@ local DYNAMIC_PATTERNS = {
     }
 }
 
+-- Sắp xếp chuỗi dài ưu tiên dịch trước (Tránh lỗi dịch chồng chéo)
 local SortedVI, SortedPH, SortedID = {}, {}, {}
 for en, vi in pairs(MAP_VI) do table.insert(SortedVI, {en = en, out = vi, len = #en}) end
 for en, ph in pairs(MAP_PH) do table.insert(SortedPH, {en = en, out = ph, len = #en}) end
@@ -180,102 +182,12 @@ table.sort(SortedVI, function(a, b) return a.len > b.len end)
 table.sort(SortedPH, function(a, b) return a.len > b.len end)
 table.sort(SortedID, function(a, b) return a.len > b.len end)
 
--- ==================== 3. QUẢN LÝ UI NÂNG CAO (SMART EXPAND & CLOSE) ====================
-task.spawn(function()
-    local function fireVirtualClick(guiObj)
-        if not getconnections then return end
-        local targets = {guiObj, guiObj.Parent}
-        for _, target in ipairs(targets) do
-            if target then
-                for _, evt in ipairs({"MouseButton1Click", "MouseButton1Down", "MouseButton1Up"}) do
-                    pcall(function()
-                        for _, conn in ipairs(getconnections(target[evt])) do conn:Fire() end
-                    end)
-                end
-                pcall(function()
-                    for _, conn in ipairs(getconnections(target.InputBegan)) do
-                        conn:Fire({UserInputType = Enum.UserInputType.MouseButton1, UserInputState = Enum.UserInputState.Begin})
-                    end
-                end)
-            end
-        end
-    end
-
-    while task.wait(1) do
-        local roots = {gethui and pcall(gethui) and gethui() or CoreGui, LocalPlayer:FindFirstChild("PlayerGui")}
-        for _, root in ipairs(roots) do
-            if root then
-                for _, inst in ipairs(root:GetDescendants()) do
-                    -- Tìm đúng Main GUI của Lennon Hub
-                    if inst:IsA("TextLabel") and inst.Text:find("LENNON HUB") then
-                        local screenGui = inst:FindFirstAncestorOfClass("ScreenGui")
-                        if screenGui and not screenGui:GetAttribute("SmartUI_Hooked") then
-                            screenGui:SetAttribute("SmartUI_Hooked", true)
-                            
-                            -- Tìm nút Expand/Collapse (+ hoặc x)
-                            local expandBtn
-                            for _, desc in ipairs(screenGui:GetDescendants()) do
-                                if (desc:IsA("TextLabel") or desc:IsA("TextButton")) then
-                                    local t = desc.Text:lower()
-                                    if t == "+" or t == "x" or t == "×" or t == "-" then
-                                        -- Lọc nút góc trên (Size nhỏ)
-                                        if desc.AbsoluteSize.X < 50 and desc.AbsoluteSize.Y < 50 then
-                                            expandBtn = desc
-                                            break
-                                        end
-                                    end
-                                end
-                            end
-
-                            if expandBtn then
-                                local mainFrame = expandBtn:FindFirstAncestorOfClass("Frame")
-                                while mainFrame and mainFrame.Parent and not mainFrame.Parent:IsA("ScreenGui") do
-                                    mainFrame = mainFrame.Parent
-                                end
-
-                                -- Tự động bung bảng to khi vừa mở lên
-                                if expandBtn.Text == "+" then
-                                    task.delay(0.5, function() fireVirtualClick(expandBtn) end)
-                                end
-
-                                -- Đánh lừa Luarmor: Bấm X là tắt luôn bảng, không thu nhỏ
-                                local function onInput(input)
-                                    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                                        local t = expandBtn.Text:lower()
-                                        if t == "x" or t == "×" or t == "-" then
-                                            if mainFrame then
-                                                task.delay(0.05, function()
-                                                    mainFrame.Visible = false
-                                                end)
-                                            end
-                                        end
-                                    end
-                                end
-                                expandBtn.InputBegan:Connect(onInput)
-                                if expandBtn.Parent then expandBtn.Parent.InputBegan:Connect(onInput) end
-
-                                -- Khi bảng bị tắt và mở lại bằng nút Logo, tự động bung to nếu nó đang thu nhỏ
-                                if mainFrame then
-                                    mainFrame:GetPropertyChangedSignal("Visible"):Connect(function()
-                                        if mainFrame.Visible and expandBtn.Text == "+" then
-                                            task.delay(0.1, function() fireVirtualClick(expandBtn) end)
-                                        end
-                                    end)
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-end)
-
--- ==================== 4. LÕI DỊCH THUẬT IMMORTAL ====================
+-- ==================== 3. LÕI DỊCH THUẬT IMMORTAL (V3.0) ====================
 local function translateText(raw)
     local cacheKey = currentLanguage .. "|" .. raw
     if FastCache[cacheKey] then return FastCache[cacheKey] end
 
+    -- Trả thẳng nếu là Tiếng Anh
     if currentLanguage == "EN" then
         FastCache[cacheKey] = raw
         return raw
@@ -288,6 +200,7 @@ local function translateText(raw)
     if currentLanguage == "PH" then sortedMap = SortedPH
     elseif currentLanguage == "ID" then sortedMap = SortedID end
 
+    -- 1. Quét Regex trước cho các đồng hồ đếm ngược
     for _, item in ipairs(DYNAMIC_PATTERNS) do
         local trimmed = result:gsub("^%s*(.-)%s*$", "%1")
         local matches = {trimmed:match(item.pattern)}
@@ -298,6 +211,7 @@ local function translateText(raw)
         end
     end
 
+    -- 2. Quét mảng Substring (Lùng sục từng chữ và dịch đè an toàn)
     if not matched then
         for _, item in ipairs(sortedMap) do
             if result:find(item.en, 1, true) then
@@ -316,6 +230,8 @@ local TrackedElements = {}
 local function applyTranslation(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
     if inst:FindFirstAncestor("Chilli_LangToggle_Slate") then return end
+    
+    -- Kiểm tra xem có đang bị khóa bởi chính mình không
     if inst:GetAttribute("__IsTranslating") then return end
 
     local original = inst:GetAttribute("OriginalRawText")
@@ -326,6 +242,7 @@ local function applyTranslation(inst)
 
     local mappedText = translateText(original)
     
+    -- Chỉ ghi đè nếu chữ hiện tại khác với bản dịch
     if inst.Text ~= mappedText then
         inst:SetAttribute("__IsTranslating", true)
         pcall(function() inst.Text = mappedText end)
@@ -339,9 +256,11 @@ local function hookElement(inst)
     inst:SetAttribute("HasTranslateHook", true)
 
     table.insert(TrackedElements, inst)
+    
     task.defer(function() applyTranslation(inst) end)
 
     inst:GetPropertyChangedSignal("Text"):Connect(function()
+        -- Bỏ qua nếu Signal này là do tool dịch tự bắn ra
         if inst:GetAttribute("__IsTranslating") then return end
 
         local current = inst.Text
@@ -349,8 +268,12 @@ local function hookElement(inst)
         if not original then return end
         
         local mappedText = translateText(original)
+        
+        -- Nếu chữ hiện tại đã TRÙNG với bản dịch của ngôn ngữ đang chọn, không làm gì cả
         if current == mappedText then return end
         
+        -- Nếu chữ hiện tại KHÁC với bản dịch (Tức là Luarmor vừa ép Text về tiếng Anh)
+        -- Ta cập nhật OriginalRawText thành chữ tiếng Anh mới đó, và dịch đè lại ngay lập tức
         inst:SetAttribute("OriginalRawText", current)
         applyTranslation(inst)
     end)
@@ -367,7 +290,7 @@ local function updateAllActive()
     end
 end
 
--- ==================== 5. NÚT ĐỔI NGÔN NGỮ ====================
+-- ==================== 4. NÚT ĐỔI NGÔN NGỮ (TOP-CENTER Y=15) ====================
 local function createLangToggleUI()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local old = parentTarget:FindFirstChild("Chilli_LangToggle_Slate")
@@ -433,6 +356,7 @@ local function createLangToggleUI()
         end
     end)
 
+    -- Đổi ngôn ngữ mượt mà và quét cập nhật lập tức
     ClickBtn.MouseButton1Click:Connect(function()
         if currentLanguage == "VI" then
             currentLanguage = "PH"
@@ -459,7 +383,7 @@ local function createLangToggleUI()
     end)
 end
 
--- ==================== 6. BỘ QUÉT DEFER BẢO MẬT ====================
+-- ==================== 5. BỘ QUÉT DEFER BẢO MẬT ====================
 task.delay(4.5, function()
     createLangToggleUI()
 
