@@ -1,9 +1,9 @@
 -- ==============================================================================
---  LUMIN V2 [NEW] - IMMORTAL TRANSLATION ENGINE (EN/VI)
+--  LUMIN HUB - IMMORTAL TRANSLATION ENGINE (EN/VI) FULL VERSION
 --  Tối ưu hóa:
---    1. REBRANDING: Đổi tên thành Lumin V2, xóa sạch link Discord gốc.
---    2. RICH TEXT INJECTION: Ép thẻ <font> tạo hiệu ứng chữ [ NEW ] màu xanh lục.
---    3. Nạp tự động loadstring gốc: http://luminon.top/loader.lua
+--    1. Nạp tự động loadstring gốc: http://luminon.top/loader.lua
+--    2. Cập nhật TOÀN BỘ từ vựng: System, Events, Boss Battle, Configs, FPS Boost.
+--    3. Micro-Parser: Dịch hoàn hảo các bảng thống kê động mà không làm lag game.
 --    4. Nút bấm Frosted Slate Top-Center (Y=15) - Chỉ bật/tắt giữa 2 ngôn ngữ.
 -- ==============================================================================
 
@@ -20,7 +20,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 2. TỪ ĐIỂN LUMIN V2 (TIẾNG VIỆT) ====================
+-- ==================== 2. TỪ ĐIỂN LUMIN HUB (TIẾNG VIỆT FULL) ====================
 local currentLanguage = "VI"
 local FastCache = {}
 
@@ -34,13 +34,12 @@ local function replaceAll(str, findStr, replaceStr)
 end
 
 local MAP_VI = {
-    -- REBRANDING & XÓA DISCORD
-    ["discord.gg/luminhub"] = " ",
-    ["Lumin / Farm"] = "Lumin V2 / Cày Cuốc\n<font size='12' color='#00FF00'>[ NEW ]</font>",
-    ["Lumin / Automation"] = "Lumin V2 / Tự Động Hóa\n<font size='12' color='#00FF00'>[ NEW ]</font>",
-    ["Lumin / Intel"] = "Lumin V2 / Tình Báo\n<font size='12' color='#00FF00'>[ NEW ]</font>",
-    ["Lumin / Events"] = "Lumin V2 / Sự Kiện\n<font size='12' color='#00FF00'>[ NEW ]</font>",
-    ["Lumin / System"] = "Lumin V2 / Hệ Thống\n<font size='12' color='#00FF00'>[ NEW ]</font>",
+    -- TABS CHÍNH
+    ["Lumin / Farm"] = "Lumin / Cày Cuốc",
+    ["Lumin / Automation"] = "Lumin / Tự Động Hóa",
+    ["Lumin / Intel"] = "Lumin / Tình Báo",
+    ["Lumin / Events"] = "Lumin / Sự Kiện",
+    ["Lumin / System"] = "Lumin / Hệ Thống",
     
     -- CÁC MỤC HEADER
     ["Auto Farm"] = "Tự Động Cày Cuốc",
@@ -73,7 +72,7 @@ local MAP_VI = {
     ["Your score: awaiting server standings"] = "Điểm của bạn: Đang chờ xếp hạng server",
     ["Egg reset: --"] = "Làm Mới Trứng: --",
     
-    -- TRẠNG THÁI SCRAMBLE & BOSS
+    -- TRẠNG THÁI SCRAMBLE & BOSS (Chuỗi nối)
     ["Scramble Boss: inactive"] = "Scramble Boss: chưa kích hoạt",
     ["phase none"] = "giai đoạn: không",
     ["Kills:"] = "Hạ gục:",
@@ -149,7 +148,7 @@ local MAP_VI = {
     ["Guard Threat Radar"] = "Radar Cảnh Báo Vệ Sĩ",
     ["Copy Server Intel"] = "Chép Tình Báo Server",
     
-    -- EVENTS TAB
+    -- EVENTS TAB 
     ["Dodge Attacks"] = "Né Đòn Tấn Công",
     ["Claim Mastery Rewards"] = "Nhận Thưởng Tinh Thông",
     ["Wanted Offers"] = "Ưu Đãi Đang Tìm",
@@ -196,7 +195,7 @@ local MAP_VI = {
     ["Auto Scramble Boss"] = "Tự Đánh Scramble Boss",
     ["Enter Arena When Live"] = "Vào Đấu Trường Khi Mở",
     
-    -- SYSTEM TAB
+    -- SYSTEM TAB 
     ["GodMode"] = "Bất Tử (GodMode)",
     ["Anti AFK"] = "Chống Treo Máy (AFK)",
     ["No Animations"] = "Tắt Hoạt Ảnh",
@@ -270,7 +269,7 @@ local MAP_VI = {
     ["Auto Equip Best"] = "Tự Trang Bị Tốt Nhất",
     ["Auto Fuse"] = "Tự Động Ghép (Fuse)",
     
-    -- RARITIES
+    -- RARITIES & KEYWORDS (Chỉ khớp chuẩn)
     ["Secret"] = "Bí Ẩn (Secret)",
     ["Eternal"] = "Vĩnh Cửu (Eternal)",
     ["Divine"] = "Thánh Thần (Divine)",
@@ -283,15 +282,8 @@ local MAP_VI = {
     ["Common"] = "Phổ Thông (Common)"
 }
 
+-- Xử lý linh hoạt Regex cho các bộ đếm thời gian thực & Cấu trúc động
 local DYNAMIC_PATTERNS = {
-    -- Đổi tên FPS Bar (Chữ NEW nằm ngang để không vỡ khung)
-    {
-        pattern = "^Lumin Hub %| (.+)$",
-        format  = function(lang, stats)
-            if lang == "VI" then return "Lumin V2 <font color='#00FF00'>[ NEW ]</font> | " .. stats end
-            return "Lumin V2 <font color='#00FF00'>[ NEW ]</font> | " .. stats
-        end
-    },
     {
         pattern = "^Bat Aura: (.+)$",
         format  = function(lang, state) 
@@ -383,6 +375,7 @@ local DYNAMIC_PATTERNS = {
     }
 }
 
+-- Sắp xếp chuỗi dài ưu tiên dịch trước
 local SortedVI = {}
 for en, vi in pairs(MAP_VI) do table.insert(SortedVI, {en = en, out = vi, len = #en}) end
 table.sort(SortedVI, function(a, b) return a.len > b.len end)
@@ -392,29 +385,15 @@ local function translateText(raw)
     local cacheKey = currentLanguage .. "|" .. raw
     if FastCache[cacheKey] then return FastCache[cacheKey] end
 
+    if currentLanguage == "EN" then
+        FastCache[cacheKey] = raw
+        return raw
+    end
+
     local result = raw
     local matched = false
 
-    -- XỬ LÝ REBRANDING KHI Ở TIẾNG ANH
-    if currentLanguage == "EN" then
-        result = replaceAll(result, "discord.gg/luminhub", " ")
-        result = replaceAll(result, "Lumin / Farm", "Lumin V2 / Farm\n<font size='12' color='#00FF00'>[ NEW ]</font>")
-        result = replaceAll(result, "Lumin / Automation", "Lumin V2 / Automation\n<font size='12' color='#00FF00'>[ NEW ]</font>")
-        result = replaceAll(result, "Lumin / Intel", "Lumin V2 / Intel\n<font size='12' color='#00FF00'>[ NEW ]</font>")
-        result = replaceAll(result, "Lumin / Events", "Lumin V2 / Events\n<font size='12' color='#00FF00'>[ NEW ]</font>")
-        result = replaceAll(result, "Lumin / System", "Lumin V2 / System\n<font size='12' color='#00FF00'>[ NEW ]</font>")
-        
-        local trimmed = result:gsub("^%s*(.-)%s*$", "%1")
-        local matches = {trimmed:match("^Lumin Hub %| (.+)$")}
-        if #matches > 0 then
-            result = "Lumin V2 <font color='#00FF00'>[ NEW ]</font> | " .. matches[1]
-        end
-
-        FastCache[cacheKey] = result
-        return result
-    end
-
-    -- NẾU LÀ TIẾNG VIỆT
+    -- Ưu tiên 1: Regex
     for _, item in ipairs(DYNAMIC_PATTERNS) do
         local trimmed = result:gsub("^%s*(.-)%s*$", "%1")
         local matches = {trimmed:match(item.pattern)}
@@ -425,6 +404,7 @@ local function translateText(raw)
         end
     end
 
+    -- Ưu tiên 2: Substring Replace
     if not matched then
         for _, item in ipairs(SortedVI) do
             if result:find(item.en, 1, true) then
@@ -456,13 +436,7 @@ local function applyTranslation(inst)
     
     if inst.Text ~= mappedText then
         inst:SetAttribute("__IsTranslating", true)
-        pcall(function() 
-            -- Ép bật RichText nếu đoạn dịch có chứa thẻ <font> (Để hiển thị chữ NEW màu sắc)
-            if mappedText:find("<font") then
-                inst.RichText = true
-            end
-            inst.Text = mappedText 
-        end)
+        pcall(function() inst.Text = mappedText end)
         inst:SetAttribute("__IsTranslating", false)
     end
 end
@@ -503,8 +477,7 @@ local function hookElement(inst)
                 end
             end
         else
-            -- Check cho tiếng Anh có dính Rebranding
-            isKnown = current:find("Lumin V2") or current == inst:GetAttribute("OriginalRawText")
+            isKnown = (current == inst:GetAttribute("OriginalRawText"))
         end
 
         if not isKnown then
