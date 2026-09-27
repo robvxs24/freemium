@@ -1,11 +1,11 @@
 -- ==============================================================================
---  LUMIN V2 [NEW] - IMMORTAL TRANSLATION ENGINE (EN/VI) V9.0
+--  LUMIN V2 [NEW] - IMMORTAL TRANSLATION ENGINE (EN/VI) V8.0
 --  Tối ưu hóa:
---    1. CÁCH LY GAME (SANDBOX): Không đụng chạm vào PlayerGui, thời gian game đếm mượt mà.
---    2. ZERO-LAG SCANNER: Tối ưu hóa mắt thần màn hình đen, giảm 99% tải CPU.
---    3. REBRANDING: Đổi tên thành Lumin V2, thẻ [ NEW ] Neon Green.
---    4. PURE UI SPINNER: Vòng xoay Gradient siêu mượt.
---    5. Nạp tự động loadstring gốc: http://luminon.top/loader.lua
+--    1. REBRANDING: Đổi tên thành Lumin V2, thẻ [ NEW ] Neon Green.
+--    2. SMART LOADING SCREEN: Tự động phát hiện màn hình đen và kích hoạt vòng xoay.
+--    3. PURE UI SPINNER: Vòng xoay Gradient siêu mượt, không dùng ảnh (chống lỗi load).
+--    4. Nạp tự động loadstring gốc: http://luminon.top/loader.lua
+--    5. Lõi dịch thuật bất tử (V3.0): Dịch 100% không sót chữ nào.
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -275,7 +275,7 @@ local MAP_VI = {
     ["Auto Equip Best"] = "Tự Trang Bị Tốt Nhất",
     ["Auto Fuse"] = "Tự Động Ghép (Fuse)",
     
-    -- RARITIES & KEYWORDS
+    -- RARITIES
     ["Secret"] = "Bí Ẩn (Secret)",
     ["Eternal"] = "Vĩnh Cửu (Eternal)",
     ["Divine"] = "Thánh Thần (Divine)",
@@ -391,7 +391,7 @@ local SortedVI = {}
 for en, vi in pairs(MAP_VI) do table.insert(SortedVI, {en = en, out = vi, len = #en}) end
 table.sort(SortedVI, function(a, b) return a.len > b.len end)
 
--- ==================== 3. LÕI DỊCH THUẬT (KHÔNG ĐỤNG CHẠM GAME) ====================
+-- ==================== 3. LÕI DỊCH THUẬT (IMMORTAL) ====================
 local function translateText(raw)
     local cacheKey = currentLanguage .. "|" .. raw
     if FastCache[cacheKey] then return FastCache[cacheKey] end
@@ -399,6 +399,7 @@ local function translateText(raw)
     local result = raw
     local matched = false
 
+    -- XỬ LÝ REBRANDING KHI Ở TIẾNG ANH
     if currentLanguage == "EN" then
         result = replaceAll(result, "discord.gg/luminhub", " ")
         result = replaceAll(result, "Lumin / Farm", "Lumin V2 / Farm\n<font size='12' color='#00FF00'>[ NEW ]</font>")
@@ -417,6 +418,7 @@ local function translateText(raw)
         return result
     end
 
+    -- NẾU LÀ TIẾNG VIỆT
     for _, item in ipairs(DYNAMIC_PATTERNS) do
         local trimmed = result:gsub("^%s*(.-)%s*$", "%1")
         local matches = {trimmed:match(item.pattern)}
@@ -459,6 +461,7 @@ local function applyTranslation(inst)
     if inst.Text ~= mappedText then
         inst:SetAttribute("__IsTranslating", true)
         pcall(function() 
+            -- Ép bật RichText nếu đoạn dịch có chứa thẻ <font>
             if mappedText:find("<font") then
                 inst.RichText = true
             end
@@ -528,8 +531,7 @@ end
 
 -- ==================== 4. NÚT ĐỔI NGÔN NGỮ (VI / EN) ====================
 local function createLangToggleUI()
-    -- Cách ly PlayerGui, chỉ gắn vào Executor CoreGui
-    local parentTarget = (gethui and pcall(gethui) and gethui()) or CoreGui
+    local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local old = parentTarget:FindFirstChild("Lumin_LangToggle_Slate")
     if old then old:Destroy() end
 
@@ -607,6 +609,7 @@ local function createLangToggleUI()
         end
         updateAllActive()
         
+        -- Cập nhật chữ trong màn hình Loading nếu đang bật
         local loadUI = parentTarget:FindFirstChild("Lumin_Loading_Screen")
         if loadUI then
             local txt = loadUI:FindFirstChild("StatusText", true)
@@ -617,14 +620,15 @@ local function createLangToggleUI()
     end)
 end
 
--- ==================== 5. BỘ QUÉT DEFER CÁCH LY TUYỆT ĐỐI ====================
+-- ==================== 5. BỘ QUÉT DEFER BẢO MẬT ====================
 task.delay(3, function()
     createLangToggleUI()
 
-    -- CHỈ QUÉT BÊN TRONG EXECUTOR CORE (CÁCH LY GAME ĐỂ CHỐNG LỖI THỜI GIAN)
-    local searchRoots = {}
-    if gethui then pcall(function() table.insert(searchRoots, gethui()) end) end
-    pcall(function() table.insert(searchRoots, CoreGui) end)
+    local searchRoots = {
+        gethui and gethui(),
+        CoreGui,
+        LocalPlayer:FindFirstChild("PlayerGui")
+    }
 
     local function scanUIChunked(parent)
         local children = parent:GetChildren()
@@ -654,9 +658,9 @@ task.delay(3, function()
     end
 end)
 
--- ==================== 6. SMART LOADING SCREEN (TỐI ƯU HÓA CPU ZERO-LAG) ====================
+-- ==================== 6. SMART LOADING SCREEN (VÒNG XOAY NEON GREEN) ====================
 task.spawn(function()
-    local parentTarget = (gethui and pcall(gethui) and gethui()) or CoreGui
+    local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local oldLoad = parentTarget:FindFirstChild("Lumin_Loading_Screen")
     if oldLoad then oldLoad:Destroy() end
 
@@ -664,6 +668,7 @@ task.spawn(function()
     ScreenGui.Name = "Lumin_Loading_Screen"
     ScreenGui.ResetOnSpawn = false
     ScreenGui.IgnoreGuiInset = true
+    -- Đặt ngay dưới nút ngôn ngữ (2147483647) để không che mất nút ngôn ngữ
     ScreenGui.DisplayOrder = 2147483646 
     ScreenGui.Parent = parentTarget
 
@@ -686,7 +691,7 @@ task.spawn(function()
 
     local UIStroke = Instance.new("UIStroke")
     UIStroke.Thickness = 5
-    UIStroke.Color = Color3.fromRGB(0, 255, 100)
+    UIStroke.Color = Color3.fromRGB(0, 255, 100) -- Neon Green
     UIStroke.Transparency = 1
     UIStroke.Parent = Spinner
 
@@ -699,7 +704,7 @@ task.spawn(function()
         NumberSequenceKeypoint.new(0, 0),
         NumberSequenceKeypoint.new(1, 1)
     })
-    UIGradient.Parent = UIStroke 
+    UIGradient.Parent = UIStroke -- Gắn UIGradient vào Stroke để tạo vòng xoay mượt mà
 
     local StatusText = Instance.new("TextLabel")
     StatusText.Name = "StatusText"
@@ -713,13 +718,14 @@ task.spawn(function()
     StatusText.TextTransparency = 1
     StatusText.Parent = MainContainer
 
+    -- Logic Xoay Spinner
     RunService.RenderStepped:Connect(function()
         if MainContainer.Visible then
             Spinner.Rotation = Spinner.Rotation + 8
         end
     end)
 
-    -- MẮT THẦN ZERO-LAG: Không quét đệ quy rác, không đụng vào PlayerGui
+    -- Mắt thần quét màn hình đen
     local isVisible = false
     while task.wait(0.2) do
         local isBlackScreen = false
@@ -728,28 +734,19 @@ task.spawn(function()
         if cam then
             local vX, vY = cam.ViewportSize.X, cam.ViewportSize.Y
             if vX > 0 and vY > 0 then
-                local targetRoots = {}
-                if gethui then pcall(function() table.insert(targetRoots, gethui()) end) end
-                pcall(function() table.insert(targetRoots, CoreGui) end)
+                local roots = {LocalPlayer:FindFirstChild("PlayerGui"), CoreGui}
+                if gethui then pcall(function() table.insert(roots, gethui()) end) end
                 
-                for _, root in ipairs(targetRoots) do
-                    for _, gui in ipairs(root:GetChildren()) do
-                        if gui:IsA("ScreenGui") and gui.Name ~= "Lumin_Loading_Screen" and gui.Name ~= "Lumin_LangToggle_Slate" then
-                            -- Chỉ quét 2 lớp vỏ ngoài cùng, loại bỏ hoàn toàn đệ quy GetDescendants()
-                            for _, child in ipairs(gui:GetChildren()) do
-                                if (child:IsA("Frame") or child:IsA("TextButton")) and child.Visible and child.BackgroundTransparency < 0.1 then
-                                    if child.AbsoluteSize.X >= vX * 0.9 and child.AbsoluteSize.Y >= vY * 0.9 then
-                                        local color = child.BackgroundColor3
-                                        if color.R < 0.05 and color.G < 0.05 and color.B < 0.05 then
-                                            isBlackScreen = true
-                                            break
-                                        end
-                                    end
-                                end
-                                for _, subChild in ipairs(child:GetChildren()) do
-                                    if (subChild:IsA("Frame") or subChild:IsA("TextButton")) and subChild.Visible and subChild.BackgroundTransparency < 0.1 then
-                                        if subChild.AbsoluteSize.X >= vX * 0.9 and subChild.AbsoluteSize.Y >= vY * 0.9 then
-                                            local color = subChild.BackgroundColor3
+                for _, root in ipairs(roots) do
+                    if root and not isBlackScreen then
+                        for _, gui in ipairs(root:GetChildren()) do
+                            if gui:IsA("ScreenGui") and gui.Name ~= "Lumin_Loading_Screen" and gui.Name ~= "Chilli_LangToggle_Slate" then
+                                for _, inst in ipairs(gui:GetDescendants()) do
+                                    if (inst:IsA("Frame") or inst:IsA("TextButton")) and inst.Visible and inst.BackgroundTransparency < 0.1 then
+                                        -- Nếu Frame che phủ 90% màn hình
+                                        if inst.AbsoluteSize.X >= vX * 0.9 and inst.AbsoluteSize.Y >= vY * 0.9 then
+                                            local color = inst.BackgroundColor3
+                                            -- Nếu Frame có màu đen (R, G, B < 0.05)
                                             if color.R < 0.05 and color.G < 0.05 and color.B < 0.05 then
                                                 isBlackScreen = true
                                                 break
@@ -757,16 +754,14 @@ task.spawn(function()
                                         end
                                     end
                                 end
-                                if isBlackScreen then break end
                             end
                         end
-                        if isBlackScreen then break end
                     end
-                    if isBlackScreen then break end
                 end
             end
         end
 
+        -- Kích hoạt / Tắt hiệu ứng mượt mà
         if isBlackScreen and not isVisible then
             isVisible = true
             MainContainer.Visible = true
