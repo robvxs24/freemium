@@ -1,10 +1,10 @@
 -- ==============================================================================
---  WHUB CUSTOM WIDGET - UI HIJACKING ENGINE
+--  WHUB DUAL-CORE WIDGET - PHANTOM HIJACKING ENGINE
 --  Tối ưu hóa:
---    1. Chạy ngầm WHUB: Tự động nạp loadstring và bypass key.
---    2. Phantom Hide: Ẩn hoàn toàn Menu và Logo gốc của WHUB mà không gây lỗi.
---    3. Custom Widget: Giao diện "Instant TP Steal" Bottom-Center cực ngầu.
---    4. Logic Bind: Bấm nút trên Widget sẽ tự động điều khiển tính năng của WHUB.
+--    1. Time-Snapshotting: Nhận diện và tóm gọn UI của script ngay khi vừa load.
+--    2. Shadow Realm: Bắn tọa độ của Menu và Logo gốc ra 9999, xóa sổ khỏi tầm nhìn.
+--    3. Dual-Toggle Widget: Tích hợp cả "Instant TP Steal" và "Anti Hit".
+--    4. Chạy ngầm 100% chức năng cốt lõi của WHUB.
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -13,7 +13,19 @@ local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
--- ==================== 1. TẠO CUSTOM WIDGET (BOTTOM-CENTER) ====================
+-- ==================== 1. CHỤP ẢNH KHÔNG GIAN (TRƯỚC KHI LOAD) ====================
+local existingGuis = {}
+for _, gui in ipairs(CoreGui:GetChildren()) do existingGuis[gui] = true end
+if LocalPlayer:FindFirstChild("PlayerGui") then
+    for _, gui in ipairs(LocalPlayer.PlayerGui:GetChildren()) do existingGuis[gui] = true end
+end
+
+local targetButtons = {
+    tpSteal = nil,
+    antiHit = nil
+}
+
+-- ==================== 2. TẠO CUSTOM WIDGET (BOTTOM-CENTER) ====================
 local function createCustomUI()
     local old = CoreGui:FindFirstChild("WHUB_Custom_Widget")
     if old then old:Destroy() end
@@ -27,9 +39,9 @@ local function createCustomUI()
 
     -- Khung nền (Dark Blue/Purple)
     local Container = Instance.new("Frame")
-    Container.Size = UDim2.new(0, 260, 0, 75)
+    Container.Size = UDim2.new(0, 260, 0, 100) -- Kéo dài để chứa 2 nút
     Container.AnchorPoint = Vector2.new(0.5, 1)
-    Container.Position = UDim2.new(0.5, 0, 1, -25) -- Cạnh dưới giữa màn hình
+    Container.Position = UDim2.new(0.5, 0, 1, -25) 
     Container.BackgroundColor3 = Color3.fromRGB(15, 10, 30)
     Container.Parent = ScreenGui
 
@@ -44,9 +56,9 @@ local function createCustomUI()
 
     -- Logo Anime Eye
     local EyeImage = Instance.new("ImageLabel")
-    EyeImage.Size = UDim2.new(0, 55, 0, 55)
-    EyeImage.Position = UDim2.new(0, 10, 0.5, -27.5)
-    EyeImage.Image = "rbxassetid://13580436940" -- ID Mắt Anime (Có thể thay đổi)
+    EyeImage.Size = UDim2.new(0, 60, 0, 60)
+    EyeImage.Position = UDim2.new(0, 12, 0.5, -30)
+    EyeImage.Image = "rbxassetid://13580436940" 
     EyeImage.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     EyeImage.Parent = Container
     
@@ -59,90 +71,90 @@ local function createCustomUI()
     EyeStroke.Thickness = 1.5
     EyeStroke.Parent = EyeImage
 
-    -- Chữ WHUB
+    -- Chữ WHUB (Tiêu đề)
     local Title = Instance.new("TextLabel")
     Title.Size = UDim2.new(0, 100, 0, 20)
-    Title.Position = UDim2.new(0, 75, 0, 12)
+    Title.Position = UDim2.new(0, 85, 0, 10)
     Title.BackgroundTransparency = 1
     Title.Text = "WHUB"
     Title.Font = Enum.Font.GothamBold
     Title.TextSize = 14
-    Title.TextColor3 = Color3.fromRGB(220, 190, 80) -- Vàng Gold
+    Title.TextColor3 = Color3.fromRGB(220, 190, 80)
     Title.TextXAlignment = Enum.TextXAlignment.Left
     Title.Parent = Container
 
-    -- Chữ instant tp steal
-    local SubTitle = Instance.new("TextLabel")
-    SubTitle.Size = UDim2.new(0, 120, 0, 25)
-    SubTitle.Position = UDim2.new(0, 75, 0, 32)
-    SubTitle.BackgroundTransparency = 1
-    SubTitle.Text = "instant tp steal"
-    SubTitle.Font = Enum.Font.GothamBlack
-    SubTitle.TextSize = 16
-    SubTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-    SubTitle.TextXAlignment = Enum.TextXAlignment.Left
-    SubTitle.Parent = Container
+    -- Hàm tạo các hàng Toggle (Công tắc)
+    local function createToggleRow(yPos, labelText, keyName)
+        local Label = Instance.new("TextLabel")
+        Label.Size = UDim2.new(0, 110, 0, 20)
+        Label.Position = UDim2.new(0, 85, 0, yPos)
+        Label.BackgroundTransparency = 1
+        Label.Text = labelText
+        Label.Font = Enum.Font.GothamBlack
+        Label.TextSize = 15
+        Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+        Label.TextXAlignment = Enum.TextXAlignment.Left
+        Label.Parent = Container
 
-    -- Nút Toggle (Công tắc)
-    local ToggleTrack = Instance.new("TextButton")
-    ToggleTrack.Size = UDim2.new(0, 54, 0, 28)
-    ToggleTrack.Position = UDim2.new(1, -65, 0.5, -14)
-    ToggleTrack.BackgroundColor3 = Color3.fromRGB(40, 20, 80) -- Tím đậm
-    ToggleTrack.Text = ""
-    ToggleTrack.Parent = Container
+        local Track = Instance.new("TextButton")
+        Track.Size = UDim2.new(0, 46, 0, 24)
+        Track.Position = UDim2.new(1, -60, 0, yPos - 2)
+        Track.BackgroundColor3 = Color3.fromRGB(40, 20, 80)
+        Track.Text = ""
+        Track.Parent = Container
 
-    local TrackCorner = Instance.new("UICorner")
-    TrackCorner.CornerRadius = UDim.new(1, 0)
-    TrackCorner.Parent = ToggleTrack
+        local TrackCorner = Instance.new("UICorner")
+        TrackCorner.CornerRadius = UDim.new(1, 0)
+        TrackCorner.Parent = Track
 
-    local TrackStroke = Instance.new("UIStroke")
-    TrackStroke.Color = Color3.fromRGB(220, 190, 80)
-    TrackStroke.Thickness = 1.5
-    TrackStroke.Parent = ToggleTrack
+        local TrackStroke = Instance.new("UIStroke")
+        TrackStroke.Color = Color3.fromRGB(220, 190, 80)
+        TrackStroke.Thickness = 1.5
+        TrackStroke.Parent = Track
 
-    local Knob = Instance.new("Frame")
-    Knob.Size = UDim2.new(0, 20, 0, 20)
-    Knob.Position = UDim2.new(0, 4, 0.5, -10)
-    Knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    Knob.Parent = ToggleTrack
+        local Knob = Instance.new("Frame")
+        Knob.Size = UDim2.new(0, 16, 0, 16)
+        Knob.Position = UDim2.new(0, 4, 0.5, -8)
+        Knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Knob.Parent = Track
 
-    local KnobCorner = Instance.new("UICorner")
-    KnobCorner.CornerRadius = UDim.new(1, 0)
-    KnobCorner.Parent = Knob
+        local KnobCorner = Instance.new("UICorner")
+        KnobCorner.CornerRadius = UDim.new(1, 0)
+        KnobCorner.Parent = Knob
 
-    return Container, ToggleTrack, Knob
-end
-
-local WidgetContainer, ToggleBtn, ToggleKnob = createCustomUI()
-local isToggled = false
-local originalWhubButton = nil
-
--- Hiệu ứng click và gửi lệnh
-ToggleBtn.MouseButton1Click:Connect(function()
-    isToggled = not isToggled
-    
-    if isToggled then
-        TweenService:Create(ToggleKnob, TweenInfo.new(0.2), {Position = UDim2.new(1, -24, 0.5, -10)}):Play()
-        TweenService:Create(ToggleBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(100, 40, 180)}):Play()
-    else
-        TweenService:Create(ToggleKnob, TweenInfo.new(0.2), {Position = UDim2.new(0, 4, 0.5, -10)}):Play()
-        TweenService:Create(ToggleBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 20, 80)}):Play()
-    end
-
-    -- Bắn tín hiệu giả lập (Virtual Click) vào nút gốc của WHUB
-    if originalWhubButton and getconnections then
-        pcall(function()
-            for _, conn in ipairs(getconnections(originalWhubButton.MouseButton1Click)) do
-                conn:Fire()
+        -- Logic Bật/Tắt & Liên kết
+        local isToggled = false
+        Track.MouseButton1Click:Connect(function()
+            isToggled = not isToggled
+            if isToggled then
+                TweenService:Create(Knob, TweenInfo.new(0.2), {Position = UDim2.new(1, -20, 0.5, -8)}):Play()
+                TweenService:Create(Track, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(100, 40, 180)}):Play()
+            else
+                TweenService:Create(Knob, TweenInfo.new(0.2), {Position = UDim2.new(0, 4, 0.5, -8)}):Play()
+                TweenService:Create(Track, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 20, 80)}):Play()
             end
-            for _, conn in ipairs(getconnections(originalWhubButton.InputBegan)) do
-                conn:Fire({UserInputType = Enum.UserInputType.MouseButton1, UserInputState = Enum.UserInputState.Begin})
+
+            -- Bắn lệnh ảo (Virtual Click) vào nút gốc đang tàng hình
+            local targetBtn = targetButtons[keyName]
+            if targetBtn and getconnections then
+                pcall(function()
+                    for _, conn in ipairs(getconnections(targetBtn.MouseButton1Click)) do conn:Fire() end
+                    for _, conn in ipairs(getconnections(targetBtn.InputBegan)) do
+                        conn:Fire({UserInputType = Enum.UserInputType.MouseButton1, UserInputState = Enum.UserInputState.Begin})
+                    end
+                end)
             end
         end)
     end
-end)
 
--- ==================== 2. MẮT THẦN: ẨN WHUB & TÌM NÚT GỐC ====================
+    -- Khởi tạo 2 hàng công tắc
+    createToggleRow(35, "instant tp steal", "tpSteal")
+    createToggleRow(65, "anti hit", "antiHit")
+end
+
+createCustomUI()
+
+-- ==================== 3. MẮT THẦN: TÀNG HÌNH UI & LIÊN KẾT NÚT ====================
 task.spawn(function()
     while task.wait(0.5) do
         local roots = {CoreGui, LocalPlayer:FindFirstChild("PlayerGui")}
@@ -151,40 +163,30 @@ task.spawn(function()
         for _, root in ipairs(roots) do
             if root then
                 for _, gui in ipairs(root:GetChildren()) do
-                    if gui:IsA("ScreenGui") and gui.Name ~= "WHUB_Custom_Widget" then
-                        local isWHUB = false
+                    -- Nếu phát hiện UI MỚI (chưa có trước khi load) và không phải là Widget của ta
+                    if not existingGuis[gui] and gui.Name ~= "WHUB_Custom_Widget" and gui:IsA("ScreenGui") then
                         
-                        -- Quét tìm chữ WHUB để xác định đúng giao diện
-                        for _, desc in ipairs(gui:GetDescendants()) do
-                            if desc:IsA("TextLabel") and desc.Text:lower():find("whub") then
-                                isWHUB = true
-                                break
-                            end
-                        end
-
-                        if isWHUB then
-                            -- Kỹ thuật Phantom Hide: Đẩy giao diện gốc văng ra khỏi màn hình
-                            local mainFrame = gui:FindFirstChildWhichIsA("Frame")
-                            if mainFrame and not mainFrame:GetAttribute("HiddenByNono") then
-                                mainFrame:SetAttribute("HiddenByNono", true)
-                                mainFrame.Position = UDim2.new(9999, 0, 9999, 0)
-                                mainFrame.Visible = false
-                                gui.Enabled = false
+                        -- Quét mọi thành phần con trong UI này
+                        for _, child in ipairs(gui:GetDescendants()) do
+                            
+                            -- Đày ải (Shadow Realm): Bắn tọa độ của Menu/Logo ra ngoài không gian
+                            if (child:IsA("Frame") or child:IsA("ImageButton")) and not child:GetAttribute("HiddenByNono") then
+                                child:SetAttribute("HiddenByNono", true)
+                                child.Position = UDim2.new(9999, 0, 9999, 0)
+                                child.Visible = false
                             end
 
-                            -- Tìm nút "Instant TP Steal" của bản gốc để liên kết với Widget
-                            if not originalWhubButton then
-                                for _, desc in ipairs(gui:GetDescendants()) do
-                                    if desc:IsA("TextLabel") or desc:IsA("TextButton") then
-                                        local txt = desc.Text:lower()
-                                        if txt:find("instant") and txt:find("steal") then
-                                            -- Lấy nút bấm (Parent hoặc chính nó)
-                                            originalWhubButton = desc:FindFirstAncestorOfClass("TextButton") or desc
-                                        end
-                                    end
+                            -- Cào dữ liệu: Trích xuất các nút chức năng để liên kết
+                            if child:IsA("TextLabel") or child:IsA("TextButton") then
+                                local txt = child.Text:lower()
+                                if txt:find("instant") and txt:find("steal") then
+                                    targetButtons.tpSteal = child:FindFirstAncestorOfClass("TextButton") or child
+                                elseif txt:find("anti") and (txt:find("hit") or txt:find("guard")) then
+                                    targetButtons.antiHit = child:FindFirstAncestorOfClass("TextButton") or child
                                 end
                             end
                         end
+                        
                     end
                 end
             end
@@ -192,7 +194,7 @@ task.spawn(function()
     end
 end)
 
--- ==================== 3. NẠP SCRIPT WHUB GỐC ====================
+-- ==================== 4. NẠP SCRIPT WHUB GỐC ====================
 getgenv().SCRIPT_KEY = "KEYLESS"
 task.spawn(function()
     pcall(function()
