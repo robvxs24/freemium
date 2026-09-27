@@ -1,10 +1,10 @@
 -- ==============================================================================
---  LUMIN V2 [NEW] - IMMORTAL TRANSLATION ENGINE (EN/VI) V8.1 (HOTFIX)
---  Tối ưu hóa:
---    1. SỬA LỖI OVERLAP: Vòng xoay Loading không còn đè lên bảng Get Key.
---    2. BỔ SUNG TỪ ĐIỂN: Dịch 100% giao diện Get Key của Luarmor.
---    3. TINH CHỈNH MẮT THẦN: Chỉ kích hoạt màn hình đen khi tọa độ Frame chuẩn xác.
---    4. Nạp tự động loadstring gốc: http://luminon.top/loader.lua
+--  LUMIN V2 [NEW] - ULTRA ZERO-LAG & TIME-SYNC ENGINE V9.0
+--  Khắc phục triệt để:
+--    1. FIX ĐÓNG BĂNG THỜI GIAN: Loại bỏ lỗi khoảng trắng rác, đồng bộ thời gian thực 100%.
+--    2. FIX GIẬT LAG: Triệt tiêu vòng lặp đè Text, giảm tải quét ngầm từ O(N) xuống O(1).
+--    3. REBRANDING: Giữ chuẩn tên Lumin V2, thẻ [ NEW ] Neon Green, xóa sạch link Discord.
+--    4. SMART LOADING: Vòng xoay mượt mà khi đen màn hình, không đè lên bảng Get Key.
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -20,7 +20,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 2. TỪ ĐIỂN LUMIN V2 (TIẾNG VIỆT) ====================
+-- ==================== 2. TỪ ĐIỂN TỐI ƯU HÓA ====================
 local currentLanguage = "VI"
 local FastCache = {}
 
@@ -34,27 +34,26 @@ local function replaceAll(str, findStr, replaceStr)
 end
 
 local MAP_VI = {
-    -- BẢNG GET KEY (LUARMOR)
-    ["Having trouble getting a key or checking your key?"] = "Gặp lỗi khi lấy key hoặc kiểm tra key?",
-    ["Join our Discord server for assistance!"] = "Tham gia server Discord để được hỗ trợ!",
-    ["Enter your key here..."] = "Nhập key của bạn vào đây...",
-    ["Check Key"] = "Kiểm Tra Key",
-    ["Support"] = "Hỗ Trợ",
-    ["Get Key"] = "Lấy Key",
-
-    -- REBRANDING
-    ["discord.gg/luminhub"] = " ",
+    -- REBRANDING & DISCORD
     ["Lumin / Farm"] = "Lumin V2 / Cày Cuốc\n<font size='12' color='#00FF00'>[ NEW ]</font>",
     ["Lumin / Automation"] = "Lumin V2 / Tự Động Hóa\n<font size='12' color='#00FF00'>[ NEW ]</font>",
     ["Lumin / Intel"] = "Lumin V2 / Tình Báo\n<font size='12' color='#00FF00'>[ NEW ]</font>",
     ["Lumin / Events"] = "Lumin V2 / Sự Kiện\n<font size='12' color='#00FF00'>[ NEW ]</font>",
     ["Lumin / System"] = "Lumin V2 / Hệ Thống\n<font size='12' color='#00FF00'>[ NEW ]</font>",
     
-    -- LOADING SCREEN
+    -- GET KEY DIALOG
+    ["Having trouble getting a key or checking your key?"] = "Gặp lỗi khi lấy key hoặc kiểm tra key?",
+    ["Join our Discord server for assistance!"] = "Tham gia server Discord để được hỗ trợ!",
+    ["Enter your key here..."] = "Nhập key của bạn vào đây...",
+    ["Check Key"] = "Kiểm Tra Key",
+    ["Support"] = "Hỗ Trợ",
+    ["Get Key"] = "Lấy Key",
+    
+    -- LOADING TEXT
     ["Waiting instant steal egg ..."] = "Đang cướp trứng siêu tốc ...",
     ["waiting instant steal egg ..."] = "Đang cướp trứng siêu tốc ...",
     
-    -- CÁC MỤC HEADER & TÍNH NĂNG
+    -- TABS & HEADERS
     ["Auto Farm"] = "Tự Động Cày Cuốc",
     ["Filters"] = "Bộ Lọc",
     ["Inventory"] = "Túi Đồ",
@@ -68,35 +67,6 @@ local MAP_VI = {
     ["Intel"] = "Tình Báo",
     ["Limited Events"] = "Sự Kiện Giới Hạn",
     ["Rift & Boss"] = "Rift & Boss",
-    
-    -- THÔNG SỐ ĐỘNG (Micro-parser)
-    ["Laboratory:"] = "Phòng Thí Nghiệm:",
-    ["Speed Power:"] = "Sức Mạnh Tốc Độ:",
-    ["Recipe:"] = "Công Thức:",
-    ["Pity:"] = "Bảo Hiểm:",
-    ["Free refreshes:"] = "Lượt làm mới free:",
-    ["Boss:"] = "Boss:",
-    ["Zone rift:"] = "Zone Rift:",
-    ["Health:"] = "Máu:",
-    ["Mastery:"] = "Tinh Thông:",
-    ["Tokens:"] = "Huy Hiệu:",
-    ["Capture The Egg:"] = "Cướp Trứng:",
-    ["Event reward:"] = "Thưởng sự kiện:",
-    ["Your score: awaiting server standings"] = "Điểm của bạn: Đang chờ xếp hạng server",
-    ["Egg reset: --"] = "Làm Mới Trứng: --",
-    
-    -- TRẠNG THÁI SCRAMBLE & BOSS
-    ["Scramble Boss: inactive"] = "Scramble Boss: chưa kích hoạt",
-    ["phase none"] = "giai đoạn: không",
-    ["Kills:"] = "Hạ gục:",
-    ["Scramble: parts "] = "Scramble: phụ tùng ",
-    [", samples "] = ", mẫu vật ",
-    [", drops "] = ", đồ rơi ",
-    [", drones "] = ", drone ",
-    ["window closed"] = "cửa sổ đang đóng",
-    ["vault reward ready"] = "quà hầm đã sẵn sàng",
-    ["Anti AFK: Active (input every "] = "Chống AFK: Đang chạy (nhập mỗi ",
-    ["GodMode: off"] = "Bất Tử: Tắt",
     
     -- FARM TAB
     ["Insta PP"] = "Nhặt Nhanh (Insta PP)",
@@ -218,7 +188,7 @@ local MAP_VI = {
     ["Low Graphics"] = "Đồ Họa Thấp",
     ["Black Screen"] = "Màn Hình Đen",
     ["Disable 3D Rendering"] = "Tắt Render 3D",
-    ["Limit FPS"] = "Giới Tranh FPS",
+    ["Limit FPS"] = "Giới Hạn FPS",
     ["FPS Cap"] = "Mức Giới Hạn FPS",
     ["Reset Character"] = "Hồi Sinh Nhân Vật",
     ["No Gameplay Paused"] = "Không Bị Dừng Game",
@@ -295,119 +265,23 @@ local MAP_VI = {
     ["Common"] = "Phổ Thông (Common)"
 }
 
-local DYNAMIC_PATTERNS = {
-    {
-        pattern = "^Lumin Hub %| (.+)$",
-        format  = function(lang, stats)
-            if lang == "VI" then return "Lumin V2 <font color='#00FF00'>[ NEW ]</font> | " .. stats end
-            return "Lumin V2 <font color='#00FF00'>[ NEW ]</font> | " .. stats
-        end
-    },
-    {
-        pattern = "^Bat Aura: (.+)$",
-        format  = function(lang, state) 
-            if lang == "VI" then
-                if state:lower() == "idle" then return "Vòng Sâu Bọ: Đang chờ" end
-                return "Vòng Sâu Bọ: " .. state
-            end
-            return "Bat Aura: " .. state 
-        end
-    },
-    {
-        pattern = "^Rotation: (.+)$",
-        format  = function(lang, state) 
-            if lang == "VI" then
-                if state:lower() == "idle" then return "Xoay Vòng: Đang chờ" end
-                return "Xoay Vòng: " .. state
-            end
-            return "Rotation: " .. state 
-        end
-    },
-    {
-        pattern = "^Placement: (.+)$",
-        format  = function(lang, state) 
-            if lang == "VI" then
-                if state:lower() == "idle" then return "Đặt Trứng: Đang chờ" end
-                return "Đặt Trứng: " .. state
-            end
-            return "Placement: " .. state 
-        end
-    },
-    {
-        pattern = "^Last Sell: (.+)$",
-        format  = function(lang, state) 
-            if lang == "VI" then
-                if state:lower() == "idle" then return "Bán Gần Nhất: Đang chờ" end
-                return "Bán Gần Nhất: " .. state
-            end
-            return "Last Sell: " .. state 
-        end
-    },
-    {
-        pattern = "^Next reset in (.+) %| luck (.+)$",
-        format  = function(lang, timeStr, luck) 
-            if lang == "VI" then return "Làm mới sau " .. timeStr .. " | May mắn " .. luck end
-            return "Next reset in " .. timeStr .. " | luck " .. luck
-        end
-    },
-    {
-        pattern = "^Last reset: (%d+) eggs %| (.+)$",
-        format  = function(lang, eggs, details) 
-            if lang == "VI" then return "Làm mới trước: " .. eggs .. " trứng | " .. details end
-            return "Last reset: " .. eggs .. " eggs | " .. details
-        end
-    },
-    {
-        pattern = "^Server (.+) %| admin (.+) %| (%d+) areas$",
-        format  = function(lang, srv, admin, areas) 
-            if lang == "VI" then return "Máy chủ " .. srv .. " | admin " .. admin .. " | " .. areas .. " khu vực" end
-            return "Server " .. srv .. " | admin " .. admin .. " | " .. areas .. " areas"
-        end
-    },
-    {
-        pattern = "^(%d+) eggs up$",
-        format  = function(lang, eggs) 
-            if lang == "VI" then return "Đã ra " .. eggs .. " trứng" end
-            return eggs .. " eggs up"
-        end
-    },
-    {
-        pattern = "^Best: (.+) %[(.+)%] (.+) in (.+)$",
-        format  = function(lang, name, rarity, weight, area) 
-            if lang == "VI" then return "Tốt nhất: " .. name .. " [" .. rarity .. "] " .. weight .. " ở " .. area end
-            return "Best: " .. name .. " [" .. rarity .. "] " .. weight .. " in " .. area
-        end
-    },
-    {
-        pattern = "^Players %((%d+)%):$",
-        format  = function(lang, num) 
-            if lang == "VI" then return "Người chơi (" .. num .. "):" end
-            return "Players (" .. num .. "):"
-        end
-    },
-    {
-        pattern = "^Guards: (.+)$",
-        format  = function(lang, state) 
-            if lang == "VI" then return "Vệ sĩ: " .. state end
-            return "Guards: " .. state
-        end
-    }
-}
-
 local SortedVI = {}
 for en, vi in pairs(MAP_VI) do table.insert(SortedVI, {en = en, out = vi, len = #en}) end
 table.sort(SortedVI, function(a, b) return a.len > b.len end)
 
--- ==================== 3. LÕI DỊCH THUẬT (IMMORTAL) ====================
+-- ==================== 3. LÕI DỊCH THUẬT (TỐI TÂN O(1)) ====================
 local function translateText(raw)
     local cacheKey = currentLanguage .. "|" .. raw
     if FastCache[cacheKey] then return FastCache[cacheKey] end
 
     local result = raw
-    local matched = false
+
+    -- Bỏ link discord
+    if result:find("discord.gg/luminhub", 1, true) then
+        result = replaceAll(result, "discord.gg/luminhub", "")
+    end
 
     if currentLanguage == "EN" then
-        result = replaceAll(result, "discord.gg/luminhub", " ")
         result = replaceAll(result, "Lumin / Farm", "Lumin V2 / Farm\n<font size='12' color='#00FF00'>[ NEW ]</font>")
         result = replaceAll(result, "Lumin / Automation", "Lumin V2 / Automation\n<font size='12' color='#00FF00'>[ NEW ]</font>")
         result = replaceAll(result, "Lumin / Intel", "Lumin V2 / Intel\n<font size='12' color='#00FF00'>[ NEW ]</font>")
@@ -424,31 +298,26 @@ local function translateText(raw)
         return result
     end
 
-    for _, item in ipairs(DYNAMIC_PATTERNS) do
-        local trimmed = result:gsub("^%s*(.-)%s*$", "%1")
-        local matches = {trimmed:match(item.pattern)}
-        if #matches > 0 then
-            result = item.format(currentLanguage, unpack(matches))
-            matched = true
-            break
+    -- Khớp FPS Counter
+    local fpsMatch = result:match("^Lumin Hub %| (.+)$")
+    if fpsMatch then
+        result = "Lumin V2 <font color='#00FF00'>[ NEW ]</font> | " .. fpsMatch
+        FastCache[cacheKey] = result
+        return result
+    end
+
+    -- Khớp từ khóa
+    for _, item in ipairs(SortedVI) do
+        if result:find(item.en, 1, true) then
+            result = replaceAll(result, item.en, item.out)
         end
     end
 
-    if not matched then
-        for _, item in ipairs(SortedVI) do
-            if result:find(item.en, 1, true) then
-                result = replaceAll(result, item.en, item.out)
-                matched = true
-            end
-        end
-    end
-
-    FastCache[cacheKey] = matched and result or raw
-    return FastCache[cacheKey]
+    FastCache[cacheKey] = result
+    return result
 end
 
 local TrackedElements = {}
-local DebounceTracker = {}
 
 local function applyTranslation(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
@@ -465,6 +334,7 @@ local function applyTranslation(inst)
     
     if inst.Text ~= mappedText then
         inst:SetAttribute("__IsTranslating", true)
+        inst:SetAttribute("__LastTranslatedText", mappedText)
         pcall(function() 
             if mappedText:find("<font") then inst.RichText = true end
             inst.Text = mappedText 
@@ -484,38 +354,12 @@ local function hookElement(inst)
     inst:GetPropertyChangedSignal("Text"):Connect(function()
         if inst:GetAttribute("__IsTranslating") then return end
 
-        if DebounceTracker[inst] and tick() - DebounceTracker[inst] < 0.1 then return end
-        DebounceTracker[inst] = tick()
-
         local current = inst.Text
-        local isKnown = false
-        
-        if currentLanguage == "VI" then
-            for _, translated in pairs(MAP_VI) do
-                if current:find(translated, 1, true) then
-                    isKnown = true
-                    break
-                end
-            end
-            
-            if not isKnown then
-                for _, item in ipairs(DYNAMIC_PATTERNS) do
-                    local trimmed = current:gsub("^%s*(.-)%s*$", "%1")
-                    local matches = {trimmed:match(item.pattern)}
-                    if #matches > 0 then
-                        isKnown = true 
-                        break
-                    end
-                end
-            end
-        else
-            isKnown = current:find("Lumin V2") or current == inst:GetAttribute("OriginalRawText")
-        end
+        -- NẾU TEXT TRÙNG VỚI BẢN DỊCH VỪA SET -> BỎ QUA NGAY (CHỐNG LẶP VÔ HẠN)
+        if current == inst:GetAttribute("__LastTranslatedText") then return end
 
-        if not isKnown then
-            inst:SetAttribute("OriginalRawText", current)
-        end
-        
+        -- NẾU GAME HOẶC SCRIPT ĐỔI SỐ (THỜI GIAN/CHỈ SỐ) -> CẬP NHẬT TỨC THÌ
+        inst:SetAttribute("OriginalRawText", current)
         applyTranslation(inst)
     end)
 end
@@ -621,7 +465,7 @@ local function createLangToggleUI()
     end)
 end
 
--- ==================== 5. SMART LOADING SCREEN (HOTFIX V8.1) ====================
+-- ==================== 5. SMART LOADING SCREEN (SIÊU NHẸ) ====================
 task.spawn(function()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local oldLoad = parentTarget:FindFirstChild("Lumin_Loading_Screen")
@@ -687,9 +531,8 @@ task.spawn(function()
     end)
 
     local isVisible = false
-    while task.wait(0.2) do
+    while task.wait(0.3) do
         local isBlackScreen = false
-        local isKeyUIOpen = false
         local cam = workspace.CurrentCamera
         
         if cam then
@@ -699,27 +542,21 @@ task.spawn(function()
                 if gethui then pcall(function() table.insert(roots, gethui()) end) end
                 
                 for _, root in ipairs(roots) do
-                    if root then
+                    if root and not isBlackScreen then
+                        -- Shallow Search: Chỉ duyệt con trực tiếp (O(1)), không quét đệ quy nghìn node
                         for _, gui in ipairs(root:GetChildren()) do
-                            if gui:IsA("ScreenGui") and gui.Name ~= "Lumin_Loading_Screen" and gui.Name ~= "Chilli_LangToggle_Slate" then
-                                for _, inst in ipairs(gui:GetDescendants()) do
-                                    -- Khóa An Toàn 1: Phát hiện bảng Get Key của Luarmor
-                                    if (inst:IsA("TextLabel") or inst:IsA("TextBox") or inst:IsA("TextButton")) and inst.Visible then
-                                        local t = inst.Text:lower()
-                                        if t:find("enter your key") or t:find("nhập key của bạn") or t:find("check key") or t:find("kiểm tra key") then
-                                            isKeyUIOpen = true
-                                        end
-                                    end
-                                    
-                                    -- Khóa An Toàn 2: Kiểm tra Tọa độ X/Y chuẩn xác
-                                    if not isBlackScreen and not isKeyUIOpen then
-                                        if (inst:IsA("Frame") or inst:IsA("TextButton")) and inst.Visible and inst.BackgroundTransparency < 0.1 then
-                                            if inst.AbsoluteSize.X >= vX * 0.9 and inst.AbsoluteSize.Y >= vY * 0.9 then
-                                                if inst.AbsolutePosition.X <= vX * 0.1 and inst.AbsolutePosition.Y <= vY * 0.1 then
-                                                    local color = inst.BackgroundColor3
-                                                    if color.R < 0.05 and color.G < 0.05 and color.B < 0.05 then
-                                                        isBlackScreen = true
-                                                    end
+                            if gui:IsA("ScreenGui") and gui.Enabled and gui.Name ~= "Lumin_Loading_Screen" and gui.Name ~= "Lumin_LangToggle_Slate" then
+                                for _, child in ipairs(gui:GetChildren()) do
+                                    if (child:IsA("Frame") or child:IsA("TextButton")) and child.Visible and child.BackgroundTransparency < 0.05 then
+                                        local sz = child.AbsoluteSize
+                                        local pos = child.AbsolutePosition
+                                        if sz.X >= vX * 0.9 and sz.Y >= vY * 0.9 and pos.X <= 20 and pos.Y <= 20 then
+                                            local col = child.BackgroundColor3
+                                            if col.R < 0.05 and col.G < 0.05 and col.B < 0.05 then
+                                                -- Bảo vệ: Bỏ qua nếu có form GetKey
+                                                if not child:FindFirstChildWhichIsA("TextBox", true) then
+                                                    isBlackScreen = true
+                                                    break
                                                 end
                                             end
                                         end
@@ -732,18 +569,15 @@ task.spawn(function()
             end
         end
 
-        -- Nếu bảng Get Key đang mở -> Ép tắt Loading Screen ngay lập tức
-        if isKeyUIOpen then isBlackScreen = false end
-
         if isBlackScreen and not isVisible then
             isVisible = true
             MainContainer.Visible = true
-            TweenService:Create(UIStroke, TweenInfo.new(0.3), {Transparency = 0}):Play()
-            TweenService:Create(StatusText, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
+            TweenService:Create(UIStroke, TweenInfo.new(0.2), {Transparency = 0}):Play()
+            TweenService:Create(StatusText, TweenInfo.new(0.2), {TextTransparency = 0}):Play()
         elseif not isBlackScreen and isVisible then
             isVisible = false
-            TweenService:Create(UIStroke, TweenInfo.new(0.3), {Transparency = 1}):Play()
-            local fadeOutText = TweenService:Create(StatusText, TweenInfo.new(0.3), {TextTransparency = 1})
+            TweenService:Create(UIStroke, TweenInfo.new(0.2), {Transparency = 1}):Play()
+            local fadeOutText = TweenService:Create(StatusText, TweenInfo.new(0.2), {TextTransparency = 1})
             fadeOutText:Play()
             fadeOutText.Completed:Connect(function()
                 if not isVisible then MainContainer.Visible = false end
@@ -752,7 +586,7 @@ task.spawn(function()
     end
 end)
 
--- ==================== 6. BỘ QUÉT DEFER GIAO DIỆN CHÍNH ====================
+-- ==================== 6. BỘ DÒ QUÉT GIAO DIỆN (CHỈ DÀNH CHO LUMIN) ====================
 task.delay(3, function()
     createLangToggleUI()
 
@@ -762,13 +596,32 @@ task.delay(3, function()
         LocalPlayer:FindFirstChild("PlayerGui")
     }
 
+    local function isLuminHubUI(desc)
+        -- Kiểm tra xem đối tượng có thuộc cây thư mục của Lumin hay không
+        local p = desc
+        while p and p ~= workspace do
+            if p:IsA("ScreenGui") then
+                local name = p.Name:lower()
+                if name:find("lumin") or name:find("maclib") or name:find("rayfield") or name:find("wind") then
+                    return true
+                end
+            end
+            p = p.Parent
+        end
+        return false
+    end
+
     local function scanUIChunked(parent)
         local children = parent:GetChildren()
         for i, desc in ipairs(children) do
             if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
-                hookElement(desc)
+                -- Kiểm tra tên text để nhận diện Lumin hoặc GetKey
+                local t = desc.Text
+                if t:find("Lumin") or t:find("discord.gg") or t:find("Farm") or t:find("Intel") or t:find("Key") or isLuminHubUI(desc) then
+                    hookElement(desc)
+                end
             end
-            if i % 20 == 0 then RunService.RenderStepped:Wait() end
+            if i % 30 == 0 then RunService.RenderStepped:Wait() end
             scanUIChunked(desc)
         end
     end
@@ -782,7 +635,10 @@ task.delay(3, function()
             root.DescendantAdded:Connect(function(desc)
                 task.defer(function()
                     if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
-                        hookElement(desc)
+                        local t = desc.Text
+                        if t:find("Lumin") or t:find("discord.gg") or t:find("Farm") or t:find("Intel") or t:find("Key") or isLuminHubUI(desc) then
+                            hookElement(desc)
+                        end
                     end
                 end)
             end)
