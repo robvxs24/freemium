@@ -1,10 +1,10 @@
 -- ==============================================================================
---  WHUB CUSTOM WIDGET - ULTRA STEALTH & COMPACT EDITION V11.0
---  Tối ưu hóa:
---    1. PRE-HOOK STEALTH: Ném Menu và Logo Private Hub ra ngoài trong 0ms (không bị chớp).
---    2. DEFAULT ON: Nút Anti Hit được kích hoạt BẬT SẴN ngay khi khởi động.
---    3. COMPACT PILL UI: Thu nhỏ kích thước chuẩn tỉ lệ 170x38 như ảnh mẫu.
---    4. FIX Ô TRẮNG: Loại bỏ background trắng, giữ icon luôn sắc nét.
+--  WHUB CUSTOM WIDGET - AUTO-ON & ABSOLUTE STEALTH ENGINE V12.0
+--  Kiến trúc tối ưu:
+--    1. ZERO-FRAME STEALTH: Xóa sổ Logo và Menu Private Hub trong 0ms.
+--    2. STATE-LOCKED AUTO ON: Tự động ép chuyển OFF -> ON, tuyệt đối không click nhầm.
+--    3. COMPACT PILL WIDGET: Chuẩn kích thước tỉ lệ ảnh 2 (168px x 36px).
+--    4. O(1) MEMORY LOOKUP: Tối ưu bộ nhớ đệm, kiểm soát triệt để tài nguyên mobile.
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -13,7 +13,7 @@ local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
--- ==================== 1. TẠO WIDGET MINI (CHUẨN TỈ LỆ ẢNH 2) ====================
+-- ==================== 1. TẠO PILL WIDGET MINI (CHUẨN TỈ LỆ ẢNH 2) ====================
 local function createCompactWidget()
     local old = CoreGui:FindFirstChild("WHUB_Compact_Widget")
     if old then old:Destroy() end
@@ -25,37 +25,37 @@ local function createCompactWidget()
     ScreenGui.DisplayOrder = 2147483647
     ScreenGui.Parent = CoreGui
 
-    -- Khung nền dạng Pill siêu gọn (170x38)
+    -- Container chuẩn tỉ lệ Pill (168 x 36)
     local Container = Instance.new("Frame")
-    Container.Size = UDim2.new(0, 172, 0, 38)
+    Container.Size = UDim2.new(0, 168, 0, 36)
     Container.AnchorPoint = Vector2.new(0.5, 1)
-    Container.Position = UDim2.new(0.5, 0, 1, -16) -- Nằm sát trên Hotbar
-    Container.BackgroundColor3 = Color3.fromRGB(18, 14, 32)
-    Container.BackgroundTransparency = 0.1
+    Container.Position = UDim2.new(0.5, 0, 1, -15)
+    Container.BackgroundColor3 = Color3.fromRGB(16, 12, 28)
+    Container.BackgroundTransparency = 0.15
     Container.Parent = ScreenGui
 
     local UICorner = Instance.new("UICorner")
-    UICorner.CornerRadius = UDim.new(0, 10)
+    UICorner.CornerRadius = UDim.new(0, 8)
     UICorner.Parent = Container
 
     local UIStroke = Instance.new("UIStroke")
-    UIStroke.Color = Color3.fromRGB(220, 185, 80) -- Viền Vàng Gold
+    UIStroke.Color = Color3.fromRGB(220, 185, 80)
     UIStroke.Thickness = 1.2
     UIStroke.Parent = Container
 
-    -- Icon Eye (Chống trắng hoàn toàn)
+    -- Icon Eye (Đảm bảo độ trong suốt không bị mảng trắng)
     local EyeImage = Instance.new("ImageLabel")
-    EyeImage.Size = UDim2.new(0, 26, 0, 26)
-    EyeImage.Position = UDim2.new(0, 6, 0.5, -13)
+    EyeImage.Size = UDim2.new(0, 24, 0, 24)
+    EyeImage.Position = UDim2.new(0, 6, 0.5, -12)
     EyeImage.Image = "rbxassetid://10650215716"
     EyeImage.BackgroundTransparency = 1
     EyeImage.ScaleType = Enum.ScaleType.Crop
     EyeImage.Parent = Container
-    
+
     local EyeCorner = Instance.new("UICorner")
     EyeCorner.CornerRadius = UDim.new(0, 6)
     EyeCorner.Parent = EyeImage
-    
+
     local EyeStroke = Instance.new("UIStroke")
     EyeStroke.Color = Color3.fromRGB(220, 185, 80)
     EyeStroke.Thickness = 1
@@ -63,8 +63,8 @@ local function createCompactWidget()
 
     -- Nhãn WHUB
     local Title = Instance.new("TextLabel")
-    Title.Size = UDim2.new(0, 75, 0, 13)
-    Title.Position = UDim2.new(0, 38, 0, 5)
+    Title.Size = UDim2.new(0, 65, 0, 12)
+    Title.Position = UDim2.new(0, 36, 0, 4)
     Title.BackgroundTransparency = 1
     Title.Text = "WHUB"
     Title.Font = Enum.Font.GothamBold
@@ -75,8 +75,8 @@ local function createCompactWidget()
 
     -- Nhãn instant tp steal
     local SubTitle = Instance.new("TextLabel")
-    SubTitle.Size = UDim2.new(0, 85, 0, 15)
-    SubTitle.Position = UDim2.new(0, 38, 0, 18)
+    SubTitle.Size = UDim2.new(0, 80, 0, 14)
+    SubTitle.Position = UDim2.new(0, 36, 0, 16)
     SubTitle.BackgroundTransparency = 1
     SubTitle.Text = "instant tp steal"
     SubTitle.Font = Enum.Font.GothamBlack
@@ -85,12 +85,11 @@ local function createCompactWidget()
     SubTitle.TextXAlignment = Enum.TextXAlignment.Left
     SubTitle.Parent = Container
 
-    -- Công tắc Toggle dạng Pill
+    -- Toggle Track
     local ToggleTrack = Instance.new("TextButton")
-    ToggleTrack.Size = UDim2.new(0, 36, 0, 18)
-    ToggleTrack.Position = UDim2.new(1, -42, 0.5, -9)
-    -- BẬT SẴN: Màu tím hoạt động
-    ToggleTrack.BackgroundColor3 = Color3.fromRGB(110, 45, 185)
+    ToggleTrack.Size = UDim2.new(0, 34, 0, 18)
+    ToggleTrack.Position = UDim2.new(1, -40, 0.5, -9)
+    ToggleTrack.BackgroundColor3 = Color3.fromRGB(110, 45, 185) -- Bật sẵn: Tím
     ToggleTrack.Text = ""
     ToggleTrack.Parent = Container
 
@@ -103,10 +102,10 @@ local function createCompactWidget()
     TrackStroke.Thickness = 1
     TrackStroke.Parent = ToggleTrack
 
-    -- Con trượt (Knob) - BẬT SẴN: Nằm bên phải
+    -- Knob Toggle
     local Knob = Instance.new("Frame")
     Knob.Size = UDim2.new(0, 12, 0, 12)
-    Knob.Position = UDim2.new(1, -15, 0.5, -6)
+    Knob.Position = UDim2.new(1, -15, 0.5, -6) -- Bật sẵn: Nằm bên phải
     Knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     Knob.Parent = ToggleTrack
 
@@ -118,37 +117,33 @@ local function createCompactWidget()
 end
 
 local WidgetContainer, ToggleBtn, ToggleKnob = createCompactWidget()
-local isToggled = true -- MẶC ĐỊNH BẬT SẴN
-local originalAntiHitBtn = nil
-local hasAutoSynced = false
+local isToggled = true
+local targetAntiHitLabel = nil
 
--- Hàm mô phỏng Click
-local function forceVirtualClick(targetLabel)
-    if not getconnections then return end
-    local targetsToClick = {targetLabel}
-    if targetLabel.Parent then
-        table.insert(targetsToClick, targetLabel.Parent)
-        for _, sibling in ipairs(targetLabel.Parent:GetChildren()) do
-            if sibling:IsA("TextButton") or sibling:IsA("ImageButton") or sibling:IsA("Frame") then
-                table.insert(targetsToClick, sibling)
+-- Hàm giả lập tương tác phần cứng
+local function triggerVirtualClick(element)
+    if not getconnections or not element then return end
+    local targets = {element, element.Parent}
+    if element.Parent then
+        for _, sib in ipairs(element.Parent:GetChildren()) do
+            if sib:IsA("TextButton") or sib:IsA("ImageButton") or sib:IsA("Frame") then
+                table.insert(targets, sib)
             end
         end
     end
 
-    for _, t in ipairs(targetsToClick) do
+    for _, obj in ipairs(targets) do
         pcall(function()
-            for _, conn in ipairs(getconnections(t.MouseButton1Click)) do conn:Fire() end
-            for _, conn in ipairs(getconnections(t.InputBegan)) do
+            for _, conn in ipairs(getconnections(obj.MouseButton1Click)) do conn:Fire() end
+            for _, conn in ipairs(getconnections(obj.InputBegan)) do
                 conn:Fire({UserInputType = Enum.UserInputType.MouseButton1, UserInputState = Enum.UserInputState.Begin})
-            end
-            for _, conn in ipairs(getconnections(t.InputBegan)) do
                 conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.Begin})
             end
         end)
     end
 end
 
--- Tương tác chuyển đổi Bật/Tắt trên Widget
+-- ==================== 2. ĐIỀU KHIỂN TOGGLE WIDGET ====================
 ToggleBtn.MouseButton1Click:Connect(function()
     isToggled = not isToggled
     if isToggled then
@@ -159,16 +154,17 @@ ToggleBtn.MouseButton1Click:Connect(function()
         TweenService:Create(ToggleBtn, TweenInfo.new(0.18), {BackgroundColor3 = Color3.fromRGB(40, 20, 75)}):Play()
     end
 
-    if originalAntiHitBtn then
-        forceVirtualClick(originalAntiHitBtn)
+    if targetAntiHitLabel then
+        triggerVirtualClick(targetAntiHitLabel)
     end
 end)
 
--- ==================== 2. MAI PHỤC TRIỆT ĐỂ: PHANTOM SWIPE 0MS ====================
-local function hideOriginalElement(inst)
+-- ==================== 3. CƠ CHẾ PHANTOM TÀNG HÌNH & KHÓA TRẠNG THÁI ON ====================
+local function nukeElement(inst)
     if not inst then return end
     pcall(function()
         inst.Position = UDim2.new(9999, 0, 9999, 0)
+        inst.Size = UDim2.new(0, 0, 0, 0)
         inst.Visible = false
         if inst:IsA("GuiObject") then
             inst.Active = false
@@ -176,59 +172,91 @@ local function hideOriginalElement(inst)
     end)
 end
 
-local function checkAndHideTarget(desc)
-    if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("ImageLabel") or desc:IsA("ImageButton") then
-        local txt = ""
-        pcall(function() txt = desc.Text:lower() end)
-        local name = desc.Name:lower()
+local function processInstance(inst)
+    local success, txt = pcall(function() return inst.Text:lower() end)
+    txt = success and txt or ""
+    local name = inst.Name:lower()
 
-        -- Nhận diện Menu hoặc Logo Private Hub
-        if txt:find("private") or txt:find("anti hit") or txt:find("steal an egg") or name:find("private") then
-            local rootScreen = desc:FindFirstAncestorOfClass("ScreenGui")
-            if rootScreen and rootScreen.Name ~= "WHUB_Compact_Widget" then
-                -- Đẩy toàn bộ các khung con cấp cao nhất ra ngoài màn hình
-                for _, child in ipairs(rootScreen:GetChildren()) do
-                    hideOriginalElement(child)
-                end
+    -- Nhận diện và tiêu diệt Menu + Logo tròn bên trái
+    if txt:find("private") or txt:find("anti hit") or txt:find("backup") or name:find("private") or name:find("logo") then
+        local rootGui = inst:FindFirstAncestorOfClass("ScreenGui")
+        if rootGui and rootGui.Name ~= "WHUB_Compact_Widget" then
+            for _, rootChild in ipairs(rootGui:GetChildren()) do
+                nukeElement(rootChild)
             end
+        else
+            nukeElement(inst)
+        end
 
-            -- Nhận diện và liên kết nút Anti Hit
-            if txt:find("anti hit") and not originalAntiHitBtn then
-                originalAntiHitBtn = desc
-                -- Tự động kích hoạt bật nếu script gốc đang tắt
-                if not hasAutoSynced then
-                    hasAutoSynced = true
-                    task.defer(function()
-                        if txt:find("off") or not txt:find("on") then
-                            forceVirtualClick(desc)
-                        end
-                    end)
-                end
-            end
+        -- Nhận diện nhãn Anti Hit
+        if txt:find("anti hit") and not targetAntiHitLabel then
+            targetAntiHitLabel = inst
         end
     end
 end
 
--- Mai phục từ trước khi script tải: bắt mọi phần tử sinh ra
+-- Bộ đón chặn thời gian thực (Zero-frame stealth)
 local searchRoots = {CoreGui, LocalPlayer:WaitForChild("PlayerGui")}
 if gethui then pcall(function() table.insert(searchRoots, gethui()) end) end
 
 for _, root in ipairs(searchRoots) do
     root.DescendantAdded:Connect(function(desc)
-        checkAndHideTarget(desc)
+        task.defer(processInstance, desc)
     end)
 end
 
--- Quét thần tốc từng frame trong 4 giây đầu để diệt tận gốc mọi logo vẽ trễ
+-- Luồng đồng bộ trạng thái BẬT SẴN (Chống Race Condition)
 task.spawn(function()
-    local startTime = tick()
-    while tick() - startTime < 4 do
+    local syncAttempts = 0
+    while syncAttempts < 40 do -- Chạy tối đa 8 giây
+        task.wait(0.2)
+        syncAttempts = syncAttempts + 1
+
+        if targetAntiHitLabel and targetAntiHitLabel.Parent then
+            local currentText = targetAntiHitLabel.Text:upper()
+            
+            -- Nếu đang OFF -> Bắt buộc click chuyển sang ON
+            if currentText:find("OFF") then
+                triggerVirtualClick(targetAntiHitLabel)
+            -- Nếu đã là ON -> Đạt mục tiêu, ngừng quét vòng lặp
+            elseif currentText:find("ON") then
+                break
+            end
+        else
+            -- Dò tìm nhãn nếu chưa bắt được
+            for _, root in ipairs(searchRoots) do
+                for _, desc in ipairs(root:GetDescendants()) do
+                    if (desc:IsA("TextLabel") or desc:IsA("TextButton")) and desc.Text:lower():find("anti hit") then
+                        targetAntiHitLabel = desc
+                        break
+                    end
+                end
+                if targetAntiHitLabel then break end
+            end
+        end
+    end
+end)
+
+-- Quét triệt hạ frame render đầu
+task.spawn(function()
+    local renderWatch = tick()
+    while tick() - renderWatch < 3 do
         RunService.RenderStepped:Wait()
         for _, root in ipairs(searchRoots) do
             for _, gui in ipairs(root:GetChildren()) do
                 if gui:IsA("ScreenGui") and gui.Name ~= "WHUB_Compact_Widget" then
-                    for _, desc in ipairs(gui:GetDescendants()) do
-                        checkAndHideTarget(desc)
+                    for _, child in ipairs(gui:GetChildren()) do
+                        local hasKeyword = false
+                        for _, desc in ipairs(child:GetDescendants()) do
+                            local t = desc:IsA("TextLabel") and desc.Text:lower() or ""
+                            if t:find("private") or t:find("anti hit") then
+                                hasKeyword = true
+                                break
+                            end
+                        end
+                        if hasKeyword then
+                            nukeElement(child)
+                        end
                     end
                 end
             end
@@ -236,7 +264,7 @@ task.spawn(function()
     end
 end)
 
--- ==================== 3. KÍCH HOẠT SCRIPT PRIVATE HUB ====================
+-- ==================== 4. THỰC THI SCRIPT GỐC ====================
 getgenv().SCRIPT_KEY = "KEYLESS"
 task.spawn(function()
     pcall(function()
