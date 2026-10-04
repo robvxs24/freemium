@@ -1,11 +1,11 @@
 -- ==============================================================================
---  CHILLI HUB V2 - SAPPHIRE BLUE EDITION (FULL 100% TRANSLATION & RESKIN)
+--  CHILLI HUB V2 - SOFT SKY BLUE EDITION (100% VIETNAMESE & SOFT RESKIN)
 --  Tối ưu hóa:
 --    1. REBRAND: Đổi tên thành "Chilli Hub V2" trên toàn bộ giao diện.
---    2. CYBER BLUE RESKIN: Biến toàn bộ menu/nút bấm đỏ thành Xanh Dương Sapphire 3D mượt mà.
---    3. UIGRADIENT INJECTION: Cấy dải màu đa tầng tạo độ bóng bẩy cao cấp.
---    4. DỊCH THUẬT 100%: Bao quát toàn bộ Farm, Predictor, ESP, Combat, Server, Auto Hop.
---    5. LIQUID CYBER CAPSULE BLUE: Đồng bộ thanh chuyển ngữ sang tông màu Xanh Dương Neon.
+--    2. SOFT BLUE RESKIN: Thay thế toàn bộ màu đỏ thành Xanh Nhạt Dịu Mắt (không chói, không đậm).
+--    3. UIGRADIENT OVERRIDE: Ghi đè trực tiếp dải màu bên trong nút, xóa sổ 100% màu đỏ.
+--    4. DỊCH THUẬT MASTER: Hoàn thiện 100% Farm, Predictor, ESP, Combat, Server, Auto Hop.
+--    5. LIQUID CYBER CAPSULE: Đồng bộ nút chuyển ngữ sang tông màu Soft Cyan-Blue.
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -34,7 +34,6 @@ local function replaceAll(str, findStr, replaceStr)
     return str
 end
 
--- KHỚP NGUYÊN CHUỖI ĐỘC LẬP
 local EXACT_MATCH_VI = {
     ["Chilli Hub"] = "Chilli Hub V2",
     ["Hop"] = "Đổi Server",
@@ -100,12 +99,8 @@ local EXACT_MATCH_VI = {
     ["RAINBOW"] = "CẦU VỒNG"
 }
 
--- CỤM TỪ ĐIỂN TĨNH
 local MAP_VI = {
-    -- REBRANDING TIÊU ĐỀ
     ["Chilli Hub"] = "Chilli Hub V2",
-
-    -- MENU TABS & ĐIỀU HƯỚNG
     ["Farm"] = "Cày Cuốc",
     ["Player"] = "Người Chơi",
     ["Predictor"] = "Dự Đoán",
@@ -120,7 +115,6 @@ local MAP_VI = {
     ["Filter features..."] = "Lọc tính năng...",
     ["Search"] = "Tìm kiếm",
 
-    -- TIÊU ĐỀ MODULE
     ["Dr Scramble Lab & Mech"] = "Phòng Lab & Robot Scramble",
     ["Butterfly Bloom"] = "Sự Kiện Bắt Bướm",
     ["Wisp Companion"] = "Đồng Hành Wisp",
@@ -150,7 +144,6 @@ local MAP_VI = {
     ["Quick Bar 1"] = "Thanh Phím Nhanh 1",
     ["Quick Bar 2"] = "Thanh Phím Nhanh 2",
 
-    -- CÁC TÍNH NĂNG CHI TIẾT
     ["Auto Butterfly Bloom"] = "Tự Động Bắt Bướm",
     ["Catch Mode"] = "Chế Độ Bắt",
     ["Catch Priority"] = "Ưu Tiên Bắt",
@@ -420,7 +413,6 @@ local MAP_VI = {
     ["selected"] = "đã chọn"
 }
 
--- BỘ BÓC TÁCH REGEX NÂNG CAO
 local DYNAMIC_PATTERNS = {
     {
         pattern = "ALL (%d+)",
@@ -545,7 +537,6 @@ local function translateText(raw)
     local cacheKey = currentLanguage .. "|" .. raw
     if FastCache[cacheKey] then return FastCache[cacheKey] end
 
-    -- Luôn đảm bảo Rebrand V2 kể cả khi bật tiếng Anh
     if currentLanguage == "EN" then
         local res = replaceAll(raw, "Chilli Hub", "Chilli Hub V2")
         FastCache[cacheKey] = res
@@ -633,48 +624,84 @@ local function updateAllActive()
     end
 end
 
--- ==================== 4. LÕI THAY MÀU CYBER SAPPHIRE BLUE (ĐỔI ĐỎ THÀNH XANH 3D) ====================
-local function applyBlueTheme(obj)
+-- ==================== 4. LÕI ĐỔI MÀU SOFT SKY BLUE (XANH NHẠT DỊU MẮT) ====================
+-- Bảng màu Soft Sapphire Pastel (Không chói, không quá đậm)
+local COLOR_MAIN_SURFACE = Color3.fromRGB(115, 170, 235)  -- Nền xanh trời nhạt êm dịu
+local COLOR_SHADOW_BEVEL = Color3.fromRGB(65, 115, 180)   -- Viền bóng 3D chân nút
+local COLOR_GRAD_TOP     = Color3.fromRGB(145, 195, 245)  -- Điểm sáng phía trên
+local COLOR_GRAD_BOTTOM  = Color3.fromRGB(95, 150, 220)   -- Điểm tối phía dưới
+
+local function isReddish(c)
+    if not c then return false end
+    -- Nhận diện chính xác sắc đỏ của Chilli Hub (kể cả tông Coral Red G ~ 0.41)
+    return (c.R > 0.45) and (c.R - c.G >= 0.12) and (c.R - c.B >= 0.12) and (math.abs(c.G - c.B) <= 0.25)
+end
+
+local function applySoftBlueTheme(obj)
     if not obj:IsA("GuiObject") then return end
     if obj:FindFirstAncestor("Chilli_Liquid_Capsule") then return end
 
     local function checkAndRecolor()
         if obj:GetAttribute("__IsRecoloring") then return end
-        local color = obj.BackgroundColor3
-        
-        -- Nhận diện các khung/nút mang sắc đỏ gốc của Chilli Hub
-        if color and (color.R > 0.55 and color.G < 0.35 and color.B < 0.35) then
-            obj:SetAttribute("__IsRecoloring", true)
-            
-            -- Sắc Xanh Sapphire Chủ Đạo
-            obj.BackgroundColor3 = Color3.fromRGB(20, 110, 230)
 
-            -- Cấy hiệu ứng Gradient 3D bóng bẩy nếu chưa có
-            if not obj:FindFirstChild("CyberSapphire_Gradient") and (obj:IsA("TextButton") or obj:IsA("Frame")) then
-                local grad = Instance.new("UIGradient")
-                grad.Name = "CyberSapphire_Gradient"
-                grad.Color = ColorSequence.new({
-                    ColorSequenceKeypoint.new(0, Color3.fromRGB(45, 145, 255)),  -- Xanh sáng trên
-                    ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 80, 195))   -- Xanh sâu dưới
+        -- 1. Xử lý UIGradient có sẵn bên trong đối tượng
+        for _, child in ipairs(obj:GetChildren()) do
+            if child:IsA("UIGradient") then
+                child.Color = ColorSequence.new({
+                    ColorSequenceKeypoint.new(0, COLOR_GRAD_TOP),
+                    ColorSequenceKeypoint.new(1, COLOR_GRAD_BOTTOM)
                 })
-                grad.Rotation = 90
-                grad.Parent = obj
+            end
+        end
+
+        -- 2. Xử lý BackgroundColor3
+        local col = obj.BackgroundColor3
+        if col and isReddish(col) then
+            obj:SetAttribute("__IsRecoloring", true)
+
+            -- Phân tách mặt trên (Lighter) và bóng 3D đáy nút (Darker)
+            if col.R > 0.65 then
+                obj.BackgroundColor3 = COLOR_MAIN_SURFACE
+
+                -- Nếu chưa có gradient, cấy thêm gradient mềm mại
+                if not obj:FindFirstChild("SoftBlue_Gradient") and (obj:IsA("TextButton") or obj:IsA("Frame")) then
+                    local grad = Instance.new("UIGradient")
+                    grad.Name = "SoftBlue_Gradient"
+                    grad.Color = ColorSequence.new({
+                        ColorSequenceKeypoint.new(0, COLOR_GRAD_TOP),
+                        ColorSequenceKeypoint.new(1, COLOR_GRAD_BOTTOM)
+                    })
+                    grad.Rotation = 90
+                    grad.Parent = obj
+                end
+            else
+                obj.BackgroundColor3 = COLOR_SHADOW_BEVEL
             end
 
             obj:SetAttribute("__IsRecoloring", false)
+        end
+
+        -- 3. Xử lý ImageColor3 nếu nút dùng ảnh đỏ
+        if (obj:IsA("ImageLabel") or obj:IsA("ImageButton")) and isReddish(obj.ImageColor3) then
+            obj:SetAttribute("__IsRecoloring", true)
+            obj.ImageColor3 = COLOR_MAIN_SURFACE
+            obj:SetAttribute("__IsRecoloring", false)
+        end
+
+        -- 4. Xử lý UIStroke nếu viền bị đỏ
+        if obj:IsA("UIStroke") and isReddish(obj.Color) then
+            obj.Color = COLOR_SHADOW_BEVEL
         end
     end
 
     checkAndRecolor()
 
     obj:GetPropertyChangedSignal("BackgroundColor3"):Connect(function()
-        if not obj:GetAttribute("__IsRecoloring") then
-            checkAndRecolor()
-        end
+        if not obj:GetAttribute("__IsRecoloring") then checkAndRecolor() end
     end)
 end
 
--- ==================== 5. NÚT ĐỔI NGÔN NGỮ LIQUID CYBER (SAPPHIRE BLUE) ====================
+-- ==================== 5. NÚT ĐỔI NGÔN NGỮ LIQUID CYBER (SOFT BLUE THEME) ====================
 local function createLiquidCapsuleUI()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local old = parentTarget:FindFirstChild("Chilli_Liquid_Capsule")
@@ -687,13 +714,13 @@ local function createLiquidCapsuleUI()
     ScreenGui.DisplayOrder = 2147483647
     ScreenGui.Parent = parentTarget
 
-    -- Vỏ Viên Nang Obsidian Sapphire
+    -- Vỏ Viên Nang
     local Capsule = Instance.new("Frame")
     Capsule.Name = "Capsule"
     Capsule.Size = UDim2.new(0, 176, 0, 36)
     Capsule.AnchorPoint = Vector2.new(0.5, 0)
     Capsule.Position = UDim2.new(0.5, 0, 0, 12)
-    Capsule.BackgroundColor3 = Color3.fromRGB(8, 12, 20)
+    Capsule.BackgroundColor3 = Color3.fromRGB(12, 16, 24)
     Capsule.BackgroundTransparency = 0.15
     Capsule.BorderSizePixel = 0
     Capsule.Parent = ScreenGui
@@ -702,19 +729,19 @@ local function createLiquidCapsuleUI()
     CapsuleCorner.CornerRadius = UDim.new(1, 0)
     CapsuleCorner.Parent = Capsule
 
-    -- Viền Phát Quang Xanh Neon
+    -- Viền Xanh Nhạt Dịu
     local CapsuleStroke = Instance.new("UIStroke")
     CapsuleStroke.Thickness = 1.4
-    CapsuleStroke.Color = Color3.fromRGB(35, 145, 255)
+    CapsuleStroke.Color = Color3.fromRGB(115, 170, 235)
     CapsuleStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     CapsuleStroke.Parent = Capsule
 
-    -- Con trượt Active Spring Slider (Xanh Sapphire Gradient)
+    -- Con trượt Active Slider (Soft Sky Blue)
     local Slider = Instance.new("Frame")
     Slider.Name = "Slider"
     Slider.Size = UDim2.new(0, 84, 0, 28)
     Slider.Position = UDim2.new(0, 4, 0.5, -14)
-    Slider.BackgroundColor3 = Color3.fromRGB(20, 110, 230)
+    Slider.BackgroundColor3 = COLOR_MAIN_SURFACE
     Slider.BorderSizePixel = 0
     Slider.Parent = Capsule
 
@@ -724,19 +751,19 @@ local function createLiquidCapsuleUI()
 
     local SliderGradient = Instance.new("UIGradient")
     SliderGradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(50, 155, 255)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 80, 195))
+        ColorSequenceKeypoint.new(0, COLOR_GRAD_TOP),
+        ColorSequenceKeypoint.new(1, COLOR_GRAD_BOTTOM)
     })
     SliderGradient.Rotation = 90
     SliderGradient.Parent = Slider
 
     local SliderGlow = Instance.new("UIStroke")
     SliderGlow.Thickness = 1
-    SliderGlow.Color = Color3.fromRGB(120, 190, 255)
-    SliderGlow.Transparency = 0.3
+    SliderGlow.Color = Color3.fromRGB(175, 215, 255)
+    SliderGlow.Transparency = 0.4
     SliderGlow.Parent = Slider
 
-    -- Nút Tiếng Việt
+    -- Tab Tiếng Việt
     local BtnVI = Instance.new("TextButton")
     BtnVI.Name = "BtnVI"
     BtnVI.Size = UDim2.new(0, 84, 1, 0)
@@ -749,7 +776,7 @@ local function createLiquidCapsuleUI()
     BtnVI.ZIndex = 5
     BtnVI.Parent = Capsule
 
-    -- Nút English
+    -- Tab English
     local BtnEN = Instance.new("TextButton")
     BtnEN.Name = "BtnEN"
     BtnEN.Size = UDim2.new(0, 84, 1, 0)
@@ -758,7 +785,7 @@ local function createLiquidCapsuleUI()
     BtnEN.Text = "🌐 ENGLISH"
     BtnEN.Font = Enum.Font.GothamBold
     BtnEN.TextSize = 10
-    BtnEN.TextColor3 = Color3.fromRGB(140, 155, 180)
+    BtnEN.TextColor3 = Color3.fromRGB(145, 160, 185)
     BtnEN.ZIndex = 5
     BtnEN.Parent = Capsule
 
@@ -774,19 +801,19 @@ local function createLiquidCapsuleUI()
         if target == "VI" then
             TweenService:Create(Slider, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
                 Position = UDim2.new(0, 4, 0.5, -14),
-                BackgroundColor3 = Color3.fromRGB(20, 110, 230)
+                BackgroundColor3 = COLOR_MAIN_SURFACE
             }):Play()
-            TweenService:Create(CapsuleStroke, TweenInfo.new(0.3), {Color = Color3.fromRGB(35, 145, 255)}):Play()
+            TweenService:Create(CapsuleStroke, TweenInfo.new(0.3), {Color = Color3.fromRGB(115, 170, 235)}):Play()
             TweenService:Create(BtnVI, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
-            TweenService:Create(BtnEN, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(140, 155, 180)}):Play()
+            TweenService:Create(BtnEN, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(145, 160, 185)}):Play()
         else
             TweenService:Create(Slider, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
                 Position = UDim2.new(1, -88, 0.5, -14),
-                BackgroundColor3 = Color3.fromRGB(45, 60, 85)
+                BackgroundColor3 = Color3.fromRGB(55, 70, 95)
             }):Play()
-            TweenService:Create(CapsuleStroke, TweenInfo.new(0.3), {Color = Color3.fromRGB(90, 125, 170)}):Play()
+            TweenService:Create(CapsuleStroke, TweenInfo.new(0.3), {Color = Color3.fromRGB(90, 120, 165)}):Play()
             TweenService:Create(BtnEN, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
-            TweenService:Create(BtnVI, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(140, 155, 180)}):Play()
+            TweenService:Create(BtnVI, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(145, 160, 185)}):Play()
         end
 
         updateAllActive()
@@ -836,13 +863,11 @@ task.delay(2.5, function()
     local function scanUIChunked(parent)
         local children = parent:GetChildren()
         for i, desc in ipairs(children) do
-            -- Dịch văn bản
             if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
                 hookElement(desc)
             end
-            -- Đổi màu sắc đỏ sang Cyber Sapphire Blue
             if desc:IsA("GuiObject") then
-                applyBlueTheme(desc)
+                applySoftBlueTheme(desc)
             end
             if i % 30 == 0 then RunService.RenderStepped:Wait() end
             scanUIChunked(desc)
@@ -861,7 +886,7 @@ task.delay(2.5, function()
                         hookElement(desc)
                     end
                     if desc:IsA("GuiObject") then
-                        applyBlueTheme(desc)
+                        applySoftBlueTheme(desc)
                     end
                 end)
             end)
