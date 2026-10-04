@@ -1,11 +1,11 @@
 -- ==============================================================================
---  CHILLI HUB V2 - SOFT SKY BLUE EDITION (100% VIETNAMESE & SOFT RESKIN)
+--  CHILLI HUB V2 - PRECISION 3-PART SOFT BLUE (STRICT MENU ISOLATION)
 --  Tối ưu hóa:
---    1. REBRAND: Đổi tên thành "Chilli Hub V2" trên toàn bộ giao diện.
---    2. SOFT BLUE RESKIN: Thay thế toàn bộ màu đỏ thành Xanh Nhạt Dịu Mắt (không chói, không đậm).
---    3. UIGRADIENT OVERRIDE: Ghi đè trực tiếp dải màu bên trong nút, xóa sổ 100% màu đỏ.
---    4. DỊCH THUẬT MASTER: Hoàn thiện 100% Farm, Predictor, ESP, Combat, Server, Auto Hop.
---    5. LIQUID CYBER CAPSULE: Đồng bộ nút chuyển ngữ sang tông màu Soft Cyan-Blue.
+--    1. CÔ LẬP TUYỆT ĐỐI: CHỈ đổi màu đúng 3 phần (Header, Cột Tab trái, Cột nút phải).
+--    2. KHÔNG CAN THIỆP GAME: Tuyệt đối không đụng vào nút game hay menu nội dung bên trong.
+--    3. CHỮ TRẮNG NỔI KHỐI: Khóa cứng màu chữ trắng tinh (RGB 255, 255, 255) viền đen nguyên bản.
+--    4. XANH NHẠT DỊU MẮT: Phối màu Soft Pastel Sky Blue nhẹ nhàng, không đậm, không chói.
+--    5. DỊCH THUẬT 100%: Giữ trọn bộ từ điển Master V5.0 cho toàn bộ hệ thống.
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -21,7 +21,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 2. TỪ ĐIỂN DỊCH THUẬT & REBRAND V2 ====================
+-- ==================== 2. TỪ ĐIỂN DỊCH THUẬT MASTER ====================
 local currentLanguage = "VI"
 local FastCache = {}
 
@@ -624,81 +624,135 @@ local function updateAllActive()
     end
 end
 
--- ==================== 4. LÕI ĐỔI MÀU SOFT SKY BLUE (XANH NHẠT DỊU MẮT) ====================
--- Bảng màu Soft Sapphire Pastel (Không chói, không quá đậm)
-local COLOR_MAIN_SURFACE = Color3.fromRGB(115, 170, 235)  -- Nền xanh trời nhạt êm dịu
-local COLOR_SHADOW_BEVEL = Color3.fromRGB(65, 115, 180)   -- Viền bóng 3D chân nút
-local COLOR_GRAD_TOP     = Color3.fromRGB(145, 195, 245)  -- Điểm sáng phía trên
-local COLOR_GRAD_BOTTOM  = Color3.fromRGB(95, 150, 220)   -- Điểm tối phía dưới
+-- ==================== 4. LÕI CÔ LẬP ĐỔI MÀU ĐÚNG 3 PHẦN (SOFT PASTEL BLUE) ====================
+-- Bảng màu Soft Pastel Sky Blue (Dịu mắt, không đậm, không chói)
+local COLOR_FACE_TOP    = Color3.fromRGB(140, 195, 245) -- Xanh nhạt sáng dịu
+local COLOR_FACE_BOTTOM = Color3.fromRGB(95, 155, 225)  -- Xanh biển nhạt
+local COLOR_BEVEL_SHADOW= Color3.fromRGB(55, 110, 180)  -- Bóng đổ chân nút 3D
 
-local function isReddish(c)
-    if not c then return false end
-    -- Nhận diện chính xác sắc đỏ của Chilli Hub (kể cả tông Coral Red G ~ 0.41)
-    return (c.R > 0.45) and (c.R - c.G >= 0.12) and (c.R - c.B >= 0.12) and (math.abs(c.G - c.B) <= 0.25)
-end
+-- DANH SÁCH TỪ KHÓA CHỈ ĐỊNH CỦA ĐÚNG 2 HÀNG NÚT (ẢNH 1 & ẢNH 2)
+local TARGET_BUTTON_KEYWORDS = {
+    -- Hàng nút Tab bên trái (Ảnh 2)
+    ["cày cuốc"] = true, ["farm"] = true,
+    ["người chơi"] = true, ["player"] = true,
+    ["dự đoán"] = true, ["predictor"] = true,
+    ["tiến trình"] = true, ["progress"] = true,
+    ["máy chủ"] = true, ["server"] = true,
+    ["khác"] = true, ["misc"] = true,
+    ["tự đổi máy chủ"] = true, ["tự đổi server"] = true, ["auto hop"] = true,
+    -- Hàng nút điều hướng bên phải (Ảnh 1)
+    ["discord"] = true,
+    ["phím tắt & key"] = true, ["quick & keys"] = true,
+    ["cài đặt"] = true, ["settings"] = true,
+    ["cấu hình"] = true, ["config"] = true
+}
 
-local function applySoftBlueTheme(obj)
-    if not obj:IsA("GuiObject") then return end
-    if obj:FindFirstAncestor("Chilli_Liquid_Capsule") then return end
+-- Hàm áp màu xanh nhạt lên duy nhất một nút cụ thể
+local function recolorSingleButton(btnContainer, labelObj)
+    if not btnContainer then return end
+    
+    -- 1. Đổi UIGradient bề mặt nếu có
+    local grad = btnContainer:FindFirstChildOfClass("UIGradient")
+    if not grad then
+        grad = Instance.new("UIGradient")
+        grad.Rotation = 90
+        grad.Parent = btnContainer
+    end
+    grad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, COLOR_FACE_TOP),
+        ColorSequenceKeypoint.new(1, COLOR_FACE_BOTTOM)
+    })
 
-    local function checkAndRecolor()
-        if obj:GetAttribute("__IsRecoloring") then return end
+    btnContainer.BackgroundColor3 = COLOR_FACE_BOTTOM
 
-        -- 1. Xử lý UIGradient có sẵn bên trong đối tượng
-        for _, child in ipairs(obj:GetChildren()) do
-            if child:IsA("UIGradient") then
-                child.Color = ColorSequence.new({
-                    ColorSequenceKeypoint.new(0, COLOR_GRAD_TOP),
-                    ColorSequenceKeypoint.new(1, COLOR_GRAD_BOTTOM)
-                })
-            end
-        end
-
-        -- 2. Xử lý BackgroundColor3
-        local col = obj.BackgroundColor3
-        if col and isReddish(col) then
-            obj:SetAttribute("__IsRecoloring", true)
-
-            -- Phân tách mặt trên (Lighter) và bóng 3D đáy nút (Darker)
-            if col.R > 0.65 then
-                obj.BackgroundColor3 = COLOR_MAIN_SURFACE
-
-                -- Nếu chưa có gradient, cấy thêm gradient mềm mại
-                if not obj:FindFirstChild("SoftBlue_Gradient") and (obj:IsA("TextButton") or obj:IsA("Frame")) then
-                    local grad = Instance.new("UIGradient")
-                    grad.Name = "SoftBlue_Gradient"
-                    grad.Color = ColorSequence.new({
-                        ColorSequenceKeypoint.new(0, COLOR_GRAD_TOP),
-                        ColorSequenceKeypoint.new(1, COLOR_GRAD_BOTTOM)
-                    })
-                    grad.Rotation = 90
-                    grad.Parent = obj
-                end
-            else
-                obj.BackgroundColor3 = COLOR_SHADOW_BEVEL
-            end
-
-            obj:SetAttribute("__IsRecoloring", false)
-        end
-
-        -- 3. Xử lý ImageColor3 nếu nút dùng ảnh đỏ
-        if (obj:IsA("ImageLabel") or obj:IsA("ImageButton")) and isReddish(obj.ImageColor3) then
-            obj:SetAttribute("__IsRecoloring", true)
-            obj.ImageColor3 = COLOR_MAIN_SURFACE
-            obj:SetAttribute("__IsRecoloring", false)
-        end
-
-        -- 4. Xử lý UIStroke nếu viền bị đỏ
-        if obj:IsA("UIStroke") and isReddish(obj.Color) then
-            obj.Color = COLOR_SHADOW_BEVEL
+    -- 2. Đổi chân bóng 3D (Frame viền chân nếu có)
+    if btnContainer.Parent and btnContainer.Parent:IsA("Frame") and btnContainer.Parent ~= btnContainer then
+        local p = btnContainer.Parent
+        local pCol = p.BackgroundColor3
+        if pCol and (pCol.R > 0.4 and pCol.G < 0.35) then
+            p.BackgroundColor3 = COLOR_BEVEL_SHADOW
         end
     end
 
-    checkAndRecolor()
+    -- 3. KHÓA CỨNG MÀU CHỮ: Luôn luôn giữ màu TRẮNG tinh
+    if labelObj and labelObj:IsA("TextLabel") or labelObj:IsA("TextButton") then
+        labelObj.TextColor3 = Color3.fromRGB(255, 255, 255)
+    end
+end
 
-    obj:GetPropertyChangedSignal("BackgroundColor3"):Connect(function()
-        if not obj:GetAttribute("__IsRecoloring") then checkAndRecolor() end
-    end)
+-- Hàm áp màu xanh nhạt lên Thanh Header TopBar (Ảnh 3)
+local function recolorHeaderBar(headerFrame, titleObj)
+    if not headerFrame then return end
+
+    local grad = headerFrame:FindFirstChildOfClass("UIGradient")
+    if not grad then
+        grad = Instance.new("UIGradient")
+        grad.Rotation = 90
+        grad.Parent = headerFrame
+    end
+    grad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, COLOR_FACE_TOP),
+        ColorSequenceKeypoint.new(1, COLOR_FACE_BOTTOM)
+    })
+
+    headerFrame.BackgroundColor3 = COLOR_FACE_BOTTOM
+
+    -- Chân bóng viền dưới header (nếu có frame shadow)
+    if headerFrame.Parent and headerFrame.Parent:IsA("Frame") then
+        local p = headerFrame.Parent
+        if p.BackgroundColor3.R > 0.4 and p.BackgroundColor3.G < 0.35 then
+            p.BackgroundColor3 = COLOR_BEVEL_SHADOW
+        end
+    end
+
+    -- Khóa cứng chữ tiêu đề màu trắng
+    if titleObj and (titleObj:IsA("TextLabel") or titleObj:IsA("TextButton")) then
+        titleObj.TextColor3 = Color3.fromRGB(255, 255, 255)
+    end
+
+    -- Đổi nút tắt [X] sang màu xanh pastel đồng bộ
+    for _, item in ipairs(headerFrame:GetDescendants()) do
+        if item:IsA("TextButton") or item:IsA("ImageButton") then
+            item.BackgroundColor3 = COLOR_FACE_BOTTOM
+            local xGrad = item:FindFirstChildOfClass("UIGradient")
+            if xGrad then
+                xGrad.Color = ColorSequence.new({
+                    ColorSequenceKeypoint.new(0, COLOR_FACE_TOP),
+                    ColorSequenceKeypoint.new(1, COLOR_FACE_BOTTOM)
+                })
+            end
+            if item:IsA("TextButton") then
+                item.TextColor3 = Color3.fromRGB(255, 255, 255)
+            end
+        end
+    end
+end
+
+-- Bộ kiểm soát chỉ định (Chỉ duyệt đúng 3 đối tượng, tuyệt đối không duyệt lan man)
+local function inspectAndApplySoftBlue(inst)
+    if not (inst:IsA("TextLabel") or inst:IsA("TextButton")) then return end
+    if inst:FindFirstAncestor("Chilli_Liquid_Capsule") then return end
+
+    local textRaw = inst.Text:lower():match("^%s*(.-)%s*$") or ""
+
+    -- 1. Nhận diện Thanh Header (Ảnh 3)
+    if textRaw:find("chilli hub") then
+        local headerFrame = inst:FindFirstAncestorOfClass("Frame")
+        if headerFrame then
+            recolorHeaderBar(headerFrame, inst)
+        end
+        return
+    end
+
+    -- 2. Nhận diện Đúng 2 hàng nút Tab trái & phải (Ảnh 1 & Ảnh 2)
+    if TARGET_BUTTON_KEYWORDS[textRaw] then
+        -- Tìm Container của nút bấm
+        local btnTarget = inst:IsA("TextButton") and inst or inst:FindFirstAncestorOfClass("TextButton") or inst:FindFirstAncestorOfClass("Frame")
+        if btnTarget then
+            recolorSingleButton(btnTarget, inst)
+        end
+        return
+    end
 end
 
 -- ==================== 5. NÚT ĐỔI NGÔN NGỮ LIQUID CYBER (SOFT BLUE THEME) ====================
@@ -729,10 +783,9 @@ local function createLiquidCapsuleUI()
     CapsuleCorner.CornerRadius = UDim.new(1, 0)
     CapsuleCorner.Parent = Capsule
 
-    -- Viền Xanh Nhạt Dịu
     local CapsuleStroke = Instance.new("UIStroke")
     CapsuleStroke.Thickness = 1.4
-    CapsuleStroke.Color = Color3.fromRGB(115, 170, 235)
+    CapsuleStroke.Color = COLOR_FACE_TOP
     CapsuleStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     CapsuleStroke.Parent = Capsule
 
@@ -741,7 +794,7 @@ local function createLiquidCapsuleUI()
     Slider.Name = "Slider"
     Slider.Size = UDim2.new(0, 84, 0, 28)
     Slider.Position = UDim2.new(0, 4, 0.5, -14)
-    Slider.BackgroundColor3 = COLOR_MAIN_SURFACE
+    Slider.BackgroundColor3 = COLOR_FACE_BOTTOM
     Slider.BorderSizePixel = 0
     Slider.Parent = Capsule
 
@@ -751,8 +804,8 @@ local function createLiquidCapsuleUI()
 
     local SliderGradient = Instance.new("UIGradient")
     SliderGradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, COLOR_GRAD_TOP),
-        ColorSequenceKeypoint.new(1, COLOR_GRAD_BOTTOM)
+        ColorSequenceKeypoint.new(0, COLOR_FACE_TOP),
+        ColorSequenceKeypoint.new(1, COLOR_FACE_BOTTOM)
     })
     SliderGradient.Rotation = 90
     SliderGradient.Parent = Slider
@@ -763,7 +816,7 @@ local function createLiquidCapsuleUI()
     SliderGlow.Transparency = 0.4
     SliderGlow.Parent = Slider
 
-    -- Tab Tiếng Việt
+    -- Nút Tiếng Việt
     local BtnVI = Instance.new("TextButton")
     BtnVI.Name = "BtnVI"
     BtnVI.Size = UDim2.new(0, 84, 1, 0)
@@ -776,7 +829,7 @@ local function createLiquidCapsuleUI()
     BtnVI.ZIndex = 5
     BtnVI.Parent = Capsule
 
-    -- Tab English
+    -- Nút English
     local BtnEN = Instance.new("TextButton")
     BtnEN.Name = "BtnEN"
     BtnEN.Size = UDim2.new(0, 84, 1, 0)
@@ -801,9 +854,9 @@ local function createLiquidCapsuleUI()
         if target == "VI" then
             TweenService:Create(Slider, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
                 Position = UDim2.new(0, 4, 0.5, -14),
-                BackgroundColor3 = COLOR_MAIN_SURFACE
+                BackgroundColor3 = COLOR_FACE_BOTTOM
             }):Play()
-            TweenService:Create(CapsuleStroke, TweenInfo.new(0.3), {Color = Color3.fromRGB(115, 170, 235)}):Play()
+            TweenService:Create(CapsuleStroke, TweenInfo.new(0.3), {Color = COLOR_FACE_TOP}):Play()
             TweenService:Create(BtnVI, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
             TweenService:Create(BtnEN, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(145, 160, 185)}):Play()
         else
@@ -865,9 +918,7 @@ task.delay(2.5, function()
         for i, desc in ipairs(children) do
             if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
                 hookElement(desc)
-            end
-            if desc:IsA("GuiObject") then
-                applySoftBlueTheme(desc)
+                inspectAndApplySoftBlue(desc)
             end
             if i % 30 == 0 then RunService.RenderStepped:Wait() end
             scanUIChunked(desc)
@@ -884,9 +935,7 @@ task.delay(2.5, function()
                 task.defer(function()
                     if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
                         hookElement(desc)
-                    end
-                    if desc:IsA("GuiObject") then
-                        applySoftBlueTheme(desc)
+                        inspectAndApplySoftBlue(desc)
                     end
                 end)
             end)
