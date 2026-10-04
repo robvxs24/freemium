@@ -1,11 +1,11 @@
 -- ==============================================================================
---  CHILLI HUB - MASTER IMMORTAL TRANSLATION ENGINE V5.0 (100% VIETNAMESE)
+--  CHILLI HUB V2 - SAPPHIRE BLUE EDITION (FULL 100% TRANSLATION & RESKIN)
 --  Tối ưu hóa:
---    1. Nạp tự động script gốc: https://raw.githubusercontent.com/tienkhanh1/spicy/main/Chilli.lua
---    2. DỊCH 100% TOÀN BỘ GIAO DIỆN: Farm, Predictor, Progress, Server, Misc, Auto Hop, ESP, Combat.
---    3. EXACT TOKEN MATCH: Xử lý độc lập các nút bấm đơn (Hop, Join, Copy, Add, All, Off, On).
---    4. REGEX FLEXIBLE PARSER: Đồng bộ số liệu thời gian thực không neo ký tự biên.
---    5. LIQUID CYBER CAPSULE: Giữ nguyên nút chuyển đổi nổi Glassmorphism siêu mượt.
+--    1. REBRAND: Đổi tên thành "Chilli Hub V2" trên toàn bộ giao diện.
+--    2. CYBER BLUE RESKIN: Biến toàn bộ menu/nút bấm đỏ thành Xanh Dương Sapphire 3D mượt mà.
+--    3. UIGRADIENT INJECTION: Cấy dải màu đa tầng tạo độ bóng bẩy cao cấp.
+--    4. DỊCH THUẬT 100%: Bao quát toàn bộ Farm, Predictor, ESP, Combat, Server, Auto Hop.
+--    5. LIQUID CYBER CAPSULE BLUE: Đồng bộ thanh chuyển ngữ sang tông màu Xanh Dương Neon.
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -21,7 +21,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 2. TỪ ĐIỂN DỊCH THUẬT CHUẨN 100% ====================
+-- ==================== 2. TỪ ĐIỂN DỊCH THUẬT & REBRAND V2 ====================
 local currentLanguage = "VI"
 local FastCache = {}
 
@@ -34,8 +34,9 @@ local function replaceAll(str, findStr, replaceStr)
     return str
 end
 
--- BẢNG KHỚP NGUYÊN CHUỖI ĐỘC LẬP (Tránh nuốt từ ngắn)
+-- KHỚP NGUYÊN CHUỖI ĐỘC LẬP
 local EXACT_MATCH_VI = {
+    ["Chilli Hub"] = "Chilli Hub V2",
     ["Hop"] = "Đổi Server",
     ["Join"] = "Vào Phòng",
     ["Copy"] = "Sao Chép",
@@ -99,8 +100,11 @@ local EXACT_MATCH_VI = {
     ["RAINBOW"] = "CẦU VỒNG"
 }
 
--- BẢNG KHỚP CỤM TỪ PHỨC HỢP (Sắp xếp theo độ dài giảm dần)
+-- CỤM TỪ ĐIỂN TĨNH
 local MAP_VI = {
+    -- REBRANDING TIÊU ĐỀ
+    ["Chilli Hub"] = "Chilli Hub V2",
+
     -- MENU TABS & ĐIỀU HƯỚNG
     ["Farm"] = "Cày Cuốc",
     ["Player"] = "Người Chơi",
@@ -116,7 +120,7 @@ local MAP_VI = {
     ["Filter features..."] = "Lọc tính năng...",
     ["Search"] = "Tìm kiếm",
 
-    -- CÁC TIÊU ĐỀ MODULE CHÍNH
+    -- TIÊU ĐỀ MODULE
     ["Dr Scramble Lab & Mech"] = "Phòng Lab & Robot Scramble",
     ["Butterfly Bloom"] = "Sự Kiện Bắt Bướm",
     ["Wisp Companion"] = "Đồng Hành Wisp",
@@ -146,7 +150,7 @@ local MAP_VI = {
     ["Quick Bar 1"] = "Thanh Phím Nhanh 1",
     ["Quick Bar 2"] = "Thanh Phím Nhanh 2",
 
-    -- SỰ KIỆN BƯỚM & LOÀI BƯỚM
+    -- CÁC TÍNH NĂNG CHI TIẾT
     ["Auto Butterfly Bloom"] = "Tự Động Bắt Bướm",
     ["Catch Mode"] = "Chế Độ Bắt",
     ["Catch Priority"] = "Ưu Tiên Bắt",
@@ -162,7 +166,6 @@ local MAP_VI = {
     ["Smart Trade For Essence"] = "Đổi Bướm Lấy Tinh Chất Thông Minh",
     ["Going to the middle of the bloom"] = "Đang đi tới trung tâm khu bướm nở",
 
-    -- TINH CHẤT (ESSENCE)
     ["Auto Craft Essence"] = "Tự Chế Tạo Tinh Chất",
     ["Auto Use Enchanted Essence"] = "Tự Dùng Tinh Chất Phù Phép",
     ["Essence Min Rarity"] = "Độ Hiếm Nhận Tinh Chất Min",
@@ -176,7 +179,6 @@ local MAP_VI = {
     ["Essence Skip Enchanted Eggs"] = "Bỏ Qua Trứng Đã Phù Phép",
     ["Skip eggs that already got Enchanted, other mutations still get the essence"] = "Bỏ qua trứng đã phù phép, đột biến khác vẫn nhận tinh chất",
 
-    -- CƯỚP TRỨNG & VỆ SĨ
     ["Instant Steal"] = "Cướp Siêu Tốc (Instant Steal)",
     ["Delivers the egg to the safe zone in a few seconds, needs enough Speed"] = "Chuyển trứng về căn cứ trong vài giây (cần đủ tốc độ)",
     ["Instant Steal Steps"] = "Số Bước Cướp Siêu Tốc",
@@ -192,7 +194,6 @@ local MAP_VI = {
     ["Over 100% may glitch"] = "Trên 100% có thể bị lỗi vị trí",
     ["Anti Guard Panel"] = "Bảng Chống Vệ Sĩ",
 
-    -- ĐẶT TRỨNG & MÁY TẬP
     ["Place Egg Rule"] = "Quy Tắc Đặt Trứng",
     ["Place Egg Order"] = "Thứ Tự Đặt Trứng",
     ["Place Rarities"] = "Độ Hiếm Đặt Trứng",
@@ -203,7 +204,6 @@ local MAP_VI = {
     ["Skip eggs worth less than this (0 = off)"] = "Bỏ qua trứng giá trị thấp hơn mức này (0 = tắt)",
     ["Stay On Treadmill"] = "Cố Định Trên Máy Tập",
 
-    -- ẤP TRỨNG & TRANG BỊ
     ["Auto Hatch"] = "Tự Động Ấp Trứng",
     ["Hatch Min Rarity"] = "Độ Hiếm Ấp Min",
     ["Hatch eggs of the chosen rarity and every rarity above it"] = "Ấp trứng từ độ hiếm đã chọn trở lên",
@@ -212,7 +212,6 @@ local MAP_VI = {
     ["Auto Equip Best"] = "Tự Trang Bị Pet Tốt Nhất",
     ["Equip Best when a better pet appears"] = "Tự trang bị khi có pet mạnh hơn xuất hiện",
 
-    -- BÁN PET & BÁN TRỨNG
     ["Sell Pets Now"] = "Bán Pet Ngay",
     ["Sell matching pets once"] = "Bán các pet khớp điều kiện một lần",
     ["Sell Pet Rule"] = "Quy Tắc Bán Pet",
@@ -249,7 +248,6 @@ local MAP_VI = {
     ["Keep Lab Pets"] = "Giữ Lại Pet Lab",
     ["Lab eggs of these pets are never sold"] = "Trứng Lab của những pet này sẽ không bao giờ bị bán",
 
-    -- DUNG HỢP (FUSE)
     ["No three matching pets"] = "Không đủ 3 pet trùng khớp",
     ["Fuse 3 same pets into an egg, nonstop"] = "Ghép 3 pet cùng loại thành 1 trứng liên tục",
     ["Fuse Priority Mode"] = "Chế Độ Ưu Tiên Dung Hợp",
@@ -261,7 +259,6 @@ local MAP_VI = {
     ["Eject Incomplete Slots"] = "Nhả Các Ô Chưa Đủ Bộ",
     ["Take out pets that can't make a set"] = "Đẩy ra các pet không thể ghép đủ bộ 3",
 
-    -- KHÓA YÊU THÍCH (FAVORITE)
     ["Auto Favorite Pet"] = "Tự Động Khóa Pet",
     ["Favorite pets matching the rules below"] = "Khóa các pet khớp quy tắc bên dưới",
     ["Favorite Pets Now"] = "Khóa Pet Ngay",
@@ -285,7 +282,6 @@ local MAP_VI = {
     ["Unfavorite Equipped Now"] = "Bỏ Khóa Pet Đang Dùng Ngay",
     ["Unfavorite all equipped pets once"] = "Mở khóa tất cả pet đang trang bị một lần",
 
-    -- DR SCRAMBLE LAB & MECH BOSS
     ["Auto Mech Boss"] = "Tự Động Đánh Boss Robot",
     ["Mech Tween Speed"] = "Tốc Độ Bay Đánh Boss",
     ["Main Weapon Hold"] = "Thời Gian Giữ Vũ Khí Chính",
@@ -322,7 +318,6 @@ local MAP_VI = {
     ["Auto Wisp"] = "Tự Động Nhặt Wisp",
     ["Auto Banjo Cricket"] = "Tự Động Bắt Dế Banjo",
 
-    -- CHIẾN ĐẤU & COMBAT SETTINGS
     ["Chase Settings"] = "Cài Đặt Đuổi Đánh",
     ["Chase Cài Đặt"] = "Cài Đặt Đuổi Đánh",
     ["Hit Tween Speed"] = "Tốc Độ Bay Đánh",
@@ -348,7 +343,6 @@ local MAP_VI = {
     ["Anti Trap"] = "Chống Bẫy (Anti Trap)",
     ["Traps from other players cannot catch you"] = "Bẫy của người khác không thể bắt được bạn",
 
-    -- ESP TẤT CẢ CÁC MỤC
     ["ESP Eggs"] = "ESP Trứng",
     ["ESP Fixed Size"] = "Cỡ ESP Cố Định",
     ["ESP Own Base Eggs"] = "Hiện Trứng Căn Cứ Mình",
@@ -365,7 +359,6 @@ local MAP_VI = {
     ["ESP Player Info"] = "Thông Tin ESP Người Chơi",
     ["ESP Player Size"] = "Cỡ ESP Người Chơi",
 
-    -- DỰ ĐOÁN PREDICTOR & PHÒNG LAB
     ["Search eggs..."] = "Tìm kiếm trứng...",
     ["FLY TO EGG"] = "BAY ĐẾN TRỨNG",
     ["Biohazard Pets"] = "Pet Phóng Xạ (Biohazard)",
@@ -377,7 +370,6 @@ local MAP_VI = {
     ["Sort By"] = "Sắp Xếp Theo",
     ["Preview Card"] = "Thẻ Xem Trước",
 
-    -- AUTO PROGRESSION
     ["Auto Buy Trail"] = "Tự Mua Vệt Sáng (Trail)",
     ["Automatically buy available trails when affordable"] = "Tự động mua vệt sáng có sẵn khi đủ tiền",
     ["Auto Upgrade Base"] = "Tự Nâng Cấp Căn Cứ",
@@ -389,7 +381,6 @@ local MAP_VI = {
     ["Auto Claim Index"] = "Tự Nhận Thưởng Sách Pet",
     ["Claim index rewards as soon as they unlock"] = "Tự động nhận thưởng sách ngay khi mở khóa",
 
-    -- SERVER & MÁY CHỦ
     ["Auto Load Script"] = "Tự Động Nạp Script",
     ["Server Hop Mode"] = "Chế Độ Đổi Server",
     ["Server Hop"] = "Đổi Server",
@@ -400,7 +391,6 @@ local MAP_VI = {
     ["Rejoin Server"] = "Vào Lại Server",
     ["Auto Rejoin When Disconnect"] = "Tự Kết Nối Lại Khi Mất Mạng",
 
-    -- HIỆU NĂNG & TIỆN ÍCH
     ["FPS Cap"] = "Giới Hạn FPS",
     ["Optimizer"] = "Tối Ưu Hóa (Giảm Lag)",
     ["Strip shadows, textures and effects for the highest FPS"] = "Xóa bóng, bề mặt và hiệu ứng để đạt FPS tối đa",
@@ -411,7 +401,6 @@ local MAP_VI = {
     ["Drag any panel to place it where you like"] = "Kéo bất kỳ bảng nào đến vị trí bạn muốn",
     ["Anti AFK"] = "Chống Treo Máy (Anti AFK)",
 
-    -- AUTO HOP & DÒ TÌM TRỨNG
     ["Joins new servers to find eggs that match the filters below"] = "Tự đổi server để tìm trứng khớp bộ lọc bên dưới",
     ["Turn on Auto Hop to start hunting"] = "Bật Tự Đổi Server để bắt đầu săn trứng",
     ["Hop Mode"] = "Chế Độ Đổi Server",
@@ -431,7 +420,7 @@ local MAP_VI = {
     ["selected"] = "đã chọn"
 }
 
--- BỘ BÓC TÁCH REGEX NÂNG CAO (Không dùng neo biên ^ và $)
+-- BỘ BÓC TÁCH REGEX NÂNG CAO
 local DYNAMIC_PATTERNS = {
     {
         pattern = "ALL (%d+)",
@@ -547,7 +536,6 @@ local DYNAMIC_PATTERNS = {
     }
 }
 
--- Sắp xếp chuỗi giảm dần
 local SortedVI = {}
 for en, vi in pairs(MAP_VI) do table.insert(SortedVI, {en = en, out = vi, len = #en}) end
 table.sort(SortedVI, function(a, b) return a.len > b.len end)
@@ -557,14 +545,15 @@ local function translateText(raw)
     local cacheKey = currentLanguage .. "|" .. raw
     if FastCache[cacheKey] then return FastCache[cacheKey] end
 
+    -- Luôn đảm bảo Rebrand V2 kể cả khi bật tiếng Anh
     if currentLanguage == "EN" then
-        FastCache[cacheKey] = raw
-        return raw
+        local res = replaceAll(raw, "Chilli Hub", "Chilli Hub V2")
+        FastCache[cacheKey] = res
+        return res
     end
 
     local trimmed = raw:match("^%s*(.-)%s*$") or raw
 
-    -- 1. Khớp chính xác từ đơn độc lập (Exact Word Priority)
     if EXACT_MATCH_VI[trimmed] then
         local res = raw:gsub(trimmed, EXACT_MATCH_VI[trimmed], 1)
         FastCache[cacheKey] = res
@@ -574,7 +563,6 @@ local function translateText(raw)
     local result = raw
     local matched = false
 
-    -- 2. Khớp các chuỗi Regex biến thiên thời gian thực
     for _, item in ipairs(DYNAMIC_PATTERNS) do
         if result:find(item.pattern) then
             result = result:gsub(item.pattern, function(...)
@@ -584,7 +572,6 @@ local function translateText(raw)
         end
     end
 
-    -- 3. Khớp cụm từ điển tĩnh (Ưu tiên chuỗi dài trước)
     for _, item in ipairs(SortedVI) do
         if result:find(item.en, 1, true) then
             result = replaceAll(result, item.en, item.out)
@@ -646,7 +633,48 @@ local function updateAllActive()
     end
 end
 
--- ==================== 4. LIQUID CYBER CAPSULE UI (TOP-CENTER) ====================
+-- ==================== 4. LÕI THAY MÀU CYBER SAPPHIRE BLUE (ĐỔI ĐỎ THÀNH XANH 3D) ====================
+local function applyBlueTheme(obj)
+    if not obj:IsA("GuiObject") then return end
+    if obj:FindFirstAncestor("Chilli_Liquid_Capsule") then return end
+
+    local function checkAndRecolor()
+        if obj:GetAttribute("__IsRecoloring") then return end
+        local color = obj.BackgroundColor3
+        
+        -- Nhận diện các khung/nút mang sắc đỏ gốc của Chilli Hub
+        if color and (color.R > 0.55 and color.G < 0.35 and color.B < 0.35) then
+            obj:SetAttribute("__IsRecoloring", true)
+            
+            -- Sắc Xanh Sapphire Chủ Đạo
+            obj.BackgroundColor3 = Color3.fromRGB(20, 110, 230)
+
+            -- Cấy hiệu ứng Gradient 3D bóng bẩy nếu chưa có
+            if not obj:FindFirstChild("CyberSapphire_Gradient") and (obj:IsA("TextButton") or obj:IsA("Frame")) then
+                local grad = Instance.new("UIGradient")
+                grad.Name = "CyberSapphire_Gradient"
+                grad.Color = ColorSequence.new({
+                    ColorSequenceKeypoint.new(0, Color3.fromRGB(45, 145, 255)),  -- Xanh sáng trên
+                    ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 80, 195))   -- Xanh sâu dưới
+                })
+                grad.Rotation = 90
+                grad.Parent = obj
+            end
+
+            obj:SetAttribute("__IsRecoloring", false)
+        end
+    end
+
+    checkAndRecolor()
+
+    obj:GetPropertyChangedSignal("BackgroundColor3"):Connect(function()
+        if not obj:GetAttribute("__IsRecoloring") then
+            checkAndRecolor()
+        end
+    end)
+end
+
+-- ==================== 5. NÚT ĐỔI NGÔN NGỮ LIQUID CYBER (SAPPHIRE BLUE) ====================
 local function createLiquidCapsuleUI()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local old = parentTarget:FindFirstChild("Chilli_Liquid_Capsule")
@@ -659,13 +687,13 @@ local function createLiquidCapsuleUI()
     ScreenGui.DisplayOrder = 2147483647
     ScreenGui.Parent = parentTarget
 
-    -- Vỏ Viên Nang Obsidian
+    -- Vỏ Viên Nang Obsidian Sapphire
     local Capsule = Instance.new("Frame")
     Capsule.Name = "Capsule"
     Capsule.Size = UDim2.new(0, 176, 0, 36)
     Capsule.AnchorPoint = Vector2.new(0.5, 0)
     Capsule.Position = UDim2.new(0.5, 0, 0, 12)
-    Capsule.BackgroundColor3 = Color3.fromRGB(8, 10, 15)
+    Capsule.BackgroundColor3 = Color3.fromRGB(8, 12, 20)
     Capsule.BackgroundTransparency = 0.15
     Capsule.BorderSizePixel = 0
     Capsule.Parent = ScreenGui
@@ -674,18 +702,19 @@ local function createLiquidCapsuleUI()
     CapsuleCorner.CornerRadius = UDim.new(1, 0)
     CapsuleCorner.Parent = Capsule
 
+    -- Viền Phát Quang Xanh Neon
     local CapsuleStroke = Instance.new("UIStroke")
     CapsuleStroke.Thickness = 1.4
-    CapsuleStroke.Color = Color3.fromRGB(255, 50, 50)
+    CapsuleStroke.Color = Color3.fromRGB(35, 145, 255)
     CapsuleStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     CapsuleStroke.Parent = Capsule
 
-    -- Con trượt Active Spring Slider
+    -- Con trượt Active Spring Slider (Xanh Sapphire Gradient)
     local Slider = Instance.new("Frame")
     Slider.Name = "Slider"
     Slider.Size = UDim2.new(0, 84, 0, 28)
     Slider.Position = UDim2.new(0, 4, 0.5, -14)
-    Slider.BackgroundColor3 = Color3.fromRGB(220, 35, 35)
+    Slider.BackgroundColor3 = Color3.fromRGB(20, 110, 230)
     Slider.BorderSizePixel = 0
     Slider.Parent = Capsule
 
@@ -693,9 +722,17 @@ local function createLiquidCapsuleUI()
     SliderCorner.CornerRadius = UDim.new(1, 0)
     SliderCorner.Parent = Slider
 
+    local SliderGradient = Instance.new("UIGradient")
+    SliderGradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(50, 155, 255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 80, 195))
+    })
+    SliderGradient.Rotation = 90
+    SliderGradient.Parent = Slider
+
     local SliderGlow = Instance.new("UIStroke")
     SliderGlow.Thickness = 1
-    SliderGlow.Color = Color3.fromRGB(255, 140, 140)
+    SliderGlow.Color = Color3.fromRGB(120, 190, 255)
     SliderGlow.Transparency = 0.3
     SliderGlow.Parent = Slider
 
@@ -721,7 +758,7 @@ local function createLiquidCapsuleUI()
     BtnEN.Text = "🌐 ENGLISH"
     BtnEN.Font = Enum.Font.GothamBold
     BtnEN.TextSize = 10
-    BtnEN.TextColor3 = Color3.fromRGB(140, 145, 160)
+    BtnEN.TextColor3 = Color3.fromRGB(140, 155, 180)
     BtnEN.ZIndex = 5
     BtnEN.Parent = Capsule
 
@@ -737,19 +774,19 @@ local function createLiquidCapsuleUI()
         if target == "VI" then
             TweenService:Create(Slider, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
                 Position = UDim2.new(0, 4, 0.5, -14),
-                BackgroundColor3 = Color3.fromRGB(220, 35, 35)
+                BackgroundColor3 = Color3.fromRGB(20, 110, 230)
             }):Play()
-            TweenService:Create(CapsuleStroke, TweenInfo.new(0.3), {Color = Color3.fromRGB(255, 50, 50)}):Play()
+            TweenService:Create(CapsuleStroke, TweenInfo.new(0.3), {Color = Color3.fromRGB(35, 145, 255)}):Play()
             TweenService:Create(BtnVI, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
-            TweenService:Create(BtnEN, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(140, 145, 160)}):Play()
+            TweenService:Create(BtnEN, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(140, 155, 180)}):Play()
         else
             TweenService:Create(Slider, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
                 Position = UDim2.new(1, -88, 0.5, -14),
-                BackgroundColor3 = Color3.fromRGB(45, 55, 75)
+                BackgroundColor3 = Color3.fromRGB(45, 60, 85)
             }):Play()
-            TweenService:Create(CapsuleStroke, TweenInfo.new(0.3), {Color = Color3.fromRGB(80, 110, 160)}):Play()
+            TweenService:Create(CapsuleStroke, TweenInfo.new(0.3), {Color = Color3.fromRGB(90, 125, 170)}):Play()
             TweenService:Create(BtnEN, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
-            TweenService:Create(BtnVI, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(140, 145, 160)}):Play()
+            TweenService:Create(BtnVI, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(140, 155, 180)}):Play()
         end
 
         updateAllActive()
@@ -758,7 +795,7 @@ local function createLiquidCapsuleUI()
     BtnVI.MouseButton1Click:Connect(function() switchMode("VI") end)
     BtnEN.MouseButton1Click:Connect(function() switchMode("EN") end)
 
-    -- Cơ chế kéo thả tự do kèm kẹp mép màn hình
+    -- Kéo thả tự do kèm kẹp mép Viewport
     local dragging, dragStart, startPos = false, nil, nil
     Capsule.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -786,7 +823,7 @@ local function createLiquidCapsuleUI()
     end)
 end
 
--- ==================== 5. BỘ QUÉT TẢI TRÌ HOÃN (DEFER SCANNER) ====================
+-- ==================== 6. BỘ QUÉT TẢI TRÌ HOÃN (DEFER SCANNER) ====================
 task.delay(2.5, function()
     createLiquidCapsuleUI()
 
@@ -799,8 +836,13 @@ task.delay(2.5, function()
     local function scanUIChunked(parent)
         local children = parent:GetChildren()
         for i, desc in ipairs(children) do
+            -- Dịch văn bản
             if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
                 hookElement(desc)
+            end
+            -- Đổi màu sắc đỏ sang Cyber Sapphire Blue
+            if desc:IsA("GuiObject") then
+                applyBlueTheme(desc)
             end
             if i % 30 == 0 then RunService.RenderStepped:Wait() end
             scanUIChunked(desc)
@@ -817,6 +859,9 @@ task.delay(2.5, function()
                 task.defer(function()
                     if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
                         hookElement(desc)
+                    end
+                    if desc:IsA("GuiObject") then
+                        applyBlueTheme(desc)
                     end
                 end)
             end)
