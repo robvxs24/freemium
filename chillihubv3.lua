@@ -1,9 +1,9 @@
 -- ==============================================================================
---  CHILLI HUB V2 - RAINBOW DYNAMIC ISLAND MASTER V6.0 (ZERO-LAG EDITION)
+--  CHILLI HUB V2 - RAINBOW DYNAMIC ISLAND MASTER V7.0 (INSTANT SPAWN)
 --  Khắc phục triệt để:
---    1. INSTANT SPAWN 0MS: Dynamic Island hiện ngay lập tức, không lag, không crash.
---    2. MULTI-LAYER GUI PARENTING: Tự động nhận diện gethui() / CoreGui / PlayerGui.
---    3. CHUNKED SAFE SCANNER: Quét dịch thuật chia nhỏ từng đợt, CPU 0% giật khung hình.
+--    1. ZERO-DELAY SPAWN: Dynamic Island hiện ngay lập tức 0ms, không treo luồng.
+--    2. RAINBOW FLOW 360°: Viền cầu vồng xoay mượt mà quanh nền kính đen Obsidian.
+--    3. LIQUID SPRING EXPAND: Chạm mở rộng mượt mà chuẩn phong cách iOS.
 --    4. SETTINGS AUTO FARM: Gạt BẬT là kích hoạt chuẩn 3 ảnh, gạt TẮT là khôi phục ban đầu.
 --    5. RESKIN 3 PHẦN: Header + 2 cột nút màu xanh pastel dịu mắt, chữ trắng nổi khối.
 -- ==============================================================================
@@ -12,36 +12,25 @@ local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
-
--- Lấy LocalPlayer an toàn tuyệt đối (chống đứng hình)
 local LocalPlayer = Players.LocalPlayer
-if not LocalPlayer then
-    repeat task.wait() until Players.LocalPlayer
-    LocalPlayer = Players.LocalPlayer
-end
 
--- ==================== 1. HÀM TẠO CONTAINER GUI ĐA TẦNG ====================
-local function attachSafeScreenGui(gui)
-    local attached = false
-    if gethui then
+-- ==================== 1. TÌM VÙNG CHỨA GUI AN TOÀN ====================
+local function getTargetGuiParent()
+    local parent = nil
+    pcall(function()
+        if gethui then parent = gethui() end
+    end)
+    if not parent then
         pcall(function()
-            gui.Parent = gethui()
-            attached = true
+            if CoreGui and pcall(function() return CoreGui:GetChildren() end) then
+                parent = CoreGui
+            end
         end)
     end
-    if not attached then
-        pcall(function()
-            gui.Parent = CoreGui
-            attached = true
-        end)
+    if not parent then
+        parent = LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")
     end
-    if not attached or not gui.Parent then
-        pcall(function()
-            gui.Parent = LocalPlayer:WaitForChild("PlayerGui", 5)
-            attached = true
-        end)
-    end
-    return attached
+    return parent
 end
 
 -- ==================== 2. NẠP SCRIPT CHILLI HUB GỐC ====================
@@ -660,7 +649,7 @@ local function isToggleActive(btn)
 end
 
 local function findMatchingLabel(patterns, excludeList)
-    local searchRoots = {CoreGui, LocalPlayer:FindFirstChild("PlayerGui")}
+    local searchRoots = {CoreGui, LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")}
     if gethui then pcall(function() table.insert(searchRoots, gethui()) end) end
 
     for _, root in ipairs(searchRoots) do
@@ -821,16 +810,15 @@ local function applyAutoFarmSettings(enable)
     end
 end
 
--- ==================== 7. RAINBOW DYNAMIC ISLAND (INSTANT CREATION) ====================
+-- ==================== 7. RAINBOW DYNAMIC ISLAND (INSTANT SPAWN & SMOOTH EXPAND) ====================
 local function createDynamicIslandUI()
+    local parentTarget = getTargetGuiParent()
+    if not parentTarget then return end
+
     -- Xóa UI cũ nếu có
     pcall(function()
-        if CoreGui:FindFirstChild("Chilli_Dynamic_Island") then
-            CoreGui.Chilli_Dynamic_Island:Destroy()
-        end
-        if LocalPlayer.PlayerGui:FindFirstChild("Chilli_Dynamic_Island") then
-            LocalPlayer.PlayerGui.Chilli_Dynamic_Island:Destroy()
-        end
+        local old = parentTarget:FindFirstChild("Chilli_Dynamic_Island")
+        if old then old:Destroy() end
     end)
 
     local ScreenGui = Instance.new("ScreenGui")
@@ -838,30 +826,27 @@ local function createDynamicIslandUI()
     ScreenGui.ResetOnSpawn = false
     ScreenGui.IgnoreGuiInset = true
     ScreenGui.DisplayOrder = 2147483647
+    ScreenGui.Parent = parentTarget
 
-    if not attachSafeScreenGui(ScreenGui) then
-        return
-    end
-
-    -- Khung Island chính (Obsidian Deep Glassmorphism)
+    -- Khung Island chính (Deep Obsidian Glassmorphism)
     local Island = Instance.new("Frame")
     Island.Name = "Island"
-    Island.Size = UDim2.new(0, 150, 0, 32)
+    Island.Size = UDim2.new(0, 150, 0, 34)
     Island.AnchorPoint = Vector2.new(0.5, 0)
     Island.Position = UDim2.new(0.5, 0, 0, 12)
-    Island.BackgroundColor3 = Color3.fromRGB(10, 12, 18)
+    Island.BackgroundColor3 = Color3.fromRGB(12, 14, 20)
     Island.BackgroundTransparency = 0.05
     Island.BorderSizePixel = 0
     Island.ClipsDescendants = true
     Island.Parent = ScreenGui
 
     local IslandCorner = Instance.new("UICorner")
-    IslandCorner.CornerRadius = UDim.new(0, 16)
+    IslandCorner.CornerRadius = UDim.new(0, 17)
     IslandCorner.Parent = Island
 
     -- Viền Cầu Vồng (Rainbow Stroke)
     local IslandStroke = Instance.new("UIStroke")
-    IslandStroke.Thickness = 1.8
+    IslandStroke.Thickness = 2
     IslandStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     IslandStroke.Parent = Island
 
@@ -884,14 +869,14 @@ local function createDynamicIslandUI()
     -- Thanh Header của Island
     local TopBar = Instance.new("Frame")
     TopBar.Name = "TopBar"
-    TopBar.Size = UDim2.new(1, 0, 0, 32)
+    TopBar.Size = UDim2.new(1, 0, 0, 34)
     TopBar.BackgroundTransparency = 1
     TopBar.Parent = Island
 
     local IconBadge = Instance.new("Frame")
-    IconBadge.Size = UDim2.new(0, 22, 0, 22)
-    IconBadge.Position = UDim2.new(0, 6, 0.5, -11)
-    IconBadge.BackgroundColor3 = Color3.fromRGB(22, 28, 42)
+    IconBadge.Size = UDim2.new(0, 24, 0, 24)
+    IconBadge.Position = UDim2.new(0, 6, 0.5, -12)
+    IconBadge.BackgroundColor3 = Color3.fromRGB(24, 30, 45)
     IconBadge.BorderSizePixel = 0
     IconBadge.Parent = TopBar
     Instance.new("UICorner", IconBadge).CornerRadius = UDim.new(1, 0)
@@ -900,12 +885,12 @@ local function createDynamicIslandUI()
     Icon.Size = UDim2.new(1, 0, 1, 0)
     Icon.BackgroundTransparency = 1
     Icon.Text = "🌶️"
-    Icon.TextSize = 13
+    Icon.TextSize = 14
     Icon.Parent = IconBadge
 
     local Title = Instance.new("TextLabel")
-    Title.Size = UDim2.new(1, -65, 1, 0)
-    Title.Position = UDim2.new(0, 32, 0, 0)
+    Title.Size = UDim2.new(1, -70, 1, 0)
+    Title.Position = UDim2.new(0, 34, 0, 0)
     Title.BackgroundTransparency = 1
     Title.Text = "Chilli V2"
     Title.Font = Enum.Font.GothamBold
@@ -914,10 +899,10 @@ local function createDynamicIslandUI()
     Title.TextXAlignment = Enum.TextXAlignment.Left
     Title.Parent = TopBar
 
-    -- Đèn LED Status Pulse
+    -- Đèn LED Status
     local StatusDot = Instance.new("Frame")
     StatusDot.Size = UDim2.new(0, 7, 0, 7)
-    StatusDot.Position = UDim2.new(1, -38, 0.5, -3.5)
+    StatusDot.Position = UDim2.new(1, -40, 0.5, -3.5)
     StatusDot.BackgroundColor3 = Color3.fromRGB(120, 130, 150)
     StatusDot.BorderSizePixel = 0
     StatusDot.Parent = TopBar
@@ -925,8 +910,8 @@ local function createDynamicIslandUI()
 
     local ArrowBadge = Instance.new("TextLabel")
     ArrowBadge.Name = "ArrowBadge"
-    ArrowBadge.Size = UDim2.new(0, 20, 1, 0)
-    ArrowBadge.Position = UDim2.new(1, -26, 0, 0)
+    ArrowBadge.Size = UDim2.new(0, 22, 1, 0)
+    ArrowBadge.Position = UDim2.new(1, -28, 0, 0)
     ArrowBadge.BackgroundTransparency = 1
     ArrowBadge.Text = "▼"
     ArrowBadge.Font = Enum.Font.GothamBold
@@ -934,18 +919,19 @@ local function createDynamicIslandUI()
     ArrowBadge.TextColor3 = Color3.fromRGB(180, 195, 220)
     ArrowBadge.Parent = TopBar
 
-    local TriggerBtn = Instance.new("TextButton")
-    TriggerBtn.Size = UDim2.new(1, 0, 1, 0)
-    TriggerBtn.BackgroundTransparency = 1
-    TriggerBtn.Text = ""
-    TriggerBtn.ZIndex = 15
-    TriggerBtn.Parent = TopBar
+    -- Header Button kích hoạt mở/đóng
+    local HeaderButton = Instance.new("TextButton")
+    HeaderButton.Size = UDim2.new(1, 0, 0, 34)
+    HeaderButton.BackgroundTransparency = 1
+    HeaderButton.Text = ""
+    HeaderButton.ZIndex = 20
+    HeaderButton.Parent = TopBar
 
     -- Khoang Chứa Nội Dung Mở Rộng
     local ContentFrame = Instance.new("Frame")
     ContentFrame.Name = "ContentFrame"
     ContentFrame.Size = UDim2.new(1, -16, 0, 96)
-    ContentFrame.Position = UDim2.new(0, 8, 0, 36)
+    ContentFrame.Position = UDim2.new(0, 8, 0, 38)
     ContentFrame.BackgroundTransparency = 1
     ContentFrame.Parent = Island
 
@@ -958,7 +944,7 @@ local function createDynamicIslandUI()
     local LangSegment = Instance.new("Frame")
     LangSegment.Name = "LangSegment"
     LangSegment.Size = UDim2.new(1, 0, 0, 26)
-    LangSegment.BackgroundColor3 = Color3.fromRGB(18, 22, 34)
+    LangSegment.BackgroundColor3 = Color3.fromRGB(20, 24, 36)
     LangSegment.BorderSizePixel = 0
     LangSegment.LayoutOrder = 1
     LangSegment.Parent = ContentFrame
@@ -1038,7 +1024,7 @@ local function createDynamicIslandUI()
     local AutoFarmCard = Instance.new("Frame")
     AutoFarmCard.Name = "AutoFarmCard"
     AutoFarmCard.Size = UDim2.new(1, 0, 0, 42)
-    AutoFarmCard.BackgroundColor3 = Color3.fromRGB(16, 20, 30)
+    AutoFarmCard.BackgroundColor3 = Color3.fromRGB(18, 22, 34)
     AutoFarmCard.BorderSizePixel = 0
     AutoFarmCard.LayoutOrder = 2
     AutoFarmCard.Parent = ContentFrame
@@ -1122,7 +1108,7 @@ local function createDynamicIslandUI()
         end
     end)
 
-    -- KHOANG 3: CHỜ TÍNH NĂNG MỞ RỘNG TIẾP THEO
+    -- KHOANG 3: CHỜ TÍNH NĂNG TIẾP THEO
     local FutureSlot = Instance.new("TextLabel")
     FutureSlot.Name = "FutureSlot"
     FutureSlot.Size = UDim2.new(1, 0, 0, 14)
@@ -1136,40 +1122,30 @@ local function createDynamicIslandUI()
 
     -- Logic Mở Rộng / Thu Gọn Dynamic Island
     local isExpanded = false
-    local isTweening = false
+    local isAnimating = false
 
     local function toggleIsland()
-        if isTweening then return end
-        isTweening = true
+        if isAnimating then return end
+        isAnimating = true
         isExpanded = not isExpanded
 
-        TweenService:Create(Island, TweenInfo.new(0.08), {Size = UDim2.new(0, isExpanded and 140 or 235, 0, isExpanded and 30 or 120)}):Play()
-        task.wait(0.08)
+        local targetSize = isExpanded and UDim2.new(0, 240, 0, 138) or UDim2.new(0, 150, 0, 34)
+        local targetRotation = isExpanded and 180 or 0
 
-        if isExpanded then
-            TweenService:Create(ArrowBadge, TweenInfo.new(0.3), {Rotation = 180}):Play()
-            local tweenExp = TweenService:Create(Island, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                Size = UDim2.new(0, 230, 0, 125)
-            })
-            tweenExp:Play()
-            tweenExp.Completed:Connect(function() isTweening = false end)
-        else
-            TweenService:Create(ArrowBadge, TweenInfo.new(0.3), {Rotation = 0}):Play()
-            local tweenCol = TweenService:Create(Island, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                Size = UDim2.new(0, 150, 0, 32)
-            })
-            tweenCol:Play()
-            tweenCol.Completed:Connect(function() isTweening = false end)
-        end
+        TweenService:Create(ArrowBadge, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Rotation = targetRotation}):Play()
+        local tween = TweenService:Create(Island, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = targetSize})
+        tween:Play()
+        tween.Completed:Connect(function()
+            isAnimating = false
+        end)
     end
 
-    TriggerBtn.MouseButton1Click:Connect(toggleIsland)
-
-    -- Cơ chế Kéo Thả linh hoạt (chống nuốt cảm ứng)
-    local dragging, dragStart, startPos = false, nil, nil
+    -- Cơ chế Kéo Thả độc lập (Không nuốt cảm ứng Click)
+    local dragging = false
+    local dragStart, startPos = nil, nil
     local dragMoved = false
 
-    Island.InputBegan:Connect(function(input)
+    HeaderButton.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             dragMoved = false
@@ -1183,61 +1159,63 @@ local function createDynamicIslandUI()
         end
     end)
 
-    Island.InputChanged:Connect(function(input)
+    HeaderButton.InputChanged:Connect(function(input)
         if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragging then
             local delta = input.Position - dragStart
-            if delta.Magnitude > 8 then
+            if delta.Magnitude > 12 then
                 dragMoved = true
                 local cam = workspace.CurrentCamera
-                local maxX = cam and cam.ViewportSize.X - 230 or 800
-                local maxY = cam and cam.ViewportSize.Y - 130 or 600
-
+                local maxX = cam and cam.ViewportSize.X - 240 or 800
+                local maxY = cam and cam.ViewportSize.Y - 140 or 600
                 local newX = math.clamp(startPos.X.Offset + delta.X, -maxX / 2, maxX / 2)
                 local newY = math.clamp(startPos.Y.Offset + delta.Y, 0, maxY)
-
                 Island.Position = UDim2.new(startPos.X.Scale, newX, startPos.Y.Scale, newY)
             end
+        end
+    end)
+
+    HeaderButton.Activated:Connect(function()
+        if not dragMoved then
+            toggleIsland()
         end
     end)
 end
 
 -- ==================== 8. KHỞI CHẠY HỆ THỐNG AN TOÀN (TỨC THÌ 0MS) ====================
 task.spawn(function()
-    -- 1. Khởi tạo Dynamic Island ngay lập tức (0ms)
+    -- 1. Vẽ Dynamic Island ngay lập tức
     createDynamicIslandUI()
 
-    -- 2. Quét an toàn theo từng đợt (Chunked Safe Scanner - CPU 0% giật lag)
-    local function processRootChunked(root)
-        if not root then return end
-
-        local function inspectTree(parent)
-            local children = parent:GetChildren()
-            for i, desc in ipairs(children) do
-                if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
-                    hookElement(desc)
-                    inspectAndApplySoftBlue(desc)
-                end
-                if i % 30 == 0 then RunService.RenderStepped:Wait() end
-                inspectTree(desc)
+    -- 2. Quét an toàn theo từng đợt (Chunked Safe Scanner từ V5.0)
+    local function scanUIChunked(parent)
+        local children = parent:GetChildren()
+        for i, desc in ipairs(children) do
+            if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
+                hookElement(desc)
+                inspectAndApplySoftBlue(desc)
             end
+            if i % 30 == 0 then RunService.RenderStepped:Wait() end
+            scanUIChunked(desc)
         end
-
-        pcall(function() inspectTree(root) end)
-
-        root.DescendantAdded:Connect(function(desc)
-            task.defer(function()
-                if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
-                    hookElement(desc)
-                    inspectAndApplySoftBlue(desc)
-                end
-            end)
-        end)
     end
 
-    local searchRoots = {CoreGui, LocalPlayer:FindFirstChild("PlayerGui")}
+    local searchRoots = {CoreGui, LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")}
     if gethui then pcall(function() table.insert(searchRoots, gethui()) end) end
 
-    for _, r in ipairs(searchRoots) do
-        processRootChunked(r)
+    for _, root in ipairs(searchRoots) do
+        if root then pcall(function() scanUIChunked(root) end) end
+    end
+
+    for _, root in ipairs(searchRoots) do
+        if root then
+            root.DescendantAdded:Connect(function(desc)
+                task.defer(function()
+                    if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
+                        hookElement(desc)
+                        inspectAndApplySoftBlue(desc)
+                    end
+                end)
+            end)
+        end
     end
 end)
