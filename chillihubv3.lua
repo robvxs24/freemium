@@ -1,11 +1,11 @@
 -- ==============================================================================
---  CHILLI HUB V2 - RAINBOW DYNAMIC ISLAND STUDIO EDITION (FIXED & UPGRADED)
---  Kiến trúc tối ưu:
---    1. ZERO-DELAY INSTANT SPAWN: Tạo Dynamic Island tức thì trong 0ms, không treo luồng.
---    2. RAINBOW FLOW STROKE: Viền cầu vồng đa sắc RGB xoay 360 độ siêu mượt.
---    3. SMOOTH LIQUID EXPANSION: Cơ chế mở/thu viên nang chuẩn phong cách Dynamic Island.
---    4. SETTINGS AUTO FARM PRESET: Tự động bật chuẩn 100% theo 3 ảnh và khôi phục khi tắt.
---    5. BẢO TỒN NGUYÊN VẸN: Reskin đúng 3 phần xanh nhạt dịu mắt, chữ trắng tinh, dịch thuật 100%.
+--  CHILLI HUB V2 - RAINBOW DYNAMIC ISLAND MASTER V6.0 (ZERO-LAG EDITION)
+--  Khắc phục triệt để:
+--    1. INSTANT SPAWN 0MS: Dynamic Island hiện ngay lập tức, không lag, không crash.
+--    2. MULTI-LAYER GUI PARENTING: Tự động nhận diện gethui() / CoreGui / PlayerGui.
+--    3. CHUNKED SAFE SCANNER: Quét dịch thuật chia nhỏ từng đợt, CPU 0% giật khung hình.
+--    4. SETTINGS AUTO FARM: Gạt BẬT là kích hoạt chuẩn 3 ảnh, gạt TẮT là khôi phục ban đầu.
+--    5. RESKIN 3 PHẦN: Header + 2 cột nút màu xanh pastel dịu mắt, chữ trắng nổi khối.
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -13,27 +13,35 @@ local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 
-local LocalPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait() or Players.LocalPlayer
+-- Lấy LocalPlayer an toàn tuyệt đối (chống đứng hình)
+local LocalPlayer = Players.LocalPlayer
+if not LocalPlayer then
+    repeat task.wait() until Players.LocalPlayer
+    LocalPlayer = Players.LocalPlayer
+end
 
--- ==================== 1. HÀM LẤY VÙNG CHỨA GUI AN TOÀN ====================
-local function getSafeGuiContainer()
-    local container = nil
-    pcall(function()
-        if gethui then container = gethui() end
-    end)
-    if container then return container end
-
-    pcall(function()
-        if CoreGui and pcall(function() return CoreGui:GetChildren() end) then
-            container = CoreGui
-        end
-    end)
-    if container then return container end
-
-    pcall(function()
-        container = LocalPlayer:WaitForChild("PlayerGui", 3)
-    end)
-    return container
+-- ==================== 1. HÀM TẠO CONTAINER GUI ĐA TẦNG ====================
+local function attachSafeScreenGui(gui)
+    local attached = false
+    if gethui then
+        pcall(function()
+            gui.Parent = gethui()
+            attached = true
+        end)
+    end
+    if not attached then
+        pcall(function()
+            gui.Parent = CoreGui
+            attached = true
+        end)
+    end
+    if not attached or not gui.Parent then
+        pcall(function()
+            gui.Parent = LocalPlayer:WaitForChild("PlayerGui", 5)
+            attached = true
+        end)
+    end
+    return attached
 end
 
 -- ==================== 2. NẠP SCRIPT CHILLI HUB GỐC ====================
@@ -487,7 +495,7 @@ end
 local function hookElement(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
     if inst:GetAttribute("HasTranslateHook") then return end
-    inst:SetAttribute("HasTranslateHook", true)
+    pcall(function() inst:SetAttribute("HasTranslateHook", true) end)
 
     table.insert(TrackedElements, inst)
     task.defer(function() applyTranslation(inst) end)
@@ -652,8 +660,10 @@ local function isToggleActive(btn)
 end
 
 local function findMatchingLabel(patterns, excludeList)
-    local roots = {getSafeGuiContainer(), LocalPlayer:FindFirstChild("PlayerGui")}
-    for _, root in ipairs(roots) do
+    local searchRoots = {CoreGui, LocalPlayer:FindFirstChild("PlayerGui")}
+    if gethui then pcall(function() table.insert(searchRoots, gethui()) end) end
+
+    for _, root in ipairs(searchRoots) do
         if root then
             for _, desc in ipairs(root:GetDescendants()) do
                 if (desc:IsA("TextLabel") or desc:IsA("TextButton")) and not desc:FindFirstAncestor("Chilli_Dynamic_Island") then
@@ -811,25 +821,32 @@ local function applyAutoFarmSettings(enable)
     end
 end
 
--- ==================== 7. RAINBOW DYNAMIC ISLAND (INSTANT & SMOOTH SPAWN) ====================
+-- ==================== 7. RAINBOW DYNAMIC ISLAND (INSTANT CREATION) ====================
 local function createDynamicIslandUI()
-    local parentTarget = getSafeGuiContainer()
-    if not parentTarget then return end
-
-    local old = parentTarget:FindFirstChild("Chilli_Dynamic_Island")
-    if old then old:Destroy() end
+    -- Xóa UI cũ nếu có
+    pcall(function()
+        if CoreGui:FindFirstChild("Chilli_Dynamic_Island") then
+            CoreGui.Chilli_Dynamic_Island:Destroy()
+        end
+        if LocalPlayer.PlayerGui:FindFirstChild("Chilli_Dynamic_Island") then
+            LocalPlayer.PlayerGui.Chilli_Dynamic_Island:Destroy()
+        end
+    end)
 
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "Chilli_Dynamic_Island"
     ScreenGui.ResetOnSpawn = false
     ScreenGui.IgnoreGuiInset = true
     ScreenGui.DisplayOrder = 2147483647
-    ScreenGui.Parent = parentTarget
 
-    -- Khung Island chính (Deep Obsidian Glassmorphism)
+    if not attachSafeScreenGui(ScreenGui) then
+        return
+    end
+
+    -- Khung Island chính (Obsidian Deep Glassmorphism)
     local Island = Instance.new("Frame")
     Island.Name = "Island"
-    Island.Size = UDim2.new(0, 145, 0, 32)
+    Island.Size = UDim2.new(0, 150, 0, 32)
     Island.AnchorPoint = Vector2.new(0.5, 0)
     Island.Position = UDim2.new(0.5, 0, 0, 12)
     Island.BackgroundColor3 = Color3.fromRGB(10, 12, 18)
@@ -844,7 +861,7 @@ local function createDynamicIslandUI()
 
     -- Viền Cầu Vồng (Rainbow Stroke)
     local IslandStroke = Instance.new("UIStroke")
-    IslandStroke.Thickness = 2
+    IslandStroke.Thickness = 1.8
     IslandStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     IslandStroke.Parent = Island
 
@@ -901,7 +918,7 @@ local function createDynamicIslandUI()
     local StatusDot = Instance.new("Frame")
     StatusDot.Size = UDim2.new(0, 7, 0, 7)
     StatusDot.Position = UDim2.new(1, -38, 0.5, -3.5)
-    StatusDot.BackgroundColor3 = Color3.fromRGB(45, 205, 110)
+    StatusDot.BackgroundColor3 = Color3.fromRGB(120, 130, 150)
     StatusDot.BorderSizePixel = 0
     StatusDot.Parent = TopBar
     Instance.new("UICorner", StatusDot).CornerRadius = UDim.new(1, 0)
@@ -1014,8 +1031,8 @@ local function createDynamicIslandUI()
         updateAllActive()
     end
 
-    BtnVI.Activated:Connect(function() setLanguage("VI") end)
-    BtnEN.Activated:Connect(function() setLanguage("EN") end)
+    BtnVI.MouseButton1Click:Connect(function() setLanguage("VI") end)
+    BtnEN.MouseButton1Click:Connect(function() setLanguage("EN") end)
 
     -- KHOANG 2: CARD "SETTINGS AUTO FARM"
     local AutoFarmCard = Instance.new("Frame")
@@ -1077,7 +1094,7 @@ local function createDynamicIslandUI()
     Knob.Parent = ToggleTrack
     Instance.new("UICorner", Knob).CornerRadius = UDim.new(1, 0)
 
-    ToggleTrack.Activated:Connect(function()
+    ToggleTrack.MouseButton1Click:Connect(function()
         isAutoFarmActive = not isAutoFarmActive
 
         if isAutoFarmActive then
@@ -1126,38 +1143,42 @@ local function createDynamicIslandUI()
         isTweening = true
         isExpanded = not isExpanded
 
-        -- Hiệu ứng chạm phản hồi xúc giác (Haptic Elastic Scale)
         TweenService:Create(Island, TweenInfo.new(0.08), {Size = UDim2.new(0, isExpanded and 140 or 235, 0, isExpanded and 30 or 120)}):Play()
         task.wait(0.08)
 
         if isExpanded then
             TweenService:Create(ArrowBadge, TweenInfo.new(0.3), {Rotation = 180}):Play()
             local tweenExp = TweenService:Create(Island, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                Size = UDim2.new(0, 240, 0, 125)
+                Size = UDim2.new(0, 230, 0, 125)
             })
             tweenExp:Play()
             tweenExp.Completed:Connect(function() isTweening = false end)
         else
             TweenService:Create(ArrowBadge, TweenInfo.new(0.3), {Rotation = 0}):Play()
             local tweenCol = TweenService:Create(Island, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                Size = UDim2.new(0, 145, 0, 32)
+                Size = UDim2.new(0, 150, 0, 32)
             })
             tweenCol:Play()
             tweenCol.Completed:Connect(function() isTweening = false end)
         end
     end
 
-    TriggerBtn.Activated:Connect(toggleIsland)
+    TriggerBtn.MouseButton1Click:Connect(toggleIsland)
 
-    -- Cơ chế Kéo Thả linh hoạt
+    -- Cơ chế Kéo Thả linh hoạt (chống nuốt cảm ứng)
     local dragging, dragStart, startPos = false, nil, nil
+    local dragMoved = false
+
     Island.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
+            dragMoved = false
             dragStart = input.Position
             startPos = Island.Position
             input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then dragging = false end
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
             end)
         end
     end)
@@ -1165,32 +1186,44 @@ local function createDynamicIslandUI()
     Island.InputChanged:Connect(function(input)
         if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragging then
             local delta = input.Position - dragStart
-            local cam = workspace.CurrentCamera
-            local maxX = cam and cam.ViewportSize.X - 240 or 800
-            local maxY = cam and cam.ViewportSize.Y - 130 or 600
+            if delta.Magnitude > 8 then
+                dragMoved = true
+                local cam = workspace.CurrentCamera
+                local maxX = cam and cam.ViewportSize.X - 230 or 800
+                local maxY = cam and cam.ViewportSize.Y - 130 or 600
 
-            local newX = math.clamp(startPos.X.Offset + delta.X, -maxX / 2, maxX / 2)
-            local newY = math.clamp(startPos.Y.Offset + delta.Y, 0, maxY)
+                local newX = math.clamp(startPos.X.Offset + delta.X, -maxX / 2, maxX / 2)
+                local newY = math.clamp(startPos.Y.Offset + delta.Y, 0, maxY)
 
-            Island.Position = UDim2.new(startPos.X.Scale, newX, startPos.Y.Scale, newY)
+                Island.Position = UDim2.new(startPos.X.Scale, newX, startPos.Y.Scale, newY)
+            end
         end
     end)
 end
 
--- ==================== 8. KHỞI CHẠY HỆ THỐNG AN TOÀN (TỨC THÌ) ====================
+-- ==================== 8. KHỞI CHẠY HỆ THỐNG AN TOÀN (TỨC THÌ 0MS) ====================
 task.spawn(function()
     -- 1. Khởi tạo Dynamic Island ngay lập tức (0ms)
     createDynamicIslandUI()
 
-    -- 2. Quét liên kết dịch thuật và Reskin 3 phần
-    local function processRoot(root)
+    -- 2. Quét an toàn theo từng đợt (Chunked Safe Scanner - CPU 0% giật lag)
+    local function processRootChunked(root)
         if not root then return end
-        for _, desc in ipairs(root:GetDescendants()) do
-            if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
-                hookElement(desc)
-                inspectAndApplySoftBlue(desc)
+
+        local function inspectTree(parent)
+            local children = parent:GetChildren()
+            for i, desc in ipairs(children) do
+                if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
+                    hookElement(desc)
+                    inspectAndApplySoftBlue(desc)
+                end
+                if i % 30 == 0 then RunService.RenderStepped:Wait() end
+                inspectTree(desc)
             end
         end
+
+        pcall(function() inspectTree(root) end)
+
         root.DescendantAdded:Connect(function(desc)
             task.defer(function()
                 if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
@@ -1201,8 +1234,10 @@ task.spawn(function()
         end)
     end
 
-    local searchRoots = {getSafeGuiContainer(), LocalPlayer:FindFirstChild("PlayerGui")}
+    local searchRoots = {CoreGui, LocalPlayer:FindFirstChild("PlayerGui")}
+    if gethui then pcall(function() table.insert(searchRoots, gethui()) end) end
+
     for _, r in ipairs(searchRoots) do
-        processRoot(r)
+        processRootChunked(r)
     end
 end)
