@@ -1,10 +1,11 @@
 -- ==============================================================================
---  CHILLI HUB V2 - RAINBOW DYNAMIC ISLAND EDITION
+--  CHILLI HUB V2 - AUTO FARM PRESET & RAINBOW DYNAMIC ISLAND EDITION
 --  Tối ưu hóa:
---    1. RAINBOW DYNAMIC ISLAND: Viên nang đảo động viền cầu vồng RGB xoay mượt mà.
---    2. SMOOTH EXPANSION: Chạm mở rộng/thu nhỏ mượt mà chuẩn phong cách iOS.
---    3. MODULAR EXPANSION: Khoang chứa sẵn layout để dễ dàng thêm tính năng sau này.
---    4. BẢO TỒN RESKIN & DỊCH THUẬT: Đổi đúng 3 phần xanh nhạt dịu mắt, chữ trắng tinh.
+--    1. SETTINGS AUTO FARM: Thêm thiết lập tự động hóa chuẩn 100% theo 3 ảnh mẫu.
+--    2. TWO-WAY STATE SYNC: Tự động bật các nút khi ON và khôi phục trạng thái ban đầu khi OFF.
+--    3. DROPDOWN AUTOMATION: Tự động chọn đúng các mục thả xuống (Đuổi theo, Hiếm nhất, Bí ẩn...).
+--    4. RAINBOW DYNAMIC ISLAND: Mở rộng khoang chứa mượt mà, viền cầu vồng xoay thời gian thực.
+--    5. BẢO TỒN NGUYÊN VẸN: Reskin 3 phần xanh nhạt dịu mắt, chữ trắng tinh, dịch thuật 100%.
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -413,118 +414,29 @@ local MAP_VI = {
 }
 
 local DYNAMIC_PATTERNS = {
-    {
-        pattern = "ALL (%d+)",
-        format = function(lang, c) return lang == "VI" and ("TẤT CẢ " .. c) or ("ALL " .. c) end
-    },
-    {
-        pattern = "READY (%d+)",
-        format = function(lang, c) return lang == "VI" and ("SẴN SÀNG " .. c) or ("READY " .. c) end
-    },
-    {
-        pattern = "GROWING (%d+)",
-        format = function(lang, c) return lang == "VI" and ("ĐANG LỚN " .. c) or ("GROWING " .. c) end
-    },
-    {
-        pattern = "IN BAG (%d+)",
-        format = function(lang, c) return lang == "VI" and ("TRONG TÚI " .. c) or ("IN BAG " .. c) end
-    },
-    {
-        pattern = "#(%d+) of (%d+) eggs by value",
-        format = function(lang, r, total) return lang == "VI" and string.format("Hạng #%s/%s trứng theo giá trị", r, total) or string.format("#%s of %s eggs by value", r, total) end
-    },
-    {
-        pattern = "1 in ([%d%.]+)",
-        format = function(lang, val) return lang == "VI" and ("Tỉ lệ 1/" .. val) or ("1 in " .. val) end
-    },
-    {
-        pattern = "Ends in (%d+h %d+m %d+s)",
-        format = function(lang, tStr) return lang == "VI" and ("Kết thúc sau " .. tStr) or ("Ends in " .. tStr) end
-    },
-    {
-        pattern = "in (%d+h %d+m)",
-        format = function(lang, tStr) return lang == "VI" and ("sau " .. tStr) or ("in " .. tStr) end
-    },
-    {
-        pattern = "Banner chance (%d+%.?%d*%%)",
-        format = function(lang, cStr) return lang == "VI" and ("Tỉ lệ Banner " .. cStr) or ("Banner chance " .. cStr) end
-    },
-    {
-        pattern = "Pity (%d+)/(%d+)",
-        format = function(lang, p1, p2) return lang == "VI" and string.format("Bảo hiểm %s/%s", p1, p2) or string.format("Pity %s/%s", p1, p2) end
-    },
-    {
-        pattern = "Free rerolls (%d+)",
-        format = function(lang, rStr) return lang == "VI" and ("Đổi miễn phí " .. rStr) or ("Free rerolls " .. rStr) end
-    },
-    {
-        pattern = "rotates in (%d+:%d+)",
-        format = function(lang, timeStr) return lang == "VI" and ("xoay vòng sau " .. timeStr) or ("rotates in " .. timeStr) end
-    },
-    {
-        pattern = "Eggs placed (%d+)/(%d+) %- (%d+)/(%d+) pets equipped, (%d+) in bag",
-        format = function(lang, p1, p2, p3, p4, p5)
-            if lang == "VI" then
-                return string.format("Trứng đã đặt %s/%s - %s/%s pet trang bị, %s trong túi", p1, p2, p3, p4, p5)
-            end
-            return string.format("Eggs placed %s/%s - %s/%s pets equipped, %s in bag", p1, p2, p3, p4, p5)
-        end
-    },
-    {
-        pattern = "Pet matches %- (%d+) pets? for %$(.+)",
-        format = function(lang, count, val)
-            if lang == "VI" then return string.format("Khớp pet - %s pet giá $%s", count, val) end
-            return string.format("Pet matches - %s pets for $%s", count, val)
-        end
-    },
-    {
-        pattern = "Egg matches %- (%d+) eggs? for %$(.+)",
-        format = function(lang, count, val)
-            if lang == "VI" then return string.format("Khớp trứng - %s trứng giá $%s", count, val) end
-            return string.format("Egg matches - %s eggs for $%s", count, val)
-        end
-    },
-    {
-        pattern = "Lab egg matches %- (%d+) eggs? for %$(.+)",
-        format = function(lang, count, val)
-            if lang == "VI" then return string.format("Khớp trứng Lab - %s trứng giá $%s", count, val) end
-            return string.format("Lab egg matches - %s eggs for $%s", count, val)
-        end
-    },
-    {
-        pattern = "Favorite matches %- (%d+) pets?, (%d+) to mark %| (%d+) favorited",
-        format = function(lang, c1, c2, c3)
-            if lang == "VI" then return string.format("Khớp yêu thích - %s pet, %s cần lưu | %s đã khóa", c1, c2, c3) end
-            return string.format("Favorite matches - %s pets, %s to mark | %s favorited", c1, c2, c3)
-        end
-    },
-    {
-        pattern = "Charges (%d+) Eggs (%d+)/(%d+) Tries (%d+) Applied (%d+)",
-        format = function(lang, c, e1, e2, t, a)
-            if lang == "VI" then return string.format("Số lần sạc %s Trứng %s/%s Thử %s Đã dùng %s", c, e1, e2, t, a) end
-            return string.format("Charges %s Eggs %s/%s Tries %s Applied %s", c, e1, e2, t, a)
-        end
-    },
-    {
-        pattern = "Players (%d+)/(%d+)",
-        format = function(lang, p1, p2) return lang == "VI" and string.format("Người chơi %s/%s", p1, p2) or string.format("Players %s/%s", p1, p2) end
-    },
-    {
-        pattern = "Next Mech portal in (%d+:%d+)",
-        format = function(lang, timeStr) return lang == "VI" and ("Cổng Robot mở sau " .. timeStr) or ("Next Mech portal in " .. timeStr) end
-    },
-    {
-        pattern = "Next Butterfly Bloom in (%d+:%d+)",
-        format = function(lang, timeStr) return lang == "VI" and ("Sự kiện Bướm nở sau " .. timeStr) or ("Next Butterfly Bloom in " .. timeStr) end
-    },
-    {
-        pattern = "Butterfly Bloom live, (%d+:%d+) left",
-        format = function(lang, timeStr) return lang == "VI" and ("Sự kiện Bướm đang diễn ra, còn " .. timeStr) or ("Butterfly Bloom live, " .. timeStr .. " left") end
-    },
-    {
-        pattern = "Caught (.+)! %((%d+) owned%)",
-        format = function(lang, name, count) return lang == "VI" and string.format("Đã bắt %s! (Đang có %s con)", name, count) or string.format("Caught %s! (%s owned)", name, count) end
-    }
+    { pattern = "ALL (%d+)", format = function(lang, c) return lang == "VI" and ("TẤT CẢ " .. c) or ("ALL " .. c) end },
+    { pattern = "READY (%d+)", format = function(lang, c) return lang == "VI" and ("SẴN SÀNG " .. c) or ("READY " .. c) end },
+    { pattern = "GROWING (%d+)", format = function(lang, c) return lang == "VI" and ("ĐANG LỚN " .. c) or ("GROWING " .. c) end },
+    { pattern = "IN BAG (%d+)", format = function(lang, c) return lang == "VI" and ("TRONG TÚI " .. c) or ("IN BAG " .. c) end },
+    { pattern = "#(%d+) of (%d+) eggs by value", format = function(lang, r, total) return lang == "VI" and string.format("Hạng #%s/%s trứng theo giá trị", r, total) or string.format("#%s of %s eggs by value", r, total) end },
+    { pattern = "1 in ([%d%.]+)", format = function(lang, val) return lang == "VI" and ("Tỉ lệ 1/" .. val) or ("1 in " .. val) end },
+    { pattern = "Ends in (%d+h %d+m %d+s)", format = function(lang, tStr) return lang == "VI" and ("Kết thúc sau " .. tStr) or ("Ends in " .. tStr) end },
+    { pattern = "in (%d+h %d+m)", format = function(lang, tStr) return lang == "VI" and ("sau " .. tStr) or ("in " .. tStr) end },
+    { pattern = "Banner chance (%d+%.?%d*%%)", format = function(lang, cStr) return lang == "VI" and ("Tỉ lệ Banner " .. cStr) or ("Banner chance " .. cStr) end },
+    { pattern = "Pity (%d+)/(%d+)", format = function(lang, p1, p2) return lang == "VI" and string.format("Bảo hiểm %s/%s", p1, p2) or string.format("Pity %s/%s", p1, p2) end },
+    { pattern = "Free rerolls (%d+)", format = function(lang, rStr) return lang == "VI" and ("Đổi miễn phí " .. rStr) or ("Free rerolls " .. rStr) end },
+    { pattern = "rotates in (%d+:%d+)", format = function(lang, timeStr) return lang == "VI" and ("xoay vòng sau " .. timeStr) or ("rotates in " .. timeStr) end },
+    { pattern = "Eggs placed (%d+)/(%d+) %- (%d+)/(%d+) pets equipped, (%d+) in bag", format = function(lang, p1, p2, p3, p4, p5) return lang == "VI" and string.format("Trứng đã đặt %s/%s - %s/%s pet trang bị, %s trong túi", p1, p2, p3, p4, p5) or string.format("Eggs placed %s/%s - %s/%s pets equipped, %s in bag", p1, p2, p3, p4, p5) end },
+    { pattern = "Pet matches %- (%d+) pets? for %$(.+)", format = function(lang, count, val) return lang == "VI" and string.format("Khớp pet - %s pet giá $%s", count, val) end or string.format("Pet matches - %s pets for $%s", count, val) end },
+    { pattern = "Egg matches %- (%d+) eggs? for %$(.+)", format = function(lang, count, val) return lang == "VI" and string.format("Khớp trứng - %s trứng giá $%s", count, val) end or string.format("Egg matches - %s eggs for $%s", count, val) end },
+    { pattern = "Lab egg matches %- (%d+) eggs? for %$(.+)", format = function(lang, count, val) return lang == "VI" and string.format("Khớp trứng Lab - %s trứng giá $%s", count, val) end or string.format("Lab egg matches - %s eggs for $%s", count, val) end },
+    { pattern = "Favorite matches %- (%d+) pets?, (%d+) to mark %| (%d+) favorited", format = function(lang, c1, c2, c3) return lang == "VI" and string.format("Khớp yêu thích - %s pet, %s cần lưu | %s đã khóa", c1, c2, c3) end or string.format("Favorite matches - %s pets, %s to mark | %s favorited", c1, c2, c3) end },
+    { pattern = "Charges (%d+) Eggs (%d+)/(%d+) Tries (%d+) Applied (%d+)", format = function(lang, c, e1, e2, t, a) return lang == "VI" and string.format("Số lần sạc %s Trứng %s/%s Thử %s Đã dùng %s", c, e1, e2, t, a) end or string.format("Charges %s Eggs %s/%s Tries %s Applied %s", c, e1, e2, t, a) end },
+    { pattern = "Players (%d+)/(%d+)", format = function(lang, p1, p2) return lang == "VI" and string.format("Người chơi %s/%s", p1, p2) or string.format("Players %s/%s", p1, p2) end },
+    { pattern = "Next Mech portal in (%d+:%d+)", format = function(lang, timeStr) return lang == "VI" and ("Cổng Robot mở sau " .. timeStr) or ("Next Mech portal in " .. timeStr) end },
+    { pattern = "Next Butterfly Bloom in (%d+:%d+)", format = function(lang, timeStr) return lang == "VI" and ("Sự kiện Bướm nở sau " .. timeStr) or ("Next Butterfly Bloom in " .. timeStr) end },
+    { pattern = "Butterfly Bloom live, (%d+:%d+) left", format = function(lang, timeStr) return lang == "VI" and ("Sự kiện Bướm đang diễn ra, còn " .. timeStr) or ("Butterfly Bloom live, " .. timeStr .. " left") end },
+    { pattern = "Caught (.+)! %((%d+) owned%)", format = function(lang, name, count) return lang == "VI" and string.format("Đã bắt %s! (Đang có %s con)", name, count) or string.format("Caught %s! (%s owned)", name, count) end }
 }
 
 local SortedVI = {}
@@ -624,9 +536,9 @@ local function updateAllActive()
 end
 
 -- ==================== 4. LÕI CÔ LẬP ĐỔI MÀU 3 PHẦN CHỈ ĐỊNH ====================
-local COLOR_FACE_TOP     = Color3.fromRGB(140, 195, 245) -- Xanh nhạt bề mặt trên
-local COLOR_FACE_BOTTOM  = Color3.fromRGB(95, 155, 225)  -- Xanh biển dịu bề mặt dưới
-local COLOR_BEVEL_SHADOW = Color3.fromRGB(55, 110, 180)  -- Đổ bóng 3D chân nút
+local COLOR_FACE_TOP     = Color3.fromRGB(140, 195, 245)
+local COLOR_FACE_BOTTOM  = Color3.fromRGB(95, 155, 225)
+local COLOR_BEVEL_SHADOW = Color3.fromRGB(55, 110, 180)
 
 local TARGET_BUTTON_KEYWORDS = {
     ["cày cuốc"] = true, ["farm"] = true,
@@ -666,7 +578,6 @@ local function recolorSingleButton(btnContainer, labelObj)
         end
     end
 
-    -- Khóa cứng chữ TRẮNG tinh
     if labelObj and (labelObj:IsA("TextLabel") or labelObj:IsA("TextButton")) then
         labelObj.TextColor3 = Color3.fromRGB(255, 255, 255)
     end
@@ -735,7 +646,202 @@ local function inspectAndApplySoftBlue(inst)
     end
 end
 
--- ==================== 5. RAINBOW DYNAMIC ISLAND (EXPANDABLE UI) ====================
+-- ==================== 5. BỘ ĐIỀU KHIỂN AUTOMATION PRESET (AUTO FARM) ====================
+local function triggerClick(btn)
+    if not btn then return end
+    pcall(function()
+        if getconnections then
+            for _, conn in ipairs(getconnections(btn.MouseButton1Click)) do conn:Fire() end
+            for _, conn in ipairs(getconnections(btn.InputBegan)) do
+                conn:Fire({UserInputType = Enum.UserInputType.MouseButton1, UserInputState = Enum.UserInputState.Begin})
+            end
+        end
+    end)
+end
+
+local function isToggleActive(btn)
+    if not btn then return false end
+    local function checkGreen(c)
+        return c and (c.G > 0.45 and c.G > c.R * 1.3 and c.G > c.B * 1.3)
+    end
+    if checkGreen(btn.BackgroundColor3) then return true end
+    for _, child in ipairs(btn:GetDescendants()) do
+        if (child:IsA("Frame") or child:IsA("TextButton") or child:IsA("ImageLabel")) and checkGreen(child.BackgroundColor3) then
+            return true
+        end
+    end
+    return false
+end
+
+local function findMatchingLabel(patterns, excludeList)
+    local roots = {gethui and gethui(), CoreGui, LocalPlayer:FindFirstChild("PlayerGui")}
+    for _, root in ipairs(roots) do
+        if root then
+            for _, desc in ipairs(root:GetDescendants()) do
+                if (desc:IsA("TextLabel") or desc:IsA("TextButton")) and not desc:FindFirstAncestor("Chilli_Dynamic_Island") then
+                    local t = desc.Text:lower()
+                    local matched = false
+                    for _, p in ipairs(patterns) do
+                        if t == p:lower() or t:find(p:lower(), 1, true) then
+                            matched = true
+                            break
+                        end
+                    end
+                    if matched and excludeList then
+                        for _, ex in ipairs(excludeList) do
+                            if t:find(ex:lower(), 1, true) then
+                                matched = false
+                                break
+                            end
+                        end
+                    end
+                    if matched then return desc end
+                end
+            end
+        end
+    end
+    return nil
+end
+
+local function getRowToggleButton(label)
+    if not label then return nil end
+    local row = label.Parent
+    if not row then return nil end
+    for _, child in ipairs(row:GetChildren()) do
+        if (child:IsA("TextButton") or child:IsA("ImageButton")) and child ~= label then
+            return child
+        end
+    end
+    for _, desc in ipairs(row:GetDescendants()) do
+        if (desc:IsA("TextButton") or desc:IsA("ImageButton")) and desc ~= label then
+            return desc
+        end
+    end
+    return nil
+end
+
+-- CẤU HÌNH ĐỐI CHIẾU 3 ẢNH
+local PRESET_TOGGLES = {
+    -- ẢNH 6237: BẮT BƯỚM
+    { id = "AutoButterfly", target = true, patterns = {"tự động bắt bướm", "auto butterfly bloom"} },
+    -- ẢNH 6239: CƯỚP TRỨNG
+    { id = "AutoSteal", target = true, patterns = {"tự động cướp trứng", "auto steal"}, exclude = {"v2", "zones", "khu vực"} },
+    { id = "InstantStealV1", target = false, patterns = {"cướp siêu tốc (instant steal)", "instant steal"}, exclude = {"v2", "steps", "zones", "bước", "khu vực"} },
+    { id = "InstantStealV2", target = true, patterns = {"cướp siêu tốc (instant steal) v2", "instant steal v2"} },
+    { id = "TeleportToEgg", target = true, patterns = {"teleport to egg", "dịch chuyển đến trứng"} },
+    -- ẢNH 6240: MÁY TẬP & VỆ SĨ
+    { id = "DropSafeZone", target = false, patterns = {"drop eggs at safe zone", "thả trứng tại vùng an toàn"} },
+    { id = "AntiGuardPanel", target = true, patterns = {"bảng chống vệ sĩ", "anti guard panel"} },
+    { id = "AutoTreadmill", target = true, patterns = {"tự động máy tập", "auto treadmill"}, exclude = {"cố định", "stay", "nâng cấp", "upgrade"} },
+    { id = "StayTreadmill", target = true, patterns = {"cố định trên máy tập", "stay on treadmill"} }
+}
+
+local PRESET_DROPDOWNS = {
+    { id = "CatchMode", targetText = {"đuổi theo", "chase"}, rowPatterns = {"chế độ bắt", "catch mode"} },
+    { id = "CatchPriority", targetText = {"hiếm nhất", "rarest"}, rowPatterns = {"ưu tiên bắt", "catch priority"} },
+    { id = "MinRarity", targetText = {"bí ẩn (secret)", "secret", "bí ẩn"}, rowPatterns = {"min rarity", "độ hiếm min"} },
+    { id = "CatchButterflies", selectAll = true, rowPatterns = {"chọn bướm cần bắt", "catch butterflies"}, itemPatterns = {"radiant", "amethyst", "sapphire", "emerald"} }
+}
+
+local SavedState = { toggles = {}, dropdowns = {} }
+local isAutoFarmActive = false
+
+local function selectDropdownOption(cfg)
+    local label = findMatchingLabel(cfg.rowPatterns)
+    if not label then return end
+    local row = label.Parent
+    if not row then return end
+
+    local function findOptionBtn(targets)
+        local parentContainer = row.Parent or row
+        for _, desc in ipairs(parentContainer:GetDescendants()) do
+            if (desc:IsA("TextButton") or desc:IsA("TextLabel")) and not desc:FindFirstAncestor("Chilli_Dynamic_Island") then
+                local dt = desc.Text:lower()
+                for _, opt in ipairs(targets) do
+                    if dt == opt:lower() or dt:find(opt:lower(), 1, true) then
+                        local btn = desc:IsA("TextButton") and desc or desc:FindFirstAncestorOfClass("TextButton")
+                        if btn then return btn end
+                    end
+                end
+            end
+        end
+        return nil
+    end
+
+    if cfg.selectAll and cfg.itemPatterns then
+        for _, itemPat in ipairs(cfg.itemPatterns) do
+            local optBtn = findOptionBtn({itemPat})
+            if optBtn and not isToggleActive(optBtn) then
+                triggerClick(optBtn)
+                task.wait(0.04)
+            end
+        end
+    elseif cfg.targetText then
+        local optBtn = findOptionBtn(cfg.targetText)
+        if optBtn then
+            triggerClick(optBtn)
+        else
+            local dropdownBtn = getRowToggleButton(label)
+            if dropdownBtn then
+                triggerClick(dropdownBtn)
+                task.wait(0.08)
+                local retryBtn = findOptionBtn(cfg.targetText)
+                if retryBtn then triggerClick(retryBtn) end
+            end
+        end
+    end
+end
+
+local function applyAutoFarmSettings(enable)
+    if enable then
+        -- 1. Lưu lại trạng thái ban đầu để hoàn tác
+        SavedState.toggles = {}
+        for _, cfg in ipairs(PRESET_TOGGLES) do
+            local label = findMatchingLabel(cfg.patterns, cfg.exclude)
+            if label then
+                local btn = getRowToggleButton(label)
+                if btn then
+                    SavedState.toggles[cfg.id] = isToggleActive(btn)
+                end
+            end
+        end
+
+        -- 2. Bật/Tắt các nút gạt chuẩn 100% theo 3 ảnh
+        for _, cfg in ipairs(PRESET_TOGGLES) do
+            local label = findMatchingLabel(cfg.patterns, cfg.exclude)
+            if label then
+                local btn = getRowToggleButton(label)
+                if btn and isToggleActive(btn) ~= cfg.target then
+                    triggerClick(btn)
+                    task.wait(0.04)
+                end
+            end
+        end
+
+        -- 3. Cấu hình các nút thả xuống (Dropdowns)
+        for _, cfg in ipairs(PRESET_DROPDOWNS) do
+            selectDropdownOption(cfg)
+            task.wait(0.04)
+        end
+    else
+        -- Hoàn tác về lại trạng thái ban đầu
+        for _, cfg in ipairs(PRESET_TOGGLES) do
+            local saved = SavedState.toggles[cfg.id]
+            if saved ~= nil then
+                local label = findMatchingLabel(cfg.patterns, cfg.exclude)
+                if label then
+                    local btn = getRowToggleButton(label)
+                    if btn and isToggleActive(btn) ~= saved then
+                        triggerClick(btn)
+                        task.wait(0.04)
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- ==================== 6. RAINBOW DYNAMIC ISLAND (EXPANDED WITH AUTO FARM) ====================
 local function createDynamicIslandUI()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local old = parentTarget:FindFirstChild("Chilli_Dynamic_Island")
@@ -751,13 +857,13 @@ local function createDynamicIslandUI()
     -- Khung Island chính (Obsidian Black)
     local Island = Instance.new("Frame")
     Island.Name = "Island"
-    Island.Size = UDim2.new(0, 150, 0, 32) -- Kích thước ban đầu thu gọn
+    Island.Size = UDim2.new(0, 150, 0, 32)
     Island.AnchorPoint = Vector2.new(0.5, 0)
     Island.Position = UDim2.new(0.5, 0, 0, 12)
     Island.BackgroundColor3 = Color3.fromRGB(10, 12, 18)
     Island.BackgroundTransparency = 0.05
     Island.BorderSizePixel = 0
-    Island.ClipsDescendants = true -- Chống vỡ khung khi mở rộng
+    Island.ClipsDescendants = true
     Island.Parent = ScreenGui
 
     local IslandCorner = Instance.new("UICorner")
@@ -782,12 +888,11 @@ local function createDynamicIslandUI()
     })
     RainbowGradient.Parent = IslandStroke
 
-    -- Xoay dải cầu vồng theo thời gian thực (O(1))
     RunService.RenderStepped:Connect(function()
         RainbowGradient.Rotation = (RainbowGradient.Rotation + 2) % 360
     end)
 
-    -- Thanh Header của Island (Luôn hiển thị ở mép trên)
+    -- Thanh Header của Island
     local TopBar = Instance.new("Frame")
     TopBar.Name = "TopBar"
     TopBar.Size = UDim2.new(1, 0, 0, 32)
@@ -824,7 +929,6 @@ local function createDynamicIslandUI()
     ArrowBadge.TextColor3 = Color3.fromRGB(180, 195, 220)
     ArrowBadge.Parent = TopBar
 
-    -- Nút bấm bao trọn TopBar để Kích hoạt Co / Giãn
     local TriggerBtn = Instance.new("TextButton")
     TriggerBtn.Size = UDim2.new(1, 0, 1, 0)
     TriggerBtn.BackgroundTransparency = 1
@@ -835,21 +939,20 @@ local function createDynamicIslandUI()
     -- Khoang Chứa Nội Dung Mở Rộng (Content Frame)
     local ContentFrame = Instance.new("Frame")
     ContentFrame.Name = "ContentFrame"
-    ContentFrame.Size = UDim2.new(1, -16, 0, 52)
+    ContentFrame.Size = UDim2.new(1, -16, 0, 96)
     ContentFrame.Position = UDim2.new(0, 8, 0, 36)
     ContentFrame.BackgroundTransparency = 1
     ContentFrame.Parent = Island
 
-    -- Layout xếp tầng linh hoạt (Chuẩn bị sẵn cho các tính năng tương lai)
     local Layout = Instance.new("UIListLayout")
     Layout.SortOrder = Enum.SortOrder.LayoutOrder
     Layout.Padding = UDim.new(0, 6)
     Layout.Parent = ContentFrame
 
-    -- KHOANG NÚT ĐỔI NGÔN NGỮ NỘI BỘ (Language Segment Box)
+    -- PHẦN 1: KHOANG ĐỔI NGÔN NGỮ
     local LangSegment = Instance.new("Frame")
     LangSegment.Name = "LangSegment"
-    LangSegment.Size = UDim2.new(1, 0, 0, 28)
+    LangSegment.Size = UDim2.new(1, 0, 0, 26)
     LangSegment.BackgroundColor3 = Color3.fromRGB(18, 22, 34)
     LangSegment.BorderSizePixel = 0
     LangSegment.LayoutOrder = 1
@@ -859,11 +962,10 @@ local function createDynamicIslandUI()
     SegmentCorner.CornerRadius = UDim.new(1, 0)
     SegmentCorner.Parent = LangSegment
 
-    -- Con trượt Active Slider (Bên trong Island)
     local LangSlider = Instance.new("Frame")
     LangSlider.Name = "LangSlider"
     LangSlider.Size = UDim2.new(0.5, -3, 1, -4)
-    LangSlider.Position = UDim2.new(0, 2, 0.5, -12) -- Vị trí ban đầu: VIE
+    LangSlider.Position = UDim2.new(0, 2, 0.5, -11)
     LangSlider.BackgroundColor3 = COLOR_FACE_BOTTOM
     LangSlider.BorderSizePixel = 0
     LangSlider.Parent = LangSegment
@@ -880,7 +982,6 @@ local function createDynamicIslandUI()
     SliderGrad.Rotation = 90
     SliderGrad.Parent = LangSlider
 
-    -- Tab VIE
     local BtnVI = Instance.new("TextButton")
     BtnVI.Size = UDim2.new(0.5, 0, 1, 0)
     BtnVI.Position = UDim2.new(0, 0, 0, 0)
@@ -892,7 +993,6 @@ local function createDynamicIslandUI()
     BtnVI.ZIndex = 5
     BtnVI.Parent = LangSegment
 
-    -- Tab ENG
     local BtnEN = Instance.new("TextButton")
     BtnEN.Size = UDim2.new(0.5, 0, 1, 0)
     BtnEN.Position = UDim2.new(0.5, 0, 0, 0)
@@ -904,33 +1004,20 @@ local function createDynamicIslandUI()
     BtnEN.ZIndex = 5
     BtnEN.Parent = LangSegment
 
-    -- KHU VỰC CHỜ TÍNH NĂNG TƯƠNG LAI (Placeholder Slot)
-    local FutureSlot = Instance.new("TextLabel")
-    FutureSlot.Name = "FutureSlot"
-    FutureSlot.Size = UDim2.new(1, 0, 0, 16)
-    FutureSlot.BackgroundTransparency = 1
-    FutureSlot.Text = "+ Thêm tính năng ở đây"
-    FutureSlot.Font = Enum.Font.GothamMedium
-    FutureSlot.TextSize = 9
-    FutureSlot.TextColor3 = Color3.fromRGB(90, 105, 130)
-    FutureSlot.LayoutOrder = 2
-    FutureSlot.Parent = ContentFrame
-
-    -- Logic Chuyển Ngôn Ngữ
     local function setLanguage(lang)
         if currentLanguage == lang then return end
         currentLanguage = lang
 
         if lang == "VI" then
             TweenService:Create(LangSlider, TweenInfo.new(0.28, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                Position = UDim2.new(0, 2, 0.5, -12),
+                Position = UDim2.new(0, 2, 0.5, -11),
                 BackgroundColor3 = COLOR_FACE_BOTTOM
             }):Play()
             TweenService:Create(BtnVI, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
             TweenService:Create(BtnEN, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(150, 165, 190)}):Play()
         else
             TweenService:Create(LangSlider, TweenInfo.new(0.28, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                Position = UDim2.new(0.5, 1, 0.5, -12),
+                Position = UDim2.new(0.5, 1, 0.5, -11),
                 BackgroundColor3 = Color3.fromRGB(50, 65, 90)
             }):Play()
             TweenService:Create(BtnEN, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
@@ -942,6 +1029,95 @@ local function createDynamicIslandUI()
     BtnVI.MouseButton1Click:Connect(function() setLanguage("VI") end)
     BtnEN.MouseButton1Click:Connect(function() setLanguage("EN") end)
 
+    -- PHẦN 2: THIẾT LẬP SETTINGS AUTO FARM
+    local AutoFarmCard = Instance.new("Frame")
+    AutoFarmCard.Name = "AutoFarmCard"
+    AutoFarmCard.Size = UDim2.new(1, 0, 0, 38)
+    AutoFarmCard.BackgroundColor3 = Color3.fromRGB(16, 20, 30)
+    AutoFarmCard.BorderSizePixel = 0
+    AutoFarmCard.LayoutOrder = 2
+    AutoFarmCard.Parent = ContentFrame
+
+    local CardCorner = Instance.new("UICorner")
+    CardCorner.CornerRadius = UDim.new(0, 8)
+    CardCorner.Parent = AutoFarmCard
+
+    local CardStroke = Instance.new("UIStroke")
+    CardStroke.Color = Color3.fromRGB(45, 60, 85)
+    CardStroke.Thickness = 1
+    CardStroke.Parent = AutoFarmCard
+
+    local FarmTitle = Instance.new("TextLabel")
+    FarmTitle.Size = UDim2.new(1, -55, 0, 18)
+    FarmTitle.Position = UDim2.new(0, 8, 0, 3)
+    FarmTitle.BackgroundTransparency = 1
+    FarmTitle.Text = "Settings Auto Farm"
+    FarmTitle.Font = Enum.Font.GothamBold
+    FarmTitle.TextSize = 10
+    FarmTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    FarmTitle.TextXAlignment = Enum.TextXAlignment.Left
+    FarmTitle.Parent = AutoFarmCard
+
+    local FarmSub = Instance.new("TextLabel")
+    FarmSub.Size = UDim2.new(1, -55, 0, 14)
+    FarmSub.Position = UDim2.new(0, 8, 0, 20)
+    FarmSub.BackgroundTransparency = 1
+    FarmSub.Text = "Auto chuẩn 3 ảnh (Bật/Khôi phục)"
+    FarmSub.Font = Enum.Font.GothamMedium
+    FarmSub.TextSize = 8
+    FarmSub.TextColor3 = Color3.fromRGB(130, 150, 180)
+    FarmSub.TextXAlignment = Enum.TextXAlignment.Left
+    FarmSub.Parent = AutoFarmCard
+
+    -- Nút gạt Toggle Bật/Tắt Auto Farm Preset
+    local ToggleTrack = Instance.new("TextButton")
+    ToggleTrack.Size = UDim2.new(0, 36, 0, 20)
+    ToggleTrack.Position = UDim2.new(1, -42, 0.5, -10)
+    ToggleTrack.BackgroundColor3 = Color3.fromRGB(38, 44, 58)
+    ToggleTrack.Text = ""
+    ToggleTrack.Parent = AutoFarmCard
+
+    local ToggleCorner = Instance.new("UICorner")
+    ToggleCorner.CornerRadius = UDim.new(1, 0)
+    ToggleCorner.Parent = ToggleTrack
+
+    local Knob = Instance.new("Frame")
+    Knob.Size = UDim2.new(0, 14, 0, 14)
+    Knob.Position = UDim2.new(0, 3, 0.5, -7)
+    Knob.BackgroundColor3 = Color3.fromRGB(200, 205, 215)
+    Knob.BorderSizePixel = 0
+    Knob.Parent = ToggleTrack
+
+    local KnobCorner = Instance.new("UICorner")
+    KnobCorner.CornerRadius = UDim.new(1, 0)
+    KnobCorner.Parent = Knob
+
+    ToggleTrack.MouseButton1Click:Connect(function()
+        isAutoFarmActive = not isAutoFarmActive
+
+        if isAutoFarmActive then
+            TweenService:Create(Knob, TweenInfo.new(0.2), {Position = UDim2.new(1, -17, 0.5, -7), BackgroundColor3 = Color3.fromRGB(255, 255, 255)}):Play()
+            TweenService:Create(ToggleTrack, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 205, 110)}):Play()
+            FarmSub.Text = "Đang áp dụng cấu hình..."
+            TweenService:Create(FarmSub, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(90, 240, 150)}):Play()
+            
+            task.spawn(function()
+                applyAutoFarmSettings(true)
+                FarmSub.Text = "Đã bật cấu hình chuẩn 3 ảnh"
+            end)
+        else
+            TweenService:Create(Knob, TweenInfo.new(0.2), {Position = UDim2.new(0, 3, 0.5, -7), BackgroundColor3 = Color3.fromRGB(200, 205, 215)}):Play()
+            TweenService:Create(ToggleTrack, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(38, 44, 58)}):Play()
+            FarmSub.Text = "Đang khôi phục ban đầu..."
+            TweenService:Create(FarmSub, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(130, 150, 180)}):Play()
+            
+            task.spawn(function()
+                applyAutoFarmSettings(false)
+                FarmSub.Text = "Đã khôi phục trạng thái ban đầu"
+            end)
+        end
+    end)
+
     -- Logic Mở Rộng / Thu Gọn Dynamic Island
     local isExpanded = false
     local isTweening = false
@@ -952,15 +1128,13 @@ local function createDynamicIslandUI()
         isExpanded = not isExpanded
 
         if isExpanded then
-            -- Mở rộng mượt mà
             TweenService:Create(ArrowBadge, TweenInfo.new(0.3), {Rotation = 180}):Play()
             local tweenExp = TweenService:Create(Island, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                Size = UDim2.new(0, 220, 0, 95)
+                Size = UDim2.new(0, 230, 0, 116)
             })
             tweenExp:Play()
             tweenExp.Completed:Connect(function() isTweening = false end)
         else
-            -- Thu gọn về viên nang nhỏ
             TweenService:Create(ArrowBadge, TweenInfo.new(0.3), {Rotation = 0}):Play()
             local tweenCol = TweenService:Create(Island, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
                 Size = UDim2.new(0, 150, 0, 32)
@@ -970,7 +1144,7 @@ local function createDynamicIslandUI()
         end
     end)
 
-    -- Hỗ trợ Kéo Thả linh hoạt kèm kẹp mép Viewport
+    -- Kéo thả tự do
     local dragging, dragStart, startPos = false, nil, nil
     Island.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -987,8 +1161,8 @@ local function createDynamicIslandUI()
         if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragging then
             local delta = input.Position - dragStart
             local cam = workspace.CurrentCamera
-            local maxX = cam and cam.ViewportSize.X - 220 or 800
-            local maxY = cam and cam.ViewportSize.Y - 100 or 600
+            local maxX = cam and cam.ViewportSize.X - 230 or 800
+            local maxY = cam and cam.ViewportSize.Y - 120 or 600
 
             local newX = math.clamp(startPos.X.Offset + delta.X, -maxX / 2, maxX / 2)
             local newY = math.clamp(startPos.Y.Offset + delta.Y, 0, maxY)
@@ -998,7 +1172,7 @@ local function createDynamicIslandUI()
     end)
 end
 
--- ==================== 6. BỘ QUÉT TẢI TRÌ HOÃN (DEFER SCANNER) ====================
+-- ==================== 7. BỘ QUÉT TẢI TRÌ HOÃN (DEFER SCANNER) ====================
 task.delay(2.5, function()
     createDynamicIslandUI()
 
