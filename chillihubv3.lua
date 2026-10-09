@@ -1,24 +1,39 @@
 -- ==============================================================================
---  CHILLI HUB V2 - MASTER V10.0 (EVENT BRUTE-FORCE & CLEAN UI)
+--  CHILLI HUB V2 - MASTER V10.0 (RAW TEXT & ZERO-LAG EDITION)
 --  Khắc phục:
---    1. Sửa lỗi click ảo: Ép sự kiện nhấp chuột bằng mọi cách.
---    2. Cài đặt tự động cày (Settings Auto Farm): Gạt BẬT là bật toàn bộ tính năng, gạt TẮT là tắt toàn bộ.
---    3. Khởi tạo tức thì: Dynamic Island hiện ngay 0ms.
---    4. Reskin 3 phần: Màu xanh nhạt dịu mắt, chữ trắng nổi khối.
+--    1. XÓA HTML/MARKDOWN LỖI: Code thuần 100%, không kẹt Executor.
+--    2. SỬA LỖI CLICK ẢO: Bơm sự kiện thẳng vào nút, ép giao diện nhận lệnh.
+--    3. CHỐNG TREO LUỒNG: Sửa hàm đợi LocalPlayer để không bị đơ 0ms.
+--    4. SETTINGS AUTO FARM: Gạt BẬT là bật toàn bộ tính năng, TẮT là khôi phục.
+--    5. RESKIN CÔ LẬP: Đổi màu xanh pastel đúng 3 phần, chữ trắng.
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
+
+-- Lấy LocalPlayer an toàn, chống treo luồng trên CodeX/Delta
 local LocalPlayer = Players.LocalPlayer
+if not LocalPlayer then
+    task.wait(0.5)
+    LocalPlayer = Players.LocalPlayer
+end
 
 -- ==================== 1. TÌM VÙNG CHỨA GUI AN TOÀN ====================
 local function getSafeContainer()
     local container = nil
     pcall(function() if gethui then container = gethui() end end)
-    if not container then pcall(function() if CoreGui and pcall(function() return CoreGui:GetChildren() end) then container = CoreGui end end) end
-    if not container then container = LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui") end
+    if not container then 
+        pcall(function() 
+            if CoreGui and pcall(function() return CoreGui:GetChildren() end) then 
+                container = CoreGui 
+            end 
+        end) 
+    end
+    if not container and LocalPlayer then 
+        container = LocalPlayer:FindFirstChild("PlayerGui") 
+    end
     return container
 end
 
@@ -176,61 +191,49 @@ local SortedVI = {}
 for en, vi in pairs(MAP_VI) do table.insert(SortedVI, {en = en, out = vi, len = #en}) end
 table.sort(SortedVI, function(a, b) return a.len > b.len end)
 
--- ==================== 4. LÕI DỊCH THUẬT SIÊU TỐC O(1) ====================
+-- ==================== 4. LÕI DỊCH THUẬT ====================
 local function translateText(raw)
     local cacheKey = currentLanguage .. "|" .. raw
     if FastCache[cacheKey] then return FastCache[cacheKey] end
-
     if currentLanguage == "EN" then
         local res = replaceAll(raw, "Chilli Hub", "Chilli Hub V2")
         FastCache[cacheKey] = res
         return res
     end
-
     local trimmed = raw:match("^%s*(.-)%s*$") or raw
-
     if EXACT_MATCH_VI[trimmed] then
         local res = raw:gsub(trimmed, EXACT_MATCH_VI[trimmed], 1)
         FastCache[cacheKey] = res
         return res
     end
-
     local result = raw
     local matched = false
-
     for _, item in ipairs(DYNAMIC_PATTERNS) do
         if result:find(item.pattern) then
-            result = result:gsub(item.pattern, function(...)
-                return item.format(currentLanguage, ...)
-            end)
+            result = result:gsub(item.pattern, function(...) return item.format(currentLanguage, ...) end)
             matched = true
         end
     end
-
     for _, item in ipairs(SortedVI) do
         if result:find(item.en, 1, true) then
             result = replaceAll(result, item.en, item.out)
             matched = true
         end
     end
-
     FastCache[cacheKey] = matched and result or raw
     return FastCache[cacheKey]
 end
 
 local TrackedElements = {}
-
 local function applyTranslation(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
     if inst:FindFirstAncestor("Chilli_Dynamic_Island") then return end
     if inst:GetAttribute("__IsTranslating") then return end
-
     local original = inst:GetAttribute("OriginalRawText")
     if not original then
         original = inst.Text
         inst:SetAttribute("OriginalRawText", original)
     end
-
     local mappedText = translateText(original)
     if inst.Text ~= mappedText then
         inst:SetAttribute("__IsTranslating", true)
@@ -244,10 +247,8 @@ local function hookElement(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
     if inst:GetAttribute("HasTranslateHook") then return end
     pcall(function() inst:SetAttribute("HasTranslateHook", true) end)
-
     table.insert(TrackedElements, inst)
     task.defer(function() applyTranslation(inst) end)
-
     inst:GetPropertyChangedSignal("Text"):Connect(function()
         if inst:GetAttribute("__IsTranslating") then return end
         local current = inst.Text
@@ -257,11 +258,17 @@ local function hookElement(inst)
     end)
 end
 
+local function updateAllActive()
+    for i = #TrackedElements, 1, -1 do
+        local el = TrackedElements[i]
+        if el and el.Parent then applyTranslation(el) else table.remove(TrackedElements, i) end
+    end
+end
+
 -- ==================== 5. LÕI CÔ LẬP ĐỔI MÀU 3 PHẦN ====================
 local COLOR_FACE_TOP     = Color3.fromRGB(140, 195, 245)
 local COLOR_FACE_BOTTOM  = Color3.fromRGB(95, 155, 225)
 local COLOR_BEVEL_SHADOW = Color3.fromRGB(55, 110, 180)
-
 local TARGET_BUTTON_KEYWORDS = {
     ["cày cuốc"] = true, ["farm"] = true, ["người chơi"] = true, ["player"] = true, ["dự đoán"] = true, ["predictor"] = true,
     ["tiến trình"] = true, ["progress"] = true, ["máy chủ"] = true, ["server"] = true, ["khác"] = true, ["misc"] = true,
@@ -271,73 +278,43 @@ local TARGET_BUTTON_KEYWORDS = {
 
 local function recolorSingleButton(btnContainer, labelObj)
     if not btnContainer then return end
-
     local grad = btnContainer:FindFirstChildOfClass("UIGradient")
     if not grad then
         grad = Instance.new("UIGradient")
         grad.Rotation = 90
         grad.Parent = btnContainer
     end
-    grad.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, COLOR_FACE_TOP),
-        ColorSequenceKeypoint.new(1, COLOR_FACE_BOTTOM)
-    })
-
+    grad.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, COLOR_FACE_TOP), ColorSequenceKeypoint.new(1, COLOR_FACE_BOTTOM)})
     btnContainer.BackgroundColor3 = COLOR_FACE_BOTTOM
-
     if btnContainer.Parent and btnContainer.Parent:IsA("Frame") and btnContainer.Parent ~= btnContainer then
         local p = btnContainer.Parent
         local pCol = p.BackgroundColor3
-        if pCol and (pCol.R > 0.4 and pCol.G < 0.35) then
-            p.BackgroundColor3 = COLOR_BEVEL_SHADOW
-        end
+        if pCol and (pCol.R > 0.4 and pCol.G < 0.35) then p.BackgroundColor3 = COLOR_BEVEL_SHADOW end
     end
-
-    if labelObj and (labelObj:IsA("TextLabel") or labelObj:IsA("TextButton")) then
-        labelObj.TextColor3 = Color3.fromRGB(255, 255, 255)
-    end
+    if labelObj and (labelObj:IsA("TextLabel") or labelObj:IsA("TextButton")) then labelObj.TextColor3 = Color3.fromRGB(255, 255, 255) end
 end
 
 local function recolorHeaderBar(headerFrame, titleObj)
     if not headerFrame then return end
-
     local grad = headerFrame:FindFirstChildOfClass("UIGradient")
     if not grad then
         grad = Instance.new("UIGradient")
         grad.Rotation = 90
         grad.Parent = headerFrame
     end
-    grad.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, COLOR_FACE_TOP),
-        ColorSequenceKeypoint.new(1, COLOR_FACE_BOTTOM)
-    })
-
+    grad.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, COLOR_FACE_TOP), ColorSequenceKeypoint.new(1, COLOR_FACE_BOTTOM)})
     headerFrame.BackgroundColor3 = COLOR_FACE_BOTTOM
-
     if headerFrame.Parent and headerFrame.Parent:IsA("Frame") then
         local p = headerFrame.Parent
-        if p.BackgroundColor3.R > 0.4 and p.BackgroundColor3.G < 0.35 then
-            p.BackgroundColor3 = COLOR_BEVEL_SHADOW
-        end
+        if p.BackgroundColor3.R > 0.4 and p.BackgroundColor3.G < 0.35 then p.BackgroundColor3 = COLOR_BEVEL_SHADOW end
     end
-
-    if titleObj and (titleObj:IsA("TextLabel") or titleObj:IsA("TextButton")) then
-        titleObj.TextColor3 = Color3.fromRGB(255, 255, 255)
-    end
-
+    if titleObj and (titleObj:IsA("TextLabel") or titleObj:IsA("TextButton")) then titleObj.TextColor3 = Color3.fromRGB(255, 255, 255) end
     for _, item in ipairs(headerFrame:GetDescendants()) do
         if item:IsA("TextButton") or item:IsA("ImageButton") then
             item.BackgroundColor3 = COLOR_FACE_BOTTOM
             local xGrad = item:FindFirstChildOfClass("UIGradient")
-            if xGrad then
-                xGrad.Color = ColorSequence.new({
-                    ColorSequenceKeypoint.new(0, COLOR_FACE_TOP),
-                    ColorSequenceKeypoint.new(1, COLOR_FACE_BOTTOM)
-                })
-            end
-            if item:IsA("TextButton") then
-                item.TextColor3 = Color3.fromRGB(255, 255, 255)
-            end
+            if xGrad then xGrad.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, COLOR_FACE_TOP), ColorSequenceKeypoint.new(1, COLOR_FACE_BOTTOM)}) end
+            if item:IsA("TextButton") then item.TextColor3 = Color3.fromRGB(255, 255, 255) end
         end
     end
 end
@@ -345,15 +322,12 @@ end
 local function inspectAndApplySoftBlue(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton")) then return end
     if inst:FindFirstAncestor("Chilli_Dynamic_Island") then return end
-
     local textRaw = inst.Text:lower():match("^%s*(.-)%s*$") or ""
-
     if textRaw:find("chilli hub") then
         local headerFrame = inst:FindFirstAncestorOfClass("Frame")
         if headerFrame then recolorHeaderBar(headerFrame, inst) end
         return
     end
-
     if TARGET_BUTTON_KEYWORDS[textRaw] then
         local btnTarget = inst:IsA("TextButton") and inst or inst:FindFirstAncestorOfClass("TextButton") or inst:FindFirstAncestorOfClass("Frame")
         if btnTarget then recolorSingleButton(btnTarget, inst) end
@@ -361,7 +335,7 @@ local function inspectAndApplySoftBlue(inst)
     end
 end
 
--- ==================== 6. BỘ ĐIỀU KHIỂN AUTO FARM (BRUTE-FORCE EVENT TRIGGER) ====================
+-- ==================== 6. BỘ ĐIỀU KHIỂN AUTO FARM ====================
 local function triggerClick(btn, labelObj)
     local targets = {btn, labelObj, btn and btn.Parent}
     for _, t in ipairs(targets) do
@@ -369,9 +343,7 @@ local function triggerClick(btn, labelObj)
             pcall(function()
                 if getconnections then
                     for _, evt in ipairs({"MouseButton1Click", "MouseButton1Down", "MouseButton1Up", "Activated", "TouchTap"}) do
-                        pcall(function()
-                            for _, conn in ipairs(getconnections(t[evt])) do conn:Fire() end
-                        end)
+                        pcall(function() for _, conn in ipairs(getconnections(t[evt])) do conn:Fire() end end)
                     end
                     pcall(function()
                         for _, conn in ipairs(getconnections(t.InputBegan)) do
@@ -386,20 +358,16 @@ end
 
 local function isToggleActive(btn)
     if not btn then return false end
-    local function checkGreen(c)
-        return c and (c.G > 0.45 and c.G > c.R * 1.3 and c.G > c.B * 1.3)
-    end
+    local function checkGreen(c) return c and (c.G > 0.45 and c.G > c.R * 1.3 and c.G > c.B * 1.3) end
     if checkGreen(btn.BackgroundColor3) then return true end
     for _, child in ipairs(btn:GetDescendants()) do
-        if (child:IsA("Frame") or child:IsA("TextButton") or child:IsA("ImageLabel")) and checkGreen(child.BackgroundColor3) then
-            return true
-        end
+        if (child:IsA("Frame") or child:IsA("TextButton") or child:IsA("ImageLabel")) and checkGreen(child.BackgroundColor3) then return true end
     end
     return false
 end
 
 local function findMatchingLabel(patterns, excludeList)
-    local searchRoots = {getSafeContainer(), LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")}
+    local searchRoots = {getSafeContainer()}
     for _, root in ipairs(searchRoots) do
         if root then
             for _, desc in ipairs(root:GetDescendants()) do
@@ -407,17 +375,11 @@ local function findMatchingLabel(patterns, excludeList)
                     local t = desc.Text:lower()
                     local matched = false
                     for _, p in ipairs(patterns) do
-                        if t == p:lower() or t:find(p:lower(), 1, true) then
-                            matched = true
-                            break
-                        end
+                        if t == p:lower() or t:find(p:lower(), 1, true) then matched = true break end
                     end
                     if matched and excludeList then
                         for _, ex in ipairs(excludeList) do
-                            if t:find(ex:lower(), 1, true) then
-                                matched = false
-                                break
-                            end
+                            if t:find(ex:lower(), 1, true) then matched = false break end
                         end
                     end
                     if matched then return desc end
@@ -469,7 +431,6 @@ local function selectDropdownOption(cfg)
     if not label then return end
     local row = label.Parent
     if not row then return end
-
     local function findOptionBtn(targets)
         local parentContainer = row.Parent or row
         for _, desc in ipairs(parentContainer:GetDescendants()) do
@@ -489,20 +450,14 @@ local function selectDropdownOption(cfg)
     if cfg.selectAll and cfg.itemPatterns then
         for _, itemPat in ipairs(cfg.itemPatterns) do
             local optBtn, optLabel = findOptionBtn({itemPat})
-            if optBtn and not isToggleActive(optBtn) then
-                triggerClick(optBtn, optLabel)
-                task.wait(0.04)
-            end
+            if optBtn and not isToggleActive(optBtn) then triggerClick(optBtn, optLabel); task.wait(0.04) end
         end
     elseif cfg.targetText then
         local optBtn, optLabel = findOptionBtn(cfg.targetText)
-        if optBtn then
-            triggerClick(optBtn, optLabel)
-        else
+        if optBtn then triggerClick(optBtn, optLabel) else
             local dropdownBtn = getRowToggleButton(label)
             if dropdownBtn then
-                triggerClick(dropdownBtn, label)
-                task.wait(0.08)
+                triggerClick(dropdownBtn, label); task.wait(0.08)
                 local retryBtn, retryLabel = findOptionBtn(cfg.targetText)
                 if retryBtn then triggerClick(retryBtn, retryLabel) end
             end
@@ -517,27 +472,17 @@ local function applyAutoFarmSettings(enable)
             local label = findMatchingLabel(cfg.patterns, cfg.exclude)
             if label then
                 local btn = getRowToggleButton(label)
-                if btn then
-                    SavedState.toggles[cfg.id] = isToggleActive(btn)
-                end
+                if btn then SavedState.toggles[cfg.id] = isToggleActive(btn) end
             end
         end
-
         for _, cfg in ipairs(PRESET_TOGGLES) do
             local label = findMatchingLabel(cfg.patterns, cfg.exclude)
             if label then
                 local btn = getRowToggleButton(label)
-                if btn and isToggleActive(btn) ~= cfg.target then
-                    triggerClick(btn, label)
-                    task.wait(0.04)
-                end
+                if btn and isToggleActive(btn) ~= cfg.target then triggerClick(btn, label); task.wait(0.04) end
             end
         end
-
-        for _, cfg in ipairs(PRESET_DROPDOWNS) do
-            selectDropdownOption(cfg)
-            task.wait(0.04)
-        end
+        for _, cfg in ipairs(PRESET_DROPDOWNS) do selectDropdownOption(cfg); task.wait(0.04) end
     else
         for _, cfg in ipairs(PRESET_TOGGLES) do
             local saved = SavedState.toggles[cfg.id]
@@ -545,25 +490,18 @@ local function applyAutoFarmSettings(enable)
                 local label = findMatchingLabel(cfg.patterns, cfg.exclude)
                 if label then
                     local btn = getRowToggleButton(label)
-                    if btn and isToggleActive(btn) ~= saved then
-                        triggerClick(btn, label)
-                        task.wait(0.04)
-                    end
+                    if btn and isToggleActive(btn) ~= saved then triggerClick(btn, label); task.wait(0.04) end
                 end
             end
         end
     end
 end
 
--- ==================== 7. RAINBOW DYNAMIC ISLAND (INSTANT SPAWN) ====================
+-- ==================== 7. RAINBOW DYNAMIC ISLAND ====================
 local function createDynamicIslandUI()
     local parentTarget = getSafeContainer()
     if not parentTarget then return end
-
-    pcall(function()
-        local old = parentTarget:FindFirstChild("Chilli_Dynamic_Island")
-        if old then old:Destroy() end
-    end)
+    pcall(function() local old = parentTarget:FindFirstChild("Chilli_Dynamic_Island"); if old then old:Destroy() end end)
 
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "Chilli_Dynamic_Island"
@@ -583,9 +521,7 @@ local function createDynamicIslandUI()
     Island.ClipsDescendants = true
     Island.Parent = ScreenGui
 
-    local IslandCorner = Instance.new("UICorner")
-    IslandCorner.CornerRadius = UDim.new(0, 16)
-    IslandCorner.Parent = Island
+    Instance.new("UICorner", Island).CornerRadius = UDim.new(0, 16)
 
     local IslandStroke = Instance.new("UIStroke")
     IslandStroke.Thickness = 1.8
@@ -594,19 +530,12 @@ local function createDynamicIslandUI()
 
     local RainbowGradient = Instance.new("UIGradient")
     RainbowGradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 60, 60)),
-        ColorSequenceKeypoint.new(0.17, Color3.fromRGB(255, 160, 40)),
-        ColorSequenceKeypoint.new(0.33, Color3.fromRGB(255, 230, 50)),
-        ColorSequenceKeypoint.new(0.50, Color3.fromRGB(50, 240, 120)),
-        ColorSequenceKeypoint.new(0.67, Color3.fromRGB(45, 180, 255)),
-        ColorSequenceKeypoint.new(0.83, Color3.fromRGB(180, 70, 255)),
-        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 60, 60))
+        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 60, 60)), ColorSequenceKeypoint.new(0.17, Color3.fromRGB(255, 160, 40)),
+        ColorSequenceKeypoint.new(0.33, Color3.fromRGB(255, 230, 50)), ColorSequenceKeypoint.new(0.50, Color3.fromRGB(50, 240, 120)),
+        ColorSequenceKeypoint.new(0.67, Color3.fromRGB(45, 180, 255)), ColorSequenceKeypoint.new(0.83, Color3.fromRGB(180, 70, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 60, 60))
     })
     RainbowGradient.Parent = IslandStroke
-
-    RunService.RenderStepped:Connect(function()
-        RainbowGradient.Rotation = (RainbowGradient.Rotation + 2) % 360
-    end)
+    RunService.RenderStepped:Connect(function() RainbowGradient.Rotation = (RainbowGradient.Rotation + 2) % 360 end)
 
     local TopBar = Instance.new("Frame")
     TopBar.Name = "TopBar"
@@ -660,7 +589,7 @@ local function createDynamicIslandUI()
     ArrowBadge.Parent = TopBar
 
     local HeaderButton = Instance.new("TextButton")
-    HeaderButton.Size = UDim2.new(1, 0, 0, 34)
+    HeaderButton.Size = UDim2.new(1, 0, 0, 32)
     HeaderButton.BackgroundTransparency = 1
     HeaderButton.Text = ""
     HeaderButton.ZIndex = 20
@@ -669,7 +598,7 @@ local function createDynamicIslandUI()
     local ContentFrame = Instance.new("Frame")
     ContentFrame.Name = "ContentFrame"
     ContentFrame.Size = UDim2.new(1, -16, 0, 78)
-    ContentFrame.Position = UDim2.new(0, 8, 0, 38)
+    ContentFrame.Position = UDim2.new(0, 8, 0, 36)
     ContentFrame.BackgroundTransparency = 1
     ContentFrame.Parent = Island
 
@@ -685,10 +614,7 @@ local function createDynamicIslandUI()
     LangSegment.BorderSizePixel = 0
     LangSegment.LayoutOrder = 1
     LangSegment.Parent = ContentFrame
-
-    local SegmentCorner = Instance.new("UICorner")
-    SegmentCorner.CornerRadius = UDim.new(1, 0)
-    SegmentCorner.Parent = LangSegment
+    Instance.new("UICorner", LangSegment).CornerRadius = UDim.new(1, 0)
 
     local LangSlider = Instance.new("Frame")
     LangSlider.Name = "LangSlider"
@@ -697,16 +623,10 @@ local function createDynamicIslandUI()
     LangSlider.BackgroundColor3 = COLOR_FACE_BOTTOM
     LangSlider.BorderSizePixel = 0
     LangSlider.Parent = LangSegment
-
-    local SliderCorner = Instance.new("UICorner")
-    SliderCorner.CornerRadius = UDim.new(1, 0)
-    SliderCorner.Parent = LangSlider
+    Instance.new("UICorner", LangSlider).CornerRadius = UDim.new(1, 0)
 
     local SliderGrad = Instance.new("UIGradient")
-    SliderGrad.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, COLOR_FACE_TOP),
-        ColorSequenceKeypoint.new(1, COLOR_FACE_BOTTOM)
-    })
+    SliderGrad.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, COLOR_FACE_TOP), ColorSequenceKeypoint.new(1, COLOR_FACE_BOTTOM)})
     SliderGrad.Rotation = 90
     SliderGrad.Parent = LangSlider
 
@@ -735,19 +655,12 @@ local function createDynamicIslandUI()
     local function setLanguage(lang)
         if currentLanguage == lang then return end
         currentLanguage = lang
-
         if lang == "VI" then
-            TweenService:Create(LangSlider, TweenInfo.new(0.28, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                Position = UDim2.new(0, 2, 0.5, -11),
-                BackgroundColor3 = COLOR_FACE_BOTTOM
-            }):Play()
+            TweenService:Create(LangSlider, TweenInfo.new(0.28, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0, 2, 0.5, -11), BackgroundColor3 = COLOR_FACE_BOTTOM}):Play()
             TweenService:Create(BtnVI, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
             TweenService:Create(BtnEN, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(150, 165, 190)}):Play()
         else
-            TweenService:Create(LangSlider, TweenInfo.new(0.28, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                Position = UDim2.new(0.5, 1, 0.5, -11),
-                BackgroundColor3 = Color3.fromRGB(50, 65, 90)
-            }):Play()
+            TweenService:Create(LangSlider, TweenInfo.new(0.28, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, 1, 0.5, -11), BackgroundColor3 = Color3.fromRGB(50, 65, 90)}):Play()
             TweenService:Create(BtnEN, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
             TweenService:Create(BtnVI, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(150, 165, 190)}):Play()
         end
@@ -764,10 +677,7 @@ local function createDynamicIslandUI()
     AutoFarmCard.BorderSizePixel = 0
     AutoFarmCard.LayoutOrder = 2
     AutoFarmCard.Parent = ContentFrame
-
-    local CardCorner = Instance.new("UICorner")
-    CardCorner.CornerRadius = UDim.new(0, 8)
-    CardCorner.Parent = AutoFarmCard
+    Instance.new("UICorner", AutoFarmCard).CornerRadius = UDim.new(0, 8)
 
     local CardStroke = Instance.new("UIStroke")
     CardStroke.Color = Color3.fromRGB(45, 60, 85)
@@ -789,7 +699,7 @@ local function createDynamicIslandUI()
     FarmSub.Size = UDim2.new(1, -55, 0, 14)
     FarmSub.Position = UDim2.new(0, 8, 0, 22)
     FarmSub.BackgroundTransparency = 1
-    FarmSub.Text = "Chuẩn 3 ảnh (Bật/Khôi phục)"
+    FarmSub.Text = "Kích hoạt toàn bộ cấu hình chỉ định"
     FarmSub.Font = Enum.Font.GothamMedium
     FarmSub.TextSize = 8
     FarmSub.TextColor3 = Color3.fromRGB(130, 150, 180)
@@ -803,10 +713,7 @@ local function createDynamicIslandUI()
     ToggleTrack.Text = ""
     ToggleTrack.ZIndex = 12
     ToggleTrack.Parent = AutoFarmCard
-
-    local ToggleCorner = Instance.new("UICorner")
-    ToggleCorner.CornerRadius = UDim.new(1, 0)
-    ToggleCorner.Parent = ToggleTrack
+    Instance.new("UICorner", ToggleTrack).CornerRadius = UDim.new(1, 0)
 
     local Knob = Instance.new("Frame")
     Knob.Size = UDim2.new(0, 14, 0, 14)
@@ -818,49 +725,35 @@ local function createDynamicIslandUI()
 
     ToggleTrack.MouseButton1Click:Connect(function()
         isAutoFarmActive = not isAutoFarmActive
-
         if isAutoFarmActive then
             TweenService:Create(Knob, TweenInfo.new(0.2), {Position = UDim2.new(1, -17, 0.5, -7), BackgroundColor3 = Color3.fromRGB(255, 255, 255)}):Play()
             TweenService:Create(ToggleTrack, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 205, 110)}):Play()
             FarmSub.Text = "Đang áp dụng cấu hình..."
             TweenService:Create(FarmSub, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(90, 240, 150)}):Play()
             TweenService:Create(StatusDot, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(50, 255, 120)}):Play()
-
-            task.spawn(function()
-                applyAutoFarmSettings(true)
-                FarmSub.Text = "Đã bật cấu hình tự động"
-            end)
+            task.spawn(function() applyAutoFarmSettings(true); FarmSub.Text = "Đã bật cấu hình tự động" end)
         else
             TweenService:Create(Knob, TweenInfo.new(0.2), {Position = UDim2.new(0, 3, 0.5, -7), BackgroundColor3 = Color3.fromRGB(200, 205, 215)}):Play()
             TweenService:Create(ToggleTrack, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(38, 44, 58)}):Play()
             FarmSub.Text = "Đang khôi phục ban đầu..."
             TweenService:Create(FarmSub, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(130, 150, 180)}):Play()
             TweenService:Create(StatusDot, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(120, 130, 150)}):Play()
-
-            task.spawn(function()
-                applyAutoFarmSettings(false)
-                FarmSub.Text = "Đã khôi phục về ban đầu"
-            end)
+            task.spawn(function() applyAutoFarmSettings(false); FarmSub.Text = "Đã khôi phục trạng thái ban đầu" end)
         end
     end)
 
     local isExpanded = false
     local isAnimating = false
-
     local function toggleIsland()
         if isAnimating then return end
         isAnimating = true
         isExpanded = not isExpanded
-
-        local targetSize = isExpanded and UDim2.new(0, 240, 0, 125) or UDim2.new(0, 150, 0, 32)
+        local targetSize = isExpanded and UDim2.new(0, 240, 0, 116) or UDim2.new(0, 150, 0, 32)
         local targetRotation = isExpanded and 180 or 0
-
         TweenService:Create(ArrowBadge, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Rotation = targetRotation}):Play()
         local tween = TweenService:Create(Island, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = targetSize})
         tween:Play()
-        tween.Completed:Connect(function()
-            isAnimating = false
-        end)
+        tween.Completed:Connect(function() isAnimating = false end)
     end
 
     local dragging = false
@@ -873,11 +766,7 @@ local function createDynamicIslandUI()
             dragMoved = false
             dragStart = input.Position
             startPos = Island.Position
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
+            input.Changed:Connect(function() if input.UserInputState == Enum.UserInputState.End then dragging = false end end)
         end
     end)
 
@@ -895,45 +784,27 @@ local function createDynamicIslandUI()
             end
         end
     end)
-
-    HeaderButton.Activated:Connect(function()
-        if not dragMoved then
-            toggleIsland()
-        end
-    end)
+    HeaderButton.Activated:Connect(function() if not dragMoved then toggleIsland() end end)
 end
 
 -- ==================== 8. KHỞI CHẠY HỆ THỐNG ====================
 task.spawn(function()
     createDynamicIslandUI()
-
     local function scanUIChunked(parent)
         local children = parent:GetChildren()
         for i, desc in ipairs(children) do
-            if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
-                hookElement(desc)
-                inspectAndApplySoftBlue(desc)
-            end
+            if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then hookElement(desc); inspectAndApplySoftBlue(desc) end
             if i % 30 == 0 then RunService.RenderStepped:Wait() end
             scanUIChunked(desc)
         end
     end
-
-    local searchRoots = {CoreGui, LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")}
-    if gethui then pcall(function() table.insert(searchRoots, gethui()) end) end
-
-    for _, root in ipairs(searchRoots) do
-        if root then pcall(function() scanUIChunked(root) end) end
-    end
-
+    local searchRoots = {getSafeContainer()}
+    for _, root in ipairs(searchRoots) do if root then pcall(function() scanUIChunked(root) end) end end
     for _, root in ipairs(searchRoots) do
         if root then
             root.DescendantAdded:Connect(function(desc)
                 task.defer(function()
-                    if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
-                        hookElement(desc)
-                        inspectAndApplySoftBlue(desc)
-                    end
+                    if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then hookElement(desc); inspectAndApplySoftBlue(desc) end
                 end)
             end)
         end
