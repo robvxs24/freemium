@@ -1,16 +1,18 @@
 -- ==============================================================================
---  CHILLI HUB V2 - DYNAMIC ISLAND V22.0 (SILENT NINJA MACRO INJECTOR)
+--  CHILLI HUB V2 - DYNAMIC ISLAND V23.0 (SILENT CORE API INJECTOR)
 --  Tối ưu hóa:
---    1. NINJA MACRO: Tự động nhảy Tab -> Dán JSON -> Import -> Load -> Về Tab cũ trong 0.5s.
---    2. BYPASS HIDDEN UI: Vượt qua cơ chế ngủ đông Tab của LinoriaLib.
---    3. 100% OBFUSCATE PROOF: Code phẳng tĩnh tuyệt đối (Flat String Regex). Chấp mọi trình mã hóa.
+--    1. SILENT CORE INJECT: Giao tiếp trực tiếp vào SaveManager & Toggles API. 100% tàng hình.
+--    2. NO GUI INTERACTION: Không bấm nút ảo, không nhảy Tab, không lag giật.
+--    3. 100% OBFUSCATE PROOF: Code phẳng tĩnh tuyệt đối (Flat String Regex).
 --    4. LIQUID SPRING EXPANSION: Kéo bung mượt mà, khung cầu vồng xoay 360 độ.
+--    5. SOFT SAPPHIRE RESKIN: Đổi màu xanh pastel dịu mắt 3 phần, giữ nguyên chữ trắng.
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
+local HttpService = game:GetService("HttpService")
 
 local LocalPlayer = Players.LocalPlayer
 if not LocalPlayer then
@@ -28,78 +30,78 @@ local function getSafeGuiContainer()
     return container
 end
 
--- ==================== CHUỖI JSON CONFIG GỐC ====================
+-- ==================== CHUỖI JSON CONFIG GỐC CỦA NGƯỜI DÙNG ====================
 local AUTO_FARM_JSON = [=[
 {"Profile":"auto farm","Version":2,"Values":{"Misc":{"Performance":{"FPS Cap":{"Value":240,"Type":"slider","Unit":" FPS"},"Farm HUD":{"Value":false,"Type":"toggle"},"Background Color":{"Value":"White","Type":"dropdown"},"Egg Card Image":{"Value":"Egg Image","Type":"dropdown"},"Disable 3D Render":{"Value":false,"Type":"toggle"},"FPS and Ping":{"Value":true,"Type":"toggle"},"Optimizer":{"Value":false,"Type":"toggle"},"HUD Size":{"Value":70,"Type":"slider","Unit":"%"},"Showcase Cards":{"Value":4,"Type":"slider"},"Hide Game UI":{"Value":true,"Type":"toggle"},"HUD Items":{"Value":["Money","Income","Speed","Treadmill","Eggs Stolen","Best Steal","Night Timer","Session Time","Activity","Mech Portal","Boss Mastery","Samples","Mech Fights","Lab","Pets","Eggs","Top Pets","Top Eggs","Steal History"],"Type":"multidropdown"},"FPS and Ping Size":{"Value":100,"Type":"slider","Unit":"%"}},"Utility":{"Anti AFK":{"Value":true,"Type":"toggle"}}},"Predictor":{"Egg Predictor":{"Sort By":{"Value":"Value","Type":"dropdown"},"Preview Card":{"Value":true,"Type":"toggle"}},"Discord Webhook":{"Webhook URL":{"Value":"","Type":"input"},"Notify Fused Eggs":{"Value":false,"Type":"toggle"},"Notify Stolen Eggs":{"Value":false,"Type":"toggle"},"Webhook Eggs":{"Value":[],"Type":"multidropdown"},"Webhook Min Rarity":{"Value":"Any","Type":"dropdown"},"Webhook Min Value":{"Value":0,"Type":"slider"},"Ping @everyone":{"Value":false,"Type":"toggle"}}},"Progress":{"Auto Progression":{"Auto Buy Trail":{"Value":false,"Type":"toggle"},"Auto Claim Index":{"Value":false,"Type":"toggle"},"Auto Upgrade Treadmill":{"Value":false,"Type":"toggle"},"Auto Claim":{"Value":false,"Type":"toggle"},"Auto Upgrade Base":{"Value":false,"Type":"toggle"}}},"Quick":{"Pin Pad":{"Pad Size":{"Value":150,"Type":"slider","Unit":"%"},"Enable Keybinds":{"Value":true,"Type":"toggle"},"Show Pin Pads":{"Value":true,"Type":"toggle"},"Visible Quick Bars":{"Value":["Quick Bar 1","Quick Bar 2","Quick Bar 3","Quick Bar 4","Quick Bar 5"],"Type":"multidropdown"}}},"Auto Hop":{"Egg Finder":{"Hop Mode":{"Value":"Steal Then Hop","Type":"dropdown"},"Min Rarity":{"Value":"Secret","Type":"dropdown"},"Rarity To Wait For":{"Value":"Cosmic","Type":"dropdown"},"First Hop Delay":{"Value":5,"Type":"slider","Unit":"s"},"Auto Hop":{"Value":false,"Type":"toggle"},"Target Specific Eggs":{"Value":[],"Type":"multidropdown"},"Sync With Auto Steal Filters":{"Value":true,"Type":"toggle"},"Min Value To Find":{"Value":0,"Type":"slider"},"Target Areas":{"Value":["Forest","Desert","Snow","Lake","Jungle","Volcano","Prehistoric","Cosmic","Abyss Ocean","Cherry Blossom","Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"}}},"Player":{"ESP":{"ESP Eggs":{"Value":false,"Type":"toggle"},"ESP Player Size":{"Value":75,"Type":"slider","Unit":"%"},"ESP Show Info":{"Value":["Icon","Name","Value"],"Type":"multidropdown"},"ESP Guard Size":{"Value":75,"Type":"slider","Unit":"%"},"ESP Player Info":{"Value":["Name","Tool"],"Type":"multidropdown"},"ESP Other Base Eggs":{"Value":false,"Type":"toggle"},"ESP Min Rarity":{"Value":"Any","Type":"dropdown"},"ESP Guards":{"Value":false,"Type":"toggle"},"Min ESP Value":{"Value":0,"Type":"slider"},"ESP Lost Parts":{"Value":false,"Type":"toggle"},"ESP Players":{"Value":false,"Type":"toggle"},"ESP Own Base Eggs":{"Value":true,"Type":"toggle"},"ESP Fixed Size":{"Value":false,"Type":"toggle"},"ESP Egg Size":{"Value":75,"Type":"slider","Unit":"%"}},"Character":{"Instant Prompts":{"Value":true,"Type":"toggle"},"Anti Ragdoll":{"Value":true,"Type":"toggle"},"Anti Trap":{"Value":true,"Type":"toggle"},"Invisibility":{"Value":false,"Type":"toggle"}},"Movement":{"Speed Boost":{"Value":false,"Type":"toggle"},"Boost Speed":{"Value":1000,"Type":"slider","Unit":"studs/s"},"Infinite Jump":{"Value":true,"Type":"toggle"}},"Combat":{"Auto Hit Egg Holders":{"Value":false,"Type":"toggle"},"Hit Max Speed":{"Value":750,"Type":"slider","Unit":"studs/s"},"Auto Hit Nearest Player":{"Value":false,"Type":"toggle"},"Hit Sweep":{"Value":250,"Type":"slider","Unit":"%"},"Hit Player":{"Value":"ayainayyaa","Type":"dropdown"},"Hit Tween Speed":{"Value":400,"Type":"slider","Unit":"studs/s"},"Hit Lead":{"Value":100,"Type":"slider"},"Chase Settings":{"Value":"Chase Settings","Type":"label"},"Auto Hit Specific Player":{"Value":false,"Type":"toggle"},"Hit Aura":{"Value":false,"Type":"toggle"},"Hit Status":{"Value":"Idle","Type":"text"}}},"Settings":{"Interface":{"UI Size":{"Value":100,"Type":"slider","Unit":"%"}}},"Farm":{"Auto Steal":{"Drop Eggs At Safe Zone":{"Value":false,"Type":"toggle"},"Anti Guard Panel":{"Value":true,"Type":"toggle"},"Carry Speed":{"Value":120,"Type":"slider","Unit":"%"},"Target Specific Eggs":{"Value":[],"Type":"multidropdown"},"Steal Missing Lab Eggs":{"Value":false,"Type":"toggle"},"Instant Steal Steps":{"Value":1,"Type":"slider"},"Stock Lab Eggs For":{"Value":[],"Type":"multidropdown"},"Target Areas":{"Value":["Forest","Desert","Snow","Lake","Jungle","Volcano","Prehistoric","Cosmic","Abyss Ocean","Cherry Blossom","Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"},"Unstable DNA Lab Eggs":{"Value":["Toro Egg (24%)","Winged Lamb Egg (23%)","Bladehide Egg (23%)","Imp Egg (22%)","Crustacia Egg (22%)"],"Type":"multidropdown"},"Steal Priority":{"Value":"Highest Value","Type":"dropdown"},"Auto Steal":{"Value":true,"Type":"toggle"},"Min Rarity":{"Value":"Secret","Type":"dropdown"},"Teleport To Egg":{"Value":true,"Type":"toggle"},"Stock Per Egg":{"Value":3,"Type":"slider","Unit":""},"Experimental Lab Eggs":{"Value":[],"Type":"multidropdown"},"Fast Delivery":{"Value":false,"Type":"toggle"},"Skip Owned Lab Eggs":{"Value":true,"Type":"toggle"},"Biohazard Lab Eggs":{"Value":[],"Type":"multidropdown"},"Instant Steal V2":{"Value":true,"Type":"toggle"},"Instant Steal":{"Value":false,"Type":"toggle"},"Steal Missing Index Eggs":{"Value":false,"Type":"toggle"},"Instant Steal Zones":{"Value":["Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"},"Tween Speed":{"Value":120,"Type":"slider","Unit":"%"},"Min Steal Value":{"Value":0,"Type":"slider"}},"Auto Treadmill":{"Stay On Treadmill":{"Value":true,"Type":"toggle"},"Auto Treadmill":{"Value":true,"Type":"toggle"}},"Dr Scramble Lab & Mech":{"Swap Two Weapons":{"Value":true,"Type":"toggle"},"Auto Lab Trade-In":{"Value":false,"Type":"toggle"},"Keep Hopping For":{"Value":3,"Type":"slider","Unit":"min"},"Boss Server Hop":{"Value":false,"Type":"toggle"},"Auto Claim Mastery":{"Value":false,"Type":"toggle"},"Auto Buy Scramble Shop":{"Value":false,"Type":"toggle"},"Scrambler Hold":{"Value":0.4,"Type":"slider","Unit":"s"},"Scramble Shop Items":{"Value":[],"Type":"multidropdown"},"Auto Mech Boss":{"Value":false,"Type":"toggle"},"Auto Reroll Lab Recipe":{"Value":false,"Type":"toggle"},"Lab Banners":{"Value":[],"Type":"multidropdown"},"Auto Place Lab Reward Eggs":{"Value":false,"Type":"toggle"},"Mech Tween Speed":{"Value":250,"Type":"slider","Unit":"studs/s"},"Lab Status":{"Value":"Experimental Pets  -  needs Cosmic Gecko, Bladehide, Snowy Owl  -  pity 0/100  -  free rerolls 2  -  rotates in 2:56","Type":"text"},"Main Weapon Hold":{"Value":0.3,"Type":"slider","Unit":"s"},"Mech Status":{"Value":"Off  |  Next Mech portal in 2:57","Type":"text"},"Keep Samples":{"Value":0,"Type":"slider","Unit":""}},"Auto Sell":{"Egg Sell Value":{"Value":0,"Type":"slider"},"Egg Sell Preview":{"Value":"Egg matches  -  0 eggs for $0","Type":"text"},"Auto Sell Egg":{"Value":false,"Type":"toggle"},"Blacklist Sell Eggs":{"Value":[],"Type":"multidropdown"},"Keep Mutated Eggs":{"Value":true,"Type":"toggle"},"Egg Max Rarity":{"Value":"3 - Rare","Type":"dropdown"},"Blacklist Sell Pets":{"Value":[],"Type":"multidropdown"},"Sell Egg Rule":{"Value":"Rarity Only","Type":"dropdown"},"Auto Sell Pet":{"Value":false,"Type":"toggle"},"Pet Sell Value":{"Value":0,"Type":"slider"},"Pet Sell Preview":{"Value":"Pet matches  -  0 pets for $0","Type":"text"},"Keep Mutated Pets":{"Value":true,"Type":"toggle"},"Sell Pet Rule":{"Value":"Rarity Only","Type":"dropdown"},"Pet Max Rarity":{"Value":"3 - Rare","Type":"dropdown"}},"Wisp Companion":{"Auto Banjo Cricket":{"Value":false,"Type":"toggle"},"Auto Wisp":{"Value":false,"Type":"toggle"},"Wisp Status":{"Value":"Off","Type":"text"}},"Auto Place Egg":{"Place Egg Rule":{"Value":"Always","Type":"dropdown"},"Auto Place Egg":{"Value":false,"Type":"toggle"},"Pen Status":{"Value":"Eggs placed 6/30  -  19/19 pets equipped, 87 in bag","Type":"text"},"Place Rarities":{"Value":[],"Type":"multidropdown"},"Place Egg Order":{"Value":"Highest Value","Type":"dropdown"},"Min Place Value":{"Value":0,"Type":"slider"},"Place Specific Eggs":{"Value":[],"Type":"multidropdown"}},"Auto Fuse Machine":{"Max Rarity to Fuse":{"Value":"6 - Mythic","Type":"dropdown"},"Skip Mutated Pets":{"Value":true,"Type":"toggle"},"Auto Fuse Machine":{"Value":false,"Type":"toggle"},"Eject Incomplete Slots":{"Value":true,"Type":"toggle"},"Specific Species to Fuse":{"Value":[],"Type":"multidropdown"},"Pets To Use":{"Value":"Lowest To Highest","Type":"dropdown"},"Fuse Priority Mode":{"Value":"Lowest Rarity First","Type":"dropdown"},"Fuse Preview":{"Value":"No three matching pets","Type":"text"}},"Auto Mutation":{"Mutate Target Eggs":{"Value":["Amethyst Runebear [Secret]"],"Type":"multidropdown"},"Mutations To Use":{"Value":["Fractured","Scrambled","Enchanted"],"Type":"multidropdown"},"Mutate Priority":{"Value":"Highest Value","Type":"dropdown"},"Auto Buy Scrambled":{"Value":false,"Type":"toggle"},"Auto Mutate":{"Value":false,"Type":"toggle"},"Mutate Status":{"Value":"Off","Type":"text"},"Mutate Min Value":{"Value":0,"Type":"slider"},"Mutate Min Rarity":{"Value":"Any","Type":"dropdown"}},"Auto Sell Lab Egg":{"Lab Egg Sell Value":{"Value":0,"Type":"slider"},"Sell Lab Egg Rule":{"Value":"Rarity And Value","Type":"dropdown"},"Lab Egg Max Rarity":{"Value":"Off","Type":"dropdown"},"Auto Sell Lab Egg":{"Value":false,"Type":"toggle"},"Lab Egg Sell Preview":{"Value":"Lab egg matches  -  0 eggs for $0","Type":"text"},"Keep Lab Pets":{"Value":[],"Type":"multidropdown"},"Keep Mutated Lab Eggs":{"Value":true,"Type":"toggle"}},"Auto Hatch & Equip":{"Hatch Specific Eggs":{"Value":[],"Type":"multidropdown"},"Auto Hatch":{"Value":false,"Type":"toggle"},"Hatch Min Rarity":{"Value":"Any","Type":"dropdown"},"Min Hatch Value":{"Value":0,"Type":"slider"},"Auto Equip Best":{"Value":false,"Type":"toggle"}},"Auto Favorite":{"Favorite Mutations":{"Value":[],"Type":"multidropdown"},"Favorite Preview":{"Value":"Favorite matches  -  0 pets, 0 to mark  |  1 favorited","Type":"text"},"Favorite Min Rarity":{"Value":"Off","Type":"dropdown"},"Auto Favorite Equipped":{"Value":false,"Type":"toggle"},"Auto Favorite Pet":{"Value":false,"Type":"toggle"},"Always Favorite Species":{"Value":[],"Type":"multidropdown"},"Auto Unfavorite Equipped":{"Value":false,"Type":"toggle"},"Min Favorite Value":{"Value":0,"Type":"slider"},"Favorite Rule":{"Value":"Match All","Type":"dropdown"}},"Butterfly Bloom":{"Auto Butterfly Bloom":{"Value":true,"Type":"toggle"},"Smart Trade For Essence":{"Value":false,"Type":"toggle"},"Auto Craft Essence":{"Value":false,"Type":"toggle"},"Auto Trade Up":{"Value":false,"Type":"toggle"},"Catch Butterflies":{"Value":["Radiant Butterfly","Amethyst Butterfly","Sapphire Butterfly","Emerald Butterfly"],"Type":"multidropdown"},"Tween Speed  ":{"Value":600,"Type":"slider","Unit":"studs/s"},"Catch Mode":{"Value":"Chase","Type":"dropdown"},"Catch Priority":{"Value":"Rarest","Type":"dropdown"},"Trade Up Tiers":{"Value":["Amethyst To Radiant"],"Type":"multidropdown"}}},"Server":{"Server":{"Server Hop Mode":{"Value":"Least Players","Type":"dropdown"},"Auto Load Script":{"Value":true,"Type":"toggle"},"Auto Rejoin When Disconnect":{"Value":true,"Type":"toggle"}}}},"States":{"Farm HUD Stealing Position":{"Value":[]},"Quick Panel Collapsed":{"Value":{"1":false}},"Quick Keybinds":{"Value":{"Player > Movement > Speed Boost":"Q"}},"Farm HUD World Position":{"Value":[]},"Farm HUD Stolen Eggs":{"Value":{"History":[{"At":1791608191,"Name":"Gargoyle Egg","Category":"Dark Gargoyle","Scale":1.0089377638111945,"Rarity":"Secret","Value":274481363.75902286}],"Count":1,"Best":{"Category":"Dark Gargoyle","Name":"Gargoyle Egg","Rarity":"Secret","Rank":8}}},"Farm HUD Top Eggs Position":{"Value":[]},"Anti Guard Enabled":{"Value":false},"Farm HUD Steal History Position":{"Value":[]},"Open On Launch":{"Value":true},"Notifications":{"Value":true},"Quick Panel Position":{"Value":{"1":{"Y":0.046925779432058337,"X":0.8835160732269287}}},"Quick Open Key":{"Value":"LeftControl"},"Farm HUD Top Pets Position":{"Value":[]},"Quick Pin Groups":{"Value":[]},"FPS and Ping Position":{"Value":{"XOffset":-107,"XScale":0,"YScale":0,"YOffset":337}},"Farm HUD Dr Scramble Position":{"Value":[]},"Farm HUD Status Position":{"Value":[]},"Steal Panel Open":{"Value":false},"Quick LeftCenter Hidden":{"Value":true},"Farm HUD Economy Position":{"Value":[]},"Quick Pinned Features":{"Value":["Player > Movement > Speed Boost","Player > Movement > Boost Speed"]},"Farm HUD Collection Position":{"Value":[]}},"SavedAt":1791608223}
 ]=]
 
--- ==================== HỆ THỐNG NINJA MACRO (TỰ ĐỘNG CHUẨN XÁC) ====================
-local function clickBtn(btn)
-    if not btn then return end
+-- ==================== HỆ THỐNG INJECTOR ÂM THẦM (CORE API) ====================
+local function executeSilentCoreInjector()
+    local success = false
+    -- 1. Thử gọi SaveManager của thư viện LinoriaLib (Nhanh nhất)
     pcall(function()
-        if firesignal then firesignal(btn.MouseButton1Click) end
-        if getconnections then
-            for _, c in ipairs(getconnections(btn.MouseButton1Click)) do c:Fire() end
-            for _, c in ipairs(getconnections(btn.Activated)) do c:Fire() end
-            for _, c in ipairs(getconnections(btn.InputBegan)) do c:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.Begin}) end
-            for _, c in ipairs(getconnections(btn.InputEnded)) do c:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.End}) end
-        end
-    end)
-end
-
-local function findButtonExact(container, textMatch)
-    for _, d in ipairs(container:GetDescendants()) do
-        if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Text:lower() == textMatch:lower() and not d:FindFirstAncestor("Chilli_Dynamic_Island") then
-            local btn = d:IsA("TextButton") and d or d:FindFirstAncestorOfClass("TextButton") or d.Parent
-            if btn then return btn end
-        end
-    end
-    return nil
-end
-
-local function executeSilentNinjaMacro()
-    local container = getSafeGuiContainer()
-    if not container then return end
-
-    -- BƯỚC 1: NHẢY SANG TAB CẤU HÌNH (VƯỢT QUA CƠ CHẾ NGỦ ĐÔNG CỦA LINORIALIB)
-    local configTab = findButtonExact(container, "Cấu Hình") or findButtonExact(container, "Config")
-    if configTab then clickBtn(configTab) end
-    task.wait(0.15)
-
-    -- BƯỚC 2: TÌM Ô TEXTBOX IMPORT VÀ DÁN JSON
-    local importBox = nil
-    for _, d in ipairs(container:GetDescendants()) do
-        if d:IsA("TextBox") and not d:FindFirstAncestor("Chilli_Dynamic_Island") then
-            local ph = (d.PlaceholderText or ""):lower()
-            if ph:find("paste") or ph:find("import") then
-                importBox = d
-                break
+        local SaveManager
+        if getgenv and getgenv().SaveManager then
+            SaveManager = getgenv().SaveManager
+        else
+            for _, v in pairs(getreg()) do
+                if type(v) == "table" and type(rawget(v, "Load")) == "function" and type(rawget(v, "Save")) == "function" then
+                    SaveManager = v; break
+                end
             end
         end
-    end
-    
-    if importBox then
+
+        if SaveManager then
+            local folder = SaveManager.Folder or "Chilli"
+            if writefile and isfolder then
+                if not isfolder(folder) then makefolder(folder) end
+                if not isfolder(folder .. "/settings") then makefolder(folder .. "/settings") end
+                writefile(folder .. "/settings/auto farm.json", AUTO_FARM_JSON)
+            end
+            SaveManager:Load("auto farm")
+            success = true
+        end
+    end)
+
+    -- 2. Phương án dự phòng: Can thiệp thẳng vào bộ Toggles/Options ngầm
+    if not success then
         pcall(function()
-            importBox.Text = AUTO_FARM_JSON
-            importBox:CaptureFocus()
-            importBox:ReleaseFocus(true)
+            local Toggles, Options
+            if getgenv and getgenv().Toggles and getgenv().Options then
+                Toggles, Options = getgenv().Toggles, getgenv().Options
+            else
+                for _, v in pairs(getreg()) do
+                    if type(v) == "table" and rawget(v, "Toggles") and type(rawget(v.Toggles)) == "table" then
+                        Toggles, Options = rawget(v, "Toggles"), rawget(v, "Options"); break
+                    end
+                end
+            end
+
+            if Toggles and Options then
+                local cfg = HttpService:JSONDecode(AUTO_FARM_JSON)
+                for _, tabData in pairs(cfg.Values) do
+                    for _, groupData in pairs(tabData) do
+                        for itemName, itemData in pairs(groupData) do
+                            local val, typ = itemData.Value, itemData.Type
+                            pcall(function()
+                                if typ == "toggle" and Toggles[itemName] then
+                                    Toggles[itemName]:SetValue(val)
+                                elseif (typ == "dropdown" or typ == "slider") and Options[itemName] then
+                                    Options[itemName]:SetValue(val)
+                                elseif typ == "multidropdown" and type(val) == "table" and Options[itemName] then
+                                    local dict = {}
+                                    for _, v in ipairs(val) do dict[v] = true end
+                                    Options[itemName]:SetValue(dict)
+                                end
+                            end)
+                        end
+                    end
+                end
+                success = true
+            end
         end)
     end
-    task.wait(0.1)
-
-    -- BƯỚC 3: BẤM NÚT IMPORT (Nút màu đỏ)
-    local importBtn = findButtonExact(container, "Import")
-    if importBtn then clickBtn(importBtn) end
-    task.wait(0.15)
-
-    -- BƯỚC 4: BẤM NÚT LOAD (Nút màu đỏ)
-    local loadBtn = findButtonExact(container, "Load") or findButtonExact(container, "Tải")
-    if loadBtn then clickBtn(loadBtn) end
-    task.wait(0.1)
-
-    -- BƯỚC 5: NHẢY NGƯỢC VỀ TAB CÀY CUỐC ĐỂ TRẢ LẠI MÀN HÌNH NHƯ CHƯA CÓ GÌ XẢY RA
-    local farmTab = findButtonExact(container, "Cày Cuốc") or findButtonExact(container, "Farm")
-    if farmTab then clickBtn(farmTab) end
+    return success
 end
 
 -- ==================== NẠP SCRIPT GỐC ====================
@@ -109,7 +111,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== TỪ ĐIỂN DỊCH THUẬT ====================
+-- ==================== TỪ ĐIỂN DỊCH THUẬT (OBFUSCATOR SAFE) ====================
 local currentLanguage = "VI"
 local FastCache = {}
 
@@ -681,85 +683,16 @@ local function createDynamicIslandUI()
     Instance.new("UIStroke", PresetBtn).Color = Color3.fromRGB(45, 60, 85)
 
     PresetBtn.Activated:Connect(function()
-        PresetBtn.Text = "Đang áp dụng ngầm..."
+        PresetBtn.Text = "Đang nạp và áp dụng..."
         PresetBtn.BackgroundColor3 = Color3.fromRGB(45, 205, 110)
         
         task.spawn(function()
-            local cont = getSafeGuiContainer()
-            if not cont then return end
-
-            local function clk(b)
-                if not b then return end
-                pcall(function()
-                    if firesignal then firesignal(b.MouseButton1Click) end
-                    if getconnections then
-                        for _, c in ipairs(getconnections(b.MouseButton1Click)) do c:Fire() end
-                        for _, c in ipairs(getconnections(b.Activated)) do c:Fire() end
-                    end
-                end)
+            local success = executeSilentCoreInjector()
+            if success then
+                PresetBtn.Text = "✅ ĐÃ NẠP THÀNH CÔNG!"
+            else
+                PresetBtn.Text = "❌ LỖI! VUI LÒNG TỰ LOAD"
             end
-
-            -- 1. Chuyển sang Tab Cấu Hình (Config) để mở khóa các nút bị ẩn
-            local cfgTab
-            for _, d in ipairs(cont:GetDescendants()) do
-                if (d:IsA("TextLabel") or d:IsA("TextButton")) and (d.Text:lower() == "cấu hình" or d.Text:lower() == "config") and not d:FindFirstAncestor("Chilli_Dynamic_Island") then
-                    cfgTab = d:IsA("TextButton") and d or d:FindFirstAncestorOfClass("TextButton")
-                    if cfgTab then break end
-                end
-            end
-            if cfgTab then clk(cfgTab) end
-            task.wait(0.2)
-
-            -- 2. Tìm ô Import TextBox và dán JSON
-            local tbox
-            for _, d in ipairs(cont:GetDescendants()) do
-                if d:IsA("TextBox") and not d:FindFirstAncestor("Chilli_Dynamic_Island") then
-                    local ph = (d.PlaceholderText or ""):lower()
-                    if ph:find("paste") or ph:find("import") then tbox = d; break end
-                end
-            end
-            if tbox then
-                pcall(function()
-                    tbox.Text = AUTO_FARM_JSON
-                    tbox:CaptureFocus()
-                    tbox:ReleaseFocus(true)
-                end)
-            end
-            task.wait(0.1)
-
-            -- 3. Bấm nút Import (Màu đỏ)
-            local impBtn
-            for _, d in ipairs(cont:GetDescendants()) do
-                if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Text:lower() == "import" and not d:FindFirstAncestor("Chilli_Dynamic_Island") then
-                    impBtn = d:IsA("TextButton") and d or d:FindFirstAncestorOfClass("TextButton")
-                    if impBtn then break end
-                end
-            end
-            if impBtn then clk(impBtn) end
-            task.wait(0.2)
-
-            -- 4. Bấm nút Load (Màu đỏ)
-            local ldBtn
-            for _, d in ipairs(cont:GetDescendants()) do
-                if (d:IsA("TextLabel") or d:IsA("TextButton")) and (d.Text:lower() == "load" or d.Text:lower() == "tải") and string.len(d.Text) <= 6 and not d:FindFirstAncestor("Chilli_Dynamic_Island") then
-                    ldBtn = d:IsA("TextButton") and d or d:FindFirstAncestorOfClass("TextButton")
-                    if ldBtn then break end
-                end
-            end
-            if ldBtn then clk(ldBtn) end
-            task.wait(0.1)
-
-            -- 5. Chuyển lại Tab Cày Cuốc (Farm) để trả lại màn hình y như cũ
-            local fmTab
-            for _, d in ipairs(cont:GetDescendants()) do
-                if (d:IsA("TextLabel") or d:IsA("TextButton")) and (d.Text:lower() == "cày cuốc" or d.Text:lower() == "farm") and not d:FindFirstAncestor("Chilli_Dynamic_Island") then
-                    fmTab = d:IsA("TextButton") and d or d:FindFirstAncestorOfClass("TextButton")
-                    if fmTab then break end
-                end
-            end
-            if fmTab then clk(fmTab) end
-
-            PresetBtn.Text = "✅ ĐÃ NẠP THÀNH CÔNG!"
             task.wait(2)
             PresetBtn.Text = "⚡ NẠP CẤU HÌNH (JSON)"
             PresetBtn.BackgroundColor3 = Color3.fromRGB(38, 44, 58)
