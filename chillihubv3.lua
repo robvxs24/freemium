@@ -1,20 +1,11 @@
 -- ==============================================================================
---  CHILLI HUB V2 - DYNAMIC ISLAND V10.0 (BUG-FREE & ZERO-LAG EDITION)
+--  CHILLI HUB V2 - ISLAND CONTROL CENTER V11.0 (FORCE OVERRIDE EDITION)
 --  Tối ưu hóa:
---    1. FIX SYNTAX ERROR: Sửa lỗi dư chữ 'end' gây hỏng cụm DYNAMIC_PATTERNS.
---    2. ANTI-CRASH: Ép hiển thị UI bất chấp Executor bị lỗi quyền truy cập CoreGui.
---    3. NOTIFICATION: Thông báo hệ thống ngay khi chạy để kiểm tra script.
---    4. ZERO-LAG: Quét UI rải rác đảm bảo game giữ mượt 60 FPS.
---    5. AUTO FARM PRESET: Chạm để chuẩn hóa Auto Farm theo đúng 4 ảnh.
+--    1. FORCE VIRTUAL CLICK: Xuyên thủng các lớp bảo vệ UI của Chilli Hub để ép click.
+--    2. DROPDOWN DELAY SYNC: Xử lý mượt mà thao tác mở menu xổ xuống và chọn option.
+--    3. EXACT STATE MATCHING: Đối chiếu và bật/tắt đúng tuyệt đối theo 4 ảnh anh cung cấp.
+--    4. BẢO TỒN DYNAMIC ISLAND: Giữ nguyên thiết kế viên nang cầu vồng siêu mượt.
 -- ==============================================================================
-
-pcall(function()
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Chilli Hub V2",
-        Text = "Đang khởi tạo Dynamic Island...",
-        Duration = 3
-    })
-end)
 
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
@@ -30,23 +21,9 @@ end
 -- ==================== 1. HÀM ÉP GẮN GIAO DIỆN (CHỐNG CRASH) ====================
 local function AttachSafeUI(gui)
     local attached = false
-    pcall(function()
-        if gethui then 
-            gui.Parent = gethui() 
-            attached = true 
-        end
-    end)
-    if not attached then
-        pcall(function()
-            gui.Parent = CoreGui
-            attached = true
-        end)
-    end
-    if not attached or not gui.Parent then
-        pcall(function()
-            gui.Parent = LocalPlayer:WaitForChild("PlayerGui", 5)
-        end)
-    end
+    pcall(function() if gethui then gui.Parent = gethui(); attached = true end end)
+    if not attached then pcall(function() gui.Parent = CoreGui; attached = true end) end
+    if not attached or not gui.Parent then pcall(function() gui.Parent = LocalPlayer:WaitForChild("PlayerGui", 5) end) end
 end
 
 -- ==================== 2. NẠP SCRIPT CHILLI HUB GỐC ====================
@@ -56,18 +33,9 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 3. TỪ ĐIỂN DỊCH THUẬT MASTER ====================
+-- ==================== 3. TỪ ĐIỂN DỊCH THUẬT VÀ LÕI SOFT BLUE ====================
 local currentLanguage = "VI"
 local FastCache = {}
-
-local function replaceAll(str, findStr, replaceStr)
-    local startIdx, endIdx = str:find(findStr, 1, true)
-    while startIdx do
-        str = str:sub(1, startIdx - 1) .. replaceStr .. str:sub(endIdx + 1)
-        startIdx, endIdx = str:find(findStr, startIdx + #replaceStr, true)
-    end
-    return str
-end
 
 local EXACT_MATCH_VI = {
     ["Chilli Hub"] = "Chilli Hub V2", ["Hop"] = "Đổi Server", ["Join"] = "Vào Phòng", ["Copy"] = "Sao Chép",
@@ -231,7 +199,6 @@ local MAP_VI = {
     ["selected"] = "đã chọn"
 }
 
--- ĐÃ FIX LỖI SYNTAX Ở ĐÂY: KHÔNG CÒN 'END OR...' DƯ THỪA
 local DYNAMIC_PATTERNS = {
     { pattern = "Catching a (.+) butterfly, (%d+) studs %| (%d+) flying", format = function(lang, name, st, fl) return lang == "VI" and string.format("Đang bắt bướm %s, %s studs | %s đang bay", name, st, fl) or string.format("Catching a %s butterfly, %s studs | %s flying", name, st, fl) end },
     { pattern = "ALL (%d+)", format = function(lang, c) return lang == "VI" and ("TẤT CẢ " .. c) or ("ALL " .. c) end },
@@ -284,9 +251,7 @@ local function translateText(raw)
     local matched = false
     for _, item in ipairs(DYNAMIC_PATTERNS) do
         if result:find(item.pattern) then
-            result = result:gsub(item.pattern, function(...)
-                return item.format(currentLanguage, ...)
-            end)
+            result = result:gsub(item.pattern, function(...) return item.format(currentLanguage, ...) end)
             matched = true
         end
     end
@@ -301,8 +266,6 @@ local function translateText(raw)
     FastCache[cacheKey] = matched and result or raw
     return FastCache[cacheKey]
 end
-
-local TrackedElements = {}
 
 local function applyTranslation(inst)
     if not inst or not inst.Parent then return end
@@ -343,7 +306,7 @@ local function hookElement(inst)
     end)
 end
 
--- ==================== 4. LÕI ĐỔI MÀU 3 PHẦN DỊU MẮT ====================
+-- ==================== 4. LÕI SOFT PASTEL BLUE RESKIN ====================
 local COLOR_FACE_TOP     = Color3.fromRGB(140, 195, 245)
 local COLOR_FACE_BOTTOM  = Color3.fromRGB(95, 155, 225)
 local COLOR_BEVEL_SHADOW = Color3.fromRGB(55, 110, 180)
@@ -375,7 +338,9 @@ local function recolorSingleButton(btnContainer, labelObj)
         local pCol = p.BackgroundColor3
         if pCol and (pCol.R > 0.4 and pCol.G < 0.35) then p.BackgroundColor3 = COLOR_BEVEL_SHADOW end
     end
-    if labelObj and (labelObj:IsA("TextLabel") or labelObj:IsA("TextButton")) then labelObj.TextColor3 = Color3.fromRGB(255, 255, 255) end
+    if labelObj and (labelObj:IsA("TextLabel") or labelObj:IsA("TextButton")) then
+        labelObj.TextColor3 = Color3.fromRGB(255, 255, 255)
+    end
 end
 
 local function recolorHeaderBar(headerFrame, titleObj)
@@ -395,7 +360,9 @@ local function recolorHeaderBar(headerFrame, titleObj)
         local p = headerFrame.Parent
         if p.BackgroundColor3.R > 0.4 and p.BackgroundColor3.G < 0.35 then p.BackgroundColor3 = COLOR_BEVEL_SHADOW end
     end
-    if titleObj and (titleObj:IsA("TextLabel") or titleObj:IsA("TextButton")) then titleObj.TextColor3 = Color3.fromRGB(255, 255, 255) end
+    if titleObj and (titleObj:IsA("TextLabel") or titleObj:IsA("TextButton")) then
+        titleObj.TextColor3 = Color3.fromRGB(255, 255, 255)
+    end
     for _, item in ipairs(headerFrame:GetDescendants()) do
         if item:IsA("TextButton") or item:IsA("ImageButton") then
             item.BackgroundColor3 = COLOR_FACE_BOTTOM
@@ -430,30 +397,57 @@ local function inspectAndApplySoftBlue(inst)
     end
 end
 
--- ==================== 5. PRESET AUTO FARM ENGINE ====================
-local function triggerClick(btn)
-    if not btn then return end
-    pcall(function()
-        if getconnections then
-            for _, conn in ipairs(getconnections(btn.MouseButton1Click)) do conn:Fire() end
-            for _, conn in ipairs(getconnections(btn.Activated)) do conn:Fire() end
-            for _, conn in ipairs(getconnections(btn.InputBegan)) do
-                conn:Fire({UserInputType = Enum.UserInputType.MouseButton1, UserInputState = Enum.UserInputState.Begin})
-            end
+-- ==================== 5. HỆ THỐNG AUTO FARM (FORCE OVERRIDE ENGINE) ====================
+-- Hàm bắn phá toàn bộ Event Input để ép hệ thống nhận lệnh click
+local function forceTriggerClick(target)
+    if not target then return end
+    local targetsToClick = {target}
+    if target.Parent then
+        table.insert(targetsToClick, target.Parent)
+        for _, sib in ipairs(target.Parent:GetChildren()) do
+            if sib:IsA("GuiObject") then table.insert(targetsToClick, sib) end
         end
-    end)
+    end
+
+    for _, t in ipairs(targetsToClick) do
+        pcall(function()
+            if getconnections then
+                for _, conn in ipairs(getconnections(t.MouseButton1Click)) do conn:Fire() end
+                for _, conn in ipairs(getconnections(t.Activated)) do conn:Fire() end
+                for _, conn in ipairs(getconnections(t.InputBegan)) do
+                    conn:Fire({UserInputType = Enum.UserInputType.MouseButton1, UserInputState = Enum.UserInputState.Begin})
+                    conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.Begin})
+                end
+                task.wait(0.01)
+                for _, conn in ipairs(getconnections(t.InputEnded)) do
+                    conn:Fire({UserInputType = Enum.UserInputType.MouseButton1, UserInputState = Enum.UserInputState.End})
+                    conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.End})
+                end
+            end
+        end)
+    end
 end
 
-local function isToggleActive(btn)
-    if not btn then return false end
+local function isToggleActive(label)
+    if not label then return false end
+    local row = label.Parent
+    if not row then return false end
     local function checkGreen(c) return c and (c.G > 0.45 and c.G > c.R * 1.3 and c.G > c.B * 1.3) end
-    if checkGreen(btn.BackgroundColor3) then return true end
-    for _, child in ipairs(btn:GetDescendants()) do
-        if (child:IsA("Frame") or child:IsA("TextButton") or child:IsA("ImageLabel")) and checkGreen(child.BackgroundColor3) then return true end
+    
+    local elements = {label, row}
+    for _, child in ipairs(row:GetDescendants()) do
+        table.insert(elements, child)
+    end
+    
+    for _, el in ipairs(elements) do
+        if el:IsA("GuiObject") and checkGreen(el.BackgroundColor3) then
+            return true
+        end
     end
     return false
 end
 
+-- Khai báo mảng cấu hình đích danh (Bản 4 ảnh)
 local PRESET_TOGGLES = {
     { id = "AutoButterfly", target = true, patterns = {"tự động bắt bướm", "auto butterfly bloom"} },
     { id = "AutoSteal", target = true, patterns = {"tự động cướp trứng", "auto steal"}, exclude = {"v2", "zones", "khu vực"} },
@@ -469,9 +463,13 @@ local PRESET_TOGGLES = {
 local PRESET_DROPDOWNS = {
     { id = "CatchMode", targetText = {"đuổi theo", "chase"}, rowPatterns = {"chế độ bắt", "catch mode"} },
     { id = "CatchPriority", targetText = {"gần nhất", "nearest"}, rowPatterns = {"ưu tiên bắt", "catch priority"} },
-    { id = "MinRarity", targetText = {"bí ẩn (secret)", "secret"}, rowPatterns = {"min rarity", "độ hiếm min"} },
+    { id = "MinRarity", targetText = {"bí ẩn (secret)", "secret"}, rowPatterns = {"min rarity", "độ hiếm min", "độ hiếm"} },
     { id = "CatchButterflies", selectAll = true, rowPatterns = {"chọn bướm cần bắt", "catch butterflies"}, itemPatterns = {"radiant", "amethyst", "sapphire", "emerald"} }
 }
+
+local function stripTags(str)
+    return str:gsub("<[^>]+>", "")
+end
 
 local function findMatchingLabel(patterns, excludeList)
     local searchRoots = {CoreGui, LocalPlayer:FindFirstChild("PlayerGui")}
@@ -481,10 +479,12 @@ local function findMatchingLabel(patterns, excludeList)
         if root then
             for _, desc in ipairs(root:GetDescendants()) do
                 if (desc:IsA("TextLabel") or desc:IsA("TextButton")) and not desc:FindFirstAncestor("Chilli_Dynamic_Island") then
-                    local t = desc.Text:lower()
+                    local t = stripTags(desc.Text:lower())
                     local matched = false
                     for _, p in ipairs(patterns) do
-                        if t == p:lower() or t:find(p:lower(), 1, true) then matched = true; break end
+                        if t == p:lower() or t:find(p:lower(), 1, true) then
+                            matched = true; break
+                        end
                     end
                     if matched and excludeList then
                         for _, ex in ipairs(excludeList) do
@@ -499,19 +499,6 @@ local function findMatchingLabel(patterns, excludeList)
     return nil
 end
 
-local function getRowToggleButton(label)
-    if not label then return nil end
-    local row = label.Parent
-    if not row then return nil end
-    for _, child in ipairs(row:GetChildren()) do
-        if (child:IsA("TextButton") or child:IsA("ImageButton")) and child ~= label then return child end
-    end
-    for _, desc in ipairs(row:GetDescendants()) do
-        if (desc:IsA("TextButton") or desc:IsA("ImageButton")) and desc ~= label then return desc end
-    end
-    return nil
-end
-
 local function findDropdownOptionGlobal(targets)
     local searchRoots = {CoreGui, LocalPlayer:FindFirstChild("PlayerGui")}
     pcall(function() if gethui then table.insert(searchRoots, gethui()) end end)
@@ -520,7 +507,7 @@ local function findDropdownOptionGlobal(targets)
         if root then
             for _, desc in ipairs(root:GetDescendants()) do
                 if (desc:IsA("TextButton") or desc:IsA("TextLabel")) and not desc:FindFirstAncestor("Chilli_Dynamic_Island") then
-                    local dt = desc.Text:lower()
+                    local dt = stripTags(desc.Text:lower())
                     for _, opt in ipairs(targets) do
                         if dt == opt:lower() or dt:find(opt:lower(), 1, true) then
                             local btn = desc:IsA("TextButton") and desc or desc:FindFirstAncestorOfClass("TextButton")
@@ -539,19 +526,24 @@ local function selectDropdownOption(cfg)
     if not label then return end
     
     if cfg.selectAll and cfg.itemPatterns then
+        forceTriggerClick(label) -- Mở Dropdown
+        task.wait(0.2)
         for _, itemPat in ipairs(cfg.itemPatterns) do
             local optBtn = findDropdownOptionGlobal({itemPat})
-            if optBtn and not isToggleActive(optBtn) then triggerClick(optBtn); task.wait(0.04) end
+            if optBtn and not isToggleActive(optBtn) then 
+                forceTriggerClick(optBtn)
+                task.wait(0.05) 
+            end
         end
     elseif cfg.targetText then
         local optBtn = findDropdownOptionGlobal(cfg.targetText)
-        if optBtn then triggerClick(optBtn) else
-            local dropdownBtn = getRowToggleButton(label)
-            if dropdownBtn then
-                triggerClick(dropdownBtn); task.wait(0.1)
-                local retryBtn = findDropdownOptionGlobal(cfg.targetText)
-                if retryBtn then triggerClick(retryBtn) end
-            end
+        if optBtn then
+            if not isToggleActive(optBtn) then forceTriggerClick(optBtn) end
+        else
+            forceTriggerClick(label) -- Mở Dropdown
+            task.wait(0.2)
+            local retryBtn = findDropdownOptionGlobal(cfg.targetText)
+            if retryBtn then forceTriggerClick(retryBtn) end
         end
     end
 end
@@ -564,35 +556,42 @@ local function applyAutoFarmSettings(enable)
         SavedState.toggles = {}
         for _, cfg in ipairs(PRESET_TOGGLES) do
             local label = findMatchingLabel(cfg.patterns, cfg.exclude)
-            if label then
-                local btn = getRowToggleButton(label)
-                if btn then SavedState.toggles[cfg.id] = isToggleActive(btn) end
-            end
+            if label then SavedState.toggles[cfg.id] = isToggleActive(label) end
         end
+
         for _, cfg in ipairs(PRESET_TOGGLES) do
             local label = findMatchingLabel(cfg.patterns, cfg.exclude)
-            if label then
-                local btn = getRowToggleButton(label)
-                if btn and isToggleActive(btn) ~= cfg.target then triggerClick(btn); task.wait(0.04) end
+            if label and isToggleActive(label) ~= cfg.target then
+                forceTriggerClick(label)
+                task.wait(0.05)
             end
         end
-        for _, cfg in ipairs(PRESET_DROPDOWNS) do selectDropdownOption(cfg); task.wait(0.04) end
+
+        for _, cfg in ipairs(PRESET_DROPDOWNS) do
+            selectDropdownOption(cfg)
+            task.wait(0.05)
+        end
     else
         for _, cfg in ipairs(PRESET_TOGGLES) do
             local saved = SavedState.toggles[cfg.id]
             if saved ~= nil then
                 local label = findMatchingLabel(cfg.patterns, cfg.exclude)
-                if label then
-                    local btn = getRowToggleButton(label)
-                    if btn and isToggleActive(btn) ~= saved then triggerClick(btn); task.wait(0.04) end
+                if label and isToggleActive(label) ~= saved then
+                    forceTriggerClick(label)
+                    task.wait(0.05)
                 end
             end
         end
     end
 end
 
--- ==================== 6. RAINBOW DYNAMIC ISLAND UI ====================
+-- ==================== 6. RAINBOW DYNAMIC ISLAND V11.0 ====================
 local function createDynamicIslandUI()
+    pcall(function()
+        if CoreGui:FindFirstChild("Chilli_Dynamic_Island") then CoreGui.Chilli_Dynamic_Island:Destroy() end
+        if LocalPlayer.PlayerGui:FindFirstChild("Chilli_Dynamic_Island") then LocalPlayer.PlayerGui.Chilli_Dynamic_Island:Destroy() end
+    end)
+
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "Chilli_Dynamic_Island"
     ScreenGui.ResetOnSpawn = false
@@ -630,7 +629,9 @@ local function createDynamicIslandUI()
     })
     RainbowGradient.Parent = IslandStroke
 
-    RunService.RenderStepped:Connect(function() RainbowGradient.Rotation = (RainbowGradient.Rotation + 2) % 360 end)
+    RunService.RenderStepped:Connect(function()
+        RainbowGradient.Rotation = (RainbowGradient.Rotation + 2) % 360
+    end)
 
     local TopBar = Instance.new("Frame")
     TopBar.Size = UDim2.new(1, 0, 0, 32)
@@ -700,7 +701,7 @@ local function createDynamicIslandUI()
     Layout.Parent = ContentFrame
 
     local LangSegment = Instance.new("Frame")
-    LangSegment.Size = UDim2.new(1, 0, 0, 26)
+    LangSegment.Size = UDim2.new(1, 0, 0, 28)
     LangSegment.BackgroundColor3 = Color3.fromRGB(18, 22, 34)
     LangSegment.BorderSizePixel = 0
     LangSegment.LayoutOrder = 1
@@ -709,7 +710,7 @@ local function createDynamicIslandUI()
 
     local LangSlider = Instance.new("Frame")
     LangSlider.Size = UDim2.new(0.5, -3, 1, -4)
-    LangSlider.Position = UDim2.new(0, 2, 0.5, -11)
+    LangSlider.Position = UDim2.new(0, 2, 0.5, -12)
     LangSlider.BackgroundColor3 = COLOR_FACE_BOTTOM
     LangSlider.BorderSizePixel = 0
     LangSlider.Parent = LangSegment
@@ -745,11 +746,11 @@ local function createDynamicIslandUI()
         if currentLanguage == lang then return end
         currentLanguage = lang
         if lang == "VI" then
-            TweenService:Create(LangSlider, TweenInfo.new(0.28, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0, 2, 0.5, -11), BackgroundColor3 = COLOR_FACE_BOTTOM}):Play()
+            TweenService:Create(LangSlider, TweenInfo.new(0.28, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0, 2, 0.5, -12), BackgroundColor3 = COLOR_FACE_BOTTOM}):Play()
             TweenService:Create(BtnVI, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
             TweenService:Create(BtnEN, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(150, 165, 190)}):Play()
         else
-            TweenService:Create(LangSlider, TweenInfo.new(0.28, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, 1, 0.5, -11), BackgroundColor3 = Color3.fromRGB(50, 65, 90)}):Play()
+            TweenService:Create(LangSlider, TweenInfo.new(0.28, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, 1, 0.5, -12), BackgroundColor3 = Color3.fromRGB(50, 65, 90)}):Play()
             TweenService:Create(BtnEN, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
             TweenService:Create(BtnVI, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(150, 165, 190)}):Play()
         end
@@ -793,7 +794,7 @@ local function createDynamicIslandUI()
     FarmSub.Size = UDim2.new(1, -55, 0, 14)
     FarmSub.Position = UDim2.new(0, 8, 0, 22)
     FarmSub.BackgroundTransparency = 1
-    FarmSub.Text = "Auto chuẩn 4 ảnh (Bật/Khôi phục)"
+    FarmSub.Text = "Chuẩn theo 4 ảnh (Bật/Khôi phục)"
     FarmSub.Font = Enum.Font.GothamMedium
     FarmSub.TextSize = 8
     FarmSub.TextColor3 = Color3.fromRGB(130, 150, 180)
@@ -853,7 +854,7 @@ local function createDynamicIslandUI()
         task.wait(0.08)
         if isExpanded then
             TweenService:Create(ArrowBadge, TweenInfo.new(0.3), {Rotation = 180}):Play()
-            local tweenExp = TweenService:Create(Island, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0, 240, 0, 115)})
+            local tweenExp = TweenService:Create(Island, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0, 245, 0, 120)})
             tweenExp:Play()
             tweenExp.Completed:Connect(function() isTweening = false end)
         else
@@ -882,7 +883,7 @@ local function createDynamicIslandUI()
             local delta = input.Position - dragStart
             if delta.Magnitude > 8 then
                 local cam = workspace.CurrentCamera
-                local maxX = cam and cam.ViewportSize.X - 240 or 800
+                local maxX = cam and cam.ViewportSize.X - 245 or 800
                 local maxY = cam and cam.ViewportSize.Y - 120 or 600
                 local newX = math.clamp(startPos.X.Offset + delta.X, -maxX / 2, maxX / 2)
                 local newY = math.clamp(startPos.Y.Offset + delta.Y, 0, maxY)
