@@ -1,16 +1,17 @@
 -- ==============================================================================
---  CHILLI HUB V2 - DYNAMIC ISLAND V17.0 (ONE-WAY AUTO FARM)
+--  CHILLI HUB V2 - DYNAMIC ISLAND V18.0 (NASI RENDANG PRESET STYLE)
 --  Tối ưu hóa:
---    1. ONE-WAY TOGGLE: Bật Auto Farm là kích hoạt luôn, không cho tắt nữa (theo yêu cầu).
---    2. RESTORED OMNI-CLICK: Trả lại hàm ép click cực mạnh của V12 để đảm bảo 100% bật được nút.
---    3. OBFUSCATE SAFE: Code phẳng tương thích hoàn toàn với phần mềm mã hóa.
---    4. LIQUID SPRING EXPANSION: Kéo bung mượt mà, khung cầu vồng xoay 360 độ.
+--    1. ONE-SHOT PRESET: Nút bấm 1 chạm y hệt Nasi Rendang, tốc độ thiết lập siêu tốc (0.02s).
+--    2. NO MORE TOGGLES: Xóa bỏ hoàn toàn công tắc rườm rà, bấm là chạy thẳng 1 chiều.
+--    3. ROBLOX NOTIFICATION: Hiện thông báo góc màn hình khi áp dụng xong preset.
+--    4. 100% OBFUSCATE SAFE: Code phẳng tuyệt đối, tương thích mọi trình mã hóa.
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
+local StarterGui = game:GetService("StarterGui")
 
 local LocalPlayer = Players.LocalPlayer
 if not LocalPlayer then
@@ -22,14 +23,8 @@ local function getSafeGuiContainer()
     local container = nil
     pcall(function() if gethui then container = gethui() end end)
     if container then return container end
-
-    pcall(function()
-        if CoreGui and pcall(function() return CoreGui:GetChildren() end) then
-            container = CoreGui
-        end
-    end)
+    pcall(function() if CoreGui and pcall(function() return CoreGui:GetChildren() end) then container = CoreGui end end)
     if container then return container end
-
     pcall(function() container = LocalPlayer:WaitForChild("PlayerGui", 5) end)
     return container
 end
@@ -216,7 +211,6 @@ local MAP_VI = {
     ["selected"] = "đã chọn"
 }
 
--- CẤU TRÚC OBFUSCATE SAFE MỚI NHẤT
 local DYNAMIC_PATTERNS = {
     { pattern = "Catching a (.+) butterfly, (%d+) studs | (%d+) flying", vnFormat = "Đang bắt bướm %s, %s studs | %s đang bay", enFormat = "Catching a %s butterfly, %s studs | %s flying" },
     { pattern = "ALL (%d+)", vnFormat = "TẤT CẢ %s", enFormat = "ALL %s" },
@@ -333,7 +327,7 @@ local function hookElement(inst)
     end)
 end
 
--- ==================== 4. LÕI ĐỔI MÀU SOFT PASTEL BLUE ====================
+-- ==================== LÕI SOFT BLUE RESKIN ====================
 local COLOR_FACE_TOP     = Color3.fromRGB(140, 195, 245)
 local COLOR_FACE_BOTTOM  = Color3.fromRGB(95, 155, 225)
 local COLOR_BEVEL_SHADOW = Color3.fromRGB(55, 110, 180)
@@ -424,17 +418,8 @@ local function inspectAndApplySoftBlue(inst)
     end
 end
 
--- ==================== 5. HỆ THỐNG AUTO FARM MỘT CHIỀU (BẬT LÀ KHÔNG TẮT) ====================
-local function setStatus(text)
-    pcall(function()
-        local island = CoreGui:FindFirstChild("Chilli_Dynamic_Island") or LocalPlayer.PlayerGui:FindFirstChild("Chilli_Dynamic_Island")
-        if island then
-            local sub = island:FindFirstChild("FarmSub", true)
-            if sub then sub.Text = text end
-        end
-    end)
-end
-
+-- ==================== HỆ THỐNG AUTO FARM 1 CHẠM (ONE-SHOT PRESET) ====================
+-- Hàm giả lập click siêu nhanh
 local function forceTriggerClick(target)
     if not target then return end
     local targetsToClick = {target}
@@ -453,7 +438,6 @@ local function forceTriggerClick(target)
                     conn:Fire({UserInputType = Enum.UserInputType.MouseButton1, UserInputState = Enum.UserInputState.Begin})
                     conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.Begin})
                 end
-                task.wait(0.01)
                 for _, conn in ipairs(getconnections(t.InputEnded)) do
                     conn:Fire({UserInputType = Enum.UserInputType.MouseButton1, UserInputState = Enum.UserInputState.End})
                     conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.End})
@@ -477,14 +461,11 @@ local function isToggleActive(label)
     return false
 end
 
--- Bộ thiết lập chuẩn 4 ảnh
 local PRESET_TOGGLES = {
     { id = "AutoButterfly", target = true, patterns = {"tự động bắt bướm", "auto butterfly bloom"} },
     { id = "AutoSteal", target = true, patterns = {"tự động cướp trứng", "auto steal"}, exclude = {"v2", "zones", "khu vực"} },
-    { id = "InstantStealV1", target = false, patterns = {"cướp siêu tốc (instant steal)", "instant steal"}, exclude = {"v2", "steps", "zones", "bước", "khu vực"} },
     { id = "InstantStealV2", target = true, patterns = {"cướp siêu tốc (instant steal) v2", "instant steal v2"} },
     { id = "TeleportToEgg", target = true, patterns = {"teleport to egg", "dịch chuyển đến trứng"} },
-    { id = "DropSafeZone", target = false, patterns = {"drop eggs at safe zone", "thả trứng tại vùng an toàn"} },
     { id = "AntiGuardPanel", target = true, patterns = {"bảng chống vệ sĩ", "anti guard panel"} },
     { id = "AutoTreadmill", target = true, patterns = {"tự động máy tập", "auto treadmill"}, exclude = {"cố định", "stay", "nâng cấp", "upgrade"} },
     { id = "StayTreadmill", target = true, patterns = {"cố định trên máy tập", "stay on treadmill"} }
@@ -548,26 +529,23 @@ local function findDropdownOptionGlobal(targets)
     return nil
 end
 
-local function selectDropdownOption(cfg)
+local function selectDropdownOptionFast(cfg)
     local label = findMatchingLabel(cfg.rowPatterns)
     if not label then return end
     local row = label.Parent
     if not row then return end
     
     if cfg.selectAll and cfg.itemPatterns then
-        setStatus("Mở menu " .. label.Text .. "...")
         forceTriggerClick(row)
-        task.wait(0.3)
+        task.wait(0.05)
         for _, itemPat in ipairs(cfg.itemPatterns) do
             local optBtn = findDropdownOptionGlobal({itemPat})
             if optBtn and not isToggleActive(optBtn.Parent) then 
-                setStatus("Chọn " .. itemPat .. "...")
                 forceTriggerClick(optBtn.Parent)
-                task.wait(0.3) 
             end
         end
+        task.wait(0.05)
         forceTriggerClick(row)
-        task.wait(0.3)
     elseif cfg.targetText then
         local rowText = ""
         for _, desc in ipairs(row:GetDescendants()) do
@@ -578,45 +556,42 @@ local function selectDropdownOption(cfg)
         local alreadySelected = false
         for _, t in ipairs(cfg.targetText) do
             if rowText:find(t:lower(), 1, true) then
-                alreadySelected = true
-                break
+                alreadySelected = true; break
             end
         end
         
         if not alreadySelected then
-            setStatus("Mở menu " .. label.Text .. "...")
             forceTriggerClick(row)
-            task.wait(0.3)
+            task.wait(0.05)
             local optBtn = findDropdownOptionGlobal(cfg.targetText)
             if optBtn then
-                setStatus("Chọn mục mới...")
                 forceTriggerClick(optBtn.Parent)
-                task.wait(0.3)
-            else
-                forceTriggerClick(row)
             end
         end
     end
 end
 
-local isAutoFarmActive = false
-
--- Chỉ chạy một chiều (Chỉ Bật, không Tắt)
-local function applyAutoFarmSettings()
+local function applyOneShotPreset()
     for _, cfg in ipairs(PRESET_TOGGLES) do
         local label = findMatchingLabel(cfg.patterns, cfg.exclude)
         if label and isToggleActive(label) ~= cfg.target then
-            setStatus("Bật: " .. label.Text)
             forceTriggerClick(label.Parent)
-            task.wait(0.3)
+            task.wait(0.02)
         end
     end
 
     for _, cfg in ipairs(PRESET_DROPDOWNS) do
-        selectDropdownOption(cfg)
-        task.wait(0.3)
+        selectDropdownOptionFast(cfg)
+        task.wait(0.02)
     end
-    setStatus("✅ Đã bật cấu hình chuẩn 4 ảnh")
+    
+    pcall(function()
+        StarterGui:SetCore("SendNotification", {
+            Title = "Auto Farm Applied",
+            Text = "Đã cấu hình Bắt Bướm, Cướp V2, Máy Tập chuẩn 4 ảnh!",
+            Duration = 5
+        })
+    end)
 end
 
 -- ==================== 6. RAINBOW DYNAMIC ISLAND UI ====================
@@ -699,14 +674,6 @@ local function createDynamicIslandUI()
     Title.TextColor3 = Color3.fromRGB(255, 255, 255)
     Title.TextXAlignment = Enum.TextXAlignment.Left
     Title.Parent = TopBar
-
-    local StatusDot = Instance.new("Frame")
-    StatusDot.Size = UDim2.new(0, 7, 0, 7)
-    StatusDot.Position = UDim2.new(1, -38, 0.5, -3.5)
-    StatusDot.BackgroundColor3 = Color3.fromRGB(120, 130, 150)
-    StatusDot.BorderSizePixel = 0
-    StatusDot.Parent = TopBar
-    Instance.new("UICorner", StatusDot).CornerRadius = UDim.new(1, 0)
 
     local ArrowBadge = Instance.new("TextLabel")
     ArrowBadge.Size = UDim2.new(0, 20, 1, 0)
@@ -806,67 +773,29 @@ local function createDynamicIslandUI()
     BtnVI.Activated:Connect(function() setLanguage("VI") end)
     BtnEN.Activated:Connect(function() setLanguage("EN") end)
 
-    local AutoFarmCard = Instance.new("Frame")
-    AutoFarmCard.Size = UDim2.new(1, 0, 0, 42)
-    AutoFarmCard.BackgroundColor3 = Color3.fromRGB(16, 20, 30)
-    AutoFarmCard.BorderSizePixel = 0
-    AutoFarmCard.LayoutOrder = 2
-    AutoFarmCard.Parent = ContentFrame
-    Instance.new("UICorner", AutoFarmCard).CornerRadius = UDim.new(0, 8)
-    Instance.new("UIStroke", AutoFarmCard).Color = Color3.fromRGB(45, 60, 85)
+    -- NÚT PRESET 1 CHẠM (THAY THẾ CHO CÔNG TẮC TOGGLE RƯỜM RÀ)
+    local PresetBtn = Instance.new("TextButton")
+    PresetBtn.Size = UDim2.new(1, 0, 0, 36)
+    PresetBtn.BackgroundColor3 = Color3.fromRGB(38, 44, 58)
+    PresetBtn.Text = "⚡ ÁP DỤNG PRESET (4 ẢNH)"
+    PresetBtn.Font = Enum.Font.GothamBold
+    PresetBtn.TextSize = 11
+    PresetBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    PresetBtn.LayoutOrder = 2
+    PresetBtn.Parent = ContentFrame
+    Instance.new("UICorner", PresetBtn).CornerRadius = UDim.new(0, 8)
+    Instance.new("UIStroke", PresetBtn).Color = Color3.fromRGB(45, 60, 85)
 
-    local FarmTitle = Instance.new("TextLabel")
-    FarmTitle.Size = UDim2.new(1, -55, 0, 18)
-    FarmTitle.Position = UDim2.new(0, 8, 0, 4)
-    FarmTitle.BackgroundTransparency = 1
-    FarmTitle.Text = "Settings Auto Farm"
-    FarmTitle.Font = Enum.Font.GothamBold
-    FarmTitle.TextSize = 10
-    FarmTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-    FarmTitle.TextXAlignment = Enum.TextXAlignment.Left
-    FarmTitle.Parent = AutoFarmCard
-
-    local FarmSub = Instance.new("TextLabel")
-    FarmSub.Name = "FarmSub"
-    FarmSub.Size = UDim2.new(1, -55, 0, 14)
-    FarmSub.Position = UDim2.new(0, 8, 0, 22)
-    FarmSub.BackgroundTransparency = 1
-    FarmSub.Text = "Chuẩn theo 4 ảnh (Bật & Giữ nguyên)"
-    FarmSub.Font = Enum.Font.GothamMedium
-    FarmSub.TextSize = 8
-    FarmSub.TextColor3 = Color3.fromRGB(130, 150, 180)
-    FarmSub.TextXAlignment = Enum.TextXAlignment.Left
-    FarmSub.Parent = AutoFarmCard
-
-    local FarmToggle = Instance.new("TextButton")
-    FarmToggle.Size = UDim2.new(0, 36, 0, 20)
-    FarmToggle.Position = UDim2.new(1, -42, 0.5, -10)
-    FarmToggle.BackgroundColor3 = Color3.fromRGB(38, 44, 58)
-    FarmToggle.Text = ""
-    FarmToggle.ZIndex = 12
-    FarmToggle.Parent = AutoFarmCard
-    Instance.new("UICorner", FarmToggle).CornerRadius = UDim.new(1, 0)
-
-    local FarmKnob = Instance.new("Frame")
-    FarmKnob.Size = UDim2.new(0, 14, 0, 14)
-    FarmKnob.Position = UDim2.new(0, 3, 0.5, -7)
-    FarmKnob.BackgroundColor3 = Color3.fromRGB(200, 205, 215)
-    FarmKnob.BorderSizePixel = 0
-    FarmKnob.Parent = FarmToggle
-    Instance.new("UICorner", FarmKnob).CornerRadius = UDim.new(1, 0)
-
-    FarmToggle.Activated:Connect(function()
-        if isAutoFarmActive then return end -- Nếu đã bật thì khóa luôn, không cho tắt nữa
-        isAutoFarmActive = true
-        
-        TweenService:Create(FarmKnob, TweenInfo.new(0.2), {Position = UDim2.new(1, -17, 0.5, -7), BackgroundColor3 = Color3.fromRGB(255, 255, 255)}):Play()
-        TweenService:Create(FarmToggle, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 205, 110)}):Play()
-        FarmSub.Text = "Đang áp dụng cấu hình..."
-        TweenService:Create(FarmSub, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(90, 240, 150)}):Play()
-        TweenService:Create(StatusDot, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(50, 255, 120)}):Play()
-        
+    PresetBtn.Activated:Connect(function()
+        PresetBtn.Text = "Đang thiết lập siêu tốc..."
+        PresetBtn.BackgroundColor3 = Color3.fromRGB(45, 205, 110)
         task.spawn(function()
-            applyAutoFarmSettings()
+            applyOneShotPreset()
+            task.wait(1)
+            PresetBtn.Text = "✅ Đã áp dụng thành công!"
+            task.wait(2)
+            PresetBtn.Text = "⚡ ÁP DỤNG PRESET (4 ẢNH)"
+            PresetBtn.BackgroundColor3 = Color3.fromRGB(38, 44, 58)
         end)
     end)
 
@@ -881,7 +810,7 @@ local function createDynamicIslandUI()
         task.wait(0.08)
         if isExpanded then
             TweenService:Create(ArrowBadge, TweenInfo.new(0.3), {Rotation = 180}):Play()
-            local tweenExp = TweenService:Create(Island, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0, 245, 0, 120)})
+            local tweenExp = TweenService:Create(Island, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0, 245, 0, 115)})
             tweenExp:Play()
             tweenExp.Completed:Connect(function() isTweening = false end)
         else
@@ -905,13 +834,14 @@ local function createDynamicIslandUI()
             end)
         end
     end)
+
     Island.InputChanged:Connect(function(input)
         if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragging then
             local delta = input.Position - dragStart
             if delta.Magnitude > 8 then
                 local cam = workspace.CurrentCamera
                 local maxX = cam and cam.ViewportSize.X - 245 or 800
-                local maxY = cam and cam.ViewportSize.Y - 120 or 600
+                local maxY = cam and cam.ViewportSize.Y - 115 or 600
                 local newX = math.clamp(startPos.X.Offset + delta.X, -maxX / 2, maxX / 2)
                 local newY = math.clamp(startPos.Y.Offset + delta.Y, 0, maxY)
                 Island.Position = UDim2.new(startPos.X.Scale, newX, startPos.Y.Scale, newY)
