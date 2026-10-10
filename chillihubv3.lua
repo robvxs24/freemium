@@ -1,17 +1,17 @@
 -- ==============================================================================
---  CHILLI HUB V2 - DYNAMIC ISLAND V18.0 (NASI RENDANG PRESET STYLE)
+--  CHILLI HUB V2 - DYNAMIC ISLAND V20.0 (ULTIMATE AUTO-LOAD INJECTOR)
 --  Tối ưu hóa:
---    1. ONE-SHOT PRESET: Nút bấm 1 chạm y hệt Nasi Rendang, tốc độ thiết lập siêu tốc (0.02s).
---    2. NO MORE TOGGLES: Xóa bỏ hoàn toàn công tắc rườm rà, bấm là chạy thẳng 1 chiều.
---    3. ROBLOX NOTIFICATION: Hiện thông báo góc màn hình khi áp dụng xong preset.
---    4. 100% OBFUSCATE SAFE: Code phẳng tuyệt đối, tương thích mọi trình mã hóa.
+--    1. 100% OBFUSCATE PROOF: Code phẳng tĩnh tuyệt đối (Flat String Regex). Chấp mọi trình mã hóa.
+--    2. MACRO AUTO-LOAD: Tự động ghi JSON -> Tự qua tab Cấu Hình -> Tự chọn file -> Tự bấm Load.
+--    3. ZERO VIRTUAL CLICKS: Dẹp bỏ cơ chế bật/tắt từng nút rườm rà. Nạp JSON 1 phát ăn luôn.
+--    4. LIQUID SPRING EXPANSION: Kéo bung mượt mà, khung cầu vồng xoay 360 độ.
+--    5. SOFT SAPPHIRE RESKIN: Đổi màu xanh pastel dịu mắt 3 phần, giữ nguyên chữ trắng.
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
-local StarterGui = game:GetService("StarterGui")
 
 local LocalPlayer = Players.LocalPlayer
 if not LocalPlayer then
@@ -29,6 +29,84 @@ local function getSafeGuiContainer()
     return container
 end
 
+-- ==================== CHUỖI JSON CONFIG GỐC CỦA NGƯỜI DÙNG ====================
+local AUTO_FARM_JSON = [=[
+{"Profile":"auto farm","Version":2,"Values":{"Misc":{"Performance":{"FPS Cap":{"Value":240,"Type":"slider","Unit":" FPS"},"Farm HUD":{"Value":false,"Type":"toggle"},"Background Color":{"Value":"White","Type":"dropdown"},"Egg Card Image":{"Value":"Egg Image","Type":"dropdown"},"Disable 3D Render":{"Value":false,"Type":"toggle"},"FPS and Ping":{"Value":true,"Type":"toggle"},"Optimizer":{"Value":false,"Type":"toggle"},"HUD Size":{"Value":70,"Type":"slider","Unit":"%"},"Showcase Cards":{"Value":4,"Type":"slider"},"Hide Game UI":{"Value":true,"Type":"toggle"},"HUD Items":{"Value":["Money","Income","Speed","Treadmill","Eggs Stolen","Best Steal","Night Timer","Session Time","Activity","Mech Portal","Boss Mastery","Samples","Mech Fights","Lab","Pets","Eggs","Top Pets","Top Eggs","Steal History"],"Type":"multidropdown"},"FPS and Ping Size":{"Value":100,"Type":"slider","Unit":"%"}},"Utility":{"Anti AFK":{"Value":true,"Type":"toggle"}}},"Predictor":{"Egg Predictor":{"Sort By":{"Value":"Value","Type":"dropdown"},"Preview Card":{"Value":true,"Type":"toggle"}},"Discord Webhook":{"Webhook URL":{"Value":"","Type":"input"},"Notify Fused Eggs":{"Value":false,"Type":"toggle"},"Notify Stolen Eggs":{"Value":false,"Type":"toggle"},"Webhook Eggs":{"Value":[],"Type":"multidropdown"},"Webhook Min Rarity":{"Value":"Any","Type":"dropdown"},"Webhook Min Value":{"Value":0,"Type":"slider"},"Ping @everyone":{"Value":false,"Type":"toggle"}}},"Progress":{"Auto Progression":{"Auto Buy Trail":{"Value":false,"Type":"toggle"},"Auto Claim Index":{"Value":false,"Type":"toggle"},"Auto Upgrade Treadmill":{"Value":false,"Type":"toggle"},"Auto Claim":{"Value":false,"Type":"toggle"},"Auto Upgrade Base":{"Value":false,"Type":"toggle"}}},"Quick":{"Pin Pad":{"Pad Size":{"Value":150,"Type":"slider","Unit":"%"},"Enable Keybinds":{"Value":true,"Type":"toggle"},"Show Pin Pads":{"Value":true,"Type":"toggle"},"Visible Quick Bars":{"Value":["Quick Bar 1","Quick Bar 2","Quick Bar 3","Quick Bar 4","Quick Bar 5"],"Type":"multidropdown"}}},"Auto Hop":{"Egg Finder":{"Hop Mode":{"Value":"Steal Then Hop","Type":"dropdown"},"Min Rarity":{"Value":"Secret","Type":"dropdown"},"Rarity To Wait For":{"Value":"Cosmic","Type":"dropdown"},"First Hop Delay":{"Value":5,"Type":"slider","Unit":"s"},"Auto Hop":{"Value":false,"Type":"toggle"},"Target Specific Eggs":{"Value":[],"Type":"multidropdown"},"Sync With Auto Steal Filters":{"Value":true,"Type":"toggle"},"Min Value To Find":{"Value":0,"Type":"slider"},"Target Areas":{"Value":["Forest","Desert","Snow","Lake","Jungle","Volcano","Prehistoric","Cosmic","Abyss Ocean","Cherry Blossom","Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"}}},"Player":{"ESP":{"ESP Eggs":{"Value":false,"Type":"toggle"},"ESP Player Size":{"Value":75,"Type":"slider","Unit":"%"},"ESP Show Info":{"Value":["Icon","Name","Value"],"Type":"multidropdown"},"ESP Guard Size":{"Value":75,"Type":"slider","Unit":"%"},"ESP Player Info":{"Value":["Name","Tool"],"Type":"multidropdown"},"ESP Other Base Eggs":{"Value":false,"Type":"toggle"},"ESP Min Rarity":{"Value":"Any","Type":"dropdown"},"ESP Guards":{"Value":false,"Type":"toggle"},"Min ESP Value":{"Value":0,"Type":"slider"},"ESP Lost Parts":{"Value":false,"Type":"toggle"},"ESP Players":{"Value":false,"Type":"toggle"},"ESP Own Base Eggs":{"Value":true,"Type":"toggle"},"ESP Fixed Size":{"Value":false,"Type":"toggle"},"ESP Egg Size":{"Value":75,"Type":"slider","Unit":"%"}},"Character":{"Instant Prompts":{"Value":true,"Type":"toggle"},"Anti Ragdoll":{"Value":true,"Type":"toggle"},"Anti Trap":{"Value":true,"Type":"toggle"},"Invisibility":{"Value":false,"Type":"toggle"}},"Movement":{"Speed Boost":{"Value":false,"Type":"toggle"},"Boost Speed":{"Value":1000,"Type":"slider","Unit":"studs/s"},"Infinite Jump":{"Value":true,"Type":"toggle"}},"Combat":{"Auto Hit Egg Holders":{"Value":false,"Type":"toggle"},"Hit Max Speed":{"Value":750,"Type":"slider","Unit":"studs/s"},"Auto Hit Nearest Player":{"Value":false,"Type":"toggle"},"Hit Sweep":{"Value":250,"Type":"slider","Unit":"%"},"Hit Player":{"Value":"ayainayyaa","Type":"dropdown"},"Hit Tween Speed":{"Value":400,"Type":"slider","Unit":"studs/s"},"Hit Lead":{"Value":100,"Type":"slider"},"Chase Settings":{"Value":"Chase Settings","Type":"label"},"Auto Hit Specific Player":{"Value":false,"Type":"toggle"},"Hit Aura":{"Value":false,"Type":"toggle"},"Hit Status":{"Value":"Idle","Type":"text"}}},"Settings":{"Interface":{"UI Size":{"Value":100,"Type":"slider","Unit":"%"}}},"Farm":{"Auto Steal":{"Drop Eggs At Safe Zone":{"Value":false,"Type":"toggle"},"Anti Guard Panel":{"Value":true,"Type":"toggle"},"Carry Speed":{"Value":120,"Type":"slider","Unit":"%"},"Target Specific Eggs":{"Value":[],"Type":"multidropdown"},"Steal Missing Lab Eggs":{"Value":false,"Type":"toggle"},"Instant Steal Steps":{"Value":1,"Type":"slider"},"Stock Lab Eggs For":{"Value":[],"Type":"multidropdown"},"Target Areas":{"Value":["Forest","Desert","Snow","Lake","Jungle","Volcano","Prehistoric","Cosmic","Abyss Ocean","Cherry Blossom","Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"},"Unstable DNA Lab Eggs":{"Value":["Toro Egg (24%)","Winged Lamb Egg (23%)","Bladehide Egg (23%)","Imp Egg (22%)","Crustacia Egg (22%)"],"Type":"multidropdown"},"Steal Priority":{"Value":"Highest Value","Type":"dropdown"},"Auto Steal":{"Value":true,"Type":"toggle"},"Min Rarity":{"Value":"Secret","Type":"dropdown"},"Teleport To Egg":{"Value":true,"Type":"toggle"},"Stock Per Egg":{"Value":3,"Type":"slider","Unit":""},"Experimental Lab Eggs":{"Value":[],"Type":"multidropdown"},"Fast Delivery":{"Value":false,"Type":"toggle"},"Skip Owned Lab Eggs":{"Value":true,"Type":"toggle"},"Biohazard Lab Eggs":{"Value":[],"Type":"multidropdown"},"Instant Steal V2":{"Value":true,"Type":"toggle"},"Instant Steal":{"Value":false,"Type":"toggle"},"Steal Missing Index Eggs":{"Value":false,"Type":"toggle"},"Instant Steal Zones":{"Value":["Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"},"Tween Speed":{"Value":120,"Type":"slider","Unit":"%"},"Min Steal Value":{"Value":0,"Type":"slider"}},"Auto Treadmill":{"Stay On Treadmill":{"Value":true,"Type":"toggle"},"Auto Treadmill":{"Value":true,"Type":"toggle"}},"Dr Scramble Lab & Mech":{"Swap Two Weapons":{"Value":true,"Type":"toggle"},"Auto Lab Trade-In":{"Value":false,"Type":"toggle"},"Keep Hopping For":{"Value":3,"Type":"slider","Unit":"min"},"Boss Server Hop":{"Value":false,"Type":"toggle"},"Auto Claim Mastery":{"Value":false,"Type":"toggle"},"Auto Buy Scramble Shop":{"Value":false,"Type":"toggle"},"Scrambler Hold":{"Value":0.4,"Type":"slider","Unit":"s"},"Scramble Shop Items":{"Value":[],"Type":"multidropdown"},"Auto Mech Boss":{"Value":false,"Type":"toggle"},"Auto Reroll Lab Recipe":{"Value":false,"Type":"toggle"},"Lab Banners":{"Value":[],"Type":"multidropdown"},"Auto Place Lab Reward Eggs":{"Value":false,"Type":"toggle"},"Mech Tween Speed":{"Value":250,"Type":"slider","Unit":"studs/s"},"Lab Status":{"Value":"Experimental Pets  -  needs Cosmic Gecko, Bladehide, Snowy Owl  -  pity 0/100  -  free rerolls 2  -  rotates in 2:56","Type":"text"},"Main Weapon Hold":{"Value":0.3,"Type":"slider","Unit":"s"},"Mech Status":{"Value":"Off  |  Next Mech portal in 2:57","Type":"text"},"Keep Samples":{"Value":0,"Type":"slider","Unit":""}},"Auto Sell":{"Egg Sell Value":{"Value":0,"Type":"slider"},"Egg Sell Preview":{"Value":"Egg matches  -  0 eggs for $0","Type":"text"},"Auto Sell Egg":{"Value":false,"Type":"toggle"},"Blacklist Sell Eggs":{"Value":[],"Type":"multidropdown"},"Keep Mutated Eggs":{"Value":true,"Type":"toggle"},"Egg Max Rarity":{"Value":"3 - Rare","Type":"dropdown"},"Blacklist Sell Pets":{"Value":[],"Type":"multidropdown"},"Sell Egg Rule":{"Value":"Rarity Only","Type":"dropdown"},"Auto Sell Pet":{"Value":false,"Type":"toggle"},"Pet Sell Value":{"Value":0,"Type":"slider"},"Pet Sell Preview":{"Value":"Pet matches  -  0 pets for $0","Type":"text"},"Keep Mutated Pets":{"Value":true,"Type":"toggle"},"Sell Pet Rule":{"Value":"Rarity Only","Type":"dropdown"},"Pet Max Rarity":{"Value":"3 - Rare","Type":"dropdown"}},"Wisp Companion":{"Auto Banjo Cricket":{"Value":false,"Type":"toggle"},"Auto Wisp":{"Value":false,"Type":"toggle"},"Wisp Status":{"Value":"Off","Type":"text"}},"Auto Place Egg":{"Place Egg Rule":{"Value":"Always","Type":"dropdown"},"Auto Place Egg":{"Value":false,"Type":"toggle"},"Pen Status":{"Value":"Eggs placed 6/30  -  19/19 pets equipped, 87 in bag","Type":"text"},"Place Rarities":{"Value":[],"Type":"multidropdown"},"Place Egg Order":{"Value":"Highest Value","Type":"dropdown"},"Min Place Value":{"Value":0,"Type":"slider"},"Place Specific Eggs":{"Value":[],"Type":"multidropdown"}},"Auto Fuse Machine":{"Max Rarity to Fuse":{"Value":"6 - Mythic","Type":"dropdown"},"Skip Mutated Pets":{"Value":true,"Type":"toggle"},"Auto Fuse Machine":{"Value":false,"Type":"toggle"},"Eject Incomplete Slots":{"Value":true,"Type":"toggle"},"Specific Species to Fuse":{"Value":[],"Type":"multidropdown"},"Pets To Use":{"Value":"Lowest To Highest","Type":"dropdown"},"Fuse Priority Mode":{"Value":"Lowest Rarity First","Type":"dropdown"},"Fuse Preview":{"Value":"No three matching pets","Type":"text"}},"Auto Mutation":{"Mutate Target Eggs":{"Value":["Amethyst Runebear [Secret]"],"Type":"multidropdown"},"Mutations To Use":{"Value":["Fractured","Scrambled","Enchanted"],"Type":"multidropdown"},"Mutate Priority":{"Value":"Highest Value","Type":"dropdown"},"Auto Buy Scrambled":{"Value":false,"Type":"toggle"},"Auto Mutate":{"Value":false,"Type":"toggle"},"Mutate Status":{"Value":"Off","Type":"text"},"Mutate Min Value":{"Value":0,"Type":"slider"},"Mutate Min Rarity":{"Value":"Any","Type":"dropdown"}},"Auto Sell Lab Egg":{"Lab Egg Sell Value":{"Value":0,"Type":"slider"},"Sell Lab Egg Rule":{"Value":"Rarity And Value","Type":"dropdown"},"Lab Egg Max Rarity":{"Value":"Off","Type":"dropdown"},"Auto Sell Lab Egg":{"Value":false,"Type":"toggle"},"Lab Egg Sell Preview":{"Value":"Lab egg matches  -  0 eggs for $0","Type":"text"},"Keep Lab Pets":{"Value":[],"Type":"multidropdown"},"Keep Mutated Lab Eggs":{"Value":true,"Type":"toggle"}},"Auto Hatch & Equip":{"Hatch Specific Eggs":{"Value":[],"Type":"multidropdown"},"Auto Hatch":{"Value":false,"Type":"toggle"},"Hatch Min Rarity":{"Value":"Any","Type":"dropdown"},"Min Hatch Value":{"Value":0,"Type":"slider"},"Auto Equip Best":{"Value":false,"Type":"toggle"}},"Auto Favorite":{"Favorite Mutations":{"Value":[],"Type":"multidropdown"},"Favorite Preview":{"Value":"Favorite matches  -  0 pets, 0 to mark  |  1 favorited","Type":"text"},"Favorite Min Rarity":{"Value":"Off","Type":"dropdown"},"Auto Favorite Equipped":{"Value":false,"Type":"toggle"},"Auto Favorite Pet":{"Value":false,"Type":"toggle"},"Always Favorite Species":{"Value":[],"Type":"multidropdown"},"Auto Unfavorite Equipped":{"Value":false,"Type":"toggle"},"Min Favorite Value":{"Value":0,"Type":"slider"},"Favorite Rule":{"Value":"Match All","Type":"dropdown"}},"Butterfly Bloom":{"Auto Butterfly Bloom":{"Value":true,"Type":"toggle"},"Smart Trade For Essence":{"Value":false,"Type":"toggle"},"Auto Craft Essence":{"Value":false,"Type":"toggle"},"Auto Trade Up":{"Value":false,"Type":"toggle"},"Catch Butterflies":{"Value":["Radiant Butterfly","Amethyst Butterfly","Sapphire Butterfly","Emerald Butterfly"],"Type":"multidropdown"},"Tween Speed  ":{"Value":600,"Type":"slider","Unit":"studs/s"},"Catch Mode":{"Value":"Chase","Type":"dropdown"},"Catch Priority":{"Value":"Rarest","Type":"dropdown"},"Trade Up Tiers":{"Value":["Amethyst To Radiant"],"Type":"multidropdown"}}},"Server":{"Server":{"Server Hop Mode":{"Value":"Least Players","Type":"dropdown"},"Auto Load Script":{"Value":true,"Type":"toggle"},"Auto Rejoin When Disconnect":{"Value":true,"Type":"toggle"}}}},"States":{"Farm HUD Stealing Position":{"Value":[]},"Quick Panel Collapsed":{"Value":{"1":false}},"Quick Keybinds":{"Value":{"Player > Movement > Speed Boost":"Q"}},"Farm HUD World Position":{"Value":[]},"Farm HUD Stolen Eggs":{"Value":{"History":[{"At":1791608191,"Name":"Gargoyle Egg","Category":"Dark Gargoyle","Scale":1.0089377638111945,"Rarity":"Secret","Value":274481363.75902286}],"Count":1,"Best":{"Category":"Dark Gargoyle","Name":"Gargoyle Egg","Rarity":"Secret","Rank":8}}},"Farm HUD Top Eggs Position":{"Value":[]},"Anti Guard Enabled":{"Value":false},"Farm HUD Steal History Position":{"Value":[]},"Open On Launch":{"Value":true},"Notifications":{"Value":true},"Quick Panel Position":{"Value":{"1":{"Y":0.046925779432058337,"X":0.8835160732269287}}},"Quick Open Key":{"Value":"LeftControl"},"Farm HUD Top Pets Position":{"Value":[]},"Quick Pin Groups":{"Value":[]},"FPS and Ping Position":{"Value":{"XOffset":-107,"XScale":0,"YScale":0,"YOffset":337}},"Farm HUD Dr Scramble Position":{"Value":[]},"Farm HUD Status Position":{"Value":[]},"Steal Panel Open":{"Value":false},"Quick LeftCenter Hidden":{"Value":true},"Farm HUD Economy Position":{"Value":[]},"Quick Pinned Features":{"Value":["Player > Movement > Speed Boost","Player > Movement > Boost Speed"]},"Farm HUD Collection Position":{"Value":[]}},"SavedAt":1791608223}
+]=]
+
+-- Hàm giả lập click siêu nhanh
+local function forceTriggerClick(target)
+    if not target then return end
+    pcall(function()
+        if getconnections then
+            for _, conn in ipairs(getconnections(target.MouseButton1Click)) do conn:Fire() end
+            for _, conn in ipairs(getconnections(target.Activated)) do conn:Fire() end
+            for _, conn in ipairs(getconnections(target.InputBegan)) do
+                conn:Fire({UserInputType = Enum.UserInputType.MouseButton1, UserInputState = Enum.UserInputState.Begin})
+                conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.Begin})
+            end
+            for _, conn in ipairs(getconnections(target.InputEnded)) do
+                conn:Fire({UserInputType = Enum.UserInputType.MouseButton1, UserInputState = Enum.UserInputState.End})
+                conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.End})
+            end
+        end
+    end)
+end
+
+-- TỰ ĐỘNG THỰC THI (MACRO): Ghi File -> Tìm Tab Cấu Hình -> Bấm Load
+local function autoInjectAndLoadConfig()
+    -- 1. Ghi file JSON vào thiết bị
+    pcall(function()
+        if writefile then
+            writefile("auto farm.json", AUTO_FARM_JSON)
+            pcall(function() writefile("maclib/auto farm.json", AUTO_FARM_JSON) end)
+            pcall(function() writefile("ChilliHub/auto farm.json", AUTO_FARM_JSON) end)
+            pcall(function() writefile("Chilli/auto farm.json", AUTO_FARM_JSON) end)
+        end
+    end)
+    task.wait(0.2)
+
+    local container = getSafeGuiContainer()
+
+    -- 2. Tìm & Bấm tab Config (Cấu Hình)
+    local configTab
+    for _, desc in ipairs(container:GetDescendants()) do
+        if (desc:IsA("TextLabel") or desc:IsA("TextButton")) and (desc.Text == "Config" or desc.Text == "Cấu Hình") and not desc:FindFirstAncestor("Chilli_Dynamic_Island") then
+            configTab = desc:IsA("TextButton") and desc or desc:FindFirstAncestorOfClass("TextButton") or desc.Parent
+            break
+        end
+    end
+    if configTab then forceTriggerClick(configTab) end
+    task.wait(0.3)
+
+    -- 3. Điền chữ "auto farm" vào TextBox (Nếu có)
+    for _, desc in ipairs(container:GetDescendants()) do
+        if desc:IsA("TextBox") and not desc:FindFirstAncestor("Chilli_Dynamic_Island") then
+            pcall(function() desc.Text = "auto farm" end)
+        end
+    end
+
+    -- Hoặc bấm vào lựa chọn "auto farm" nếu nó là một nút dạng danh sách
+    for _, desc in ipairs(container:GetDescendants()) do
+        if (desc:IsA("TextLabel") or desc:IsA("TextButton")) and desc.Text:lower() == "auto farm" and not desc:FindFirstAncestor("Chilli_Dynamic_Island") then
+            local item = desc:IsA("TextButton") and desc or desc:FindFirstAncestorOfClass("TextButton") or desc.Parent
+            forceTriggerClick(item)
+            break
+        end
+    end
+    task.wait(0.3)
+
+    -- 4. Tìm & Bấm nút "Load" / "Tải"
+    local loadBtn
+    for _, desc in ipairs(container:GetDescendants()) do
+        if (desc:IsA("TextLabel") or desc:IsA("TextButton")) and (desc.Text:lower() == "load" or desc.Text == "Tải") and not desc:FindFirstAncestor("Chilli_Dynamic_Island") then
+            loadBtn = desc:IsA("TextButton") and desc or desc:FindFirstAncestorOfClass("TextButton") or desc.Parent
+            forceTriggerClick(loadBtn)
+            break
+        end
+    end
+end
+
 -- ==================== NẠP SCRIPT GỐC ====================
 task.spawn(function()
     pcall(function()
@@ -36,7 +114,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== TỪ ĐIỂN DỊCH THUẬT ====================
+-- ==================== TỪ ĐIỂN DỊCH THUẬT (OBFUSCATOR SAFE) ====================
 local currentLanguage = "VI"
 local FastCache = {}
 
@@ -211,31 +289,32 @@ local MAP_VI = {
     ["selected"] = "đã chọn"
 }
 
+-- MẢNG PHẲNG 100% (NO FUNCTIONS) - OBFUSCATOR CỰC KỲ YÊU THÍCH ĐIỀU NÀY
 local DYNAMIC_PATTERNS = {
-    { pattern = "Catching a (.+) butterfly, (%d+) studs | (%d+) flying", vnFormat = "Đang bắt bướm %s, %s studs | %s đang bay", enFormat = "Catching a %s butterfly, %s studs | %s flying" },
-    { pattern = "ALL (%d+)", vnFormat = "TẤT CẢ %s", enFormat = "ALL %s" },
-    { pattern = "READY (%d+)", vnFormat = "SẴN SÀNG %s", enFormat = "READY %s" },
-    { pattern = "GROWING (%d+)", vnFormat = "ĐANG LỚN %s", enFormat = "GROWING %s" },
-    { pattern = "IN BAG (%d+)", vnFormat = "TRONG TÚI %s", enFormat = "IN BAG %s" },
-    { pattern = "#(%d+) of (%d+) eggs by value", vnFormat = "Hạng #%s/%s trứng theo giá trị", enFormat = "#%s of %s eggs by value" },
-    { pattern = "1 in ([%d%.]+)", vnFormat = "Tỉ lệ 1/%s", enFormat = "1 in %s" },
-    { pattern = "Ends in (%d+h %d+m %d+s)", vnFormat = "Kết thúc sau %s", enFormat = "Ends in %s" },
-    { pattern = "in (%d+h %d+m)", vnFormat = "sau %s", enFormat = "in %s" },
-    { pattern = "Banner chance (%d+%.?%d*%%)", vnFormat = "Tỉ lệ Banner %s", enFormat = "Banner chance %s" },
-    { pattern = "Pity (%d+)/(%d+)", vnFormat = "Bảo hiểm %s/%s", enFormat = "Pity %s/%s" },
-    { pattern = "Free rerolls (%d+)", vnFormat = "Đổi miễn phí %s", enFormat = "Free rerolls %s" },
-    { pattern = "rotates in (%d+:%d+)", vnFormat = "xoay vòng sau %s", enFormat = "rotates in %s" },
-    { pattern = "Eggs placed (%d+)/(%d+) %- (%d+)/(%d+) pets equipped, (%d+) in bag", vnFormat = "Trứng đã đặt %s/%s - %s/%s pet trang bị, %s trong túi", enFormat = "Eggs placed %s/%s - %s/%s pets equipped, %s in bag" },
-    { pattern = "Pet matches %- (%d+) pets? for %$(.+)", vnFormat = "Khớp pet - %s pet giá $%s", enFormat = "Pet matches - %s pets for $%s" },
-    { pattern = "Egg matches %- (%d+) eggs? for %$(.+)", vnFormat = "Khớp trứng - %s trứng giá $%s", enFormat = "Egg matches - %s eggs for $%s" },
-    { pattern = "Lab egg matches %- (%d+) eggs? for %$(.+)", vnFormat = "Khớp trứng Lab - %s trứng giá $%s", enFormat = "Lab egg matches - %s eggs for $%s" },
-    { pattern = "Favorite matches %- (%d+) pets?, (%d+) to mark %| (%d+) favorited", vnFormat = "Khớp yêu thích - %s pet, %s cần lưu | %s đã khóa", enFormat = "Favorite matches - %s pets, %s to mark | %s favorited" },
-    { pattern = "Charges (%d+) Eggs (%d+)/(%d+) Tries (%d+) Applied (%d+)", vnFormat = "Số lần sạc %s Trứng %s/%s Thử %s Đã dùng %s", enFormat = "Charges %s Eggs %s/%s Tries %s Applied %s" },
-    { pattern = "Players (%d+)/(%d+)", vnFormat = "Người chơi %s/%s", enFormat = "Players %s/%s" },
-    { pattern = "Next Mech portal in (%d+:%d+)", vnFormat = "Cổng Robot mở sau %s", enFormat = "Next Mech portal in %s" },
-    { pattern = "Next Butterfly Bloom in (%d+:%d+)", vnFormat = "Sự kiện Bướm nở sau %s", enFormat = "Next Butterfly Bloom in %s" },
-    { pattern = "Butterfly Bloom live, (%d+:%d+) left", vnFormat = "Sự kiện Bướm đang diễn ra, còn %s", enFormat = "Butterfly Bloom live, %s left" },
-    { pattern = "Caught (.+)! %((%d+) owned%)", vnFormat = "Đã bắt %s! (Đang có %s con)", enFormat = "Caught %s! (%s owned)" }
+    { pattern = "Catching a (.+) butterfly, (%d+) studs | (%d+) flying", vnFormat = "Đang bắt bướm %1, %2 studs | %3 đang bay", enFormat = "Catching a %1 butterfly, %2 studs | %3 flying" },
+    { pattern = "ALL (%d+)", vnFormat = "TẤT CẢ %1", enFormat = "ALL %1" },
+    { pattern = "READY (%d+)", vnFormat = "SẴN SÀNG %1", enFormat = "READY %1" },
+    { pattern = "GROWING (%d+)", vnFormat = "ĐANG LỚN %1", enFormat = "GROWING %1" },
+    { pattern = "IN BAG (%d+)", vnFormat = "TRONG TÚI %1", enFormat = "IN BAG %1" },
+    { pattern = "#(%d+) of (%d+) eggs by value", vnFormat = "Hạng #%1/%2 trứng theo giá trị", enFormat = "#%1 of %2 eggs by value" },
+    { pattern = "1 in ([%d%.]+)", vnFormat = "Tỉ lệ 1/%1", enFormat = "1 in %1" },
+    { pattern = "Ends in (%d+h %d+m %d+s)", vnFormat = "Kết thúc sau %1", enFormat = "Ends in %1" },
+    { pattern = "in (%d+h %d+m)", vnFormat = "sau %1", enFormat = "in %1" },
+    { pattern = "Banner chance (%d+%.?%d*%%)", vnFormat = "Tỉ lệ Banner %1", enFormat = "Banner chance %1" },
+    { pattern = "Pity (%d+)/(%d+)", vnFormat = "Bảo hiểm %1/%2", enFormat = "Pity %1/%2" },
+    { pattern = "Free rerolls (%d+)", vnFormat = "Đổi miễn phí %1", enFormat = "Free rerolls %1" },
+    { pattern = "rotates in (%d+:%d+)", vnFormat = "xoay vòng sau %1", enFormat = "rotates in %1" },
+    { pattern = "Eggs placed (%d+)/(%d+) %- (%d+)/(%d+) pets equipped, (%d+) in bag", vnFormat = "Trứng đã đặt %1/%2 - %3/%4 pet trang bị, %5 trong túi", enFormat = "Eggs placed %1/%2 - %3/%4 pets equipped, %5 in bag" },
+    { pattern = "Pet matches %- (%d+) pets? for %$(.+)", vnFormat = "Khớp pet - %1 pet giá $%2", enFormat = "Pet matches - %1 pets for $%2" },
+    { pattern = "Egg matches %- (%d+) eggs? for %$(.+)", vnFormat = "Khớp trứng - %1 trứng giá $%2", enFormat = "Egg matches - %1 eggs for $%2" },
+    { pattern = "Lab egg matches %- (%d+) eggs? for %$(.+)", vnFormat = "Khớp trứng Lab - %1 trứng giá $%2", enFormat = "Lab egg matches - %1 eggs for $%2" },
+    { pattern = "Favorite matches %- (%d+) pets?, (%d+) to mark %| (%d+) favorited", vnFormat = "Khớp yêu thích - %1 pet, %2 cần lưu | %3 đã khóa", enFormat = "Favorite matches - %1 pets, %2 to mark | %3 favorited" },
+    { pattern = "Charges (%d+) Eggs (%d+)/(%d+) Tries (%d+) Applied (%d+)", vnFormat = "Số lần sạc %1 Trứng %2/%3 Thử %4 Đã dùng %5", enFormat = "Charges %1 Eggs %2/%3 Tries %4 Applied %5" },
+    { pattern = "Players (%d+)/(%d+)", vnFormat = "Người chơi %1/%2", enFormat = "Players %1/%2" },
+    { pattern = "Next Mech portal in (%d+:%d+)", vnFormat = "Cổng Robot mở sau %1", enFormat = "Next Mech portal in %1" },
+    { pattern = "Next Butterfly Bloom in (%d+:%d+)", vnFormat = "Sự kiện Bướm nở sau %1", enFormat = "Next Butterfly Bloom in %1" },
+    { pattern = "Butterfly Bloom live, (%d+:%d+) left", vnFormat = "Sự kiện Bướm đang diễn ra, còn %1", enFormat = "Butterfly Bloom live, %1 left" },
+    { pattern = "Caught (.+)! %((%d+) owned%)", vnFormat = "Đã bắt %1! (Đang có %2 con)", enFormat = "Caught %1! (%2 owned)" }
 }
 
 local SortedVI = {}
@@ -263,13 +342,9 @@ local function translateText(raw)
     local matched = false
 
     for _, item in ipairs(DYNAMIC_PATTERNS) do
-        local p1, p2, p3, p4, p5 = result:match(item.pattern)
-        if p1 then
-            if currentLanguage == "VI" then
-                result = string.format(item.vnFormat, p1, p2, p3, p4, p5)
-            else
-                result = string.format(item.enFormat, p1, p2, p3, p4, p5)
-            end
+        if result:find(item.pattern) then
+            local fmt = (currentLanguage == "VI") and item.vnFormat or item.enFormat
+            result = result:gsub(item.pattern, fmt)
             matched = true
             break
         end
@@ -418,183 +493,65 @@ local function inspectAndApplySoftBlue(inst)
     end
 end
 
--- ==================== HỆ THỐNG AUTO FARM 1 CHẠM (ONE-SHOT PRESET) ====================
--- Hàm giả lập click siêu nhanh
-local function forceTriggerClick(target)
-    if not target then return end
-    local targetsToClick = {target}
-    if target.Parent then
-        table.insert(targetsToClick, target.Parent)
-        for _, sib in ipairs(target.Parent:GetChildren()) do
-            if sib:IsA("GuiObject") then table.insert(targetsToClick, sib) end
+-- ==================== HỆ THỐNG AUTO-LOAD MACRO (TỰ ĐỘNG BẤM TẢI FILE) ====================
+local function autoLoadInGame()
+    local container = getSafeGuiContainer()
+    
+    -- 1. Tìm & Bấm tab Config (Cấu Hình)
+    local configTab
+    for _, desc in ipairs(container:GetDescendants()) do
+        if (desc:IsA("TextLabel") or desc:IsA("TextButton")) and (desc.Text == "Config" or desc.Text == "Cấu Hình") and not desc:FindFirstAncestor("Chilli_Dynamic_Island") then
+            configTab = desc:IsA("TextButton") and desc or desc:FindFirstAncestorOfClass("TextButton") or desc.Parent
+            break
         end
     end
-    for _, t in ipairs(targetsToClick) do
+    if configTab then
         pcall(function()
             if getconnections then
-                for _, conn in ipairs(getconnections(t.MouseButton1Click)) do conn:Fire() end
-                for _, conn in ipairs(getconnections(t.Activated)) do conn:Fire() end
-                for _, conn in ipairs(getconnections(t.InputBegan)) do
-                    conn:Fire({UserInputType = Enum.UserInputType.MouseButton1, UserInputState = Enum.UserInputState.Begin})
-                    conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.Begin})
-                end
-                for _, conn in ipairs(getconnections(t.InputEnded)) do
-                    conn:Fire({UserInputType = Enum.UserInputType.MouseButton1, UserInputState = Enum.UserInputState.End})
-                    conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.End})
-                end
+                for _, conn in ipairs(getconnections(configTab.MouseButton1Click)) do conn:Fire() end
+                for _, conn in ipairs(getconnections(configTab.Activated)) do conn:Fire() end
+                for _, conn in ipairs(getconnections(configTab.InputBegan)) do conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.Begin}) end
+                for _, conn in ipairs(getconnections(configTab.InputEnded)) do conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.End}) end
             end
         end)
     end
-end
-
-local function isToggleActive(label)
-    if not label then return false end
-    local row = label.Parent
-    if not row then return false end
-    local function checkGreen(c) return c and (c.G > 0.45 and c.G > c.R * 1.3 and c.G > c.B * 1.3) end
+    task.wait(0.3)
     
-    local elements = {label, row}
-    for _, child in ipairs(row:GetDescendants()) do table.insert(elements, child) end
-    for _, el in ipairs(elements) do
-        if el:IsA("GuiObject") and checkGreen(el.BackgroundColor3) then return true end
-    end
-    return false
-end
-
-local PRESET_TOGGLES = {
-    { id = "AutoButterfly", target = true, patterns = {"tự động bắt bướm", "auto butterfly bloom"} },
-    { id = "AutoSteal", target = true, patterns = {"tự động cướp trứng", "auto steal"}, exclude = {"v2", "zones", "khu vực"} },
-    { id = "InstantStealV2", target = true, patterns = {"cướp siêu tốc (instant steal) v2", "instant steal v2"} },
-    { id = "TeleportToEgg", target = true, patterns = {"teleport to egg", "dịch chuyển đến trứng"} },
-    { id = "AntiGuardPanel", target = true, patterns = {"bảng chống vệ sĩ", "anti guard panel"} },
-    { id = "AutoTreadmill", target = true, patterns = {"tự động máy tập", "auto treadmill"}, exclude = {"cố định", "stay", "nâng cấp", "upgrade"} },
-    { id = "StayTreadmill", target = true, patterns = {"cố định trên máy tập", "stay on treadmill"} }
-}
-
-local PRESET_DROPDOWNS = {
-    { id = "CatchMode", targetText = {"đuổi theo", "chase"}, rowPatterns = {"chế độ bắt", "catch mode"} },
-    { id = "CatchPriority", targetText = {"gần nhất", "nearest"}, rowPatterns = {"ưu tiên bắt", "catch priority"} },
-    { id = "MinRarity", targetText = {"bí ẩn (secret)", "secret"}, rowPatterns = {"min rarity", "độ hiếm min", "độ hiếm"} },
-    { id = "CatchButterflies", selectAll = true, rowPatterns = {"chọn bướm cần bắt", "catch butterflies"}, itemPatterns = {"radiant", "amethyst", "sapphire", "emerald"} }
-}
-
-local function stripTags(str) return str:gsub("<[^>]+>", "") end
-
-local function findMatchingLabel(patterns, excludeList)
-    local searchRoots = {CoreGui, LocalPlayer:FindFirstChild("PlayerGui")}
-    pcall(function() if gethui then table.insert(searchRoots, gethui()) end end)
-    for _, root in ipairs(searchRoots) do
-        if root then
-            for _, desc in ipairs(root:GetDescendants()) do
-                if (desc:IsA("TextLabel") or desc:IsA("TextButton")) and not desc:FindFirstAncestor("Chilli_Dynamic_Island") then
-                    local t = stripTags(desc.Text:lower()):match("^%s*(.-)%s*$")
-                    if t then
-                        local matched = false
-                        for _, p in ipairs(patterns) do
-                            local pat = p:lower():match("^%s*(.-)%s*$")
-                            if t == pat or t:find(pat, 1, true) then matched = true; break end
-                        end
-                        if matched and excludeList then
-                            for _, ex in ipairs(excludeList) do
-                                if t:find(ex:lower(), 1, true) then matched = false; break end
-                            end
-                        end
-                        if matched then return desc end
-                    end
+    -- 2. Tìm & Bấm vào tên "auto farm" trong danh sách
+    for _, desc in ipairs(container:GetDescendants()) do
+        if (desc:IsA("TextLabel") or desc:IsA("TextButton")) and desc.Text:lower() == "auto farm" and not desc:FindFirstAncestor("Chilli_Dynamic_Island") then
+            local item = desc:IsA("TextButton") and desc or desc:FindFirstAncestorOfClass("TextButton") or desc.Parent
+            pcall(function()
+                if getconnections then
+                    for _, conn in ipairs(getconnections(item.MouseButton1Click)) do conn:Fire() end
+                    for _, conn in ipairs(getconnections(item.Activated)) do conn:Fire() end
+                    for _, conn in ipairs(getconnections(item.InputBegan)) do conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.Begin}) end
+                    for _, conn in ipairs(getconnections(item.InputEnded)) do conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.End}) end
                 end
-            end
+            end)
+            break
         end
     end
-    return nil
-end
-
-local function findDropdownOptionGlobal(targets)
-    local searchRoots = {CoreGui, LocalPlayer:FindFirstChild("PlayerGui")}
-    pcall(function() if gethui then table.insert(searchRoots, gethui()) end end)
-    for _, root in ipairs(searchRoots) do
-        if root then
-            for _, desc in ipairs(root:GetDescendants()) do
-                if (desc:IsA("TextButton") or desc:IsA("TextLabel")) and not desc:FindFirstAncestor("Chilli_Dynamic_Island") then
-                    local dt = stripTags(desc.Text:lower())
-                    for _, opt in ipairs(targets) do
-                        if dt == opt:lower() or dt:find(opt:lower(), 1, true) then
-                            local btn = desc:IsA("TextButton") and desc or desc:FindFirstAncestorOfClass("TextButton")
-                            if btn then return btn end
-                        end
-                    end
+    task.wait(0.3)
+    
+    -- 3. Tìm & Bấm nút Load (Tải)
+    for _, desc in ipairs(container:GetDescendants()) do
+        if (desc:IsA("TextLabel") or desc:IsA("TextButton")) and (desc.Text:lower() == "load" or desc.Text == "Tải") and string.len(desc.Text) <= 6 and not desc:FindFirstAncestor("Chilli_Dynamic_Island") then
+            local loadBtn = desc:IsA("TextButton") and desc or desc:FindFirstAncestorOfClass("TextButton") or desc.Parent
+            pcall(function()
+                if getconnections then
+                    for _, conn in ipairs(getconnections(loadBtn.MouseButton1Click)) do conn:Fire() end
+                    for _, conn in ipairs(getconnections(loadBtn.Activated)) do conn:Fire() end
+                    for _, conn in ipairs(getconnections(loadBtn.InputBegan)) do conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.Begin}) end
+                    for _, conn in ipairs(getconnections(loadBtn.InputEnded)) do conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.End}) end
                 end
-            end
-        end
-    end
-    return nil
-end
-
-local function selectDropdownOptionFast(cfg)
-    local label = findMatchingLabel(cfg.rowPatterns)
-    if not label then return end
-    local row = label.Parent
-    if not row then return end
-    
-    if cfg.selectAll and cfg.itemPatterns then
-        forceTriggerClick(row)
-        task.wait(0.05)
-        for _, itemPat in ipairs(cfg.itemPatterns) do
-            local optBtn = findDropdownOptionGlobal({itemPat})
-            if optBtn and not isToggleActive(optBtn.Parent) then 
-                forceTriggerClick(optBtn.Parent)
-            end
-        end
-        task.wait(0.05)
-        forceTriggerClick(row)
-    elseif cfg.targetText then
-        local rowText = ""
-        for _, desc in ipairs(row:GetDescendants()) do
-            if desc:IsA("TextLabel") or desc:IsA("TextButton") then
-                rowText = rowText .. " " .. desc.Text:lower()
-            end
-        end
-        local alreadySelected = false
-        for _, t in ipairs(cfg.targetText) do
-            if rowText:find(t:lower(), 1, true) then
-                alreadySelected = true; break
-            end
-        end
-        
-        if not alreadySelected then
-            forceTriggerClick(row)
-            task.wait(0.05)
-            local optBtn = findDropdownOptionGlobal(cfg.targetText)
-            if optBtn then
-                forceTriggerClick(optBtn.Parent)
-            end
+            end)
+            break
         end
     end
 end
 
-local function applyOneShotPreset()
-    for _, cfg in ipairs(PRESET_TOGGLES) do
-        local label = findMatchingLabel(cfg.patterns, cfg.exclude)
-        if label and isToggleActive(label) ~= cfg.target then
-            forceTriggerClick(label.Parent)
-            task.wait(0.02)
-        end
-    end
-
-    for _, cfg in ipairs(PRESET_DROPDOWNS) do
-        selectDropdownOptionFast(cfg)
-        task.wait(0.02)
-    end
-    
-    pcall(function()
-        StarterGui:SetCore("SendNotification", {
-            Title = "Auto Farm Applied",
-            Text = "Đã cấu hình Bắt Bướm, Cướp V2, Máy Tập chuẩn 4 ảnh!",
-            Duration = 5
-        })
-    end)
-end
-
--- ==================== 6. RAINBOW DYNAMIC ISLAND UI ====================
+-- ==================== RAINBOW DYNAMIC ISLAND UI ====================
 local function createDynamicIslandUI()
     pcall(function()
         if CoreGui:FindFirstChild("Chilli_Dynamic_Island") then CoreGui.Chilli_Dynamic_Island:Destroy() end
@@ -773,11 +730,10 @@ local function createDynamicIslandUI()
     BtnVI.Activated:Connect(function() setLanguage("VI") end)
     BtnEN.Activated:Connect(function() setLanguage("EN") end)
 
-    -- NÚT PRESET 1 CHẠM (THAY THẾ CHO CÔNG TẮC TOGGLE RƯỜM RÀ)
     local PresetBtn = Instance.new("TextButton")
     PresetBtn.Size = UDim2.new(1, 0, 0, 36)
     PresetBtn.BackgroundColor3 = Color3.fromRGB(38, 44, 58)
-    PresetBtn.Text = "⚡ ÁP DỤNG PRESET (4 ẢNH)"
+    PresetBtn.Text = "⚡ NẠP CẤU HÌNH (JSON)"
     PresetBtn.Font = Enum.Font.GothamBold
     PresetBtn.TextSize = 11
     PresetBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -786,15 +742,28 @@ local function createDynamicIslandUI()
     Instance.new("UICorner", PresetBtn).CornerRadius = UDim.new(0, 8)
     Instance.new("UIStroke", PresetBtn).Color = Color3.fromRGB(45, 60, 85)
 
+    -- MẢNG JSON CONFIG TĨNH
+    local AUTO_FARM_JSON = [[{"Profile":"auto farm","Version":2,"Values":{"Misc":{"Performance":{"FPS Cap":{"Value":240,"Type":"slider","Unit":" FPS"},"Farm HUD":{"Value":false,"Type":"toggle"},"Background Color":{"Value":"White","Type":"dropdown"},"Egg Card Image":{"Value":"Egg Image","Type":"dropdown"},"Disable 3D Render":{"Value":false,"Type":"toggle"},"FPS and Ping":{"Value":true,"Type":"toggle"},"Optimizer":{"Value":false,"Type":"toggle"},"HUD Size":{"Value":70,"Type":"slider","Unit":"%"},"Showcase Cards":{"Value":4,"Type":"slider"},"Hide Game UI":{"Value":true,"Type":"toggle"},"HUD Items":{"Value":["Money","Income","Speed","Treadmill","Eggs Stolen","Best Steal","Night Timer","Session Time","Activity","Mech Portal","Boss Mastery","Samples","Mech Fights","Lab","Pets","Eggs","Top Pets","Top Eggs","Steal History"],"Type":"multidropdown"},"FPS and Ping Size":{"Value":100,"Type":"slider","Unit":"%"}},"Utility":{"Anti AFK":{"Value":true,"Type":"toggle"}}},"Predictor":{"Egg Predictor":{"Sort By":{"Value":"Value","Type":"dropdown"},"Preview Card":{"Value":true,"Type":"toggle"}},"Discord Webhook":{"Webhook URL":{"Value":"","Type":"input"},"Notify Fused Eggs":{"Value":false,"Type":"toggle"},"Notify Stolen Eggs":{"Value":false,"Type":"toggle"},"Webhook Eggs":{"Value":[],"Type":"multidropdown"},"Webhook Min Rarity":{"Value":"Any","Type":"dropdown"},"Webhook Min Value":{"Value":0,"Type":"slider"},"Ping @everyone":{"Value":false,"Type":"toggle"}}},"Progress":{"Auto Progression":{"Auto Buy Trail":{"Value":false,"Type":"toggle"},"Auto Claim Index":{"Value":false,"Type":"toggle"},"Auto Upgrade Treadmill":{"Value":false,"Type":"toggle"},"Auto Claim":{"Value":false,"Type":"toggle"},"Auto Upgrade Base":{"Value":false,"Type":"toggle"}}},"Quick":{"Pin Pad":{"Pad Size":{"Value":150,"Type":"slider","Unit":"%"},"Enable Keybinds":{"Value":true,"Type":"toggle"},"Show Pin Pads":{"Value":true,"Type":"toggle"},"Visible Quick Bars":{"Value":["Quick Bar 1","Quick Bar 2","Quick Bar 3","Quick Bar 4","Quick Bar 5"],"Type":"multidropdown"}}},"Auto Hop":{"Egg Finder":{"Hop Mode":{"Value":"Steal Then Hop","Type":"dropdown"},"Min Rarity":{"Value":"Secret","Type":"dropdown"},"Rarity To Wait For":{"Value":"Cosmic","Type":"dropdown"},"First Hop Delay":{"Value":5,"Type":"slider","Unit":"s"},"Auto Hop":{"Value":false,"Type":"toggle"},"Target Specific Eggs":{"Value":[],"Type":"multidropdown"},"Sync With Auto Steal Filters":{"Value":true,"Type":"toggle"},"Min Value To Find":{"Value":0,"Type":"slider"},"Target Areas":{"Value":["Forest","Desert","Snow","Lake","Jungle","Volcano","Prehistoric","Cosmic","Abyss Ocean","Cherry Blossom","Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"}}},"Player":{"ESP":{"ESP Eggs":{"Value":false,"Type":"toggle"},"ESP Player Size":{"Value":75,"Type":"slider","Unit":"%"},"ESP Show Info":{"Value":["Icon","Name","Value"],"Type":"multidropdown"},"ESP Guard Size":{"Value":75,"Type":"slider","Unit":"%"},"ESP Player Info":{"Value":["Name","Tool"],"Type":"multidropdown"},"ESP Other Base Eggs":{"Value":false,"Type":"toggle"},"ESP Min Rarity":{"Value":"Any","Type":"dropdown"},"ESP Guards":{"Value":false,"Type":"toggle"},"Min ESP Value":{"Value":0,"Type":"slider"},"ESP Lost Parts":{"Value":false,"Type":"toggle"},"ESP Players":{"Value":false,"Type":"toggle"},"ESP Own Base Eggs":{"Value":true,"Type":"toggle"},"ESP Fixed Size":{"Value":false,"Type":"toggle"},"ESP Egg Size":{"Value":75,"Type":"slider","Unit":"%"}},"Character":{"Instant Prompts":{"Value":true,"Type":"toggle"},"Anti Ragdoll":{"Value":true,"Type":"toggle"},"Anti Trap":{"Value":true,"Type":"toggle"},"Invisibility":{"Value":false,"Type":"toggle"}},"Movement":{"Speed Boost":{"Value":false,"Type":"toggle"},"Boost Speed":{"Value":1000,"Type":"slider","Unit":"studs/s"},"Infinite Jump":{"Value":true,"Type":"toggle"}},"Combat":{"Auto Hit Egg Holders":{"Value":false,"Type":"toggle"},"Hit Max Speed":{"Value":750,"Type":"slider","Unit":"studs/s"},"Auto Hit Nearest Player":{"Value":false,"Type":"toggle"},"Hit Sweep":{"Value":250,"Type":"slider","Unit":"%"},"Hit Player":{"Value":"ayainayyaa","Type":"dropdown"},"Hit Tween Speed":{"Value":400,"Type":"slider","Unit":"studs/s"},"Hit Lead":{"Value":100,"Type":"slider"},"Chase Settings":{"Value":"Chase Settings","Type":"label"},"Auto Hit Specific Player":{"Value":false,"Type":"toggle"},"Hit Aura":{"Value":false,"Type":"toggle"},"Hit Status":{"Value":"Idle","Type":"text"}}},"Settings":{"Interface":{"UI Size":{"Value":100,"Type":"slider","Unit":"%"}}},"Farm":{"Auto Steal":{"Drop Eggs At Safe Zone":{"Value":false,"Type":"toggle"},"Anti Guard Panel":{"Value":true,"Type":"toggle"},"Carry Speed":{"Value":120,"Type":"slider","Unit":"%"},"Target Specific Eggs":{"Value":[],"Type":"multidropdown"},"Steal Missing Lab Eggs":{"Value":false,"Type":"toggle"},"Instant Steal Steps":{"Value":1,"Type":"slider"},"Stock Lab Eggs For":{"Value":[],"Type":"multidropdown"},"Target Areas":{"Value":["Forest","Desert","Snow","Lake","Jungle","Volcano","Prehistoric","Cosmic","Abyss Ocean","Cherry Blossom","Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"},"Unstable DNA Lab Eggs":{"Value":["Toro Egg (24%)","Winged Lamb Egg (23%)","Bladehide Egg (23%)","Imp Egg (22%)","Crustacia Egg (22%)"],"Type":"multidropdown"},"Steal Priority":{"Value":"Highest Value","Type":"dropdown"},"Auto Steal":{"Value":true,"Type":"toggle"},"Min Rarity":{"Value":"Secret","Type":"dropdown"},"Teleport To Egg":{"Value":true,"Type":"toggle"},"Stock Per Egg":{"Value":3,"Type":"slider","Unit":""},"Experimental Lab Eggs":{"Value":[],"Type":"multidropdown"},"Fast Delivery":{"Value":false,"Type":"toggle"},"Skip Owned Lab Eggs":{"Value":true,"Type":"toggle"},"Biohazard Lab Eggs":{"Value":[],"Type":"multidropdown"},"Instant Steal V2":{"Value":true,"Type":"toggle"},"Instant Steal":{"Value":false,"Type":"toggle"},"Steal Missing Index Eggs":{"Value":false,"Type":"toggle"},"Instant Steal Zones":{"Value":["Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"},"Tween Speed":{"Value":120,"Type":"slider","Unit":"%"},"Min Steal Value":{"Value":0,"Type":"slider"}},"Auto Treadmill":{"Stay On Treadmill":{"Value":true,"Type":"toggle"},"Auto Treadmill":{"Value":true,"Type":"toggle"}},"Dr Scramble Lab & Mech":{"Swap Two Weapons":{"Value":true,"Type":"toggle"},"Auto Lab Trade-In":{"Value":false,"Type":"toggle"},"Keep Hopping For":{"Value":3,"Type":"slider","Unit":"min"},"Boss Server Hop":{"Value":false,"Type":"toggle"},"Auto Claim Mastery":{"Value":false,"Type":"toggle"},"Auto Buy Scramble Shop":{"Value":false,"Type":"toggle"},"Scrambler Hold":{"Value":0.4,"Type":"slider","Unit":"s"},"Scramble Shop Items":{"Value":[],"Type":"multidropdown"},"Auto Mech Boss":{"Value":false,"Type":"toggle"},"Auto Reroll Lab Recipe":{"Value":false,"Type":"toggle"},"Lab Banners":{"Value":[],"Type":"multidropdown"},"Auto Place Lab Reward Eggs":{"Value":false,"Type":"toggle"},"Mech Tween Speed":{"Value":250,"Type":"slider","Unit":"studs/s"},"Lab Status":{"Value":"Experimental Pets  -  needs Cosmic Gecko, Bladehide, Snowy Owl  -  pity 0/100  -  free rerolls 2  -  rotates in 2:56","Type":"text"},"Main Weapon Hold":{"Value":0.3,"Type":"slider","Unit":"s"},"Mech Status":{"Value":"Off  |  Next Mech portal in 2:57","Type":"text"},"Keep Samples":{"Value":0,"Type":"slider","Unit":""}},"Auto Sell":{"Egg Sell Value":{"Value":0,"Type":"slider"},"Egg Sell Preview":{"Value":"Egg matches  -  0 eggs for $0","Type":"text"},"Auto Sell Egg":{"Value":false,"Type":"toggle"},"Blacklist Sell Eggs":{"Value":[],"Type":"multidropdown"},"Keep Mutated Eggs":{"Value":true,"Type":"toggle"},"Egg Max Rarity":{"Value":"3 - Rare","Type":"dropdown"},"Blacklist Sell Pets":{"Value":[],"Type":"multidropdown"},"Sell Egg Rule":{"Value":"Rarity Only","Type":"dropdown"},"Auto Sell Pet":{"Value":false,"Type":"toggle"},"Pet Sell Value":{"Value":0,"Type":"slider"},"Pet Sell Preview":{"Value":"Pet matches  -  0 pets for $0","Type":"text"},"Keep Mutated Pets":{"Value":true,"Type":"toggle"},"Sell Pet Rule":{"Value":"Rarity Only","Type":"dropdown"},"Pet Max Rarity":{"Value":"3 - Rare","Type":"dropdown"}},"Wisp Companion":{"Auto Banjo Cricket":{"Value":false,"Type":"toggle"},"Auto Wisp":{"Value":false,"Type":"toggle"},"Wisp Status":{"Value":"Off","Type":"text"}},"Auto Place Egg":{"Place Egg Rule":{"Value":"Always","Type":"dropdown"},"Auto Place Egg":{"Value":false,"Type":"toggle"},"Pen Status":{"Value":"Eggs placed 6/30  -  19/19 pets equipped, 87 in bag","Type":"text"},"Place Rarities":{"Value":[],"Type":"multidropdown"},"Place Egg Order":{"Value":"Highest Value","Type":"dropdown"},"Min Place Value":{"Value":0,"Type":"slider"},"Place Specific Eggs":{"Value":[],"Type":"multidropdown"}},"Auto Fuse Machine":{"Max Rarity to Fuse":{"Value":"6 - Mythic","Type":"dropdown"},"Skip Mutated Pets":{"Value":true,"Type":"toggle"},"Auto Fuse Machine":{"Value":false,"Type":"toggle"},"Eject Incomplete Slots":{"Value":true,"Type":"toggle"},"Specific Species to Fuse":{"Value":[],"Type":"multidropdown"},"Pets To Use":{"Value":"Lowest To Highest","Type":"dropdown"},"Fuse Priority Mode":{"Value":"Lowest Rarity First","Type":"dropdown"},"Fuse Preview":{"Value":"No three matching pets","Type":"text"}},"Auto Mutation":{"Mutate Target Eggs":{"Value":["Amethyst Runebear [Secret]"],"Type":"multidropdown"},"Mutations To Use":{"Value":["Fractured","Scrambled","Enchanted"],"Type":"multidropdown"},"Mutate Priority":{"Value":"Highest Value","Type":"dropdown"},"Auto Buy Scrambled":{"Value":false,"Type":"toggle"},"Auto Mutate":{"Value":false,"Type":"toggle"},"Mutate Status":{"Value":"Off","Type":"text"},"Mutate Min Value":{"Value":0,"Type":"slider"},"Mutate Min Rarity":{"Value":"Any","Type":"dropdown"}},"Auto Sell Lab Egg":{"Lab Egg Sell Value":{"Value":0,"Type":"slider"},"Sell Lab Egg Rule":{"Value":"Rarity And Value","Type":"dropdown"},"Lab Egg Max Rarity":{"Value":"Off","Type":"dropdown"},"Auto Sell Lab Egg":{"Value":false,"Type":"toggle"},"Lab Egg Sell Preview":{"Value":"Lab egg matches  -  0 eggs for $0","Type":"text"},"Keep Lab Pets":{"Value":[],"Type":"multidropdown"},"Keep Mutated Lab Eggs":{"Value":true,"Type":"toggle"}},"Auto Hatch & Equip":{"Hatch Specific Eggs":{"Value":[],"Type":"multidropdown"},"Auto Hatch":{"Value":false,"Type":"toggle"},"Hatch Min Rarity":{"Value":"Any","Type":"dropdown"},"Min Hatch Value":{"Value":0,"Type":"slider"},"Auto Equip Best":{"Value":false,"Type":"toggle"}},"Auto Favorite":{"Favorite Mutations":{"Value":[],"Type":"multidropdown"},"Favorite Preview":{"Value":"Favorite matches  -  0 pets, 0 to mark  |  1 favorited","Type":"text"},"Favorite Min Rarity":{"Value":"Off","Type":"dropdown"},"Auto Favorite Equipped":{"Value":false,"Type":"toggle"},"Auto Favorite Pet":{"Value":false,"Type":"toggle"},"Always Favorite Species":{"Value":[],"Type":"multidropdown"},"Auto Unfavorite Equipped":{"Value":false,"Type":"toggle"},"Min Favorite Value":{"Value":0,"Type":"slider"},"Favorite Rule":{"Value":"Match All","Type":"dropdown"}},"Butterfly Bloom":{"Auto Butterfly Bloom":{"Value":true,"Type":"toggle"},"Smart Trade For Essence":{"Value":false,"Type":"toggle"},"Auto Craft Essence":{"Value":false,"Type":"toggle"},"Auto Trade Up":{"Value":false,"Type":"toggle"},"Catch Butterflies":{"Value":["Radiant Butterfly","Amethyst Butterfly","Sapphire Butterfly","Emerald Butterfly"],"Type":"multidropdown"},"Tween Speed  ":{"Value":600,"Type":"slider","Unit":"studs/s"},"Catch Mode":{"Value":"Chase","Type":"dropdown"},"Catch Priority":{"Value":"Rarest","Type":"dropdown"},"Trade Up Tiers":{"Value":["Amethyst To Radiant"],"Type":"multidropdown"}}},"Server":{"Server":{"Server Hop Mode":{"Value":"Least Players","Type":"dropdown"},"Auto Load Script":{"Value":true,"Type":"toggle"},"Auto Rejoin When Disconnect":{"Value":true,"Type":"toggle"}}}},"States":{"Farm HUD Stealing Position":{"Value":[]},"Quick Panel Collapsed":{"Value":{"1":false}},"Quick Keybinds":{"Value":{"Player > Movement > Speed Boost":"Q"}},"Farm HUD World Position":{"Value":[]},"Farm HUD Stolen Eggs":{"Value":{"History":[{"At":1791608191,"Name":"Gargoyle Egg","Category":"Dark Gargoyle","Scale":1.0089377638111945,"Rarity":"Secret","Value":274481363.75902286}],"Count":1,"Best":{"Category":"Dark Gargoyle","Name":"Gargoyle Egg","Rarity":"Secret","Rank":8}}},"Farm HUD Top Eggs Position":{"Value":[]},"Anti Guard Enabled":{"Value":false},"Farm HUD Steal History Position":{"Value":[]},"Open On Launch":{"Value":true},"Notifications":{"Value":true},"Quick Panel Position":{"Value":{"1":{"Y":0.046925779432058337,"X":0.8835160732269287}}},"Quick Open Key":{"Value":"LeftControl"},"Farm HUD Top Pets Position":{"Value":[]},"Quick Pin Groups":{"Value":[]},"FPS and Ping Position":{"Value":{"XOffset":-107,"XScale":0,"YScale":0,"YOffset":337}},"Farm HUD Dr Scramble Position":{"Value":[]},"Farm HUD Status Position":{"Value":[]},"Steal Panel Open":{"Value":false},"Quick LeftCenter Hidden":{"Value":true},"Farm HUD Economy Position":{"Value":[]},"Quick Pinned Features":{"Value":["Player > Movement > Speed Boost","Player > Movement > Boost Speed"]},"Farm HUD Collection Position":{"Value":[]}},"SavedAt":1791608223}]]
+
     PresetBtn.Activated:Connect(function()
-        PresetBtn.Text = "Đang thiết lập siêu tốc..."
+        PresetBtn.Text = "Đang nạp file JSON..."
         PresetBtn.BackgroundColor3 = Color3.fromRGB(45, 205, 110)
+        
         task.spawn(function()
-            applyOneShotPreset()
+            pcall(function()
+                if writefile then
+                    writefile("auto farm.json", AUTO_FARM_JSON)
+                    pcall(function() writefile("maclib/auto farm.json", AUTO_FARM_JSON) end)
+                    pcall(function() writefile("ChilliHub/auto farm.json", AUTO_FARM_JSON) end)
+                    pcall(function() writefile("Chilli/auto farm.json", AUTO_FARM_JSON) end)
+                end
+            end)
+            task.wait(0.5)
+            autoLoadInGame()
             task.wait(1)
-            PresetBtn.Text = "✅ Đã áp dụng thành công!"
+            PresetBtn.Text = "✅ ĐÃ ÁP DỤNG XONG!"
             task.wait(2)
-            PresetBtn.Text = "⚡ ÁP DỤNG PRESET (4 ẢNH)"
+            PresetBtn.Text = "⚡ NẠP CẤU HÌNH (JSON)"
             PresetBtn.BackgroundColor3 = Color3.fromRGB(38, 44, 58)
         end)
     end)
@@ -850,7 +819,7 @@ local function createDynamicIslandUI()
     end)
 end
 
--- ==================== 7. KHỞI ĐỘNG VÀ QUÉT ĐA TẦNG ====================
+-- ==================== KHỞI ĐỘNG VÀ QUÉT ĐA TẦNG ====================
 task.spawn(function()
     createDynamicIslandUI()
     local function processRootChunked(root)
