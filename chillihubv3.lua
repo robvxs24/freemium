@@ -1,7 +1,7 @@
 -- ==============================================================================
---  CHILLI HUB V2 - DYNAMIC ISLAND V15.0 (OBFUSCATE-SAFE & AUTO FARM PRESET)
+--  CHILLI HUB V2 - DYNAMIC ISLAND V16.0 (ULTIMATE FLAT CODE)
 --  Tối ưu hóa:
---    1. OBFUSCATE SAFE: 100% code phẳng (Flat Code), loại bỏ hoàn toàn các biểu thức rườm rà.
+--    1. 100% OBFUSCATE COMPATIBLE: Cấu trúc mảng DYNAMIC_PATTERNS cực kỳ đơn giản, không chứa hàm lồng.
 --    2. SLOW ACTION: Tốc độ bấm giãn cách 0.5s, chống click đúp gây lỗi.
 --    3. SMART DROPDOWN: Mở menu -> chờ 0.5s -> chọn đúng mục theo ảnh.
 --    4. LIVE STATUS: Hiển thị trạng thái Auto Farm trực tiếp trên Dynamic Island.
@@ -223,155 +223,32 @@ local MAP_VI = {
     ["selected"] = "đã chọn"
 }
 
+-- OBFUSCATOR-SAFE DYNAMIC PATTERNS (Flat array with simple format functions)
 local DYNAMIC_PATTERNS = {
-    { 
-        pattern = "Catching a (.+) butterfly, (%d+) studs | (%d+) flying", 
-        format = function(lang, name, st, fl) 
-            if lang == "VI" then
-                return string.format("Đang bắt bướm %s, %s studs | %s đang bay", name, st, fl)
-            else
-                return string.format("Catching a %s butterfly, %s studs | %s flying", name, st, fl)
-            end
-        end 
-    },
-    { 
-        pattern = "ALL (%d+)", 
-        format = function(lang, c) 
-            if lang == "VI" then return "TẤT CẢ " .. c else return "ALL " .. c end 
-        end 
-    },
-    { 
-        pattern = "READY (%d+)", 
-        format = function(lang, c) 
-            if lang == "VI" then return "SẴN SÀNG " .. c else return "READY " .. c end 
-        end 
-    },
-    { 
-        pattern = "GROWING (%d+)", 
-        format = function(lang, c) 
-            if lang == "VI" then return "ĐANG LỚN " .. c else return "GROWING " .. c end 
-        end 
-    },
-    { 
-        pattern = "IN BAG (%d+)", 
-        format = function(lang, c) 
-            if lang == "VI" then return "TRONG TÚI " .. c else return "IN BAG " .. c end 
-        end 
-    },
-    { 
-        pattern = "#(%d+) of (%d+) eggs by value", 
-        format = function(lang, r, total) 
-            if lang == "VI" then return string.format("Hạng #%s/%s trứng theo giá trị", r, total) else return string.format("#%s of %s eggs by value", r, total) end 
-        end 
-    },
-    { 
-        pattern = "1 in ([%d%.]+)", 
-        format = function(lang, val) 
-            if lang == "VI" then return "Tỉ lệ 1/" .. val else return "1 in " .. val end 
-        end 
-    },
-    { 
-        pattern = "Ends in (%d+h %d+m %d+s)", 
-        format = function(lang, tStr) 
-            if lang == "VI" then return "Kết thúc sau " .. tStr else return "Ends in " .. tStr end 
-        end 
-    },
-    { 
-        pattern = "in (%d+h %d+m)", 
-        format = function(lang, tStr) 
-            if lang == "VI" then return "sau " .. tStr else return "in " .. tStr end 
-        end 
-    },
-    { 
-        pattern = "Banner chance (%d+%.?%d*%%)", 
-        format = function(lang, cStr) 
-            if lang == "VI" then return "Tỉ lệ Banner " .. cStr else return "Banner chance " .. cStr end 
-        end 
-    },
-    { 
-        pattern = "Pity (%d+)/(%d+)", 
-        format = function(lang, p1, p2) 
-            if lang == "VI" then return string.format("Bảo hiểm %s/%s", p1, p2) else return string.format("Pity %s/%s", p1, p2) end 
-        end 
-    },
-    { 
-        pattern = "Free rerolls (%d+)", 
-        format = function(lang, rStr) 
-            if lang == "VI" then return "Đổi miễn phí " .. rStr else return "Free rerolls " .. rStr end 
-        end 
-    },
-    { 
-        pattern = "rotates in (%d+:%d+)", 
-        format = function(lang, timeStr) 
-            if lang == "VI" then return "xoay vòng sau " .. timeStr else return "rotates in " .. timeStr end 
-        end 
-    },
-    { 
-        pattern = "Eggs placed (%d+)/(%d+) %- (%d+)/(%d+) pets equipped, (%d+) in bag", 
-        format = function(lang, p1, p2, p3, p4, p5) 
-            if lang == "VI" then return string.format("Trứng đã đặt %s/%s - %s/%s pet trang bị, %s trong túi", p1, p2, p3, p4, p5) else return string.format("Eggs placed %s/%s - %s/%s pets equipped, %s in bag", p1, p2, p3, p4, p5) end 
-        end 
-    },
-    { 
-        pattern = "Pet matches %- (%d+) pets? for %$(.+)", 
-        format = function(lang, count, val) 
-            if lang == "VI" then return string.format("Khớp pet - %s pet giá $%s", count, val) else return string.format("Pet matches - %s pets for $%s", count, val) end 
-        end 
-    },
-    { 
-        pattern = "Egg matches %- (%d+) eggs? for %$(.+)", 
-        format = function(lang, count, val) 
-            if lang == "VI" then return string.format("Khớp trứng - %s trứng giá $%s", count, val) else return string.format("Egg matches - %s eggs for $%s", count, val) end 
-        end 
-    },
-    { 
-        pattern = "Lab egg matches %- (%d+) eggs? for %$(.+)", 
-        format = function(lang, count, val) 
-            if lang == "VI" then return string.format("Khớp trứng Lab - %s trứng giá $%s", count, val) else return string.format("Lab egg matches - %s eggs for $%s", count, val) end 
-        end 
-    },
-    { 
-        pattern = "Favorite matches %- (%d+) pets?, (%d+) to mark %| (%d+) favorited", 
-        format = function(lang, c1, c2, c3) 
-            if lang == "VI" then return string.format("Khớp yêu thích - %s pet, %s cần lưu | %s đã khóa", c1, c2, c3) else return string.format("Favorite matches - %s pets, %s to mark | %s favorited", c1, c2, c3) end 
-        end 
-    },
-    { 
-        pattern = "Charges (%d+) Eggs (%d+)/(%d+) Tries (%d+) Applied (%d+)", 
-        format = function(lang, c, e1, e2, t, a) 
-            if lang == "VI" then return string.format("Số lần sạc %s Trứng %s/%s Thử %s Đã dùng %s", c, e1, e2, t, a) else return string.format("Charges %s Eggs %s/%s Tries %s Applied %s", c, e1, e2, t, a) end 
-        end 
-    },
-    { 
-        pattern = "Players (%d+)/(%d+)", 
-        format = function(lang, p1, p2) 
-            if lang == "VI" then return string.format("Người chơi %s/%s", p1, p2) else return string.format("Players %s/%s", p1, p2) end 
-        end 
-    },
-    { 
-        pattern = "Next Mech portal in (%d+:%d+)", 
-        format = function(lang, timeStr) 
-            if lang == "VI" then return "Cổng Robot mở sau " .. timeStr else return "Next Mech portal in " .. timeStr end 
-        end 
-    },
-    { 
-        pattern = "Next Butterfly Bloom in (%d+:%d+)", 
-        format = function(lang, timeStr) 
-            if lang == "VI" then return "Sự kiện Bướm nở sau " .. timeStr else return "Next Butterfly Bloom in " .. timeStr end 
-        end 
-    },
-    { 
-        pattern = "Butterfly Bloom live, (%d+:%d+) left", 
-        format = function(lang, timeStr) 
-            if lang == "VI" then return "Sự kiện Bướm đang diễn ra, còn " .. timeStr else return "Butterfly Bloom live, " .. timeStr .. " left" end 
-        end 
-    },
-    { 
-        pattern = "Caught (.+)! %((%d+) owned%)", 
-        format = function(lang, name, count) 
-            if lang == "VI" then return string.format("Đã bắt %s! (Đang có %s con)", name, count) else return string.format("Caught %s! (%s owned)", name, count) end 
-        end 
-    }
+    { pattern = "Catching a (.+) butterfly, (%d+) studs | (%d+) flying", vnFormat = "Đang bắt bướm %s, %s studs | %s đang bay", enFormat = "Catching a %s butterfly, %s studs | %s flying" },
+    { pattern = "ALL (%d+)", vnFormat = "TẤT CẢ %s", enFormat = "ALL %s" },
+    { pattern = "READY (%d+)", vnFormat = "SẴN SÀNG %s", enFormat = "READY %s" },
+    { pattern = "GROWING (%d+)", vnFormat = "ĐANG LỚN %s", enFormat = "GROWING %s" },
+    { pattern = "IN BAG (%d+)", vnFormat = "TRONG TÚI %s", enFormat = "IN BAG %s" },
+    { pattern = "#(%d+) of (%d+) eggs by value", vnFormat = "Hạng #%s/%s trứng theo giá trị", enFormat = "#%s of %s eggs by value" },
+    { pattern = "1 in ([%d%.]+)", vnFormat = "Tỉ lệ 1/%s", enFormat = "1 in %s" },
+    { pattern = "Ends in (%d+h %d+m %d+s)", vnFormat = "Kết thúc sau %s", enFormat = "Ends in %s" },
+    { pattern = "in (%d+h %d+m)", vnFormat = "sau %s", enFormat = "in %s" },
+    { pattern = "Banner chance (%d+%.?%d*%%)", vnFormat = "Tỉ lệ Banner %s", enFormat = "Banner chance %s" },
+    { pattern = "Pity (%d+)/(%d+)", vnFormat = "Bảo hiểm %s/%s", enFormat = "Pity %s/%s" },
+    { pattern = "Free rerolls (%d+)", vnFormat = "Đổi miễn phí %s", enFormat = "Free rerolls %s" },
+    { pattern = "rotates in (%d+:%d+)", vnFormat = "xoay vòng sau %s", enFormat = "rotates in %s" },
+    { pattern = "Eggs placed (%d+)/(%d+) %- (%d+)/(%d+) pets equipped, (%d+) in bag", vnFormat = "Trứng đã đặt %s/%s - %s/%s pet trang bị, %s trong túi", enFormat = "Eggs placed %s/%s - %s/%s pets equipped, %s in bag" },
+    { pattern = "Pet matches %- (%d+) pets? for %$(.+)", vnFormat = "Khớp pet - %s pet giá $%s", enFormat = "Pet matches - %s pets for $%s" },
+    { pattern = "Egg matches %- (%d+) eggs? for %$(.+)", vnFormat = "Khớp trứng - %s trứng giá $%s", enFormat = "Egg matches - %s eggs for $%s" },
+    { pattern = "Lab egg matches %- (%d+) eggs? for %$(.+)", vnFormat = "Khớp trứng Lab - %s trứng giá $%s", enFormat = "Lab egg matches - %s eggs for $%s" },
+    { pattern = "Favorite matches %- (%d+) pets?, (%d+) to mark %| (%d+) favorited", vnFormat = "Khớp yêu thích - %s pet, %s cần lưu | %s đã khóa", enFormat = "Favorite matches - %s pets, %s to mark | %s favorited" },
+    { pattern = "Charges (%d+) Eggs (%d+)/(%d+) Tries (%d+) Applied (%d+)", vnFormat = "Số lần sạc %s Trứng %s/%s Thử %s Đã dùng %s", enFormat = "Charges %s Eggs %s/%s Tries %s Applied %s" },
+    { pattern = "Players (%d+)/(%d+)", vnFormat = "Người chơi %s/%s", enFormat = "Players %s/%s" },
+    { pattern = "Next Mech portal in (%d+:%d+)", vnFormat = "Cổng Robot mở sau %s", enFormat = "Next Mech portal in %s" },
+    { pattern = "Next Butterfly Bloom in (%d+:%d+)", vnFormat = "Sự kiện Bướm nở sau %s", enFormat = "Next Butterfly Bloom in %s" },
+    { pattern = "Butterfly Bloom live, (%d+:%d+) left", vnFormat = "Sự kiện Bướm đang diễn ra, còn %s", enFormat = "Butterfly Bloom live, %s left" },
+    { pattern = "Caught (.+)! %((%d+) owned%)", vnFormat = "Đã bắt %s! (Đang có %s con)", enFormat = "Caught %s! (%s owned)" }
 }
 
 local SortedVI = {}
@@ -397,17 +274,27 @@ local function translateText(raw)
 
     local result = raw
     local matched = false
+
+    -- Xử lý mảng động bằng code phẳng (không có function con)
     for _, item in ipairs(DYNAMIC_PATTERNS) do
-        if result:find(item.pattern) then
-            result = result:gsub(item.pattern, function(...) return item.format(currentLanguage, ...) end)
+        local p1, p2, p3, p4, p5 = result:match(item.pattern)
+        if p1 then
+            if currentLanguage == "VI" then
+                result = string.format(item.vnFormat, p1, p2, p3, p4, p5)
+            else
+                result = string.format(item.enFormat, p1, p2, p3, p4, p5)
+            end
             matched = true
+            break
         end
     end
 
-    for _, item in ipairs(SortedVI) do
-        if result:find(item.en, 1, true) then
-            result = replaceAll(result, item.en, item.out)
-            matched = true
+    if not matched then
+        for _, item in ipairs(SortedVI) do
+            if result:find(item.en, 1, true) then
+                result = replaceAll(result, item.en, item.out)
+                matched = true
+            end
         end
     end
 
@@ -545,7 +432,7 @@ local function inspectAndApplySoftBlue(inst)
     end
 end
 
--- ==================== HỆ THỐNG AUTO FARM (CHẬM VÀ CHUẨN XÁC) ====================
+-- ==================== HỆ THỐNG SLOW & CALM AUTO FARM ====================
 local function setStatus(text)
     pcall(function()
         local island = CoreGui:FindFirstChild("Chilli_Dynamic_Island") or LocalPlayer.PlayerGui:FindFirstChild("Chilli_Dynamic_Island")
@@ -684,7 +571,7 @@ local function selectDropdownOption(cfg)
                 task.wait(0.5) 
             end
         end
-        slowTriggerClick(row) 
+        slowTriggerClick(row)
         task.wait(0.5)
     elseif cfg.targetText then
         local rowText = ""
