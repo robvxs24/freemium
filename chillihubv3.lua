@@ -1,9 +1,9 @@
 -- ==============================================================================
---  CHILLI HUB V2 - DYNAMIC ISLAND V_FINAL (SAFE VISUAL MACRO)
+--  CHILLI HUB V2 - DYNAMIC ISLAND V99.0 (THE TRUE VISUAL CLICKER)
 --  Tối ưu hóa:
---    1. CLICK AN TOÀN: Thêm cơ chế chờ và thử lại, đảm bảo 100% click trúng nút.
---    2. KHÔNG CAN THIỆP SÂU: Chỉ đơn giản là giả lập thao tác tay, cực kỳ an toàn.
---    3. 100% OBFUSCATE PROOF: Code tĩnh hoàn toàn, không lỗi khi mã hóa.
+--    1. TRUE VISUAL CLICKER: Dẹp bỏ cơ chế Import/Load JSON phức tạp và hay lỗi.
+--    2. DIRECT UI INTERACTION: Tìm trực tiếp các nút trên màn hình và bấm thẳng vào nó (đảm bảo lên xanh).
+--    3. 100% OBFUSCATE PROOF: Code tĩnh, không dùng mảng động, bao mã hóa.
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -27,13 +27,8 @@ local function getSafeGuiContainer()
     return container
 end
 
--- ==================== CHUỖI JSON CONFIG CỦA NGƯỜI DÙNG ====================
-local AUTO_FARM_JSON = [=[
-{"Profile":"auto farm","Version":2,"Values":{"Misc":{"Performance":{"FPS Cap":{"Value":240,"Type":"slider","Unit":" FPS"},"Farm HUD":{"Value":false,"Type":"toggle"},"Background Color":{"Value":"White","Type":"dropdown"},"Egg Card Image":{"Value":"Egg Image","Type":"dropdown"},"Disable 3D Render":{"Value":false,"Type":"toggle"},"FPS and Ping":{"Value":true,"Type":"toggle"},"Optimizer":{"Value":false,"Type":"toggle"},"HUD Size":{"Value":70,"Type":"slider","Unit":"%"},"Showcase Cards":{"Value":4,"Type":"slider"},"Hide Game UI":{"Value":true,"Type":"toggle"},"HUD Items":{"Value":["Money","Income","Speed","Treadmill","Eggs Stolen","Best Steal","Night Timer","Session Time","Activity","Mech Portal","Boss Mastery","Samples","Mech Fights","Lab","Pets","Eggs","Top Pets","Top Eggs","Steal History"],"Type":"multidropdown"},"FPS and Ping Size":{"Value":100,"Type":"slider","Unit":"%"}},"Utility":{"Anti AFK":{"Value":true,"Type":"toggle"}}},"Predictor":{"Egg Predictor":{"Sort By":{"Value":"Value","Type":"dropdown"},"Preview Card":{"Value":true,"Type":"toggle"}},"Discord Webhook":{"Webhook URL":{"Value":"","Type":"input"},"Notify Fused Eggs":{"Value":false,"Type":"toggle"},"Notify Stolen Eggs":{"Value":false,"Type":"toggle"},"Webhook Eggs":{"Value":[],"Type":"multidropdown"},"Webhook Min Rarity":{"Value":"Any","Type":"dropdown"},"Webhook Min Value":{"Value":0,"Type":"slider"},"Ping @everyone":{"Value":false,"Type":"toggle"}}},"Progress":{"Auto Progression":{"Auto Buy Trail":{"Value":false,"Type":"toggle"},"Auto Claim Index":{"Value":false,"Type":"toggle"},"Auto Upgrade Treadmill":{"Value":false,"Type":"toggle"},"Auto Claim":{"Value":false,"Type":"toggle"},"Auto Upgrade Base":{"Value":false,"Type":"toggle"}}},"Quick":{"Pin Pad":{"Pad Size":{"Value":150,"Type":"slider","Unit":"%"},"Enable Keybinds":{"Value":true,"Type":"toggle"},"Show Pin Pads":{"Value":true,"Type":"toggle"},"Visible Quick Bars":{"Value":["Quick Bar 1","Quick Bar 2","Quick Bar 3","Quick Bar 4","Quick Bar 5"],"Type":"multidropdown"}}},"Auto Hop":{"Egg Finder":{"Hop Mode":{"Value":"Steal Then Hop","Type":"dropdown"},"Min Rarity":{"Value":"Secret","Type":"dropdown"},"Rarity To Wait For":{"Value":"Cosmic","Type":"dropdown"},"First Hop Delay":{"Value":5,"Type":"slider","Unit":"s"},"Auto Hop":{"Value":false,"Type":"toggle"},"Target Specific Eggs":{"Value":[],"Type":"multidropdown"},"Sync With Auto Steal Filters":{"Value":true,"Type":"toggle"},"Min Value To Find":{"Value":0,"Type":"slider"},"Target Areas":{"Value":["Forest","Desert","Snow","Lake","Jungle","Volcano","Prehistoric","Cosmic","Abyss Ocean","Cherry Blossom","Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"}}},"Player":{"ESP":{"ESP Eggs":{"Value":false,"Type":"toggle"},"ESP Player Size":{"Value":75,"Type":"slider","Unit":"%"},"ESP Show Info":{"Value":["Icon","Name","Value"],"Type":"multidropdown"},"ESP Guard Size":{"Value":75,"Type":"slider","Unit":"%"},"ESP Player Info":{"Value":["Name","Tool"],"Type":"multidropdown"},"ESP Other Base Eggs":{"Value":false,"Type":"toggle"},"ESP Min Rarity":{"Value":"Any","Type":"dropdown"},"ESP Guards":{"Value":false,"Type":"toggle"},"Min ESP Value":{"Value":0,"Type":"slider"},"ESP Lost Parts":{"Value":false,"Type":"toggle"},"ESP Players":{"Value":false,"Type":"toggle"},"ESP Own Base Eggs":{"Value":true,"Type":"toggle"},"ESP Fixed Size":{"Value":false,"Type":"toggle"},"ESP Egg Size":{"Value":75,"Type":"slider","Unit":"%"}},"Character":{"Instant Prompts":{"Value":true,"Type":"toggle"},"Anti Ragdoll":{"Value":true,"Type":"toggle"},"Anti Trap":{"Value":true,"Type":"toggle"},"Invisibility":{"Value":false,"Type":"toggle"}},"Movement":{"Speed Boost":{"Value":false,"Type":"toggle"},"Boost Speed":{"Value":1000,"Type":"slider","Unit":"studs/s"},"Infinite Jump":{"Value":true,"Type":"toggle"}},"Combat":{"Auto Hit Egg Holders":{"Value":false,"Type":"toggle"},"Hit Max Speed":{"Value":750,"Type":"slider","Unit":"studs/s"},"Auto Hit Nearest Player":{"Value":false,"Type":"toggle"},"Hit Sweep":{"Value":250,"Type":"slider","Unit":"%"},"Hit Player":{"Value":"ayainayyaa","Type":"dropdown"},"Hit Tween Speed":{"Value":400,"Type":"slider","Unit":"studs/s"},"Hit Lead":{"Value":100,"Type":"slider"},"Chase Settings":{"Value":"Chase Settings","Type":"label"},"Auto Hit Specific Player":{"Value":false,"Type":"toggle"},"Hit Aura":{"Value":false,"Type":"toggle"},"Hit Status":{"Value":"Idle","Type":"text"}}},"Settings":{"Interface":{"UI Size":{"Value":100,"Type":"slider","Unit":"%"}}},"Farm":{"Auto Steal":{"Drop Eggs At Safe Zone":{"Value":false,"Type":"toggle"},"Anti Guard Panel":{"Value":true,"Type":"toggle"},"Carry Speed":{"Value":120,"Type":"slider","Unit":"%"},"Target Specific Eggs":{"Value":[],"Type":"multidropdown"},"Steal Missing Lab Eggs":{"Value":false,"Type":"toggle"},"Instant Steal Steps":{"Value":1,"Type":"slider"},"Stock Lab Eggs For":{"Value":[],"Type":"multidropdown"},"Target Areas":{"Value":["Forest","Desert","Snow","Lake","Jungle","Volcano","Prehistoric","Cosmic","Abyss Ocean","Cherry Blossom","Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"},"Unstable DNA Lab Eggs":{"Value":["Toro Egg (24%)","Winged Lamb Egg (23%)","Bladehide Egg (23%)","Imp Egg (22%)","Crustacia Egg (22%)"],"Type":"multidropdown"},"Steal Priority":{"Value":"Highest Value","Type":"dropdown"},"Auto Steal":{"Value":true,"Type":"toggle"},"Min Rarity":{"Value":"Secret","Type":"dropdown"},"Teleport To Egg":{"Value":true,"Type":"toggle"},"Stock Per Egg":{"Value":3,"Type":"slider","Unit":""},"Experimental Lab Eggs":{"Value":[],"Type":"multidropdown"},"Fast Delivery":{"Value":false,"Type":"toggle"},"Skip Owned Lab Eggs":{"Value":true,"Type":"toggle"},"Biohazard Lab Eggs":{"Value":[],"Type":"multidropdown"},"Instant Steal V2":{"Value":true,"Type":"toggle"},"Instant Steal":{"Value":false,"Type":"toggle"},"Steal Missing Index Eggs":{"Value":false,"Type":"toggle"},"Instant Steal Zones":{"Value":["Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"},"Tween Speed":{"Value":120,"Type":"slider","Unit":"%"},"Min Steal Value":{"Value":0,"Type":"slider"}},"Auto Treadmill":{"Stay On Treadmill":{"Value":true,"Type":"toggle"},"Auto Treadmill":{"Value":true,"Type":"toggle"}},"Dr Scramble Lab & Mech":{"Swap Two Weapons":{"Value":true,"Type":"toggle"},"Auto Lab Trade-In":{"Value":false,"Type":"toggle"},"Keep Hopping For":{"Value":3,"Type":"slider","Unit":"min"},"Boss Server Hop":{"Value":false,"Type":"toggle"},"Auto Claim Mastery":{"Value":false,"Type":"toggle"},"Auto Buy Scramble Shop":{"Value":false,"Type":"toggle"},"Scrambler Hold":{"Value":0.4,"Type":"slider","Unit":"s"},"Scramble Shop Items":{"Value":[],"Type":"multidropdown"},"Auto Mech Boss":{"Value":false,"Type":"toggle"},"Auto Reroll Lab Recipe":{"Value":false,"Type":"toggle"},"Lab Banners":{"Value":[],"Type":"multidropdown"},"Auto Place Lab Reward Eggs":{"Value":false,"Type":"toggle"},"Mech Tween Speed":{"Value":250,"Type":"slider","Unit":"studs/s"},"Lab Status":{"Value":"Experimental Pets  -  needs Cosmic Gecko, Bladehide, Snowy Owl  -  pity 0/100  -  free rerolls 2  -  rotates in 2:56","Type":"text"},"Main Weapon Hold":{"Value":0.3,"Type":"slider","Unit":"s"},"Mech Status":{"Value":"Off  |  Next Mech portal in 2:57","Type":"text"},"Keep Samples":{"Value":0,"Type":"slider","Unit":""}},"Auto Sell":{"Egg Sell Value":{"Value":0,"Type":"slider"},"Egg Sell Preview":{"Value":"Egg matches  -  0 eggs for $0","Type":"text"},"Auto Sell Egg":{"Value":false,"Type":"toggle"},"Blacklist Sell Eggs":{"Value":[],"Type":"multidropdown"},"Keep Mutated Eggs":{"Value":true,"Type":"toggle"},"Egg Max Rarity":{"Value":"3 - Rare","Type":"dropdown"},"Blacklist Sell Pets":{"Value":[],"Type":"multidropdown"},"Sell Egg Rule":{"Value":"Rarity Only","Type":"dropdown"},"Auto Sell Pet":{"Value":false,"Type":"toggle"},"Pet Sell Value":{"Value":0,"Type":"slider"},"Pet Sell Preview":{"Value":"Pet matches  -  0 pets for $0","Type":"text"},"Keep Mutated Pets":{"Value":true,"Type":"toggle"},"Sell Pet Rule":{"Value":"Rarity Only","Type":"dropdown"},"Pet Max Rarity":{"Value":"3 - Rare","Type":"dropdown"}},"Wisp Companion":{"Auto Banjo Cricket":{"Value":false,"Type":"toggle"},"Auto Wisp":{"Value":false,"Type":"toggle"},"Wisp Status":{"Value":"Off","Type":"text"}},"Auto Place Egg":{"Place Egg Rule":{"Value":"Always","Type":"dropdown"},"Auto Place Egg":{"Value":false,"Type":"toggle"},"Pen Status":{"Value":"Eggs placed 6/30  -  19/19 pets equipped, 87 in bag","Type":"text"},"Place Rarities":{"Value":[],"Type":"multidropdown"},"Place Egg Order":{"Value":"Highest Value","Type":"dropdown"},"Min Place Value":{"Value":0,"Type":"slider"},"Place Specific Eggs":{"Value":[],"Type":"multidropdown"}},"Auto Fuse Machine":{"Max Rarity to Fuse":{"Value":"6 - Mythic","Type":"dropdown"},"Skip Mutated Pets":{"Value":true,"Type":"toggle"},"Auto Fuse Machine":{"Value":false,"Type":"toggle"},"Eject Incomplete Slots":{"Value":true,"Type":"toggle"},"Specific Species to Fuse":{"Value":[],"Type":"multidropdown"},"Pets To Use":{"Value":"Lowest To Highest","Type":"dropdown"},"Fuse Priority Mode":{"Value":"Lowest Rarity First","Type":"dropdown"},"Fuse Preview":{"Value":"No three matching pets","Type":"text"}},"Auto Mutation":{"Mutate Target Eggs":{"Value":["Amethyst Runebear [Secret]"],"Type":"multidropdown"},"Mutations To Use":{"Value":["Fractured","Scrambled","Enchanted"],"Type":"multidropdown"},"Mutate Priority":{"Value":"Highest Value","Type":"dropdown"},"Auto Buy Scrambled":{"Value":false,"Type":"toggle"},"Auto Mutate":{"Value":false,"Type":"toggle"},"Mutate Status":{"Value":"Off","Type":"text"},"Mutate Min Value":{"Value":0,"Type":"slider"},"Mutate Min Rarity":{"Value":"Any","Type":"dropdown"}},"Auto Sell Lab Egg":{"Lab Egg Sell Value":{"Value":0,"Type":"slider"},"Sell Lab Egg Rule":{"Value":"Rarity And Value","Type":"dropdown"},"Lab Egg Max Rarity":{"Value":"Off","Type":"dropdown"},"Auto Sell Lab Egg":{"Value":false,"Type":"toggle"},"Lab Egg Sell Preview":{"Value":"Lab egg matches  -  0 eggs for $0","Type":"text"},"Keep Lab Pets":{"Value":[],"Type":"multidropdown"},"Keep Mutated Lab Eggs":{"Value":true,"Type":"toggle"}},"Auto Hatch & Equip":{"Hatch Specific Eggs":{"Value":[],"Type":"multidropdown"},"Auto Hatch":{"Value":false,"Type":"toggle"},"Hatch Min Rarity":{"Value":"Any","Type":"dropdown"},"Min Hatch Value":{"Value":0,"Type":"slider"},"Auto Equip Best":{"Value":false,"Type":"toggle"}},"Auto Favorite":{"Favorite Mutations":{"Value":[],"Type":"multidropdown"},"Favorite Preview":{"Value":"Favorite matches  -  0 pets, 0 to mark  |  1 favorited","Type":"text"},"Favorite Min Rarity":{"Value":"Off","Type":"dropdown"},"Auto Favorite Equipped":{"Value":false,"Type":"toggle"},"Auto Favorite Pet":{"Value":false,"Type":"toggle"},"Always Favorite Species":{"Value":[],"Type":"multidropdown"},"Auto Unfavorite Equipped":{"Value":false,"Type":"toggle"},"Min Favorite Value":{"Value":0,"Type":"slider"},"Favorite Rule":{"Value":"Match All","Type":"dropdown"}},"Butterfly Bloom":{"Auto Butterfly Bloom":{"Value":true,"Type":"toggle"},"Smart Trade For Essence":{"Value":false,"Type":"toggle"},"Auto Craft Essence":{"Value":false,"Type":"toggle"},"Auto Trade Up":{"Value":false,"Type":"toggle"},"Catch Butterflies":{"Value":["Radiant Butterfly","Amethyst Butterfly","Sapphire Butterfly","Emerald Butterfly"],"Type":"multidropdown"},"Tween Speed  ":{"Value":600,"Type":"slider","Unit":"studs/s"},"Catch Mode":{"Value":"Chase","Type":"dropdown"},"Catch Priority":{"Value":"Rarest","Type":"dropdown"},"Trade Up Tiers":{"Value":["Amethyst To Radiant"],"Type":"multidropdown"}}},"Server":{"Server":{"Server Hop Mode":{"Value":"Least Players","Type":"dropdown"},"Auto Load Script":{"Value":true,"Type":"toggle"},"Auto Rejoin When Disconnect":{"Value":true,"Type":"toggle"}}}},"States":{"Farm HUD Stealing Position":{"Value":[]},"Quick Panel Collapsed":{"Value":{"1":false}},"Quick Keybinds":{"Value":{"Player > Movement > Speed Boost":"Q"}},"Farm HUD World Position":{"Value":[]},"Farm HUD Stolen Eggs":{"Value":{"History":[{"At":1791608191,"Name":"Gargoyle Egg","Category":"Dark Gargoyle","Scale":1.0089377638111945,"Rarity":"Secret","Value":274481363.75902286}],"Count":1,"Best":{"Category":"Dark Gargoyle","Name":"Gargoyle Egg","Rarity":"Secret","Rank":8}}},"Farm HUD Top Eggs Position":{"Value":[]},"Anti Guard Enabled":{"Value":false},"Farm HUD Steal History Position":{"Value":[]},"Open On Launch":{"Value":true},"Notifications":{"Value":true},"Quick Panel Position":{"Value":{"1":{"Y":0.046925779432058337,"X":0.8835160732269287}}},"Quick Open Key":{"Value":"LeftControl"},"Farm HUD Top Pets Position":{"Value":[]},"Quick Pin Groups":{"Value":[]},"FPS and Ping Position":{"Value":{"XOffset":-107,"XScale":0,"YScale":0,"YOffset":337}},"Farm HUD Dr Scramble Position":{"Value":[]},"Farm HUD Status Position":{"Value":[]},"Steal Panel Open":{"Value":false},"Quick LeftCenter Hidden":{"Value":true},"Farm HUD Economy Position":{"Value":[]},"Quick Pinned Features":{"Value":["Player > Movement > Speed Boost","Player > Movement > Boost Speed"]},"Farm HUD Collection Position":{"Value":[]}},"SavedAt":1791608223}
-]=]
-
--- Hàm click an toàn
-local function fireClick(target)
+-- Hàm giả lập click siêu mạnh (bấm thẳng vào object)
+local function forceTriggerClick(target)
     if not target then return end
     pcall(function()
         if firesignal then
@@ -45,81 +40,97 @@ local function fireClick(target)
     end)
 end
 
--- Hàm tìm kiếm an toàn (có retry)
-local function findElementSafe(container, text, className, retries, delayTime)
-    retries = retries or 5
-    delayTime = delayTime or 0.2
-    
-    for i = 1, retries do
-        for _, d in ipairs(container:GetDescendants()) do
-            if d:IsA(className) and d.Text:lower() == text:lower() and not d:FindFirstAncestor("Chilli_Dynamic_Island") then
-                return d
-            end
+-- Kiểm tra xem nút đã bật (màu xanh) chưa
+local function isToggleActive(rowFrame)
+    if not rowFrame then return false end
+    local function checkGreen(c) return c and (c.G > 0.45 and c.G > c.R * 1.3 and c.G > c.B * 1.3) end
+    for _, el in ipairs(rowFrame:GetDescendants()) do
+        if el:IsA("GuiObject") and checkGreen(el.BackgroundColor3) then 
+            return true 
         end
-        -- Nếu tìm TextButton nhưng thực ra nó là TextLabel bên trong 1 nút
-        if className == "TextButton" then
-            for _, d in ipairs(container:GetDescendants()) do
-                if d:IsA("TextLabel") and d.Text:lower() == text:lower() and not d:FindFirstAncestor("Chilli_Dynamic_Island") then
-                    local btn = d:FindFirstAncestorOfClass("TextButton") or d.Parent
-                    if btn then return btn end
-                end
-            end
+    end
+    return false
+end
+
+-- Tìm khung chứa cái nút (dựa vào Text)
+local function findToggleRow(container, textMatch)
+    for _, d in ipairs(container:GetDescendants()) do
+        if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Text:lower() == textMatch:lower() and not d:FindFirstAncestor("Chilli_Dynamic_Island") then
+            -- Trả về nguyên cái khung bọc ngoài cùng của dòng đó
+            return d.Parent 
         end
-        task.wait(delayTime)
     end
     return nil
 end
 
--- ==================== MACRO TỰ ĐỘNG (Y HỆT THAO TÁC TAY) ====================
-local function executeSafeVisualMacro()
+local function executeDirectUIConfig()
     local cont = getSafeGuiContainer()
     if not cont then return end
 
-    -- 1. Tìm và bấm tab Cấu Hình
-    local cfgTab = findElementSafe(cont, "Cấu Hình", "TextButton") or findElementSafe(cont, "Config", "TextButton")
-    if cfgTab then fireClick(cfgTab) end
-    task.wait(0.3)
+    -- BƯỚC 1: BẤM CÁC CÔNG TẮC (TOGGLES) CHO LÊN MÀU XANH
+    local targetToggles = {
+        "Tự Động Bắt Bướm",
+        "Cướp Siêu Tốc (Instant Steal) V2",
+        "Teleport To Egg",
+        "Bảng Chống Vệ Sĩ",
+        "Tự Động Máy Tập",
+        "Cố Định Trên Máy Tập"
+    }
 
-    -- 2. Tìm TextBox Import và dán JSON
-    local importBox
-    for i = 1, 5 do
-        for _, d in ipairs(cont:GetDescendants()) do
-            if d:IsA("TextBox") and not d:FindFirstAncestor("Chilli_Dynamic_Island") then
-                local ph = (d.PlaceholderText or ""):lower()
-                if ph:find("paste") or ph:find("import") then 
-                    importBox = d
-                    break 
+    for _, toggleName in ipairs(targetToggles) do
+        local row = findToggleRow(cont, toggleName)
+        if row then
+            -- Nếu nút CHƯA xanh thì mới bấm cho nó xanh
+            if not isToggleActive(row) then
+                -- Tìm cái nút bên trong dòng đó để bấm
+                local btnToClick
+                for _, child in ipairs(row:GetDescendants()) do
+                    if child:IsA("TextButton") or child:IsA("ImageButton") then
+                        btnToClick = child
+                        break
+                    end
+                end
+                
+                if btnToClick then 
+                    forceTriggerClick(btnToClick)
+                    task.wait(0.2) -- Đợi 0.2s cho game xử lý hiệu ứng
                 end
             end
         end
-        if importBox then break end
+    end
+
+    -- BƯỚC 2: CHỌN DROPDOWN (Menu thả xuống)
+    -- Chọn Chế Độ Bắt -> Đuổi theo
+    local catchModeRow = findToggleRow(cont, "Chế Độ Bắt")
+    if catchModeRow then
+        forceTriggerClick(catchModeRow) -- Mở menu
+        task.wait(0.2)
+        local opt = findToggleRow(cont, "Đuổi theo")
+        if opt then forceTriggerClick(opt) end
         task.wait(0.2)
     end
-    
-    if importBox then
-        pcall(function() importBox.Text = AUTO_FARM_JSON end)
+
+    -- Chọn Ưu Tiên Bắt -> Gần nhất
+    local catchPrioRow = findToggleRow(cont, "Ưu Tiên Bắt")
+    if catchPrioRow then
+        forceTriggerClick(catchPrioRow)
+        task.wait(0.2)
+        local opt = findToggleRow(cont, "Gần nhất")
+        if opt then forceTriggerClick(opt) end
+        task.wait(0.2)
     end
-    task.wait(0.3)
 
-    -- 3. Bấm Import
-    local importBtn = findElementSafe(cont, "Import", "TextButton")
-    if importBtn then fireClick(importBtn) end
-    task.wait(0.3)
-
-    -- 4. Bấm chữ auto farm (để chọn)
-    local autoFarmOpt = findElementSafe(cont, "auto farm", "TextButton")
-    if autoFarmOpt then fireClick(autoFarmOpt) end
-    task.wait(0.3)
-
-    -- 5. Bấm Load
-    local loadBtn = findElementSafe(cont, "Load", "TextButton") or findElementSafe(cont, "Tải", "TextButton")
-    if loadBtn then fireClick(loadBtn) end
-    task.wait(0.3)
-
-    -- 6. Quay lại tab Cày Cuốc
-    local farmTab = findElementSafe(cont, "Cày Cuốc", "TextButton") or findElementSafe(cont, "Farm", "TextButton")
-    if farmTab then fireClick(farmTab) end
+    -- Chọn Min Rarity -> Bí Ẩn (Secret)
+    local minRarityRow = findToggleRow(cont, "Min Rarity")
+    if minRarityRow then
+        forceTriggerClick(minRarityRow)
+        task.wait(0.2)
+        local opt = findToggleRow(cont, "Bí Ẩn (Secret)")
+        if opt then forceTriggerClick(opt) end
+        task.wait(0.2)
+    end
 end
+
 
 -- ==================== NẠP SCRIPT GỐC ====================
 task.spawn(function()
@@ -150,6 +161,68 @@ local EXACT_MATCH_VI = {
     ["EGGS"] = "TRỨNG", ["READY"] = "SẴN SÀNG", ["GROWING"] = "ĐANG LỚN", ["IN BAG"] = "TRONG TÚI",
     ["TOTAL / S"] = "TỔNG / GIÂY", ["SCRAMBLED"] = "ĐÃ BIẾN ĐỔI", ["GOLDEN"] = "VÀNG", ["SILVER"] = "BẠC", ["RAINBOW"] = "CẦU VỒNG"
 }
+
+local function getStaticTranslation(raw)
+    local p1, p2, p3, p4, p5
+    p1, p2, p3 = raw:match("Catching a (.+) butterfly, (%d+) studs | (%d+) flying")
+    if p1 then return currentLanguage == "VI" and ("Đang bắt bướm " .. p1 .. ", " .. p2 .. " studs | " .. p3 .. " đang bay") or raw end
+    p1 = raw:match("ALL (%d+)")
+    if p1 then return currentLanguage == "VI" and ("TẤT CẢ " .. p1) or raw end
+    p1 = raw:match("READY (%d+)")
+    if p1 then return currentLanguage == "VI" and ("SẴN SÀNG " .. p1) or raw end
+    p1 = raw:match("GROWING (%d+)")
+    if p1 then return currentLanguage == "VI" and ("ĐANG LỚN " .. p1) or raw end
+    p1 = raw:match("IN BAG (%d+)")
+    if p1 then return currentLanguage == "VI" and ("TRONG TÚI " .. p1) or raw end
+    p1, p2 = raw:match("#(%d+) of (%d+) eggs by value")
+    if p1 then return currentLanguage == "VI" and ("Hạng #" .. p1 .. "/" .. p2 .. " trứng theo giá trị") or raw end
+    p1 = raw:match("1 in ([%d%.]+)")
+    if p1 then return currentLanguage == "VI" and ("Tỉ lệ 1/" .. p1) or raw end
+    p1 = raw:match("Ends in (%d+h %d+m %d+s)")
+    if p1 then return currentLanguage == "VI" and ("Kết thúc sau " .. p1) or raw end
+    p1 = raw:match("in (%d+h %d+m)")
+    if p1 then return currentLanguage == "VI" and ("sau " .. p1) or raw end
+    p1 = raw:match("Banner chance (%d+%.?%d*%%)")
+    if p1 then return currentLanguage == "VI" and ("Tỉ lệ Banner " .. p1) or raw end
+    p1, p2 = raw:match("Pity (%d+)/(%d+)")
+    if p1 then return currentLanguage == "VI" and ("Bảo hiểm " .. p1 .. "/" .. p2) or raw end
+    p1 = raw:match("Free rerolls (%d+)")
+    if p1 then return currentLanguage == "VI" and ("Đổi miễn phí " .. p1) or raw end
+    p1 = raw:match("rotates in (%d+:%d+)")
+    if p1 then return currentLanguage == "VI" and ("xoay vòng sau " .. p1) or raw end
+    p1, p2, p3, p4, p5 = raw:match("Eggs placed (%d+)/(%d+) %- (%d+)/(%d+) pets equipped, (%d+) in bag")
+    if p1 then return currentLanguage == "VI" and ("Trứng đã đặt " .. p1 .. "/" .. p2 .. " - " .. p3 .. "/" .. p4 .. " pet trang bị, " .. p5 .. " trong túi") or raw end
+    p1, p2 = raw:match("Pet matches %- (%d+) pets? for %$(.+)")
+    if p1 then return currentLanguage == "VI" and ("Khớp pet - " .. p1 .. " pet giá $" .. p2) or raw end
+    p1, p2 = raw:match("Egg matches %- (%d+) eggs? for %$(.+)")
+    if p1 then return currentLanguage == "VI" and ("Khớp trứng - " .. p1 .. " trứng giá $" .. p2) or raw end
+    p1, p2 = raw:match("Lab egg matches %- (%d+) eggs? for %$(.+)")
+    if p1 then return currentLanguage == "VI" and ("Khớp trứng Lab - " .. p1 .. " trứng giá $" .. p2) or raw end
+    p1, p2, p3 = raw:match("Favorite matches %- (%d+) pets?, (%d+) to mark %| (%d+) favorited")
+    if p1 then return currentLanguage == "VI" and ("Khớp yêu thích - " .. p1 .. " pet, " .. p2 .. " cần lưu | " .. p3 .. " đã khóa") or raw end
+    p1, p2, p3, p4, p5 = raw:match("Charges (%d+) Eggs (%d+)/(%d+) Tries (%d+) Applied (%d+)")
+    if p1 then return currentLanguage == "VI" and ("Số lần sạc " .. p1 .. " Trứng " .. p2 .. "/" .. p3 .. " Thử " .. p4 .. " Đã dùng " .. p5) or raw end
+    p1, p2 = raw:match("Players (%d+)/(%d+)")
+    if p1 then return currentLanguage == "VI" and ("Người chơi " .. p1 .. "/" .. p2) or raw end
+    p1 = raw:match("Next Mech portal in (%d+:%d+)")
+    if p1 then return currentLanguage == "VI" and ("Cổng Robot mở sau " .. p1) or raw end
+    p1 = raw:match("Next Butterfly Bloom in (%d+:%d+)")
+    if p1 then return currentLanguage == "VI" and ("Sự kiện Bướm nở sau " .. p1) or raw end
+    p1 = raw:match("Butterfly Bloom live, (%d+:%d+) left")
+    if p1 then return currentLanguage == "VI" and ("Sự kiện Bướm đang diễn ra, còn " .. p1) or raw end
+    p1, p2 = raw:match("Caught (.+)! %((%d+) owned%)")
+    if p1 then return currentLanguage == "VI" and ("Đã bắt " .. p1 .. "! (Đang có " .. p2 .. " con)") or raw end
+    return nil
+end
+
+local function replaceAll(str, findStr, replaceStr)
+    local startIdx, endIdx = str:find(findStr, 1, true)
+    while startIdx do
+        str = str:sub(1, startIdx - 1) .. replaceStr .. str:sub(endIdx + 1)
+        startIdx, endIdx = str:find(findStr, startIdx + #replaceStr, true)
+    end
+    return str
+end
 
 local MAP_VI = {
     ["Chilli Hub"] = "Chilli Hub V2", ["Farm"] = "Cày Cuốc", ["Player"] = "Người Chơi", ["Predictor"] = "Dự Đoán",
@@ -293,68 +366,6 @@ local MAP_VI = {
     ["Notify Stolen Eggs"] = "Báo Cáo Cướp Trứng", ["Post every egg you bring home"] = "Gửi thông báo mỗi quả trứng mang về thành công",
     ["selected"] = "đã chọn"
 }
-
-local function getStaticTranslation(raw)
-    local p1, p2, p3, p4, p5
-    p1, p2, p3 = raw:match("Catching a (.+) butterfly, (%d+) studs | (%d+) flying")
-    if p1 then return currentLanguage == "VI" and ("Đang bắt bướm " .. p1 .. ", " .. p2 .. " studs | " .. p3 .. " đang bay") or raw end
-    p1 = raw:match("ALL (%d+)")
-    if p1 then return currentLanguage == "VI" and ("TẤT CẢ " .. p1) or raw end
-    p1 = raw:match("READY (%d+)")
-    if p1 then return currentLanguage == "VI" and ("SẴN SÀNG " .. p1) or raw end
-    p1 = raw:match("GROWING (%d+)")
-    if p1 then return currentLanguage == "VI" and ("ĐANG LỚN " .. p1) or raw end
-    p1 = raw:match("IN BAG (%d+)")
-    if p1 then return currentLanguage == "VI" and ("TRONG TÚI " .. p1) or raw end
-    p1, p2 = raw:match("#(%d+) of (%d+) eggs by value")
-    if p1 then return currentLanguage == "VI" and ("Hạng #" .. p1 .. "/" .. p2 .. " trứng theo giá trị") or raw end
-    p1 = raw:match("1 in ([%d%.]+)")
-    if p1 then return currentLanguage == "VI" and ("Tỉ lệ 1/" .. p1) or raw end
-    p1 = raw:match("Ends in (%d+h %d+m %d+s)")
-    if p1 then return currentLanguage == "VI" and ("Kết thúc sau " .. p1) or raw end
-    p1 = raw:match("in (%d+h %d+m)")
-    if p1 then return currentLanguage == "VI" and ("sau " .. p1) or raw end
-    p1 = raw:match("Banner chance (%d+%.?%d*%%)")
-    if p1 then return currentLanguage == "VI" and ("Tỉ lệ Banner " .. p1) or raw end
-    p1, p2 = raw:match("Pity (%d+)/(%d+)")
-    if p1 then return currentLanguage == "VI" and ("Bảo hiểm " .. p1 .. "/" .. p2) or raw end
-    p1 = raw:match("Free rerolls (%d+)")
-    if p1 then return currentLanguage == "VI" and ("Đổi miễn phí " .. p1) or raw end
-    p1 = raw:match("rotates in (%d+:%d+)")
-    if p1 then return currentLanguage == "VI" and ("xoay vòng sau " .. p1) or raw end
-    p1, p2, p3, p4, p5 = raw:match("Eggs placed (%d+)/(%d+) %- (%d+)/(%d+) pets equipped, (%d+) in bag")
-    if p1 then return currentLanguage == "VI" and ("Trứng đã đặt " .. p1 .. "/" .. p2 .. " - " .. p3 .. "/" .. p4 .. " pet trang bị, " .. p5 .. " trong túi") or raw end
-    p1, p2 = raw:match("Pet matches %- (%d+) pets? for %$(.+)")
-    if p1 then return currentLanguage == "VI" and ("Khớp pet - " .. p1 .. " pet giá $" .. p2) or raw end
-    p1, p2 = raw:match("Egg matches %- (%d+) eggs? for %$(.+)")
-    if p1 then return currentLanguage == "VI" and ("Khớp trứng - " .. p1 .. " trứng giá $" .. p2) or raw end
-    p1, p2 = raw:match("Lab egg matches %- (%d+) eggs? for %$(.+)")
-    if p1 then return currentLanguage == "VI" and ("Khớp trứng Lab - " .. p1 .. " trứng giá $" .. p2) or raw end
-    p1, p2, p3 = raw:match("Favorite matches %- (%d+) pets?, (%d+) to mark %| (%d+) favorited")
-    if p1 then return currentLanguage == "VI" and ("Khớp yêu thích - " .. p1 .. " pet, " .. p2 .. " cần lưu | " .. p3 .. " đã khóa") or raw end
-    p1, p2, p3, p4, p5 = raw:match("Charges (%d+) Eggs (%d+)/(%d+) Tries (%d+) Applied (%d+)")
-    if p1 then return currentLanguage == "VI" and ("Số lần sạc " .. p1 .. " Trứng " .. p2 .. "/" .. p3 .. " Thử " .. p4 .. " Đã dùng " .. p5) or raw end
-    p1, p2 = raw:match("Players (%d+)/(%d+)")
-    if p1 then return currentLanguage == "VI" and ("Người chơi " .. p1 .. "/" .. p2) or raw end
-    p1 = raw:match("Next Mech portal in (%d+:%d+)")
-    if p1 then return currentLanguage == "VI" and ("Cổng Robot mở sau " .. p1) or raw end
-    p1 = raw:match("Next Butterfly Bloom in (%d+:%d+)")
-    if p1 then return currentLanguage == "VI" and ("Sự kiện Bướm nở sau " .. p1) or raw end
-    p1 = raw:match("Butterfly Bloom live, (%d+:%d+) left")
-    if p1 then return currentLanguage == "VI" and ("Sự kiện Bướm đang diễn ra, còn " .. p1) or raw end
-    p1, p2 = raw:match("Caught (.+)! %((%d+) owned%)")
-    if p1 then return currentLanguage == "VI" and ("Đã bắt " .. p1 .. "! (Đang có " .. p2 .. " con)") or raw end
-    return nil
-end
-
-local function replaceAll(str, findStr, replaceStr)
-    local startIdx, endIdx = str:find(findStr, 1, true)
-    while startIdx do
-        str = str:sub(1, startIdx - 1) .. replaceStr .. str:sub(endIdx + 1)
-        startIdx, endIdx = str:find(findStr, startIdx + #replaceStr, true)
-    end
-    return str
-end
 
 local SortedVI = {}
 for en, vi in pairs(MAP_VI) do table.insert(SortedVI, {en = en, out = vi, len = #en}) end
@@ -721,8 +732,7 @@ local function createDynamicIslandUI()
         PresetBtn.BackgroundColor3 = Color3.fromRGB(45, 205, 110)
         
         task.spawn(function()
-            executeSafeVisualMacro()
-            task.wait(0.5)
+            executeDirectUIConfig()
             PresetBtn.Text = "✅ ĐÃ THIẾT LẬP XONG!"
             task.wait(2)
             PresetBtn.Text = "⚡ THIẾT LẬP AUTO FARM"
