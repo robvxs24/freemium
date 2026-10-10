@@ -1,14 +1,13 @@
 -- ==============================================================================
---  CHILLI HUB V2 - DYNAMIC ISLAND V9.0 (BULLETPROOF & ZERO-LAG EDITION)
+--  CHILLI HUB V2 - DYNAMIC ISLAND V10.0 (BUG-FREE & ZERO-LAG EDITION)
 --  Tối ưu hóa:
---    1. ANTI-CRASH: Ép hiển thị UI bất chấp Executor bị lỗi quyền truy cập CoreGui.
---    2. NOTIFICATION: Thông báo hệ thống ngay khi chạy để kiểm tra script có hoạt động không.
---    3. ZERO-LAG: Quét UI rải rác (Chunked Scanning) đảm bảo game giữ mượt 60 FPS.
---    4. AUTO FARM PRESET: Chạm để chuẩn hóa Auto Farm theo đúng 4 ảnh.
---    5. LIQUID SPRING EXPANSION: Kéo bung mượt mà, khung cầu vồng xoay 360 độ.
+--    1. FIX SYNTAX ERROR: Sửa lỗi dư chữ 'end' gây hỏng cụm DYNAMIC_PATTERNS.
+--    2. ANTI-CRASH: Ép hiển thị UI bất chấp Executor bị lỗi quyền truy cập CoreGui.
+--    3. NOTIFICATION: Thông báo hệ thống ngay khi chạy để kiểm tra script.
+--    4. ZERO-LAG: Quét UI rải rác đảm bảo game giữ mượt 60 FPS.
+--    5. AUTO FARM PRESET: Chạm để chuẩn hóa Auto Farm theo đúng 4 ảnh.
 -- ==============================================================================
 
--- Báo cáo khởi động (Anh sẽ thấy thông báo nhỏ góc phải màn hình)
 pcall(function()
     game:GetService("StarterGui"):SetCore("SendNotification", {
         Title = "Chilli Hub V2",
@@ -60,6 +59,15 @@ end)
 -- ==================== 3. TỪ ĐIỂN DỊCH THUẬT MASTER ====================
 local currentLanguage = "VI"
 local FastCache = {}
+
+local function replaceAll(str, findStr, replaceStr)
+    local startIdx, endIdx = str:find(findStr, 1, true)
+    while startIdx do
+        str = str:sub(1, startIdx - 1) .. replaceStr .. str:sub(endIdx + 1)
+        startIdx, endIdx = str:find(findStr, startIdx + #replaceStr, true)
+    end
+    return str
+end
 
 local EXACT_MATCH_VI = {
     ["Chilli Hub"] = "Chilli Hub V2", ["Hop"] = "Đổi Server", ["Join"] = "Vào Phòng", ["Copy"] = "Sao Chép",
@@ -223,6 +231,7 @@ local MAP_VI = {
     ["selected"] = "đã chọn"
 }
 
+-- ĐÃ FIX LỖI SYNTAX Ở ĐÂY: KHÔNG CÒN 'END OR...' DƯ THỪA
 local DYNAMIC_PATTERNS = {
     { pattern = "Catching a (.+) butterfly, (%d+) studs %| (%d+) flying", format = function(lang, name, st, fl) return lang == "VI" and string.format("Đang bắt bướm %s, %s studs | %s đang bay", name, st, fl) or string.format("Catching a %s butterfly, %s studs | %s flying", name, st, fl) end },
     { pattern = "ALL (%d+)", format = function(lang, c) return lang == "VI" and ("TẤT CẢ " .. c) or ("ALL " .. c) end },
@@ -238,11 +247,11 @@ local DYNAMIC_PATTERNS = {
     { pattern = "Free rerolls (%d+)", format = function(lang, rStr) return lang == "VI" and ("Đổi miễn phí " .. rStr) or ("Free rerolls " .. rStr) end },
     { pattern = "rotates in (%d+:%d+)", format = function(lang, timeStr) return lang == "VI" and ("xoay vòng sau " .. timeStr) or ("rotates in " .. timeStr) end },
     { pattern = "Eggs placed (%d+)/(%d+) %- (%d+)/(%d+) pets equipped, (%d+) in bag", format = function(lang, p1, p2, p3, p4, p5) return lang == "VI" and string.format("Trứng đã đặt %s/%s - %s/%s pet trang bị, %s trong túi", p1, p2, p3, p4, p5) or string.format("Eggs placed %s/%s - %s/%s pets equipped, %s in bag", p1, p2, p3, p4, p5) end },
-    { pattern = "Pet matches %- (%d+) pets? for %$(.+)", format = function(lang, count, val) return lang == "VI" and string.format("Khớp pet - %s pet giá $%s", count, val) end or string.format("Pet matches - %s pets for $%s", count, val) end },
-    { pattern = "Egg matches %- (%d+) eggs? for %$(.+)", format = function(lang, count, val) return lang == "VI" and string.format("Khớp trứng - %s trứng giá $%s", count, val) end or string.format("Egg matches - %s eggs for $%s", count, val) end },
-    { pattern = "Lab egg matches %- (%d+) eggs? for %$(.+)", format = function(lang, count, val) return lang == "VI" and string.format("Khớp trứng Lab - %s trứng giá $%s", count, val) end or string.format("Lab egg matches - %s eggs for $%s", count, val) end },
-    { pattern = "Favorite matches %- (%d+) pets?, (%d+) to mark %| (%d+) favorited", format = function(lang, c1, c2, c3) return lang == "VI" and string.format("Khớp yêu thích - %s pet, %s cần lưu | %s đã khóa", c1, c2, c3) end or string.format("Favorite matches - %s pets, %s to mark | %s favorited", c1, c2, c3) end },
-    { pattern = "Charges (%d+) Eggs (%d+)/(%d+) Tries (%d+) Applied (%d+)", format = function(lang, c, e1, e2, t, a) return lang == "VI" and string.format("Số lần sạc %s Trứng %s/%s Thử %s Đã dùng %s", c, e1, e2, t, a) end or string.format("Charges %s Eggs %s/%s Tries %s Applied %s", c, e1, e2, t, a) end },
+    { pattern = "Pet matches %- (%d+) pets? for %$(.+)", format = function(lang, count, val) return lang == "VI" and string.format("Khớp pet - %s pet giá $%s", count, val) or string.format("Pet matches - %s pets for $%s", count, val) end },
+    { pattern = "Egg matches %- (%d+) eggs? for %$(.+)", format = function(lang, count, val) return lang == "VI" and string.format("Khớp trứng - %s trứng giá $%s", count, val) or string.format("Egg matches - %s eggs for $%s", count, val) end },
+    { pattern = "Lab egg matches %- (%d+) eggs? for %$(.+)", format = function(lang, count, val) return lang == "VI" and string.format("Khớp trứng Lab - %s trứng giá $%s", count, val) or string.format("Lab egg matches - %s eggs for $%s", count, val) end },
+    { pattern = "Favorite matches %- (%d+) pets?, (%d+) to mark %| (%d+) favorited", format = function(lang, c1, c2, c3) return lang == "VI" and string.format("Khớp yêu thích - %s pet, %s cần lưu | %s đã khóa", c1, c2, c3) or string.format("Favorite matches - %s pets, %s to mark | %s favorited", c1, c2, c3) end },
+    { pattern = "Charges (%d+) Eggs (%d+)/(%d+) Tries (%d+) Applied (%d+)", format = function(lang, c, e1, e2, t, a) return lang == "VI" and string.format("Số lần sạc %s Trứng %s/%s Thử %s Đã dùng %s", c, e1, e2, t, a) or string.format("Charges %s Eggs %s/%s Tries %s Applied %s", c, e1, e2, t, a) end },
     { pattern = "Players (%d+)/(%d+)", format = function(lang, p1, p2) return lang == "VI" and string.format("Người chơi %s/%s", p1, p2) or string.format("Players %s/%s", p1, p2) end },
     { pattern = "Next Mech portal in (%d+:%d+)", format = function(lang, timeStr) return lang == "VI" and ("Cổng Robot mở sau " .. timeStr) or ("Next Mech portal in " .. timeStr) end },
     { pattern = "Next Butterfly Bloom in (%d+:%d+)", format = function(lang, timeStr) return lang == "VI" and ("Sự kiện Bướm nở sau " .. timeStr) or ("Next Butterfly Bloom in " .. timeStr) end },
@@ -257,45 +266,56 @@ table.sort(SortedVI, function(a, b) return a.len > b.len end)
 local function translateText(raw)
     local cacheKey = currentLanguage .. "|" .. raw
     if FastCache[cacheKey] then return FastCache[cacheKey] end
+
     if currentLanguage == "EN" then
         local res = replaceAll(raw, "Chilli Hub", "Chilli Hub V2")
         FastCache[cacheKey] = res
         return res
     end
+
     local trimmed = raw:match("^%s*(.-)%s*$") or raw
     if EXACT_MATCH_VI[trimmed] then
         local res = raw:gsub(trimmed, EXACT_MATCH_VI[trimmed], 1)
         FastCache[cacheKey] = res
         return res
     end
+
     local result = raw
     local matched = false
     for _, item in ipairs(DYNAMIC_PATTERNS) do
         if result:find(item.pattern) then
-            result = result:gsub(item.pattern, function(...) return item.format(currentLanguage, ...) end)
+            result = result:gsub(item.pattern, function(...)
+                return item.format(currentLanguage, ...)
+            end)
             matched = true
         end
     end
+
     for _, item in ipairs(SortedVI) do
         if result:find(item.en, 1, true) then
             result = replaceAll(result, item.en, item.out)
             matched = true
         end
     end
+
     FastCache[cacheKey] = matched and result or raw
     return FastCache[cacheKey]
 end
+
+local TrackedElements = {}
 
 local function applyTranslation(inst)
     if not inst or not inst.Parent then return end
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
     if inst:FindFirstAncestor("Chilli_Dynamic_Island") then return end
     if inst:GetAttribute("__IsTranslating") then return end
+
     local original = inst:GetAttribute("OriginalRawText")
     if not original then
         original = inst.Text
         pcall(function() inst:SetAttribute("OriginalRawText", original) end)
     end
+
     local mappedText = translateText(original)
     if inst.Text ~= mappedText then
         pcall(function()
@@ -353,13 +373,9 @@ local function recolorSingleButton(btnContainer, labelObj)
     if btnContainer.Parent and btnContainer.Parent:IsA("Frame") and btnContainer.Parent ~= btnContainer then
         local p = btnContainer.Parent
         local pCol = p.BackgroundColor3
-        if pCol and (pCol.R > 0.4 and pCol.G < 0.35) then
-            p.BackgroundColor3 = COLOR_BEVEL_SHADOW
-        end
+        if pCol and (pCol.R > 0.4 and pCol.G < 0.35) then p.BackgroundColor3 = COLOR_BEVEL_SHADOW end
     end
-    if labelObj and (labelObj:IsA("TextLabel") or labelObj:IsA("TextButton")) then
-        labelObj.TextColor3 = Color3.fromRGB(255, 255, 255)
-    end
+    if labelObj and (labelObj:IsA("TextLabel") or labelObj:IsA("TextButton")) then labelObj.TextColor3 = Color3.fromRGB(255, 255, 255) end
 end
 
 local function recolorHeaderBar(headerFrame, titleObj)
@@ -377,13 +393,9 @@ local function recolorHeaderBar(headerFrame, titleObj)
     headerFrame.BackgroundColor3 = COLOR_FACE_BOTTOM
     if headerFrame.Parent and headerFrame.Parent:IsA("Frame") then
         local p = headerFrame.Parent
-        if p.BackgroundColor3.R > 0.4 and p.BackgroundColor3.G < 0.35 then
-            p.BackgroundColor3 = COLOR_BEVEL_SHADOW
-        end
+        if p.BackgroundColor3.R > 0.4 and p.BackgroundColor3.G < 0.35 then p.BackgroundColor3 = COLOR_BEVEL_SHADOW end
     end
-    if titleObj and (titleObj:IsA("TextLabel") or titleObj:IsA("TextButton")) then
-        titleObj.TextColor3 = Color3.fromRGB(255, 255, 255)
-    end
+    if titleObj and (titleObj:IsA("TextLabel") or titleObj:IsA("TextButton")) then titleObj.TextColor3 = Color3.fromRGB(255, 255, 255) end
     for _, item in ipairs(headerFrame:GetDescendants()) do
         if item:IsA("TextButton") or item:IsA("ImageButton") then
             item.BackgroundColor3 = COLOR_FACE_BOTTOM
@@ -394,9 +406,7 @@ local function recolorHeaderBar(headerFrame, titleObj)
                     ColorSequenceKeypoint.new(1, COLOR_FACE_BOTTOM)
                 })
             end
-            if item:IsA("TextButton") then
-                item.TextColor3 = Color3.fromRGB(255, 255, 255)
-            end
+            if item:IsA("TextButton") then item.TextColor3 = Color3.fromRGB(255, 255, 255) end
         end
     end
 end
@@ -439,9 +449,7 @@ local function isToggleActive(btn)
     local function checkGreen(c) return c and (c.G > 0.45 and c.G > c.R * 1.3 and c.G > c.B * 1.3) end
     if checkGreen(btn.BackgroundColor3) then return true end
     for _, child in ipairs(btn:GetDescendants()) do
-        if (child:IsA("Frame") or child:IsA("TextButton") or child:IsA("ImageLabel")) and checkGreen(child.BackgroundColor3) then
-            return true
-        end
+        if (child:IsA("Frame") or child:IsA("TextButton") or child:IsA("ImageLabel")) and checkGreen(child.BackgroundColor3) then return true end
     end
     return false
 end
@@ -467,26 +475,24 @@ local PRESET_DROPDOWNS = {
 
 local function findMatchingLabel(patterns, excludeList)
     local searchRoots = {CoreGui, LocalPlayer:FindFirstChild("PlayerGui")}
-    local targetGuis = {}
-    pcall(function() if gethui then table.insert(targetGuis, gethui()) end end)
-    for _, r in ipairs(searchRoots) do if r then table.insert(targetGuis, r) end end
+    pcall(function() if gethui then table.insert(searchRoots, gethui()) end end)
 
-    for _, root in ipairs(targetGuis) do
-        for _, desc in ipairs(root:GetDescendants()) do
-            if (desc:IsA("TextLabel") or desc:IsA("TextButton")) and not desc:FindFirstAncestor("Chilli_Dynamic_Island") then
-                local t = desc.Text:lower()
-                local matched = false
-                for _, p in ipairs(patterns) do
-                    if t == p:lower() or t:find(p:lower(), 1, true) then
-                        matched = true; break
+    for _, root in ipairs(searchRoots) do
+        if root then
+            for _, desc in ipairs(root:GetDescendants()) do
+                if (desc:IsA("TextLabel") or desc:IsA("TextButton")) and not desc:FindFirstAncestor("Chilli_Dynamic_Island") then
+                    local t = desc.Text:lower()
+                    local matched = false
+                    for _, p in ipairs(patterns) do
+                        if t == p:lower() or t:find(p:lower(), 1, true) then matched = true; break end
                     end
-                end
-                if matched and excludeList then
-                    for _, ex in ipairs(excludeList) do
-                        if t:find(ex:lower(), 1, true) then matched = false; break end
+                    if matched and excludeList then
+                        for _, ex in ipairs(excludeList) do
+                            if t:find(ex:lower(), 1, true) then matched = false; break end
+                        end
                     end
+                    if matched then return desc end
                 end
-                if matched then return desc end
             end
         end
     end
@@ -507,10 +513,10 @@ local function getRowToggleButton(label)
 end
 
 local function findDropdownOptionGlobal(targets)
-    local targetGuis = {CoreGui, LocalPlayer:FindFirstChild("PlayerGui")}
-    pcall(function() if gethui then table.insert(targetGuis, gethui()) end end)
+    local searchRoots = {CoreGui, LocalPlayer:FindFirstChild("PlayerGui")}
+    pcall(function() if gethui then table.insert(searchRoots, gethui()) end end)
     
-    for _, root in ipairs(targetGuis) do
+    for _, root in ipairs(searchRoots) do
         if root then
             for _, desc in ipairs(root:GetDescendants()) do
                 if (desc:IsA("TextButton") or desc:IsA("TextLabel")) and not desc:FindFirstAncestor("Chilli_Dynamic_Island") then
@@ -535,20 +541,14 @@ local function selectDropdownOption(cfg)
     if cfg.selectAll and cfg.itemPatterns then
         for _, itemPat in ipairs(cfg.itemPatterns) do
             local optBtn = findDropdownOptionGlobal({itemPat})
-            if optBtn and not isToggleActive(optBtn) then
-                triggerClick(optBtn)
-                task.wait(0.04)
-            end
+            if optBtn and not isToggleActive(optBtn) then triggerClick(optBtn); task.wait(0.04) end
         end
     elseif cfg.targetText then
         local optBtn = findDropdownOptionGlobal(cfg.targetText)
-        if optBtn then
-            triggerClick(optBtn)
-        else
+        if optBtn then triggerClick(optBtn) else
             local dropdownBtn = getRowToggleButton(label)
             if dropdownBtn then
-                triggerClick(dropdownBtn)
-                task.wait(0.1)
+                triggerClick(dropdownBtn); task.wait(0.1)
                 local retryBtn = findDropdownOptionGlobal(cfg.targetText)
                 if retryBtn then triggerClick(retryBtn) end
             end
@@ -569,22 +569,14 @@ local function applyAutoFarmSettings(enable)
                 if btn then SavedState.toggles[cfg.id] = isToggleActive(btn) end
             end
         end
-
         for _, cfg in ipairs(PRESET_TOGGLES) do
             local label = findMatchingLabel(cfg.patterns, cfg.exclude)
             if label then
                 local btn = getRowToggleButton(label)
-                if btn and isToggleActive(btn) ~= cfg.target then
-                    triggerClick(btn)
-                    task.wait(0.04)
-                end
+                if btn and isToggleActive(btn) ~= cfg.target then triggerClick(btn); task.wait(0.04) end
             end
         end
-
-        for _, cfg in ipairs(PRESET_DROPDOWNS) do
-            selectDropdownOption(cfg)
-            task.wait(0.04)
-        end
+        for _, cfg in ipairs(PRESET_DROPDOWNS) do selectDropdownOption(cfg); task.wait(0.04) end
     else
         for _, cfg in ipairs(PRESET_TOGGLES) do
             local saved = SavedState.toggles[cfg.id]
@@ -592,17 +584,14 @@ local function applyAutoFarmSettings(enable)
                 local label = findMatchingLabel(cfg.patterns, cfg.exclude)
                 if label then
                     local btn = getRowToggleButton(label)
-                    if btn and isToggleActive(btn) ~= saved then
-                        triggerClick(btn)
-                        task.wait(0.04)
-                    end
+                    if btn and isToggleActive(btn) ~= saved then triggerClick(btn); task.wait(0.04) end
                 end
             end
         end
     end
 end
 
--- ==================== 6. RAINBOW DYNAMIC ISLAND (DUAL-SLOT CONTROL CENTER) ====================
+-- ==================== 6. RAINBOW DYNAMIC ISLAND UI ====================
 local function createDynamicIslandUI()
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "Chilli_Dynamic_Island"
@@ -611,7 +600,6 @@ local function createDynamicIslandUI()
     ScreenGui.DisplayOrder = 2147483647
     AttachSafeUI(ScreenGui)
 
-    -- Khung Island
     local Island = Instance.new("Frame")
     Island.Name = "Island"
     Island.Size = UDim2.new(0, 150, 0, 32)
@@ -625,9 +613,8 @@ local function createDynamicIslandUI()
 
     Instance.new("UICorner", Island).CornerRadius = UDim.new(0, 16)
 
-    -- Viền Cầu Vồng Xoay
     local IslandStroke = Instance.new("UIStroke")
-    IslandStroke.Thickness = 1.8
+    IslandStroke.Thickness = 2
     IslandStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     IslandStroke.Parent = Island
 
@@ -643,11 +630,8 @@ local function createDynamicIslandUI()
     })
     RainbowGradient.Parent = IslandStroke
 
-    RunService.RenderStepped:Connect(function()
-        RainbowGradient.Rotation = (RainbowGradient.Rotation + 2) % 360
-    end)
+    RunService.RenderStepped:Connect(function() RainbowGradient.Rotation = (RainbowGradient.Rotation + 2) % 360 end)
 
-    -- Thanh Header (TopBar)
     local TopBar = Instance.new("Frame")
     TopBar.Size = UDim2.new(1, 0, 0, 32)
     TopBar.BackgroundTransparency = 1
@@ -704,9 +688,8 @@ local function createDynamicIslandUI()
     TriggerBtn.ZIndex = 15
     TriggerBtn.Parent = TopBar
 
-    -- Khoang Chứa Nội Dung
     local ContentFrame = Instance.new("Frame")
-    ContentFrame.Size = UDim2.new(1, -16, 0, 100)
+    ContentFrame.Size = UDim2.new(1, -16, 0, 96)
     ContentFrame.Position = UDim2.new(0, 8, 0, 36)
     ContentFrame.BackgroundTransparency = 1
     ContentFrame.Parent = Island
@@ -716,28 +699,24 @@ local function createDynamicIslandUI()
     Layout.Padding = UDim.new(0, 6)
     Layout.Parent = ContentFrame
 
-    -- KHOANG 1: NÚT ĐỔI NGÔN NGỮ
     local LangSegment = Instance.new("Frame")
-    LangSegment.Size = UDim2.new(1, 0, 0, 30)
+    LangSegment.Size = UDim2.new(1, 0, 0, 26)
     LangSegment.BackgroundColor3 = Color3.fromRGB(18, 22, 34)
     LangSegment.BorderSizePixel = 0
     LangSegment.LayoutOrder = 1
     LangSegment.Parent = ContentFrame
-    Instance.new("UICorner", LangSegment).CornerRadius = UDim.new(0, 8)
+    Instance.new("UICorner", LangSegment).CornerRadius = UDim.new(1, 0)
 
     local LangSlider = Instance.new("Frame")
-    LangSlider.Size = UDim2.new(0.5, -4, 1, -4)
-    LangSlider.Position = UDim2.new(0, 2, 0.5, -13)
+    LangSlider.Size = UDim2.new(0.5, -3, 1, -4)
+    LangSlider.Position = UDim2.new(0, 2, 0.5, -11)
     LangSlider.BackgroundColor3 = COLOR_FACE_BOTTOM
     LangSlider.BorderSizePixel = 0
     LangSlider.Parent = LangSegment
-    Instance.new("UICorner", LangSlider).CornerRadius = UDim.new(0, 6)
+    Instance.new("UICorner", LangSlider).CornerRadius = UDim.new(1, 0)
 
     local SliderGrad = Instance.new("UIGradient")
-    SliderGrad.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, COLOR_FACE_TOP),
-        ColorSequenceKeypoint.new(1, COLOR_FACE_BOTTOM)
-    })
+    SliderGrad.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, COLOR_FACE_TOP), ColorSequenceKeypoint.new(1, COLOR_FACE_BOTTOM)})
     SliderGrad.Rotation = 90
     SliderGrad.Parent = LangSlider
 
@@ -766,11 +745,11 @@ local function createDynamicIslandUI()
         if currentLanguage == lang then return end
         currentLanguage = lang
         if lang == "VI" then
-            TweenService:Create(LangSlider, TweenInfo.new(0.28, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0, 2, 0.5, -13), BackgroundColor3 = COLOR_FACE_BOTTOM}):Play()
+            TweenService:Create(LangSlider, TweenInfo.new(0.28, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0, 2, 0.5, -11), BackgroundColor3 = COLOR_FACE_BOTTOM}):Play()
             TweenService:Create(BtnVI, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
             TweenService:Create(BtnEN, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(150, 165, 190)}):Play()
         else
-            TweenService:Create(LangSlider, TweenInfo.new(0.28, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, 2, 0.5, -13), BackgroundColor3 = Color3.fromRGB(50, 65, 90)}):Play()
+            TweenService:Create(LangSlider, TweenInfo.new(0.28, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, 1, 0.5, -11), BackgroundColor3 = Color3.fromRGB(50, 65, 90)}):Play()
             TweenService:Create(BtnEN, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
             TweenService:Create(BtnVI, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(150, 165, 190)}):Play()
         end
@@ -790,9 +769,8 @@ local function createDynamicIslandUI()
     BtnVI.Activated:Connect(function() setLanguage("VI") end)
     BtnEN.Activated:Connect(function() setLanguage("EN") end)
 
-    -- KHOANG 2: CARD AUTO FARM PRESET
     local AutoFarmCard = Instance.new("Frame")
-    AutoFarmCard.Size = UDim2.new(1, 0, 0, 46)
+    AutoFarmCard.Size = UDim2.new(1, 0, 0, 42)
     AutoFarmCard.BackgroundColor3 = Color3.fromRGB(16, 20, 30)
     AutoFarmCard.BorderSizePixel = 0
     AutoFarmCard.LayoutOrder = 2
@@ -801,30 +779,30 @@ local function createDynamicIslandUI()
     Instance.new("UIStroke", AutoFarmCard).Color = Color3.fromRGB(45, 60, 85)
 
     local FarmTitle = Instance.new("TextLabel")
-    FarmTitle.Size = UDim2.new(1, -60, 0, 18)
-    FarmTitle.Position = UDim2.new(0, 10, 0, 6)
+    FarmTitle.Size = UDim2.new(1, -55, 0, 18)
+    FarmTitle.Position = UDim2.new(0, 8, 0, 4)
     FarmTitle.BackgroundTransparency = 1
-    FarmTitle.Text = "⚡ Settings Auto Farm"
+    FarmTitle.Text = "Settings Auto Farm"
     FarmTitle.Font = Enum.Font.GothamBold
-    FarmTitle.TextSize = 11
+    FarmTitle.TextSize = 10
     FarmTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
     FarmTitle.TextXAlignment = Enum.TextXAlignment.Left
     FarmTitle.Parent = AutoFarmCard
 
     local FarmSub = Instance.new("TextLabel")
-    FarmSub.Size = UDim2.new(1, -60, 0, 14)
-    FarmSub.Position = UDim2.new(0, 10, 0, 24)
+    FarmSub.Size = UDim2.new(1, -55, 0, 14)
+    FarmSub.Position = UDim2.new(0, 8, 0, 22)
     FarmSub.BackgroundTransparency = 1
-    FarmSub.Text = "Chuẩn 4 ảnh (Bật/Khôi phục)"
+    FarmSub.Text = "Auto chuẩn 4 ảnh (Bật/Khôi phục)"
     FarmSub.Font = Enum.Font.GothamMedium
-    FarmSub.TextSize = 9
+    FarmSub.TextSize = 8
     FarmSub.TextColor3 = Color3.fromRGB(130, 150, 180)
     FarmSub.TextXAlignment = Enum.TextXAlignment.Left
     FarmSub.Parent = AutoFarmCard
 
     local FarmToggle = Instance.new("TextButton")
-    FarmToggle.Size = UDim2.new(0, 40, 0, 22)
-    FarmToggle.Position = UDim2.new(1, -48, 0.5, -11)
+    FarmToggle.Size = UDim2.new(0, 36, 0, 20)
+    FarmToggle.Position = UDim2.new(1, -42, 0.5, -10)
     FarmToggle.BackgroundColor3 = Color3.fromRGB(38, 44, 58)
     FarmToggle.Text = ""
     FarmToggle.ZIndex = 12
@@ -832,8 +810,8 @@ local function createDynamicIslandUI()
     Instance.new("UICorner", FarmToggle).CornerRadius = UDim.new(1, 0)
 
     local FarmKnob = Instance.new("Frame")
-    FarmKnob.Size = UDim2.new(0, 16, 0, 16)
-    FarmKnob.Position = UDim2.new(0, 3, 0.5, -8)
+    FarmKnob.Size = UDim2.new(0, 14, 0, 14)
+    FarmKnob.Position = UDim2.new(0, 3, 0.5, -7)
     FarmKnob.BackgroundColor3 = Color3.fromRGB(200, 205, 215)
     FarmKnob.BorderSizePixel = 0
     FarmKnob.Parent = FarmToggle
@@ -841,25 +819,22 @@ local function createDynamicIslandUI()
 
     FarmToggle.Activated:Connect(function()
         isAutoFarmActive = not isAutoFarmActive
-
         if isAutoFarmActive then
-            TweenService:Create(FarmKnob, TweenInfo.new(0.2), {Position = UDim2.new(1, -19, 0.5, -8), BackgroundColor3 = Color3.fromRGB(255, 255, 255)}):Play()
+            TweenService:Create(FarmKnob, TweenInfo.new(0.2), {Position = UDim2.new(1, -17, 0.5, -7), BackgroundColor3 = Color3.fromRGB(255, 255, 255)}):Play()
             TweenService:Create(FarmToggle, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 205, 110)}):Play()
             FarmSub.Text = "Đang áp dụng cấu hình..."
             TweenService:Create(FarmSub, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(90, 240, 150)}):Play()
             TweenService:Create(StatusDot, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(50, 255, 120)}):Play()
-
             task.spawn(function()
                 applyAutoFarmSettings(true)
                 FarmSub.Text = "Đã bật cấu hình chuẩn 4 ảnh"
             end)
         else
-            TweenService:Create(FarmKnob, TweenInfo.new(0.2), {Position = UDim2.new(0, 3, 0.5, -8), BackgroundColor3 = Color3.fromRGB(200, 205, 215)}):Play()
+            TweenService:Create(FarmKnob, TweenInfo.new(0.2), {Position = UDim2.new(0, 3, 0.5, -7), BackgroundColor3 = Color3.fromRGB(200, 205, 215)}):Play()
             TweenService:Create(FarmToggle, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(38, 44, 58)}):Play()
             FarmSub.Text = "Đang khôi phục ban đầu..."
             TweenService:Create(FarmSub, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(130, 150, 180)}):Play()
             TweenService:Create(StatusDot, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(120, 130, 150)}):Play()
-
             task.spawn(function()
                 applyAutoFarmSettings(false)
                 FarmSub.Text = "Đã khôi phục trạng thái cũ"
@@ -867,7 +842,6 @@ local function createDynamicIslandUI()
         end
     end)
 
-    -- Mở Rộng / Thu Gọn Island
     local isExpanded = false
     local isTweening = false
 
@@ -875,13 +849,11 @@ local function createDynamicIslandUI()
         if isTweening then return end
         isTweening = true
         isExpanded = not isExpanded
-
-        TweenService:Create(Island, TweenInfo.new(0.08), {Size = UDim2.new(0, isExpanded and 140 or 255, 0, isExpanded and 30 or 125)}):Play()
+        TweenService:Create(Island, TweenInfo.new(0.08), {Size = UDim2.new(0, isExpanded and 140 or 255, 0, isExpanded and 30 or 120)}):Play()
         task.wait(0.08)
-
         if isExpanded then
             TweenService:Create(ArrowBadge, TweenInfo.new(0.3), {Rotation = 180}):Play()
-            local tweenExp = TweenService:Create(Island, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0, 260, 0, 128)})
+            local tweenExp = TweenService:Create(Island, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0, 240, 0, 115)})
             tweenExp:Play()
             tweenExp.Completed:Connect(function() isTweening = false end)
         else
@@ -894,7 +866,6 @@ local function createDynamicIslandUI()
 
     TriggerBtn.Activated:Connect(toggleIsland)
 
-    -- Kéo thả tự do
     local dragging, dragStart, startPos = false, nil, nil
     Island.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -906,14 +877,13 @@ local function createDynamicIslandUI()
             end)
         end
     end)
-
     Island.InputChanged:Connect(function(input)
         if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragging then
             local delta = input.Position - dragStart
             if delta.Magnitude > 8 then
                 local cam = workspace.CurrentCamera
-                local maxX = cam and cam.ViewportSize.X - 260 or 800
-                local maxY = cam and cam.ViewportSize.Y - 140 or 600
+                local maxX = cam and cam.ViewportSize.X - 240 or 800
+                local maxY = cam and cam.ViewportSize.Y - 120 or 600
                 local newX = math.clamp(startPos.X.Offset + delta.X, -maxX / 2, maxX / 2)
                 local newY = math.clamp(startPos.Y.Offset + delta.Y, 0, maxY)
                 Island.Position = UDim2.new(startPos.X.Scale, newX, startPos.Y.Scale, newY)
@@ -922,10 +892,9 @@ local function createDynamicIslandUI()
     end)
 end
 
--- ==================== 7. CHUNKED SCANNER (QUÉT MƯỢT 0% CPU) ====================
+-- ==================== 8. KHỞI ĐỘNG VÀ QUÉT ĐA TẦNG ====================
 task.spawn(function()
     createDynamicIslandUI()
-
     local function processRootChunked(root)
         if not root then return end
         local function inspectTree(parent)
@@ -940,7 +909,6 @@ task.spawn(function()
             end
         end
         pcall(function() inspectTree(root) end)
-
         root.DescendantAdded:Connect(function(desc)
             task.defer(function()
                 if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
@@ -950,7 +918,6 @@ task.spawn(function()
             end)
         end)
     end
-
     local searchRoots = {CoreGui, LocalPlayer:FindFirstChild("PlayerGui")}
     pcall(function() if gethui then table.insert(searchRoots, gethui()) end end)
     for _, r in ipairs(searchRoots) do processRootChunked(r) end
