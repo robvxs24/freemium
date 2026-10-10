@@ -99,7 +99,7 @@ local function autoInjectAndLoadConfig()
     -- 4. Tìm & Bấm nút "Load" / "Tải"
     local loadBtn
     for _, desc in ipairs(container:GetDescendants()) do
-        if (desc:IsA("TextLabel") or desc:IsA("TextButton")) and (desc.Text:lower() == "load" or desc.Text == "Tải") and not desc:FindFirstAncestor("Chilli_Dynamic_Island") then
+        if (desc:IsA("TextLabel") or desc:IsA("TextButton")) and (desc.Text:lower() == "load" or desc.Text == "Tải") and string.len(desc.Text) <= 6 and not desc:FindFirstAncestor("Chilli_Dynamic_Island") then
             loadBtn = desc:IsA("TextButton") and desc or desc:FindFirstAncestorOfClass("TextButton") or desc.Parent
             forceTriggerClick(loadBtn)
             break
@@ -289,33 +289,17 @@ local MAP_VI = {
     ["selected"] = "đã chọn"
 }
 
--- MẢNG PHẲNG 100% (NO FUNCTIONS) - OBFUSCATOR CỰC KỲ YÊU THÍCH ĐIỀU NÀY
-local DYNAMIC_PATTERNS = {
-    { pattern = "Catching a (.+) butterfly, (%d+) studs | (%d+) flying", vnFormat = "Đang bắt bướm %1, %2 studs | %3 đang bay", enFormat = "Catching a %1 butterfly, %2 studs | %3 flying" },
-    { pattern = "ALL (%d+)", vnFormat = "TẤT CẢ %1", enFormat = "ALL %1" },
-    { pattern = "READY (%d+)", vnFormat = "SẴN SÀNG %1", enFormat = "READY %1" },
-    { pattern = "GROWING (%d+)", vnFormat = "ĐANG LỚN %1", enFormat = "GROWING %1" },
-    { pattern = "IN BAG (%d+)", vnFormat = "TRONG TÚI %1", enFormat = "IN BAG %1" },
-    { pattern = "#(%d+) of (%d+) eggs by value", vnFormat = "Hạng #%1/%2 trứng theo giá trị", enFormat = "#%1 of %2 eggs by value" },
-    { pattern = "1 in ([%d%.]+)", vnFormat = "Tỉ lệ 1/%1", enFormat = "1 in %1" },
-    { pattern = "Ends in (%d+h %d+m %d+s)", vnFormat = "Kết thúc sau %1", enFormat = "Ends in %1" },
-    { pattern = "in (%d+h %d+m)", vnFormat = "sau %1", enFormat = "in %1" },
-    { pattern = "Banner chance (%d+%.?%d*%%)", vnFormat = "Tỉ lệ Banner %1", enFormat = "Banner chance %1" },
-    { pattern = "Pity (%d+)/(%d+)", vnFormat = "Bảo hiểm %1/%2", enFormat = "Pity %1/%2" },
-    { pattern = "Free rerolls (%d+)", vnFormat = "Đổi miễn phí %1", enFormat = "Free rerolls %1" },
-    { pattern = "rotates in (%d+:%d+)", vnFormat = "xoay vòng sau %1", enFormat = "rotates in %1" },
-    { pattern = "Eggs placed (%d+)/(%d+) %- (%d+)/(%d+) pets equipped, (%d+) in bag", vnFormat = "Trứng đã đặt %1/%2 - %3/%4 pet trang bị, %5 trong túi", enFormat = "Eggs placed %1/%2 - %3/%4 pets equipped, %5 in bag" },
-    { pattern = "Pet matches %- (%d+) pets? for %$(.+)", vnFormat = "Khớp pet - %1 pet giá $%2", enFormat = "Pet matches - %1 pets for $%2" },
-    { pattern = "Egg matches %- (%d+) eggs? for %$(.+)", vnFormat = "Khớp trứng - %1 trứng giá $%2", enFormat = "Egg matches - %1 eggs for $%2" },
-    { pattern = "Lab egg matches %- (%d+) eggs? for %$(.+)", vnFormat = "Khớp trứng Lab - %1 trứng giá $%2", enFormat = "Lab egg matches - %1 eggs for $%2" },
-    { pattern = "Favorite matches %- (%d+) pets?, (%d+) to mark %| (%d+) favorited", vnFormat = "Khớp yêu thích - %1 pet, %2 cần lưu | %3 đã khóa", enFormat = "Favorite matches - %1 pets, %2 to mark | %3 favorited" },
-    { pattern = "Charges (%d+) Eggs (%d+)/(%d+) Tries (%d+) Applied (%d+)", vnFormat = "Số lần sạc %1 Trứng %2/%3 Thử %4 Đã dùng %5", enFormat = "Charges %1 Eggs %2/%3 Tries %4 Applied %5" },
-    { pattern = "Players (%d+)/(%d+)", vnFormat = "Người chơi %1/%2", enFormat = "Players %1/%2" },
-    { pattern = "Next Mech portal in (%d+:%d+)", vnFormat = "Cổng Robot mở sau %1", enFormat = "Next Mech portal in %1" },
-    { pattern = "Next Butterfly Bloom in (%d+:%d+)", vnFormat = "Sự kiện Bướm nở sau %1", enFormat = "Next Butterfly Bloom in %1" },
-    { pattern = "Butterfly Bloom live, (%d+:%d+) left", vnFormat = "Sự kiện Bướm đang diễn ra, còn %1", enFormat = "Butterfly Bloom live, %1 left" },
-    { pattern = "Caught (.+)! %((%d+) owned%)", vnFormat = "Đã bắt %1! (Đang có %2 con)", enFormat = "Caught %1! (%2 owned)" }
-}
+local function replaceMatch(raw, pattern, vnFmt, enFmt)
+    local p1, p2, p3, p4, p5 = raw:match(pattern)
+    if p1 then
+        if currentLanguage == "VI" then
+            return string.format(vnFmt, p1, p2, p3, p4, p5)
+        else
+            return string.format(enFmt, p1, p2, p3, p4, p5)
+        end
+    end
+    return nil
+end
 
 local SortedVI = {}
 for en, vi in pairs(MAP_VI) do table.insert(SortedVI, {en = en, out = vi, len = #en}) end
@@ -341,13 +325,100 @@ local function translateText(raw)
     local result = raw
     local matched = false
 
-    for _, item in ipairs(DYNAMIC_PATTERNS) do
-        if result:find(item.pattern) then
-            local fmt = (currentLanguage == "VI") and item.vnFormat or item.enFormat
-            result = result:gsub(item.pattern, fmt)
-            matched = true
-            break
-        end
+    local res1 = replaceMatch(result, "Catching a (.+) butterfly, (%d+) studs | (%d+) flying", "Đang bắt bướm %s, %s studs | %s đang bay", "Catching a %s butterfly, %s studs | %s flying")
+    if res1 then result = res1; matched = true end
+    
+    if not matched then
+        local res2 = replaceMatch(result, "ALL (%d+)", "TẤT CẢ %s", "ALL %s")
+        if res2 then result = res2; matched = true end
+    end
+    if not matched then
+        local res3 = replaceMatch(result, "READY (%d+)", "SẴN SÀNG %s", "READY %s")
+        if res3 then result = res3; matched = true end
+    end
+    if not matched then
+        local res4 = replaceMatch(result, "GROWING (%d+)", "ĐANG LỚN %s", "GROWING %s")
+        if res4 then result = res4; matched = true end
+    end
+    if not matched then
+        local res5 = replaceMatch(result, "IN BAG (%d+)", "TRONG TÚI %s", "IN BAG %s")
+        if res5 then result = res5; matched = true end
+    end
+    if not matched then
+        local res6 = replaceMatch(result, "#(%d+) of (%d+) eggs by value", "Hạng #%s/%s trứng theo giá trị", "#%s of %s eggs by value")
+        if res6 then result = res6; matched = true end
+    end
+    if not matched then
+        local res7 = replaceMatch(result, "1 in ([%d%.]+)", "Tỉ lệ 1/%s", "1 in %s")
+        if res7 then result = res7; matched = true end
+    end
+    if not matched then
+        local res8 = replaceMatch(result, "Ends in (%d+h %d+m %d+s)", "Kết thúc sau %s", "Ends in %s")
+        if res8 then result = res8; matched = true end
+    end
+    if not matched then
+        local res9 = replaceMatch(result, "in (%d+h %d+m)", "sau %s", "in %s")
+        if res9 then result = res9; matched = true end
+    end
+    if not matched then
+        local res10 = replaceMatch(result, "Banner chance (%d+%.?%d*%%)", "Tỉ lệ Banner %s", "Banner chance %s")
+        if res10 then result = res10; matched = true end
+    end
+    if not matched then
+        local res11 = replaceMatch(result, "Pity (%d+)/(%d+)", "Bảo hiểm %s/%s", "Pity %s/%s")
+        if res11 then result = res11; matched = true end
+    end
+    if not matched then
+        local res12 = replaceMatch(result, "Free rerolls (%d+)", "Đổi miễn phí %s", "Free rerolls %s")
+        if res12 then result = res12; matched = true end
+    end
+    if not matched then
+        local res13 = replaceMatch(result, "rotates in (%d+:%d+)", "xoay vòng sau %s", "rotates in %s")
+        if res13 then result = res13; matched = true end
+    end
+    if not matched then
+        local res14 = replaceMatch(result, "Eggs placed (%d+)/(%d+) %- (%d+)/(%d+) pets equipped, (%d+) in bag", "Trứng đã đặt %s/%s - %s/%s pet trang bị, %s trong túi", "Eggs placed %s/%s - %s/%s pets equipped, %s in bag")
+        if res14 then result = res14; matched = true end
+    end
+    if not matched then
+        local res15 = replaceMatch(result, "Pet matches %- (%d+) pets? for %$(.+)", "Khớp pet - %s pet giá $%s", "Pet matches - %s pets for $%s")
+        if res15 then result = res15; matched = true end
+    end
+    if not matched then
+        local res16 = replaceMatch(result, "Egg matches %- (%d+) eggs? for %$(.+)", "Khớp trứng - %s trứng giá $%s", "Egg matches - %s eggs for $%s")
+        if res16 then result = res16; matched = true end
+    end
+    if not matched then
+        local res17 = replaceMatch(result, "Lab egg matches %- (%d+) eggs? for %$(.+)", "Khớp trứng Lab - %s trứng giá $%s", "Lab egg matches - %s eggs for $%s")
+        if res17 then result = res17; matched = true end
+    end
+    if not matched then
+        local res18 = replaceMatch(result, "Favorite matches %- (%d+) pets?, (%d+) to mark %| (%d+) favorited", "Khớp yêu thích - %s pet, %s cần lưu | %s đã khóa", "Favorite matches - %s pets, %s to mark | %s favorited")
+        if res18 then result = res18; matched = true end
+    end
+    if not matched then
+        local res19 = replaceMatch(result, "Charges (%d+) Eggs (%d+)/(%d+) Tries (%d+) Applied (%d+)", "Số lần sạc %s Trứng %s/%s Thử %s Đã dùng %s", "Charges %s Eggs %s/%s Tries %s Applied %s")
+        if res19 then result = res19; matched = true end
+    end
+    if not matched then
+        local res20 = replaceMatch(result, "Players (%d+)/(%d+)", "Người chơi %s/%s", "Players %s/%s")
+        if res20 then result = res20; matched = true end
+    end
+    if not matched then
+        local res21 = replaceMatch(result, "Next Mech portal in (%d+:%d+)", "Cổng Robot mở sau %s", "Next Mech portal in %s")
+        if res21 then result = res21; matched = true end
+    end
+    if not matched then
+        local res22 = replaceMatch(result, "Next Butterfly Bloom in (%d+:%d+)", "Sự kiện Bướm nở sau %s", "Next Butterfly Bloom in %s")
+        if res22 then result = res22; matched = true end
+    end
+    if not matched then
+        local res23 = replaceMatch(result, "Butterfly Bloom live, (%d+:%d+) left", "Sự kiện Bướm đang diễn ra, còn %s", "Butterfly Bloom live, %s left")
+        if res23 then result = res23; matched = true end
+    end
+    if not matched then
+        local res24 = replaceMatch(result, "Caught (.+)! %((%d+) owned%)", "Đã bắt %s! (Đang có %s con)", "Caught %s! (%s owned)")
+        if res24 then result = res24; matched = true end
     end
 
     if not matched then
@@ -402,7 +473,7 @@ local function hookElement(inst)
     end)
 end
 
--- ==================== LÕI SOFT BLUE RESKIN ====================
+-- ==================== LÕI ĐỔI MÀU SOFT PASTEL BLUE ====================
 local COLOR_FACE_TOP     = Color3.fromRGB(140, 195, 245)
 local COLOR_FACE_BOTTOM  = Color3.fromRGB(95, 155, 225)
 local COLOR_BEVEL_SHADOW = Color3.fromRGB(55, 110, 180)
@@ -490,64 +561,6 @@ local function inspectAndApplySoftBlue(inst)
         local btnTarget = inst:IsA("TextButton") and inst or inst:FindFirstAncestorOfClass("TextButton") or inst:FindFirstAncestorOfClass("Frame")
         if btnTarget then recolorSingleButton(btnTarget, inst) end
         return
-    end
-end
-
--- ==================== HỆ THỐNG AUTO-LOAD MACRO (TỰ ĐỘNG BẤM TẢI FILE) ====================
-local function autoLoadInGame()
-    local container = getSafeGuiContainer()
-    
-    -- 1. Tìm & Bấm tab Config (Cấu Hình)
-    local configTab
-    for _, desc in ipairs(container:GetDescendants()) do
-        if (desc:IsA("TextLabel") or desc:IsA("TextButton")) and (desc.Text == "Config" or desc.Text == "Cấu Hình") and not desc:FindFirstAncestor("Chilli_Dynamic_Island") then
-            configTab = desc:IsA("TextButton") and desc or desc:FindFirstAncestorOfClass("TextButton") or desc.Parent
-            break
-        end
-    end
-    if configTab then
-        pcall(function()
-            if getconnections then
-                for _, conn in ipairs(getconnections(configTab.MouseButton1Click)) do conn:Fire() end
-                for _, conn in ipairs(getconnections(configTab.Activated)) do conn:Fire() end
-                for _, conn in ipairs(getconnections(configTab.InputBegan)) do conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.Begin}) end
-                for _, conn in ipairs(getconnections(configTab.InputEnded)) do conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.End}) end
-            end
-        end)
-    end
-    task.wait(0.3)
-    
-    -- 2. Tìm & Bấm vào tên "auto farm" trong danh sách
-    for _, desc in ipairs(container:GetDescendants()) do
-        if (desc:IsA("TextLabel") or desc:IsA("TextButton")) and desc.Text:lower() == "auto farm" and not desc:FindFirstAncestor("Chilli_Dynamic_Island") then
-            local item = desc:IsA("TextButton") and desc or desc:FindFirstAncestorOfClass("TextButton") or desc.Parent
-            pcall(function()
-                if getconnections then
-                    for _, conn in ipairs(getconnections(item.MouseButton1Click)) do conn:Fire() end
-                    for _, conn in ipairs(getconnections(item.Activated)) do conn:Fire() end
-                    for _, conn in ipairs(getconnections(item.InputBegan)) do conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.Begin}) end
-                    for _, conn in ipairs(getconnections(item.InputEnded)) do conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.End}) end
-                end
-            end)
-            break
-        end
-    end
-    task.wait(0.3)
-    
-    -- 3. Tìm & Bấm nút Load (Tải)
-    for _, desc in ipairs(container:GetDescendants()) do
-        if (desc:IsA("TextLabel") or desc:IsA("TextButton")) and (desc.Text:lower() == "load" or desc.Text == "Tải") and string.len(desc.Text) <= 6 and not desc:FindFirstAncestor("Chilli_Dynamic_Island") then
-            local loadBtn = desc:IsA("TextButton") and desc or desc:FindFirstAncestorOfClass("TextButton") or desc.Parent
-            pcall(function()
-                if getconnections then
-                    for _, conn in ipairs(getconnections(loadBtn.MouseButton1Click)) do conn:Fire() end
-                    for _, conn in ipairs(getconnections(loadBtn.Activated)) do conn:Fire() end
-                    for _, conn in ipairs(getconnections(loadBtn.InputBegan)) do conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.Begin}) end
-                    for _, conn in ipairs(getconnections(loadBtn.InputEnded)) do conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.End}) end
-                end
-            end)
-            break
-        end
     end
 end
 
@@ -742,11 +755,8 @@ local function createDynamicIslandUI()
     Instance.new("UICorner", PresetBtn).CornerRadius = UDim.new(0, 8)
     Instance.new("UIStroke", PresetBtn).Color = Color3.fromRGB(45, 60, 85)
 
-    -- MẢNG JSON CONFIG TĨNH
-    local AUTO_FARM_JSON = [[{"Profile":"auto farm","Version":2,"Values":{"Misc":{"Performance":{"FPS Cap":{"Value":240,"Type":"slider","Unit":" FPS"},"Farm HUD":{"Value":false,"Type":"toggle"},"Background Color":{"Value":"White","Type":"dropdown"},"Egg Card Image":{"Value":"Egg Image","Type":"dropdown"},"Disable 3D Render":{"Value":false,"Type":"toggle"},"FPS and Ping":{"Value":true,"Type":"toggle"},"Optimizer":{"Value":false,"Type":"toggle"},"HUD Size":{"Value":70,"Type":"slider","Unit":"%"},"Showcase Cards":{"Value":4,"Type":"slider"},"Hide Game UI":{"Value":true,"Type":"toggle"},"HUD Items":{"Value":["Money","Income","Speed","Treadmill","Eggs Stolen","Best Steal","Night Timer","Session Time","Activity","Mech Portal","Boss Mastery","Samples","Mech Fights","Lab","Pets","Eggs","Top Pets","Top Eggs","Steal History"],"Type":"multidropdown"},"FPS and Ping Size":{"Value":100,"Type":"slider","Unit":"%"}},"Utility":{"Anti AFK":{"Value":true,"Type":"toggle"}}},"Predictor":{"Egg Predictor":{"Sort By":{"Value":"Value","Type":"dropdown"},"Preview Card":{"Value":true,"Type":"toggle"}},"Discord Webhook":{"Webhook URL":{"Value":"","Type":"input"},"Notify Fused Eggs":{"Value":false,"Type":"toggle"},"Notify Stolen Eggs":{"Value":false,"Type":"toggle"},"Webhook Eggs":{"Value":[],"Type":"multidropdown"},"Webhook Min Rarity":{"Value":"Any","Type":"dropdown"},"Webhook Min Value":{"Value":0,"Type":"slider"},"Ping @everyone":{"Value":false,"Type":"toggle"}}},"Progress":{"Auto Progression":{"Auto Buy Trail":{"Value":false,"Type":"toggle"},"Auto Claim Index":{"Value":false,"Type":"toggle"},"Auto Upgrade Treadmill":{"Value":false,"Type":"toggle"},"Auto Claim":{"Value":false,"Type":"toggle"},"Auto Upgrade Base":{"Value":false,"Type":"toggle"}}},"Quick":{"Pin Pad":{"Pad Size":{"Value":150,"Type":"slider","Unit":"%"},"Enable Keybinds":{"Value":true,"Type":"toggle"},"Show Pin Pads":{"Value":true,"Type":"toggle"},"Visible Quick Bars":{"Value":["Quick Bar 1","Quick Bar 2","Quick Bar 3","Quick Bar 4","Quick Bar 5"],"Type":"multidropdown"}}},"Auto Hop":{"Egg Finder":{"Hop Mode":{"Value":"Steal Then Hop","Type":"dropdown"},"Min Rarity":{"Value":"Secret","Type":"dropdown"},"Rarity To Wait For":{"Value":"Cosmic","Type":"dropdown"},"First Hop Delay":{"Value":5,"Type":"slider","Unit":"s"},"Auto Hop":{"Value":false,"Type":"toggle"},"Target Specific Eggs":{"Value":[],"Type":"multidropdown"},"Sync With Auto Steal Filters":{"Value":true,"Type":"toggle"},"Min Value To Find":{"Value":0,"Type":"slider"},"Target Areas":{"Value":["Forest","Desert","Snow","Lake","Jungle","Volcano","Prehistoric","Cosmic","Abyss Ocean","Cherry Blossom","Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"}}},"Player":{"ESP":{"ESP Eggs":{"Value":false,"Type":"toggle"},"ESP Player Size":{"Value":75,"Type":"slider","Unit":"%"},"ESP Show Info":{"Value":["Icon","Name","Value"],"Type":"multidropdown"},"ESP Guard Size":{"Value":75,"Type":"slider","Unit":"%"},"ESP Player Info":{"Value":["Name","Tool"],"Type":"multidropdown"},"ESP Other Base Eggs":{"Value":false,"Type":"toggle"},"ESP Min Rarity":{"Value":"Any","Type":"dropdown"},"ESP Guards":{"Value":false,"Type":"toggle"},"Min ESP Value":{"Value":0,"Type":"slider"},"ESP Lost Parts":{"Value":false,"Type":"toggle"},"ESP Players":{"Value":false,"Type":"toggle"},"ESP Own Base Eggs":{"Value":true,"Type":"toggle"},"ESP Fixed Size":{"Value":false,"Type":"toggle"},"ESP Egg Size":{"Value":75,"Type":"slider","Unit":"%"}},"Character":{"Instant Prompts":{"Value":true,"Type":"toggle"},"Anti Ragdoll":{"Value":true,"Type":"toggle"},"Anti Trap":{"Value":true,"Type":"toggle"},"Invisibility":{"Value":false,"Type":"toggle"}},"Movement":{"Speed Boost":{"Value":false,"Type":"toggle"},"Boost Speed":{"Value":1000,"Type":"slider","Unit":"studs/s"},"Infinite Jump":{"Value":true,"Type":"toggle"}},"Combat":{"Auto Hit Egg Holders":{"Value":false,"Type":"toggle"},"Hit Max Speed":{"Value":750,"Type":"slider","Unit":"studs/s"},"Auto Hit Nearest Player":{"Value":false,"Type":"toggle"},"Hit Sweep":{"Value":250,"Type":"slider","Unit":"%"},"Hit Player":{"Value":"ayainayyaa","Type":"dropdown"},"Hit Tween Speed":{"Value":400,"Type":"slider","Unit":"studs/s"},"Hit Lead":{"Value":100,"Type":"slider"},"Chase Settings":{"Value":"Chase Settings","Type":"label"},"Auto Hit Specific Player":{"Value":false,"Type":"toggle"},"Hit Aura":{"Value":false,"Type":"toggle"},"Hit Status":{"Value":"Idle","Type":"text"}}},"Settings":{"Interface":{"UI Size":{"Value":100,"Type":"slider","Unit":"%"}}},"Farm":{"Auto Steal":{"Drop Eggs At Safe Zone":{"Value":false,"Type":"toggle"},"Anti Guard Panel":{"Value":true,"Type":"toggle"},"Carry Speed":{"Value":120,"Type":"slider","Unit":"%"},"Target Specific Eggs":{"Value":[],"Type":"multidropdown"},"Steal Missing Lab Eggs":{"Value":false,"Type":"toggle"},"Instant Steal Steps":{"Value":1,"Type":"slider"},"Stock Lab Eggs For":{"Value":[],"Type":"multidropdown"},"Target Areas":{"Value":["Forest","Desert","Snow","Lake","Jungle","Volcano","Prehistoric","Cosmic","Abyss Ocean","Cherry Blossom","Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"},"Unstable DNA Lab Eggs":{"Value":["Toro Egg (24%)","Winged Lamb Egg (23%)","Bladehide Egg (23%)","Imp Egg (22%)","Crustacia Egg (22%)"],"Type":"multidropdown"},"Steal Priority":{"Value":"Highest Value","Type":"dropdown"},"Auto Steal":{"Value":true,"Type":"toggle"},"Min Rarity":{"Value":"Secret","Type":"dropdown"},"Teleport To Egg":{"Value":true,"Type":"toggle"},"Stock Per Egg":{"Value":3,"Type":"slider","Unit":""},"Experimental Lab Eggs":{"Value":[],"Type":"multidropdown"},"Fast Delivery":{"Value":false,"Type":"toggle"},"Skip Owned Lab Eggs":{"Value":true,"Type":"toggle"},"Biohazard Lab Eggs":{"Value":[],"Type":"multidropdown"},"Instant Steal V2":{"Value":true,"Type":"toggle"},"Instant Steal":{"Value":false,"Type":"toggle"},"Steal Missing Index Eggs":{"Value":false,"Type":"toggle"},"Instant Steal Zones":{"Value":["Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"},"Tween Speed":{"Value":120,"Type":"slider","Unit":"%"},"Min Steal Value":{"Value":0,"Type":"slider"}},"Auto Treadmill":{"Stay On Treadmill":{"Value":true,"Type":"toggle"},"Auto Treadmill":{"Value":true,"Type":"toggle"}},"Dr Scramble Lab & Mech":{"Swap Two Weapons":{"Value":true,"Type":"toggle"},"Auto Lab Trade-In":{"Value":false,"Type":"toggle"},"Keep Hopping For":{"Value":3,"Type":"slider","Unit":"min"},"Boss Server Hop":{"Value":false,"Type":"toggle"},"Auto Claim Mastery":{"Value":false,"Type":"toggle"},"Auto Buy Scramble Shop":{"Value":false,"Type":"toggle"},"Scrambler Hold":{"Value":0.4,"Type":"slider","Unit":"s"},"Scramble Shop Items":{"Value":[],"Type":"multidropdown"},"Auto Mech Boss":{"Value":false,"Type":"toggle"},"Auto Reroll Lab Recipe":{"Value":false,"Type":"toggle"},"Lab Banners":{"Value":[],"Type":"multidropdown"},"Auto Place Lab Reward Eggs":{"Value":false,"Type":"toggle"},"Mech Tween Speed":{"Value":250,"Type":"slider","Unit":"studs/s"},"Lab Status":{"Value":"Experimental Pets  -  needs Cosmic Gecko, Bladehide, Snowy Owl  -  pity 0/100  -  free rerolls 2  -  rotates in 2:56","Type":"text"},"Main Weapon Hold":{"Value":0.3,"Type":"slider","Unit":"s"},"Mech Status":{"Value":"Off  |  Next Mech portal in 2:57","Type":"text"},"Keep Samples":{"Value":0,"Type":"slider","Unit":""}},"Auto Sell":{"Egg Sell Value":{"Value":0,"Type":"slider"},"Egg Sell Preview":{"Value":"Egg matches  -  0 eggs for $0","Type":"text"},"Auto Sell Egg":{"Value":false,"Type":"toggle"},"Blacklist Sell Eggs":{"Value":[],"Type":"multidropdown"},"Keep Mutated Eggs":{"Value":true,"Type":"toggle"},"Egg Max Rarity":{"Value":"3 - Rare","Type":"dropdown"},"Blacklist Sell Pets":{"Value":[],"Type":"multidropdown"},"Sell Egg Rule":{"Value":"Rarity Only","Type":"dropdown"},"Auto Sell Pet":{"Value":false,"Type":"toggle"},"Pet Sell Value":{"Value":0,"Type":"slider"},"Pet Sell Preview":{"Value":"Pet matches  -  0 pets for $0","Type":"text"},"Keep Mutated Pets":{"Value":true,"Type":"toggle"},"Sell Pet Rule":{"Value":"Rarity Only","Type":"dropdown"},"Pet Max Rarity":{"Value":"3 - Rare","Type":"dropdown"}},"Wisp Companion":{"Auto Banjo Cricket":{"Value":false,"Type":"toggle"},"Auto Wisp":{"Value":false,"Type":"toggle"},"Wisp Status":{"Value":"Off","Type":"text"}},"Auto Place Egg":{"Place Egg Rule":{"Value":"Always","Type":"dropdown"},"Auto Place Egg":{"Value":false,"Type":"toggle"},"Pen Status":{"Value":"Eggs placed 6/30  -  19/19 pets equipped, 87 in bag","Type":"text"},"Place Rarities":{"Value":[],"Type":"multidropdown"},"Place Egg Order":{"Value":"Highest Value","Type":"dropdown"},"Min Place Value":{"Value":0,"Type":"slider"},"Place Specific Eggs":{"Value":[],"Type":"multidropdown"}},"Auto Fuse Machine":{"Max Rarity to Fuse":{"Value":"6 - Mythic","Type":"dropdown"},"Skip Mutated Pets":{"Value":true,"Type":"toggle"},"Auto Fuse Machine":{"Value":false,"Type":"toggle"},"Eject Incomplete Slots":{"Value":true,"Type":"toggle"},"Specific Species to Fuse":{"Value":[],"Type":"multidropdown"},"Pets To Use":{"Value":"Lowest To Highest","Type":"dropdown"},"Fuse Priority Mode":{"Value":"Lowest Rarity First","Type":"dropdown"},"Fuse Preview":{"Value":"No three matching pets","Type":"text"}},"Auto Mutation":{"Mutate Target Eggs":{"Value":["Amethyst Runebear [Secret]"],"Type":"multidropdown"},"Mutations To Use":{"Value":["Fractured","Scrambled","Enchanted"],"Type":"multidropdown"},"Mutate Priority":{"Value":"Highest Value","Type":"dropdown"},"Auto Buy Scrambled":{"Value":false,"Type":"toggle"},"Auto Mutate":{"Value":false,"Type":"toggle"},"Mutate Status":{"Value":"Off","Type":"text"},"Mutate Min Value":{"Value":0,"Type":"slider"},"Mutate Min Rarity":{"Value":"Any","Type":"dropdown"}},"Auto Sell Lab Egg":{"Lab Egg Sell Value":{"Value":0,"Type":"slider"},"Sell Lab Egg Rule":{"Value":"Rarity And Value","Type":"dropdown"},"Lab Egg Max Rarity":{"Value":"Off","Type":"dropdown"},"Auto Sell Lab Egg":{"Value":false,"Type":"toggle"},"Lab Egg Sell Preview":{"Value":"Lab egg matches  -  0 eggs for $0","Type":"text"},"Keep Lab Pets":{"Value":[],"Type":"multidropdown"},"Keep Mutated Lab Eggs":{"Value":true,"Type":"toggle"}},"Auto Hatch & Equip":{"Hatch Specific Eggs":{"Value":[],"Type":"multidropdown"},"Auto Hatch":{"Value":false,"Type":"toggle"},"Hatch Min Rarity":{"Value":"Any","Type":"dropdown"},"Min Hatch Value":{"Value":0,"Type":"slider"},"Auto Equip Best":{"Value":false,"Type":"toggle"}},"Auto Favorite":{"Favorite Mutations":{"Value":[],"Type":"multidropdown"},"Favorite Preview":{"Value":"Favorite matches  -  0 pets, 0 to mark  |  1 favorited","Type":"text"},"Favorite Min Rarity":{"Value":"Off","Type":"dropdown"},"Auto Favorite Equipped":{"Value":false,"Type":"toggle"},"Auto Favorite Pet":{"Value":false,"Type":"toggle"},"Always Favorite Species":{"Value":[],"Type":"multidropdown"},"Auto Unfavorite Equipped":{"Value":false,"Type":"toggle"},"Min Favorite Value":{"Value":0,"Type":"slider"},"Favorite Rule":{"Value":"Match All","Type":"dropdown"}},"Butterfly Bloom":{"Auto Butterfly Bloom":{"Value":true,"Type":"toggle"},"Smart Trade For Essence":{"Value":false,"Type":"toggle"},"Auto Craft Essence":{"Value":false,"Type":"toggle"},"Auto Trade Up":{"Value":false,"Type":"toggle"},"Catch Butterflies":{"Value":["Radiant Butterfly","Amethyst Butterfly","Sapphire Butterfly","Emerald Butterfly"],"Type":"multidropdown"},"Tween Speed  ":{"Value":600,"Type":"slider","Unit":"studs/s"},"Catch Mode":{"Value":"Chase","Type":"dropdown"},"Catch Priority":{"Value":"Rarest","Type":"dropdown"},"Trade Up Tiers":{"Value":["Amethyst To Radiant"],"Type":"multidropdown"}}},"Server":{"Server":{"Server Hop Mode":{"Value":"Least Players","Type":"dropdown"},"Auto Load Script":{"Value":true,"Type":"toggle"},"Auto Rejoin When Disconnect":{"Value":true,"Type":"toggle"}}}},"States":{"Farm HUD Stealing Position":{"Value":[]},"Quick Panel Collapsed":{"Value":{"1":false}},"Quick Keybinds":{"Value":{"Player > Movement > Speed Boost":"Q"}},"Farm HUD World Position":{"Value":[]},"Farm HUD Stolen Eggs":{"Value":{"History":[{"At":1791608191,"Name":"Gargoyle Egg","Category":"Dark Gargoyle","Scale":1.0089377638111945,"Rarity":"Secret","Value":274481363.75902286}],"Count":1,"Best":{"Category":"Dark Gargoyle","Name":"Gargoyle Egg","Rarity":"Secret","Rank":8}}},"Farm HUD Top Eggs Position":{"Value":[]},"Anti Guard Enabled":{"Value":false},"Farm HUD Steal History Position":{"Value":[]},"Open On Launch":{"Value":true},"Notifications":{"Value":true},"Quick Panel Position":{"Value":{"1":{"Y":0.046925779432058337,"X":0.8835160732269287}}},"Quick Open Key":{"Value":"LeftControl"},"Farm HUD Top Pets Position":{"Value":[]},"Quick Pin Groups":{"Value":[]},"FPS and Ping Position":{"Value":{"XOffset":-107,"XScale":0,"YScale":0,"YOffset":337}},"Farm HUD Dr Scramble Position":{"Value":[]},"Farm HUD Status Position":{"Value":[]},"Steal Panel Open":{"Value":false},"Quick LeftCenter Hidden":{"Value":true},"Farm HUD Economy Position":{"Value":[]},"Quick Pinned Features":{"Value":["Player > Movement > Speed Boost","Player > Movement > Boost Speed"]},"Farm HUD Collection Position":{"Value":[]}},"SavedAt":1791608223}]]
-
     PresetBtn.Activated:Connect(function()
-        PresetBtn.Text = "Đang nạp file JSON..."
+        PresetBtn.Text = "Đang nạp File JSON..."
         PresetBtn.BackgroundColor3 = Color3.fromRGB(45, 205, 110)
         
         task.spawn(function()
@@ -758,12 +768,20 @@ local function createDynamicIslandUI()
                     pcall(function() writefile("Chilli/auto farm.json", AUTO_FARM_JSON) end)
                 end
             end)
-            task.wait(0.5)
-            autoLoadInGame()
-            task.wait(1)
+            task.wait(0.2)
+            
+            pcall(function()
+                game:GetService("StarterGui"):SetCore("SendNotification", {
+                    Title = "Applied Preset!",
+                    Text = "Đã cấu hình Bắt Bướm, Cướp V2, Máy Tập chuẩn 4 ảnh!",
+                    Duration = 3
+                })
+            end)
+
+            task.wait(1.5)
             PresetBtn.Text = "✅ ĐÃ ÁP DỤNG XONG!"
             task.wait(2)
-            PresetBtn.Text = "⚡ NẠP CẤU HÌNH (JSON)"
+            PresetBtn.Text = "⚡ setting auto farm"
             PresetBtn.BackgroundColor3 = Color3.fromRGB(38, 44, 58)
         end)
     end)
