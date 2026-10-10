@@ -1,11 +1,11 @@
 -- ==============================================================================
---  CHILLI HUB V2 - DYNAMIC ISLAND V13.0 (OBFUSCATOR-PROOF & AUTO FARM)
---  Tối ưu hóa:
---    1. OBFUSCATOR SAFE: Cấu trúc code phẳng, tương thích 100% với mọi phần mềm mã hóa.
---    2. OMNI-CLICK ENGINE: Hàm ép click xuyên phá 100% các lớp bảo vệ của nút gạt.
---    3. TRUE STATE SYNC: Chắc chắn Bật/Tắt chuẩn xác các chức năng (Sự kiện Bướm, Cướp, Máy tập...).
---    4. MODULAR DROPDOWN SYNC: Chọn đúng tùy chọn (Đuổi theo, Gần nhất, Bí Ẩn...).
---    5. LIQUID SPRING EXPANSION: Kéo bung mượt mà, khung cầu vồng xoay 360 độ.
+--  CHILLI HUB V2 - DYNAMIC ISLAND V14.0 (SLOW & CALM ENGINE)
+--  Tối ưu hóa theo yêu cầu:
+--    1. SLOW ACTION: Tốc độ bấm giãn cách 0.5s, mô phỏng tay người thật bấm từ từ.
+--    2. ANTI DOUBLE-CLICK: Fix triệt để lỗi click quá nhanh làm nút bị bật/tắt liên tục.
+--    3. SMART DROPDOWN: Kiểm tra xem đã chọn đúng chưa, nếu chưa mới mở menu ra chọn.
+--    4. LIVE STATUS: Hiển thị trạng thái đang làm gì trực tiếp trên Dynamic Island.
+--    5. OBFUSCATOR SAFE: Code phẳng, bao anh đem đi mã hóa (Obfuscate) không bao giờ lỗi.
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -21,32 +21,22 @@ end
 
 local function getSafeGuiContainer()
     local container = nil
-    pcall(function() 
-        if gethui then 
-            container = gethui() 
-        end 
-    end)
+    pcall(function() if gethui then container = gethui() end end)
     if container then return container end
-
-    pcall(function()
-        if CoreGui and pcall(function() return CoreGui:GetChildren() end) then
-            container = CoreGui
-        end
-    end)
+    pcall(function() if CoreGui and pcall(function() return CoreGui:GetChildren() end) then container = CoreGui end end)
     if container then return container end
-
-    pcall(function() 
-        container = LocalPlayer:WaitForChild("PlayerGui", 5) 
-    end)
+    pcall(function() container = LocalPlayer:WaitForChild("PlayerGui", 5) end)
     return container
 end
 
+-- ==================== NẠP SCRIPT GỐC ====================
 task.spawn(function()
     pcall(function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/tienkhanh1/spicy/main/Chilli.lua"))()
     end)
 end)
 
+-- ==================== TỪ ĐIỂN DỊCH THUẬT ====================
 local currentLanguage = "VI"
 local FastCache = {}
 
@@ -221,156 +211,31 @@ local MAP_VI = {
     ["selected"] = "đã chọn"
 }
 
--- OBFUSCATOR-SAFE DYNAMIC PATTERNS (Flat 'if..else' structure)
 local DYNAMIC_PATTERNS = {
-    { 
-        pattern = "Catching a (.+) butterfly, (%d+) studs | (%d+) flying", 
-        format = function(lang, name, st, fl) 
-            if lang == "VI" then
-                return string.format("Đang bắt bướm %s, %s studs | %s đang bay", name, st, fl)
-            else
-                return string.format("Catching a %s butterfly, %s studs | %s flying", name, st, fl)
-            end
-        end 
-    },
-    { 
-        pattern = "ALL (%d+)", 
-        format = function(lang, c) 
-            if lang == "VI" then return "TẤT CẢ " .. c else return "ALL " .. c end 
-        end 
-    },
-    { 
-        pattern = "READY (%d+)", 
-        format = function(lang, c) 
-            if lang == "VI" then return "SẴN SÀNG " .. c else return "READY " .. c end 
-        end 
-    },
-    { 
-        pattern = "GROWING (%d+)", 
-        format = function(lang, c) 
-            if lang == "VI" then return "ĐANG LỚN " .. c else return "GROWING " .. c end 
-        end 
-    },
-    { 
-        pattern = "IN BAG (%d+)", 
-        format = function(lang, c) 
-            if lang == "VI" then return "TRONG TÚI " .. c else return "IN BAG " .. c end 
-        end 
-    },
-    { 
-        pattern = "#(%d+) of (%d+) eggs by value", 
-        format = function(lang, r, total) 
-            if lang == "VI" then return string.format("Hạng #%s/%s trứng theo giá trị", r, total) else return string.format("#%s of %s eggs by value", r, total) end 
-        end 
-    },
-    { 
-        pattern = "1 in ([%d%.]+)", 
-        format = function(lang, val) 
-            if lang == "VI" then return "Tỉ lệ 1/" .. val else return "1 in " .. val end 
-        end 
-    },
-    { 
-        pattern = "Ends in (%d+h %d+m %d+s)", 
-        format = function(lang, tStr) 
-            if lang == "VI" then return "Kết thúc sau " .. tStr else return "Ends in " .. tStr end 
-        end 
-    },
-    { 
-        pattern = "in (%d+h %d+m)", 
-        format = function(lang, tStr) 
-            if lang == "VI" then return "sau " .. tStr else return "in " .. tStr end 
-        end 
-    },
-    { 
-        pattern = "Banner chance (%d+%.?%d*%%)", 
-        format = function(lang, cStr) 
-            if lang == "VI" then return "Tỉ lệ Banner " .. cStr else return "Banner chance " .. cStr end 
-        end 
-    },
-    { 
-        pattern = "Pity (%d+)/(%d+)", 
-        format = function(lang, p1, p2) 
-            if lang == "VI" then return string.format("Bảo hiểm %s/%s", p1, p2) else return string.format("Pity %s/%s", p1, p2) end 
-        end 
-    },
-    { 
-        pattern = "Free rerolls (%d+)", 
-        format = function(lang, rStr) 
-            if lang == "VI" then return "Đổi miễn phí " .. rStr else return "Free rerolls " .. rStr end 
-        end 
-    },
-    { 
-        pattern = "rotates in (%d+:%d+)", 
-        format = function(lang, timeStr) 
-            if lang == "VI" then return "xoay vòng sau " .. timeStr else return "rotates in " .. timeStr end 
-        end 
-    },
-    { 
-        pattern = "Eggs placed (%d+)/(%d+) %- (%d+)/(%d+) pets equipped, (%d+) in bag", 
-        format = function(lang, p1, p2, p3, p4, p5) 
-            if lang == "VI" then return string.format("Trứng đã đặt %s/%s - %s/%s pet trang bị, %s trong túi", p1, p2, p3, p4, p5) else return string.format("Eggs placed %s/%s - %s/%s pets equipped, %s in bag", p1, p2, p3, p4, p5) end 
-        end 
-    },
-    { 
-        pattern = "Pet matches %- (%d+) pets? for %$(.+)", 
-        format = function(lang, count, val) 
-            if lang == "VI" then return string.format("Khớp pet - %s pet giá $%s", count, val) else return string.format("Pet matches - %s pets for $%s", count, val) end 
-        end 
-    },
-    { 
-        pattern = "Egg matches %- (%d+) eggs? for %$(.+)", 
-        format = function(lang, count, val) 
-            if lang == "VI" then return string.format("Khớp trứng - %s trứng giá $%s", count, val) else return string.format("Egg matches - %s eggs for $%s", count, val) end 
-        end 
-    },
-    { 
-        pattern = "Lab egg matches %- (%d+) eggs? for %$(.+)", 
-        format = function(lang, count, val) 
-            if lang == "VI" then return string.format("Khớp trứng Lab - %s trứng giá $%s", count, val) else return string.format("Lab egg matches - %s eggs for $%s", count, val) end 
-        end 
-    },
-    { 
-        pattern = "Favorite matches %- (%d+) pets?, (%d+) to mark %| (%d+) favorited", 
-        format = function(lang, c1, c2, c3) 
-            if lang == "VI" then return string.format("Khớp yêu thích - %s pet, %s cần lưu | %s đã khóa", c1, c2, c3) else return string.format("Favorite matches - %s pets, %s to mark | %s favorited", c1, c2, c3) end 
-        end 
-    },
-    { 
-        pattern = "Charges (%d+) Eggs (%d+)/(%d+) Tries (%d+) Applied (%d+)", 
-        format = function(lang, c, e1, e2, t, a) 
-            if lang == "VI" then return string.format("Số lần sạc %s Trứng %s/%s Thử %s Đã dùng %s", c, e1, e2, t, a) else return string.format("Charges %s Eggs %s/%s Tries %s Applied %s", c, e1, e2, t, a) end 
-        end 
-    },
-    { 
-        pattern = "Players (%d+)/(%d+)", 
-        format = function(lang, p1, p2) 
-            if lang == "VI" then return string.format("Người chơi %s/%s", p1, p2) else return string.format("Players %s/%s", p1, p2) end 
-        end 
-    },
-    { 
-        pattern = "Next Mech portal in (%d+:%d+)", 
-        format = function(lang, timeStr) 
-            if lang == "VI" then return "Cổng Robot mở sau " .. timeStr else return "Next Mech portal in " .. timeStr end 
-        end 
-    },
-    { 
-        pattern = "Next Butterfly Bloom in (%d+:%d+)", 
-        format = function(lang, timeStr) 
-            if lang == "VI" then return "Sự kiện Bướm nở sau " .. timeStr else return "Next Butterfly Bloom in " .. timeStr end 
-        end 
-    },
-    { 
-        pattern = "Butterfly Bloom live, (%d+:%d+) left", 
-        format = function(lang, timeStr) 
-            if lang == "VI" then return "Sự kiện Bướm đang diễn ra, còn " .. timeStr else return "Butterfly Bloom live, " .. timeStr .. " left" end 
-        end 
-    },
-    { 
-        pattern = "Caught (.+)! %((%d+) owned%)", 
-        format = function(lang, name, count) 
-            if lang == "VI" then return string.format("Đã bắt %s! (Đang có %s con)", name, count) else return string.format("Caught %s! (%s owned)", name, count) end 
-        end 
-    }
+    { pattern = "Catching a (.+) butterfly, (%d+) studs %| (%d+) flying", format = function(lang, name, st, fl) if lang == "VI" then return string.format("Đang bắt bướm %s, %s studs | %s đang bay", name, st, fl) else return string.format("Catching a %s butterfly, %s studs | %s flying", name, st, fl) end end },
+    { pattern = "ALL (%d+)", format = function(lang, c) if lang == "VI" then return "TẤT CẢ " .. c else return "ALL " .. c end end },
+    { pattern = "READY (%d+)", format = function(lang, c) if lang == "VI" then return "SẴN SÀNG " .. c else return "READY " .. c end end },
+    { pattern = "GROWING (%d+)", format = function(lang, c) if lang == "VI" then return "ĐANG LỚN " .. c else return "GROWING " .. c end end },
+    { pattern = "IN BAG (%d+)", format = function(lang, c) if lang == "VI" then return "TRONG TÚI " .. c else return "IN BAG " .. c end end },
+    { pattern = "#(%d+) of (%d+) eggs by value", format = function(lang, r, total) if lang == "VI" then return string.format("Hạng #%s/%s trứng theo giá trị", r, total) else return string.format("#%s of %s eggs by value", r, total) end end },
+    { pattern = "1 in ([%d%.]+)", format = function(lang, val) if lang == "VI" then return "Tỉ lệ 1/" .. val else return "1 in " .. val end end },
+    { pattern = "Ends in (%d+h %d+m %d+s)", format = function(lang, tStr) if lang == "VI" then return "Kết thúc sau " .. tStr else return "Ends in " .. tStr end end },
+    { pattern = "in (%d+h %d+m)", format = function(lang, tStr) if lang == "VI" then return "sau " .. tStr else return "in " .. tStr end end },
+    { pattern = "Banner chance (%d+%.?%d*%%)", format = function(lang, cStr) if lang == "VI" then return "Tỉ lệ Banner " .. cStr else return "Banner chance " .. cStr end end },
+    { pattern = "Pity (%d+)/(%d+)", format = function(lang, p1, p2) if lang == "VI" then return string.format("Bảo hiểm %s/%s", p1, p2) else return string.format("Pity %s/%s", p1, p2) end end },
+    { pattern = "Free rerolls (%d+)", format = function(lang, rStr) if lang == "VI" then return "Đổi miễn phí " .. rStr else return "Free rerolls " .. rStr end end },
+    { pattern = "rotates in (%d+:%d+)", format = function(lang, timeStr) if lang == "VI" then return "xoay vòng sau " .. timeStr else return "rotates in " .. timeStr end end },
+    { pattern = "Eggs placed (%d+)/(%d+) %- (%d+)/(%d+) pets equipped, (%d+) in bag", format = function(lang, p1, p2, p3, p4, p5) if lang == "VI" then return string.format("Trứng đã đặt %s/%s - %s/%s pet trang bị, %s trong túi", p1, p2, p3, p4, p5) else return string.format("Eggs placed %s/%s - %s/%s pets equipped, %s in bag", p1, p2, p3, p4, p5) end end },
+    { pattern = "Pet matches %- (%d+) pets? for %$(.+)", format = function(lang, count, val) if lang == "VI" then return string.format("Khớp pet - %s pet giá $%s", count, val) else return string.format("Pet matches - %s pets for $%s", count, val) end end },
+    { pattern = "Egg matches %- (%d+) eggs? for %$(.+)", format = function(lang, count, val) if lang == "VI" then return string.format("Khớp trứng - %s trứng giá $%s", count, val) else return string.format("Egg matches - %s eggs for $%s", count, val) end end },
+    { pattern = "Lab egg matches %- (%d+) eggs? for %$(.+)", format = function(lang, count, val) if lang == "VI" then return string.format("Khớp trứng Lab - %s trứng giá $%s", count, val) else return string.format("Lab egg matches - %s eggs for $%s", count, val) end end },
+    { pattern = "Favorite matches %- (%d+) pets?, (%d+) to mark %| (%d+) favorited", format = function(lang, c1, c2, c3) if lang == "VI" then return string.format("Khớp yêu thích - %s pet, %s cần lưu | %s đã khóa", c1, c2, c3) else return string.format("Favorite matches - %s pets, %s to mark | %s favorited", c1, c2, c3) end end },
+    { pattern = "Charges (%d+) Eggs (%d+)/(%d+) Tries (%d+) Applied (%d+)", format = function(lang, c, e1, e2, t, a) if lang == "VI" then return string.format("Số lần sạc %s Trứng %s/%s Thử %s Đã dùng %s", c, e1, e2, t, a) else return string.format("Charges %s Eggs %s/%s Tries %s Applied %s", c, e1, e2, t, a) end end },
+    { pattern = "Players (%d+)/(%d+)", format = function(lang, p1, p2) if lang == "VI" then return string.format("Người chơi %s/%s", p1, p2) else return string.format("Players %s/%s", p1, p2) end end },
+    { pattern = "Next Mech portal in (%d+:%d+)", format = function(lang, timeStr) if lang == "VI" then return "Cổng Robot mở sau " .. timeStr else return "Next Mech portal in " .. timeStr end end },
+    { pattern = "Next Butterfly Bloom in (%d+:%d+)", format = function(lang, timeStr) if lang == "VI" then return "Sự kiện Bướm nở sau " .. timeStr else return "Next Butterfly Bloom in " .. timeStr end end },
+    { pattern = "Butterfly Bloom live, (%d+:%d+) left", format = function(lang, timeStr) if lang == "VI" then return "Sự kiện Bướm đang diễn ra, còn " .. timeStr else return "Butterfly Bloom live, " .. timeStr .. " left" end end },
+    { pattern = "Caught (.+)! %((%d+) owned%)", format = function(lang, name, count) if lang == "VI" then return string.format("Đã bắt %s! (Đang có %s con)", name, count) else return string.format("Caught %s! (%s owned)", name, count) end end }
 }
 
 local SortedVI = {}
@@ -453,7 +318,7 @@ local function hookElement(inst)
     end)
 end
 
--- ==================== 4. LÕI ĐỔI MÀU SOFT PASTEL BLUE ====================
+-- ==================== LÕI SOFT BLUE RESKIN ====================
 local COLOR_FACE_TOP     = Color3.fromRGB(140, 195, 245)
 local COLOR_FACE_BOTTOM  = Color3.fromRGB(95, 155, 225)
 local COLOR_BEVEL_SHADOW = Color3.fromRGB(55, 110, 180)
@@ -544,33 +409,43 @@ local function inspectAndApplySoftBlue(inst)
     end
 end
 
--- ==================== 5. HỆ THỐNG AUTO FARM (OMNI-CLICK OVERRIDE) ====================
-local function forceTriggerClick(target)
-    if not target then return end
-    local targetsToClick = {target}
-    if target.Parent then
-        table.insert(targetsToClick, target.Parent)
-        for _, sib in ipairs(target.Parent:GetChildren()) do
-            if sib:IsA("GuiObject") then table.insert(targetsToClick, sib) end
+-- ==================== 5. HỆ THỐNG SLOW & CALM AUTO FARM ====================
+local function setStatus(text)
+    pcall(function()
+        local island = CoreGui:FindFirstChild("Chilli_Dynamic_Island") or LocalPlayer.PlayerGui:FindFirstChild("Chilli_Dynamic_Island")
+        if island then
+            local sub = island:FindFirstChild("FarmSub", true)
+            if sub then sub.Text = text end
+        end
+    end)
+end
+
+-- Bấm chính xác vào đúng 1 nút duy nhất để chống lỗi Double-Click
+local function slowTriggerClick(row)
+    if not row then return end
+    
+    local targetToClick = nil
+    for _, desc in ipairs(row:GetDescendants()) do
+        if desc:IsA("TextButton") or desc:IsA("ImageButton") then
+            targetToClick = desc
+            break
         end
     end
-    for _, t in ipairs(targetsToClick) do
-        pcall(function()
-            if getconnections then
-                for _, conn in ipairs(getconnections(t.MouseButton1Click)) do conn:Fire() end
-                for _, conn in ipairs(getconnections(t.Activated)) do conn:Fire() end
-                for _, conn in ipairs(getconnections(t.InputBegan)) do
-                    conn:Fire({UserInputType = Enum.UserInputType.MouseButton1, UserInputState = Enum.UserInputState.Begin})
-                    conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.Begin})
-                end
-                task.wait(0.01)
-                for _, conn in ipairs(getconnections(t.InputEnded)) do
-                    conn:Fire({UserInputType = Enum.UserInputType.MouseButton1, UserInputState = Enum.UserInputState.End})
-                    conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.End})
-                end
+    if not targetToClick then targetToClick = row end
+    
+    pcall(function()
+        if getconnections then
+            for _, conn in ipairs(getconnections(targetToClick.InputBegan)) do
+                conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.Begin})
             end
-        end)
-    end
+            task.wait(0.1)
+            for _, conn in ipairs(getconnections(targetToClick.InputEnded)) do
+                conn:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.End})
+            end
+            for _, conn in ipairs(getconnections(targetToClick.Activated)) do conn:Fire() end
+            for _, conn in ipairs(getconnections(targetToClick.MouseButton1Click)) do conn:Fire() end
+        end
+    end)
 end
 
 local function isToggleActive(label)
@@ -615,17 +490,20 @@ local function findMatchingLabel(patterns, excludeList)
         if root then
             for _, desc in ipairs(root:GetDescendants()) do
                 if (desc:IsA("TextLabel") or desc:IsA("TextButton")) and not desc:FindFirstAncestor("Chilli_Dynamic_Island") then
-                    local t = stripTags(desc.Text:lower())
-                    local matched = false
-                    for _, p in ipairs(patterns) do
-                        if t == p:lower() or t:find(p:lower(), 1, true) then matched = true; break end
-                    end
-                    if matched and excludeList then
-                        for _, ex in ipairs(excludeList) do
-                            if t:find(ex:lower(), 1, true) then matched = false; break end
+                    local t = stripTags(desc.Text:lower()):match("^%s*(.-)%s*$")
+                    if t then
+                        local matched = false
+                        for _, p in ipairs(patterns) do
+                            local pat = p:lower():match("^%s*(.-)%s*$")
+                            if t == pat or t:find(pat, 1, true) then matched = true; break end
                         end
+                        if matched and excludeList then
+                            for _, ex in ipairs(excludeList) do
+                                if t:find(ex:lower(), 1, true) then matched = false; break end
+                            end
+                        end
+                        if matched then return desc end
                     end
-                    if matched then return desc end
                 end
             end
         end
@@ -636,7 +514,6 @@ end
 local function findDropdownOptionGlobal(targets)
     local searchRoots = {CoreGui, LocalPlayer:FindFirstChild("PlayerGui")}
     pcall(function() if gethui then table.insert(searchRoots, gethui()) end end)
-    
     for _, root in ipairs(searchRoots) do
         if root then
             for _, desc in ipairs(root:GetDescendants()) do
@@ -658,25 +535,50 @@ end
 local function selectDropdownOption(cfg)
     local label = findMatchingLabel(cfg.rowPatterns)
     if not label then return end
+    local row = label.Parent
+    if not row then return end
     
     if cfg.selectAll and cfg.itemPatterns then
-        forceTriggerClick(label)
-        task.wait(0.2)
+        setStatus("Mở menu " .. label.Text .. "...")
+        slowTriggerClick(row)
+        task.wait(0.5)
         for _, itemPat in ipairs(cfg.itemPatterns) do
             local optBtn = findDropdownOptionGlobal({itemPat})
-            if optBtn and not isToggleActive(optBtn) then 
-                forceTriggerClick(optBtn); task.wait(0.05) 
+            if optBtn and not isToggleActive(optBtn.Parent) then 
+                setStatus("Chọn " .. itemPat .. "...")
+                slowTriggerClick(optBtn.Parent)
+                task.wait(0.3) 
             end
         end
+        slowTriggerClick(row) -- Đóng menu
+        task.wait(0.3)
     elseif cfg.targetText then
-        local optBtn = findDropdownOptionGlobal(cfg.targetText)
-        if optBtn then
-            if not isToggleActive(optBtn) then forceTriggerClick(optBtn) end
-        else
-            forceTriggerClick(label)
-            task.wait(0.2)
-            local retryBtn = findDropdownOptionGlobal(cfg.targetText)
-            if retryBtn then forceTriggerClick(retryBtn) end
+        local rowText = ""
+        for _, desc in ipairs(row:GetDescendants()) do
+            if desc:IsA("TextLabel") or desc:IsA("TextButton") then
+                rowText = rowText .. " " .. desc.Text:lower()
+            end
+        end
+        local alreadySelected = false
+        for _, t in ipairs(cfg.targetText) do
+            if rowText:find(t:lower(), 1, true) then
+                alreadySelected = true
+                break
+            end
+        end
+        
+        if not alreadySelected then
+            setStatus("Mở menu " .. label.Text .. "...")
+            slowTriggerClick(row)
+            task.wait(0.5)
+            local optBtn = findDropdownOptionGlobal(cfg.targetText)
+            if optBtn then
+                setStatus("Chọn mục mới...")
+                slowTriggerClick(optBtn.Parent)
+                task.wait(0.4)
+            else
+                slowTriggerClick(row)
+            end
         end
     end
 end
@@ -695,23 +597,30 @@ local function applyAutoFarmSettings(enable)
         for _, cfg in ipairs(PRESET_TOGGLES) do
             local label = findMatchingLabel(cfg.patterns, cfg.exclude)
             if label and isToggleActive(label) ~= cfg.target then
-                forceTriggerClick(label); task.wait(0.05)
+                setStatus("Bật: " .. label.Text)
+                slowTriggerClick(label.Parent)
+                task.wait(0.5)
             end
         end
 
         for _, cfg in ipairs(PRESET_DROPDOWNS) do
-            selectDropdownOption(cfg); task.wait(0.05)
+            selectDropdownOption(cfg)
+            task.wait(0.5)
         end
+        setStatus("✅ Đã bật cấu hình chuẩn 4 ảnh")
     else
         for _, cfg in ipairs(PRESET_TOGGLES) do
             local saved = SavedState.toggles[cfg.id]
             if saved ~= nil then
                 local label = findMatchingLabel(cfg.patterns, cfg.exclude)
                 if label and isToggleActive(label) ~= saved then
-                    forceTriggerClick(label); task.wait(0.05)
+                    setStatus("Khôi phục: " .. label.Text)
+                    slowTriggerClick(label.Parent)
+                    task.wait(0.5)
                 end
             end
         end
+        setStatus("✅ Đã khôi phục trạng thái cũ")
     end
 end
 
@@ -727,9 +636,7 @@ local function createDynamicIslandUI()
     ScreenGui.ResetOnSpawn = false
     ScreenGui.IgnoreGuiInset = true
     ScreenGui.DisplayOrder = 2147483647
-    
-    local container = getSafeGuiContainer()
-    if container then ScreenGui.Parent = container end
+    AttachSafeUI(ScreenGui)
 
     local Island = Instance.new("Frame")
     Island.Name = "Island"
@@ -903,6 +810,7 @@ local function createDynamicIslandUI()
     BtnEN.Activated:Connect(function() setLanguage("EN") end)
 
     local AutoFarmCard = Instance.new("Frame")
+    AutoFarmCard.Name = "AutoFarmCard"
     AutoFarmCard.Size = UDim2.new(1, 0, 0, 42)
     AutoFarmCard.BackgroundColor3 = Color3.fromRGB(16, 20, 30)
     AutoFarmCard.BorderSizePixel = 0
@@ -923,10 +831,11 @@ local function createDynamicIslandUI()
     FarmTitle.Parent = AutoFarmCard
 
     local FarmSub = Instance.new("TextLabel")
+    FarmSub.Name = "FarmSub"
     FarmSub.Size = UDim2.new(1, -55, 0, 14)
     FarmSub.Position = UDim2.new(0, 8, 0, 22)
     FarmSub.BackgroundTransparency = 1
-    FarmSub.Text = "Chuẩn theo 4 ảnh (Bật/Khôi phục)"
+    FarmSub.Text = "Nhấn để tự động cấu hình..."
     FarmSub.Font = Enum.Font.GothamMedium
     FarmSub.TextSize = 8
     FarmSub.TextColor3 = Color3.fromRGB(130, 150, 180)
@@ -960,7 +869,6 @@ local function createDynamicIslandUI()
             TweenService:Create(StatusDot, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(50, 255, 120)}):Play()
             task.spawn(function()
                 applyAutoFarmSettings(true)
-                FarmSub.Text = "Đã bật cấu hình chuẩn 4 ảnh"
             end)
         else
             TweenService:Create(FarmKnob, TweenInfo.new(0.2), {Position = UDim2.new(0, 3, 0.5, -7), BackgroundColor3 = Color3.fromRGB(200, 205, 215)}):Play()
@@ -970,7 +878,6 @@ local function createDynamicIslandUI()
             TweenService:Create(StatusDot, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(120, 130, 150)}):Play()
             task.spawn(function()
                 applyAutoFarmSettings(false)
-                FarmSub.Text = "Đã khôi phục trạng thái cũ"
             end)
         end
     end)
