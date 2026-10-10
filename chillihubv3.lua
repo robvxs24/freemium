@@ -1,11 +1,20 @@
 -- ==============================================================================
---  CHILLI HUB V2 - ISLAND CONTROL CENTER V11.0 (FORCE OVERRIDE EDITION)
+--  CHILLI HUB V2 - DYNAMIC ISLAND V10.0 (BUG-FREE & ZERO-LAG EDITION)
 --  Tối ưu hóa:
---    1. FORCE VIRTUAL CLICK: Xuyên thủng các lớp bảo vệ UI của Chilli Hub để ép click.
---    2. DROPDOWN DELAY SYNC: Xử lý mượt mà thao tác mở menu xổ xuống và chọn option.
---    3. EXACT STATE MATCHING: Đối chiếu và bật/tắt đúng tuyệt đối theo 4 ảnh anh cung cấp.
---    4. BẢO TỒN DYNAMIC ISLAND: Giữ nguyên thiết kế viên nang cầu vồng siêu mượt.
+--    1. FIX SYNTAX ERROR: Sửa lỗi dư chữ 'end' gây hỏng cụm DYNAMIC_PATTERNS.
+--    2. ANTI-CRASH: Ép hiển thị UI bất chấp Executor bị lỗi quyền truy cập CoreGui.
+--    3. NOTIFICATION: Thông báo hệ thống ngay khi chạy để kiểm tra script.
+--    4. ZERO-LAG: Quét UI rải rác đảm bảo game giữ mượt 60 FPS.
+--    5. AUTO FARM PRESET: Chạm để chuẩn hóa Auto Farm theo đúng 4 ảnh.
 -- ==============================================================================
+
+pcall(function()
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Chilli Hub V2",
+        Text = "Đang khởi tạo Dynamic Island...",
+        Duration = 3
+    })
+end)
 
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
@@ -18,24 +27,44 @@ if not LocalPlayer then
     LocalPlayer = Players.LocalPlayer
 end
 
--- ==================== 1. HÀM ÉP GẮN GIAO DIỆN (CHỐNG CRASH) ====================
 local function AttachSafeUI(gui)
     local attached = false
-    pcall(function() if gethui then gui.Parent = gethui(); attached = true end end)
-    if not attached then pcall(function() gui.Parent = CoreGui; attached = true end) end
-    if not attached or not gui.Parent then pcall(function() gui.Parent = LocalPlayer:WaitForChild("PlayerGui", 5) end) end
+    pcall(function()
+        if gethui then 
+            gui.Parent = gethui() 
+            attached = true 
+        end
+    end)
+    if not attached then
+        pcall(function()
+            gui.Parent = CoreGui
+            attached = true
+        end)
+    end
+    if not attached or not gui.Parent then
+        pcall(function()
+            gui.Parent = LocalPlayer:WaitForChild("PlayerGui", 5)
+        end)
+    end
 end
 
--- ==================== 2. NẠP SCRIPT CHILLI HUB GỐC ====================
 task.spawn(function()
     pcall(function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/tienkhanh1/spicy/main/Chilli.lua"))()
     end)
 end)
 
--- ==================== 3. TỪ ĐIỂN DỊCH THUẬT VÀ LÕI SOFT BLUE ====================
 local currentLanguage = "VI"
 local FastCache = {}
+
+local function replaceAll(str, findStr, replaceStr)
+    local startIdx, endIdx = str:find(findStr, 1, true)
+    while startIdx do
+        str = str:sub(1, startIdx - 1) .. replaceStr .. str:sub(endIdx + 1)
+        startIdx, endIdx = str:find(findStr, startIdx + #replaceStr, true)
+    end
+    return str
+end
 
 local EXACT_MATCH_VI = {
     ["Chilli Hub"] = "Chilli Hub V2", ["Hop"] = "Đổi Server", ["Join"] = "Vào Phòng", ["Copy"] = "Sao Chép",
@@ -267,6 +296,8 @@ local function translateText(raw)
     return FastCache[cacheKey]
 end
 
+local TrackedElements = {}
+
 local function applyTranslation(inst)
     if not inst or not inst.Parent then return end
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
@@ -306,7 +337,18 @@ local function hookElement(inst)
     end)
 end
 
--- ==================== 4. LÕI SOFT PASTEL BLUE RESKIN ====================
+local function updateAllActive()
+    for i = #TrackedElements, 1, -1 do
+        local el = TrackedElements[i]
+        if el and el.Parent then
+            applyTranslation(el)
+        else
+            table.remove(TrackedElements, i)
+        end
+    end
+end
+
+-- ==================== 4. LÕI ĐỔI MÀU SOFT BLUE ====================
 local COLOR_FACE_TOP     = Color3.fromRGB(140, 195, 245)
 local COLOR_FACE_BOTTOM  = Color3.fromRGB(95, 155, 225)
 local COLOR_BEVEL_SHADOW = Color3.fromRGB(55, 110, 180)
@@ -397,8 +439,7 @@ local function inspectAndApplySoftBlue(inst)
     end
 end
 
--- ==================== 5. HỆ THỐNG AUTO FARM (FORCE OVERRIDE ENGINE) ====================
--- Hàm bắn phá toàn bộ Event Input để ép hệ thống nhận lệnh click
+-- ==================== 5. PRESET AUTO FARM ENGINE ====================
 local function forceTriggerClick(target)
     if not target then return end
     local targetsToClick = {target}
@@ -408,7 +449,6 @@ local function forceTriggerClick(target)
             if sib:IsA("GuiObject") then table.insert(targetsToClick, sib) end
         end
     end
-
     for _, t in ipairs(targetsToClick) do
         pcall(function()
             if getconnections then
@@ -435,19 +475,13 @@ local function isToggleActive(label)
     local function checkGreen(c) return c and (c.G > 0.45 and c.G > c.R * 1.3 and c.G > c.B * 1.3) end
     
     local elements = {label, row}
-    for _, child in ipairs(row:GetDescendants()) do
-        table.insert(elements, child)
-    end
-    
+    for _, child in ipairs(row:GetDescendants()) do table.insert(elements, child) end
     for _, el in ipairs(elements) do
-        if el:IsA("GuiObject") and checkGreen(el.BackgroundColor3) then
-            return true
-        end
+        if el:IsA("GuiObject") and checkGreen(el.BackgroundColor3) then return true end
     end
     return false
 end
 
--- Khai báo mảng cấu hình đích danh (Bản 4 ảnh)
 local PRESET_TOGGLES = {
     { id = "AutoButterfly", target = true, patterns = {"tự động bắt bướm", "auto butterfly bloom"} },
     { id = "AutoSteal", target = true, patterns = {"tự động cướp trứng", "auto steal"}, exclude = {"v2", "zones", "khu vực"} },
@@ -467,24 +501,19 @@ local PRESET_DROPDOWNS = {
     { id = "CatchButterflies", selectAll = true, rowPatterns = {"chọn bướm cần bắt", "catch butterflies"}, itemPatterns = {"radiant", "amethyst", "sapphire", "emerald"} }
 }
 
-local function stripTags(str)
-    return str:gsub("<[^>]+>", "")
-end
+local function stripTags(str) return str:gsub("<[^>]+>", "") end
 
 local function findMatchingLabel(patterns, excludeList)
-    local searchRoots = {CoreGui, LocalPlayer:FindFirstChild("PlayerGui")}
-    pcall(function() if gethui then table.insert(searchRoots, gethui()) end end)
-
-    for _, root in ipairs(searchRoots) do
+    local targetGuis = {CoreGui, LocalPlayer:FindFirstChild("PlayerGui")}
+    pcall(function() if gethui then table.insert(targetGuis, gethui()) end end)
+    for _, root in ipairs(targetGuis) do
         if root then
             for _, desc in ipairs(root:GetDescendants()) do
                 if (desc:IsA("TextLabel") or desc:IsA("TextButton")) and not desc:FindFirstAncestor("Chilli_Dynamic_Island") then
                     local t = stripTags(desc.Text:lower())
                     local matched = false
                     for _, p in ipairs(patterns) do
-                        if t == p:lower() or t:find(p:lower(), 1, true) then
-                            matched = true; break
-                        end
+                        if t == p:lower() or t:find(p:lower(), 1, true) then matched = true; break end
                     end
                     if matched and excludeList then
                         for _, ex in ipairs(excludeList) do
@@ -500,10 +529,9 @@ local function findMatchingLabel(patterns, excludeList)
 end
 
 local function findDropdownOptionGlobal(targets)
-    local searchRoots = {CoreGui, LocalPlayer:FindFirstChild("PlayerGui")}
-    pcall(function() if gethui then table.insert(searchRoots, gethui()) end end)
-    
-    for _, root in ipairs(searchRoots) do
+    local targetGuis = {CoreGui, LocalPlayer:FindFirstChild("PlayerGui")}
+    pcall(function() if gethui then table.insert(targetGuis, gethui()) end end)
+    for _, root in ipairs(targetGuis) do
         if root then
             for _, desc in ipairs(root:GetDescendants()) do
                 if (desc:IsA("TextButton") or desc:IsA("TextLabel")) and not desc:FindFirstAncestor("Chilli_Dynamic_Island") then
@@ -526,13 +554,12 @@ local function selectDropdownOption(cfg)
     if not label then return end
     
     if cfg.selectAll and cfg.itemPatterns then
-        forceTriggerClick(label) -- Mở Dropdown
+        forceTriggerClick(label)
         task.wait(0.2)
         for _, itemPat in ipairs(cfg.itemPatterns) do
             local optBtn = findDropdownOptionGlobal({itemPat})
             if optBtn and not isToggleActive(optBtn) then 
-                forceTriggerClick(optBtn)
-                task.wait(0.05) 
+                forceTriggerClick(optBtn); task.wait(0.05) 
             end
         end
     elseif cfg.targetText then
@@ -540,7 +567,7 @@ local function selectDropdownOption(cfg)
         if optBtn then
             if not isToggleActive(optBtn) then forceTriggerClick(optBtn) end
         else
-            forceTriggerClick(label) -- Mở Dropdown
+            forceTriggerClick(label)
             task.wait(0.2)
             local retryBtn = findDropdownOptionGlobal(cfg.targetText)
             if retryBtn then forceTriggerClick(retryBtn) end
@@ -558,18 +585,14 @@ local function applyAutoFarmSettings(enable)
             local label = findMatchingLabel(cfg.patterns, cfg.exclude)
             if label then SavedState.toggles[cfg.id] = isToggleActive(label) end
         end
-
         for _, cfg in ipairs(PRESET_TOGGLES) do
             local label = findMatchingLabel(cfg.patterns, cfg.exclude)
             if label and isToggleActive(label) ~= cfg.target then
-                forceTriggerClick(label)
-                task.wait(0.05)
+                forceTriggerClick(label); task.wait(0.05)
             end
         end
-
         for _, cfg in ipairs(PRESET_DROPDOWNS) do
-            selectDropdownOption(cfg)
-            task.wait(0.05)
+            selectDropdownOption(cfg); task.wait(0.05)
         end
     else
         for _, cfg in ipairs(PRESET_TOGGLES) do
@@ -577,15 +600,14 @@ local function applyAutoFarmSettings(enable)
             if saved ~= nil then
                 local label = findMatchingLabel(cfg.patterns, cfg.exclude)
                 if label and isToggleActive(label) ~= saved then
-                    forceTriggerClick(label)
-                    task.wait(0.05)
+                    forceTriggerClick(label); task.wait(0.05)
                 end
             end
         end
     end
 end
 
--- ==================== 6. RAINBOW DYNAMIC ISLAND V11.0 ====================
+-- ==================== 6. RAINBOW DYNAMIC ISLAND (V10.0) ====================
 local function createDynamicIslandUI()
     pcall(function()
         if CoreGui:FindFirstChild("Chilli_Dynamic_Island") then CoreGui.Chilli_Dynamic_Island:Destroy() end
@@ -868,9 +890,12 @@ local function createDynamicIslandUI()
     TriggerBtn.Activated:Connect(toggleIsland)
 
     local dragging, dragStart, startPos = false, nil, nil
+    local dragMoved = false
+
     Island.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
+            dragMoved = false
             dragStart = input.Position
             startPos = Island.Position
             input.Changed:Connect(function()
@@ -878,6 +903,7 @@ local function createDynamicIslandUI()
             end)
         end
     end)
+
     Island.InputChanged:Connect(function(input)
         if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragging then
             local delta = input.Position - dragStart
@@ -893,9 +919,10 @@ local function createDynamicIslandUI()
     end)
 end
 
--- ==================== 8. KHỞI ĐỘNG VÀ QUÉT ĐA TẦNG ====================
+-- ==================== 7. KHỞI ĐỘNG VÀ QUÉT CHUNKED (ZERO-LAG) ====================
 task.spawn(function()
     createDynamicIslandUI()
+
     local function processRootChunked(root)
         if not root then return end
         local function inspectTree(parent)
@@ -910,6 +937,7 @@ task.spawn(function()
             end
         end
         pcall(function() inspectTree(root) end)
+
         root.DescendantAdded:Connect(function(desc)
             task.defer(function()
                 if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
@@ -919,6 +947,7 @@ task.spawn(function()
             end)
         end)
     end
+
     local searchRoots = {CoreGui, LocalPlayer:FindFirstChild("PlayerGui")}
     pcall(function() if gethui then table.insert(searchRoots, gethui()) end end)
     for _, r in ipairs(searchRoots) do processRootChunked(r) end
