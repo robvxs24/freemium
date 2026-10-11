@@ -1,11 +1,11 @@
 -- ==============================================================================
---  CHILLI HUB V2 - FULL 100% VIỆT HÓA & SETTING AUTO FARM STUDIO EDITION
+--  CHILLI HUB V2 - DYNAMIC ISLAND & FULL 100% TRANSLATION STUDIO EDITION
 --  Kiến trúc tối ưu:
---    1. SAFE BOOT GUARD: Khởi động an toàn 3 lớp, chống 100% mã kick BAC-8512 & BAC-55110.
---    2. BÓC TÁCH TIỀN TỐ ĐỘNG: Dịch sạch 100% các mục có dấu '> ', 'v ', '∨ ', '[Q] ', '- '.
---    3. MASTER DICTIONARY: Đầy đủ Farm, Racing, Lab, Wisp, Combat, ESP, Admin Abuse, Quick Bar.
---    4. THẺ WIDGET 'SETTING AUTO FARM': Tích hợp phụ đề A-Z, tự động đổi song ngữ theo Capsule.
---    5. SOFT BLUE 3-PART RESKIN: Khung Header, Cột Tab trái, Cột nút phải chuẩn Xanh Nhạt Dịu Mắt.
+--    1. DYNAMIC ISLAND MORPHING: Viên nang thu phóng mượt mà chuẩn Apple/Cyber Glass.
+--    2. TÍCH HỢP 2 TRONG 1: Nút dịch Liquid Capsule + Nút Setting Auto Farm (A-Z).
+--    3. SỬA TRIỆT ĐỂ LỖI DỊCH: Bóc tách tiền tố sạch sẽ, dịch 100% '> Racing Event', '> Auto Steal'...
+--    4. SAFE BOOT GUARD: Khởi động 3 lớp né hoàn toàn mã kick BAC-8512 & BAC-55110.
+--    5. SOFT BLUE RESKIN: Header, Tab trái, Tab phải đồng bộ Xanh Nhạt Dịu Mắt, chữ trắng nổi khối.
 -- ==============================================================================
 
 -- ==================== 1. BẢO VỆ KHỞI ĐỘNG (SAFE BOOT GUARD) ====================
@@ -21,7 +21,7 @@ if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("Humano
     repeat task.wait(0.2) until LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 end
 
--- Nghỉ đệm an toàn để hoàn tất xác thực Handshake với máy chủ
+-- Nghỉ đệm an toàn để máy chủ xác thực xong Handshake
 task.wait(2.5)
 
 -- ==================== 2. TẢI SCRIPT CHILLI HUB GỐC ====================
@@ -36,13 +36,13 @@ local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 
 -- ==================== DỮ LIỆU CẤU HÌNH JSON (PROFILE: MAIN) ====================
-local RAW_CONFIG_JSON = [===[{"Config":{"Profile":"main","Version":2,"States":{"Farm HUD Stealing Position":{"Value":[]},"Quick Panel Collapsed":{"Value":{"1":true}},"Quick Keybinds":{"Value":{"Player > Movement > Speed Boost":"Q"}},"Farm HUD World Position":{"Value":[]},"Farm HUD Stolen Eggs":{"Value":{"History":[{"At":1791691405,"Name":"Salamander Egg","Category":"Salamander","Scale":2.0077867676934826,"Rarity":"Legendary","Value":268694.7970694339},{"At":1791691393,"Name":"Red Panda Egg","Category":"Red Panda","Scale":1.534945088131867,"Rarity":"Mythic","Value":994224.0722744926},{"At":1791691277,"Name":"Crustacia Egg","Category":"Crab","Scale":0.9485398655870736,"Rarity":"Legendary","Value":117895.21822185467},{"At":1791691260,"Name":"Crustacia Egg","Category":"Crab","Scale":0.9492730433116167,"Rarity":"Legendary","Value":118063.85963457519},{"At":1791691246,"Name":"Bladehide Egg","Category":"Blade Head","Scale":0.9936069341113027,"Rarity":"Mythic","Value":741153.7300873696},{"At":1791691231,"Name":"Pterodactyl Egg","Category":"Pterodactyl","Scale":0.9304647986460869,"Rarity":"Legendary","Value":19253.8499877134},{"At":1791691221,"Name":"Parrotfish Egg","Category":"Parrotfish","Scale":0.9392414616599657,"Rarity":"Rare","Value":195.91180408490377},{"At":1791691213,"Name":"Pterodactyl Egg","Category":"Pterodactyl","Scale":1.0408297446330186,"Rarity":"Legendary","Value":23690.54852670704},{"At":1791690930,"Name":"Parrotfish Egg","Category":"Parrotfish","Scale":0.9503277726641718,"Rarity":"Rare","Value":200.2112653510687},{"At":1791690921,"Name":"Parrotfish Egg","Category":"Parrotfish","Scale":0.9709901123134066,"Rarity":"Rare","Value":208.33875983574567},{"At":1791690912,"Name":"Parrotfish Egg","Category":"Parrotfish","Scale":0.9877314119821163,"Rarity":"Rare","Value":215.03273659916906},{"At":1791690640,"Name":"Parrotfish Egg","Category":"Parrotfish","Scale":0.8871009623278335,"Rarity":"Rare","Value":176.26773501736077},{"At":1791690631,"Name":"Parrotfish Egg","Category":"Parrotfish","Scale":0.910183959460301,"Rarity":"Rare","Value":184.84668191132057},{"At":1791690624,"Name":"Pterodactyl Egg","Category":"Pterodactyl","Scale":0.9833370835410278,"Rarity":"Legendary","Value":21326.626019822987},{"At":1791690615,"Name":"La Vacca Saturno Saturnita Egg","Category":"La Vacca Saturno Saturnita","Scale":0.9923149280061686,"Rarity":"Cosmic","Value":2168823.9559358234},{"At":1791690381,"Name":"Parrotfish Egg","Category":"Parrotfish","Scale":0.9696641788591847,"Rarity":"Rare","Value":249.37529604339495},{"At":1791690369,"Name":"Parrotfish Egg","Category":"Parrotfish","Scale":1.4579018948715677,"Rarity":"Rare","Value":441.89596562453337},{"At":1791690362,"Name":"Pterodactyl Egg","Category":"Pterodactyl","Scale":0.990015305361929,"Rarity":"Legendary","Value":21595.348250784464},{"At":1791690321,"Name":"Parrotfish Egg","Category":"Parrotfish","Scale":3.8148854983068576,"Rarity":"Rare","Value":2619.1686839768747},{"At":1791690314,"Name":"Pterodactyl Egg","Category":"Pterodactyl","Scale":1.4971519340436624,"Rarity":"Legendary","Value":46415.66220198127}],"Count":188,"Best":{"Category":"King Kong","Name":"Gorilla King Egg","Rarity":"Eternal","Rank":9}}},"Farm HUD Top Eggs Position":{"Value":[]},"Anti Guard Enabled":{"Value":false},"Farm HUD Steal History Position":{"Value":[]},"Quick Pinned Features":{"Value":["Player > Movement > Speed Boost","Player > Movement > Boost Speed"]},"Open On Launch":{"Value":true},"Quick Panel Position":{"Value":{"1":{"Y":0.32634490728378298,"X":0.8134856224060059}}},"Notifications":{"Value":true},"Farm HUD Top Pets Position":{"Value":[]},"Quick Open Key":{"Value":"LeftControl"},"FPS and Ping Position":{"Value":{"XOffset":15,"XScale":0,"YScale":0,"YOffset":19}},"Farm HUD Status Position":{"Value":[]},"Farm HUD Events Position":{"Value":[]},"Steal Panel Open":{"Value":false},"Quick LeftCenter Hidden":{"Value":true},"Farm HUD Economy Position":{"Value":[]},"Quick Pin Groups":{"Value":[]},"Farm HUD Collection Position":{"Value":[]}},"Values":{"Admin Abuse":{"Minigame Eggs":{"Auto Steal Minigame Egg":{"Value":true,"Type":"toggle"}},"Instant Steal V3":{"Instant Steal V3 Note":{"Value":"Needs Admin Treadmill","Type":"text"},"Instant Steal V3":{"Value":false,"Type":"toggle"}},"Admin Treadmill":{"Auto Use Admin Treadmill":{"Value":true,"Type":"toggle"}},"Capture The Egg":{"Hold Height":{"Value":45,"Type":"slider","Unit":"studs"},"Auto Capture Event Egg":{"Value":false,"Type":"toggle"},"Keep Away Distance":{"Value":45,"Type":"slider","Unit":"studs"},"Take It From The Holder":{"Value":true,"Type":"toggle"}}},"Predictor":{"Egg Predictor":{"Sort By":{"Value":"Value","Type":"dropdown"},"Preview Card":{"Value":true,"Type":"toggle"}},"Discord Webhook":{"Webhook URL":{"Value":"","Type":"input"},"Notify Fused Eggs":{"Value":false,"Type":"toggle"},"Notify Stolen Eggs":{"Value":false,"Type":"toggle"},"Webhook Min Rarity":{"Value":"Any","Type":"dropdown"},"Webhook Eggs":{"Value":[],"Type":"multidropdown"},"Webhook Min Value":{"Value":0,"Type":"slider"},"Ping @everyone":{"Value":false,"Type":"toggle"}}},"Progress":{"Auto Progression":{"Auto Buy Trail":{"Value":true,"Type":"toggle"},"Auto Claim Index":{"Value":true,"Type":"toggle"},"Auto Upgrade Treadmill":{"Value":true,"Type":"toggle"},"Auto Claim":{"Value":true,"Type":"toggle"},"Auto Upgrade Base":{"Value":true,"Type":"toggle"}}},"Quick":{"Pin Pad":{"Pad Size":{"Value":150,"Type":"slider","Unit":"%"},"Enable Keybinds":{"Value":true,"Type":"toggle"},"Show Pin Pads":{"Value":true,"Type":"toggle"},"Visible Quick Bars":{"Value":["Quick Bar 1","Quick Bar 2","Quick Bar 3","Quick Bar 4","Quick Bar 5"],"Type":"multidropdown"}}},"Auto Hop":{"Egg Finder":{"Hop Mode":{"Value":"Steal Then Hop","Type":"dropdown"},"Min Rarity":{"Value":"Secret","Type":"dropdown"},"Rarity To Wait For":{"Value":"Cosmic","Type":"dropdown"},"First Hop Delay":{"Value":5,"Type":"slider","Unit":"s"},"Sync With Auto Steal Filters":{"Value":true,"Type":"toggle"},"Target Specific Eggs":{"Value":[],"Type":"multidropdown"},"Min Value To Find":{"Value":700.11,"Type":"slider"},"Auto Hop":{"Value":false,"Type":"toggle"},"Target Areas":{"Value":["Cherry Blossom","Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"}}},"Player":{"ESP":{"ESP Eggs":{"Value":true,"Type":"toggle"},"ESP Show Info":{"Value":["Icon","Name","Value"],"Type":"multidropdown"},"ESP Guard Size":{"Value":75,"Type":"slider","Unit":"%"},"ESP Player Info":{"Value":["Name","Tool"],"Type":"multidropdown"},"ESP Other Base Eggs":{"Value":false,"Type":"toggle"},"ESP Min Rarity":{"Value":"7 - Cosmic","Type":"dropdown"},"ESP Guards":{"Value":true,"Type":"toggle"},"Min ESP Value":{"Value":0,"Type":"slider"},"ESP Player Size":{"Value":75,"Type":"slider","Unit":"%"},"ESP Players":{"Value":true,"Type":"toggle"},"ESP Own Base Eggs":{"Value":true,"Type":"toggle"},"ESP Fixed Size":{"Value":false,"Type":"toggle"},"ESP Egg Size":{"Value":75,"Type":"slider","Unit":"%"}},"Character":{"Instant Prompts":{"Value":true,"Type":"toggle"},"Anti Ragdoll":{"Value":true,"Type":"toggle"},"Anti Trap":{"Value":true,"Type":"toggle"},"Invisibility":{"Value":false,"Type":"toggle"}},"Movement":{"Speed Boost":{"Value":false,"Type":"toggle"},"Boost Speed":{"Value":1000,"Type":"slider","Unit":"studs/s"},"Infinite Jump":{"Value":false,"Type":"toggle"}},"Combat":{"Auto Hit Egg Holders":{"Value":false,"Type":"toggle"},"Hit Max Speed":{"Value":750,"Type":"slider","Unit":"studs/s"},"Auto Hit Nearest Player":{"Value":false,"Type":"toggle"},"Hit Player":{"Value":"676767kbsoksok","Type":"dropdown"},"Hit Lead":{"Value":-275,"Type":"slider"},"Hit Tween Speed":{"Value":400,"Type":"slider","Unit":"studs/s"},"Hit Sweep":{"Value":60,"Type":"slider","Unit":"%"},"Chase Settings":{"Value":"Chase Settings","Type":"label"},"Auto Hit Specific Player":{"Value":false,"Type":"toggle"},"Hit Aura":{"Value":true,"Type":"toggle"},"Hit Status":{"Value":"Aura ready, nobody in reach","Type":"text"}}},"Settings":{"Interface":{"UI Size":{"Value":100,"Type":"slider","Unit":"%"}}},"Farm":{"Auto Steal":{"Drop Eggs At Safe Zone":{"Value":false,"Type":"toggle"},"Target Specific Eggs":{"Value":[],"Type":"multidropdown"},"Biohazard Lab Eggs":{"Value":["Red Panda Egg (43%)","Snowy Owl Egg (40%)","Salamander Egg (38%)"],"Type":"multidropdown"},"Anti Guard Panel":{"Value":false,"Type":"toggle"},"Steal Missing Lab Eggs":{"Value":true,"Type":"toggle"},"Instant Steal Steps":{"Value":2,"Type":"slider"},"Instant Steal Zones":{"Value":["Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"},"Target Areas":{"Value":["Cherry Blossom","Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"},"Unstable DNA Lab Eggs":{"Value":["Toro Egg (24%)","Winged Lamb Egg (23%)","Bladehide Egg (23%)","Imp Egg (22%)","Crustacia Egg (22%)"],"Type":"multidropdown"},"Stock Per Egg":{"Value":3,"Type":"slider","Unit":""},"Auto Steal":{"Value":true,"Type":"toggle"},"Min Rarity":{"Value":"Secret","Type":"dropdown"},"Teleport To Egg":{"Value":false,"Type":"toggle"},"Carry Speed":{"Value":120,"Type":"slider","Unit":"%"},"Experimental Lab Eggs":{"Value":["Bladehide Egg (34%)","Red Panda Egg (34%)","Crustacia Egg (33%)","Salamander Egg (33%)","Snowy Owl Egg (32%)"],"Type":"multidropdown"},"Fast Delivery":{"Value":true,"Type":"toggle"},"Skip Owned Lab Eggs":{"Value":true,"Type":"toggle"},"Steal Priority":{"Value":"Highest Value","Type":"dropdown"},"Instant Steal V2":{"Value":false,"Type":"toggle"},"Instant Steal":{"Value":true,"Type":"toggle"},"Steal Missing Index Eggs":{"Value":true,"Type":"toggle"},"Min Steal Value":{"Value":700.11,"Type":"slider"},"Tween Speed":{"Value":120,"Type":"slider","Unit":"%"},"Stock Lab Eggs For":{"Value":[],"Type":"multidropdown"}},"Auto Sell":{"Egg Sell Value":{"Value":0,"Type":"slider"},"Sell Egg Rule":{"Value":"Rarity Only","Type":"dropdown"},"Auto Sell Egg":{"Value":false,"Type":"toggle"},"Blacklist Sell Eggs":{"Value":[],"Type":"multidropdown"},"Keep Mutated Eggs":{"Value":true,"Type":"toggle"},"Egg Max Rarity":{"Value":"3 - Rare","Type":"dropdown"},"Blacklist Sell Pets":{"Value":[],"Type":"multidropdown"},"Egg Sell Preview":{"Value":"Egg matches  -  0 eggs for $0","Type":"text"},"Auto Sell Pet":{"Value":true,"Type":"toggle"},"Pet Sell Value":{"Value":777.78,"Type":"slider"},"Pet Sell Preview":{"Value":"Pet matches  -  0 pets for $0","Type":"text"},"Keep Mutated Pets":{"Value":false,"Type":"toggle"},"Sell Pet Rule":{"Value":"Rarity Only","Type":"dropdown"},"Pet Max Rarity":{"Value":"8 - Secret","Type":"dropdown"}},"Auto Fuse Machine":{"Max Rarity to Fuse":{"Value":"6 - Mythic","Type":"dropdown"},"Skip Mutated Pets":{"Value":true,"Type":"toggle"},"Auto Fuse Machine":{"Value":true,"Type":"toggle"},"Specific Species to Fuse":{"Value":[],"Type":"multidropdown"},"Eject Incomplete Slots":{"Value":true,"Type":"toggle"},"Pets To Use":{"Value":"Lowest To Highest","Type":"dropdown"},"Fuse Priority Mode":{"Value":"Lowest Rarity First","Type":"dropdown"},"Fuse Preview":{"Value":"No three matching pets","Type":"text"}},"Auto Favorite":{"Favorite Mutations":{"Value":[],"Type":"multidropdown"},"Favorite Preview":{"Value":"Favorite matches  -  3 pets, 0 to mark  |  23 favorited","Type":"text"},"Favorite Min Rarity":{"Value":"10 - Divine","Type":"dropdown"},"Auto Favorite Equipped":{"Value":true,"Type":"toggle"},"Auto Favorite Pet":{"Value":true,"Type":"toggle"},"Always Favorite Species":{"Value":[],"Type":"multidropdown"},"Min Favorite Value":{"Value":797.34,"Type":"slider"},"Auto Unfavorite Equipped":{"Value":true,"Type":"toggle"},"Favorite Rule":{"Value":"Match All","Type":"dropdown"}},"Auto Treadmill":{"Stay On Treadmill":{"Value":true,"Type":"toggle"},"Auto Treadmill":{"Value":true,"Type":"toggle"}},"Auto Place Egg":{"Place Egg Rule":{"Value":"Always","Type":"dropdown"},"Place Rarities":{"Value":[],"Type":"multidropdown"},"Pen Status":{"Value":"Eggs placed 6/30  -  19/19 pets equipped, 2 in bag","Type":"text"},"Auto Place Egg":{"Value":true,"Type":"toggle"},"Place Egg Order":{"Value":"Highest Value","Type":"dropdown"},"Min Place Value":{"Value":0,"Type":"slider"},"Place Specific Eggs":{"Value":[],"Type":"multidropdown"}},"Wisp Companion":{"Auto Banjo Cricket":{"Value":true,"Type":"toggle"},"Auto Wisp":{"Value":true,"Type":"toggle"},"Wisp Status":{"Value":"Banjo Cricket: Done, Cricket's Banjo is yours","Type":"text"}},"Butterfly Bloom":{"Auto Butterfly Bloom":{"Value":true,"Type":"toggle"},"Trade Up Tiers":{"Value":["Emerald To Sapphire","Sapphire To Amethyst","Amethyst To Radiant"],"Type":"multidropdown"},"Auto Craft Essence":{"Value":true,"Type":"toggle"},"Auto Trade Up":{"Value":true,"Type":"toggle"},"Catch Priority":{"Value":"Rarest","Type":"dropdown"},"Tween Speed  ":{"Value":600,"Type":"slider","Unit":"studs/s"},"Catch Mode":{"Value":"Stand","Type":"dropdown"},"Catch Butterflies":{"Value":["Radiant Butterfly","Amethyst Butterfly","Sapphire Butterfly","Emerald Butterfly"],"Type":"multidropdown"},"Smart Trade For Essence":{"Value":true,"Type":"toggle"}},"Racing Event":{"Race Speed":{"Value":400,"Type":"slider"},"Auto Race":{"Value":true,"Type":"toggle"},"Race Shop Items":{"Value":["Nitro Mutation"],"Type":"multidropdown"},"Auto Equip Racer":{"Value":true,"Type":"toggle"},"Auto Buy Race Shop":{"Value":true,"Type":"toggle"},"Auto Claim Race Rewards":{"Value":true,"Type":"toggle"},"Auto Use Power-Ups":{"Value":true,"Type":"toggle"},"Racer":{"Value":"Best Owned","Type":"dropdown"}},"Auto Mutation":{"Mutate Priority":{"Value":"Highest Value","Type":"dropdown"},"Mutations To Use":{"Value":["Fractured","Scrambled","Enchanted","Nitro"],"Type":"multidropdown"},"Mutate Target Eggs":{"Value":[],"Type":"multidropdown"},"Mutate Min Value":{"Value":797.34,"Type":"slider"},"Auto Mutate":{"Value":true,"Type":"toggle"},"Mutate Status":{"Value":"Waiting  |  No egg to mutate","Type":"text"},"Auto Buy Nitro":{"Value":true,"Type":"toggle"},"Mutate Min Rarity":{"Value":"Secret","Type":"dropdown"}},"Auto Sell Lab Egg":{"Lab Egg Sell Value":{"Value":700.11,"Type":"slider"},"Sell Lab Egg Rule":{"Value":"Rarity And Value","Type":"dropdown"},"Lab Egg Max Rarity":{"Value":"Off","Type":"dropdown"},"Auto Sell Lab Egg":{"Value":true,"Type":"toggle"},"Lab Egg Sell Preview":{"Value":"Lab egg matches  -  0 eggs for $0","Type":"text"},"Keep Lab Pets":{"Value":[],"Type":"multidropdown"},"Keep Mutated Lab Eggs":{"Value":true,"Type":"toggle"}},"Auto Hatch & Equip":{"Hatch Specific Eggs":{"Value":[],"Type":"multidropdown"},"Auto Hatch":{"Value":true,"Type":"toggle"},"Hatch Min Rarity":{"Value":"Any","Type":"dropdown"},"Min Hatch Value":{"Value":0,"Type":"slider"},"Auto Equip Best":{"Value":true,"Type":"toggle"}},"Dr Scramble Lab":{"Lab Banners":{"Value":[],"Type":"multidropdown"},"Lab Status":{"Value":"Experimental Pets  -  needs Salamander, Red Panda, Bladehide  -  pity 67/100  -  free rerolls 0  -  rotates in 55:13  -  Need a Bladehide egg, yours is placed on a nest","Type":"text"},"Auto Place Lab Reward Eggs":{"Value":true,"Type":"toggle"},"Auto Reroll Lab Recipe":{"Value":true,"Type":"toggle"},"Auto Lab Trade-In":{"Value":true,"Type":"toggle"}},"Shooting Star":{"Auto Catch Shooting Star":{"Value":true,"Type":"toggle"},"Shooting Star Status":{"Value":"Waiting for a shooting star","Type":"text"}}},"Misc":{"Performance":{"Optimizer":{"Value":false,"Type":"toggle"},"Farm HUD":{"Value":false,"Type":"toggle"},"Background Color":{"Value":"White","Type":"dropdown"},"Egg Card Image":{"Value":"Egg Image","Type":"dropdown"},"Disable 3D Render":{"Value":false,"Type":"toggle"},"FPS and Ping":{"Value":true,"Type":"toggle"},"FPS Cap":{"Value":240,"Type":"slider","Unit":" FPS"},"HUD Size":{"Value":70,"Type":"slider","Unit":"%"},"Showcase Cards":{"Value":4,"Type":"slider"},"Hide Game UI":{"Value":true,"Type":"toggle"},"HUD Items":{"Value":["Money","Income","Speed","Treadmill","Eggs Stolen","Best Steal","Night Timer","Session Time","Activity","Racing Event","Race Wins","Shooting Star","Pets","Eggs","Top Pets","Top Eggs","Steal History"],"Type":"multidropdown"},"FPS and Ping Size":{"Value":100,"Type":"slider","Unit":"%"}},"Utility":{"Anti AFK":{"Value":true,"Type":"toggle"}}},"Server":{"Server":{"Server Hop Mode":{"Value":"Least Players","Type":"dropdown"},"Auto Load Script":{"Value":true,"Type":"toggle"},"Auto Rejoin When Disconnect":{"Value":true,"Type":"toggle"}}}},"SavedAt":1791691486},"Format":"ChilliLibraryConfig","ExportVersion":1,"Name":"main"}]===]
+local RAW_CONFIG_JSON = [===[{"Config":{"Profile":"main","Version":2,"States":{"Farm HUD Stealing Position":{"Value":[]},"Quick Panel Collapsed":{"Value":{"1":true}},"Quick Keybinds":{"Value":{"Player > Movement > Speed Boost":"Q"}},"Farm HUD World Position":{"Value":[]},"Farm HUD Stolen Eggs":{"Value":{"History":[{"At":1791707562,"Name":"Parrotfish Egg","Category":"Parrotfish","Scale":0.9196704573013789,"Rarity":"Rare","Value":659.493259982963}],"Count":1,"Best":{"Category":"Parrotfish","Name":"Parrotfish Egg","Rarity":"Rare","Rank":3}}},"Farm HUD Top Eggs Position":{"Value":[]},"Anti Guard Enabled":{"Value":false},"Farm HUD Steal History Position":{"Value":[]},"Quick Pinned Features":{"Value":["Player > Movement > Speed Boost","Player > Movement > Boost Speed"]},"Open On Launch":{"Value":true},"Quick Panel Position":{"Value":{"1":{"Y":0.32634490728378298,"X":0.8134856224060059}}},"Notifications":{"Value":true},"Farm HUD Top Pets Position":{"Value":[]},"Quick Open Key":{"Value":"LeftControl"},"FPS and Ping Position":{"Value":{"XOffset":16,"XScale":0,"YScale":0,"YOffset":47}},"Farm HUD Status Position":{"Value":[]},"Farm HUD Events Position":{"Value":[]},"Steal Panel Open":{"Value":false},"Quick LeftCenter Hidden":{"Value":true},"Farm HUD Economy Position":{"Value":[]},"Quick Pin Groups":{"Value":[]},"Farm HUD Collection Position":{"Value":[]}},"Values":{"Admin Abuse":{"Minigame Eggs":{"Auto Steal Minigame Egg":{"Value":true,"Type":"toggle"}},"Instant Steal V3":{"Instant Steal V3 Note":{"Value":"Needs Admin Treadmill","Type":"text"},"Instant Steal V3":{"Value":false,"Type":"toggle"}},"Admin Treadmill":{"Auto Use Admin Treadmill":{"Value":true,"Type":"toggle"}},"Capture The Egg":{"Hold Height":{"Value":45,"Type":"slider","Unit":"studs"},"Auto Capture Event Egg":{"Value":false,"Type":"toggle"},"Keep Away Distance":{"Value":45,"Type":"slider","Unit":"studs"},"Take It From The Holder":{"Value":true,"Type":"toggle"}}},"Predictor":{"Egg Predictor":{"Sort By":{"Value":"Value","Type":"dropdown"},"Preview Card":{"Value":true,"Type":"toggle"}},"Discord Webhook":{"Webhook URL":{"Value":"","Type":"input"},"Notify Fused Eggs":{"Value":false,"Type":"toggle"},"Notify Stolen Eggs":{"Value":false,"Type":"toggle"},"Webhook Min Rarity":{"Value":"Any","Type":"dropdown"},"Webhook Eggs":{"Value":[],"Type":"multidropdown"},"Webhook Min Value":{"Value":0,"Type":"slider"},"Ping @everyone":{"Value":false,"Type":"toggle"}}},"Progress":{"Auto Progression":{"Auto Buy Trail":{"Value":true,"Type":"toggle"},"Auto Claim Index":{"Value":true,"Type":"toggle"},"Auto Upgrade Treadmill":{"Value":true,"Type":"toggle"},"Auto Claim":{"Value":true,"Type":"toggle"},"Auto Upgrade Base":{"Value":true,"Type":"toggle"}}},"Quick":{"Pin Pad":{"Pad Size":{"Value":150,"Type":"slider","Unit":"%"},"Enable Keybinds":{"Value":true,"Type":"toggle"},"Show Pin Pads":{"Value":true,"Type":"toggle"},"Visible Quick Bars":{"Value":["Quick Bar 1","Quick Bar 2","Quick Bar 3","Quick Bar 4","Quick Bar 5"],"Type":"multidropdown"}}},"Auto Hop":{"Egg Finder":{"Hop Mode":{"Value":"Steal Then Hop","Type":"dropdown"},"Min Rarity":{"Value":"Secret","Type":"dropdown"},"Rarity To Wait For":{"Value":"Cosmic","Type":"dropdown"},"First Hop Delay":{"Value":5,"Type":"slider","Unit":"s"},"Sync With Auto Steal Filters":{"Value":true,"Type":"toggle"},"Target Specific Eggs":{"Value":[],"Type":"multidropdown"},"Min Value To Find":{"Value":700.11,"Type":"slider"},"Auto Hop":{"Value":false,"Type":"toggle"},"Target Areas":{"Value":["Cherry Blossom","Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"}}},"Player":{"ESP":{"ESP Eggs":{"Value":true,"Type":"toggle"},"ESP Show Info":{"Value":["Icon","Name","Value"],"Type":"multidropdown"},"ESP Guard Size":{"Value":75,"Type":"slider","Unit":"%"},"ESP Player Info":{"Value":["Name","Tool"],"Type":"multidropdown"},"ESP Other Base Eggs":{"Value":false,"Type":"toggle"},"ESP Min Rarity":{"Value":"7 - Cosmic","Type":"dropdown"},"ESP Guards":{"Value":true,"Type":"toggle"},"Min ESP Value":{"Value":0,"Type":"slider"},"ESP Player Size":{"Value":75,"Type":"slider","Unit":"%"},"ESP Players":{"Value":true,"Type":"toggle"},"ESP Own Base Eggs":{"Value":true,"Type":"toggle"},"ESP Fixed Size":{"Value":false,"Type":"toggle"},"ESP Egg Size":{"Value":75,"Type":"slider","Unit":"%"}},"Character":{"Instant Prompts":{"Value":true,"Type":"toggle"},"Anti Ragdoll":{"Value":true,"Type":"toggle"},"Anti Trap":{"Value":true,"Type":"toggle"},"Invisibility":{"Value":false,"Type":"toggle"}},"Movement":{"Speed Boost":{"Value":false,"Type":"toggle"},"Boost Speed":{"Value":1000,"Type":"slider","Unit":"studs/s"},"Infinite Jump":{"Value":false,"Type":"toggle"}},"Combat":{"Auto Hit Egg Holders":{"Value":false,"Type":"toggle"},"Hit Max Speed":{"Value":750,"Type":"slider","Unit":"studs/s"},"Auto Hit Nearest Player":{"Value":false,"Type":"toggle"},"Hit Player":{"Value":"crs_st","Type":"dropdown"},"Hit Lead":{"Value":-275,"Type":"slider"},"Hit Tween Speed":{"Value":400,"Type":"slider","Unit":"studs/s"},"Hit Sweep":{"Value":60,"Type":"slider","Unit":"%"},"Chase Settings":{"Value":"Cài Đặt Đuổi Đánh","Type":"label"},"Auto Hit Specific Player":{"Value":false,"Type":"toggle"},"Hit Aura":{"Value":true,"Type":"toggle"},"Hit Status":{"Value":"Aura ready, nobody in reach","Type":"text"}}},"Settings":{"Interface":{"UI Size":{"Value":100,"Type":"slider","Unit":"%"}}},"Farm":{"Auto Steal":{"Drop Eggs At Safe Zone":{"Value":false,"Type":"toggle"},"Target Specific Eggs":{"Value":[],"Type":"multidropdown"},"Biohazard Lab Eggs":{"Value":["Red Panda Egg (43%)","Snowy Owl Egg (40%)","Salamander Egg (38%)"],"Type":"multidropdown"},"Anti Guard Panel":{"Value":true,"Type":"toggle"},"Steal Missing Lab Eggs":{"Value":false,"Type":"toggle"},"Instant Steal Steps":{"Value":2,"Type":"slider"},"Instant Steal Zones":{"Value":["Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"},"Target Areas":{"Value":["Cherry Blossom","Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"},"Unstable DNA Lab Eggs":{"Value":["Toro Egg (24%)","Winged Lamb Egg (23%)","Bladehide Egg (23%)","Imp Egg (22%)","Crustacia Egg (22%)"],"Type":"multidropdown"},"Stock Per Egg":{"Value":3,"Type":"slider","Unit":""},"Auto Steal":{"Value":true,"Type":"toggle"},"Min Rarity":{"Value":"Secret","Type":"dropdown"},"Teleport To Egg":{"Value":true,"Type":"toggle"},"Carry Speed":{"Value":120,"Type":"slider","Unit":"%"},"Experimental Lab Eggs":{"Value":["Bladehide Egg (34%)","Red Panda Egg (34%)","Crustacia Egg (33%)","Salamander Egg (33%)","Snowy Owl Egg (32%)"],"Type":"multidropdown"},"Fast Delivery":{"Value":true,"Type":"toggle"},"Skip Owned Lab Eggs":{"Value":true,"Type":"toggle"},"Steal Priority":{"Value":"Highest Value","Type":"dropdown"},"Instant Steal V2":{"Value":true,"Type":"toggle"},"Instant Steal":{"Value":false,"Type":"toggle"},"Steal Missing Index Eggs":{"Value":false,"Type":"toggle"},"Min Steal Value":{"Value":700.11,"Type":"slider"},"Tween Speed":{"Value":120,"Type":"slider","Unit":"%"},"Stock Lab Eggs For":{"Value":[],"Type":"multidropdown"}},"Auto Sell":{"Egg Sell Value":{"Value":0,"Type":"slider"},"Sell Egg Rule":{"Value":"Rarity Only","Type":"dropdown"},"Auto Sell Egg":{"Value":false,"Type":"toggle"},"Blacklist Sell Eggs":{"Value":[],"Type":"multidropdown"},"Keep Mutated Eggs":{"Value":true,"Type":"toggle"},"Egg Max Rarity":{"Value":"3 - Rare","Type":"dropdown"},"Blacklist Sell Pets":{"Value":[],"Type":"multidropdown"},"Egg Sell Preview":{"Value":"Egg matches  -  0 eggs for $0","Type":"text"},"Auto Sell Pet":{"Value":true,"Type":"toggle"},"Pet Sell Value":{"Value":777.78,"Type":"slider"},"Pet Sell Preview":{"Value":"Pet matches  -  0 pets for $0","Type":"text"},"Keep Mutated Pets":{"Value":false,"Type":"toggle"},"Sell Pet Rule":{"Value":"Rarity Only","Type":"dropdown"},"Pet Max Rarity":{"Value":"8 - Secret","Type":"dropdown"}},"Auto Fuse Machine":{"Max Rarity to Fuse":{"Value":"6 - Mythic","Type":"dropdown"},"Skip Mutated Pets":{"Value":true,"Type":"toggle"},"Auto Fuse Machine":{"Value":true,"Type":"toggle"},"Specific Species to Fuse":{"Value":[],"Type":"multidropdown"},"Eject Incomplete Slots":{"Value":true,"Type":"toggle"},"Pets To Use":{"Value":"Lowest To Highest","Type":"dropdown"},"Fuse Priority Mode":{"Value":"Lowest Rarity First","Type":"dropdown"},"Fuse Preview":{"Value":"No three matching pets","Type":"text"}},"Auto Favorite":{"Favorite Mutations":{"Value":[],"Type":"multidropdown"},"Favorite Preview":{"Value":"Favorite matches  -  0 pets, 0 to mark  |  18 favorited","Type":"text"},"Favorite Min Rarity":{"Value":"10 - Divine","Type":"dropdown"},"Auto Favorite Equipped":{"Value":true,"Type":"toggle"},"Auto Favorite Pet":{"Value":true,"Type":"toggle"},"Always Favorite Species":{"Value":[],"Type":"multidropdown"},"Min Favorite Value":{"Value":797.34,"Type":"slider"},"Auto Unfavorite Equipped":{"Value":true,"Type":"toggle"},"Favorite Rule":{"Value":"Match All","Type":"dropdown"}},"Auto Treadmill":{"Stay On Treadmill":{"Value":true,"Type":"toggle"},"Auto Treadmill":{"Value":true,"Type":"toggle"}},"Auto Place Egg":{"Place Egg Rule":{"Value":"Always","Type":"dropdown"},"Place Rarities":{"Value":[],"Type":"multidropdown"},"Pen Status":{"Value":"Eggs placed 26/30  -  18/18 pets equipped, 1 in bag","Type":"text"},"Auto Place Egg":{"Value":true,"Type":"toggle"},"Place Egg Order":{"Value":"Highest Value","Type":"dropdown"},"Min Place Value":{"Value":0,"Type":"slider"},"Place Specific Eggs":{"Value":[],"Type":"multidropdown"}},"Wisp Companion":{"Auto Banjo Cricket":{"Value":true,"Type":"toggle"},"Auto Wisp":{"Value":true,"Type":"toggle"},"Wisp Status":{"Value":"Needs 50B Speed Power to meet the Wisp (you have 0.92B)","Type":"text"}},"Butterfly Bloom":{"Auto Butterfly Bloom":{"Value":true,"Type":"toggle"},"Trade Up Tiers":{"Value":["Emerald To Sapphire","Sapphire To Amethyst","Amethyst To Radiant"],"Type":"multidropdown"},"Auto Craft Essence":{"Value":true,"Type":"toggle"},"Auto Trade Up":{"Value":true,"Type":"toggle"},"Catch Priority":{"Value":"Rarest","Type":"dropdown"},"Tween Speed  ":{"Value":600,"Type":"slider","Unit":"studs/s"},"Catch Mode":{"Value":"Chase","Type":"dropdown"},"Catch Butterflies":{"Value":["Radiant Butterfly","Amethyst Butterfly","Sapphire Butterfly","Emerald Butterfly"],"Type":"multidropdown"},"Smart Trade For Essence":{"Value":true,"Type":"toggle"}},"Racing Event":{"Race Speed":{"Value":400,"Type":"slider"},"Auto Race":{"Value":true,"Type":"toggle"},"Race Shop Items":{"Value":["Nitro Mutation"],"Type":"multidropdown"},"Auto Equip Racer":{"Value":true,"Type":"toggle"},"Auto Buy Race Shop":{"Value":true,"Type":"toggle"},"Auto Claim Race Rewards":{"Value":true,"Type":"toggle"},"Auto Use Power-Ups":{"Value":true,"Type":"toggle"},"Racer":{"Value":"Best Owned","Type":"dropdown"}},"Auto Mutation":{"Mutate Priority":{"Value":"Highest Value","Type":"dropdown"},"Mutations To Use":{"Value":["Fractured","Scrambled","Enchanted","Nitro"],"Type":"multidropdown"},"Mutate Target Eggs":{"Value":[],"Type":"multidropdown"},"Mutate Min Value":{"Value":797.34,"Type":"slider"},"Auto Mutate":{"Value":true,"Type":"toggle"},"Mutate Status":{"Value":"Waiting  |  No egg to mutate","Type":"text"},"Auto Buy Nitro":{"Value":true,"Type":"toggle"},"Mutate Min Rarity":{"Value":"Secret","Type":"dropdown"}},"Auto Sell Lab Egg":{"Lab Egg Sell Value":{"Value":700.11,"Type":"slider"},"Sell Lab Egg Rule":{"Value":"Rarity And Value","Type":"dropdown"},"Lab Egg Max Rarity":{"Value":"Off","Type":"dropdown"},"Auto Sell Lab Egg":{"Value":true,"Type":"toggle"},"Lab Egg Sell Preview":{"Value":"Lab egg matches  -  0 eggs for $0","Type":"text"},"Keep Lab Pets":{"Value":[],"Type":"multidropdown"},"Keep Mutated Lab Eggs":{"Value":true,"Type":"toggle"}},"Auto Hatch & Equip":{"Hatch Specific Eggs":{"Value":[],"Type":"multidropdown"},"Auto Hatch":{"Value":true,"Type":"toggle"},"Hatch Min Rarity":{"Value":"Any","Type":"dropdown"},"Min Hatch Value":{"Value":0,"Type":"slider"},"Auto Equip Best":{"Value":true,"Type":"toggle"}},"Dr Scramble Lab":{"Lab Banners":{"Value":[],"Type":"multidropdown"},"Lab Status":{"Value":"Experimental Pets  -  needs Crustacia, Salamander, Red Panda  -  pity 0/100  -  free rerolls 0  -  rotates in 25:48  -  Need a Crustacia egg","Type":"text"},"Auto Place Lab Reward Eggs":{"Value":true,"Type":"toggle"},"Auto Reroll Lab Recipe":{"Value":true,"Type":"toggle"},"Auto Lab Trade-In":{"Value":true,"Type":"toggle"}},"Shooting Star":{"Auto Catch Shooting Star":{"Value":true,"Type":"toggle"},"Shooting Star Status":{"Value":"Waiting for a shooting star","Type":"text"}}},"Misc":{"Performance":{"Optimizer":{"Value":true,"Type":"toggle"},"Farm HUD":{"Value":false,"Type":"toggle"},"Background Color":{"Value":"White","Type":"dropdown"},"Egg Card Image":{"Value":"Egg Image","Type":"dropdown"},"Disable 3D Render":{"Value":false,"Type":"toggle"},"FPS and Ping":{"Value":true,"Type":"toggle"},"FPS Cap":{"Value":240,"Type":"slider","Unit":" FPS"},"HUD Size":{"Value":70,"Type":"slider","Unit":"%"},"Showcase Cards":{"Value":4,"Type":"slider"},"Hide Game UI":{"Value":true,"Type":"toggle"},"HUD Items":{"Value":["Money","Income","Speed","Treadmill","Eggs Stolen","Best Steal","Night Timer","Session Time","Activity","Racing Event","Race Wins","Shooting Star","Pets","Eggs","Top Pets","Top Eggs","Steal History"],"Type":"multidropdown"},"FPS and Ping Size":{"Value":100,"Type":"slider","Unit":"%"}},"Utility":{"Anti AFK":{"Value":true,"Type":"toggle"}}},"Server":{"Server":{"Server Hop Mode":{"Value":"Least Players","Type":"dropdown"},"Auto Load Script":{"Value":true,"Type":"toggle"},"Auto Rejoin When Disconnect":{"Value":true,"Type":"toggle"}}}},"SavedAt":1791707652},"Format":"ChilliLibraryConfig","ExportVersion":1,"Name":"main"}]===]
 
 -- ==================== 3. TỪ ĐIỂN DỊCH THUẬT MASTER 100% ====================
 local currentLanguage = "VI"
 local FastCache = {}
 local switchGlobalLanguage = nil
-local updateAutoFarmCardLanguage = nil
+local updateIslandContentLanguage = nil
 
 local function replaceAll(str, findStr, replaceStr)
     local startIdx, endIdx = str:find(findStr, 1, true)
@@ -133,7 +133,7 @@ local MAP_VI = {
     ["Filter features..."] = "Lọc tính năng...",
     ["Search"] = "Tìm kiếm",
 
-    -- DANH MỤC LỚN TAB FARM
+    -- DANH MỤC TAB FARM
     ["Racing Event"] = "Sự Kiện Đua Xe",
     ["Shooting Star"] = "Sao Băng Rơi",
     ["Dr Scramble Lab & Mech"] = "Phòng Lab & Robot Scramble",
@@ -152,7 +152,7 @@ local MAP_VI = {
     ["Auto Fuse Machine"] = "Máy Dung Hợp Pet",
     ["Auto Favorite"] = "Tự Động Khóa Pet",
 
-    -- CHI TIẾT RACING & SHOOTING STAR
+    -- CHI TIẾT TÍNH NĂNG
     ["Race Speed"] = "Tốc Độ Đua",
     ["Auto Race"] = "Tự Động Đua Xe",
     ["Race Shop Items"] = "Vật Phẩm Shop Đua",
@@ -167,7 +167,6 @@ local MAP_VI = {
     ["Shooting Star Status"] = "Trạng Thái Sao Băng",
     ["Waiting for a shooting star"] = "Đang chờ sao băng rơi",
 
-    -- CHI TIẾT AUTO MUTATION
     ["Mutate Priority"] = "Ưu Tiên Đột Biến",
     ["Mutations To Use"] = "Loại Đột Biến Dùng",
     ["Mutate Target Eggs"] = "Mục Tiêu Trứng Đột Biến",
@@ -177,7 +176,6 @@ local MAP_VI = {
     ["Auto Buy Nitro"] = "Tự Mua Nitro",
     ["Mutate Min Rarity"] = "Độ Hiếm Đột Biến Min",
 
-    -- CHI TIẾT AUTO STEAL
     ["Target Areas"] = "Khu Vực Mục Tiêu",
     ["Min Rarity"] = "Độ Hiếm Min",
     ["Steal eggs of the chosen rarity and every rarity above it"] = "Cướp trứng thuộc độ hiếm đã chọn và cao hơn",
@@ -197,7 +195,6 @@ local MAP_VI = {
     ["Instant Steal Steps"] = "Số Bước Cướp Siêu Tốc",
     ["Higher is safer but takes longer"] = "Càng nhiều bước càng an toàn nhưng bay chậm hơn",
 
-    -- CHI TIẾT AUTO PLACE EGG & TREADMILL
     ["Place Egg Rule"] = "Quy Tắc Đặt Trứng",
     ["Place Egg Order"] = "Thứ Tự Đặt Trứng",
     ["Place Rarities"] = "Độ Hiếm Đặt Trứng",
@@ -208,7 +205,6 @@ local MAP_VI = {
     ["Skip eggs worth less than this (0 = off)"] = "Bỏ qua trứng giá nhỏ hơn mức này (0 = tắt)",
     ["Stay On Treadmill"] = "Luôn Ở Trên Máy Tập",
 
-    -- CHI TIẾT AUTO HATCH & EQUIP
     ["Auto Hatch"] = "Tự Động Ấp Trứng",
     ["Hatch Min Rarity"] = "Độ Hiếm Ấp Min",
     ["Hatch eggs of the chosen rarity and every rarity above it"] = "Ấp trứng từ độ hiếm đã chọn trở lên",
@@ -217,7 +213,6 @@ local MAP_VI = {
     ["Auto Equip Best"] = "Tự Trang Bị Pet Tốt Nhất",
     ["Equip Best when a better pet appears"] = "Tự trang bị khi xuất hiện pet mạnh hơn",
 
-    -- BÁN PET & BÁN TRỨNG
     ["Sell Pets Now"] = "Bán Pet Ngay",
     ["Sell matching pets once"] = "Bán một lần các pet khớp điều kiện",
     ["Sell Pet Rule"] = "Quy Tắc Bán Pet",
@@ -242,7 +237,6 @@ local MAP_VI = {
     ["Keep Mutated Lab Eggs"] = "Giữ Lại Trứng Lab Đột Biến",
     ["Keep Lab Pets"] = "Giữ Lại Pet Lab",
 
-    -- DUNG HỢP & KHÓA
     ["No three matching pets"] = "Không đủ 3 pet trùng khớp",
     ["Fuse 3 same pets into an egg, nonstop"] = "Dung hợp 3 pet cùng loại thành 1 trứng liên tục",
     ["Fuse Priority Mode"] = "Chế Độ Ưu Tiên Dung Hợp",
@@ -261,7 +255,6 @@ local MAP_VI = {
     ["Auto Favorite Equipped"] = "Tự Khóa Pet Đang Dùng",
     ["Auto Unfavorite Equipped"] = "Tự Bỏ Khóa Pet Đang Dùng",
 
-    -- BƯỚM & WISP
     ["Auto Butterfly Bloom"] = "Tự Động Bắt Bướm",
     ["Catch Mode"] = "Chế Độ Bắt",
     ["Catch Priority"] = "Ưu Tiên Bắt",
@@ -279,7 +272,6 @@ local MAP_VI = {
     ["Auto Wisp"] = "Tự Động Nhặt Wisp",
     ["Auto Banjo Cricket"] = "Tự Động Bắt Dế Banjo",
 
-    -- NHÂN VẬT, COMBAT, ESP
     ["Chase Settings"] = "Cài Đặt Đuổi Đánh",
     ["Hit Tween Speed"] = "Tốc Độ Bay Đánh",
     ["Hit Max Speed"] = "Tốc Độ Đánh Tối Đa",
@@ -302,7 +294,6 @@ local MAP_VI = {
     ["ESP Lost Parts"] = "ESP Phụ Tùng Rơi",
     ["ESP Players"] = "ESP Người Chơi",
 
-    -- TIẾN TRÌNH & MÁY CHỦ & CẤU HÌNH
     ["Auto Buy Trail"] = "Tự Mua Vệt Sáng (Trail)",
     ["Auto Upgrade Base"] = "Tự Nâng Cấp Căn Cứ",
     ["Auto Upgrade Treadmill"] = "Tự Nâng Cấp Máy Tập",
@@ -349,19 +340,7 @@ local SortedVI = {}
 for en, vi in pairs(MAP_VI) do table.insert(SortedVI, {en = en, out = vi, len = #en}) end
 table.sort(SortedVI, function(a, b) return a.len > b.len end)
 
--- Thuật toán bóc tách tiền tố động: Nhận diện '> ', 'v ', '∨ ', '[Q] '
-local function extractPrefix(str)
-    local prefix, core = str:match("^([%s%>%v%∨%*%-]+)(.+)$")
-    if prefix and core then
-        return prefix, core
-    end
-    local keybindPrefix, coreKey = str:match("^(%[[%w%s]+%]%s*)(.+)$")
-    if keybindPrefix and coreKey then
-        return keybindPrefix, coreKey
-    end
-    return "", str
-end
-
+-- Thuật toán dịch chuỗi trực tiếp (Bảo toàn 100% tiền tố '>', 'v', '[Q]')
 local function translateText(raw)
     local cacheKey = currentLanguage .. "|" .. raw
     if FastCache[cacheKey] then return FastCache[cacheKey] end
@@ -372,18 +351,17 @@ local function translateText(raw)
         return res
     end
 
-    local prefix, coreText = extractPrefix(raw)
-    local trimmed = coreText:match("^%s*(.-)%s*$") or coreText
-
+    local trimmed = raw:match("^%s*(.-)%s*$") or raw
     if EXACT_MATCH_VI[trimmed] then
-        local res = prefix .. coreText:gsub(trimmed, EXACT_MATCH_VI[trimmed], 1)
+        local res = raw:gsub(trimmed, EXACT_MATCH_VI[trimmed], 1)
         FastCache[cacheKey] = res
         return res
     end
 
-    local result = coreText
+    local result = raw
     local matched = false
 
+    -- 1. Quét biểu thức động
     for _, item in ipairs(DYNAMIC_PATTERNS) do
         if result:find(item.pattern) then
             result = result:gsub(item.pattern, function(...)
@@ -393,6 +371,7 @@ local function translateText(raw)
         end
     end
 
+    -- 2. Thay thế toàn diện từ vựng
     for _, item in ipairs(SortedVI) do
         if result:find(item.en, 1, true) then
             result = replaceAll(result, item.en, item.out)
@@ -400,16 +379,15 @@ local function translateText(raw)
         end
     end
 
-    local finalOutput = matched and (prefix .. result) or raw
-    FastCache[cacheKey] = finalOutput
-    return finalOutput
+    FastCache[cacheKey] = matched and result or raw
+    return FastCache[cacheKey]
 end
 
 local TrackedElements = {}
 
 local function applyTranslation(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
-    if inst:FindFirstAncestor("Chilli_Liquid_Capsule") or inst:FindFirstAncestor("Chilli_AutoFarm_Widget") then return end
+    if inst:FindFirstAncestor("Chilli_Dynamic_Island") then return end
     if inst:GetAttribute("__IsTranslating") then return end
 
     local original = inst:GetAttribute("OriginalRawText")
@@ -541,7 +519,7 @@ end
 
 local function inspectAndApplySoftBlue(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton")) then return end
-    if inst:FindFirstAncestor("Chilli_Liquid_Capsule") or inst:FindFirstAncestor("Chilli_AutoFarm_Widget") then return end
+    if inst:FindFirstAncestor("Chilli_Dynamic_Island") then return end
 
     local textRaw = inst.Text:lower():match("^%s*(.-)%s*$") or ""
     if textRaw:find("chilli hub") then
@@ -602,7 +580,7 @@ local function executeAutoConfig(statusCallback)
         for _, root in ipairs(roots) do
             if root then
                 for _, g in ipairs(root:GetChildren()) do
-                    if g:IsA("ScreenGui") and g.Name ~= "Chilli_Liquid_Capsule" and g.Name ~= "Chilli_AutoFarm_Widget" then
+                    if g:IsA("ScreenGui") and g.Name ~= "Chilli_Dynamic_Island" then
                         for _, d in ipairs(g:GetDescendants()) do
                             if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Text:lower():find("chilli hub") then
                                 chilliGui = g; break
@@ -618,11 +596,11 @@ local function executeAutoConfig(statusCallback)
         if not chilliGui then
             statusCallback("❌ Ko thấy Hub", Color3.fromRGB(255, 90, 90))
             task.wait(2)
-            if updateAutoFarmCardLanguage then updateAutoFarmCardLanguage(currentLanguage) end
+            if updateIslandContentLanguage then updateIslandContentLanguage(currentLanguage) end
             isConfigInjecting = false; return
         end
 
-        -- 1. Bấm Tab Config
+        -- 1. Mở Tab Config
         local configTabElement = nil
         for _, d in ipairs(chilliGui:GetDescendants()) do
             if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Visible then
@@ -664,11 +642,11 @@ local function executeAutoConfig(statusCallback)
         if not importTextBox then
             statusCallback("❌ Ko thấy ô Import", Color3.fromRGB(255, 90, 90))
             task.wait(2)
-            if updateAutoFarmCardLanguage then updateAutoFarmCardLanguage(currentLanguage) end
+            if updateIslandContentLanguage then updateIslandContentLanguage(currentLanguage) end
             isConfigInjecting = false; return
         end
 
-        -- 3. Bơm dữ liệu JSON an toàn
+        -- 3. Bơm dữ liệu JSON
         importTextBox.Text = RAW_CONFIG_JSON
         task.wait(0.1)
 
@@ -693,7 +671,7 @@ local function executeAutoConfig(statusCallback)
         if not importBtnElement then
             statusCallback("❌ Ko thấy nút Import", Color3.fromRGB(255, 90, 90))
             task.wait(2)
-            if updateAutoFarmCardLanguage then updateAutoFarmCardLanguage(currentLanguage) end
+            if updateIslandContentLanguage then updateIslandContentLanguage(currentLanguage) end
             isConfigInjecting = false; return
         end
 
@@ -743,7 +721,7 @@ local function executeAutoConfig(statusCallback)
         if not mainProfileElement then
             statusCallback("❌ Ko có profile main", Color3.fromRGB(255, 90, 90))
             task.wait(2)
-            if updateAutoFarmCardLanguage then updateAutoFarmCardLanguage(currentLanguage) end
+            if updateIslandContentLanguage then updateIslandContentLanguage(currentLanguage) end
             isConfigInjecting = false; return
         end
 
@@ -764,7 +742,7 @@ local function executeAutoConfig(statusCallback)
         if not loadBtnElement then
             statusCallback("❌ Ko thấy nút Load", Color3.fromRGB(255, 90, 90))
             task.wait(2)
-            if updateAutoFarmCardLanguage then updateAutoFarmCardLanguage(currentLanguage) end
+            if updateIslandContentLanguage then updateIslandContentLanguage(currentLanguage) end
             isConfigInjecting = false; return
         end
 
@@ -777,288 +755,345 @@ local function executeAutoConfig(statusCallback)
 
         statusCallback("✔ ĐÃ NẠP XONG!", Color3.fromRGB(110, 245, 140))
         task.wait(2.2)
-        if updateAutoFarmCardLanguage then updateAutoFarmCardLanguage(currentLanguage) end
+        if updateIslandContentLanguage then updateIslandContentLanguage(currentLanguage) end
         isConfigInjecting = false
     end)
 end
 
--- ==================== 7. THẺ WIDGET 'SETTING AUTO FARM' (BILINGUAL A-Z) ====================
-local function createAutoFarmWidgetUI()
+-- ==================== 7. GIAO DIỆN DYNAMIC ISLAND CYBER (MORPHING WIDGET) ====================
+local function createDynamicIslandUI()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
-    local old = parentTarget:FindFirstChild("Chilli_AutoFarm_Widget")
-    if old then old:Destroy() end
+    local oldIsland = parentTarget:FindFirstChild("Chilli_Dynamic_Island")
+    if oldIsland then oldIsland:Destroy() end
 
     local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "Chilli_AutoFarm_Widget"
+    ScreenGui.Name = "Chilli_Dynamic_Island"
     ScreenGui.ResetOnSpawn = false
     ScreenGui.IgnoreGuiInset = true
     ScreenGui.DisplayOrder = 2147483647
     ScreenGui.Parent = parentTarget
 
-    -- Khung Card trung tâm bên phải (220px x 82px)
-    local Card = Instance.new("Frame")
-    Card.Name = "Card"
-    Card.Size = UDim2.new(0, 220, 0, 82)
-    Card.AnchorPoint = Vector2.new(0, 0)
-    Card.Position = UDim2.new(0.5, 96, 0, 10)
-    Card.BackgroundColor3 = Color3.fromRGB(12, 16, 24)
-    Card.BackgroundTransparency = 0.15
-    Card.BorderSizePixel = 0
-    Card.Parent = ScreenGui
+    local isExpanded = false
 
-    local CardCorner = Instance.new("UICorner")
-    CardCorner.CornerRadius = UDim.new(0, 10)
-    CardCorner.Parent = Card
+    -- Vỏ Dynamic Island (Obsidian Glass)
+    local Island = Instance.new("Frame")
+    Island.Name = "Island"
+    Island.Size = UDim2.new(0, 168, 0, 36)
+    Island.AnchorPoint = Vector2.new(0.5, 0)
+    Island.Position = UDim2.new(0.5, 0, 0, 10)
+    Island.BackgroundColor3 = Color3.fromRGB(8, 12, 18)
+    Island.BackgroundTransparency = 0.08
+    Island.BorderSizePixel = 0
+    Island.ClipsDescendants = true
+    Island.Parent = ScreenGui
 
-    local CardStroke = Instance.new("UIStroke")
-    CardStroke.Thickness = 1.3
-    CardStroke.Color = COLOR_FACE_TOP
-    CardStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    CardStroke.Parent = Card
+    local IslandCorner = Instance.new("UICorner")
+    IslandCorner.CornerRadius = UDim.new(1, 0)
+    IslandCorner.Parent = Island
 
-    -- Nút bấm Setting Auto Farm trên cùng
-    local ActionBtn = Instance.new("TextButton")
-    ActionBtn.Name = "ActionBtn"
-    ActionBtn.Size = UDim2.new(1, -8, 0, 28)
-    ActionBtn.Position = UDim2.new(0, 4, 0, 4)
-    ActionBtn.BackgroundColor3 = COLOR_FACE_BOTTOM
-    ActionBtn.BorderSizePixel = 0
-    ActionBtn.Text = "⚙️ SETTING AUTO FARM"
-    ActionBtn.Font = Enum.Font.GothamBold
-    ActionBtn.TextSize = 11
-    ActionBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    ActionBtn.Parent = Card
+    local IslandStroke = Instance.new("UIStroke")
+    IslandStroke.Thickness = 1.4
+    IslandStroke.Color = COLOR_FACE_TOP
+    IslandStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    IslandStroke.Parent = Island
 
-    local BtnCorner = Instance.new("UICorner")
-    BtnCorner.CornerRadius = UDim.new(0, 7)
-    BtnCorner.Parent = ActionBtn
+    -- ========== 1. VIEW THU GỌN (COLLAPSED VIEW) ==========
+    local CollapsedView = Instance.new("TextButton")
+    CollapsedView.Name = "CollapsedView"
+    CollapsedView.Size = UDim2.new(1, 0, 0, 36)
+    CollapsedView.BackgroundTransparency = 1
+    CollapsedView.Text = ""
+    CollapsedView.Parent = Island
 
-    local BtnGradient = Instance.new("UIGradient")
-    BtnGradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, COLOR_FACE_TOP),
-        ColorSequenceKeypoint.new(1, COLOR_FACE_BOTTOM)
-    })
-    BtnGradient.Rotation = 90
-    BtnGradient.Parent = ActionBtn
+    local DotStatus = Instance.new("Frame")
+    DotStatus.Size = UDim2.new(0, 7, 0, 7)
+    DotStatus.Position = UDim2.new(0, 14, 0.5, -3)
+    DotStatus.BackgroundColor3 = Color3.fromRGB(90, 240, 140)
+    DotStatus.BorderSizePixel = 0
+    DotStatus.Parent = CollapsedView
 
-    -- Khung văn bản nhỏ bên dưới mô tả A-Z
-    local SubLabel = Instance.new("TextLabel")
-    SubLabel.Name = "SubLabel"
-    SubLabel.Size = UDim2.new(1, -12, 0, 46)
-    SubLabel.Position = UDim2.new(0, 6, 0, 34)
-    SubLabel.BackgroundTransparency = 1
-    SubLabel.Font = Enum.Font.GothamMedium
-    SubLabel.TextSize = 8.5
-    SubLabel.TextColor3 = Color3.fromRGB(175, 205, 240)
-    SubLabel.TextXAlignment = Enum.TextXAlignment.Left
-    SubLabel.TextYAlignment = Enum.TextYAlignment.Top
-    SubLabel.TextWrapped = true
-    SubLabel.Text = "• Tự động làm từ A-Z\n• Nhặt trứng trên Secret 2B+\n• Chạy máy tập khi rảnh & làm nhiệm vụ, event..."
-    SubLabel.Parent = Card
+    local DotCorner = Instance.new("UICorner")
+    DotCorner.CornerRadius = UDim.new(1, 0)
+    DotCorner.Parent = DotStatus
 
-    -- Hàm cập nhật ngôn ngữ động cho Thẻ Auto Farm
-    updateAutoFarmCardLanguage = function(lang)
-        if lang == "VI" then
-            ActionBtn.Text = "⚙️ SETTING AUTO FARM"
-            ActionBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-            SubLabel.Text = "• Tự động làm từ A-Z\n• Nhặt trứng trên Secret 2B+\n• Chạy máy tập khi rảnh & làm nhiệm vụ, event..."
-        else
-            ActionBtn.Text = "⚙️ SETTING AUTO FARM"
-            ActionBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-            SubLabel.Text = "• Automated from A to Z\n• Steal Secret eggs 2B+\n• Run treadmill when idle, auto quests & events..."
-        end
-    end
+    local IslandTitle = Instance.new("TextLabel")
+    IslandTitle.Size = UDim2.new(1, -55, 1, 0)
+    IslandTitle.Position = UDim2.new(0, 28, 0, 0)
+    IslandTitle.BackgroundTransparency = 1
+    IslandTitle.Text = "🌶️ Chilli Hub V2"
+    IslandTitle.Font = Enum.Font.GothamBold
+    IslandTitle.TextSize = 11
+    IslandTitle.TextColor3 = Color3.fromRGB(245, 250, 255)
+    IslandTitle.TextXAlignment = Enum.TextXAlignment.Left
+    IslandTitle.Parent = CollapsedView
 
-    local function updateStatus(txt, col)
-        ActionBtn.Text = txt
-        TweenService:Create(ActionBtn, TweenInfo.new(0.18), {TextColor3 = col}):Play()
-    end
+    local ChevronIcon = Instance.new("TextLabel")
+    ChevronIcon.Size = UDim2.new(0, 20, 1, 0)
+    ChevronIcon.Position = UDim2.new(1, -26, 0, 0)
+    ChevronIcon.BackgroundTransparency = 1
+    ChevronIcon.Text = "▼"
+    ChevronIcon.Font = Enum.Font.GothamBold
+    ChevronIcon.TextSize = 10
+    ChevronIcon.TextColor3 = Color3.fromRGB(150, 195, 245)
+    ChevronIcon.Parent = CollapsedView
 
-    ActionBtn.MouseButton1Click:Connect(function()
-        if isConfigInjecting then return end
-        TweenService:Create(Card, TweenInfo.new(0.08), {Size = UDim2.new(0, 214, 0, 78)}):Play()
-        task.delay(0.08, function()
-            TweenService:Create(Card, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 220, 0, 82)}):Play()
-        end)
-        executeAutoConfig(updateStatus)
-    end)
+    -- ========== 2. VIEW MỞ RỘNG (EXPANDED VIEW) ==========
+    local ExpandedView = Instance.new("Frame")
+    ExpandedView.Name = "ExpandedView"
+    ExpandedView.Size = UDim2.new(1, 0, 1, 0)
+    ExpandedView.BackgroundTransparency = 1
+    ExpandedView.Visible = false
+    ExpandedView.Parent = Island
 
-    -- Kéo thả tự do kèm hãm biên màn hình
-    local dragging, dragStart, startPos = false, nil, nil
-    Card.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            dragStart = input.Position
-            startPos = Card.Position
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then dragging = false end
-            end)
-        end
-    end)
+    -- Header mở rộng
+    local ExpHeader = Instance.new("Frame")
+    ExpHeader.Size = UDim2.new(1, 0, 0, 32)
+    ExpHeader.BackgroundTransparency = 1
+    ExpHeader.Parent = ExpandedView
 
-    Card.InputChanged:Connect(function(input)
-        if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragging then
-            local delta = input.Position - dragStart
-            local cam = workspace.CurrentCamera
-            local maxX = cam and cam.ViewportSize.X - 225 or 800
-            local maxY = cam and cam.ViewportSize.Y - 90 or 600
+    local ExpTitle = Instance.new("TextLabel")
+    ExpTitle.Size = UDim2.new(1, -50, 1, 0)
+    ExpTitle.Position = UDim2.new(0, 14, 0, 0)
+    ExpTitle.BackgroundTransparency = 1
+    ExpTitle.Text = "🌶️ Dynamic Cyber Island"
+    ExpTitle.Font = Enum.Font.GothamBold
+    ExpTitle.TextSize = 11
+    ExpTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    ExpTitle.TextXAlignment = Enum.TextXAlignment.Left
+    ExpTitle.Parent = ExpHeader
 
-            local newX = math.clamp(startPos.X.Offset + delta.X, -maxX / 2, maxX / 2)
-            local newY = math.clamp(startPos.Y.Offset + delta.Y, 0, maxY)
+    local CloseBtn = Instance.new("TextButton")
+    CloseBtn.Size = UDim2.new(0, 26, 0, 26)
+    CloseBtn.Position = UDim2.new(1, -34, 0, 3)
+    CloseBtn.BackgroundColor3 = Color3.fromRGB(25, 32, 48)
+    CloseBtn.Text = "▲"
+    CloseBtn.Font = Enum.Font.GothamBold
+    CloseBtn.TextSize = 11
+    CloseBtn.TextColor3 = Color3.fromRGB(150, 200, 255)
+    CloseBtn.Parent = ExpHeader
 
-            Card.Position = UDim2.new(startPos.X.Scale, newX, startPos.Y.Scale, newY)
-        end
-    end)
-end
+    local CloseCorner = Instance.new("UICorner")
+    CloseCorner.CornerRadius = UDim.new(1, 0)
+    CloseCorner.Parent = CloseBtn
 
--- ==================== 8. GIAO DIỆN NÚT NGÔN NGỮ (TOP-CENTER TRÁI) ====================
-local function createLiquidCapsuleUI()
-    local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
-    local old = parentTarget:FindFirstChild("Chilli_Liquid_Capsule")
-    if old then old:Destroy() end
+    -- Hàng 1: Nút dịch Liquid Capsule bên trong Island
+    local LangCapsule = Instance.new("Frame")
+    LangCapsule.Size = UDim2.new(1, -24, 0, 32)
+    LangCapsule.Position = UDim2.new(0, 12, 0, 34)
+    LangCapsule.BackgroundColor3 = Color3.fromRGB(16, 22, 34)
+    LangCapsule.BorderSizePixel = 0
+    LangCapsule.Parent = ExpandedView
 
-    local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "Chilli_Liquid_Capsule"
-    ScreenGui.ResetOnSpawn = false
-    ScreenGui.IgnoreGuiInset = true
-    ScreenGui.DisplayOrder = 2147483647
-    ScreenGui.Parent = parentTarget
+    local LangCorner = Instance.new("UICorner")
+    LangCorner.CornerRadius = UDim.new(1, 0)
+    LangCorner.Parent = LangCapsule
 
-    local Capsule = Instance.new("Frame")
-    Capsule.Name = "Capsule"
-    Capsule.Size = UDim2.new(0, 176, 0, 36)
-    Capsule.AnchorPoint = Vector2.new(1, 0)
-    Capsule.Position = UDim2.new(0.5, 86, 0, 10)
-    Capsule.BackgroundColor3 = Color3.fromRGB(12, 16, 24)
-    Capsule.BackgroundTransparency = 0.15
-    Capsule.BorderSizePixel = 0
-    Capsule.Parent = ScreenGui
-
-    local CapsuleCorner = Instance.new("UICorner")
-    CapsuleCorner.CornerRadius = UDim.new(1, 0)
-    CapsuleCorner.Parent = Capsule
-
-    local CapsuleStroke = Instance.new("UIStroke")
-    CapsuleStroke.Thickness = 1.4
-    CapsuleStroke.Color = COLOR_FACE_TOP
-    CapsuleStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    CapsuleStroke.Parent = Capsule
-
-    local Slider = Instance.new("Frame")
-    Slider.Name = "Slider"
-    Slider.Size = UDim2.new(0, 84, 0, 28)
-    Slider.Position = UDim2.new(0, 4, 0.5, -14)
-    Slider.BackgroundColor3 = COLOR_FACE_BOTTOM
-    Slider.BorderSizePixel = 0
-    Slider.Parent = Capsule
+    local LangSlider = Instance.new("Frame")
+    LangSlider.Size = UDim2.new(0.5, -2, 1, -4)
+    LangSlider.Position = UDim2.new(0, 2, 0, 2)
+    LangSlider.BackgroundColor3 = COLOR_FACE_BOTTOM
+    LangSlider.BorderSizePixel = 0
+    LangSlider.Parent = LangCapsule
 
     local SliderCorner = Instance.new("UICorner")
     SliderCorner.CornerRadius = UDim.new(1, 0)
-    SliderCorner.Parent = Slider
+    SliderCorner.Parent = LangSlider
 
-    local SliderGradient = Instance.new("UIGradient")
-    SliderGradient.Color = ColorSequence.new({
+    local SliderGrad = Instance.new("UIGradient")
+    SliderGrad.Color = ColorSequence.new({
         ColorSequenceKeypoint.new(0, COLOR_FACE_TOP),
         ColorSequenceKeypoint.new(1, COLOR_FACE_BOTTOM)
     })
-    SliderGradient.Rotation = 90
-    SliderGradient.Parent = Slider
+    SliderGrad.Rotation = 90
+    SliderGrad.Parent = LangSlider
 
     local BtnVI = Instance.new("TextButton")
-    BtnVI.Name = "BtnVI"
-    BtnVI.Size = UDim2.new(0, 84, 1, 0)
-    BtnVI.Position = UDim2.new(0, 4, 0, 0)
+    BtnVI.Size = UDim2.new(0.5, 0, 1, 0)
+    BtnVI.Position = UDim2.new(0, 0, 0, 0)
     BtnVI.BackgroundTransparency = 1
     BtnVI.Text = "🇻🇳 TIẾNG VIỆT"
     BtnVI.Font = Enum.Font.GothamBold
     BtnVI.TextSize = 10
     BtnVI.TextColor3 = Color3.fromRGB(255, 255, 255)
     BtnVI.ZIndex = 5
-    BtnVI.Parent = Capsule
+    BtnVI.Parent = LangCapsule
 
     local BtnEN = Instance.new("TextButton")
-    BtnEN.Name = "BtnEN"
-    BtnEN.Size = UDim2.new(0, 84, 1, 0)
-    BtnEN.Position = UDim2.new(1, -88, 0, 0)
+    BtnEN.Size = UDim2.new(0.5, 0, 1, 0)
+    BtnEN.Position = UDim2.new(0.5, 0, 0, 0)
     BtnEN.BackgroundTransparency = 1
     BtnEN.Text = "🌐 ENGLISH"
     BtnEN.Font = Enum.Font.GothamBold
     BtnEN.TextSize = 10
     BtnEN.TextColor3 = Color3.fromRGB(145, 160, 185)
     BtnEN.ZIndex = 5
-    BtnEN.Parent = Capsule
+    BtnEN.Parent = LangCapsule
 
+    -- Hàng 2: Thẻ Setting Auto Farm
+    local AutoFarmCard = Instance.new("Frame")
+    AutoFarmCard.Size = UDim2.new(1, -24, 0, 96)
+    AutoFarmCard.Position = UDim2.new(0, 12, 0, 72)
+    AutoFarmCard.BackgroundColor3 = Color3.fromRGB(14, 20, 30)
+    AutoFarmCard.BorderSizePixel = 0
+    AutoFarmCard.Parent = ExpandedView
+
+    local AutoFarmCorner = Instance.new("UICorner")
+    AutoFarmCorner.CornerRadius = UDim.new(0, 10)
+    AutoFarmCorner.Parent = AutoFarmCard
+
+    local AutoFarmStroke = Instance.new("UIStroke")
+    AutoFarmStroke.Thickness = 1
+    AutoFarmStroke.Color = Color3.fromRGB(45, 80, 140)
+    AutoFarmStroke.Parent = AutoFarmCard
+
+    local AutoFarmBtn = Instance.new("TextButton")
+    AutoFarmBtn.Size = UDim2.new(1, -12, 0, 28)
+    AutoFarmBtn.Position = UDim2.new(0, 6, 0, 6)
+    AutoFarmBtn.BackgroundColor3 = COLOR_FACE_BOTTOM
+    AutoFarmBtn.BorderSizePixel = 0
+    AutoFarmBtn.Text = "⚙️ SETTING AUTO FARM"
+    AutoFarmBtn.Font = Enum.Font.GothamBold
+    AutoFarmBtn.TextSize = 11
+    AutoFarmBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    AutoFarmBtn.Parent = AutoFarmCard
+
+    local BtnCorner = Instance.new("UICorner")
+    BtnCorner.CornerRadius = UDim.new(0, 8)
+    BtnCorner.Parent = AutoFarmBtn
+
+    local BtnGrad = Instance.new("UIGradient")
+    BtnGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, COLOR_FACE_TOP),
+        ColorSequenceKeypoint.new(1, COLOR_FACE_BOTTOM)
+    })
+    BtnGrad.Rotation = 90
+    BtnGrad.Parent = AutoFarmBtn
+
+    local SubLabel = Instance.new("TextLabel")
+    SubLabel.Size = UDim2.new(1, -16, 0, 54)
+    SubLabel.Position = UDim2.new(0, 8, 0, 37)
+    SubLabel.BackgroundTransparency = 1
+    SubLabel.Font = Enum.Font.GothamMedium
+    SubLabel.TextSize = 8.8
+    SubLabel.TextColor3 = Color3.fromRGB(180, 210, 245)
+    SubLabel.TextXAlignment = Enum.TextXAlignment.Left
+    SubLabel.TextYAlignment = Enum.TextYAlignment.Top
+    SubLabel.TextWrapped = true
+    SubLabel.Text = "• Tự động làm từ A-Z\n• Nhặt trứng trên Secret 2B+\n• Tự động chạy máy tập khi rảnh rỗi\n• Tự động làm các nhiệm vụ còn thiếu và sự kiện..."
+    SubLabel.Parent = AutoFarmCard
+
+    -- Cập nhật nội dung song ngữ trong Island
+    updateIslandContentLanguage = function(lang)
+        if lang == "VI" then
+            AutoFarmBtn.Text = "⚙️ SETTING AUTO FARM"
+            SubLabel.Text = "• Tự động làm từ A-Z\n• Nhặt trứng trên Secret 2B+\n• Tự động chạy máy tập khi rảnh rỗi\n• Tự động làm các nhiệm vụ còn thiếu và sự kiện..."
+        else
+            AutoFarmBtn.Text = "⚙️ SETTING AUTO FARM"
+            SubLabel.Text = "• Automated from A to Z\n• Steal Secret eggs 2B+\n• Auto run treadmill when idle\n• Complete missing quests & live events..."
+        end
+    end
+
+    -- Hiệu ứng Morphing co giãn mượt mà
+    local function setExpanded(expand)
+        if isExpanded == expand then return end
+        isExpanded = expand
+
+        if expand then
+            CollapsedView.Visible = false
+            ExpandedView.Visible = true
+            TweenService:Create(Island, TweenInfo.new(0.38, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+                Size = UDim2.new(0, 320, 0, 178)
+            }):Play()
+            TweenService:Create(IslandCorner, TweenInfo.new(0.35), {CornerRadius = UDim.new(0, 16)}):Play()
+        else
+            ExpandedView.Visible = false
+            CollapsedView.Visible = true
+            TweenService:Create(Island, TweenInfo.new(0.32, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+                Size = UDim2.new(0, 168, 0, 36)
+            }):Play()
+            TweenService:Create(IslandCorner, TweenInfo.new(0.3), {CornerRadius = UDim.new(1, 0)}):Play()
+        end
+    end
+
+    CollapsedView.MouseButton1Click:Connect(function() setExpanded(true) end)
+    CloseBtn.MouseButton1Click:Connect(function() setExpanded(false) end)
+
+    -- Đổi ngôn ngữ
     local function switchMode(target)
         if currentLanguage == target then return end
         currentLanguage = target
 
-        TweenService:Create(Capsule, TweenInfo.new(0.08), {Size = UDim2.new(0, 170, 0, 34)}):Play()
-        task.delay(0.08, function()
-            TweenService:Create(Capsule, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 176, 0, 36)}):Play()
-        end)
-
         if target == "VI" then
-            TweenService:Create(Slider, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                Position = UDim2.new(0, 4, 0.5, -14),
-                BackgroundColor3 = COLOR_FACE_BOTTOM
+            TweenService:Create(LangSlider, TweenInfo.new(0.32, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+                Position = UDim2.new(0, 2, 0, 2)
             }):Play()
-            TweenService:Create(CapsuleStroke, TweenInfo.new(0.3), {Color = COLOR_FACE_TOP}):Play()
             TweenService:Create(BtnVI, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
             TweenService:Create(BtnEN, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(145, 160, 185)}):Play()
         else
-            TweenService:Create(Slider, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                Position = UDim2.new(1, -88, 0.5, -14),
-                BackgroundColor3 = Color3.fromRGB(55, 70, 95)
+            TweenService:Create(LangSlider, TweenInfo.new(0.32, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+                Position = UDim2.new(0.5, 0, 0, 2)
             }):Play()
-            TweenService:Create(CapsuleStroke, TweenInfo.new(0.3), {Color = Color3.fromRGB(90, 120, 165)}):Play()
             TweenService:Create(BtnEN, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
             TweenService:Create(BtnVI, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(145, 160, 185)}):Play()
         end
 
         updateAllActive()
 
-        -- ĐỒNG BỘ NỘI DUNG VĂN BẢN THẺ AUTO FARM SANG TIẾNG ANH / VIỆT
-        if updateAutoFarmCardLanguage then
-            updateAutoFarmCardLanguage(target)
+        if updateIslandContentLanguage then
+            updateIslandContentLanguage(target)
         end
     end
 
     switchGlobalLanguage = switchMode
-
     BtnVI.MouseButton1Click:Connect(function() switchMode("VI") end)
     BtnEN.MouseButton1Click:Connect(function() switchMode("EN") end)
 
+    -- Kích hoạt nạp Config
+    local function updateStatus(txt, col)
+        AutoFarmBtn.Text = txt
+        TweenService:Create(AutoFarmBtn, TweenInfo.new(0.18), {TextColor3 = col}):Play()
+    end
+
+    AutoFarmBtn.MouseButton1Click:Connect(function()
+        if isConfigInjecting then return end
+        TweenService:Create(AutoFarmCard, TweenInfo.new(0.08), {Size = UDim2.new(1, -28, 0, 92)}):Play()
+        task.delay(0.08, function()
+            TweenService:Create(AutoFarmCard, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(1, -24, 0, 96)}):Play()
+        end)
+        executeAutoConfig(updateStatus)
+    end)
+
+    -- Kéo thả tự do kèm hãm biên màn hình
     local dragging, dragStart, startPos = false, nil, nil
-    Capsule.InputBegan:Connect(function(input)
+    Island.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             dragStart = input.Position
-            startPos = Capsule.Position
+            startPos = Island.Position
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then dragging = false end
             end)
         end
     end)
 
-    Capsule.InputChanged:Connect(function(input)
+    Island.InputChanged:Connect(function(input)
         if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragging then
             local delta = input.Position - dragStart
             local cam = workspace.CurrentCamera
             local maxX = cam and cam.ViewportSize.X - 180 or 800
-            local maxY = cam and cam.ViewportSize.Y - 45 or 600
+            local maxY = cam and cam.ViewportSize.Y - 50 or 600
 
             local newX = math.clamp(startPos.X.Offset + delta.X, -maxX / 2, maxX / 2)
             local newY = math.clamp(startPos.Y.Offset + delta.Y, 0, maxY)
 
-            Capsule.Position = UDim2.new(startPos.X.Scale, newX, startPos.Y.Scale, newY)
+            Island.Position = UDim2.new(startPos.X.Scale, newX, startPos.Y.Scale, newY)
         end
     end)
 end
 
--- ==================== 9. BỘ QUÉT TẢI TRÌ HOÃN (DEFER SCANNER) ====================
+-- ==================== 8. BỘ QUÉT TẢI TRÌ HOÃN (DEFER SCANNER) ====================
 task.delay(1.5, function()
-    createLiquidCapsuleUI()
-    createAutoFarmWidgetUI()
+    createDynamicIslandUI()
 
     local searchRoots = {
         gethui and gethui(),
