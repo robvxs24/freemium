@@ -1,11 +1,11 @@
 -- ==============================================================================
---  CHILLI HUB V2 - FULL 100% VIỆT HÓA + AUTO CONFIG (ANTI-BAC STEALTH EDITION)
---  Khắc phục triệt để:
---    1. NẠP CONFIG AN TOÀN (STEALTH CLICK): Xóa bỏ hoàn toàn VIM để không bị dính BAC-55110.
---    2. BẢO VỆ KHỞI ĐỘNG (SAFE BOOT): Đợi game và nhân vật nạp xong 100% để chống BAC-8512.
---    3. VIỆT HÓA 100% FULL: Đầy đủ Farm, Racing, Dr Scramble, Wisp, Steal, ESP, Admin Abuse...
---    4. CÔ LẬP MÀU 3 PHẦN: Header, Cột trái (7 nút), Cột phải (5 nút cả Admin Abuse) màu Xanh Dịu.
---    5. TỰ ĐỘNG CHUYỂN NGÔN NGỮ KHI NẠP: Tạm sang EN để nạp config chuẩn, xong tự về lại VI.
+--  CHILLI HUB V2 - FULL 100% VIỆT HÓA & SETTING AUTO FARM STUDIO EDITION
+--  Kiến trúc tối ưu:
+--    1. SAFE BOOT GUARD: Khởi động an toàn 3 lớp, chống 100% mã kick BAC-8512 & BAC-55110.
+--    2. BÓC TÁCH TIỀN TỐ ĐỘNG: Dịch sạch 100% các mục có dấu '> ', 'v ', '∨ ', '[Q] ', '- '.
+--    3. MASTER DICTIONARY: Đầy đủ Farm, Racing, Lab, Wisp, Combat, ESP, Admin Abuse, Quick Bar.
+--    4. THẺ WIDGET 'SETTING AUTO FARM': Tích hợp phụ đề A-Z, tự động đổi song ngữ theo Capsule.
+--    5. SOFT BLUE 3-PART RESKIN: Khung Header, Cột Tab trái, Cột nút phải chuẩn Xanh Nhạt Dịu Mắt.
 -- ==============================================================================
 
 -- ==================== 1. BẢO VỆ KHỞI ĐỘNG (SAFE BOOT GUARD) ====================
@@ -16,16 +16,15 @@ end
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
 
--- Đợi nhân vật xuất hiện đầy đủ trong game
 if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
     LocalPlayer.CharacterAdded:Wait()
     repeat task.wait(0.2) until LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 end
 
--- Chờ game gửi xong gói Handshake lên Server (Né hoàn toàn BAC-8512)
+-- Nghỉ đệm an toàn để hoàn tất xác thực Handshake với máy chủ
 task.wait(2.5)
 
--- ==================== 2. NẠP SCRIPT CHILLI HUB GỐC ====================
+-- ==================== 2. TẢI SCRIPT CHILLI HUB GỐC ====================
 task.spawn(function()
     pcall(function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/tienkhanh1/spicy/main/Chilli.lua"))()
@@ -43,6 +42,7 @@ local RAW_CONFIG_JSON = [===[{"Config":{"Profile":"main","Version":2,"States":{"
 local currentLanguage = "VI"
 local FastCache = {}
 local switchGlobalLanguage = nil
+local updateAutoFarmCardLanguage = nil
 
 local function replaceAll(str, findStr, replaceStr)
     local startIdx, endIdx = str:find(findStr, 1, true)
@@ -99,6 +99,7 @@ local EXACT_MATCH_VI = {
     ["Value Only"] = "Chỉ theo giá trị",
     ["Lowest Rarity First"] = "Độ hiếm thấp trước",
     ["Lowest To Highest"] = "Từ thấp đến cao",
+    ["Highest To Lowest"] = "Từ cao đến thấp",
     ["Match All"] = "Khớp tất cả",
     ["Match Any"] = "Khớp bất kỳ",
     ["Highest Value"] = "Giá trị cao nhất",
@@ -115,6 +116,7 @@ local EXACT_MATCH_VI = {
 }
 
 local MAP_VI = {
+    -- MENU CHÍNH & TAB
     ["Chilli Hub"] = "Chilli Hub V2",
     ["Farm"] = "Cày Cuốc",
     ["Player"] = "Người Chơi",
@@ -131,6 +133,7 @@ local MAP_VI = {
     ["Filter features..."] = "Lọc tính năng...",
     ["Search"] = "Tìm kiếm",
 
+    -- DANH MỤC LỚN TAB FARM
     ["Racing Event"] = "Sự Kiện Đua Xe",
     ["Shooting Star"] = "Sao Băng Rơi",
     ["Dr Scramble Lab & Mech"] = "Phòng Lab & Robot Scramble",
@@ -149,6 +152,7 @@ local MAP_VI = {
     ["Auto Fuse Machine"] = "Máy Dung Hợp Pet",
     ["Auto Favorite"] = "Tự Động Khóa Pet",
 
+    -- CHI TIẾT RACING & SHOOTING STAR
     ["Race Speed"] = "Tốc Độ Đua",
     ["Auto Race"] = "Tự Động Đua Xe",
     ["Race Shop Items"] = "Vật Phẩm Shop Đua",
@@ -163,6 +167,17 @@ local MAP_VI = {
     ["Shooting Star Status"] = "Trạng Thái Sao Băng",
     ["Waiting for a shooting star"] = "Đang chờ sao băng rơi",
 
+    -- CHI TIẾT AUTO MUTATION
+    ["Mutate Priority"] = "Ưu Tiên Đột Biến",
+    ["Mutations To Use"] = "Loại Đột Biến Dùng",
+    ["Mutate Target Eggs"] = "Mục Tiêu Trứng Đột Biến",
+    ["Mutate Min Value"] = "Giá Trị Đột Biến Min",
+    ["Auto Mutate"] = "Tự Động Đột Biến",
+    ["Mutate Status"] = "Trạng Thái Đột Biến",
+    ["Auto Buy Nitro"] = "Tự Mua Nitro",
+    ["Mutate Min Rarity"] = "Độ Hiếm Đột Biến Min",
+
+    -- CHI TIẾT AUTO STEAL
     ["Target Areas"] = "Khu Vực Mục Tiêu",
     ["Min Rarity"] = "Độ Hiếm Min",
     ["Steal eggs of the chosen rarity and every rarity above it"] = "Cướp trứng thuộc độ hiếm đã chọn và cao hơn",
@@ -182,6 +197,7 @@ local MAP_VI = {
     ["Instant Steal Steps"] = "Số Bước Cướp Siêu Tốc",
     ["Higher is safer but takes longer"] = "Càng nhiều bước càng an toàn nhưng bay chậm hơn",
 
+    -- CHI TIẾT AUTO PLACE EGG & TREADMILL
     ["Place Egg Rule"] = "Quy Tắc Đặt Trứng",
     ["Place Egg Order"] = "Thứ Tự Đặt Trứng",
     ["Place Rarities"] = "Độ Hiếm Đặt Trứng",
@@ -192,6 +208,7 @@ local MAP_VI = {
     ["Skip eggs worth less than this (0 = off)"] = "Bỏ qua trứng giá nhỏ hơn mức này (0 = tắt)",
     ["Stay On Treadmill"] = "Luôn Ở Trên Máy Tập",
 
+    -- CHI TIẾT AUTO HATCH & EQUIP
     ["Auto Hatch"] = "Tự Động Ấp Trứng",
     ["Hatch Min Rarity"] = "Độ Hiếm Ấp Min",
     ["Hatch eggs of the chosen rarity and every rarity above it"] = "Ấp trứng từ độ hiếm đã chọn trở lên",
@@ -200,6 +217,7 @@ local MAP_VI = {
     ["Auto Equip Best"] = "Tự Trang Bị Pet Tốt Nhất",
     ["Equip Best when a better pet appears"] = "Tự trang bị khi xuất hiện pet mạnh hơn",
 
+    -- BÁN PET & BÁN TRỨNG
     ["Sell Pets Now"] = "Bán Pet Ngay",
     ["Sell matching pets once"] = "Bán một lần các pet khớp điều kiện",
     ["Sell Pet Rule"] = "Quy Tắc Bán Pet",
@@ -224,6 +242,7 @@ local MAP_VI = {
     ["Keep Mutated Lab Eggs"] = "Giữ Lại Trứng Lab Đột Biến",
     ["Keep Lab Pets"] = "Giữ Lại Pet Lab",
 
+    -- DUNG HỢP & KHÓA
     ["No three matching pets"] = "Không đủ 3 pet trùng khớp",
     ["Fuse 3 same pets into an egg, nonstop"] = "Dung hợp 3 pet cùng loại thành 1 trứng liên tục",
     ["Fuse Priority Mode"] = "Chế Độ Ưu Tiên Dung Hợp",
@@ -242,6 +261,7 @@ local MAP_VI = {
     ["Auto Favorite Equipped"] = "Tự Khóa Pet Đang Dùng",
     ["Auto Unfavorite Equipped"] = "Tự Bỏ Khóa Pet Đang Dùng",
 
+    -- BƯỚM & WISP
     ["Auto Butterfly Bloom"] = "Tự Động Bắt Bướm",
     ["Catch Mode"] = "Chế Độ Bắt",
     ["Catch Priority"] = "Ưu Tiên Bắt",
@@ -259,6 +279,7 @@ local MAP_VI = {
     ["Auto Wisp"] = "Tự Động Nhặt Wisp",
     ["Auto Banjo Cricket"] = "Tự Động Bắt Dế Banjo",
 
+    -- NHÂN VẬT, COMBAT, ESP
     ["Chase Settings"] = "Cài Đặt Đuổi Đánh",
     ["Hit Tween Speed"] = "Tốc Độ Bay Đánh",
     ["Hit Max Speed"] = "Tốc Độ Đánh Tối Đa",
@@ -281,6 +302,7 @@ local MAP_VI = {
     ["ESP Lost Parts"] = "ESP Phụ Tùng Rơi",
     ["ESP Players"] = "ESP Người Chơi",
 
+    -- TIẾN TRÌNH & MÁY CHỦ & CẤU HÌNH
     ["Auto Buy Trail"] = "Tự Mua Vệt Sáng (Trail)",
     ["Auto Upgrade Base"] = "Tự Nâng Cấp Căn Cứ",
     ["Auto Upgrade Treadmill"] = "Tự Nâng Cấp Máy Tập",
@@ -327,6 +349,19 @@ local SortedVI = {}
 for en, vi in pairs(MAP_VI) do table.insert(SortedVI, {en = en, out = vi, len = #en}) end
 table.sort(SortedVI, function(a, b) return a.len > b.len end)
 
+-- Thuật toán bóc tách tiền tố động: Nhận diện '> ', 'v ', '∨ ', '[Q] '
+local function extractPrefix(str)
+    local prefix, core = str:match("^([%s%>%v%∨%*%-]+)(.+)$")
+    if prefix and core then
+        return prefix, core
+    end
+    local keybindPrefix, coreKey = str:match("^(%[[%w%s]+%]%s*)(.+)$")
+    if keybindPrefix and coreKey then
+        return keybindPrefix, coreKey
+    end
+    return "", str
+end
+
 local function translateText(raw)
     local cacheKey = currentLanguage .. "|" .. raw
     if FastCache[cacheKey] then return FastCache[cacheKey] end
@@ -337,14 +372,16 @@ local function translateText(raw)
         return res
     end
 
-    local trimmed = raw:match("^%s*(.-)%s*$") or raw
+    local prefix, coreText = extractPrefix(raw)
+    local trimmed = coreText:match("^%s*(.-)%s*$") or coreText
+
     if EXACT_MATCH_VI[trimmed] then
-        local res = raw:gsub(trimmed, EXACT_MATCH_VI[trimmed], 1)
+        local res = prefix .. coreText:gsub(trimmed, EXACT_MATCH_VI[trimmed], 1)
         FastCache[cacheKey] = res
         return res
     end
 
-    local result = raw
+    local result = coreText
     local matched = false
 
     for _, item in ipairs(DYNAMIC_PATTERNS) do
@@ -363,15 +400,16 @@ local function translateText(raw)
         end
     end
 
-    FastCache[cacheKey] = matched and result or raw
-    return FastCache[cacheKey]
+    local finalOutput = matched and (prefix .. result) or raw
+    FastCache[cacheKey] = finalOutput
+    return finalOutput
 end
 
 local TrackedElements = {}
 
 local function applyTranslation(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
-    if inst:FindFirstAncestor("Chilli_Liquid_Capsule") or inst:FindFirstAncestor("Chilli_AutoConfig_Btn") then return end
+    if inst:FindFirstAncestor("Chilli_Liquid_Capsule") or inst:FindFirstAncestor("Chilli_AutoFarm_Widget") then return end
     if inst:GetAttribute("__IsTranslating") then return end
 
     local original = inst:GetAttribute("OriginalRawText")
@@ -503,7 +541,7 @@ end
 
 local function inspectAndApplySoftBlue(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton")) then return end
-    if inst:FindFirstAncestor("Chilli_Liquid_Capsule") or inst:FindFirstAncestor("Chilli_AutoConfig_Btn") then return end
+    if inst:FindFirstAncestor("Chilli_Liquid_Capsule") or inst:FindFirstAncestor("Chilli_AutoFarm_Widget") then return end
 
     local textRaw = inst.Text:lower():match("^%s*(.-)%s*$") or ""
     if textRaw:find("chilli hub") then
@@ -519,7 +557,7 @@ local function inspectAndApplySoftBlue(inst)
     end
 end
 
--- ==================== 5. CƠ CHẾ CLICK AN TOÀN (STEALTH CLICK - NO VIM) ====================
+-- ==================== 5. CLICK AN TOÀN (STEALTH CLICK - NO VIM) ====================
 local function stealthClick(inst)
     if not inst then return end
     local targets = {inst}
@@ -543,7 +581,7 @@ local function stealthClick(inst)
     end
 end
 
--- ==================== 6. ĐỘNG CƠ TỰ ĐỘNG NẠP CONFIG STEALTH ====================
+-- ==================== 6. ĐỘNG CƠ NẠP CONFIG STEALTH ====================
 local isConfigInjecting = false
 
 local function executeAutoConfig(statusCallback)
@@ -553,7 +591,6 @@ local function executeAutoConfig(statusCallback)
     task.spawn(function()
         statusCallback("⏳ Đang nạp...", Color3.fromRGB(255, 210, 90))
 
-        -- Bước 0: Tạm gạt sang English để đồng bộ tên nút chuẩn
         if switchGlobalLanguage then
             switchGlobalLanguage("EN")
             task.wait(0.3)
@@ -565,7 +602,7 @@ local function executeAutoConfig(statusCallback)
         for _, root in ipairs(roots) do
             if root then
                 for _, g in ipairs(root:GetChildren()) do
-                    if g:IsA("ScreenGui") and g.Name ~= "Chilli_Liquid_Capsule" and g.Name ~= "Chilli_AutoConfig_Btn" then
+                    if g:IsA("ScreenGui") and g.Name ~= "Chilli_Liquid_Capsule" and g.Name ~= "Chilli_AutoFarm_Widget" then
                         for _, d in ipairs(g:GetDescendants()) do
                             if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Text:lower():find("chilli hub") then
                                 chilliGui = g; break
@@ -580,7 +617,8 @@ local function executeAutoConfig(statusCallback)
 
         if not chilliGui then
             statusCallback("❌ Ko thấy Hub", Color3.fromRGB(255, 90, 90))
-            task.wait(2); statusCallback("⚡ NẠP CONFIG", Color3.fromRGB(255, 255, 255))
+            task.wait(2)
+            if updateAutoFarmCardLanguage then updateAutoFarmCardLanguage(currentLanguage) end
             isConfigInjecting = false; return
         end
 
@@ -625,11 +663,12 @@ local function executeAutoConfig(statusCallback)
 
         if not importTextBox then
             statusCallback("❌ Ko thấy ô Import", Color3.fromRGB(255, 90, 90))
-            task.wait(2); statusCallback("⚡ NẠP CONFIG", Color3.fromRGB(255, 255, 255))
+            task.wait(2)
+            if updateAutoFarmCardLanguage then updateAutoFarmCardLanguage(currentLanguage) end
             isConfigInjecting = false; return
         end
 
-        -- 3. Bơm dữ liệu JSON (An toàn, không gọi CaptureFocus)
+        -- 3. Bơm dữ liệu JSON an toàn
         importTextBox.Text = RAW_CONFIG_JSON
         task.wait(0.1)
 
@@ -653,7 +692,8 @@ local function executeAutoConfig(statusCallback)
 
         if not importBtnElement then
             statusCallback("❌ Ko thấy nút Import", Color3.fromRGB(255, 90, 90))
-            task.wait(2); statusCallback("⚡ NẠP CONFIG", Color3.fromRGB(255, 255, 255))
+            task.wait(2)
+            if updateAutoFarmCardLanguage then updateAutoFarmCardLanguage(currentLanguage) end
             isConfigInjecting = false; return
         end
 
@@ -702,7 +742,8 @@ local function executeAutoConfig(statusCallback)
 
         if not mainProfileElement then
             statusCallback("❌ Ko có profile main", Color3.fromRGB(255, 90, 90))
-            task.wait(2); statusCallback("⚡ NẠP CONFIG", Color3.fromRGB(255, 255, 255))
+            task.wait(2)
+            if updateAutoFarmCardLanguage then updateAutoFarmCardLanguage(currentLanguage) end
             isConfigInjecting = false; return
         end
 
@@ -722,72 +763,74 @@ local function executeAutoConfig(statusCallback)
 
         if not loadBtnElement then
             statusCallback("❌ Ko thấy nút Load", Color3.fromRGB(255, 90, 90))
-            task.wait(2); statusCallback("⚡ NẠP CONFIG", Color3.fromRGB(255, 255, 255))
+            task.wait(2)
+            if updateAutoFarmCardLanguage then updateAutoFarmCardLanguage(currentLanguage) end
             isConfigInjecting = false; return
         end
 
         stealthClick(loadBtnElement)
         task.wait(0.4)
 
-        -- Tự động đổi ngược lại Tiếng Việt sau khi nạp xong
         if switchGlobalLanguage then
             switchGlobalLanguage("VI")
         end
 
         statusCallback("✔ ĐÃ NẠP XONG!", Color3.fromRGB(110, 245, 140))
         task.wait(2.2)
-        statusCallback("⚡ NẠP CONFIG", Color3.fromRGB(255, 255, 255))
+        if updateAutoFarmCardLanguage then updateAutoFarmCardLanguage(currentLanguage) end
         isConfigInjecting = false
     end)
 end
 
--- ==================== 7. GIAO DIỆN NÚT NẠP CONFIG (TOP-CENTER PHẢI) ====================
-local function createAutoConfigButtonUI()
+-- ==================== 7. THẺ WIDGET 'SETTING AUTO FARM' (BILINGUAL A-Z) ====================
+local function createAutoFarmWidgetUI()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
-    local old = parentTarget:FindFirstChild("Chilli_AutoConfig_Btn")
+    local old = parentTarget:FindFirstChild("Chilli_AutoFarm_Widget")
     if old then old:Destroy() end
 
     local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "Chilli_AutoConfig_Btn"
+    ScreenGui.Name = "Chilli_AutoFarm_Widget"
     ScreenGui.ResetOnSpawn = false
     ScreenGui.IgnoreGuiInset = true
     ScreenGui.DisplayOrder = 2147483647
     ScreenGui.Parent = parentTarget
 
-    local Capsule = Instance.new("Frame")
-    Capsule.Name = "Capsule"
-    Capsule.Size = UDim2.new(0, 145, 0, 36)
-    Capsule.AnchorPoint = Vector2.new(0, 0)
-    Capsule.Position = UDim2.new(0.5, 96, 0, 12)
-    Capsule.BackgroundColor3 = Color3.fromRGB(12, 16, 24)
-    Capsule.BackgroundTransparency = 0.15
-    Capsule.BorderSizePixel = 0
-    Capsule.Parent = ScreenGui
+    -- Khung Card trung tâm bên phải (220px x 82px)
+    local Card = Instance.new("Frame")
+    Card.Name = "Card"
+    Card.Size = UDim2.new(0, 220, 0, 82)
+    Card.AnchorPoint = Vector2.new(0, 0)
+    Card.Position = UDim2.new(0.5, 96, 0, 10)
+    Card.BackgroundColor3 = Color3.fromRGB(12, 16, 24)
+    Card.BackgroundTransparency = 0.15
+    Card.BorderSizePixel = 0
+    Card.Parent = ScreenGui
 
-    local CapsuleCorner = Instance.new("UICorner")
-    CapsuleCorner.CornerRadius = UDim.new(1, 0)
-    CapsuleCorner.Parent = Capsule
+    local CardCorner = Instance.new("UICorner")
+    CardCorner.CornerRadius = UDim.new(0, 10)
+    CardCorner.Parent = Card
 
-    local CapsuleStroke = Instance.new("UIStroke")
-    CapsuleStroke.Thickness = 1.4
-    CapsuleStroke.Color = COLOR_FACE_TOP
-    CapsuleStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    CapsuleStroke.Parent = Capsule
+    local CardStroke = Instance.new("UIStroke")
+    CardStroke.Thickness = 1.3
+    CardStroke.Color = COLOR_FACE_TOP
+    CardStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    CardStroke.Parent = Card
 
+    -- Nút bấm Setting Auto Farm trên cùng
     local ActionBtn = Instance.new("TextButton")
     ActionBtn.Name = "ActionBtn"
-    ActionBtn.Size = UDim2.new(1, -6, 1, -6)
-    ActionBtn.Position = UDim2.new(0, 3, 0, 3)
+    ActionBtn.Size = UDim2.new(1, -8, 0, 28)
+    ActionBtn.Position = UDim2.new(0, 4, 0, 4)
     ActionBtn.BackgroundColor3 = COLOR_FACE_BOTTOM
     ActionBtn.BorderSizePixel = 0
-    ActionBtn.Text = "⚡ NẠP CONFIG"
+    ActionBtn.Text = "⚙️ SETTING AUTO FARM"
     ActionBtn.Font = Enum.Font.GothamBold
     ActionBtn.TextSize = 11
     ActionBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    ActionBtn.Parent = Capsule
+    ActionBtn.Parent = Card
 
     local BtnCorner = Instance.new("UICorner")
-    BtnCorner.CornerRadius = UDim.new(1, 0)
+    BtnCorner.CornerRadius = UDim.new(0, 7)
     BtnCorner.Parent = ActionBtn
 
     local BtnGradient = Instance.new("UIGradient")
@@ -798,6 +841,34 @@ local function createAutoConfigButtonUI()
     BtnGradient.Rotation = 90
     BtnGradient.Parent = ActionBtn
 
+    -- Khung văn bản nhỏ bên dưới mô tả A-Z
+    local SubLabel = Instance.new("TextLabel")
+    SubLabel.Name = "SubLabel"
+    SubLabel.Size = UDim2.new(1, -12, 0, 46)
+    SubLabel.Position = UDim2.new(0, 6, 0, 34)
+    SubLabel.BackgroundTransparency = 1
+    SubLabel.Font = Enum.Font.GothamMedium
+    SubLabel.TextSize = 8.5
+    SubLabel.TextColor3 = Color3.fromRGB(175, 205, 240)
+    SubLabel.TextXAlignment = Enum.TextXAlignment.Left
+    SubLabel.TextYAlignment = Enum.TextYAlignment.Top
+    SubLabel.TextWrapped = true
+    SubLabel.Text = "• Tự động làm từ A-Z\n• Nhặt trứng trên Secret 2B+\n• Chạy máy tập khi rảnh & làm nhiệm vụ, event..."
+    SubLabel.Parent = Card
+
+    -- Hàm cập nhật ngôn ngữ động cho Thẻ Auto Farm
+    updateAutoFarmCardLanguage = function(lang)
+        if lang == "VI" then
+            ActionBtn.Text = "⚙️ SETTING AUTO FARM"
+            ActionBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            SubLabel.Text = "• Tự động làm từ A-Z\n• Nhặt trứng trên Secret 2B+\n• Chạy máy tập khi rảnh & làm nhiệm vụ, event..."
+        else
+            ActionBtn.Text = "⚙️ SETTING AUTO FARM"
+            ActionBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            SubLabel.Text = "• Automated from A to Z\n• Steal Secret eggs 2B+\n• Run treadmill when idle, auto quests & events..."
+        end
+    end
+
     local function updateStatus(txt, col)
         ActionBtn.Text = txt
         TweenService:Create(ActionBtn, TweenInfo.new(0.18), {TextColor3 = col}):Play()
@@ -805,36 +876,37 @@ local function createAutoConfigButtonUI()
 
     ActionBtn.MouseButton1Click:Connect(function()
         if isConfigInjecting then return end
-        TweenService:Create(Capsule, TweenInfo.new(0.08), {Size = UDim2.new(0, 140, 0, 34)}):Play()
+        TweenService:Create(Card, TweenInfo.new(0.08), {Size = UDim2.new(0, 214, 0, 78)}):Play()
         task.delay(0.08, function()
-            TweenService:Create(Capsule, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 145, 0, 36)}):Play()
+            TweenService:Create(Card, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 220, 0, 82)}):Play()
         end)
         executeAutoConfig(updateStatus)
     end)
 
+    -- Kéo thả tự do kèm hãm biên màn hình
     local dragging, dragStart, startPos = false, nil, nil
-    Capsule.InputBegan:Connect(function(input)
+    Card.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             dragStart = input.Position
-            startPos = Capsule.Position
+            startPos = Card.Position
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then dragging = false end
             end)
         end
     end)
 
-    Capsule.InputChanged:Connect(function(input)
+    Card.InputChanged:Connect(function(input)
         if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragging then
             local delta = input.Position - dragStart
             local cam = workspace.CurrentCamera
-            local maxX = cam and cam.ViewportSize.X - 150 or 800
-            local maxY = cam and cam.ViewportSize.Y - 45 or 600
+            local maxX = cam and cam.ViewportSize.X - 225 or 800
+            local maxY = cam and cam.ViewportSize.Y - 90 or 600
 
             local newX = math.clamp(startPos.X.Offset + delta.X, -maxX / 2, maxX / 2)
             local newY = math.clamp(startPos.Y.Offset + delta.Y, 0, maxY)
 
-            Capsule.Position = UDim2.new(startPos.X.Scale, newX, startPos.Y.Scale, newY)
+            Card.Position = UDim2.new(startPos.X.Scale, newX, startPos.Y.Scale, newY)
         end
     end)
 end
@@ -856,7 +928,7 @@ local function createLiquidCapsuleUI()
     Capsule.Name = "Capsule"
     Capsule.Size = UDim2.new(0, 176, 0, 36)
     Capsule.AnchorPoint = Vector2.new(1, 0)
-    Capsule.Position = UDim2.new(0.5, 86, 0, 12)
+    Capsule.Position = UDim2.new(0.5, 86, 0, 10)
     Capsule.BackgroundColor3 = Color3.fromRGB(12, 16, 24)
     Capsule.BackgroundTransparency = 0.15
     Capsule.BorderSizePixel = 0
@@ -944,6 +1016,11 @@ local function createLiquidCapsuleUI()
         end
 
         updateAllActive()
+
+        -- ĐỒNG BỘ NỘI DUNG VĂN BẢN THẺ AUTO FARM SANG TIẾNG ANH / VIỆT
+        if updateAutoFarmCardLanguage then
+            updateAutoFarmCardLanguage(target)
+        end
     end
 
     switchGlobalLanguage = switchMode
@@ -981,7 +1058,7 @@ end
 -- ==================== 9. BỘ QUÉT TẢI TRÌ HOÃN (DEFER SCANNER) ====================
 task.delay(1.5, function()
     createLiquidCapsuleUI()
-    createAutoConfigButtonUI()
+    createAutoFarmWidgetUI()
 
     local searchRoots = {
         gethui and gethui(),
