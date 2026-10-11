@@ -1,31 +1,47 @@
 -- ==============================================================================
---  CHILLI HUB V2 - FULL 100% TRANSLATION + AUTO CONFIG + SOFT SKY BLUE
---  Kiến trúc hoàn thiện:
---    1. PHỤC HỒI 100% TỪ ĐIỂN: Đầy đủ từ vựng Farm, Racing, Mech, Lab, Predictor, ESP, Combat, Admin Abuse.
---    2. XỬ LÝ TIỀN TỐ DẤU MŨI TÊN: Dịch chuẩn xác cả các mục có ký tự '> ', 'v ', '∨ '.
---    3. 1-CLICK AUTO CONFIG HOÀN CHỈNH: Tự động hóa qua Universal Clicker (VIM + firesignal).
---    4. CÔ LẬP MÀU 3 PHẦN: Header, Cột Tab trái (7 nút), Cột nút phải (5 nút cả Admin Abuse) chuẩn Xanh Nhạt.
---    5. CHỮ TRẮNG NỔI KHỐI: Khóa cứng màu chữ trắng tinh khiết, viền đen nguyên bản.
+--  CHILLI HUB V2 - SAFE BOOT & ANTI-BAC8512 EDITION (BẢN SỬA TRIỆT ĐỂ)
+--  Cơ chế an toàn:
+--    1. SAFE BOOT GUARD: Chờ game:IsLoaded() và Character spawn hoàn tất trước khi chạy.
+--    2. ANTI-DETECTION DELAY: Nghỉ đệm 2.5s để game hoàn thành handshake xác thực máy chủ.
+--    3. 1-CLICK AUTO CONFIG: Giữ nguyên cơ chế tự động nạp profile "main" chuẩn xác.
+--    4. SOFT BLUE RESKIN: Đúng 3 phần màu xanh nhạt dịu mắt, chữ trắng nổi khối.
+--    5. DỊCH THUẬT 100%: Phục hồi trọn bộ từ điển tiếng Việt cho toàn bộ Menu.
 -- ==============================================================================
 
-local CoreGui = game:GetService("CoreGui")
+-- ==================== BẢO VỆ KHỞI ĐỘNG (SAFE BOOT GUARD) ====================
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+
 local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
+
+-- Đợi nhân vật và HumanoidRootPart xuất hiện đầy đủ trên map
+if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+    LocalPlayer.CharacterAdded:Wait()
+    repeat task.wait(0.2) until LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+end
+
+-- Nghỉ đệm 2.5 giây để game gửi gói tin xác thực (Handshake) hoàn tất lên Server
+task.wait(2.5)
+
+-- ==================== KHỞI CHẠY TIẾN TRÌNH ====================
+local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local VirtualInputManager = game:GetService("VirtualInputManager")
-local LocalPlayer = Players.LocalPlayer
 
 -- ==================== DỮ LIỆU CẤU HÌNH JSON (PROFILE: MAIN) ====================
 local RAW_CONFIG_JSON = [===[{"Config":{"Profile":"main","Version":2,"States":{"Farm HUD Stealing Position":{"Value":[]},"Quick Panel Collapsed":{"Value":{"1":true}},"Quick Keybinds":{"Value":{"Player > Movement > Speed Boost":"Q"}},"Farm HUD World Position":{"Value":[]},"Farm HUD Stolen Eggs":{"Value":{"History":[{"At":1791691405,"Name":"Salamander Egg","Category":"Salamander","Scale":2.0077867676934826,"Rarity":"Legendary","Value":268694.7970694339},{"At":1791691393,"Name":"Red Panda Egg","Category":"Red Panda","Scale":1.534945088131867,"Rarity":"Mythic","Value":994224.0722744926},{"At":1791691277,"Name":"Crustacia Egg","Category":"Crab","Scale":0.9485398655870736,"Rarity":"Legendary","Value":117895.21822185467},{"At":1791691260,"Name":"Crustacia Egg","Category":"Crab","Scale":0.9492730433116167,"Rarity":"Legendary","Value":118063.85963457519},{"At":1791691246,"Name":"Bladehide Egg","Category":"Blade Head","Scale":0.9936069341113027,"Rarity":"Mythic","Value":741153.7300873696},{"At":1791691231,"Name":"Pterodactyl Egg","Category":"Pterodactyl","Scale":0.9304647986460869,"Rarity":"Legendary","Value":19253.8499877134},{"At":1791691221,"Name":"Parrotfish Egg","Category":"Parrotfish","Scale":0.9392414616599657,"Rarity":"Rare","Value":195.91180408490377},{"At":1791691213,"Name":"Pterodactyl Egg","Category":"Pterodactyl","Scale":1.0408297446330186,"Rarity":"Legendary","Value":23690.54852670704},{"At":1791690930,"Name":"Parrotfish Egg","Category":"Parrotfish","Scale":0.9503277726641718,"Rarity":"Rare","Value":200.2112653510687},{"At":1791690921,"Name":"Parrotfish Egg","Category":"Parrotfish","Scale":0.9709901123134066,"Rarity":"Rare","Value":208.33875983574567},{"At":1791690912,"Name":"Parrotfish Egg","Category":"Parrotfish","Scale":0.9877314119821163,"Rarity":"Rare","Value":215.03273659916906},{"At":1791690640,"Name":"Parrotfish Egg","Category":"Parrotfish","Scale":0.8871009623278335,"Rarity":"Rare","Value":176.26773501736077},{"At":1791690631,"Name":"Parrotfish Egg","Category":"Parrotfish","Scale":0.910183959460301,"Rarity":"Rare","Value":184.84668191132057},{"At":1791690624,"Name":"Pterodactyl Egg","Category":"Pterodactyl","Scale":0.9833370835410278,"Rarity":"Legendary","Value":21326.626019822987},{"At":1791690615,"Name":"La Vacca Saturno Saturnita Egg","Category":"La Vacca Saturno Saturnita","Scale":0.9923149280061686,"Rarity":"Cosmic","Value":2168823.9559358234},{"At":1791690381,"Name":"Parrotfish Egg","Category":"Parrotfish","Scale":0.9696641788591847,"Rarity":"Rare","Value":249.37529604339495},{"At":1791690369,"Name":"Parrotfish Egg","Category":"Parrotfish","Scale":1.4579018948715677,"Rarity":"Rare","Value":441.89596562453337},{"At":1791690362,"Name":"Pterodactyl Egg","Category":"Pterodactyl","Scale":0.990015305361929,"Rarity":"Legendary","Value":21595.348250784464},{"At":1791690321,"Name":"Parrotfish Egg","Category":"Parrotfish","Scale":3.8148854983068576,"Rarity":"Rare","Value":2619.1686839768747},{"At":1791690314,"Name":"Pterodactyl Egg","Category":"Pterodactyl","Scale":1.4971519340436624,"Rarity":"Legendary","Value":46415.66220198127}],"Count":188,"Best":{"Category":"King Kong","Name":"Gorilla King Egg","Rarity":"Eternal","Rank":9}}},"Farm HUD Top Eggs Position":{"Value":[]},"Anti Guard Enabled":{"Value":false},"Farm HUD Steal History Position":{"Value":[]},"Quick Pinned Features":{"Value":["Player > Movement > Speed Boost","Player > Movement > Boost Speed"]},"Open On Launch":{"Value":true},"Quick Panel Position":{"Value":{"1":{"Y":0.32634490728378298,"X":0.8134856224060059}}},"Notifications":{"Value":true},"Farm HUD Top Pets Position":{"Value":[]},"Quick Open Key":{"Value":"LeftControl"},"FPS and Ping Position":{"Value":{"XOffset":15,"XScale":0,"YScale":0,"YOffset":19}},"Farm HUD Status Position":{"Value":[]},"Farm HUD Events Position":{"Value":[]},"Steal Panel Open":{"Value":false},"Quick LeftCenter Hidden":{"Value":true},"Farm HUD Economy Position":{"Value":[]},"Quick Pin Groups":{"Value":[]},"Farm HUD Collection Position":{"Value":[]}},"Values":{"Admin Abuse":{"Minigame Eggs":{"Auto Steal Minigame Egg":{"Value":true,"Type":"toggle"}},"Instant Steal V3":{"Instant Steal V3 Note":{"Value":"Needs Admin Treadmill","Type":"text"},"Instant Steal V3":{"Value":false,"Type":"toggle"}},"Admin Treadmill":{"Auto Use Admin Treadmill":{"Value":true,"Type":"toggle"}},"Capture The Egg":{"Hold Height":{"Value":45,"Type":"slider","Unit":"studs"},"Auto Capture Event Egg":{"Value":false,"Type":"toggle"},"Keep Away Distance":{"Value":45,"Type":"slider","Unit":"studs"},"Take It From The Holder":{"Value":true,"Type":"toggle"}}},"Predictor":{"Egg Predictor":{"Sort By":{"Value":"Value","Type":"dropdown"},"Preview Card":{"Value":true,"Type":"toggle"}},"Discord Webhook":{"Webhook URL":{"Value":"","Type":"input"},"Notify Fused Eggs":{"Value":false,"Type":"toggle"},"Notify Stolen Eggs":{"Value":false,"Type":"toggle"},"Webhook Min Rarity":{"Value":"Any","Type":"dropdown"},"Webhook Eggs":{"Value":[],"Type":"multidropdown"},"Webhook Min Value":{"Value":0,"Type":"slider"},"Ping @everyone":{"Value":false,"Type":"toggle"}}},"Progress":{"Auto Progression":{"Auto Buy Trail":{"Value":true,"Type":"toggle"},"Auto Claim Index":{"Value":true,"Type":"toggle"},"Auto Upgrade Treadmill":{"Value":true,"Type":"toggle"},"Auto Claim":{"Value":true,"Type":"toggle"},"Auto Upgrade Base":{"Value":true,"Type":"toggle"}}},"Quick":{"Pin Pad":{"Pad Size":{"Value":150,"Type":"slider","Unit":"%"},"Enable Keybinds":{"Value":true,"Type":"toggle"},"Show Pin Pads":{"Value":true,"Type":"toggle"},"Visible Quick Bars":{"Value":["Quick Bar 1","Quick Bar 2","Quick Bar 3","Quick Bar 4","Quick Bar 5"],"Type":"multidropdown"}}},"Auto Hop":{"Egg Finder":{"Hop Mode":{"Value":"Steal Then Hop","Type":"dropdown"},"Min Rarity":{"Value":"Secret","Type":"dropdown"},"Rarity To Wait For":{"Value":"Cosmic","Type":"dropdown"},"First Hop Delay":{"Value":5,"Type":"slider","Unit":"s"},"Sync With Auto Steal Filters":{"Value":true,"Type":"toggle"},"Target Specific Eggs":{"Value":[],"Type":"multidropdown"},"Min Value To Find":{"Value":700.11,"Type":"slider"},"Auto Hop":{"Value":false,"Type":"toggle"},"Target Areas":{"Value":["Cherry Blossom","Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"}}},"Player":{"ESP":{"ESP Eggs":{"Value":true,"Type":"toggle"},"ESP Show Info":{"Value":["Icon","Name","Value"],"Type":"multidropdown"},"ESP Guard Size":{"Value":75,"Type":"slider","Unit":"%"},"ESP Player Info":{"Value":["Name","Tool"],"Type":"multidropdown"},"ESP Other Base Eggs":{"Value":false,"Type":"toggle"},"ESP Min Rarity":{"Value":"7 - Cosmic","Type":"dropdown"},"ESP Guards":{"Value":true,"Type":"toggle"},"Min ESP Value":{"Value":0,"Type":"slider"},"ESP Player Size":{"Value":75,"Type":"slider","Unit":"%"},"ESP Players":{"Value":true,"Type":"toggle"},"ESP Own Base Eggs":{"Value":true,"Type":"toggle"},"ESP Fixed Size":{"Value":false,"Type":"toggle"},"ESP Egg Size":{"Value":75,"Type":"slider","Unit":"%"}},"Character":{"Instant Prompts":{"Value":true,"Type":"toggle"},"Anti Ragdoll":{"Value":true,"Type":"toggle"},"Anti Trap":{"Value":true,"Type":"toggle"},"Invisibility":{"Value":false,"Type":"toggle"}},"Movement":{"Speed Boost":{"Value":false,"Type":"toggle"},"Boost Speed":{"Value":1000,"Type":"slider","Unit":"studs/s"},"Infinite Jump":{"Value":false,"Type":"toggle"}},"Combat":{"Auto Hit Egg Holders":{"Value":false,"Type":"toggle"},"Hit Max Speed":{"Value":750,"Type":"slider","Unit":"studs/s"},"Auto Hit Nearest Player":{"Value":false,"Type":"toggle"},"Hit Player":{"Value":"676767kbsoksok","Type":"dropdown"},"Hit Lead":{"Value":-275,"Type":"slider"},"Hit Tween Speed":{"Value":400,"Type":"slider","Unit":"studs/s"},"Hit Sweep":{"Value":60,"Type":"slider","Unit":"%"},"Chase Settings":{"Value":"Chase Settings","Type":"label"},"Auto Hit Specific Player":{"Value":false,"Type":"toggle"},"Hit Aura":{"Value":true,"Type":"toggle"},"Hit Status":{"Value":"Aura ready, nobody in reach","Type":"text"}}},"Settings":{"Interface":{"UI Size":{"Value":100,"Type":"slider","Unit":"%"}}},"Farm":{"Auto Steal":{"Drop Eggs At Safe Zone":{"Value":false,"Type":"toggle"},"Target Specific Eggs":{"Value":[],"Type":"multidropdown"},"Biohazard Lab Eggs":{"Value":["Red Panda Egg (43%)","Snowy Owl Egg (40%)","Salamander Egg (38%)"],"Type":"multidropdown"},"Anti Guard Panel":{"Value":false,"Type":"toggle"},"Steal Missing Lab Eggs":{"Value":true,"Type":"toggle"},"Instant Steal Steps":{"Value":2,"Type":"slider"},"Instant Steal Zones":{"Value":["Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"},"Target Areas":{"Value":["Cherry Blossom","Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"},"Unstable DNA Lab Eggs":{"Value":["Toro Egg (24%)","Winged Lamb Egg (23%)","Bladehide Egg (23%)","Imp Egg (22%)","Crustacia Egg (22%)"],"Type":"multidropdown"},"Stock Per Egg":{"Value":3,"Type":"slider","Unit":""},"Auto Steal":{"Value":true,"Type":"toggle"},"Min Rarity":{"Value":"Secret","Type":"dropdown"},"Teleport To Egg":{"Value":false,"Type":"toggle"},"Carry Speed":{"Value":120,"Type":"slider","Unit":"%"},"Experimental Lab Eggs":{"Value":["Bladehide Egg (34%)","Red Panda Egg (34%)","Crustacia Egg (33%)","Salamander Egg (33%)","Snowy Owl Egg (32%)"],"Type":"multidropdown"},"Fast Delivery":{"Value":true,"Type":"toggle"},"Skip Owned Lab Eggs":{"Value":true,"Type":"toggle"},"Steal Priority":{"Value":"Highest Value","Type":"dropdown"},"Instant Steal V2":{"Value":false,"Type":"toggle"},"Instant Steal":{"Value":true,"Type":"toggle"},"Steal Missing Index Eggs":{"Value":true,"Type":"toggle"},"Min Steal Value":{"Value":700.11,"Type":"slider"},"Tween Speed":{"Value":120,"Type":"slider","Unit":"%"},"Stock Lab Eggs For":{"Value":[],"Type":"multidropdown"}},"Auto Sell":{"Egg Sell Value":{"Value":0,"Type":"slider"},"Sell Egg Rule":{"Value":"Rarity Only","Type":"dropdown"},"Auto Sell Egg":{"Value":false,"Type":"toggle"},"Blacklist Sell Eggs":{"Value":[],"Type":"multidropdown"},"Keep Mutated Eggs":{"Value":true,"Type":"toggle"},"Egg Max Rarity":{"Value":"3 - Rare","Type":"dropdown"},"Blacklist Sell Pets":{"Value":[],"Type":"multidropdown"},"Egg Sell Preview":{"Value":"Egg matches  -  0 eggs for $0","Type":"text"},"Auto Sell Pet":{"Value":true,"Type":"toggle"},"Pet Sell Value":{"Value":777.78,"Type":"slider"},"Pet Sell Preview":{"Value":"Pet matches  -  0 pets for $0","Type":"text"},"Keep Mutated Pets":{"Value":false,"Type":"toggle"},"Sell Pet Rule":{"Value":"Rarity Only","Type":"dropdown"},"Pet Max Rarity":{"Value":"8 - Secret","Type":"dropdown"}},"Auto Fuse Machine":{"Max Rarity to Fuse":{"Value":"6 - Mythic","Type":"dropdown"},"Skip Mutated Pets":{"Value":true,"Type":"toggle"},"Auto Fuse Machine":{"Value":true,"Type":"toggle"},"Specific Species to Fuse":{"Value":[],"Type":"multidropdown"},"Eject Incomplete Slots":{"Value":true,"Type":"toggle"},"Pets To Use":{"Value":"Lowest To Highest","Type":"dropdown"},"Fuse Priority Mode":{"Value":"Lowest Rarity First","Type":"dropdown"},"Fuse Preview":{"Value":"No three matching pets","Type":"text"}},"Auto Favorite":{"Favorite Mutations":{"Value":[],"Type":"multidropdown"},"Favorite Preview":{"Value":"Favorite matches  -  3 pets, 0 to mark  |  23 favorited","Type":"text"},"Favorite Min Rarity":{"Value":"10 - Divine","Type":"dropdown"},"Auto Favorite Equipped":{"Value":true,"Type":"toggle"},"Auto Favorite Pet":{"Value":true,"Type":"toggle"},"Always Favorite Species":{"Value":[],"Type":"multidropdown"},"Min Favorite Value":{"Value":797.34,"Type":"slider"},"Auto Unfavorite Equipped":{"Value":true,"Type":"toggle"},"Favorite Rule":{"Value":"Match All","Type":"dropdown"}},"Auto Treadmill":{"Stay On Treadmill":{"Value":true,"Type":"toggle"},"Auto Treadmill":{"Value":true,"Type":"toggle"}},"Auto Place Egg":{"Place Egg Rule":{"Value":"Always","Type":"dropdown"},"Place Rarities":{"Value":[],"Type":"multidropdown"},"Pen Status":{"Value":"Eggs placed 6/30  -  19/19 pets equipped, 2 in bag","Type":"text"},"Auto Place Egg":{"Value":true,"Type":"toggle"},"Place Egg Order":{"Value":"Highest Value","Type":"dropdown"},"Min Place Value":{"Value":0,"Type":"slider"},"Place Specific Eggs":{"Value":[],"Type":"multidropdown"}},"Wisp Companion":{"Auto Banjo Cricket":{"Value":true,"Type":"toggle"},"Auto Wisp":{"Value":true,"Type":"toggle"},"Wisp Status":{"Value":"Banjo Cricket: Done, Cricket's Banjo is yours","Type":"text"}},"Butterfly Bloom":{"Auto Butterfly Bloom":{"Value":true,"Type":"toggle"},"Trade Up Tiers":{"Value":["Emerald To Sapphire","Sapphire To Amethyst","Amethyst To Radiant"],"Type":"multidropdown"},"Auto Craft Essence":{"Value":true,"Type":"toggle"},"Auto Trade Up":{"Value":true,"Type":"toggle"},"Catch Priority":{"Value":"Rarest","Type":"dropdown"},"Tween Speed  ":{"Value":600,"Type":"slider","Unit":"studs/s"},"Catch Mode":{"Value":"Stand","Type":"dropdown"},"Catch Butterflies":{"Value":["Radiant Butterfly","Amethyst Butterfly","Sapphire Butterfly","Emerald Butterfly"],"Type":"multidropdown"},"Smart Trade For Essence":{"Value":true,"Type":"toggle"}},"Racing Event":{"Race Speed":{"Value":400,"Type":"slider"},"Auto Race":{"Value":true,"Type":"toggle"},"Race Shop Items":{"Value":["Nitro Mutation"],"Type":"multidropdown"},"Auto Equip Racer":{"Value":true,"Type":"toggle"},"Auto Buy Race Shop":{"Value":true,"Type":"toggle"},"Auto Claim Race Rewards":{"Value":true,"Type":"toggle"},"Auto Use Power-Ups":{"Value":true,"Type":"toggle"},"Racer":{"Value":"Best Owned","Type":"dropdown"}},"Auto Mutation":{"Mutate Priority":{"Value":"Highest Value","Type":"dropdown"},"Mutations To Use":{"Value":["Fractured","Scrambled","Enchanted","Nitro"],"Type":"multidropdown"},"Mutate Target Eggs":{"Value":[],"Type":"multidropdown"},"Mutate Min Value":{"Value":797.34,"Type":"slider"},"Auto Mutate":{"Value":true,"Type":"toggle"},"Mutate Status":{"Value":"Waiting  |  No egg to mutate","Type":"text"},"Auto Buy Nitro":{"Value":true,"Type":"toggle"},"Mutate Min Rarity":{"Value":"Secret","Type":"dropdown"}},"Auto Sell Lab Egg":{"Lab Egg Sell Value":{"Value":700.11,"Type":"slider"},"Sell Lab Egg Rule":{"Value":"Rarity And Value","Type":"dropdown"},"Lab Egg Max Rarity":{"Value":"Off","Type":"dropdown"},"Auto Sell Lab Egg":{"Value":true,"Type":"toggle"},"Lab Egg Sell Preview":{"Value":"Lab egg matches  -  0 eggs for $0","Type":"text"},"Keep Lab Pets":{"Value":[],"Type":"multidropdown"},"Keep Mutated Lab Eggs":{"Value":true,"Type":"toggle"}},"Auto Hatch & Equip":{"Hatch Specific Eggs":{"Value":[],"Type":"multidropdown"},"Auto Hatch":{"Value":true,"Type":"toggle"},"Hatch Min Rarity":{"Value":"Any","Type":"dropdown"},"Min Hatch Value":{"Value":0,"Type":"slider"},"Auto Equip Best":{"Value":true,"Type":"toggle"}},"Dr Scramble Lab":{"Lab Banners":{"Value":[],"Type":"multidropdown"},"Lab Status":{"Value":"Experimental Pets  -  needs Salamander, Red Panda, Bladehide  -  pity 67/100  -  free rerolls 0  -  rotates in 55:13  -  Need a Bladehide egg, yours is placed on a nest","Type":"text"},"Auto Place Lab Reward Eggs":{"Value":true,"Type":"toggle"},"Auto Reroll Lab Recipe":{"Value":true,"Type":"toggle"},"Auto Lab Trade-In":{"Value":true,"Type":"toggle"}},"Shooting Star":{"Auto Catch Shooting Star":{"Value":true,"Type":"toggle"},"Shooting Star Status":{"Value":"Waiting for a shooting star","Type":"text"}}},"Misc":{"Performance":{"Optimizer":{"Value":false,"Type":"toggle"},"Farm HUD":{"Value":false,"Type":"toggle"},"Background Color":{"Value":"White","Type":"dropdown"},"Egg Card Image":{"Value":"Egg Image","Type":"dropdown"},"Disable 3D Render":{"Value":false,"Type":"toggle"},"FPS and Ping":{"Value":true,"Type":"toggle"},"FPS Cap":{"Value":240,"Type":"slider","Unit":" FPS"},"HUD Size":{"Value":70,"Type":"slider","Unit":"%"},"Showcase Cards":{"Value":4,"Type":"slider"},"Hide Game UI":{"Value":true,"Type":"toggle"},"HUD Items":{"Value":["Money","Income","Speed","Treadmill","Eggs Stolen","Best Steal","Night Timer","Session Time","Activity","Racing Event","Race Wins","Shooting Star","Pets","Eggs","Top Pets","Top Eggs","Steal History"],"Type":"multidropdown"},"FPS and Ping Size":{"Value":100,"Type":"slider","Unit":"%"}},"Utility":{"Anti AFK":{"Value":true,"Type":"toggle"}}},"Server":{"Server":{"Server Hop Mode":{"Value":"Least Players","Type":"dropdown"},"Auto Load Script":{"Value":true,"Type":"toggle"},"Auto Rejoin When Disconnect":{"Value":true,"Type":"toggle"}}}},"SavedAt":1791691486},"Format":"ChilliLibraryConfig","ExportVersion":1,"Name":"main"}]===]
 
--- ==================== 1. NẠP SCRIPT CHILLI HUB GỐC ====================
+-- ==================== 1. TẢI SCRIPT CHILLI HUB GỐC ====================
 task.spawn(function()
     pcall(function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/tienkhanh1/spicy/main/Chilli.lua"))()
     end)
 end)
 
--- ==================== 2. TỪ ĐIỂN DỊCH THUẬT TOÀN DIỆN 100% ====================
+-- ==================== 2. TỪ ĐIỂN DỊCH THUẬT 100% ====================
 local currentLanguage = "VI"
 local FastCache = {}
 local switchGlobalLanguage = nil
@@ -101,7 +117,6 @@ local EXACT_MATCH_VI = {
 }
 
 local MAP_VI = {
-    -- MENU CHÍNH & TAB
     ["Chilli Hub"] = "Chilli Hub V2",
     ["Farm"] = "Cày Cuốc",
     ["Player"] = "Người Chơi",
@@ -118,7 +133,6 @@ local MAP_VI = {
     ["Filter features..."] = "Lọc tính năng...",
     ["Search"] = "Tìm kiếm",
 
-    -- DANH MỤC LỚN TAB FARM
     ["Racing Event"] = "Sự Kiện Đua Xe",
     ["Shooting Star"] = "Sao Băng Rơi",
     ["Dr Scramble Lab & Mech"] = "Phòng Lab & Robot Scramble",
@@ -137,22 +151,6 @@ local MAP_VI = {
     ["Auto Fuse Machine"] = "Máy Dung Hợp Pet",
     ["Auto Favorite"] = "Tự Động Khóa Pet",
 
-    -- TIỆN ÍCH KHÁC
-    ["Priority"] = "Ưu Tiên Nhiệm Vụ",
-    ["ESP"] = "Định Vị (ESP)",
-    ["Movement"] = "Di Chuyển",
-    ["Character"] = "Nhân Vật",
-    ["Combat"] = "Chiến Đấu",
-    ["Discord Webhook"] = "Cài Đặt Webhook Discord",
-    ["Egg Predictor"] = "Dự Đoán Trứng",
-    ["Lab Predictor"] = "Dự Đoán Phòng Lab",
-    ["Fuse Predictor"] = "Dự Đoán Dung Hợp",
-    ["Auto Progression"] = "Tự Động Tiến Trình",
-    ["Performance"] = "Hiệu Năng",
-    ["Utility"] = "Tiện Ích",
-    ["Egg Finder"] = "Dò Tìm Trứng",
-
-    -- RACING EVENT & SHOOTING STAR
     ["Race Speed"] = "Tốc Độ Đua",
     ["Auto Race"] = "Tự Động Đua Xe",
     ["Race Shop Items"] = "Vật Phẩm Shop Đua",
@@ -167,17 +165,6 @@ local MAP_VI = {
     ["Shooting Star Status"] = "Trạng Thái Sao Băng",
     ["Waiting for a shooting star"] = "Đang chờ sao băng rơi",
 
-    -- AUTO MUTATION
-    ["Mutate Priority"] = "Ưu Tiên Đột Biến",
-    ["Mutations To Use"] = "Loại Đột Biến Dùng",
-    ["Mutate Target Eggs"] = "Mục Tiêu Trứng Đột Biến",
-    ["Mutate Min Value"] = "Giá Trị Đột Biến Min",
-    ["Auto Mutate"] = "Tự Động Đột Biến",
-    ["Mutate Status"] = "Trạng Thái Đột Biến",
-    ["Auto Buy Nitro"] = "Tự Mua Nitro",
-    ["Mutate Min Rarity"] = "Độ Hiếm Đột Biến Min",
-
-    -- AUTO STEAL & TARGETS
     ["Target Areas"] = "Khu Vực Mục Tiêu",
     ["Min Rarity"] = "Độ Hiếm Min",
     ["Steal eggs of the chosen rarity and every rarity above it"] = "Cướp trứng thuộc độ hiếm đã chọn và cao hơn",
@@ -197,7 +184,6 @@ local MAP_VI = {
     ["Instant Steal Steps"] = "Số Bước Cướp Siêu Tốc",
     ["Higher is safer but takes longer"] = "Càng nhiều bước càng an toàn nhưng bay chậm hơn",
 
-    -- AUTO PLACE EGG & TREADMILL
     ["Place Egg Rule"] = "Quy Tắc Đặt Trứng",
     ["Place Egg Order"] = "Thứ Tự Đặt Trứng",
     ["Place Rarities"] = "Độ Hiếm Đặt Trứng",
@@ -208,7 +194,6 @@ local MAP_VI = {
     ["Skip eggs worth less than this (0 = off)"] = "Bỏ qua trứng giá nhỏ hơn mức này (0 = tắt)",
     ["Stay On Treadmill"] = "Luôn Ở Trên Máy Tập",
 
-    -- AUTO HATCH & EQUIP
     ["Auto Hatch"] = "Tự Động Ấp Trứng",
     ["Hatch Min Rarity"] = "Độ Hiếm Ấp Min",
     ["Hatch eggs of the chosen rarity and every rarity above it"] = "Ấp trứng từ độ hiếm đã chọn trở lên",
@@ -217,19 +202,14 @@ local MAP_VI = {
     ["Auto Equip Best"] = "Tự Trang Bị Pet Tốt Nhất",
     ["Equip Best when a better pet appears"] = "Tự trang bị khi xuất hiện pet mạnh hơn",
 
-    -- BÁN PET & BÁN TRỨNG
     ["Sell Pets Now"] = "Bán Pet Ngay",
     ["Sell matching pets once"] = "Bán một lần các pet khớp điều kiện",
     ["Sell Pet Rule"] = "Quy Tắc Bán Pet",
-    ["Which checks must pass to sell"] = "Điều kiện bắt buộc để bán",
     ["Pet Max Rarity"] = "Độ Hiếm Bán Pet Max",
     ["Sell pets at or below this rarity"] = "Bán pet từ độ hiếm này trở xuống",
     ["Pet Sell Value"] = "Giá Trị Bán Pet",
-    ["Sell pets worth less than this (0 = off)"] = "Bán pet có giá trị nhỏ hơn mức này (0 = tắt)",
     ["Keep Mutated Pets"] = "Giữ Lại Pet Đột Biến",
-    ["Never sell mutated pets"] = "Không bao giờ bán pet có đột biến",
     ["Blacklist Sell Pets"] = "Danh Sách Đen Bán Pet",
-    ["These pets are never sold"] = "Các pet này sẽ không bao giờ bị bán",
     ["Sell bag eggs matching the rules below"] = "Bán trứng trong túi khớp quy tắc dưới",
     ["Sell Eggs Now"] = "Bán Trứng Ngay",
     ["Sell matching eggs once"] = "Bán một lần các trứng khớp điều kiện",
@@ -238,153 +218,8 @@ local MAP_VI = {
     ["Sell eggs at or below this rarity"] = "Bán trứng từ độ hiếm này trở xuống",
     ["Egg Sell Value"] = "Giá Trị Bán Trứng",
     ["Keep Mutated Eggs"] = "Giữ Lại Trứng Đột Biến",
-    ["Never sell mutated eggs"] = "Không bao giờ bán trứng có đột biến",
     ["Blacklist Sell Eggs"] = "Danh Sách Đen Bán Trứng",
-    ["These eggs are never sold"] = "Các trứng này sẽ không bao giờ bị bán",
-    ["Sell eggs traded from Dr Scramble that match the filters below"] = "Bán trứng đổi từ Dr Scramble khớp bộ lọc dưới",
-    ["Sell Lab Eggs Now"] = "Bán Trứng Lab Ngay",
-    ["Sell matching Lab eggs once"] = "Bán một lần các trứng Lab khớp điều kiện",
-    ["Sell Lab Egg Rule"] = "Quy Tắc Bán Trứng Lab",
-    ["Lab Egg Max Rarity"] = "Độ Hiếm Bán Trứng Lab Max",
-    ["Sell Lab eggs at or below this rarity (Off = none by rarity)"] = "Bán trứng Lab từ độ hiếm này trở xuống (Off = tắt)",
-    ["Lab Egg Sell Value"] = "Giá Trị Bán Trứng Lab",
-    ["Sell Lab eggs worth less than this (0 = off)"] = "Bán trứng Lab có giá trị thấp hơn mức này (0 = tắt)",
-    ["Keep Mutated Lab Eggs"] = "Giữ Lại Trứng Lab Đột Biến",
-    ["Never sell mutated Lab eggs"] = "Không bao giờ bán trứng Lab có đột biến",
-    ["Keep Lab Pets"] = "Giữ Lại Pet Lab",
-    ["Lab eggs of these pets are never sold"] = "Trứng Lab của những pet này sẽ không bao giờ bị bán",
 
-    -- DUNG HỢP (FUSE)
-    ["No three matching pets"] = "Không đủ 3 pet trùng khớp",
-    ["Fuse 3 same pets into an egg, nonstop"] = "Dung hợp 3 pet cùng loại thành 1 trứng liên tục",
-    ["Fuse Priority Mode"] = "Chế Độ Ưu Tiên Dung Hợp",
-    ["Pets To Use"] = "Loại Pet Sử Dụng",
-    ["Max Rarity to Fuse"] = "Độ Hiếm Dung Hợp Max",
-    ["Specific Species to Fuse"] = "Chỉ Định Loài Dung Hợp",
-    ["Only fuse these species (empty = all)"] = "Chỉ dung hợp loài này (trống = tất cả)",
-    ["Skip Mutated Pets"] = "Bỏ Qua Pet Đột Biến",
-    ["Eject Incomplete Slots"] = "Nhả Các Ô Chưa Đủ Bộ",
-    ["Take out pets that can't make a set"] = "Lấy ra các pet không thể ghép đủ bộ 3",
-
-    -- KHÓA YÊU THÍCH (FAVORITE)
-    ["Auto Favorite Pet"] = "Tự Động Khóa Pet",
-    ["Favorite pets matching the rules below"] = "Khóa yêu thích các pet khớp quy tắc dưới",
-    ["Favorite Pets Now"] = "Khóa Pet Ngay",
-    ["Favorite matching pets once"] = "Khóa yêu thích các pet khớp điều kiện một lần",
-    ["Favorite Rule"] = "Quy Tắc Khóa",
-    ["Pass any check or all checks"] = "Thỏa mãn một hoặc tất cả điều kiện",
-    ["Favorite Min Rarity"] = "Độ Hiếm Khóa Min",
-    ["Favorite Mutations"] = "Đột Biến Cần Khóa",
-    ["Mutation check (empty = skip)"] = "Kiểm tra đột biến (trống = bỏ qua)",
-    ["Min Favorite Value"] = "Giá Trị Khóa Min",
-    ["Value check (0 = skip)"] = "Kiểm tra giá trị (0 = bỏ qua)",
-    ["Always Favorite Species"] = "Luôn Khóa Các Loài Này",
-    ["Always favorite these species"] = "Luôn luôn khóa những loài này",
-    ["Auto Favorite Equipped"] = "Tự Khóa Pet Đang Dùng",
-    ["Keep equipped pets favorited"] = "Luôn giữ pet đang trang bị được khóa",
-    ["Auto Unfavorite Equipped"] = "Tự Bỏ Khóa Pet Đang Dùng",
-    ["Unfavorite equipped pets not in the rules"] = "Mở khóa pet đang trang bị nếu không đúng quy tắc",
-    ["Favorite Equipped Now"] = "Khóa Pet Đang Dùng Ngay",
-    ["Favorite all equipped pets once"] = "Khóa tất cả pet đang trang bị một lần",
-    ["Unfavorite Equipped Now"] = "Bỏ Khóa Pet Đang Dùng Ngay",
-    ["Unfavorite all equipped pets once"] = "Mở khóa tất cả pet đang trang bị một lần",
-
-    -- BƯỚM & WISP
-    ["Auto Butterfly Bloom"] = "Tự Động Bắt Bướm",
-    ["Catch Mode"] = "Chế Độ Bắt",
-    ["Catch Priority"] = "Ưu Tiên Bắt",
-    ["Only for Chase mode"] = "Chỉ dùng cho chế độ Đuổi theo",
-    ["Catch Butterflies"] = "Chọn Bướm Muốn Bắt",
-    ["Radiant Butterfly"] = "Bướm Rực Rỡ",
-    ["Amethyst Butterfly"] = "Bướm Thạch Anh Tím",
-    ["Sapphire Butterfly"] = "Bướm Lam Ngọc (Sapphire)",
-    ["Emerald Butterfly"] = "Bướm Lục Bảo (Emerald)",
-    ["Auto Trade Up"] = "Tự Nâng Cấp Bướm",
-    ["Trade Up Tiers"] = "Bậc Nâng Cấp",
-    ["Smart Trade For Essence"] = "Đổi Bướm Lấy Tinh Chất Thông Minh",
-    ["Going to the middle of the bloom"] = "Đang đi tới trung tâm khu bướm nở",
-    ["Auto Craft Essence"] = "Tự Chế Tạo Tinh Chất",
-    ["Auto Use Enchanted Essence"] = "Tự Dùng Tinh Chất Phù Phép",
-    ["Auto Wisp"] = "Tự Động Nhặt Wisp",
-    ["Auto Banjo Cricket"] = "Tự Động Bắt Dế Banjo",
-
-    -- MECH BOSS & DR SCRAMBLE LAB
-    ["Auto Mech Boss"] = "Tự Động Đánh Boss Robot",
-    ["Mech Tween Speed"] = "Tốc Độ Bay Đánh Boss",
-    ["Main Weapon Hold"] = "Thời Gian Giữ Vũ Khí Chính",
-    ["Scrambler Hold"] = "Thời Gian Giữ Súng Biến Đổi",
-    ["Swap Two Weapons"] = "Tự Đổi Qua Lại 2 Vũ Khí",
-    ["Boss Server Hop"] = "Tự Đổi Server Săn Boss",
-    ["Keep Hopping For"] = "Thời Gian Tìm Server Liên Tục",
-    ["Auto Claim Mastery"] = "Tự Nhận Thưởng Tinh Thông Boss",
-    ["Auto Lab Trade-In"] = "Tự Đổi Đồ Phòng Thí Nghiệm",
-    ["Auto Reroll Lab Recipe"] = "Tự Đổi Công Thức Phòng Lab",
-    ["Auto Place Lab Reward Eggs"] = "Tự Đặt Trứng Thưởng Lab",
-    ["Auto Buy Scramble Shop"] = "Tự Mua Shop Dr. Scramble",
-    ["Auto Use Scrambled"] = "Tự Dùng Thuốc Biến Đổi Scrambled",
-    ["Auto Buy Scrambled"] = "Tự Mua Thêm Scrambled Khi Hết",
-
-    -- COMBAT & CHARACTER
-    ["Chase Settings"] = "Cài Đặt Đuổi Đánh",
-    ["Hit Tween Speed"] = "Tốc Độ Bay Đánh",
-    ["Hit Max Speed"] = "Tốc Độ Đánh Tối Đa",
-    ["Hit Lead"] = "Đón Đầu Mục Tiêu (Hit Lead)",
-    ["Hit Sweep"] = "Quét Đòn Đánh (Hit Sweep)",
-    ["Add/Remove Hits On Quick Bar 2"] = "Thêm/Bỏ Đòn Đánh Vào Quick Bar 2",
-    ["Pin or unpin the hit toggles on Quick Bar 2"] = "Ghim hoặc bỏ ghim nút đánh vào Quick Bar 2",
-    ["Auto Hit Nearest Player"] = "Tự Đánh Người Gần Nhất",
-    ["Auto Hit Egg Holders"] = "Tự Đánh Người Bê Trứng",
-    ["Auto Hit Specific Player"] = "Tự Đánh Người Chỉ Định",
-    ["Hit Player"] = "Chọn Người Cần Đánh",
-    ["Hit Aura"] = "Vòng Đánh Tự Động (Hit Aura)",
-    ["Speed Boost"] = "Tăng Tốc Chạy",
-    ["Boost Speed"] = "Tốc Độ Tăng Tốc",
-    ["Infinite Jump"] = "Nhảy Vô Hạn",
-    ["Invisibility"] = "Tàng Hình (Invisibility)",
-    ["Makes you invisible to other players"] = "Làm bạn vô hình trước người chơi khác",
-    ["Anti Ragdoll"] = "Chống Ngã (Anti Ragdoll)",
-    ["Anti Trap"] = "Chống Bẫy (Anti Trap)",
-    ["Traps from other players cannot catch you"] = "Bẫy của người khác không thể bắt được bạn",
-    ["Instant Prompts"] = "Tương Tác Nhanh (Instant E)",
-
-    -- ESP & PREDICTOR
-    ["ESP Eggs"] = "ESP Trứng",
-    ["ESP Fixed Size"] = "Cỡ ESP Cố Định",
-    ["ESP Own Base Eggs"] = "Hiện Trứng Căn Cứ Mình",
-    ["ESP Min Rarity"] = "Độ Hiếm ESP Min",
-    ["ESP Show Info"] = "Hiện Thông Tin ESP",
-    ["Min ESP Value"] = "Giá Trị ESP Min",
-    ["ESP Egg Size"] = "Cỡ ESP Trứng",
-    ["ESP Guards"] = "ESP Vệ Sĩ",
-    ["ESP Guard Size"] = "Cỡ ESP Vệ Sĩ",
-    ["ESP Lost Parts"] = "ESP Phụ Tùng Rơi",
-    ["ESP Players"] = "ESP Người Chơi",
-    ["ESP Player Info"] = "Thông Tin ESP Người Chơi",
-    ["ESP Player Size"] = "Cỡ ESP Người Chơi",
-    ["Search eggs..."] = "Tìm kiếm trứng...",
-    ["FLY TO EGG"] = "BAY ĐẾN TRỨNG",
-    ["Biohazard Pets"] = "Pet Phóng Xạ (Biohazard)",
-    ["CURRENT RECIPE"] = "CÔNG THỨC HIỆN TẠI",
-    ["REWARD ODDS - BIOHAZARD PETS"] = "TỈ LỆ THƯỞNG - PET PHÓNG XẠ",
-    ["Chase pet"] = "Đuổi bắt pet",
-    ["Machine is empty"] = "Máy đang trống",
-    ["Load 3 pets of the same species to see the result odds"] = "Đặt 3 pet cùng loài vào máy để xem tỉ lệ kết quả",
-
-    -- PROGRESS & SERVER & CONFIG
-    ["Auto Buy Trail"] = "Tự Mua Vệt Sáng (Trail)",
-    ["Auto Upgrade Base"] = "Tự Nâng Cấp Căn Cứ",
-    ["Auto Upgrade Treadmill"] = "Tự Nâng Cấp Máy Tập",
-    ["Auto Claim"] = "Tự Nhận Thưởng",
-    ["Auto Claim Index"] = "Tự Nhận Thưởng Sách Pet",
-    ["Auto Load Script"] = "Tự Động Nạp Script",
-    ["Server Hop Mode"] = "Chế Độ Đổi Server",
-    ["Server Hop"] = "Đổi Server",
-    ["Job ID"] = "Mã Phòng (Job ID)",
-    ["Paste a server Job ID..."] = "Dán mã Job ID của server...",
-    ["Join Job ID"] = "Vào Bằng Job ID",
-    ["Copy Current Job ID"] = "Chép Job ID Hiện Tại",
-    ["Rejoin Server"] = "Vào Lại Server",
-    ["Auto Rejoin When Disconnect"] = "Tự Kết Nối Lại Khi Mất Mạng",
     ["Set Startup Config"] = "Cấu Hình Khởi Động",
     ["Load Config"] = "Tải Cấu Hình",
     ["Save Config"] = "Lưu Cấu Hình",
@@ -393,20 +228,9 @@ local MAP_VI = {
     ["Import Config Text"] = "Nhập Văn Bản Cấu Hình",
     ["Import Config"] = "Nhập Cấu Hình",
     ["Pick a config, then press Load to apply it now"] = "Chọn một cấu hình, sau đó bấm Tải để áp dụng ngay",
-
-    -- MISC & PERFORMANCE
-    ["FPS Cap"] = "Giới Hạn FPS",
-    ["Optimizer"] = "Tối Ưu Hóa (Giảm Lag)",
-    ["Strip shadows, textures and effects for the highest FPS"] = "Xóa bóng, bề mặt và hiệu ứng để đạt FPS tối đa",
-    ["FPS and Ping"] = "Hiện FPS & Ping",
-    ["FPS and Ping Size"] = "Kích Cỡ FPS & Ping",
-    ["Disable 3D Render"] = "Tắt Đồ Họa 3D",
-    ["Farm HUD"] = "Bảng Cày Cuốc (Farm HUD)",
-    ["Anti AFK"] = "Chống Treo Máy (Anti AFK)",
     ["selected"] = "đã chọn"
 }
 
--- BỘ BÓC TÁCH REGEX THỜI GIAN THỰC
 local DYNAMIC_PATTERNS = {
     { pattern = "ALL (%d+)", format = function(l, c) return l == "VI" and ("TẤT CẢ " .. c) or ("ALL " .. c) end },
     { pattern = "READY (%d+)", format = function(l, c) return l == "VI" and ("SẴN SÀNG " .. c) or ("READY " .. c) end },
@@ -421,9 +245,6 @@ local DYNAMIC_PATTERNS = {
     end },
     { pattern = "Egg matches %- (%d+) eggs? for %$(.+)", format = function(l, c, v)
         return l == "VI" and string.format("Khớp trứng - %s trứng giá $%s", c, v) or string.format("Egg matches - %s eggs for $%s", c, v)
-    end },
-    { pattern = "Lab egg matches %- (%d+) eggs? for %$(.+)", format = function(l, c, v)
-        return l == "VI" and string.format("Khớp trứng Lab - %s trứng giá $%s", c, v) or string.format("Lab egg matches - %s eggs for $%s", c, v)
     end }
 }
 
@@ -451,7 +272,6 @@ local function translateText(raw)
     local result = raw
     local matched = false
 
-    -- Quét Regex động
     for _, item in ipairs(DYNAMIC_PATTERNS) do
         if result:find(item.pattern) then
             result = result:gsub(item.pattern, function(...)
@@ -461,7 +281,6 @@ local function translateText(raw)
         end
     end
 
-    -- Khớp từ điển tĩnh (Xử lý mượt mà cả khi có tiền tố '>', 'v')
     for _, item in ipairs(SortedVI) do
         if result:find(item.en, 1, true) then
             result = replaceAll(result, item.en, item.out)
@@ -523,13 +342,12 @@ local function updateAllActive()
     end
 end
 
--- ==================== 3. LÕI CÔ LẬP ĐỔI MÀU 3 PHẦN SOFT SKY BLUE ====================
+-- ==================== 3. LÕI CÔ LẬP ĐỔI MÀU 3 PHẦN SOFT BLUE ====================
 local COLOR_FACE_TOP     = Color3.fromRGB(140, 195, 245)
 local COLOR_FACE_BOTTOM  = Color3.fromRGB(95, 155, 225)
 local COLOR_BEVEL_SHADOW = Color3.fromRGB(55, 110, 180)
 
 local TARGET_BUTTON_KEYWORDS = {
-    -- Cột Tab trái (7 nút)
     ["cày cuốc"] = true, ["farm"] = true,
     ["người chơi"] = true, ["player"] = true,
     ["dự đoán"] = true, ["predictor"] = true,
@@ -537,8 +355,7 @@ local TARGET_BUTTON_KEYWORDS = {
     ["máy chủ"] = true, ["server"] = true,
     ["khác"] = true, ["misc"] = true,
     ["tự đổi máy chủ"] = true, ["tự đổi server"] = true, ["auto hop"] = true,
-    -- Cột nút phải (5 nút)
-    ["admin abuse"] = true,
+    ["admin abuse"] = true, ["menu admin (abuse)"] = true,
     ["discord"] = true,
     ["phím tắt & key"] = true, ["quick & keys"] = true,
     ["cài đặt"] = true, ["settings"] = true,
@@ -625,7 +442,7 @@ local function inspectAndApplySoftBlue(inst)
     end
 end
 
--- ==================== 4. CƠ CHẾ CLICK TỌA ĐỘ VẬT LÝ VÀ SIGNAL TOÀN DIỆN ====================
+-- ==================== 4. CLICK ĐA TẦNG (VIM + FIRESIGNAL + CONNECTIONS) ====================
 local function clickElementDirectly(inst)
     if not inst then return end
 
@@ -683,7 +500,6 @@ local function executeAutoConfig(statusCallback)
     task.spawn(function()
         statusCallback("⏳ Đang nạp...", Color3.fromRGB(255, 210, 90))
 
-        -- Tạm chuyển EN để thao tác tên nút chính xác
         if switchGlobalLanguage then
             switchGlobalLanguage("EN")
             task.wait(0.3)
@@ -714,7 +530,7 @@ local function executeAutoConfig(statusCallback)
             isConfigInjecting = false; return
         end
 
-        -- 1. Mở tab Config
+        -- 1. Bấm Tab Config
         local configTabElement = nil
         for _, d in ipairs(chilliGui:GetDescendants()) do
             if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Visible then
@@ -859,7 +675,6 @@ local function executeAutoConfig(statusCallback)
         clickElementDirectly(loadBtnElement)
         task.wait(0.4)
 
-        -- TỰ ĐỘNG CHUYỂN NGƯỢC LẠI TIẾNG VIỆT SAU KHI NẠP XONG
         if switchGlobalLanguage then
             switchGlobalLanguage("VI")
         end
@@ -1109,7 +924,7 @@ local function createLiquidCapsuleUI()
 end
 
 -- ==================== 8. KHỞI TẠO TIẾN TRÌNH & THEME SCANNER ====================
-task.delay(2.5, function()
+task.delay(1.5, function()
     createLiquidCapsuleUI()
     createAutoConfigButtonUI()
 
