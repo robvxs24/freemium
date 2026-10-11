@@ -1,12 +1,27 @@
 -- ==============================================================================
---  CHILLI HUB V3.6 - MASTER TRANSLATION & CLEAN SPARKLING EDITION
---  Các nâng cấp chính:
---    1. SỬA DỨT ĐIỂM TIÊU ĐỀ: Khóa chuẩn xác duy nhất một chữ 'Chilli Hub V3.6'.
---    2. HUY HIỆU '✨ NEW' HOLOGRAPHIC: Thiết kế viên ngọc xanh mờ viền cầu vồng xoay, không còn đốm đen.
---    3. VIỆT HÓA 100% TOÀN BỘ GHI CHÚ: Dịch sạch Server, Webhook, Predictor, Progress, Performance, Egg Finder, Admin Abuse.
---    4. DYNAMIC ISLAND MORPHING: Tích hợp nút đổi ngôn ngữ và Setting Auto Farm từ A-Z.
---    5. SAFE BOOT GUARD: Chống 100% mã kick BAC-8512 và BAC-55110 (Không dùng VIM).
+--  CHILLI HUB V3.6 - DYNAMIC ISLAND & MASTER 100% TRANSLATION (CLEAN MINI BADGE)
 -- ==============================================================================
+
+-- ==================== 0. DỌN DẸP SẠCH TÀN DƯ GUI CŨ ====================
+local cleanupList = {
+    "Chilli_Dynamic_Island",
+    "Chilli_AutoConfig_Btn",
+    "Chilli_AutoFarm_Widget",
+    "Chilli_Liquid_Capsule",
+    "Sparkling_New_Badge"
+}
+
+for _, root in ipairs({gethui and gethui(), game:GetService("CoreGui"), game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")}) do
+    if root then
+        for _, name in ipairs(cleanupList) do
+            local f = root:FindFirstChild(name, true)
+            while f do
+                pcall(function() f:Destroy() end)
+                f = root:FindFirstChild(name, true)
+            end
+        end
+    end
+end
 
 -- ==================== 1. BẢO VỆ KHỞI ĐỘNG (SAFE BOOT GUARD) ====================
 if not game:IsLoaded() then
@@ -21,8 +36,7 @@ if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("Humano
     repeat task.wait(0.2) until LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 end
 
--- Nghỉ đệm an toàn để hoàn tất xác thực Handshake với máy chủ
-task.wait(2.5)
+task.wait(2.5) -- Đệm an toàn chống BAC-8512
 
 -- ==================== 2. TẢI SCRIPT CHILLI HUB GỐC ====================
 task.spawn(function()
@@ -133,10 +147,67 @@ local MAP_VI = {
     ["Filter features..."] = "Lọc tính năng...",
     ["Search"] = "Tìm kiếm",
 
-    -- TIỆN ÍCH DƯỚI ĐÁY
+    -- TIỆN ÍCH NGOÀI MÀN HÌNH
     ["Anti Guard"] = "Chống Vệ Sĩ",
 
-    -- DISCORD WEBHOOK (KHẮC PHỤC DỊCH DỞ DANG)
+    -- TIẾN TRÌNH (AUTO PROGRESSION - HÌNH 6449)
+    ["Auto Progression"] = "Tự Động Tiến Trình",
+    ["Auto Buy Trail"] = "Tự Mua Vệt Sáng",
+    ["Automatically buy available trails when affordable"] = "Tự động mua vệt sáng khi đủ tiền",
+    ["Auto Upgrade Base"] = "Tự Nâng Cấp Căn Cứ",
+    ["Automatically upgrade base when money is available"] = "Tự động nâng cấp căn cứ khi đủ tiền",
+    ["Auto Upgrade Treadmill"] = "Tự Nâng Cấp Máy Tập",
+    ["Automatically upgrade treadmill when money is available"] = "Tự động nâng cấp máy tập khi đủ tiền",
+    ["Auto Claim Index"] = "Tự Nhận Thưởng Chỉ Mục",
+    ["Claim index rewards as soon as they unlock"] = "Nhận thưởng chỉ mục ngay khi mở khóa",
+    ["Auto Claim"] = "Tự Nhận Thưởng",
+    ["Claim offline money & index rewards"] = "Nhận tiền offline & thưởng chỉ mục",
+
+    -- MÁY CHỦ (SERVER - HÌNH 6448)
+    ["Auto Load Script"] = "Tự Động Nạp Script",
+    ["Server Hop Mode"] = "Chế Độ Đổi Server",
+    ["Server Hop"] = "Đổi Server",
+    ["Job ID"] = "Mã Phòng (Job ID)",
+    ["Paste a server Job ID..."] = "Dán mã Job ID máy chủ...",
+    ["Join Job ID"] = "Vào Bằng Job ID",
+    ["Copy Current Job ID"] = "Sao Chép Job ID Hiện Tại",
+    ["Rejoin Server"] = "Vào Lại Máy Chủ",
+    ["Auto Rejoin When Disconnect"] = "Tự Kết Nối Lại Khi Mất Mạng",
+
+    -- HIỆU NĂNG & TIỆN ÍCH (PERFORMANCE & UTILITY - HÌNH 6447, 6446)
+    ["Performance"] = "Hiệu Năng",
+    ["FPS Cap"] = "Giới Hạn FPS",
+    ["Optimizer"] = "Tối Ưu Hóa (Giảm Lag)",
+    ["Strip shadows, textures and effects for the highest FPS"] = "Xóa bóng, bề mặt và hiệu ứng để tối đa FPS",
+    ["FPS and Ping Size"] = "Cỡ FPS & Ping",
+    ["FPS and Ping"] = "Hiện FPS & Ping",
+    ["Disable 3D Render"] = "Tắt Đồ Họa 3D",
+    ["Farm HUD"] = "Bảng Cày Cuốc (Farm HUD)",
+    ["Drag any panel to place it where you like"] = "Kéo bất kỳ bảng nào đến vị trí bạn muốn",
+    ["Utility"] = "Tiện Ích",
+    ["Anti AFK"] = "Chống Treo Máy (Anti AFK)",
+
+    -- DÒ TÌM TRỨNG (EGG FINDER - HÌNH 6445, 6444)
+    ["Egg Finder"] = "Dò Tìm Trứng",
+    ["Joins new servers to find eggs that match the filters below"] = "Tự vào server mới để tìm trứng khớp bộ lọc dưới",
+    ["Turn on Auto Hop to start hunting"] = "Bật Tự Đổi Máy Chủ để bắt đầu săn trứng",
+    ["Hop Mode"] = "Chế Độ Đổi Server",
+    ["When to move on to the next server"] = "Thời điểm chuyển sang máy chủ tiếp theo",
+    ["Rarity To Wait For"] = "Độ Hiếm Cần Đợi",
+    ["For After A Rare Spawns this rarity or higher"] = "Chờ sau khi xuất hiện trứng từ độ hiếm này trở lên",
+    ["For After A Rare Spawns: this rarity or higher"] = "Chờ sau khi xuất hiện trứng từ độ hiếm này trở lên",
+    ["Sync With Auto Steal Filters"] = "Đồng Bộ Bộ Lọc Cướp",
+    ["Changing a filter here also changes it in Auto Steal, and back"] = "Thay đổi bộ lọc tại đây sẽ đồng bộ với Tự Động Cướp",
+    ["First Hop Delay"] = "Độ Trễ Lần Đổi Server Đầu",
+    ["Wait after the script loads before the first hop"] = "Chờ sau khi nạp script hoàn tất trước khi đổi server",
+    ["Min Value To Find"] = "Giá Trị Min Cần Tìm",
+    ["Skip eggs worth less than this. Drag or type 350k, 50m, 10b"] = "Bỏ qua trứng giá nhỏ hơn mức này. Kéo hoặc nhập 350k, 50m, 10b",
+    ["Find eggs of the chosen rarity and every rarity above it"] = "Tìm trứng thuộc độ hiếm đã chọn và cao hơn",
+    ["Target Specific Eggs"] = "Mục Tiêu Trứng Chỉ Định",
+    ["Only look for these eggs (empty = all)"] = "Chỉ tìm các trứng này (trống = tất cả)",
+    ["Target Areas"] = "Khu Vực Mục Tiêu",
+
+    -- DISCORD WEBHOOK & PREDICTOR (HÌNH 6431, 6430)
     ["Discord Webhook"] = "Webhook Discord",
     ["Webhook URL"] = "Đường Dẫn Webhook",
     ["Ping @everyone"] = "Tag @everyone",
@@ -144,12 +215,12 @@ local MAP_VI = {
     ["Post eggs you bring home that match the filter"] = "Gửi thông báo các trứng mang về khớp bộ lọc",
     ["Notify Fused Eggs"] = "Báo Cáo Trứng Dung Hợp",
     ["Post eggs from the Fuse Machine that match the filter"] = "Gửi thông báo các trứng từ Máy Dung Hợp khớp bộ lọc",
+    ["Webhook Độ Hiếm Min"] = "Độ Hiếm Webhook Min",
     ["Webhook Min Rarity"] = "Độ Hiếm Webhook Min",
     ["Only post eggs of this rarity and above"] = "Chỉ gửi trứng từ độ hiếm này trở lên",
     ["Webhook Min Value"] = "Giá Trị Webhook Min",
     ["Only post eggs worth at least this. Drag or type 350k, 50m, 10b"] = "Chỉ gửi trứng đạt giá trị tối thiểu mức này. Kéo hoặc nhập 350k, 50m, 10b",
-
-    -- PREDICTOR (DỰ ĐOÁN)
+    ["Egg Dự Đoán"] = "Dự Đoán Trứng",
     ["Egg Predictor"] = "Dự Đoán Trứng",
     ["Lab Predictor"] = "Dự Đoán Phòng Lab",
     ["Fuse Predictor"] = "Dự Đoán Dung Hợp",
@@ -158,75 +229,24 @@ local MAP_VI = {
     ["Search eggs..."] = "Tìm kiếm trứng...",
     ["FLY TO EGG"] = "BAY ĐẾN TRỨNG",
 
-    -- PROGRESSION (TIẾN TRÌNH)
-    ["Auto Progression"] = "Tự Động Tiến Trình",
-    ["Auto Buy Trail"] = "Tự Mua Vệt Sáng (Trail)",
-    ["Automatically buy available trails when affordable"] = "Tự động mua vệt sáng có sẵn khi đủ tiền",
-    ["Auto Upgrade Base"] = "Tự Nâng Cấp Căn Cứ",
-    ["Automatically upgrade base when money is available"] = "Tự động nâng cấp căn cứ khi đủ tiền",
-    ["Auto Upgrade Treadmill"] = "Tự Nâng Cấp Máy Tập",
-    ["Automatically upgrade treadmill when money is available"] = "Tự động nâng cấp máy tập khi đủ tiền",
-    ["Auto Claim Index"] = "Tự Nhận Thưởng Sách Pet",
-    ["Claim index rewards as soon as they unlock"] = "Tự nhận thưởng sách pet ngay khi mở khóa",
-    ["Auto Claim"] = "Tự Nhận Thưởng",
-    ["Claim offline money & index rewards"] = "Nhận tiền tích lũy offline & thưởng sách pet",
-
-    -- PERFORMANCE (HIỆU NĂNG)
-    ["Performance"] = "Hiệu Năng",
-    ["FPS Cap"] = "Giới Hạn FPS",
-    ["Optimizer"] = "Tối Ưu Hóa (Giảm Lag)",
-    ["Strip shadows, textures and effects for the highest FPS"] = "Xóa bóng, bề mặt và hiệu ứng để đạt FPS tối đa",
-    ["FPS and Ping Size"] = "Kích Cỡ FPS & Ping",
-    ["FPS and Ping"] = "Hiện FPS & Ping",
-    ["Disable 3D Render"] = "Tắt Đồ Họa 3D",
-    ["Farm HUD"] = "Bảng Cày Cuốc (Farm HUD)",
-    ["Drag any panel to place it where you like"] = "Kéo bất kỳ bảng nào đến vị trí bạn muốn",
-    ["Anti AFK"] = "Chống Treo Máy (Anti AFK)",
-
-    -- EGG FINDER (DÒ TÌM TRỨNG)
-    ["Egg Finder"] = "Dò Tìm Trứng",
-    ["Joins new servers to find eggs that match the filters below"] = "Tự vào server mới để tìm trứng khớp bộ lọc dưới",
-    ["Turn on Auto Hop to start hunting"] = "Bật Tự Đổi Máy Chủ để bắt đầu săn trứng",
-    ["Hop Mode"] = "Chế Độ Đổi Server",
-    ["When to move on to the next server"] = "Điều kiện chuyển sang máy chủ tiếp theo",
-    ["Rarity To Wait For"] = "Độ Hiếm Cần Giữ Chân",
-    ["For After A Rare Spawns this rarity or higher"] = "Chờ sau khi xuất hiện trứng từ độ hiếm này trở lên",
-    ["Sync With Auto Steal Filters"] = "Đồng Bộ Bộ Lọc Cướp",
-    ["Changing a filter here also changes it in Auto Steal, and back"] = "Thay đổi bộ lọc tại đây sẽ đồng bộ với Tự Động Cướp",
-    ["First Hop Delay"] = "Độ Trễ Lần Đổi Server Đầu",
-    ["Wait after the script loads before the first hop"] = "Chờ sau khi nạp script hoàn tất trước khi đổi server",
-    ["Min Value To Find"] = "Giá Trị Min Cần Tìm",
-    ["Skip eggs worth less than this. Drag or type 350k, 50m, 10b"] = "Bỏ qua trứng giá nhỏ hơn mức này. Kéo hoặc nhập 350k, 50m, 10b",
-    ["Target Specific Eggs"] = "Chọn Đích Danh Trứng",
-    ["Only look for these eggs (empty = all)"] = "Chỉ tìm các trứng này (trống = tất cả)",
-
-    -- ADMIN ABUSE
+    -- ADMIN ABUSE (HÌNH 6436, 6437)
     ["Capture The Egg"] = "Cướp Trứng Sự Kiện",
-    ["Turn on Capture The Egg below to join the event"] = "Bật Cướp Trứng Sự Kiện bên dưới để tham gia sự kiện",
+    ["Turn on Capture The Egg below to join the event"] = "Bật Cướp Trứng Sự Kiện bên dưới để tham gia",
     ["Auto Capture Event Egg"] = "Tự Cướp Trứng Sự Kiện",
-    ["Take It From The Holder"] = "Giật Trứng Từ Người Cầm",
+    ["Take It From The Holder"] = "Giật Trứng Từ Người Bê",
     ["Hold Height"] = "Độ Cao Bê Trứng",
     ["Keep Away Distance"] = "Khoảng Cách Giữ An Toàn",
     ["Admin Treadmill"] = "Máy Tập Admin",
     ["Waiting for the Admin Treadmill"] = "Đang chờ Máy Tập Admin",
     ["Auto Use Admin Treadmill"] = "Tự Dùng Máy Tập Admin",
+    ["Instant Steal V3 Note"] = "Ghi Chú Cướp Siêu Tốc V3",
     ["Instant Steal V3"] = "Cướp Siêu Tốc V3",
     ["Instant Steal V2"] = "Cướp Siêu Tốc V2",
+    ["Instant Steal"] = "Cướp Siêu Tốc",
     ["Needs Admin Treadmill"] = "Cần Máy Tập Admin",
     ["Toggle is off"] = "Đang tắt",
 
-    -- SERVER TAB
-    ["Auto Load Script"] = "Tự Động Nạp Script",
-    ["Server Hop Mode"] = "Chế Độ Đổi Server",
-    ["Server Hop"] = "Đổi Server",
-    ["Job ID"] = "Mã Phòng (Job ID)",
-    ["Paste a server Job ID..."] = "Dán mã Job ID của server...",
-    ["Join Job ID"] = "Vào Bằng Job ID",
-    ["Copy Current Job ID"] = "Chép Job ID Hiện Tại",
-    ["Rejoin Server"] = "Vào Lại Server",
-    ["Auto Rejoin When Disconnect"] = "Tự Kết Nối Lại Khi Mất Mạng",
-
-    -- FARM & CÁC TÍNH NĂNG KHÁC
+    -- DANH MỤC LỚN TAB CÀY CUỐC (FARM)
     ["Racing Event"] = "Sự Kiện Đua Xe",
     ["Shooting Star"] = "Sao Băng Rơi",
     ["Dr Scramble Lab & Mech"] = "Phòng Lab & Robot Scramble",
@@ -244,6 +264,8 @@ local MAP_VI = {
     ["Auto Sell Pet"] = "Tự Động Bán Pet",
     ["Auto Fuse Machine"] = "Máy Dung Hợp Pet",
     ["Auto Favorite"] = "Tự Động Khóa Pet",
+
+    -- CHI TIẾT FARM
     ["Race Speed"] = "Tốc Độ Đua",
     ["Auto Race"] = "Tự Động Đua Xe",
     ["Race Shop Items"] = "Vật Phẩm Shop Đua",
@@ -265,11 +287,8 @@ local MAP_VI = {
     ["Mutate Status"] = "Trạng Thái Đột Biến",
     ["Auto Buy Nitro"] = "Tự Mua Nitro",
     ["Mutate Min Rarity"] = "Độ Hiếm Đột Biến Min",
-    ["Target Areas"] = "Khu Vực Mục Tiêu",
-    ["Min Rarity"] = "Độ Hiếm Min",
     ["Steal eggs of the chosen rarity and every rarity above it"] = "Cướp trứng thuộc độ hiếm đã chọn và cao hơn",
     ["Min Steal Value"] = "Giá Trị Cướp Min",
-    ["Only steal these eggs (empty = all)"] = "Chỉ cướp các trứng này (trống = tất cả)",
     ["Steal Missing Lab Eggs"] = "Cướp Trứng Lab Còn Thiếu",
     ["Steal Missing Index Eggs"] = "Cướp Trứng Sách Còn Thiếu",
     ["Also steal eggs missing from your index, highest area first"] = "Cướp trứng thiếu trong sách, ưu tiên khu cao nhất",
@@ -278,7 +297,6 @@ local MAP_VI = {
     ["Over 100% may glitch"] = "Trên 100% có thể bị lỗi vị trí",
     ["Carry Speed"] = "Tốc Độ Bê Trứng",
     ["Anti Guard Panel"] = "Bảng Chống Vệ Sĩ",
-    ["Instant Steal"] = "Cướp Siêu Tốc (Instant Steal)",
     ["Delivers the egg to the safe zone in a few seconds, needs enough Speed"] = "Vận chuyển trứng về căn cứ trong vài giây (cần đủ tốc độ)",
     ["Instant Steal Steps"] = "Số Bước Cướp Siêu Tốc",
     ["Higher is safer but takes longer"] = "Càng nhiều bước càng an toàn nhưng bay chậm hơn",
@@ -406,7 +424,6 @@ local DYNAMIC_PATTERNS = {
     end }
 }
 
--- Sắp xếp giảm dần theo độ dài chuỗi tiếng Anh để thay thế cụm từ dài trước
 local SortedVI = {}
 for en, vi in pairs(MAP_VI) do table.insert(SortedVI, {en = en, out = vi, len = #en}) end
 table.sort(SortedVI, function(a, b) return a.len > b.len end)
@@ -415,7 +432,7 @@ local function translateText(raw)
     local cacheKey = currentLanguage .. "|" .. raw
     if FastCache[cacheKey] then return FastCache[cacheKey] end
 
-    -- Xử lý chuẩn hóa duy nhất một tên Chilli Hub V3.6
+    -- Khóa cứng định danh thương hiệu duy nhất một lần
     if raw:find("Chilli Hub") then
         local fixedBrand = raw:gsub("Chilli Hub%s*V?[%d%.]*", "Chilli Hub V3.6")
         if raw:match("^%s*Chilli Hub") then
@@ -532,7 +549,7 @@ local TARGET_BUTTON_KEYWORDS = {
     ["cấu hình"] = true, ["config"] = true
 }
 
--- Huy hiệu Holographic ✨ NEW: Gọn gàng, viền cầu vồng xoay mượt, nền kính mờ dịu mắt
+-- Huy hiệu Holographic Mini ✨ NEW: Gọn gàng, tinh xảo, không có khối đen
 local function attachSparklingNewBadge(headerFrame, titleObj)
     if not headerFrame then return end
     local oldBadge = headerFrame:FindFirstChild("Sparkling_New_Badge")
@@ -540,20 +557,20 @@ local function attachSparklingNewBadge(headerFrame, titleObj)
 
     local Badge = Instance.new("Frame")
     Badge.Name = "Sparkling_New_Badge"
-    Badge.Size = UDim2.new(0, 46, 0, 18)
+    Badge.Size = UDim2.new(0, 38, 0, 15)
     Badge.AnchorPoint = Vector2.new(0, 0.5)
-    Badge.Position = UDim2.new(0.5, 76, 0.5, 0)
-    Badge.BackgroundColor3 = Color3.fromRGB(30, 55, 90)
-    Badge.BackgroundTransparency = 0.25
+    Badge.Position = UDim2.new(0.5, 68, 0.5, 0)
+    Badge.BackgroundColor3 = Color3.fromRGB(35, 75, 125)
+    Badge.BackgroundTransparency = 0.2
     Badge.BorderSizePixel = 0
     Badge.Parent = headerFrame
 
     local BadgeCorner = Instance.new("UICorner")
-    BadgeCorner.CornerRadius = UDim.new(0, 6)
+    BadgeCorner.CornerRadius = UDim.new(0, 5)
     BadgeCorner.Parent = Badge
 
     local BadgeStroke = Instance.new("UIStroke")
-    BadgeStroke.Thickness = 1.3
+    BadgeStroke.Thickness = 1.1
     BadgeStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     BadgeStroke.Parent = Badge
 
@@ -571,8 +588,8 @@ local function attachSparklingNewBadge(headerFrame, titleObj)
     BadgeLabel.Size = UDim2.new(1, 0, 1, 0)
     BadgeLabel.BackgroundTransparency = 1
     BadgeLabel.Text = "✨ NEW"
-    BadgeLabel.Font = Enum.Font.GothamBlack
-    BadgeLabel.TextSize = 9
+    BadgeLabel.Font = Enum.Font.GothamBold
+    BadgeLabel.TextSize = 8.5
     BadgeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     BadgeLabel.Parent = Badge
 
@@ -732,7 +749,7 @@ local function executeAutoConfig(statusCallback)
             isConfigInjecting = false; return
         end
 
-        -- 1. Bấm Tab Config
+        -- 1. Mở Tab Config
         local configTabElement = nil
         for _, d in ipairs(chilliGui:GetDescendants()) do
             if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Visible then
@@ -1217,8 +1234,8 @@ local function createDynamicIslandUI()
     end)
 end
 
--- ==================== 8. BỘ QUÉT TẢI TRÌ HOÃN (DEFER SCANNER) ====================
-task.delay(1.5, function()
+-- ==================== 8. OBSERVER ENGINE THỜI GIAN THỰC (QUÉT MỖI 0.25S) ====================
+task.delay(1.2, function()
     createDynamicIslandUI()
 
     local searchRoots = {
@@ -1227,21 +1244,43 @@ task.delay(1.5, function()
         LocalPlayer:FindFirstChild("PlayerGui")
     }
 
-    local function scanUIChunked(parent)
-        local children = parent:GetChildren()
-        for i, desc in ipairs(children) do
-            if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
-                hookElement(desc)
-                inspectAndApplySoftBlue(desc)
+    local activeHubGui = nil
+
+    local function findHub()
+        for _, root in ipairs(searchRoots) do
+            if root then
+                for _, g in ipairs(root:GetChildren()) do
+                    if g:IsA("ScreenGui") and g.Name ~= "Chilli_Dynamic_Island" then
+                        for _, d in ipairs(g:GetDescendants()) do
+                            if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Text:lower():find("chilli hub") then
+                                return g
+                            end
+                        end
+                    end
+                end
             end
-            if i % 30 == 0 then RunService.RenderStepped:Wait() end
-            scanUIChunked(desc)
         end
+        return nil
     end
 
-    for _, root in ipairs(searchRoots) do
-        if root then pcall(function() scanUIChunked(root) end) end
-    end
+    -- Luồng Observer quét trực tiếp bên trong Hub mỗi 0.25 giây
+    task.spawn(function()
+        while true do
+            task.wait(0.25)
+            if not activeHubGui or not activeHubGui.Parent then
+                activeHubGui = findHub()
+            end
+
+            if activeHubGui then
+                for _, desc in ipairs(activeHubGui:GetDescendants()) do
+                    if (desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox")) and desc.Visible then
+                        hookElement(desc)
+                        inspectAndApplySoftBlue(desc)
+                    end
+                end
+            end
+        end
+    end)
 
     for _, root in ipairs(searchRoots) do
         if root then
