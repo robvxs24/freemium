@@ -1,5 +1,10 @@
 -- ==============================================================================
---  CHILLI HUB V2 - AUTO CONFIG & SOFT BLUE (BẢN FIX ĐỊNH VỊ CHÍNH XÁC 100%)
+--  CHILLI HUB V2 - AUTO ENGLISH SWITCH & BULLETPROOF AUTO CONFIG
+--  Cơ chế:
+--    1. TỰ CHUYỂN ENGLISH: Tự động gạt ngôn ngữ sang English trước khi nạp.
+--    2. KHÓA CHÍNH XÁC Ô IMPORT: Khóa theo placeholder "exported config", không nhầm Save Config.
+--    3. ĐỢI PROFILE MAIN: Mở dropdown, chờ profile "main" xuất hiện rồi mới click chọn và Load.
+--    4. SOFT BLUE RESKIN: Giữ nguyên giao diện Xanh Nhạt Dịu Mắt và chữ trắng tinh khiết.
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -21,6 +26,7 @@ end)
 -- ==================== 2. HỆ THỐNG DỊCH THUẬT & REBRAND V2 ====================
 local currentLanguage = "VI"
 local FastCache = {}
+local switchGlobalLanguage = nil -- Tham chiếu hàm chuyển đổi ngôn ngữ
 
 local function replaceAll(str, findStr, replaceStr)
     local startIdx, endIdx = str:find(findStr, 1, true)
@@ -256,7 +262,7 @@ local function inspectAndApplySoftBlue(inst)
     end
 end
 
--- ==================== 4. HÀM GIẢ LẬP CLICK ====================
+-- ==================== 4. HÀM GIẢ LẬP CLICK PHẦN CỨNG ====================
 local function triggerClick(btn)
     if not btn then return end
     pcall(function()
@@ -274,7 +280,7 @@ local function triggerClick(btn)
     end)
 end
 
--- ==================== 5. ĐỘNG CƠ NẠP CONFIG CHUẨN XÁC 100% ====================
+-- ==================== 5. ĐỘNG CƠ TỰ ĐỘNG NẠP CONFIG ĐÃ FIX ====================
 local isConfigInjecting = false
 
 local function executeAutoConfig(statusCallback)
@@ -284,10 +290,15 @@ local function executeAutoConfig(statusCallback)
     task.spawn(function()
         statusCallback("⏳ Đang nạp...", Color3.fromRGB(255, 210, 90))
 
+        -- BƯỚC 0: Tự động chuyển ngôn ngữ sang English để tránh lệch tên nút
+        if switchGlobalLanguage then
+            switchGlobalLanguage("EN")
+            task.wait(0.2)
+        end
+
         local roots = {gethui and gethui(), CoreGui, LocalPlayer:FindFirstChild("PlayerGui")}
         local chilliGui = nil
 
-        -- 1. Tìm Menu Chilli Hub
         for _, root in ipairs(roots) do
             if root then
                 for _, g in ipairs(root:GetChildren()) do
@@ -313,12 +324,12 @@ local function executeAutoConfig(statusCallback)
             return
         end
 
-        -- 2. Chuyển sang Tab "Cấu Hình" / "Config"
+        -- BƯỚC 1: Chọn Tab "Config"
         local configTabBtn = nil
         for _, d in ipairs(chilliGui:GetDescendants()) do
             if d:IsA("TextButton") or d:IsA("TextLabel") then
                 local t = d.Text:lower():match("^%s*(.-)%s*$") or ""
-                if t == "cấu hình" or t == "config" then
+                if t == "config" or t == "cấu hình" then
                     configTabBtn = d:IsA("TextButton") and d or d:FindFirstAncestorOfClass("TextButton")
                     if configTabBtn then break end
                 end
@@ -330,49 +341,42 @@ local function executeAutoConfig(statusCallback)
             task.wait(0.3)
         end
 
-        -- 3. ĐỊNH VỊ CHÍNH XÁC Ô IMPORT CONFIG (LOẠI TRỪ 100% JOB ID)
+        -- BƯỚC 2: Định vị chính xác ô Import Config Text
         local importTextBox = nil
-        
-        -- Cách A: Tìm theo Placeholder độc quyền "exported config"
         for _, d in ipairs(chilliGui:GetDescendants()) do
             if d:IsA("TextBox") then
                 local ph = (d.PlaceholderText or ""):lower()
-                if ph:find("exported config") then
+                if ph:find("exported config text") or ph:find("exported config") then
                     importTextBox = d
                     break
                 end
             end
         end
 
-        -- Cách B: Dò theo nhãn "Import Config Text"
         if not importTextBox then
             for _, d in ipairs(chilliGui:GetDescendants()) do
-                if d:IsA("TextLabel") then
-                    local txt = d.Text:lower()
-                    if txt:find("import config text") or txt:find("nhập văn bản cấu hình") then
-                        local container = d.Parent
-                        if container then
-                            importTextBox = container:FindFirstChildWhichIsA("TextBox", true)
-                            if importTextBox then break end
-                        end
+                if d:IsA("TextLabel") and (d.Text:find("Import Config Text") or d.Text:find("Nhập Văn Bản")) then
+                    local parentFrame = d.Parent
+                    if parentFrame then
+                        importTextBox = parentFrame:FindFirstChildWhichIsA("TextBox", true)
+                        if importTextBox then break end
                     end
                 end
             end
         end
 
         if not importTextBox then
-            statusCallback("❌ Lỗi: Ko thấy ô nhập", Color3.fromRGB(255, 90, 90))
+            statusCallback("❌ Không thấy ô nhập", Color3.fromRGB(255, 90, 90))
             task.wait(2)
             statusCallback("⚡ NẠP CONFIG", Color3.fromRGB(255, 255, 255))
             isConfigInjecting = false
             return
         end
 
-        -- 4. BƠM CHUỖI JSON VÀ KIỂM TRA THỰC TẾ
+        -- BƯỚC 3: Bơm dữ liệu JSON và kích hoạt FocusLost
         importTextBox.Text = RAW_CONFIG_JSON
         task.wait(0.1)
 
-        -- Kích hoạt giả lập FocusLost để thư viện nhận diện
         if getconnections then
             pcall(function()
                 for _, conn in ipairs(getconnections(importTextBox.FocusLost)) do
@@ -380,31 +384,28 @@ local function executeAutoConfig(statusCallback)
                 end
             end)
         end
-        task.wait(0.15)
+        task.wait(0.2)
 
-        -- Xác thực: Nếu text vẫn rỗng thì dừng và báo lỗi ngay
-        if #importTextBox.Text < 50 then
-            statusCallback("❌ Bơm text thất bại", Color3.fromRGB(255, 90, 90))
-            task.wait(2)
-            statusCallback("⚡ NẠP CONFIG", Color3.fromRGB(255, 255, 255))
-            isConfigInjecting = false
-            return
-        end
-
-        -- 5. BẤM NÚT "IMPORT" ĐỎ CẠNH Ô NHẬP
+        -- BƯỚC 4: Bấm nút "Import" màu đỏ
         local importBtn = nil
-        if importTextBox.Parent then
-            for _, sib in ipairs(importTextBox.Parent:GetDescendants()) do
-                if sib:IsA("TextButton") and (sib.Text:lower() == "import" or sib.Text:lower() == "nhập") then
-                    importBtn = sib
-                    break
+        for _, d in ipairs(chilliGui:GetDescendants()) do
+            if d:IsA("TextLabel") and (d.Text == "Import Config" or d.Text == "Nhập Cấu Hình") then
+                local row = d.Parent
+                if row then
+                    for _, b in ipairs(row:GetDescendants()) do
+                        if b:IsA("TextButton") and (b.Text == "Import" or b.Text == "Nhập") then
+                            importBtn = b
+                            break
+                        end
+                    end
                 end
+                break
             end
         end
 
         if not importBtn then
             for _, d in ipairs(chilliGui:GetDescendants()) do
-                if d:IsA("TextButton") and (d.Text:lower() == "import" or d.Text:lower() == "nhập") and d.Visible then
+                if d:IsA("TextButton") and d.Visible and (d.Text == "Import" or d.Text == "Nhập") then
                     importBtn = d
                     break
                 end
@@ -413,10 +414,10 @@ local function executeAutoConfig(statusCallback)
 
         if importBtn then
             triggerClick(importBtn)
-            task.wait(0.6) -- Chờ toast "Config Imported"
+            task.wait(0.8) -- Đợi thư viện xử lý JSON và tạo profile "main"
         end
 
-        -- 6. MỞ DROPDOWN "LOAD CONFIG"
+        -- BƯỚC 5: Mở dropdown "Load Config"
         local loadDropdownBtn = nil
         for _, d in ipairs(chilliGui:GetDescendants()) do
             if d:IsA("TextLabel") and (d.Text:lower():find("load config") or d.Text:lower():find("tải cấu hình")) then
@@ -433,7 +434,7 @@ local function executeAutoConfig(statusCallback)
             task.wait(0.3)
         end
 
-        -- 7. TÌM VÀ BẤM NÚT "main" (CHỜ TỐI ĐA 3.5S)
+        -- BƯỚC 6: Tìm và chọn profile "main" trong danh sách
         local mainProfileBtn = nil
         local searchStart = tick()
         while tick() - searchStart < 3.5 do
@@ -458,10 +459,10 @@ local function executeAutoConfig(statusCallback)
         triggerClick(mainProfileBtn)
         task.wait(0.25)
 
-        -- 8. BẤM NÚT "LOAD" ĐỎ
+        -- BƯỚC 7: Bấm nút "Load"
         local loadActionBtn = nil
         for _, d in ipairs(chilliGui:GetDescendants()) do
-            if d:IsA("TextButton") and d.Visible and (d.Text:lower() == "load" or d.Text:lower() == "tải") then
+            if d:IsA("TextButton") and d.Visible and (d.Text:lower():match("^%s*load%s*$") or d.Text:lower():match("^%s*tải%s*$")) then
                 loadActionBtn = d
                 break
             end
@@ -472,7 +473,7 @@ local function executeAutoConfig(statusCallback)
             task.wait(0.3)
         end
 
-        -- 9. HOÀN THÀNH XUẤT SẮC
+        -- BƯỚC 8: Hoàn tất
         statusCallback("✔ ĐÃ NẠP XONG!", Color3.fromRGB(110, 245, 140))
         task.wait(2.2)
         statusCallback("⚡ NẠP CONFIG", Color3.fromRGB(255, 255, 255))
@@ -684,6 +685,8 @@ local function createLiquidCapsuleUI()
 
         updateAllActive()
     end
+
+    switchGlobalLanguage = switchMode
 
     BtnVI.MouseButton1Click:Connect(function() switchMode("VI") end)
     BtnEN.MouseButton1Click:Connect(function() switchMode("EN") end)
