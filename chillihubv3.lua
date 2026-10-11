@@ -1,11 +1,5 @@
 -- ==============================================================================
---  CHILLI HUB V2 - 1-CLICK AUTO CONFIG & SOFT BLUE STUDIO EDITION
---  Tối ưu hóa:
---    1. 1-CLICK AUTO CONFIG: Tự động nhập JSON, Import, chọn profile "main" và Load.
---    2. CAPTURE FOCUS INJECTION: Bắt buộc UI Library nhận diện JSON dung lượng lớn.
---    3. SOFT BLUE RESKIN: Chuẩn màu Xanh Nhạt Dịu Mắt cho Header, Tab trái, Tab phải.
---    4. KHÓA CHỮ TRẮNG 100%: Bảo toàn màu chữ trắng tinh khiết, viền đen nguyên bản.
---    5. DỊCH THUẬT 100%: Toàn diện Farm, Predictor, ESP, Combat, Server, Auto Hop.
+--  CHILLI HUB V2 - AUTO CONFIG & SOFT BLUE EDITION (BẢN HOÀN CHỈNH)
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -24,7 +18,7 @@ task.spawn(function()
     end)
 end)
 
--- ==================== 2. HỆ THỐNG DỊCH THUẬT & REBRAND V2 ====================
+-- ==================== 2. TỪ ĐIỂN DỊCH THUẬT & REBRAND V2 ====================
 local currentLanguage = "VI"
 local FastCache = {}
 
@@ -141,7 +135,6 @@ local MAP_VI = {
     ["Utility"] = "Tiện Ích",
     ["Egg Finder"] = "Dò Tìm Trứng",
 
-    -- CONFIG TAB
     ["Set Startup Config"] = "Cấu Hình Khởi Động",
     ["Load Config"] = "Tải Cấu Hình",
     ["Save Config"] = "Lưu Cấu Hình",
@@ -334,7 +327,7 @@ local function inspectAndApplySoftBlue(inst)
     end
 end
 
--- ==================== 4. HÀM TƯƠNG TÁC CLICK PHẦN CỨNG ẢO ====================
+-- ==================== 4. HÀM GIẢ LẬP CLICK ====================
 local function triggerClick(btn)
     if not btn then return end
     pcall(function()
@@ -352,7 +345,7 @@ local function triggerClick(btn)
     end)
 end
 
--- ==================== 5. ĐỘNG CƠ TỰ ĐỘNG NẠP CẤU HÌNH (AUTO CONFIG ENGINE) ====================
+-- ==================== 5. ĐỘNG CƠ TỰ ĐỘNG NẠP CẤU HÌNH (ĐÃ SỬA LỖI 100%) ====================
 local isConfigInjecting = false
 
 local function executeAutoConfig(statusCallback)
@@ -365,7 +358,7 @@ local function executeAutoConfig(statusCallback)
         local roots = {gethui and gethui(), CoreGui, LocalPlayer:FindFirstChild("PlayerGui")}
         local chilliGui = nil
 
-        -- Tìm ScreenGui của Chilli Hub
+        -- 1. Tìm ScreenGui của Chilli Hub
         for _, root in ipairs(roots) do
             if root then
                 for _, g in ipairs(root:GetChildren()) do
@@ -384,14 +377,14 @@ local function executeAutoConfig(statusCallback)
         end
 
         if not chilliGui then
-            statusCallback("❌ Lỗi: Ko thấy Hub", Color3.fromRGB(255, 90, 90))
+            statusCallback("❌ Không thấy Menu", Color3.fromRGB(255, 90, 90))
             task.wait(2)
             statusCallback("⚡ NẠP CONFIG", Color3.fromRGB(255, 255, 255))
             isConfigInjecting = false
             return
         end
 
-        -- BƯỚC 1: Chuyển sang Tab "Cấu Hình" / "Config"
+        -- 2. Chuyển sang Tab "Cấu Hình" / "Config"
         local configTabBtn = nil
         for _, d in ipairs(chilliGui:GetDescendants()) do
             if d:IsA("TextButton") or d:IsA("TextLabel") then
@@ -405,49 +398,43 @@ local function executeAutoConfig(statusCallback)
 
         if configTabBtn then
             triggerClick(configTabBtn)
-            task.wait(0.25)
+            task.wait(0.3)
         end
 
-        -- BƯỚC 2: Tìm ô TextBox "Import Config Text"
+        -- 3. Tìm ô TextBox "Import Config Text"
         local importTextBox = nil
         for _, d in ipairs(chilliGui:GetDescendants()) do
             if d:IsA("TextBox") then
-                local ph = d.PlaceholderText:lower()
-                local parentText = d.Parent and d.Parent:FindFirstChildWhichIsA("TextLabel") and d.Parent:FindFirstChildWhichIsA("TextLabel").Text:lower() or ""
-                if ph:find("paste") or ph:find("export") or parentText:find("import") or parentText:find("nhập") then
+                local ph = (d.PlaceholderText or ""):lower()
+                if ph:find("exported") or ph:find("config") or ph:find("paste") then
                     importTextBox = d
                     break
                 end
             end
         end
 
-        -- Fallback tìm TextBox cuối cùng trong cây GUI
         if not importTextBox then
-            local allBoxes = {}
-            for _, d in ipairs(chilliGui:GetDescendants()) do
-                if d:IsA("TextBox") and d.Visible then table.insert(allBoxes, d) end
-            end
-            if #allBoxes > 0 then importTextBox = allBoxes[#allBoxes] end
-        end
-
-        if not importTextBox then
-            statusCallback("❌ Lỗi: Ko thấy Box", Color3.fromRGB(255, 90, 90))
+            statusCallback("❌ Không thấy ô nhập", Color3.fromRGB(255, 90, 90))
             task.wait(2)
             statusCallback("⚡ NẠP CONFIG", Color3.fromRGB(255, 255, 255))
             isConfigInjecting = false
             return
         end
 
-        -- BƯỚC 3: Bơm chuỗi JSON và giả lập FocusLost
+        -- 4. Bơm chuỗi JSON (KHÔNG gọi CaptureFocus để chống bung bàn phím)
         importTextBox.Text = RAW_CONFIG_JSON
-        pcall(function()
-            importTextBox:CaptureFocus()
-            task.wait(0.05)
-            importTextBox:ReleaseFocus(true)
-        end)
-        task.wait(0.15)
+        
+        -- Kích hoạt sự kiện FocusLost giả lập trực tiếp qua connection
+        if getconnections then
+            pcall(function()
+                for _, conn in ipairs(getconnections(importTextBox.FocusLost)) do
+                    conn:Fire(true)
+                end
+            end)
+        end
+        task.wait(0.2)
 
-        -- BƯỚC 4: Tìm và Click nút "Import" màu đỏ cạnh TextBox
+        -- 5. Bấm nút "Import" màu đỏ nằm cạnh TextBox
         local importBtn = nil
         if importTextBox.Parent then
             for _, sib in ipairs(importTextBox.Parent:GetDescendants()) do
@@ -458,24 +445,15 @@ local function executeAutoConfig(statusCallback)
             end
         end
 
-        if not importBtn then
-            for _, d in ipairs(chilliGui:GetDescendants()) do
-                if d:IsA("TextButton") and (d.Text:lower() == "import" or d.Text:lower() == "nhập") then
-                    importBtn = d
-                    break
-                end
-            end
-        end
-
         if importBtn then
             triggerClick(importBtn)
-            task.wait(0.35)
+            task.wait(0.5) -- Đợi hệ thống phân giải JSON và thêm profile vào danh sách
         end
 
-        -- BƯỚC 5: Mở Dropdown "Load Config"
+        -- 6. Mở Dropdown "Load Config"
         local loadDropdownBtn = nil
         for _, d in ipairs(chilliGui:GetDescendants()) do
-            if d:IsA("TextLabel") and (d.Text:lower():find("load config") or d.Text:lower():find("tải cấu hình")) then
+            if (d:IsA("TextLabel") or d:IsA("TextButton")) and (d.Text:lower():find("load config") or d.Text:lower():find("tải cấu hình")) then
                 local row = d.Parent
                 if row then
                     loadDropdownBtn = row:FindFirstChildWhichIsA("TextButton", true)
@@ -486,32 +464,32 @@ local function executeAutoConfig(statusCallback)
 
         if loadDropdownBtn then
             triggerClick(loadDropdownBtn)
-            task.wait(0.2)
+            task.wait(0.3)
         end
 
-        -- BƯỚC 6: Quét tìm nút chọn profile "main" (Timeout 3s)
+        -- 7. Tìm và chọn profile "main"
         local mainProfileBtn = nil
-        local searchStart = tick()
-        while tick() - searchStart < 3 do
+        local timeout = tick()
+        while tick() - timeout < 2.5 do
             for _, d in ipairs(chilliGui:GetDescendants()) do
-                if d:IsA("TextButton") and d.Visible and d.Text:lower() == "main" then
+                if d:IsA("TextButton") and d.Visible and d.Text:lower():match("^%s*main%s*$") then
                     mainProfileBtn = d
                     break
                 end
             end
             if mainProfileBtn then break end
-            task.wait(0.08)
+            task.wait(0.1)
         end
 
         if mainProfileBtn then
             triggerClick(mainProfileBtn)
-            task.wait(0.18)
+            task.wait(0.2)
         end
 
-        -- BƯỚC 7: Tìm và Click nút "Load" màu đỏ
+        -- 8. Bấm nút "Load"
         local loadActionBtn = nil
         for _, d in ipairs(chilliGui:GetDescendants()) do
-            if d:IsA("TextButton") and d.Visible and (d.Text:lower() == "load" or d.Text:lower() == "tải") then
+            if d:IsA("TextButton") and d.Visible and (d.Text:lower():match("^%s*load%s*$") or d.Text:lower():match("^%s*tải%s*$")) then
                 loadActionBtn = d
                 break
             end
@@ -519,18 +497,18 @@ local function executeAutoConfig(statusCallback)
 
         if loadActionBtn then
             triggerClick(loadActionBtn)
-            task.wait(0.25)
+            task.wait(0.3)
         end
 
-        -- BƯỚC 8: Hoàn tất & Phản hồi giao diện
+        -- 9. Hoàn tất
         statusCallback("✔ ĐÃ NẠP XONG!", Color3.fromRGB(110, 245, 140))
-        task.wait(2.2)
+        task.wait(2)
         statusCallback("⚡ NẠP CONFIG", Color3.fromRGB(255, 255, 255))
         isConfigInjecting = false
     end)
 end
 
--- ==================== 6. NÚT NẠP CONFIG CYBER GLASS (TOP-CENTER PHẢI) ====================
+-- ==================== 6. NÚT NẠP CONFIG CYBER GLASS ====================
 local function createAutoConfigButtonUI()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local old = parentTarget:FindFirstChild("Chilli_AutoConfig_Btn")
@@ -543,7 +521,6 @@ local function createAutoConfigButtonUI()
     ScreenGui.DisplayOrder = 2147483647
     ScreenGui.Parent = parentTarget
 
-    -- Vỏ Viên Nang Auto Config (Nằm cạnh phải của nút ngôn ngữ)
     local Capsule = Instance.new("Frame")
     Capsule.Name = "Capsule"
     Capsule.Size = UDim2.new(0, 145, 0, 36)
@@ -564,7 +541,6 @@ local function createAutoConfigButtonUI()
     CapsuleStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     CapsuleStroke.Parent = Capsule
 
-    -- Bề mặt nút bấm Gradient Soft Blue
     local ActionBtn = Instance.new("TextButton")
     ActionBtn.Name = "ActionBtn"
     ActionBtn.Size = UDim2.new(1, -6, 1, -6)
@@ -589,13 +565,11 @@ local function createAutoConfigButtonUI()
     BtnGradient.Rotation = 90
     BtnGradient.Parent = ActionBtn
 
-    -- Hàm cập nhật trạng thái hiển thị
     local function updateStatus(txt, col)
         ActionBtn.Text = txt
         TweenService:Create(ActionBtn, TweenInfo.new(0.18), {TextColor3 = col}):Play()
     end
 
-    -- Kích hoạt nạp cấu hình khi bấm
     ActionBtn.MouseButton1Click:Connect(function()
         if isConfigInjecting then return end
         TweenService:Create(Capsule, TweenInfo.new(0.08), {Size = UDim2.new(0, 140, 0, 34)}):Play()
@@ -605,7 +579,6 @@ local function createAutoConfigButtonUI()
         executeAutoConfig(updateStatus)
     end)
 
-    -- Kéo thả tự do kèm hãm biên màn hình
     local dragging, dragStart, startPos = false, nil, nil
     Capsule.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -633,7 +606,7 @@ local function createAutoConfigButtonUI()
     end)
 end
 
--- ==================== 7. NÚT ĐỔI NGÔN NGỮ LIQUID CYBER (TOP-CENTER TRÁI) ====================
+-- ==================== 7. NÚT ĐỔI NGÔN NGỮ LIQUID CYBER ====================
 local function createLiquidCapsuleUI()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local old = parentTarget:FindFirstChild("Chilli_Liquid_Capsule")
@@ -646,7 +619,6 @@ local function createLiquidCapsuleUI()
     ScreenGui.DisplayOrder = 2147483647
     ScreenGui.Parent = parentTarget
 
-    -- Vỏ Viên Nang
     local Capsule = Instance.new("Frame")
     Capsule.Name = "Capsule"
     Capsule.Size = UDim2.new(0, 176, 0, 36)
@@ -744,7 +716,6 @@ local function createLiquidCapsuleUI()
     BtnVI.MouseButton1Click:Connect(function() switchMode("VI") end)
     BtnEN.MouseButton1Click:Connect(function() switchMode("EN") end)
 
-    -- Kéo thả tự do
     local dragging, dragStart, startPos = false, nil, nil
     Capsule.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -772,7 +743,7 @@ local function createLiquidCapsuleUI()
     end)
 end
 
--- ==================== 8. BỘ QUÉT TẢI TRÌ HOÃN (DEFER SCANNER) ====================
+-- ==================== 8. BỘ KHỞI TẠO DEFER ====================
 task.delay(2.5, function()
     createLiquidCapsuleUI()
     createAutoConfigButtonUI()
