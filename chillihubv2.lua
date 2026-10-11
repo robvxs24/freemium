@@ -1,11 +1,11 @@
 -- ==============================================================================
---  CHILLI HUB V2 - PRECISION 3-PART SOFT BLUE (STRICT MENU ISOLATION)
+--  CHILLI HUB V2 - RAINBOW NOTICE & SOFT BLUE STUDIO EDITION
 --  Tối ưu hóa:
---    1. CÔ LẬP TUYỆT ĐỐI: CHỈ đổi màu đúng 3 phần (Header, Cột Tab trái, Cột nút phải).
---    2. KHÔNG CAN THIỆP GAME: Tuyệt đối không đụng vào nút game hay menu nội dung bên trong.
---    3. CHỮ TRẮNG NỔI KHỐI: Khóa cứng màu chữ trắng tinh (RGB 255, 255, 255) viền đen nguyên bản.
---    4. XANH NHẠT DỊU MẮT: Phối màu Soft Pastel Sky Blue nhẹ nhàng, không đậm, không chói.
---    5. DỊCH THUẬT 100%: Giữ trọn bộ từ điển Master V5.0 cho toàn bộ hệ thống.
+--    1. RAINBOW CHROMA MODAL: Bảng thông báo viền cầu vồng RGB xoay mượt mà chuẩn GPU.
+--    2. BILINGUAL LIVE-SYNC: Tự động đổi ngôn ngữ thông báo (VI/EN) theo nút Capsule.
+--    3. PRECISION 3-PART RESKIN: Khung Header, Cột Tab trái, Cột nút phải mang sắc Xanh Nhạt Dịu Mắt.
+--    4. KHÓA CHỮ TRẮNG 100%: Bảo toàn màu chữ trắng tinh khiết, không can thiệp nút game ngoài.
+--    5. DỊCH THUẬT MASTER FULL: 100% tính năng Farm, Predictor, ESP, Combat, Server, Auto Hop.
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -24,6 +24,7 @@ end)
 -- ==================== 2. TỪ ĐIỂN DỊCH THUẬT MASTER ====================
 local currentLanguage = "VI"
 local FastCache = {}
+local updateNoticeLanguage = nil -- Hàm cập nhật ngôn ngữ cho Bảng Thông Báo
 
 local function replaceAll(str, findStr, replaceStr)
     local startIdx, endIdx = str:find(findStr, 1, true)
@@ -578,7 +579,7 @@ local TrackedElements = {}
 
 local function applyTranslation(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
-    if inst:FindFirstAncestor("Chilli_Liquid_Capsule") then return end
+    if inst:FindFirstAncestor("Chilli_Liquid_Capsule") or inst:FindFirstAncestor("Chilli_Rainbow_Notice") then return end
     if inst:GetAttribute("__IsTranslating") then return end
 
     local original = inst:GetAttribute("OriginalRawText")
@@ -625,14 +626,11 @@ local function updateAllActive()
 end
 
 -- ==================== 4. LÕI CÔ LẬP ĐỔI MÀU ĐÚNG 3 PHẦN (SOFT PASTEL BLUE) ====================
--- Bảng màu Soft Pastel Sky Blue (Dịu mắt, không đậm, không chói)
-local COLOR_FACE_TOP    = Color3.fromRGB(140, 195, 245) -- Xanh nhạt sáng dịu
-local COLOR_FACE_BOTTOM = Color3.fromRGB(95, 155, 225)  -- Xanh biển nhạt
-local COLOR_BEVEL_SHADOW= Color3.fromRGB(55, 110, 180)  -- Bóng đổ chân nút 3D
+local COLOR_FACE_TOP    = Color3.fromRGB(140, 195, 245)
+local COLOR_FACE_BOTTOM = Color3.fromRGB(95, 155, 225)
+local COLOR_BEVEL_SHADOW= Color3.fromRGB(55, 110, 180)
 
--- DANH SÁCH TỪ KHÓA CHỈ ĐỊNH CỦA ĐÚNG 2 HÀNG NÚT (ẢNH 1 & ẢNH 2)
 local TARGET_BUTTON_KEYWORDS = {
-    -- Hàng nút Tab bên trái (Ảnh 2)
     ["cày cuốc"] = true, ["farm"] = true,
     ["người chơi"] = true, ["player"] = true,
     ["dự đoán"] = true, ["predictor"] = true,
@@ -640,18 +638,15 @@ local TARGET_BUTTON_KEYWORDS = {
     ["máy chủ"] = true, ["server"] = true,
     ["khác"] = true, ["misc"] = true,
     ["tự đổi máy chủ"] = true, ["tự đổi server"] = true, ["auto hop"] = true,
-    -- Hàng nút điều hướng bên phải (Ảnh 1)
     ["discord"] = true,
     ["phím tắt & key"] = true, ["quick & keys"] = true,
     ["cài đặt"] = true, ["settings"] = true,
     ["cấu hình"] = true, ["config"] = true
 }
 
--- Hàm áp màu xanh nhạt lên duy nhất một nút cụ thể
 local function recolorSingleButton(btnContainer, labelObj)
     if not btnContainer then return end
     
-    -- 1. Đổi UIGradient bề mặt nếu có
     local grad = btnContainer:FindFirstChildOfClass("UIGradient")
     if not grad then
         grad = Instance.new("UIGradient")
@@ -665,7 +660,6 @@ local function recolorSingleButton(btnContainer, labelObj)
 
     btnContainer.BackgroundColor3 = COLOR_FACE_BOTTOM
 
-    -- 2. Đổi chân bóng 3D (Frame viền chân nếu có)
     if btnContainer.Parent and btnContainer.Parent:IsA("Frame") and btnContainer.Parent ~= btnContainer then
         local p = btnContainer.Parent
         local pCol = p.BackgroundColor3
@@ -674,13 +668,11 @@ local function recolorSingleButton(btnContainer, labelObj)
         end
     end
 
-    -- 3. KHÓA CỨNG MÀU CHỮ: Luôn luôn giữ màu TRẮNG tinh
-    if labelObj and labelObj:IsA("TextLabel") or labelObj:IsA("TextButton") then
+    if labelObj and (labelObj:IsA("TextLabel") or labelObj:IsA("TextButton")) then
         labelObj.TextColor3 = Color3.fromRGB(255, 255, 255)
     end
 end
 
--- Hàm áp màu xanh nhạt lên Thanh Header TopBar (Ảnh 3)
 local function recolorHeaderBar(headerFrame, titleObj)
     if not headerFrame then return end
 
@@ -697,7 +689,6 @@ local function recolorHeaderBar(headerFrame, titleObj)
 
     headerFrame.BackgroundColor3 = COLOR_FACE_BOTTOM
 
-    -- Chân bóng viền dưới header (nếu có frame shadow)
     if headerFrame.Parent and headerFrame.Parent:IsA("Frame") then
         local p = headerFrame.Parent
         if p.BackgroundColor3.R > 0.4 and p.BackgroundColor3.G < 0.35 then
@@ -705,12 +696,10 @@ local function recolorHeaderBar(headerFrame, titleObj)
         end
     end
 
-    -- Khóa cứng chữ tiêu đề màu trắng
     if titleObj and (titleObj:IsA("TextLabel") or titleObj:IsA("TextButton")) then
         titleObj.TextColor3 = Color3.fromRGB(255, 255, 255)
     end
 
-    -- Đổi nút tắt [X] sang màu xanh pastel đồng bộ
     for _, item in ipairs(headerFrame:GetDescendants()) do
         if item:IsA("TextButton") or item:IsA("ImageButton") then
             item.BackgroundColor3 = COLOR_FACE_BOTTOM
@@ -728,14 +717,12 @@ local function recolorHeaderBar(headerFrame, titleObj)
     end
 end
 
--- Bộ kiểm soát chỉ định (Chỉ duyệt đúng 3 đối tượng, tuyệt đối không duyệt lan man)
 local function inspectAndApplySoftBlue(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton")) then return end
-    if inst:FindFirstAncestor("Chilli_Liquid_Capsule") then return end
+    if inst:FindFirstAncestor("Chilli_Liquid_Capsule") or inst:FindFirstAncestor("Chilli_Rainbow_Notice") then return end
 
     local textRaw = inst.Text:lower():match("^%s*(.-)%s*$") or ""
 
-    -- 1. Nhận diện Thanh Header (Ảnh 3)
     if textRaw:find("chilli hub") then
         local headerFrame = inst:FindFirstAncestorOfClass("Frame")
         if headerFrame then
@@ -744,9 +731,7 @@ local function inspectAndApplySoftBlue(inst)
         return
     end
 
-    -- 2. Nhận diện Đúng 2 hàng nút Tab trái & phải (Ảnh 1 & Ảnh 2)
     if TARGET_BUTTON_KEYWORDS[textRaw] then
-        -- Tìm Container của nút bấm
         local btnTarget = inst:IsA("TextButton") and inst or inst:FindFirstAncestorOfClass("TextButton") or inst:FindFirstAncestorOfClass("Frame")
         if btnTarget then
             recolorSingleButton(btnTarget, inst)
@@ -755,7 +740,185 @@ local function inspectAndApplySoftBlue(inst)
     end
 end
 
--- ==================== 5. NÚT ĐỔI NGÔN NGỮ LIQUID CYBER (SOFT BLUE THEME) ====================
+-- ==================== 5. BẢNG THÔNG BÁO XỊN XÒ VIỀN CẦU VỒNG (RAINBOW MODAL) ====================
+local function createRainbowNoticeUI()
+    local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
+    local oldNotice = parentTarget:FindFirstChild("Chilli_Rainbow_Notice")
+    if oldNotice then oldNotice:Destroy() end
+
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "Chilli_Rainbow_Notice"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.IgnoreGuiInset = true
+    ScreenGui.DisplayOrder = 2147483646
+    ScreenGui.Parent = parentTarget
+
+    -- Khung Modal Card trung tâm (370px x 195px)
+    local Card = Instance.new("Frame")
+    Card.Name = "Card"
+    Card.Size = UDim2.new(0, 370, 0, 195)
+    Card.AnchorPoint = Vector2.new(0.5, 0.5)
+    Card.Position = UDim2.new(0.5, 0, 0.5, 0)
+    Card.BackgroundColor3 = Color3.fromRGB(12, 15, 24)
+    Card.BorderSizePixel = 0
+    Card.Parent = ScreenGui
+
+    local CardCorner = Instance.new("UICorner")
+    CardCorner.CornerRadius = UDim.new(0, 16)
+    CardCorner.Parent = Card
+
+    -- Viền cầu vồng Chroma RGB (Hardware-Accelerated)
+    local Stroke = Instance.new("UIStroke")
+    Stroke.Thickness = 2.6
+    Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    Stroke.Parent = Card
+
+    local RainbowGrad = Instance.new("UIGradient")
+    RainbowGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 40, 40)),
+        ColorSequenceKeypoint.new(0.17, Color3.fromRGB(255, 140, 20)),
+        ColorSequenceKeypoint.new(0.33, Color3.fromRGB(255, 240, 30)),
+        ColorSequenceKeypoint.new(0.50, Color3.fromRGB(30, 240, 90)),
+        ColorSequenceKeypoint.new(0.67, Color3.fromRGB(30, 150, 255)),
+        ColorSequenceKeypoint.new(0.83, Color3.fromRGB(160, 40, 255)),
+        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 40, 40))
+    })
+    RainbowGrad.Parent = Stroke
+
+    -- Luồng xoay cầu vồng mượt mà 60 FPS
+    local rotConn = RunService.RenderStepped:Connect(function()
+        if RainbowGrad and RainbowGrad.Parent then
+            RainbowGrad.Rotation = (RainbowGrad.Rotation + 2) % 360
+        end
+    end)
+
+    -- Huy hiệu Badge trên cùng
+    local Badge = Instance.new("Frame")
+    Badge.Size = UDim2.new(0, 180, 0, 24)
+    Badge.Position = UDim2.new(0.5, -90, 0, 14)
+    Badge.BackgroundColor3 = Color3.fromRGB(24, 30, 48)
+    Badge.BorderSizePixel = 0
+    Badge.Parent = Card
+
+    local BadgeCorner = Instance.new("UICorner")
+    BadgeCorner.CornerRadius = UDim.new(1, 0)
+    BadgeCorner.Parent = Badge
+
+    local BadgeStroke = Instance.new("UIStroke")
+    BadgeStroke.Thickness = 1
+    BadgeStroke.Color = Color3.fromRGB(70, 120, 200)
+    BadgeStroke.Parent = Badge
+
+    local BadgeLabel = Instance.new("TextLabel")
+    BadgeLabel.Size = UDim2.new(1, 0, 1, 0)
+    BadgeLabel.BackgroundTransparency = 1
+    BadgeLabel.Text = "🛠️ THÔNG BÁO BẢO TRÌ"
+    BadgeLabel.Font = Enum.Font.GothamBold
+    BadgeLabel.TextSize = 10
+    BadgeLabel.TextColor3 = Color3.fromRGB(150, 200, 255)
+    BadgeLabel.Parent = Badge
+
+    -- Tiêu đề Chilli Hub V2
+    local Title = Instance.new("TextLabel")
+    Title.Size = UDim2.new(1, -40, 0, 26)
+    Title.Position = UDim2.new(0, 20, 0, 44)
+    Title.BackgroundTransparency = 1
+    Title.Text = "Chilli Hub V2"
+    Title.Font = Enum.Font.GothamBlack
+    Title.TextSize = 18
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.Parent = Card
+
+    -- Nội dung thông báo
+    local Message = Instance.new("TextLabel")
+    Message.Size = UDim2.new(1, -36, 0, 52)
+    Message.Position = UDim2.new(0, 18, 0, 74)
+    Message.BackgroundTransparency = 1
+    Message.Text = "Script Chilli Hub V2 Đang Được Update Và Sửa Lỗi.\nXin Lỗi Vì Sự Bất Tiện Này!"
+    Message.Font = Enum.Font.GothamMedium
+    Message.TextSize = 12
+    Message.TextColor3 = Color3.fromRGB(200, 215, 235)
+    Message.TextWrapped = true
+    Message.Parent = Card
+
+    -- Nút đóng / Xác nhận "ĐÃ HIỂU"
+    local ConfirmBtn = Instance.new("TextButton")
+    ConfirmBtn.Size = UDim2.new(1, -40, 0, 36)
+    ConfirmBtn.Position = UDim2.new(0, 20, 1, -48)
+    ConfirmBtn.BackgroundColor3 = Color3.fromRGB(45, 110, 200)
+    ConfirmBtn.BorderSizePixel = 0
+    ConfirmBtn.Text = "ĐÃ HIỂU"
+    ConfirmBtn.Font = Enum.Font.GothamBold
+    ConfirmBtn.TextSize = 13
+    ConfirmBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    ConfirmBtn.Parent = Card
+
+    local BtnCorner = Instance.new("UICorner")
+    BtnCorner.CornerRadius = UDim.new(0, 10)
+    BtnCorner.Parent = ConfirmBtn
+
+    local BtnGradient = Instance.new("UIGradient")
+    BtnGradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(75, 150, 245)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(35, 95, 185))
+    })
+    BtnGradient.Rotation = 90
+    BtnGradient.Parent = ConfirmBtn
+
+    -- Hàm cập nhật ngôn ngữ cho Thông Báo
+    updateNoticeLanguage = function(lang)
+        if lang == "VI" then
+            BadgeLabel.Text = "🛠️ THÔNG BÁO BẢO TRÌ"
+            Message.Text = "Script Chilli Hub V2 Đang Được Update Và Sửa Lỗi.\nXin Lỗi Vì Sự Bất Tiện Này!"
+            ConfirmBtn.Text = "ĐÃ HIỂU"
+        else
+            BadgeLabel.Text = "🛠️ MAINTENANCE NOTICE"
+            Message.Text = "Chilli Hub V2 is currently being updated and fixing bugs.\nWe apologize for this inconvenience!"
+            ConfirmBtn.Text = "UNDERSTOOD"
+        end
+    end
+
+    -- Xử lý đóng Modal mượt mà
+    ConfirmBtn.MouseButton1Click:Connect(function()
+        if rotConn then rotConn:Disconnect() end
+        local fadeTween = TweenService:Create(Card, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+            Position = UDim2.new(0.5, 0, 0.55, 0),
+            BackgroundTransparency = 1
+        })
+        TweenService:Create(Stroke, TweenInfo.new(0.2), {Transparency = 1}):Play()
+        TweenService:Create(Message, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
+        TweenService:Create(Title, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
+        TweenService:Create(ConfirmBtn, TweenInfo.new(0.2), {BackgroundTransparency = 1, TextTransparency = 1}):Play()
+        TweenService:Create(Badge, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(BadgeLabel, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
+        fadeTween:Play()
+        fadeTween.Completed:Connect(function()
+            ScreenGui:Destroy()
+        end)
+    end)
+
+    -- Kéo thả tự do trên màn hình di động
+    local dragging, dragStart, startPos = false, nil, nil
+    Card.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = Card.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then dragging = false end
+            end)
+        end
+    end)
+
+    Card.InputChanged:Connect(function(input)
+        if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragging then
+            local delta = input.Position - dragStart
+            Card.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+end
+
+-- ==================== 6. NÚT ĐỔI NGÔN NGỮ LIQUID CYBER (SOFT BLUE THEME) ====================
 local function createLiquidCapsuleUI()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local old = parentTarget:FindFirstChild("Chilli_Liquid_Capsule")
@@ -816,7 +979,7 @@ local function createLiquidCapsuleUI()
     SliderGlow.Transparency = 0.4
     SliderGlow.Parent = Slider
 
-    -- Nút Tiếng Việt
+    -- Tab Tiếng Việt
     local BtnVI = Instance.new("TextButton")
     BtnVI.Name = "BtnVI"
     BtnVI.Size = UDim2.new(0, 84, 1, 0)
@@ -829,7 +992,7 @@ local function createLiquidCapsuleUI()
     BtnVI.ZIndex = 5
     BtnVI.Parent = Capsule
 
-    -- Nút English
+    -- Tab English
     local BtnEN = Instance.new("TextButton")
     BtnEN.Name = "BtnEN"
     BtnEN.Size = UDim2.new(0, 84, 1, 0)
@@ -870,6 +1033,11 @@ local function createLiquidCapsuleUI()
         end
 
         updateAllActive()
+
+        -- ĐỒNG BỘ NGÔN NGỮ BẢNG THÔNG BÁO TỨC THÌ
+        if updateNoticeLanguage then
+            updateNoticeLanguage(target)
+        end
     end
 
     BtnVI.MouseButton1Click:Connect(function() switchMode("VI") end)
@@ -903,8 +1071,9 @@ local function createLiquidCapsuleUI()
     end)
 end
 
--- ==================== 6. BỘ QUÉT TẢI TRÌ HOÃN (DEFER SCANNER) ====================
+-- ==================== 7. BỘ QUÉT TẢI TRÌ HOÃN (DEFER SCANNER) ====================
 task.delay(2.5, function()
+    createRainbowNoticeUI()
     createLiquidCapsuleUI()
 
     local searchRoots = {
