@@ -1,11 +1,10 @@
 -- ==============================================================================
---  CHILLI HUB V2 - AUTO CONFIG & SOFT SKY BLUE EDITION (BẢN HOÀN CHỈNH)
---  Kiến trúc tối ưu:
---    1. TỰ ĐỘNG CHUYỂN ENGLISH: Chuyển ngôn ngữ sang English trước khi nạp để chống xung đột tên nút.
---    2. BỘ ĐỊNH VỊ CHÍNH XÁC: Nhận diện độc quyền ô "Import Config Text" & nút "Import".
---    3. MULTI-LAYER CLICK (VIM + FIRESIGNAL + CONNECTIONS): Đảm bảo 100% nhận lệnh trên Delta/CodeX.
---    4. BẢO VỆ TIẾN TRÌNH: Chỉ khi profile "main" xuất hiện trong danh sách mới nhấn "Load".
---    5. SOFT BLUE 3-PART RESKIN: Giữ đúng 3 phần màu xanh nhạt dịu mắt, chữ trắng nổi khối.
+--  CHILLI HUB V2 - AUTO CONFIG & SOFT SKY BLUE (BẢN UNIVERSAL CLICKER 100%)
+--  Khắc phục:
+--    1. QUÉT ĐA ĐỐI TƯỢNG: Nhận diện chính xác chữ "Import" và "Load" trên cả TextLabel.
+--    2. CLICK VẬT LÝ TỌA ĐỘ (VIM): Bấm thẳng vào tâm nút trên màn hình, không trượt.
+--    3. TỰ ĐỘNG CHUYỂN ENGLISH: Chuẩn hóa nhãn nút trước khi nạp để tránh lỗi dịch thuật.
+--    4. GIỮ NGUYÊN GIAO DIỆN: 3 phần Soft Sky Blue, chữ trắng nổi khối, dịch thuật 100%.
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -271,49 +270,57 @@ local function inspectAndApplySoftBlue(inst)
     end
 end
 
--- ==================== 4. CLICK THỰC TẾ ĐA TẦNG (VIM + FIRESIGNAL + CONNECTIONS) ====================
-local function triggerRealisticClick(btn)
-    if not btn then return end
+-- ==================== 4. CƠ CHẾ CLICK TỌA ĐỘ VẬT LÝ VÀ SIGNAL TOÀN DIỆN ====================
+local function clickElementDirectly(inst)
+    if not inst then return end
 
-    -- Tầng 1: VirtualInputManager (Tương tác vật lý tọa độ chuẩn nhất trên Android/PC)
-    pcall(function()
-        if VirtualInputManager and btn:IsA("GuiObject") and btn.AbsolutePosition then
-            local pos = btn.AbsolutePosition + btn.AbsoluteSize / 2
-            VirtualInputManager:SendMouseButtonEvent(pos.X, pos.Y, 0, true, game, 1)
+    -- 1. Tọa độ tâm trên màn hình (VirtualInputManager tap đúng tâm nút)
+    local guiObj = inst:IsA("GuiObject") and inst or inst:FindFirstAncestorWhichIsA("GuiObject")
+    if VirtualInputManager and guiObj and guiObj.AbsoluteSize.X > 0 and guiObj.AbsoluteSize.Y > 0 then
+        local center = guiObj.AbsolutePosition + guiObj.AbsoluteSize / 2
+        pcall(function()
+            VirtualInputManager:SendMouseButtonEvent(center.X, center.Y, 0, true, game, 1)
             task.wait(0.04)
-            VirtualInputManager:SendMouseButtonEvent(pos.X, pos.Y, 0, false, game, 1)
-        end
-    end)
+            VirtualInputManager:SendMouseButtonEvent(center.X, center.Y, 0, false, game, 1)
+        end)
+    end
 
-    -- Tầng 2: firesignal (Executor API)
-    pcall(function()
-        if firesignal then
-            firesignal(btn.MouseButton1Down)
-            firesignal(btn.MouseButton1Click)
-            firesignal(btn.Activated)
-            firesignal(btn.MouseButton1Up)
-        end
-    end)
+    -- 2. Kích hoạt firesignal và connections trên cả Label lẫn Container cha
+    local targets = {inst}
+    if inst.Parent and inst.Parent:IsA("GuiObject") then table.insert(targets, inst.Parent) end
+    local btnAncestor = inst:FindFirstAncestorWhichIsA("GuiButton")
+    if btnAncestor then table.insert(targets, btnAncestor) end
 
-    -- Tầng 3: Kích hoạt trực tiếp chu kỳ Touch/Mouse kết nối
-    pcall(function()
-        if getconnections then
-            for _, c in ipairs(getconnections(btn.InputBegan)) do
-                c:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.Begin})
-                c:Fire({UserInputType = Enum.UserInputType.MouseButton1, UserInputState = Enum.UserInputState.Begin})
+    for _, obj in ipairs(targets) do
+        pcall(function()
+            if firesignal then
+                firesignal(obj.InputBegan)
+                firesignal(obj.MouseButton1Down)
+                firesignal(obj.Activated)
+                firesignal(obj.MouseButton1Click)
+                firesignal(obj.MouseButton1Up)
+                firesignal(obj.InputEnded)
             end
-            task.wait(0.03)
-            for _, c in ipairs(getconnections(btn.InputEnded)) do
-                c:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.End})
-                c:Fire({UserInputType = Enum.UserInputType.MouseButton1, UserInputState = Enum.UserInputState.End})
+        end)
+        pcall(function()
+            if getconnections then
+                for _, c in ipairs(getconnections(obj.InputBegan)) do
+                    c:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.Begin})
+                    c:Fire({UserInputType = Enum.UserInputType.MouseButton1, UserInputState = Enum.UserInputState.Begin})
+                end
+                task.wait(0.02)
+                for _, c in ipairs(getconnections(obj.MouseButton1Click)) do c:Fire() end
+                for _, c in ipairs(getconnections(obj.Activated)) do c:Fire() end
+                for _, c in ipairs(getconnections(obj.InputEnded)) do
+                    c:Fire({UserInputType = Enum.UserInputType.Touch, UserInputState = Enum.UserInputState.End})
+                    c:Fire({UserInputType = Enum.UserInputType.MouseButton1, UserInputState = Enum.UserInputState.End})
+                end
             end
-            for _, c in ipairs(getconnections(btn.MouseButton1Click)) do c:Fire() end
-            for _, c in ipairs(getconnections(btn.Activated)) do c:Fire() end
-        end
-    end)
+        end)
+    end
 end
 
--- ==================== 5. ĐỘNG CƠ AUTO CONFIG CHUẨN XÁC 100% ====================
+-- ==================== 5. ĐỘNG CƠ TỰ ĐỘNG NẠP CONFIG ĐÃ SỬA LỖI ====================
 local isConfigInjecting = false
 
 local function executeAutoConfig(statusCallback)
@@ -323,7 +330,7 @@ local function executeAutoConfig(statusCallback)
     task.spawn(function()
         statusCallback("⏳ Đang nạp...", Color3.fromRGB(255, 210, 90))
 
-        -- BƯỚC 0: TỰ ĐỘNG CHUYỂN SANG ENGLISH ĐỂ TRÁNH XUNG ĐỘT TÊN NÚT
+        -- BƯỚC 0: TỰ ĐỘNG CHUYỂN SANG ENGLISH ĐỂ ĐỒNG BỘ TÊN NÚT
         if switchGlobalLanguage then
             switchGlobalLanguage("EN")
             task.wait(0.3)
@@ -358,26 +365,28 @@ local function executeAutoConfig(statusCallback)
         end
 
         -- BƯỚC 1: BẤM TAB "CONFIG"
-        local configTabBtn = nil
+        local configTabElement = nil
         for _, d in ipairs(chilliGui:GetDescendants()) do
-            if d:IsA("TextButton") and (d.Text:lower() == "config" or d.Text:lower() == "cấu hình") then
-                configTabBtn = d
-                break
+            if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Visible then
+                local t = d.Text:lower():match("^%s*(.-)%s*$") or ""
+                if t == "config" or t == "cấu hình" then
+                    configTabElement = d
+                    break
+                end
             end
         end
 
-        if configTabBtn then
-            triggerRealisticClick(configTabBtn)
+        if configTabElement then
+            clickElementDirectly(configTabElement)
             task.wait(0.35)
         end
 
-        -- BƯỚC 2: ĐỊNH VỊ ĐỘC QUYỀN Ô "Import Config Text" (KHÔNG NHẦM SAVE CONFIG HAY SEARCH BOX)
+        -- BƯỚC 2: TÌM Ô TEXTBOX IMPORT
         local importTextBox = nil
-
         for _, d in ipairs(chilliGui:GetDescendants()) do
             if d:IsA("TextBox") then
                 local ph = (d.PlaceholderText or ""):lower()
-                if ph:find("exported config text") or ph:find("exported config") then
+                if ph:find("exported config") then
                     importTextBox = d
                     break
                 end
@@ -404,7 +413,7 @@ local function executeAutoConfig(statusCallback)
             return
         end
 
-        -- BƯỚC 3: BƠM JSON VÀ KÍCH HOẠT FOCUSLOST (KHÔNG GỌI CAPTUREFOCUS ĐỂ CHỐNG BUNG BÀN PHÍM)
+        -- BƯỚC 3: BƠM DỮ LIỆU JSON
         importTextBox.Text = RAW_CONFIG_JSON
         task.wait(0.1)
 
@@ -417,34 +426,19 @@ local function executeAutoConfig(statusCallback)
         end
         task.wait(0.25)
 
-        -- BƯỚC 4: TÌM VÀ BẤM NÚT ĐỎ "Import" Ở DÒNG "Import Config"
-        local importBtn = nil
-
-        for _, lbl in ipairs(chilliGui:GetDescendants()) do
-            if lbl:IsA("TextLabel") and lbl.Text == "Import Config" then
-                local row = lbl.Parent
-                if row then
-                    for _, b in ipairs(row:GetDescendants()) do
-                        if b:IsA("TextButton") and b.Text == "Import" then
-                            importBtn = b
-                            break
-                        end
-                    end
-                end
-                if importBtn then break end
-            end
-        end
-
-        if not importBtn then
-            for _, d in ipairs(chilliGui:GetDescendants()) do
-                if d:IsA("TextButton") and d.Text == "Import" and d.Visible then
-                    importBtn = d
+        -- BƯỚC 4: TÌM VÀ CLICK NÚT ĐỎ "Import" (QUÉT CẢ TEXTLABEL VÀ TEXTBUTTON)
+        local importBtnElement = nil
+        for _, d in ipairs(chilliGui:GetDescendants()) do
+            if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Visible then
+                local t = d.Text:gsub("%s+", " "):match("^%s*(.-)%s*$") or ""
+                if t == "Import" or t == "Nhập" then
+                    importBtnElement = d
                     break
                 end
             end
         end
 
-        if not importBtn then
+        if not importBtnElement then
             statusCallback("❌ Ko thấy nút Import", Color3.fromRGB(255, 90, 90))
             task.wait(2)
             statusCallback("⚡ NẠP CONFIG", Color3.fromRGB(255, 255, 255))
@@ -452,41 +446,52 @@ local function executeAutoConfig(statusCallback)
             return
         end
 
-        triggerRealisticClick(importBtn)
-        task.wait(0.9) -- Chờ toast thông báo "Config Imported"
+        clickElementDirectly(importBtnElement)
+        task.wait(0.9) -- Chờ xuất hiện toast "Config Imported"
 
         -- BƯỚC 5: MỞ DROPDOWN "Load Config"
-        local loadDropdown = nil
+        local loadDropdownElement = nil
         for _, lbl in ipairs(chilliGui:GetDescendants()) do
-            if lbl:IsA("TextLabel") and lbl.Text:find("Load Config") then
+            if lbl:IsA("TextLabel") and (lbl.Text:find("Load Config") or lbl.Text:find("Tải Cấu Hình")) then
                 local row = lbl.Parent
                 if row then
-                    loadDropdown = row:FindFirstChildWhichIsA("TextButton", true)
-                    if loadDropdown then break end
+                    loadDropdownElement = row:FindFirstChildWhichIsA("GuiButton", true)
+                    if not loadDropdownElement then
+                        for _, c in ipairs(row:GetDescendants()) do
+                            if (c:IsA("TextLabel") or c:IsA("TextButton")) and c.Text:find("Default") then
+                                loadDropdownElement = c
+                                break
+                            end
+                        end
+                    end
                 end
+                break
             end
         end
 
-        if loadDropdown then
-            triggerRealisticClick(loadDropdown)
+        if loadDropdownElement then
+            clickElementDirectly(loadDropdownElement)
             task.wait(0.35)
         end
 
-        -- BƯỚC 6: ĐỢI VÀ CHỌN PROFILE "main" (CHỜ TỐI ĐA 4 GIÂY)
-        local mainBtn = nil
+        -- BƯỚC 6: CHỌN MỤC "main" (CHỜ TỐI ĐA 4 GIÂY)
+        local mainProfileElement = nil
         local t0 = tick()
         while tick() - t0 < 4 do
             for _, d in ipairs(chilliGui:GetDescendants()) do
-                if d:IsA("TextButton") and d.Visible and d.Text:lower():match("^%s*main%s*$") then
-                    mainBtn = d
-                    break
+                if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Visible then
+                    local t = d.Text:gsub("%s+", " "):match("^%s*(.-)%s*$") or ""
+                    if t:lower() == "main" then
+                        mainProfileElement = d
+                        break
+                    end
                 end
             end
-            if mainBtn then break end
+            if mainProfileElement then break end
             task.wait(0.12)
         end
 
-        if not mainBtn then
+        if not mainProfileElement then
             statusCallback("❌ Ko có profile main", Color3.fromRGB(255, 90, 90))
             task.wait(2)
             statusCallback("⚡ NẠP CONFIG", Color3.fromRGB(255, 255, 255))
@@ -494,19 +499,22 @@ local function executeAutoConfig(statusCallback)
             return
         end
 
-        triggerRealisticClick(mainBtn)
-        task.wait(0.3)
+        clickElementDirectly(mainProfileElement)
+        task.wait(0.35)
 
-        -- BƯỚC 7: BẤM NÚT ĐỎ "Load" DƯỚI DROPDOWN
-        local loadBtn = nil
+        -- BƯỚC 7: CLICK NÚT ĐỎ "Load"
+        local loadBtnElement = nil
         for _, d in ipairs(chilliGui:GetDescendants()) do
-            if d:IsA("TextButton") and d.Visible and d.Text == "Load" then
-                loadBtn = d
-                break
+            if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Visible then
+                local t = d.Text:gsub("%s+", " "):match("^%s*(.-)%s*$") or ""
+                if t == "Load" or t == "Tải" then
+                    loadBtnElement = d
+                    break
+                end
             end
         end
 
-        if not loadBtn then
+        if not loadBtnElement then
             statusCallback("❌ Ko thấy nút Load", Color3.fromRGB(255, 90, 90))
             task.wait(2)
             statusCallback("⚡ NẠP CONFIG", Color3.fromRGB(255, 255, 255))
@@ -514,10 +522,10 @@ local function executeAutoConfig(statusCallback)
             return
         end
 
-        triggerRealisticClick(loadBtn)
-        task.wait(0.35)
+        clickElementDirectly(loadBtnElement)
+        task.wait(0.4)
 
-        -- HOÀN TẤT THÀNH CÔNG RỰC RỠ
+        -- HOÀN TẤT THÀNH CÔNG
         statusCallback("✔ ĐÃ NẠP XONG!", Color3.fromRGB(110, 245, 140))
         task.wait(2.2)
         statusCallback("⚡ NẠP CONFIG", Color3.fromRGB(255, 255, 255))
