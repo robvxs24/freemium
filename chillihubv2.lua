@@ -868,12 +868,12 @@ local function createRainbowNoticeUI()
     -- Hàm cập nhật ngôn ngữ cho Thông Báo
     updateNoticeLanguage = function(lang)
         if lang == "VI" then
-            BadgeLabel.Text = "🛠️ THÔNG BÁO BẢO TRÌ"
-            Message.Text = "Script Chilli Hub V2 Đang Được Update Và Sửa Lỗi.\nXin Lỗi Vì Sự Bất Tiện Này!"
-            ConfirmBtn.Text = "ĐÃ HIỂU"
+            BadgeLabel.Text = "🛠️ THÔNG BÁO UPDATE"
+            Message.Text = "Script Chilli Hub V3.6 Coming soon..."
+            ConfirmBtn.Text = "NGON THÍ"
         else
-            BadgeLabel.Text = "🛠️ MAINTENANCE NOTICE"
-            Message.Text = "Chilli Hub V2 is currently being updated and fixing bugs.\nWe apologize for this inconvenience!"
+            BadgeLabel.Text = "🛠️ UPDATE NOTICE"
+            Message.Text = "Script Chilli Hub V3.6 Coming soon..."
             ConfirmBtn.Text = "UNDERSTOOD"
         end
     end
