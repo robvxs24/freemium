@@ -812,7 +812,7 @@ local function createRainbowNoticeUI()
     local BadgeLabel = Instance.new("TextLabel")
     BadgeLabel.Size = UDim2.new(1, 0, 1, 0)
     BadgeLabel.BackgroundTransparency = 1
-    BadgeLabel.Text = "🛠️ THÔNG BÁO BẢO TRÌ"
+    BadgeLabel.Text = "🛠️ THÔNG BÁO UPDATE"
     BadgeLabel.Font = Enum.Font.GothamBold
     BadgeLabel.TextSize = 10
     BadgeLabel.TextColor3 = Color3.fromRGB(150, 200, 255)
@@ -834,7 +834,7 @@ local function createRainbowNoticeUI()
     Message.Size = UDim2.new(1, -36, 0, 52)
     Message.Position = UDim2.new(0, 18, 0, 74)
     Message.BackgroundTransparency = 1
-    Message.Text = "Script Chilli Hub V2 Đang Được Update Và Sửa Lỗi.\nXin Lỗi Vì Sự Bất Tiện Này!"
+    Message.Text = "Script Chilli Hub V3.6 Coming soon..."
     Message.Font = Enum.Font.GothamMedium
     Message.TextSize = 12
     Message.TextColor3 = Color3.fromRGB(200, 215, 235)
