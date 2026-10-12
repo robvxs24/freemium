@@ -1,12 +1,12 @@
 -- ==============================================================================
---  CHILLI HUB V3.8 - CUSTOM GOLDEN WING BUTTON FRAME & CLEAN ENGINE
---  Tích hợp:
---    1. KHUNG NÚT HOÀNG KIM: Dùng Asset ID 137708378399703 cho toàn bộ menu tab.
---    2. CHỮ NỔI TRÊN KHUNG: Chữ trắng viền đen đậm, ZIndex cao, không bị che mất.
---    3. TIÊU ĐỀ V3.8 KHÔNG CỤC ĐEN: Chữ ✨ NEW vàng sáng tích hợp qua RichText.
---    4. THÔNG BÁO V3.8 (10S TỰ BIẾN MẤT): Cập nhật 2 dòng sửa lỗi đua xe tự động.
---    5. TỰ ĐỘNG SET STARTUP: Tự chọn 'main' và lưu cấu hình khởi động chuẩn video.
---    6. TIKTOK CYBER GLASS: Logo ID 105105387426191 & 1-Click Copy link ronnei7.htk.
+--  CHILLI HUB V3.8 - FIXED GOLDEN WING FRAME & ZERO BLACK BLOCKS
+--  Sửa dứt điểm:
+--    1. XÓA SẠCH KHỐI ĐEN: Ẩn 100% slot nền và shadow đen ngầm quanh nút.
+--    2. CHỮ NỔI LÊN TRÊN: Tạo TextLabel độc lập (ZIndex 10) nổi bật trên khung ảnh.
+--    3. CHỮ TRẮNG VIỀN ĐEN ĐẬM: Giữ nguyên màu chữ và font FredokaOne sắc nét.
+--    4. TIÊU ĐỀ V3.8 KHÔNG CỤC ĐEN: Chữ ✨ NEW vàng hoàng kim qua RichText.
+--    5. THÔNG BÁO V3.8 (10S TỰ BIẾN MẤT): Chuẩn 2 dòng sửa lỗi đua xe tự động.
+--    6. TỰ ĐỘNG SET STARTUP: Tự chọn 'main' và lưu cấu hình khởi động chuẩn video.
 -- ==============================================================================
 
 local CUSTOM_FRAME_IMAGE = "rbxassetid://137708378399703"
@@ -504,6 +504,7 @@ local TrackedElements = {}
 local function applyTranslation(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
     if inst:FindFirstAncestor("Chilli_Dynamic_Island") or inst:FindFirstAncestor("Chilli_Update_Toast") then return end
+    if inst.Name == "CustomButtonText" then return end
     if inst:GetAttribute("__IsTranslating") then return end
 
     local original = inst:GetAttribute("OriginalRawText")
@@ -526,6 +527,7 @@ end
 local function hookElement(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
     if inst:GetAttribute("HasTranslateHook") then return end
+    if inst.Name == "CustomButtonText" then return end
     inst:SetAttribute("HasTranslateHook", true)
 
     table.insert(TrackedElements, inst)
@@ -551,7 +553,7 @@ local function updateAllActive()
     end
 end
 
--- ==================== 5. GẮN KHUNG NÚT HOÀNG KIM (ASSET 137708378399703) ====================
+-- ==================== 5. GẮN KHUNG NÚT HOÀNG KIM (FIX DỨT ĐIỂM CHỮ NỔI & KHỐI ĐEN) ====================
 local COLOR_FACE_TOP     = Color3.fromRGB(140, 195, 245)
 local COLOR_FACE_BOTTOM  = Color3.fromRGB(95, 155, 225)
 
@@ -573,31 +575,41 @@ local TARGET_BUTTON_KEYWORDS = {
 local function applyCustomButtonFrame(btnContainer, labelObj)
     if not btnContainer then return end
 
-    -- 1. Ẩn khối hình chữ nhật đỏ gốc
+    -- 1. TRIỆT TIÊU TOÀN BỘ KHỐI ĐEN VÀ CHỮ NGẦM BỊ ĐÈ
     btnContainer.BackgroundTransparency = 1
     btnContainer.BorderSizePixel = 0
+    if btnContainer:IsA("TextButton") then
+        btnContainer.TextTransparency = 1 -- Ẩn chữ gốc để tránh bị đè dưới ảnh
+    end
 
+    -- Ẩn sạch mọi Frame shadow / Stroke đen gây khối đen xì trong ảnh 6516
     for _, child in ipairs(btnContainer:GetChildren()) do
-        if child:IsA("UIGradient") or child:IsA("UIStroke") then
-            child.Enabled = false
+        if child.Name ~= "CustomWingFrame" and child.Name ~= "CustomButtonText" then
+            if child:IsA("UIStroke") or child:IsA("UIGradient") then
+                child.Enabled = false
+            elseif child:IsA("Frame") or child:IsA("ImageLabel") then
+                child.Visible = false
+            end
         end
     end
 
-    -- Ẩn shadow phía sau nếu nút nằm trong frame lồng
-    if btnContainer.Parent and btnContainer.Parent:IsA("Frame") and btnContainer.Parent ~= btnContainer then
-        local p = btnContainer.Parent
-        if p.BackgroundColor3.R > 0.4 and p.BackgroundColor3.G < 0.35 then
-            p.BackgroundTransparency = 1
-            p.BorderSizePixel = 0
-        end
+    -- Ẩn luôn nền đen của khung bao slot bên ngoài
+    if btnContainer.Parent and btnContainer.Parent:IsA("GuiObject") and btnContainer.Parent ~= btnContainer then
+        pcall(function()
+            btnContainer.Parent.BackgroundTransparency = 1
+            btnContainer.Parent.BorderSizePixel = 0
+            for _, pChild in ipairs(btnContainer.Parent:GetChildren()) do
+                if pChild:IsA("UIStroke") then pChild.Enabled = false end
+            end
+        end)
     end
 
-    -- 2. Gắn Khung Ảnh Hoàng Kim
+    -- 2. GẮN KHUNG CÁNH HOÀNG KIM (ZINDEX = 2)
     local frameImg = btnContainer:FindFirstChild("CustomWingFrame")
     if not frameImg then
         frameImg = Instance.new("ImageLabel")
         frameImg.Name = "CustomWingFrame"
-        frameImg.Size = UDim2.new(1.18, 0, 1.35, 0)
+        frameImg.Size = UDim2.new(1.15, 0, 1.25, 0)
         frameImg.Position = UDim2.new(0.5, 0, 0.5, 0)
         frameImg.AnchorPoint = Vector2.new(0.5, 0.5)
         frameImg.BackgroundTransparency = 1
@@ -611,24 +623,37 @@ local function applyCustomButtonFrame(btnContainer, labelObj)
         frameImg.Visible = true
     end
 
-    -- 3. Đưa nhãn chữ lên trên cùng (ZIndex cao), giữ chữ trắng viền đen đậm
+    -- 3. TẠO LỚP CHỮ ĐỘC LẬP (ZINDEX = 10) - ĐẢM BẢO CHỮ LUÔN NẰM TRÊN MẶT KHUNG
+    local rawText = ""
     if labelObj and (labelObj:IsA("TextLabel") or labelObj:IsA("TextButton")) then
-        labelObj.ZIndex = 5
-        labelObj.TextColor3 = Color3.fromRGB(255, 255, 255)
-        labelObj.TextStrokeTransparency = 1
-
-        local textStroke = labelObj:FindFirstChildOfClass("UIStroke")
-        if not textStroke then
-            textStroke = Instance.new("UIStroke")
-            textStroke.Thickness = 2.4
-            textStroke.Color = Color3.fromRGB(15, 10, 20)
-            textStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
-            textStroke.Parent = labelObj
-        else
-            textStroke.Enabled = true
-            textStroke.Thickness = 2.4
-            textStroke.Color = Color3.fromRGB(15, 10, 20)
+        rawText = labelObj:GetAttribute("OriginalRawText") or labelObj.Text
+        if labelObj ~= btnContainer then
+            labelObj.Visible = false -- Ẩn nhãn cũ
         end
+    end
+
+    local textOverlay = btnContainer:FindFirstChild("CustomButtonText")
+    if not textOverlay then
+        textOverlay = Instance.new("TextLabel")
+        textOverlay.Name = "CustomButtonText"
+        textOverlay.Size = UDim2.new(1, 0, 1, 0)
+        textOverlay.Position = UDim2.new(0, 0, 0, 0)
+        textOverlay.BackgroundTransparency = 1
+        textOverlay.Font = Enum.Font.FredokaOne
+        textOverlay.TextSize = 13
+        textOverlay.TextColor3 = Color3.fromRGB(255, 255, 255)
+        textOverlay.ZIndex = 10 -- NỔI BẬT TRÊN MẶT ẢNH
+        textOverlay.Parent = btnContainer
+
+        local stroke = Instance.new("UIStroke")
+        stroke.Thickness = 2.4
+        stroke.Color = Color3.fromRGB(15, 10, 20)
+        stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+        stroke.Parent = textOverlay
+    end
+
+    if rawText ~= "" then
+        textOverlay.Text = translateText(rawText)
     end
 end
 
@@ -679,6 +704,7 @@ end
 local function inspectAndApplyTheme(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton")) then return end
     if inst:FindFirstAncestor("Chilli_Dynamic_Island") or inst:FindFirstAncestor("Chilli_Update_Toast") then return end
+    if inst.Name == "CustomButtonText" then return end
 
     local textRaw = inst.Text:lower():match("^%s*(.-)%s*$") or ""
     if textRaw:find("chilli hub") then
@@ -759,7 +785,6 @@ local function executeAutoConfig(statusCallback)
             isConfigInjecting = false; return
         end
 
-        -- 1. Bấm Tab Config
         local configTabElement = nil
         for _, d in ipairs(chilliGui:GetDescendants()) do
             if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Visible then
@@ -775,7 +800,6 @@ local function executeAutoConfig(statusCallback)
             task.wait(0.35)
         end
 
-        -- 2. Tìm ô TextBox Import
         local importTextBox = nil
         for _, d in ipairs(chilliGui:GetDescendants()) do
             if d:IsA("TextBox") then
@@ -805,7 +829,6 @@ local function executeAutoConfig(statusCallback)
             isConfigInjecting = false; return
         end
 
-        -- 3. Bơm dữ liệu JSON
         importTextBox.Text = RAW_CONFIG_JSON
         task.wait(0.1)
 
@@ -816,7 +839,6 @@ local function executeAutoConfig(statusCallback)
         end
         task.wait(0.25)
 
-        -- 4. Bấm nút đỏ "Import"
         local importBtnElement = nil
         for _, d in ipairs(chilliGui:GetDescendants()) do
             if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Visible then
@@ -837,7 +859,6 @@ local function executeAutoConfig(statusCallback)
         stealthClick(importBtnElement)
         task.wait(0.9)
 
-        -- 5. Mở Dropdown "Load Config"
         local loadDropdownElement = nil
         for _, lbl in ipairs(chilliGui:GetDescendants()) do
             if lbl:IsA("TextLabel") and (lbl.Text:find("Load Config") or lbl.Text:find("Tải Cấu Hình")) then
@@ -861,7 +882,6 @@ local function executeAutoConfig(statusCallback)
             task.wait(0.35)
         end
 
-        -- 6. Chọn profile "main"
         local mainProfileElement = nil
         local t0 = tick()
         while tick() - t0 < 4 do
@@ -887,7 +907,6 @@ local function executeAutoConfig(statusCallback)
         stealthClick(mainProfileElement)
         task.wait(0.35)
 
-        -- 7. Bấm nút đỏ "Load"
         local loadBtnElement = nil
         for _, d in ipairs(chilliGui:GetDescendants()) do
             if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Visible then
@@ -903,7 +922,6 @@ local function executeAutoConfig(statusCallback)
             task.wait(0.4)
         end
 
-        -- 8. BƯỚC CÀI KHỞI ĐỘNG (CHUẨN VIDEO)
         statusCallback("⏳ Cài khởi động...", Color3.fromRGB(255, 210, 90))
         task.wait(0.35)
 
@@ -965,7 +983,6 @@ local function executeAutoConfig(statusCallback)
             task.wait(0.4)
         end
 
-        -- 9. CHUYỂN TOÀN BỘ VỀ TIẾNG VIỆT
         if switchGlobalLanguage then
             switchGlobalLanguage("VI")
         end
@@ -977,7 +994,7 @@ local function executeAutoConfig(statusCallback)
     end)
 end
 
--- ==================== 8. THÔNG BÁO V3.8 TOAST (10S TỰ BIẾN MẤT - KHÔNG NÚT X) ====================
+-- ==================== 8. THÔNG BÁO V3.8 TOAST (10S TỰ BIẾN MẤT) ====================
 local function createUpdateToast()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local oldToast = parentTarget:FindFirstChild("Chilli_Update_Toast")
@@ -1056,7 +1073,6 @@ local function createUpdateToast()
         Position = UDim2.new(0.5, 0, 0, 52)
     }):Play()
 
-    -- 10 giây tự thu lên biến mất
     task.delay(10, function()
         if ToastFrame and ToastFrame.Parent then
             TweenService:Create(ToastFrame, TweenInfo.new(0.45, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
@@ -1113,7 +1129,6 @@ local function createDynamicIslandUI()
     IslandStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     IslandStroke.Parent = Island
 
-    -- VIEW THU GỌN
     local CollapsedView = Instance.new("TextButton")
     CollapsedView.Name = "CollapsedView"
     CollapsedView.Size = UDim2.new(1, 0, 0, 36)
@@ -1153,7 +1168,6 @@ local function createDynamicIslandUI()
     ChevronIcon.TextColor3 = Color3.fromRGB(150, 195, 245)
     ChevronIcon.Parent = CollapsedView
 
-    -- VIEW MỞ RỘNG
     local ExpandedView = Instance.new("Frame")
     ExpandedView.Name = "ExpandedView"
     ExpandedView.Size = UDim2.new(1, 0, 1, 0)
@@ -1191,7 +1205,6 @@ local function createDynamicIslandUI()
     CloseCorner.CornerRadius = UDim.new(1, 0)
     CloseCorner.Parent = CloseBtn
 
-    -- Hàng 1: Nút dịch Liquid Capsule bên trong Island
     local LangCapsule = Instance.new("Frame")
     LangCapsule.Size = UDim2.new(1, -24, 0, 32)
     LangCapsule.Position = UDim2.new(0, 12, 0, 34)
@@ -1244,7 +1257,6 @@ local function createDynamicIslandUI()
     BtnEN.ZIndex = 5
     BtnEN.Parent = LangCapsule
 
-    -- Hàng 2: Thẻ Thông Báo Update V3.8
     local UpdateNoticeCard = Instance.new("Frame")
     UpdateNoticeCard.Name = "UpdateNoticeCard"
     UpdateNoticeCard.Size = UDim2.new(1, -24, 0, 36)
@@ -1287,7 +1299,6 @@ local function createDynamicIslandUI()
     NoticeContent.Text = "• Sửa lỗi sự kiện đua xe tự động\n• Sửa các lỗi lặt vặt khác"
     NoticeContent.Parent = UpdateNoticeCard
 
-    -- Hàng 3: Thẻ Setting Auto Farm
     local AutoFarmCard = Instance.new("Frame")
     AutoFarmCard.Size = UDim2.new(1, -24, 0, 96)
     AutoFarmCard.Position = UDim2.new(0, 12, 0, 114)
@@ -1340,7 +1351,6 @@ local function createDynamicIslandUI()
     SubLabel.Text = "• Tự động làm từ A-Z\n• Nhặt trứng trên Secret 2B+\n• Tự động chạy máy tập khi rảnh rỗi\n• Tự động làm các nhiệm vụ còn thiếu và sự kiện..."
     SubLabel.Parent = AutoFarmCard
 
-    -- Hàng 4: NÚT TIKTOK CYBER GLASS (LOGO ID 105105387426191)
     local TIKTOK_URL = "https://www.tiktok.com/@ronnei7.htk?_r=1&_t=ZS-9AU6v4rybwu"
 
     local TikTokBtn = Instance.new("TextButton")
