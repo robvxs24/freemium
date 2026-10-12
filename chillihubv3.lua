@@ -1,6 +1,11 @@
 -- ==============================================================================
---  CHILLI HUB V3.6 - PERSISTENT SELF-CONTAINED ENGINE
---  Kiến trúc: Tự nhân bản & Kẹp bộ khung V3.6 vào Rejoin / Teleport vĩnh viễn
+--  CHILLI HUB V3.6 - ULTRA-PERFORMANCE ZERO-LAG EDITION
+--  Tối ưu hóa:
+--    1. EVENT-DRIVEN ENGINE: Xóa bỏ 100% vòng lặp CPU nặng nề, cắm máy 24/7 siêu mượt.
+--    2. TIKTOK AVATAR CHÍNH THỨC: Tích hợp ID 105105387426191 & 1-Click Copy link.
+--    3. THÔNG BÁO UPDATE V3.8: Banner thông báo trượt song ngữ sang trọng.
+--    4. ZERO-TOUCH TELEPORT HIJACKER: Tự động chạy lại V3.6 khi Rejoin/Hop server.
+--    5. SOFT SKY BLUE THEME: Màu xanh nhạt dịu mắt, huy hiệu ✨ NEW mini Hologram.
 -- ==============================================================================
 
 getgenv().CHILLI_V36_SOURCE = [====[
@@ -10,7 +15,8 @@ local cleanupList = {
     "Chilli_AutoConfig_Btn",
     "Chilli_AutoFarm_Widget",
     "Chilli_Liquid_Capsule",
-    "Sparkling_New_Badge"
+    "Sparkling_New_Badge",
+    "Chilli_Update_Toast"
 }
 
 for _, root in ipairs({gethui and gethui(), game:GetService("CoreGui"), game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")}) do
@@ -25,25 +31,16 @@ for _, root in ipairs({gethui and gethui(), game:GetService("CoreGui"), game:Get
     end
 end
 
--- ==================== 1. TỰ ĐỘNG BẢO LƯU BỘ KHUNG KHI REJOIN / HOP ====================
+-- ==================== 1. CHẶN ĐỨNG SCRIPT GỐC KHI REJOIN / HOP SERVER ====================
 local rawQueue = queue_on_teleport or (syn and syn.queue_on_teleport) or (fluxus and fluxus.queue_on_teleport)
 if rawQueue and getgenv().CHILLI_V36_SOURCE then
     local function autoHookQueue(code)
-        -- Khi bản gốc cố nạp lại link GitHub của nó lúc đổi server hoặc Rejoin
-        if type(code) == "string" and (code:find("tienkhanh1") or code:find("Chilli.lua") or code:find("spicy")) then
-            -- Kẹp nguyên vẹn bộ khung V3.6 đi cùng để tự động chạy đè lên ở server mới
-            local persistentPayload = string.format([[
-                task.wait(2)
-                pcall(function()
-                    %s
-                end)
-                task.wait(1.5)
-                getgenv().CHILLI_V36_SOURCE = %q
-                loadstring(getgenv().CHILLI_V36_SOURCE)()
-            ]], code, getgenv().CHILLI_V36_SOURCE)
-            return rawQueue(persistentPayload)
-        end
-        return rawQueue(code)
+        local cleanPayload = string.format([[
+            task.wait(1.8)
+            getgenv().CHILLI_V36_SOURCE = %q
+            loadstring(getgenv().CHILLI_V36_SOURCE)()
+        ]], getgenv().CHILLI_V36_SOURCE)
+        return rawQueue(cleanPayload)
     end
 
     pcall(function() getgenv().queue_on_teleport = autoHookQueue end)
@@ -77,7 +74,7 @@ local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 
--- ==================== DỮ LIỆU CẤU HÌNH JSON ====================
+-- ==================== DỮ LIỆU CẤU HÌNH JSON (PROFILE: MAIN) ====================
 local RAW_CONFIG_JSON = [===[{"Config":{"Profile":"main","Version":2,"States":{"Farm HUD Stealing Position":{"Value":[]},"Quick Panel Collapsed":{"Value":{"1":true}},"Quick Keybinds":{"Value":{"Player > Movement > Speed Boost":"Q"}},"Farm HUD World Position":{"Value":[]},"Farm HUD Stolen Eggs":{"Value":{"History":[{"At":1791707562,"Name":"Parrotfish Egg","Category":"Parrotfish","Scale":0.9196704573013789,"Rarity":"Rare","Value":659.493259982963}],"Count":1,"Best":{"Category":"Parrotfish","Name":"Parrotfish Egg","Rarity":"Rare","Rank":3}}},"Farm HUD Top Eggs Position":{"Value":[]},"Anti Guard Enabled":{"Value":false},"Farm HUD Steal History Position":{"Value":[]},"Quick Pinned Features":{"Value":["Player > Movement > Speed Boost","Player > Movement > Boost Speed"]},"Open On Launch":{"Value":true},"Quick Panel Position":{"Value":{"1":{"Y":0.32634490728378298,"X":0.8134856224060059}}},"Notifications":{"Value":true},"Farm HUD Top Pets Position":{"Value":[]},"Quick Open Key":{"Value":"LeftControl"},"FPS and Ping Position":{"Value":{"XOffset":16,"XScale":0,"YScale":0,"YOffset":47}},"Farm HUD Status Position":{"Value":[]},"Farm HUD Events Position":{"Value":[]},"Steal Panel Open":{"Value":false},"Quick LeftCenter Hidden":{"Value":true},"Farm HUD Economy Position":{"Value":[]},"Quick Pin Groups":{"Value":[]},"Farm HUD Collection Position":{"Value":[]}},"Values":{"Admin Abuse":{"Minigame Eggs":{"Auto Steal Minigame Egg":{"Value":true,"Type":"toggle"}},"Instant Steal V3":{"Instant Steal V3 Note":{"Value":"Cần Máy Tập Admin","Type":"text"},"Instant Steal V3":{"Value":false,"Type":"toggle"}},"Admin Treadmill":{"Auto Use Admin Treadmill":{"Value":true,"Type":"toggle"}},"Capture The Egg":{"Hold Height":{"Value":45,"Type":"slider","Unit":"studs"},"Auto Capture Event Egg":{"Value":false,"Type":"toggle"},"Keep Away Distance":{"Value":45,"Type":"slider","Unit":"studs"},"Take It From The Holder":{"Value":true,"Type":"toggle"}}},"Predictor":{"Egg Predictor":{"Sort By":{"Value":"Value","Type":"dropdown"},"Preview Card":{"Value":true,"Type":"toggle"}},"Discord Webhook":{"Webhook URL":{"Value":"","Type":"input"},"Notify Fused Eggs":{"Value":false,"Type":"toggle"},"Notify Stolen Eggs":{"Value":false,"Type":"toggle"},"Webhook Min Rarity":{"Value":"Any","Type":"dropdown"},"Webhook Eggs":{"Value":[],"Type":"multidropdown"},"Webhook Min Value":{"Value":0,"Type":"slider"},"Ping @everyone":{"Value":false,"Type":"toggle"}}},"Progress":{"Auto Progression":{"Auto Buy Trail":{"Value":true,"Type":"toggle"},"Auto Claim Index":{"Value":true,"Type":"toggle"},"Auto Upgrade Treadmill":{"Value":true,"Type":"toggle"},"Auto Claim":{"Value":true,"Type":"toggle"},"Auto Upgrade Base":{"Value":true,"Type":"toggle"}}},"Quick":{"Pin Pad":{"Pad Size":{"Value":150,"Type":"slider","Unit":"%"},"Enable Keybinds":{"Value":true,"Type":"toggle"},"Show Pin Pads":{"Value":true,"Type":"toggle"},"Visible Quick Bars":{"Value":["Quick Bar 1","Quick Bar 2","Quick Bar 3","Quick Bar 4","Quick Bar 5"],"Type":"multidropdown"}}},"Auto Hop":{"Egg Finder":{"Hop Mode":{"Value":"Steal Then Hop","Type":"dropdown"},"Min Rarity":{"Value":"Secret","Type":"dropdown"},"Rarity To Wait For":{"Value":"Cosmic","Type":"dropdown"},"First Hop Delay":{"Value":5,"Type":"slider","Unit":"s"},"Sync With Auto Steal Filters":{"Value":true,"Type":"toggle"},"Target Specific Eggs":{"Value":[],"Type":"multidropdown"},"Min Value To Find":{"Value":700.11,"Type":"slider"},"Auto Hop":{"Value":false,"Type":"toggle"},"Target Areas":{"Value":["Cherry Blossom","Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"}}},"Player":{"ESP":{"ESP Eggs":{"Value":true,"Type":"toggle"},"ESP Show Info":{"Value":["Icon","Name","Value"],"Type":"multidropdown"},"ESP Guard Size":{"Value":75,"Type":"slider","Unit":"%"},"ESP Player Info":{"Value":["Name","Tool"],"Type":"multidropdown"},"ESP Other Base Eggs":{"Value":false,"Type":"toggle"},"ESP Min Rarity":{"Value":"7 - Cosmic","Type":"dropdown"},"ESP Guards":{"Value":true,"Type":"toggle"},"Min ESP Value":{"Value":0,"Type":"slider"},"ESP Player Size":{"Value":75,"Type":"slider","Unit":"%"},"ESP Players":{"Value":true,"Type":"toggle"},"ESP Own Base Eggs":{"Value":true,"Type":"toggle"},"ESP Fixed Size":{"Value":false,"Type":"toggle"},"ESP Egg Size":{"Value":75,"Type":"slider","Unit":"%"}},"Character":{"Instant Prompts":{"Value":true,"Type":"toggle"},"Anti Ragdoll":{"Value":true,"Type":"toggle"},"Anti Trap":{"Value":true,"Type":"toggle"},"Invisibility":{"Value":false,"Type":"toggle"}},"Movement":{"Speed Boost":{"Value":false,"Type":"toggle"},"Boost Speed":{"Value":1000,"Type":"slider","Unit":"studs/s"},"Infinite Jump":{"Value":false,"Type":"toggle"}},"Combat":{"Auto Hit Egg Holders":{"Value":false,"Type":"toggle"},"Hit Max Speed":{"Value":750,"Type":"slider","Unit":"studs/s"},"Auto Hit Nearest Player":{"Value":false,"Type":"toggle"},"Hit Player":{"Value":"67sixseven16690","Type":"dropdown"},"Hit Lead":{"Value":-275,"Type":"slider"},"Hit Tween Speed":{"Value":400,"Type":"slider","Unit":"studs/s"},"Hit Sweep":{"Value":60,"Type":"slider","Unit":"%"},"Chase Settings":{"Value":"Cài Đặt Đuổi Đánh","Type":"label"},"Auto Hit Specific Player":{"Value":false,"Type":"toggle"},"Hit Aura":{"Value":true,"Type":"toggle"},"Hit Status":{"Value":"Aura ready, nobody in reach","Type":"text"}}},"Settings":{"Interface":{"UI Size":{"Value":100,"Type":"slider","Unit":"%"}}},"Farm":{"Auto Steal":{"Drop Eggs At Safe Zone":{"Value":false,"Type":"toggle"},"Target Specific Eggs":{"Value":[],"Type":"multidropdown"},"Biohazard Lab Eggs":{"Value":["Red Panda Egg (43%)","Snowy Owl Egg (40%)","Salamander Egg (38%)"],"Type":"multidropdown"},"Anti Guard Panel":{"Value":true,"Type":"toggle"},"Steal Missing Lab Eggs":{"Value":false,"Type":"toggle"},"Instant Steal Steps":{"Value":2,"Type":"slider"},"Instant Steal Zones":{"Value":["Titan Temple","Light Dark","Enchanted Forest"],"Type":"multidropdown"},"Target Areas":{"Value":["Cherry Blossom","Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"},"Unstable DNA Lab Eggs":{"Value":["Toro Egg (24%)","Winged Lamb Egg (23%)","Bladehide Egg (23%)","Imp Egg (22%)","Crustacia Egg (22%)"],"Type":"multidropdown"},"Stock Per Egg":{"Value":3,"Type":"slider","Unit":""},"Auto Steal":{"Value":true,"Type":"toggle"},"Min Rarity":{"Value":"Secret","Type":"dropdown"},"Teleport To Egg":{"Value":true,"Type":"toggle"},"Carry Speed":{"Value":120,"Type":"slider","Unit":"%"},"Experimental Lab Eggs":{"Value":["Bladehide Egg (34%)","Red Panda Egg (34%)","Crustacia Egg (33%)","Salamander Egg (33%)","Snowy Owl Egg (32%)"],"Type":"multidropdown"},"Fast Delivery":{"Value":true,"Type":"toggle"},"Skip Owned Lab Eggs":{"Value":true,"Type":"toggle"},"Steal Priority":{"Value":"Highest Value","Type":"dropdown"},"Instant Steal V2":{"Value":true,"Type":"toggle"},"Instant Steal":{"Value":false,"Type":"toggle"},"Steal Missing Index Eggs":{"Value":false,"Type":"toggle"},"Min Steal Value":{"Value":700.11,"Type":"slider"},"Tween Speed":{"Value":120,"Type":"slider","Unit":"%"},"Stock Lab Eggs For":{"Value":[],"Type":"multidropdown"}},"Auto Sell":{"Egg Sell Value":{"Value":0,"Type":"slider"},"Sell Egg Rule":{"Value":"Rarity Only","Type":"dropdown"},"Auto Sell Egg":{"Value":false,"Type":"toggle"},"Blacklist Sell Eggs":{"Value":[],"Type":"multidropdown"},"Keep Mutated Eggs":{"Value":true,"Type":"toggle"},"Egg Max Rarity":{"Value":"3 - Rare","Type":"dropdown"},"Blacklist Sell Pets":{"Value":[],"Type":"multidropdown"},"Egg Sell Preview":{"Value":"Egg matches  -  0 eggs for $0","Type":"text"},"Auto Sell Pet":{"Value":false,"Type":"toggle"},"Pet Sell Value":{"Value":777.78,"Type":"slider"},"Pet Sell Preview":{"Value":"Pet matches  -  0 pets for $0","Type":"text"},"Keep Mutated Pets":{"Value":false,"Type":"toggle"},"Sell Pet Rule":{"Value":"Rarity Only","Type":"dropdown"},"Pet Max Rarity":{"Value":"8 - Secret","Type":"dropdown"}},"Auto Fuse Machine":{"Max Rarity to Fuse":{"Value":"6 - Mythic","Type":"dropdown"},"Skip Mutated Pets":{"Value":true,"Type":"toggle"},"Auto Fuse Machine":{"Value":true,"Type":"toggle"},"Specific Species to Fuse":{"Value":[],"Type":"multidropdown"},"Eject Incomplete Slots":{"Value":true,"Type":"toggle"},"Pets To Use":{"Value":"Lowest To Highest","Type":"dropdown"},"Fuse Priority Mode":{"Value":"Lowest Rarity First","Type":"dropdown"},"Fuse Preview":{"Value":"Không đủ 3 pet trùng khớp","Type":"text"}},"Auto Favorite":{"Favorite Mutations":{"Value":[],"Type":"multidropdown"},"Favorite Preview":{"Value":"Favorite matches  -  5 pets, 0 to mark  |  23 favorited","Type":"text"},"Favorite Min Rarity":{"Value":"10 - Divine","Type":"dropdown"},"Auto Favorite Equipped":{"Value":true,"Type":"toggle"},"Auto Favorite Pet":{"Value":true,"Type":"toggle"},"Always Favorite Species":{"Value":[],"Type":"multidropdown"},"Min Favorite Value":{"Value":797.34,"Type":"slider"},"Auto Unfavorite Equipped":{"Value":true,"Type":"toggle"},"Favorite Rule":{"Value":"Match All","Type":"dropdown"}},"Auto Treadmill":{"Stay On Treadmill":{"Value":true,"Type":"toggle"},"Auto Treadmill":{"Value":true,"Type":"toggle"}},"Auto Place Egg":{"Place Egg Rule":{"Value":"Always","Type":"dropdown"},"Place Rarities":{"Value":[],"Type":"multidropdown"},"Pen Status":{"Value":"Eggs placed 5/30  -  19/19 pets equipped, 0 in bag","Type":"text"},"Auto Place Egg":{"Value":true,"Type":"toggle"},"Place Egg Order":{"Value":"Highest Value","Type":"dropdown"},"Min Place Value":{"Value":0,"Type":"slider"},"Place Specific Eggs":{"Value":[],"Type":"multidropdown"}},"Wisp Companion":{"Auto Banjo Cricket":{"Value":true,"Type":"toggle"},"Auto Wisp":{"Value":true,"Type":"toggle"},"Wisp Status":{"Value":"Banjo Cricket: Done, Cricket's Banjo is yours","Type":"text"}},"Butterfly Bloom":{"Auto Butterfly Bloom":{"Value":true,"Type":"toggle"},"Trade Up Tiers":{"Value":["Emerald To Sapphire","Sapphire To Amethyst","Amethyst To Radiant"],"Type":"multidropdown"},"Auto Craft Essence":{"Value":true,"Type":"toggle"},"Auto Trade Up":{"Value":true,"Type":"toggle"},"Catch Priority":{"Value":"Rarest","Type":"dropdown"},"Tween Speed  ":{"Value":600,"Type":"slider","Unit":"studs/s"},"Catch Mode":{"Value":"Chase","Type":"dropdown"},"Catch Butterflies":{"Value":["Radiant Butterfly","Amethyst Butterfly","Sapphire Butterfly","Emerald Butterfly"],"Type":"multidropdown"},"Smart Trade For Essence":{"Value":true,"Type":"toggle"}},"Racing Event":{"Race Speed":{"Value":400,"Type":"slider"},"Auto Race":{"Value":true,"Type":"toggle"},"Race Shop Items":{"Value":["Nitro Mutation"],"Type":"multidropdown"},"Auto Equip Racer":{"Value":true,"Type":"toggle"},"Auto Buy Race Shop":{"Value":true,"Type":"toggle"},"Auto Claim Race Rewards":{"Value":true,"Type":"toggle"},"Auto Use Power-Ups":{"Value":true,"Type":"toggle"},"Racer":{"Value":"Best Owned","Type":"dropdown"}},"Auto Mutation":{"Mutate Priority":{"Value":"Highest Value","Type":"dropdown"},"Mutations To Use":{"Value":["Fractured","Scrambled","Enchanted","Nitro"],"Type":"multidropdown"},"Mutate Target Eggs":{"Value":[],"Type":"multidropdown"},"Mutate Min Value":{"Value":797.34,"Type":"slider"},"Auto Mutate":{"Value":true,"Type":"toggle"},"Mutate Status":{"Value":"Waiting  |  No egg to mutate","Type":"text"},"Auto Buy Nitro":{"Value":true,"Type":"toggle"},"Mutate Min Rarity":{"Value":"Secret","Type":"dropdown"}},"Auto Sell Lab Egg":{"Lab Egg Sell Value":{"Value":700.11,"Type":"slider"},"Sell Lab Egg Rule":{"Value":"Rarity And Value","Type":"dropdown"},"Lab Egg Max Rarity":{"Value":"Off","Type":"dropdown"},"Auto Sell Lab Egg":{"Value":true,"Type":"toggle"},"Lab Egg Sell Preview":{"Value":"Lab egg matches  -  0 eggs for $0","Type":"text"},"Keep Lab Pets":{"Value":[],"Type":"multidropdown"},"Keep Mutated Lab Eggs":{"Value":true,"Type":"toggle"}},"Auto Hatch & Equip":{"Hatch Specific Eggs":{"Value":[],"Type":"multidropdown"},"Auto Hatch":{"Value":false,"Type":"toggle"},"Hatch Min Rarity":{"Value":"Any","Type":"dropdown"},"Min Hatch Value":{"Value":0,"Type":"slider"},"Auto Equip Best":{"Value":true,"Type":"toggle"}},"Dr Scramble Lab":{"Lab Banners":{"Value":[],"Type":"multidropdown"},"Lab Status":{"Value":"Unstable DNA  -  needs Flame Sprite, Salamander, Bladehide  -  pity 0/100  -  free rerolls 0  -  rotates in 19:58  -  Need a Flame Sprite egg","Type":"text"},"Auto Place Lab Reward Eggs":{"Value":true,"Type":"toggle"},"Auto Reroll Lab Recipe":{"Value":true,"Type":"toggle"},"Auto Lab Trade-In":{"Value":true,"Type":"toggle"}},"Shooting Star":{"Auto Catch Shooting Star":{"Value":true,"Type":"toggle"},"Shooting Star Status":{"Value":"Đang chờ sao băng rơi","Type":"text"}}},"Misc":{"Performance":{"Optimizer":{"Value":true,"Type":"toggle"},"Farm HUD":{"Value":false,"Type":"toggle"},"Background Color":{"Value":"White","Type":"dropdown"},"Egg Card Image":{"Value":"Egg Image","Type":"dropdown"},"Disable 3D Render":{"Value":false,"Type":"toggle"},"FPS and Ping":{"Value":true,"Type":"toggle"},"FPS Cap":{"Value":240,"Type":"slider","Unit":" FPS"},"HUD Size":{"Value":70,"Type":"slider","Unit":"%"},"Showcase Cards":{"Value":4,"Type":"slider"},"Hide Game UI":{"Value":true,"Type":"toggle"},"HUD Items":{"Value":["Money","Income","Speed","Treadmill","Eggs Stolen","Best Steal","Night Timer","Session Time","Activity","Racing Event","Race Wins","Shooting Star","Pets","Eggs","Top Pets","Top Eggs","Steal History"],"Type":"multidropdown"},"FPS and Ping Size":{"Value":100,"Type":"slider","Unit":"%"}},"Utility":{"Anti AFK":{"Value":true,"Type":"toggle"}}},"Server":{"Server":{"Server Hop Mode":{"Value":"Least Players","Type":"dropdown"},"Auto Load Script":{"Value":true,"Type":"toggle"},"Auto Rejoin When Disconnect":{"Value":true,"Type":"toggle"}}}},"SavedAt":1791729602},"Format":"ChilliLibraryConfig","ExportVersion":1,"Name":"main"}]===]
 
 -- ==================== 4. TỪ ĐIỂN DỊCH THUẬT MASTER FULL ====================
@@ -85,6 +82,7 @@ local currentLanguage = "VI"
 local FastCache = {}
 local switchGlobalLanguage = nil
 local updateIslandContentLanguage = nil
+local updateToastLanguage = nil
 
 local function replaceAll(str, findStr, replaceStr)
     local startIdx, endIdx = str:find(findStr, 1, true)
@@ -497,7 +495,7 @@ local TrackedElements = {}
 
 local function applyTranslation(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
-    if inst:FindFirstAncestor("Chilli_Dynamic_Island") or inst:FindFirstAncestor("Sparkling_New_Badge") then return end
+    if inst:FindFirstAncestor("Chilli_Dynamic_Island") or inst:FindFirstAncestor("Sparkling_New_Badge") or inst:FindFirstAncestor("Chilli_Update_Toast") then return end
     if inst:GetAttribute("__IsTranslating") then return end
 
     local original = inst:GetAttribute("OriginalRawText")
@@ -683,7 +681,7 @@ end
 
 local function inspectAndApplySoftBlue(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton")) then return end
-    if inst:FindFirstAncestor("Chilli_Dynamic_Island") or inst:FindFirstAncestor("Sparkling_New_Badge") then return end
+    if inst:FindFirstAncestor("Chilli_Dynamic_Island") or inst:FindFirstAncestor("Sparkling_New_Badge") or inst:FindFirstAncestor("Chilli_Update_Toast") then return end
 
     local textRaw = inst.Text:lower():match("^%s*(.-)%s*$") or ""
     if textRaw:find("chilli hub") then
@@ -744,7 +742,7 @@ local function executeAutoConfig(statusCallback)
         for _, root in ipairs(roots) do
             if root then
                 for _, g in ipairs(root:GetChildren()) do
-                    if g:IsA("ScreenGui") and g.Name ~= "Chilli_Dynamic_Island" then
+                    if g:IsA("ScreenGui") and g.Name ~= "Chilli_Dynamic_Island" and g.Name ~= "Chilli_Update_Toast" then
                         for _, d in ipairs(g:GetDescendants()) do
                             if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Text:lower():find("chilli hub") then
                                 chilliGui = g; break
@@ -917,7 +915,122 @@ local function executeAutoConfig(statusCallback)
     end)
 end
 
--- ==================== 8. DYNAMIC ISLAND MORPHING ====================
+-- ==================== 8. THÔNG BÁO UPDATE V3.8 TOAST BANNER (TỰ ẨN 7S) ====================
+local function createUpdateToast()
+    local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
+    local oldToast = parentTarget:FindFirstChild("Chilli_Update_Toast")
+    if oldToast then oldToast:Destroy() end
+
+    local ToastGui = Instance.new("ScreenGui")
+    ToastGui.Name = "Chilli_Update_Toast"
+    ToastGui.ResetOnSpawn = false
+    ToastGui.IgnoreGuiInset = true
+    ToastGui.DisplayOrder = 2147483646
+    ToastGui.Parent = parentTarget
+
+    local ToastFrame = Instance.new("Frame")
+    ToastFrame.Name = "ToastFrame"
+    ToastFrame.Size = UDim2.new(0, 320, 0, 42)
+    ToastFrame.AnchorPoint = Vector2.new(0.5, 0)
+    ToastFrame.Position = UDim2.new(0.5, 0, 0, -60)
+    ToastFrame.BackgroundColor3 = Color3.fromRGB(10, 16, 26)
+    ToastFrame.BackgroundTransparency = 0.12
+    ToastFrame.BorderSizePixel = 0
+    ToastFrame.ClipsDescendants = true
+    ToastFrame.Parent = ToastGui
+
+    local ToastCorner = Instance.new("UICorner")
+    ToastCorner.CornerRadius = UDim.new(0, 10)
+    ToastCorner.Parent = ToastFrame
+
+    local ToastStroke = Instance.new("UIStroke")
+    ToastStroke.Thickness = 1.3
+    ToastStroke.Color = Color3.fromRGB(0, 215, 255)
+    ToastStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    ToastStroke.Parent = ToastFrame
+
+    local ToastGrad = Instance.new("UIGradient")
+    ToastGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0.0, Color3.fromRGB(0, 230, 255)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 95, 140)),
+        ColorSequenceKeypoint.new(1.0, Color3.fromRGB(0, 230, 255))
+    })
+    ToastGrad.Rotation = 45
+    ToastGrad.Parent = ToastStroke
+
+    local TagBadge = Instance.new("Frame")
+    TagBadge.Size = UDim2.new(0, 48, 0, 18)
+    TagBadge.Position = UDim2.new(0, 10, 0.5, -9)
+    TagBadge.BackgroundColor3 = Color3.fromRGB(0, 140, 255)
+    TagBadge.BorderSizePixel = 0
+    TagBadge.Parent = ToastFrame
+
+    local TagCorner = Instance.new("UICorner")
+    TagCorner.CornerRadius = UDim.new(0, 5)
+    TagCorner.Parent = TagBadge
+
+    local TagLabel = Instance.new("TextLabel")
+    TagLabel.Size = UDim2.new(1, 0, 1, 0)
+    TagLabel.BackgroundTransparency = 1
+    TagLabel.Text = "🚀 V3.8"
+    TagLabel.Font = Enum.Font.GothamBlack
+    TagLabel.TextSize = 8.5
+    TagLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TagLabel.Parent = TagBadge
+
+    local ToastText = Instance.new("TextLabel")
+    ToastText.Size = UDim2.new(1, -88, 1, 0)
+    ToastText.Position = UDim2.new(0, 64, 0, 0)
+    ToastText.BackgroundTransparency = 1
+    ToastText.Font = Enum.Font.GothamBold
+    ToastText.TextSize = 9.5
+    ToastText.TextColor3 = Color3.fromRGB(235, 245, 255)
+    ToastText.TextXAlignment = Enum.TextXAlignment.Left
+    ToastText.TextWrapped = true
+    ToastText.Text = "Chilli Hub V3.8: Fixed Sự Kiện Đua Xe  – Sắp Ra Mắt"
+    ToastText.Parent = ToastFrame
+
+    local DismissBtn = Instance.new("TextButton")
+    DismissBtn.Size = UDim2.new(0, 20, 0, 20)
+    DismissBtn.Position = UDim2.new(1, -26, 0.5, -10)
+    DismissBtn.BackgroundColor3 = Color3.fromRGB(25, 35, 50)
+    DismissBtn.BorderSizePixel = 0
+    DismissBtn.Text = "✕"
+    DismissBtn.Font = Enum.Font.GothamBold
+    DismissBtn.TextSize = 10
+    DismissBtn.TextColor3 = Color3.fromRGB(180, 200, 230)
+    DismissBtn.Parent = ToastFrame
+
+    local DismissCorner = Instance.new("UICorner")
+    DismissCorner.CornerRadius = UDim.new(1, 0)
+    DismissCorner.Parent = DismissBtn
+
+    TweenService:Create(ToastFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        Position = UDim2.new(0.5, 0, 0, 52)
+    }):Play()
+
+    local function hideToast()
+        TweenService:Create(ToastFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+            Position = UDim2.new(0.5, 0, 0, -60)
+        }):Play()
+        task.delay(0.4, function() pcall(function() ToastGui:Destroy() end) end)
+    end
+
+    DismissBtn.MouseButton1Click:Connect(hideToast)
+    task.delay(7.5, function() if ToastFrame and ToastFrame.Parent then hideToast() end end)
+
+    updateToastLanguage = function(lang)
+        if ToastText and ToastText.Parent then
+            if lang == "VI" then
+                ToastText.Text = "Chilli Hub V3.8: Fixed Sự Kiện Đua Xe  – Sắp Ra Mắt"
+            else
+                ToastText.Text = "Chilli Hub V3.8: Fixed Auto Event Race bug – Coming soon"
+            end
+        end
+    end
+end
+
+-- ==================== 9. DYNAMIC ISLAND MORPHING ====================
 local function createDynamicIslandUI()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local oldIsland = parentTarget:FindFirstChild("Chilli_Dynamic_Island")
@@ -1031,7 +1144,7 @@ local function createDynamicIslandUI()
     CloseCorner.CornerRadius = UDim.new(1, 0)
     CloseCorner.Parent = CloseBtn
 
-    -- Hàng 1: Nút dịch Liquid Capsule
+    -- Hàng 1: Nút dịch Liquid Capsule bên trong Island
     local LangCapsule = Instance.new("Frame")
     LangCapsule.Size = UDim2.new(1, -24, 0, 32)
     LangCapsule.Position = UDim2.new(0, 12, 0, 34)
@@ -1084,10 +1197,53 @@ local function createDynamicIslandUI()
     BtnEN.ZIndex = 5
     BtnEN.Parent = LangCapsule
 
-    -- Hàng 2: Thẻ Setting Auto Farm
+    -- Hàng 2: Thẻ Thông Báo Update V3.8
+    local UpdateNoticeCard = Instance.new("Frame")
+    UpdateNoticeCard.Name = "UpdateNoticeCard"
+    UpdateNoticeCard.Size = UDim2.new(1, -24, 0, 28)
+    UpdateNoticeCard.Position = UDim2.new(0, 12, 0, 72)
+    UpdateNoticeCard.BackgroundColor3 = Color3.fromRGB(15, 22, 36)
+    UpdateNoticeCard.BorderSizePixel = 0
+    UpdateNoticeCard.Parent = ExpandedView
+
+    local UpdateCorner = Instance.new("UICorner")
+    UpdateCorner.CornerRadius = UDim.new(0, 7)
+    UpdateCorner.Parent = UpdateNoticeCard
+
+    local UpdateStroke = Instance.new("UIStroke")
+    UpdateStroke.Thickness = 1
+    UpdateStroke.Color = Color3.fromRGB(0, 180, 255)
+    UpdateStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    UpdateStroke.Parent = UpdateNoticeCard
+
+    local NoticeTag = Instance.new("TextLabel")
+    NoticeTag.Size = UDim2.new(0, 46, 1, 0)
+    NoticeTag.Position = UDim2.new(0, 6, 0, 0)
+    NoticeTag.BackgroundTransparency = 1
+    NoticeTag.Text = "📢 V3.8:"
+    NoticeTag.Font = Enum.Font.GothamBlack
+    NoticeTag.TextSize = 9.5
+    NoticeTag.TextColor3 = Color3.fromRGB(0, 230, 255)
+    NoticeTag.TextXAlignment = Enum.TextXAlignment.Left
+    NoticeTag.Parent = UpdateNoticeCard
+
+    local NoticeContent = Instance.new("TextLabel")
+    NoticeContent.Name = "NoticeContent"
+    NoticeContent.Size = UDim2.new(1, -54, 1, 0)
+    NoticeContent.Position = UDim2.new(0, 50, 0, 0)
+    NoticeContent.BackgroundTransparency = 1
+    NoticeContent.Font = Enum.Font.GothamMedium
+    NoticeContent.TextSize = 9
+    NoticeContent.TextColor3 = Color3.fromRGB(240, 245, 255)
+    NoticeContent.TextXAlignment = Enum.TextXAlignment.Left
+    NoticeContent.TextTruncate = Enum.TextTruncate.AtEnd
+    NoticeContent.Text = "Fixed Sự Kiện Đua Xe  – Sắp Ra Mắt"
+    NoticeContent.Parent = UpdateNoticeCard
+
+    -- Hàng 3: Thẻ Setting Auto Farm
     local AutoFarmCard = Instance.new("Frame")
     AutoFarmCard.Size = UDim2.new(1, -24, 0, 96)
-    AutoFarmCard.Position = UDim2.new(0, 12, 0, 72)
+    AutoFarmCard.Position = UDim2.new(0, 12, 0, 106)
     AutoFarmCard.BackgroundColor3 = Color3.fromRGB(14, 20, 30)
     AutoFarmCard.BorderSizePixel = 0
     AutoFarmCard.Parent = ExpandedView
@@ -1137,13 +1293,13 @@ local function createDynamicIslandUI()
     SubLabel.Text = "• Tự động làm từ A-Z\n• Nhặt trứng trên Secret 2B+\n• Tự động chạy máy tập khi rảnh rỗi\n• Tự động làm các nhiệm vụ còn thiếu và sự kiện..."
     SubLabel.Parent = AutoFarmCard
 
-    -- Hàng 3: NÚT TIKTOK CYBER GLASS (LOGO 105105387426191)
+    -- Hàng 4: NÚT TIKTOK CYBER GLASS (LOGO 105105387426191)
     local TIKTOK_URL = "https://www.tiktok.com/@ronnei7.htk?_r=1&_t=ZS-9AU6v4rybwu"
 
     local TikTokBtn = Instance.new("TextButton")
     TikTokBtn.Name = "TikTokBtn"
     TikTokBtn.Size = UDim2.new(1, -24, 0, 36)
-    TikTokBtn.Position = UDim2.new(0, 12, 0, 174)
+    TikTokBtn.Position = UDim2.new(0, 12, 0, 208)
     TikTokBtn.BackgroundColor3 = Color3.fromRGB(15, 18, 26)
     TikTokBtn.BorderSizePixel = 0
     TikTokBtn.Text = ""
@@ -1269,12 +1425,16 @@ local function createDynamicIslandUI()
 
     updateIslandContentLanguage = function(lang)
         if lang == "VI" then
+            NoticeTag.Text = "📢 V3.8:"
+            NoticeContent.Text = "Fixed Sự Kiện Đua Xe  – Sắp Ra Mắt"
             AutoFarmBtn.Text = "⚙️ SETTING AUTO FARM"
             SubLabel.Text = "• Tự động làm từ A-Z\n• Nhặt trứng trên Secret 2B+\n• Tự động chạy máy tập khi rảnh rỗi\n• Tự động làm các nhiệm vụ còn thiếu và sự kiện..."
             if not isCopiedAnimating then
                 CopyTagLabel.Text = "📋 SAO CHÉP"
             end
         else
+            NoticeTag.Text = "📢 V3.8:"
+            NoticeContent.Text = "Fixed Auto Event Race bug – Coming soon"
             AutoFarmBtn.Text = "⚙️ SETTING AUTO FARM"
             SubLabel.Text = "• Automated from A to Z\n• Steal Secret eggs 2B+\n• Auto run treadmill when idle\n• Complete missing quests & live events..."
             if not isCopiedAnimating then
@@ -1291,7 +1451,7 @@ local function createDynamicIslandUI()
             CollapsedView.Visible = false
             ExpandedView.Visible = true
             TweenService:Create(Island, TweenInfo.new(0.38, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                Size = UDim2.new(0, 320, 0, 222)
+                Size = UDim2.new(0, 320, 0, 256)
             }):Play()
             TweenService:Create(IslandCorner, TweenInfo.new(0.35), {CornerRadius = UDim.new(0, 16)}):Play()
         else
@@ -1327,9 +1487,8 @@ local function createDynamicIslandUI()
 
         updateAllActive()
 
-        if updateIslandContentLanguage then
-            updateIslandContentLanguage(target)
-        end
+        if updateIslandContentLanguage then updateIslandContentLanguage(target) end
+        if updateToastLanguage then updateToastLanguage(target) end
     end
 
     switchGlobalLanguage = switchMode
@@ -1377,9 +1536,10 @@ local function createDynamicIslandUI()
     end)
 end
 
--- ==================== 9. OBSERVER ENGINE THỜI GIAN THỰC ====================
+-- ==================== 10. EVENT-DRIVEN ENGINE SIÊU NHẸ (ZERO-POLLING) ====================
 task.delay(1.2, function()
     createDynamicIslandUI()
+    createUpdateToast()
 
     local searchRoots = {
         gethui and gethui(),
@@ -1387,51 +1547,28 @@ task.delay(1.2, function()
         LocalPlayer:FindFirstChild("PlayerGui")
     }
 
-    local activeHubGui = nil
-
-    local function findHub()
-        for _, root in ipairs(searchRoots) do
-            if root then
-                for _, g in ipairs(root:GetChildren()) do
-                    if g:IsA("ScreenGui") and g.Name ~= "Chilli_Dynamic_Island" then
-                        for _, d in ipairs(g:GetDescendants()) do
-                            if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Text:lower():find("chilli hub") then
-                                return g
-                            end
-                        end
-                    end
-                end
-            end
+    local function handleNewDescendant(desc)
+        if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
+            hookElement(desc)
+            inspectAndApplySoftBlue(desc)
         end
-        return nil
     end
 
-    task.spawn(function()
-        while true do
-            task.wait(0.25)
-            if not activeHubGui or not activeHubGui.Parent then
-                activeHubGui = findHub()
-            end
-
-            if activeHubGui then
-                for _, desc in ipairs(activeHubGui:GetDescendants()) do
-                    if (desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox")) and desc.Visible then
-                        hookElement(desc)
-                        inspectAndApplySoftBlue(desc)
-                    end
-                end
+    -- 1. Quét sâu 1 lần duy nhất lúc khởi động (Single Pass)
+    for _, root in ipairs(searchRoots) do
+        if root then
+            for _, desc in ipairs(root:GetDescendants()) do
+                handleNewDescendant(desc)
             end
         end
-    end)
+    end
 
+    -- 2. Chỉ kích hoạt khi có phần tử mới xuất hiện (DescendantAdded - 0% CPU lúc rảnh)
     for _, root in ipairs(searchRoots) do
         if root then
             root.DescendantAdded:Connect(function(desc)
                 task.defer(function()
-                    if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
-                        hookElement(desc)
-                        inspectAndApplySoftBlue(desc)
-                    end
+                    handleNewDescendant(desc)
                 end)
             end)
         end
@@ -1439,7 +1576,7 @@ task.delay(1.2, function()
 end)
 ]====]
 
--- KÍCH HOẠT CHẠY NGAY LẬP TỨC
+-- KÍCH HOẠT KHỞI ĐỘNG NGAY
 task.spawn(function()
     loadstring(getgenv().CHILLI_V36_SOURCE)()
 end)
