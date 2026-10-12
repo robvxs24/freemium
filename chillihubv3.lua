@@ -1,11 +1,11 @@
 -- ==============================================================================
---  CHILLI HUB V3.6 - ULTRA-PERFORMANCE ZERO-LAG EDITION
---  Tối ưu hóa:
---    1. EVENT-DRIVEN ENGINE: Xóa bỏ 100% vòng lặp CPU nặng nề, cắm máy 24/7 siêu mượt.
---    2. TIKTOK AVATAR CHÍNH THỨC: Tích hợp ID 105105387426191 & 1-Click Copy link.
---    3. THÔNG BÁO UPDATE V3.8: Banner thông báo trượt song ngữ sang trọng.
---    4. ZERO-TOUCH TELEPORT HIJACKER: Tự động chạy lại V3.6 khi Rejoin/Hop server.
---    5. SOFT SKY BLUE THEME: Màu xanh nhạt dịu mắt, huy hiệu ✨ NEW mini Hologram.
+--  CHILLI HUB V3.6 - ULTRA CLEAN & AUTO STARTUP CONFIG EDITION
+--  Cải tiến chính:
+--    1. SỬA CHẤM ĐEN TRÊN ĐẦU: Xóa 100% nền đen, chuyển sang viền Hologram trong suốt.
+--    2. BỎ NÚT X THÔNG BÁO: Banner V3.8 tự động chạy đúng 10 giây rồi tự biến mất.
+--    3. BỔ SUNG BƯỚC THEO VIDEO: Tự động chọn 'main' và bấm 'Set Startup' sau khi Load.
+--    4. ZERO-TOUCH ENGINE: Duy trì V3.6 khi Rejoin/Teleport, chặn đứng script gốc.
+--    5. TIKTOK LOGO CHÍNH THỨC: ID 105105387426191 kèm hiệu ứng 1-Click Copy link.
 -- ==============================================================================
 
 getgenv().CHILLI_V36_SOURCE = [====[
@@ -408,7 +408,9 @@ local MAP_VI = {
     ["ESP Guards"] = "ESP Vệ Sĩ",
     ["ESP Lost Parts"] = "ESP Phụ Tùng Rơi",
     ["ESP Players"] = "ESP Người Chơi",
-    ["Set Startup Config"] = "Cấu Hình Khởi Động",
+    ["Set Startup Config"] = "Cài Đặt Khởi Động",
+    ["Startup Config"] = "Cấu Hình Khởi Động",
+    ["Set Startup"] = "Cài Khởi Động",
     ["Load Config"] = "Tải Cấu Hình",
     ["Save Config"] = "Lưu Cấu Hình",
     ["Import / Export"] = "Nhập / Xuất Cấu Hình",
@@ -543,7 +545,7 @@ local function updateAllActive()
     end
 end
 
--- ==================== 5. LÕI CÔ LẬP ĐỔI MÀU & HUY HIỆU '✨ NEW' MINI ====================
+-- ==================== 5. ĐỔI MÀU & HUY HIỆU '✨ NEW' TRONG SUỐT (XÓA CHẤM ĐEN) ====================
 local COLOR_FACE_TOP     = Color3.fromRGB(140, 195, 245)
 local COLOR_FACE_BOTTOM  = Color3.fromRGB(95, 155, 225)
 local COLOR_BEVEL_SHADOW = Color3.fromRGB(55, 110, 180)
@@ -563,25 +565,32 @@ local TARGET_BUTTON_KEYWORDS = {
     ["cấu hình"] = true, ["config"] = true
 }
 
+-- Gắn huy hiệu ✨ NEW hoàn toàn trong suốt (Xóa sạch mọi chấm đen / khối đen)
 local function attachSparklingNewBadge(headerFrame, titleObj)
     if not headerFrame then return end
-    local oldBadge = headerFrame:FindFirstChild("Sparkling_New_Badge")
-    if oldBadge then oldBadge:Destroy() end
+
+    -- Dọn dẹp triệt để mọi badge hoặc khối đen cũ
+    for _, child in ipairs(headerFrame:GetChildren()) do
+        if child.Name == "Sparkling_New_Badge" or child.Name:find("Badge") then
+            pcall(function() child:Destroy() end)
+        end
+    end
 
     local Badge = Instance.new("Frame")
     Badge.Name = "Sparkling_New_Badge"
-    Badge.Size = UDim2.new(0, 38, 0, 15)
+    Badge.Size = UDim2.new(0, 48, 0, 16)
     Badge.AnchorPoint = Vector2.new(0, 0.5)
-    Badge.Position = UDim2.new(0.5, 68, 0.5, 0)
-    Badge.BackgroundColor3 = Color3.fromRGB(35, 75, 125)
-    Badge.BackgroundTransparency = 0.2
+    Badge.Position = UDim2.new(0.5, 72, 0.5, 0)
+    -- NỀN TRONG SUỐT 100% - KHÔNG CÒN CHẤM ĐEN TRÊN HEADER
+    Badge.BackgroundTransparency = 1
     Badge.BorderSizePixel = 0
     Badge.Parent = headerFrame
 
     local BadgeCorner = Instance.new("UICorner")
-    BadgeCorner.CornerRadius = UDim.new(0, 5)
+    BadgeCorner.CornerRadius = UDim.new(0, 6)
     BadgeCorner.Parent = Badge
 
+    -- Viền ngọc phát sáng siêu mảnh chạy gradient cầu vồng tinh xảo
     local BadgeStroke = Instance.new("UIStroke")
     BadgeStroke.Thickness = 1.1
     BadgeStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
@@ -589,11 +598,10 @@ local function attachSparklingNewBadge(headerFrame, titleObj)
 
     local RainbowGrad = Instance.new("UIGradient")
     RainbowGrad.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 80, 80)),
-        ColorSequenceKeypoint.new(0.25, Color3.fromRGB(255, 215, 60)),
-        ColorSequenceKeypoint.new(0.50, Color3.fromRGB(60, 245, 140)),
-        ColorSequenceKeypoint.new(0.75, Color3.fromRGB(60, 180, 255)),
-        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 80, 80))
+        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 230, 110)),
+        ColorSequenceKeypoint.new(0.33, Color3.fromRGB(110, 240, 255)),
+        ColorSequenceKeypoint.new(0.66, Color3.fromRGB(255, 120, 180)),
+        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 230, 110))
     })
     RainbowGrad.Parent = BadgeStroke
 
@@ -601,8 +609,8 @@ local function attachSparklingNewBadge(headerFrame, titleObj)
     BadgeLabel.Size = UDim2.new(1, 0, 1, 0)
     BadgeLabel.BackgroundTransparency = 1
     BadgeLabel.Text = "✨ NEW"
-    BadgeLabel.Font = Enum.Font.GothamBold
-    BadgeLabel.TextSize = 8.5
+    BadgeLabel.Font = Enum.Font.GothamBlack
+    BadgeLabel.TextSize = 8.8
     BadgeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     BadgeLabel.Parent = Badge
 
@@ -721,7 +729,7 @@ local function stealthClick(inst)
     end
 end
 
--- ==================== 7. ĐỘNG CƠ NẠP CONFIG STEALTH ====================
+-- ==================== 7. ĐỘNG CƠ TỰ ĐỘNG NẠP & CÀI KHỞI ĐỘNG (CHUẨN VIDEO) ====================
 local isConfigInjecting = false
 
 local function executeAutoConfig(statusCallback)
@@ -762,6 +770,7 @@ local function executeAutoConfig(statusCallback)
             isConfigInjecting = false; return
         end
 
+        -- 1. Bấm Tab Config
         local configTabElement = nil
         for _, d in ipairs(chilliGui:GetDescendants()) do
             if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Visible then
@@ -777,6 +786,7 @@ local function executeAutoConfig(statusCallback)
             task.wait(0.35)
         end
 
+        -- 2. Tìm ô TextBox Import
         local importTextBox = nil
         for _, d in ipairs(chilliGui:GetDescendants()) do
             if d:IsA("TextBox") then
@@ -806,6 +816,7 @@ local function executeAutoConfig(statusCallback)
             isConfigInjecting = false; return
         end
 
+        -- 3. Bơm dữ liệu JSON
         importTextBox.Text = RAW_CONFIG_JSON
         task.wait(0.1)
 
@@ -816,6 +827,7 @@ local function executeAutoConfig(statusCallback)
         end
         task.wait(0.25)
 
+        -- 4. Bấm nút đỏ "Import"
         local importBtnElement = nil
         for _, d in ipairs(chilliGui:GetDescendants()) do
             if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Visible then
@@ -836,6 +848,7 @@ local function executeAutoConfig(statusCallback)
         stealthClick(importBtnElement)
         task.wait(0.9)
 
+        -- 5. Mở Dropdown "Load Config"
         local loadDropdownElement = nil
         for _, lbl in ipairs(chilliGui:GetDescendants()) do
             if lbl:IsA("TextLabel") and (lbl.Text:find("Load Config") or lbl.Text:find("Tải Cấu Hình")) then
@@ -859,6 +872,7 @@ local function executeAutoConfig(statusCallback)
             task.wait(0.35)
         end
 
+        -- 6. Chọn profile "main"
         local mainProfileElement = nil
         local t0 = tick()
         while tick() - t0 < 4 do
@@ -884,6 +898,7 @@ local function executeAutoConfig(statusCallback)
         stealthClick(mainProfileElement)
         task.wait(0.35)
 
+        -- 7. Bấm nút đỏ "Load"
         local loadBtnElement = nil
         for _, d in ipairs(chilliGui:GetDescendants()) do
             if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Visible then
@@ -894,28 +909,88 @@ local function executeAutoConfig(statusCallback)
             end
         end
 
-        if not loadBtnElement then
-            statusCallback("❌ Ko thấy nút Load", Color3.fromRGB(255, 90, 90))
-            task.wait(2)
-            if updateIslandContentLanguage then updateIslandContentLanguage(currentLanguage) end
-            isConfigInjecting = false; return
+        if loadBtnElement then
+            stealthClick(loadBtnElement)
+            task.wait(0.4)
         end
 
-        stealthClick(loadBtnElement)
-        task.wait(0.4)
+        -- 8. THỰC HIỆN BƯỚC MỚI THEO VIDEO: MỞ DROPDOWN 'SET STARTUP CONFIG' -> CHỌN 'main' -> BẤM 'SET STARTUP'
+        statusCallback("⏳ Cài khởi động...", Color3.fromRGB(255, 210, 90))
+        task.wait(0.35)
 
+        local startupDropdown = nil
+        for _, lbl in ipairs(chilliGui:GetDescendants()) do
+            if lbl:IsA("TextLabel") and (lbl.Text:find("Startup Config") or lbl.Text:find("Set Startup") or lbl.Text:find("Cấu Hình Khởi Động")) then
+                local row = lbl.Parent
+                if row then
+                    startupDropdown = row:FindFirstChildWhichIsA("GuiButton", true)
+                    if not startupDropdown then
+                        for _, c in ipairs(row:GetDescendants()) do
+                            if (c:IsA("TextLabel") or c:IsA("TextButton")) and (c.Text:find("Default") or c.Text:find("main")) then
+                                startupDropdown = c; break
+                            end
+                        end
+                    end
+                end
+                if startupDropdown then break end
+            end
+        end
+
+        if startupDropdown then
+            stealthClick(startupDropdown)
+            task.wait(0.35)
+        end
+
+        -- Chọn 'main' trong danh sách Dropdown khởi động
+        local startupItem = nil
+        local tStart = tick()
+        while tick() - tStart < 3.5 do
+            for _, d in ipairs(chilliGui:GetDescendants()) do
+                if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Visible then
+                    local t = d.Text:gsub("%s+", " "):match("^%s*(.-)%s*$") or ""
+                    if t:lower() == "main" then
+                        startupItem = d; break
+                    end
+                end
+            end
+            if startupItem then break end
+            task.wait(0.1)
+        end
+
+        if startupItem then
+            stealthClick(startupItem)
+            task.wait(0.35)
+        end
+
+        -- Bấm nút đỏ "Set Startup"
+        local setStartupBtn = nil
+        for _, d in ipairs(chilliGui:GetDescendants()) do
+            if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Visible then
+                local t = d.Text:gsub("%s+", " "):match("^%s*(.-)%s*$") or ""
+                if t == "Set Startup" or t == "Set" or t == "Cài Khởi Động" then
+                    setStartupBtn = d; break
+                end
+            end
+        end
+
+        if setStartupBtn then
+            stealthClick(setStartupBtn)
+            task.wait(0.4)
+        end
+
+        -- 9. ĐỔI VỀ TIẾNG VIỆT TOÀN DIỆN
         if switchGlobalLanguage then
             switchGlobalLanguage("VI")
         end
 
-        statusCallback("✔ ĐÃ NẠP XONG!", Color3.fromRGB(110, 245, 140))
+        statusCallback("✔ HOÀN TẤT A-Z!", Color3.fromRGB(110, 245, 140))
         task.wait(2.2)
         if updateIslandContentLanguage then updateIslandContentLanguage(currentLanguage) end
         isConfigInjecting = false
     end)
 end
 
--- ==================== 8. THÔNG BÁO UPDATE V3.8 TOAST BANNER (TỰ ẨN 7S) ====================
+-- ==================== 8. THÔNG BÁO V3.8 TOAST (TỰ BIẾN MẤT SAU 10 GIÂY - BỎ NÚT X) ====================
 local function createUpdateToast()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local oldToast = parentTarget:FindFirstChild("Chilli_Update_Toast")
@@ -930,21 +1005,21 @@ local function createUpdateToast()
 
     local ToastFrame = Instance.new("Frame")
     ToastFrame.Name = "ToastFrame"
-    ToastFrame.Size = UDim2.new(0, 320, 0, 42)
+    ToastFrame.Size = UDim2.new(0, 310, 0, 38)
     ToastFrame.AnchorPoint = Vector2.new(0.5, 0)
     ToastFrame.Position = UDim2.new(0.5, 0, 0, -60)
-    ToastFrame.BackgroundColor3 = Color3.fromRGB(10, 16, 26)
+    ToastFrame.BackgroundColor3 = Color3.fromRGB(12, 18, 28)
     ToastFrame.BackgroundTransparency = 0.12
     ToastFrame.BorderSizePixel = 0
     ToastFrame.ClipsDescendants = true
     ToastFrame.Parent = ToastGui
 
     local ToastCorner = Instance.new("UICorner")
-    ToastCorner.CornerRadius = UDim.new(0, 10)
+    ToastCorner.CornerRadius = UDim.new(0, 9)
     ToastCorner.Parent = ToastFrame
 
     local ToastStroke = Instance.new("UIStroke")
-    ToastStroke.Thickness = 1.3
+    ToastStroke.Thickness = 1.2
     ToastStroke.Color = Color3.fromRGB(0, 215, 255)
     ToastStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     ToastStroke.Parent = ToastFrame
@@ -959,8 +1034,8 @@ local function createUpdateToast()
     ToastGrad.Parent = ToastStroke
 
     local TagBadge = Instance.new("Frame")
-    TagBadge.Size = UDim2.new(0, 48, 0, 18)
-    TagBadge.Position = UDim2.new(0, 10, 0.5, -9)
+    TagBadge.Size = UDim2.new(0, 46, 0, 18)
+    TagBadge.Position = UDim2.new(0, 8, 0.5, -9)
     TagBadge.BackgroundColor3 = Color3.fromRGB(0, 140, 255)
     TagBadge.BorderSizePixel = 0
     TagBadge.Parent = ToastFrame
@@ -978,46 +1053,33 @@ local function createUpdateToast()
     TagLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     TagLabel.Parent = TagBadge
 
+    -- Text chiếm trọn chiều rộng khung vì không còn nút X
     local ToastText = Instance.new("TextLabel")
-    ToastText.Size = UDim2.new(1, -88, 1, 0)
-    ToastText.Position = UDim2.new(0, 64, 0, 0)
+    ToastText.Size = UDim2.new(1, -64, 1, 0)
+    ToastText.Position = UDim2.new(0, 58, 0, 0)
     ToastText.BackgroundTransparency = 1
     ToastText.Font = Enum.Font.GothamBold
-    ToastText.TextSize = 9.5
+    ToastText.TextSize = 9.2
     ToastText.TextColor3 = Color3.fromRGB(235, 245, 255)
     ToastText.TextXAlignment = Enum.TextXAlignment.Left
     ToastText.TextWrapped = true
     ToastText.Text = "Chilli Hub V3.8: Fixed Sự Kiện Đua Xe  – Sắp Ra Mắt"
     ToastText.Parent = ToastFrame
 
-    local DismissBtn = Instance.new("TextButton")
-    DismissBtn.Size = UDim2.new(0, 20, 0, 20)
-    DismissBtn.Position = UDim2.new(1, -26, 0.5, -10)
-    DismissBtn.BackgroundColor3 = Color3.fromRGB(25, 35, 50)
-    DismissBtn.BorderSizePixel = 0
-    DismissBtn.Text = "✕"
-    DismissBtn.Font = Enum.Font.GothamBold
-    DismissBtn.TextSize = 10
-    DismissBtn.TextColor3 = Color3.fromRGB(180, 200, 230)
-    DismissBtn.Parent = ToastFrame
-
-    local DismissCorner = Instance.new("UICorner")
-    DismissCorner.CornerRadius = UDim.new(1, 0)
-    DismissCorner.Parent = DismissBtn
-
+    -- Hiệu ứng trượt xuống
     TweenService:Create(ToastFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
         Position = UDim2.new(0.5, 0, 0, 52)
     }):Play()
 
-    local function hideToast()
-        TweenService:Create(ToastFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
-            Position = UDim2.new(0.5, 0, 0, -60)
-        }):Play()
-        task.delay(0.4, function() pcall(function() ToastGui:Destroy() end) end)
-    end
-
-    DismissBtn.MouseButton1Click:Connect(hideToast)
-    task.delay(7.5, function() if ToastFrame and ToastFrame.Parent then hideToast() end end)
+    -- Chạy đúng 10 giây rồi tự động trượt lên và biến mất
+    task.delay(10, function()
+        if ToastFrame and ToastFrame.Parent then
+            TweenService:Create(ToastFrame, TweenInfo.new(0.45, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+                Position = UDim2.new(0.5, 0, 0, -60)
+            }):Play()
+            task.delay(0.5, function() pcall(function() ToastGui:Destroy() end) end)
+        end
+    end)
 
     updateToastLanguage = function(lang)
         if ToastText and ToastText.Parent then
@@ -1293,7 +1355,7 @@ local function createDynamicIslandUI()
     SubLabel.Text = "• Tự động làm từ A-Z\n• Nhặt trứng trên Secret 2B+\n• Tự động chạy máy tập khi rảnh rỗi\n• Tự động làm các nhiệm vụ còn thiếu và sự kiện..."
     SubLabel.Parent = AutoFarmCard
 
-    -- Hàng 4: NÚT TIKTOK CYBER GLASS (LOGO 105105387426191)
+    -- Hàng 4: NÚT TIKTOK CYBER GLASS (LOGO ID 105105387426191)
     local TIKTOK_URL = "https://www.tiktok.com/@ronnei7.htk?_r=1&_t=ZS-9AU6v4rybwu"
 
     local TikTokBtn = Instance.new("TextButton")
@@ -1554,7 +1616,6 @@ task.delay(1.2, function()
         end
     end
 
-    -- 1. Quét sâu 1 lần duy nhất lúc khởi động (Single Pass)
     for _, root in ipairs(searchRoots) do
         if root then
             for _, desc in ipairs(root:GetDescendants()) do
@@ -1563,7 +1624,6 @@ task.delay(1.2, function()
         end
     end
 
-    -- 2. Chỉ kích hoạt khi có phần tử mới xuất hiện (DescendantAdded - 0% CPU lúc rảnh)
     for _, root in ipairs(searchRoots) do
         if root then
             root.DescendantAdded:Connect(function(desc)
