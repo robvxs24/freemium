@@ -1,11 +1,11 @@
 -- ==============================================================================
---  CHILLI HUB V3.6 - ULTRA SMOOTH STUDIO EDITION
---  Cập nhật kỹ thuật:
---    1. FIX BỊ ĐEN Ở CHỮ NEW: Badge 100% trong suốt, không Frame đen, không lỗi render.
---    2. XOÁ WIDGET NỔI CHỐNG VỆ SĨ: Ẩn và vô hiệu hóa triệt để thanh toggle lòi viền.
---    3. TỐI ƯU FIX GIẬT LAG TỐI ĐA: Bó hẹp phạm vi quét vào duy nhất Hub (0% lag CPU).
---    4. THÔNG BÁO V3.8: Tự biến mất êm ái sau 10 giây (đã bỏ nút X).
---    5. TỰ ĐỘNG CHUẨN VIDEO: Load -> Mở Startup Config -> Chọn 'main' -> Set Startup -> Tiếng Việt.
+--  CHILLI HUB V3.6 - ULTRA CLEAN & AUTO STARTUP CONFIG EDITION
+--  Cải tiến chính:
+--    1. SỬA CHẤM ĐEN TRÊN ĐẦU: Xóa 100% nền đen, chuyển sang viền Hologram trong suốt.
+--    2. BỎ NÚT X THÔNG BÁO: Banner V3.8 tự động chạy đúng 10 giây rồi tự biến mất.
+--    3. BỔ SUNG BƯỚC THEO VIDEO: Tự động chọn 'main' và bấm 'Set Startup' sau khi Load.
+--    4. ZERO-TOUCH ENGINE: Duy trì V3.6 khi Rejoin/Teleport, chặn đứng script gốc.
+--    5. TIKTOK LOGO CHÍNH THỨC: ID 105105387426191 kèm hiệu ứng 1-Click Copy link.
 -- ==============================================================================
 
 getgenv().CHILLI_V36_SOURCE = [====[
@@ -74,8 +74,8 @@ local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 
--- ==================== DỮ LIỆU CẤU HÌNH JSON (TẮT ANTI GUARD PANEL NỔI) ====================
-local RAW_CONFIG_JSON = [===[{"Config":{"Profile":"main","Version":2,"States":{"Farm HUD Stealing Position":{"Value":[]},"Quick Panel Collapsed":{"Value":{"1":true}},"Quick Keybinds":{"Value":{"Player > Movement > Speed Boost":"Q"}},"Farm HUD World Position":{"Value":[]},"Farm HUD Stolen Eggs":{"Value":{"History":[{"At":1791707562,"Name":"Parrotfish Egg","Category":"Parrotfish","Scale":0.9196704573013789,"Rarity":"Rare","Value":659.493259982963}],"Count":1,"Best":{"Category":"Parrotfish","Name":"Parrotfish Egg","Rarity":"Rare","Rank":3}}},"Farm HUD Top Eggs Position":{"Value":[]},"Anti Guard Enabled":{"Value":false},"Farm HUD Steal History Position":{"Value":[]},"Quick Pinned Features":{"Value":["Player > Movement > Speed Boost","Player > Movement > Boost Speed"]},"Open On Launch":{"Value":true},"Quick Panel Position":{"Value":{"1":{"Y":0.32634490728378298,"X":0.8134856224060059}}},"Notifications":{"Value":true},"Farm HUD Top Pets Position":{"Value":[]},"Quick Open Key":{"Value":"LeftControl"},"FPS and Ping Position":{"Value":{"XOffset":16,"XScale":0,"YScale":0,"YOffset":47}},"Farm HUD Status Position":{"Value":[]},"Farm HUD Events Position":{"Value":[]},"Steal Panel Open":{"Value":false},"Quick LeftCenter Hidden":{"Value":true},"Farm HUD Economy Position":{"Value":[]},"Quick Pin Groups":{"Value":[]},"Farm HUD Collection Position":{"Value":[]}},"Values":{"Admin Abuse":{"Minigame Eggs":{"Auto Steal Minigame Egg":{"Value":true,"Type":"toggle"}},"Instant Steal V3":{"Instant Steal V3 Note":{"Value":"Cần Máy Tập Admin","Type":"text"},"Instant Steal V3":{"Value":false,"Type":"toggle"}},"Admin Treadmill":{"Auto Use Admin Treadmill":{"Value":true,"Type":"toggle"}},"Capture The Egg":{"Hold Height":{"Value":45,"Type":"slider","Unit":"studs"},"Auto Capture Event Egg":{"Value":false,"Type":"toggle"},"Keep Away Distance":{"Value":45,"Type":"slider","Unit":"studs"},"Take It From The Holder":{"Value":true,"Type":"toggle"}}},"Predictor":{"Egg Predictor":{"Sort By":{"Value":"Value","Type":"dropdown"},"Preview Card":{"Value":true,"Type":"toggle"}},"Discord Webhook":{"Webhook URL":{"Value":"","Type":"input"},"Notify Fused Eggs":{"Value":false,"Type":"toggle"},"Notify Stolen Eggs":{"Value":false,"Type":"toggle"},"Webhook Min Rarity":{"Value":"Any","Type":"dropdown"},"Webhook Eggs":{"Value":[],"Type":"multidropdown"},"Webhook Min Value":{"Value":0,"Type":"slider"},"Ping @everyone":{"Value":false,"Type":"toggle"}}},"Progress":{"Auto Progression":{"Auto Buy Trail":{"Value":true,"Type":"toggle"},"Auto Claim Index":{"Value":true,"Type":"toggle"},"Auto Upgrade Treadmill":{"Value":true,"Type":"toggle"},"Auto Claim":{"Value":true,"Type":"toggle"},"Auto Upgrade Base":{"Value":true,"Type":"toggle"}}},"Quick":{"Pin Pad":{"Pad Size":{"Value":150,"Type":"slider","Unit":"%"},"Enable Keybinds":{"Value":true,"Type":"toggle"},"Show Pin Pads":{"Value":true,"Type":"toggle"},"Visible Quick Bars":{"Value":["Quick Bar 1","Quick Bar 2","Quick Bar 3","Quick Bar 4","Quick Bar 5"],"Type":"multidropdown"}}},"Auto Hop":{"Egg Finder":{"Hop Mode":{"Value":"Steal Then Hop","Type":"dropdown"},"Min Rarity":{"Value":"Secret","Type":"dropdown"},"Rarity To Wait For":{"Value":"Cosmic","Type":"dropdown"},"First Hop Delay":{"Value":5,"Type":"slider","Unit":"s"},"Sync With Auto Steal Filters":{"Value":true,"Type":"toggle"},"Target Specific Eggs":{"Value":[],"Type":"multidropdown"},"Min Value To Find":{"Value":700.11,"Type":"slider"},"Auto Hop":{"Value":false,"Type":"toggle"},"Target Areas":{"Value":["Cherry Blossom","Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"}}},"Player":{"ESP":{"ESP Eggs":{"Value":true,"Type":"toggle"},"ESP Show Info":{"Value":["Icon","Name","Value"],"Type":"multidropdown"},"ESP Guard Size":{"Value":75,"Type":"slider","Unit":"%"},"ESP Player Info":{"Value":["Name","Tool"],"Type":"multidropdown"},"ESP Other Base Eggs":{"Value":false,"Type":"toggle"},"ESP Min Rarity":{"Value":"7 - Cosmic","Type":"dropdown"},"ESP Guards":{"Value":true,"Type":"toggle"},"Min ESP Value":{"Value":0,"Type":"slider"},"ESP Player Size":{"Value":75,"Type":"slider","Unit":"%"},"ESP Players":{"Value":true,"Type":"toggle"},"ESP Own Base Eggs":{"Value":true,"Type":"toggle"},"ESP Fixed Size":{"Value":false,"Type":"toggle"},"ESP Egg Size":{"Value":75,"Type":"slider","Unit":"%"}},"Character":{"Instant Prompts":{"Value":true,"Type":"toggle"},"Anti Ragdoll":{"Value":true,"Type":"toggle"},"Anti Trap":{"Value":true,"Type":"toggle"},"Invisibility":{"Value":false,"Type":"toggle"}},"Movement":{"Speed Boost":{"Value":false,"Type":"toggle"},"Boost Speed":{"Value":1000,"Type":"slider","Unit":"studs/s"},"Infinite Jump":{"Value":false,"Type":"toggle"}},"Combat":{"Auto Hit Egg Holders":{"Value":false,"Type":"toggle"},"Hit Max Speed":{"Value":750,"Type":"slider","Unit":"studs/s"},"Auto Hit Nearest Player":{"Value":false,"Type":"toggle"},"Hit Player":{"Value":"67sixseven16690","Type":"dropdown"},"Hit Lead":{"Value":-275,"Type":"slider"},"Hit Tween Speed":{"Value":400,"Type":"slider","Unit":"studs/s"},"Hit Sweep":{"Value":60,"Type":"slider","Unit":"%"},"Chase Settings":{"Value":"Cài Đặt Đuổi Đánh","Type":"label"},"Auto Hit Specific Player":{"Value":false,"Type":"toggle"},"Hit Aura":{"Value":true,"Type":"toggle"},"Hit Status":{"Value":"Aura ready, nobody in reach","Type":"text"}}},"Settings":{"Interface":{"UI Size":{"Value":100,"Type":"slider","Unit":"%"}}},"Farm":{"Auto Steal":{"Drop Eggs At Safe Zone":{"Value":false,"Type":"toggle"},"Target Specific Eggs":{"Value":[],"Type":"multidropdown"},"Biohazard Lab Eggs":{"Value":["Red Panda Egg (43%)","Snowy Owl Egg (40%)","Salamander Egg (38%)"],"Type":"multidropdown"},"Anti Guard Panel":{"Value":false,"Type":"toggle"},"Steal Missing Lab Eggs":{"Value":false,"Type":"toggle"},"Instant Steal Steps":{"Value":2,"Type":"slider"},"Instant Steal Zones":{"Value":["Titan Temple","Light Dark","Enchanted Forest"],"Type":"multidropdown"},"Target Areas":{"Value":["Cherry Blossom","Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"},"Unstable DNA Lab Eggs":{"Value":["Toro Egg (24%)","Winged Lamb Egg (23%)","Bladehide Egg (23%)","Imp Egg (22%)","Crustacia Egg (22%)"],"Type":"multidropdown"},"Stock Per Egg":{"Value":3,"Type":"slider","Unit":""},"Auto Steal":{"Value":true,"Type":"toggle"},"Min Rarity":{"Value":"Secret","Type":"dropdown"},"Teleport To Egg":{"Value":true,"Type":"toggle"},"Carry Speed":{"Value":120,"Type":"slider","Unit":"%"},"Experimental Lab Eggs":{"Value":["Bladehide Egg (34%)","Red Panda Egg (34%)","Crustacia Egg (33%)","Salamander Egg (33%)","Snowy Owl Egg (32%)"],"Type":"multidropdown"},"Fast Delivery":{"Value":true,"Type":"toggle"},"Skip Owned Lab Eggs":{"Value":true,"Type":"toggle"},"Steal Priority":{"Value":"Highest Value","Type":"dropdown"},"Instant Steal V2":{"Value":true,"Type":"toggle"},"Instant Steal":{"Value":false,"Type":"toggle"},"Steal Missing Index Eggs":{"Value":false,"Type":"toggle"},"Min Steal Value":{"Value":700.11,"Type":"slider"},"Tween Speed":{"Value":120,"Type":"slider","Unit":"%"},"Stock Lab Eggs For":{"Value":[],"Type":"multidropdown"}},"Auto Sell":{"Egg Sell Value":{"Value":0,"Type":"slider"},"Sell Egg Rule":{"Value":"Rarity Only","Type":"dropdown"},"Auto Sell Egg":{"Value":false,"Type":"toggle"},"Blacklist Sell Eggs":{"Value":[],"Type":"multidropdown"},"Keep Mutated Eggs":{"Value":true,"Type":"toggle"},"Egg Max Rarity":{"Value":"3 - Rare","Type":"dropdown"},"Blacklist Sell Pets":{"Value":[],"Type":"multidropdown"},"Egg Sell Preview":{"Value":"Egg matches  -  0 eggs for $0","Type":"text"},"Auto Sell Pet":{"Value":false,"Type":"toggle"},"Pet Sell Value":{"Value":777.78,"Type":"slider"},"Pet Sell Preview":{"Value":"Pet matches  -  0 pets for $0","Type":"text"},"Keep Mutated Pets":{"Value":false,"Type":"toggle"},"Sell Pet Rule":{"Value":"Rarity Only","Type":"dropdown"},"Pet Max Rarity":{"Value":"8 - Secret","Type":"dropdown"}},"Auto Fuse Machine":{"Max Rarity to Fuse":{"Value":"6 - Mythic","Type":"dropdown"},"Skip Mutated Pets":{"Value":true,"Type":"toggle"},"Auto Fuse Machine":{"Value":true,"Type":"toggle"},"Specific Species to Fuse":{"Value":[],"Type":"multidropdown"},"Eject Incomplete Slots":{"Value":true,"Type":"toggle"},"Pets To Use":{"Value":"Lowest To Highest","Type":"dropdown"},"Fuse Priority Mode":{"Value":"Lowest Rarity First","Type":"dropdown"},"Fuse Preview":{"Value":"Không đủ 3 pet trùng khớp","Type":"text"}},"Auto Favorite":{"Favorite Mutations":{"Value":[],"Type":"multidropdown"},"Favorite Preview":{"Value":"Favorite matches  -  5 pets, 0 to mark  |  23 favorited","Type":"text"},"Favorite Min Rarity":{"Value":"10 - Divine","Type":"dropdown"},"Auto Favorite Equipped":{"Value":true,"Type":"toggle"},"Auto Favorite Pet":{"Value":true,"Type":"toggle"},"Always Favorite Species":{"Value":[],"Type":"multidropdown"},"Min Favorite Value":{"Value":797.34,"Type":"slider"},"Auto Unfavorite Equipped":{"Value":true,"Type":"toggle"},"Favorite Rule":{"Value":"Match All","Type":"dropdown"}},"Auto Treadmill":{"Stay On Treadmill":{"Value":true,"Type":"toggle"},"Auto Treadmill":{"Value":true,"Type":"toggle"}},"Auto Place Egg":{"Place Egg Rule":{"Value":"Always","Type":"dropdown"},"Place Rarities":{"Value":[],"Type":"multidropdown"},"Pen Status":{"Value":"Eggs placed 5/30  -  19/19 pets equipped, 0 in bag","Type":"text"},"Auto Place Egg":{"Value":true,"Type":"toggle"},"Place Egg Order":{"Value":"Highest Value","Type":"dropdown"},"Min Place Value":{"Value":0,"Type":"slider"},"Place Specific Eggs":{"Value":[],"Type":"multidropdown"}},"Wisp Companion":{"Auto Banjo Cricket":{"Value":true,"Type":"toggle"},"Auto Wisp":{"Value":true,"Type":"toggle"},"Wisp Status":{"Value":"Banjo Cricket: Done, Cricket's Banjo is yours","Type":"text"}},"Butterfly Bloom":{"Auto Butterfly Bloom":{"Value":true,"Type":"toggle"},"Trade Up Tiers":{"Value":["Emerald To Sapphire","Sapphire To Amethyst","Amethyst To Radiant"],"Type":"multidropdown"},"Auto Craft Essence":{"Value":true,"Type":"toggle"},"Auto Trade Up":{"Value":true,"Type":"toggle"},"Catch Priority":{"Value":"Rarest","Type":"dropdown"},"Tween Speed  ":{"Value":600,"Type":"slider","Unit":"studs/s"},"Catch Mode":{"Value":"Chase","Type":"dropdown"},"Catch Butterflies":{"Value":["Radiant Butterfly","Amethyst Butterfly","Sapphire Butterfly","Emerald Butterfly"],"Type":"multidropdown"},"Smart Trade For Essence":{"Value":true,"Type":"toggle"}},"Racing Event":{"Race Speed":{"Value":400,"Type":"slider"},"Auto Race":{"Value":true,"Type":"toggle"},"Race Shop Items":{"Value":["Nitro Mutation"],"Type":"multidropdown"},"Auto Equip Racer":{"Value":true,"Type":"toggle"},"Auto Buy Race Shop":{"Value":true,"Type":"toggle"},"Auto Claim Race Rewards":{"Value":true,"Type":"toggle"},"Auto Use Power-Ups":{"Value":true,"Type":"toggle"},"Racer":{"Value":"Best Owned","Type":"dropdown"}},"Auto Mutation":{"Mutate Priority":{"Value":"Highest Value","Type":"dropdown"},"Mutations To Use":{"Value":["Fractured","Scrambled","Enchanted","Nitro"],"Type":"multidropdown"},"Mutate Target Eggs":{"Value":[],"Type":"multidropdown"},"Mutate Min Value":{"Value":797.34,"Type":"slider"},"Auto Mutate":{"Value":true,"Type":"toggle"},"Mutate Status":{"Value":"Waiting  |  No egg to mutate","Type":"text"},"Auto Buy Nitro":{"Value":true,"Type":"toggle"},"Mutate Min Rarity":{"Value":"Secret","Type":"dropdown"}},"Auto Sell Lab Egg":{"Lab Egg Sell Value":{"Value":700.11,"Type":"slider"},"Sell Lab Egg Rule":{"Value":"Rarity And Value","Type":"dropdown"},"Lab Egg Max Rarity":{"Value":"Off","Type":"dropdown"},"Auto Sell Lab Egg":{"Value":true,"Type":"toggle"},"Lab Egg Sell Preview":{"Value":"Lab egg matches  -  0 eggs for $0","Type":"text"},"Keep Lab Pets":{"Value":[],"Type":"multidropdown"},"Keep Mutated Lab Eggs":{"Value":true,"Type":"toggle"}},"Auto Hatch & Equip":{"Hatch Specific Eggs":{"Value":[],"Type":"multidropdown"},"Auto Hatch":{"Value":false,"Type":"toggle"},"Hatch Min Rarity":{"Value":"Any","Type":"dropdown"},"Min Hatch Value":{"Value":0,"Type":"slider"},"Auto Equip Best":{"Value":true,"Type":"toggle"}},"Dr Scramble Lab":{"Lab Banners":{"Value":[],"Type":"multidropdown"},"Lab Status":{"Value":"Unstable DNA  -  needs Flame Sprite, Salamander, Bladehide  -  pity 0/100  -  free rerolls 0  -  rotates in 19:58  -  Need a Flame Sprite egg","Type":"text"},"Auto Place Lab Reward Eggs":{"Value":true,"Type":"toggle"},"Auto Reroll Lab Recipe":{"Value":true,"Type":"toggle"},"Auto Lab Trade-In":{"Value":true,"Type":"toggle"}},"Shooting Star":{"Auto Catch Shooting Star":{"Value":true,"Type":"toggle"},"Shooting Star Status":{"Value":"Đang chờ sao băng rơi","Type":"text"}}},"Misc":{"Performance":{"Optimizer":{"Value":true,"Type":"toggle"},"Farm HUD":{"Value":false,"Type":"toggle"},"Background Color":{"Value":"White","Type":"dropdown"},"Egg Card Image":{"Value":"Egg Image","Type":"dropdown"},"Disable 3D Render":{"Value":false,"Type":"toggle"},"FPS and Ping":{"Value":true,"Type":"toggle"},"FPS Cap":{"Value":240,"Type":"slider","Unit":" FPS"},"HUD Size":{"Value":70,"Type":"slider","Unit":"%"},"Showcase Cards":{"Value":4,"Type":"slider"},"Hide Game UI":{"Value":true,"Type":"toggle"},"HUD Items":{"Value":["Money","Income","Speed","Treadmill","Eggs Stolen","Best Steal","Night Timer","Session Time","Activity","Racing Event","Race Wins","Shooting Star","Pets","Eggs","Top Pets","Top Eggs","Steal History"],"Type":"multidropdown"},"FPS and Ping Size":{"Value":100,"Type":"slider","Unit":"%"}},"Utility":{"Anti AFK":{"Value":true,"Type":"toggle"}}},"Server":{"Server":{"Server Hop Mode":{"Value":"Least Players","Type":"dropdown"},"Auto Load Script":{"Value":true,"Type":"toggle"},"Auto Rejoin When Disconnect":{"Value":true,"Type":"toggle"}}}},"SavedAt":1791729602},"Format":"ChilliLibraryConfig","ExportVersion":1,"Name":"main"}]===]
+-- ==================== DỮ LIỆU CẤU HÌNH JSON (PROFILE: MAIN) ====================
+local RAW_CONFIG_JSON = [===[{"Config":{"Profile":"main","Version":2,"States":{"Farm HUD Stealing Position":{"Value":[]},"Quick Panel Collapsed":{"Value":{"1":true}},"Quick Keybinds":{"Value":{"Player > Movement > Speed Boost":"Q"}},"Farm HUD World Position":{"Value":[]},"Farm HUD Stolen Eggs":{"Value":{"History":[{"At":1791707562,"Name":"Parrotfish Egg","Category":"Parrotfish","Scale":0.9196704573013789,"Rarity":"Rare","Value":659.493259982963}],"Count":1,"Best":{"Category":"Parrotfish","Name":"Parrotfish Egg","Rarity":"Rare","Rank":3}}},"Farm HUD Top Eggs Position":{"Value":[]},"Anti Guard Enabled":{"Value":false},"Farm HUD Steal History Position":{"Value":[]},"Quick Pinned Features":{"Value":["Player > Movement > Speed Boost","Player > Movement > Boost Speed"]},"Open On Launch":{"Value":true},"Quick Panel Position":{"Value":{"1":{"Y":0.32634490728378298,"X":0.8134856224060059}}},"Notifications":{"Value":true},"Farm HUD Top Pets Position":{"Value":[]},"Quick Open Key":{"Value":"LeftControl"},"FPS and Ping Position":{"Value":{"XOffset":16,"XScale":0,"YScale":0,"YOffset":47}},"Farm HUD Status Position":{"Value":[]},"Farm HUD Events Position":{"Value":[]},"Steal Panel Open":{"Value":false},"Quick LeftCenter Hidden":{"Value":true},"Farm HUD Economy Position":{"Value":[]},"Quick Pin Groups":{"Value":[]},"Farm HUD Collection Position":{"Value":[]}},"Values":{"Admin Abuse":{"Minigame Eggs":{"Auto Steal Minigame Egg":{"Value":true,"Type":"toggle"}},"Instant Steal V3":{"Instant Steal V3 Note":{"Value":"Cần Máy Tập Admin","Type":"text"},"Instant Steal V3":{"Value":false,"Type":"toggle"}},"Admin Treadmill":{"Auto Use Admin Treadmill":{"Value":true,"Type":"toggle"}},"Capture The Egg":{"Hold Height":{"Value":45,"Type":"slider","Unit":"studs"},"Auto Capture Event Egg":{"Value":false,"Type":"toggle"},"Keep Away Distance":{"Value":45,"Type":"slider","Unit":"studs"},"Take It From The Holder":{"Value":true,"Type":"toggle"}}},"Predictor":{"Egg Predictor":{"Sort By":{"Value":"Value","Type":"dropdown"},"Preview Card":{"Value":true,"Type":"toggle"}},"Discord Webhook":{"Webhook URL":{"Value":"","Type":"input"},"Notify Fused Eggs":{"Value":false,"Type":"toggle"},"Notify Stolen Eggs":{"Value":false,"Type":"toggle"},"Webhook Min Rarity":{"Value":"Any","Type":"dropdown"},"Webhook Eggs":{"Value":[],"Type":"multidropdown"},"Webhook Min Value":{"Value":0,"Type":"slider"},"Ping @everyone":{"Value":false,"Type":"toggle"}}},"Progress":{"Auto Progression":{"Auto Buy Trail":{"Value":true,"Type":"toggle"},"Auto Claim Index":{"Value":true,"Type":"toggle"},"Auto Upgrade Treadmill":{"Value":true,"Type":"toggle"},"Auto Claim":{"Value":true,"Type":"toggle"},"Auto Upgrade Base":{"Value":true,"Type":"toggle"}}},"Quick":{"Pin Pad":{"Pad Size":{"Value":150,"Type":"slider","Unit":"%"},"Enable Keybinds":{"Value":true,"Type":"toggle"},"Show Pin Pads":{"Value":true,"Type":"toggle"},"Visible Quick Bars":{"Value":["Quick Bar 1","Quick Bar 2","Quick Bar 3","Quick Bar 4","Quick Bar 5"],"Type":"multidropdown"}}},"Auto Hop":{"Egg Finder":{"Hop Mode":{"Value":"Steal Then Hop","Type":"dropdown"},"Min Rarity":{"Value":"Secret","Type":"dropdown"},"Rarity To Wait For":{"Value":"Cosmic","Type":"dropdown"},"First Hop Delay":{"Value":5,"Type":"slider","Unit":"s"},"Sync With Auto Steal Filters":{"Value":true,"Type":"toggle"},"Target Specific Eggs":{"Value":[],"Type":"multidropdown"},"Min Value To Find":{"Value":700.11,"Type":"slider"},"Auto Hop":{"Value":false,"Type":"toggle"},"Target Areas":{"Value":["Cherry Blossom","Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"}}},"Player":{"ESP":{"ESP Eggs":{"Value":true,"Type":"toggle"},"ESP Show Info":{"Value":["Icon","Name","Value"],"Type":"multidropdown"},"ESP Guard Size":{"Value":75,"Type":"slider","Unit":"%"},"ESP Player Info":{"Value":["Name","Tool"],"Type":"multidropdown"},"ESP Other Base Eggs":{"Value":false,"Type":"toggle"},"ESP Min Rarity":{"Value":"7 - Cosmic","Type":"dropdown"},"ESP Guards":{"Value":true,"Type":"toggle"},"Min ESP Value":{"Value":0,"Type":"slider"},"ESP Player Size":{"Value":75,"Type":"slider","Unit":"%"},"ESP Players":{"Value":true,"Type":"toggle"},"ESP Own Base Eggs":{"Value":true,"Type":"toggle"},"ESP Fixed Size":{"Value":false,"Type":"toggle"},"ESP Egg Size":{"Value":75,"Type":"slider","Unit":"%"}},"Character":{"Instant Prompts":{"Value":true,"Type":"toggle"},"Anti Ragdoll":{"Value":true,"Type":"toggle"},"Anti Trap":{"Value":true,"Type":"toggle"},"Invisibility":{"Value":false,"Type":"toggle"}},"Movement":{"Speed Boost":{"Value":false,"Type":"toggle"},"Boost Speed":{"Value":1000,"Type":"slider","Unit":"studs/s"},"Infinite Jump":{"Value":false,"Type":"toggle"}},"Combat":{"Auto Hit Egg Holders":{"Value":false,"Type":"toggle"},"Hit Max Speed":{"Value":750,"Type":"slider","Unit":"studs/s"},"Auto Hit Nearest Player":{"Value":false,"Type":"toggle"},"Hit Player":{"Value":"67sixseven16690","Type":"dropdown"},"Hit Lead":{"Value":-275,"Type":"slider"},"Hit Tween Speed":{"Value":400,"Type":"slider","Unit":"studs/s"},"Hit Sweep":{"Value":60,"Type":"slider","Unit":"%"},"Chase Settings":{"Value":"Cài Đặt Đuổi Đánh","Type":"label"},"Auto Hit Specific Player":{"Value":false,"Type":"toggle"},"Hit Aura":{"Value":true,"Type":"toggle"},"Hit Status":{"Value":"Aura ready, nobody in reach","Type":"text"}}},"Settings":{"Interface":{"UI Size":{"Value":100,"Type":"slider","Unit":"%"}}},"Farm":{"Auto Steal":{"Drop Eggs At Safe Zone":{"Value":false,"Type":"toggle"},"Target Specific Eggs":{"Value":[],"Type":"multidropdown"},"Biohazard Lab Eggs":{"Value":["Red Panda Egg (43%)","Snowy Owl Egg (40%)","Salamander Egg (38%)"],"Type":"multidropdown"},"Anti Guard Panel":{"Value":true,"Type":"toggle"},"Steal Missing Lab Eggs":{"Value":false,"Type":"toggle"},"Instant Steal Steps":{"Value":2,"Type":"slider"},"Instant Steal Zones":{"Value":["Titan Temple","Light Dark","Enchanted Forest"],"Type":"multidropdown"},"Target Areas":{"Value":["Cherry Blossom","Light Dark","Titan Temple","Enchanted Forest"],"Type":"multidropdown"},"Unstable DNA Lab Eggs":{"Value":["Toro Egg (24%)","Winged Lamb Egg (23%)","Bladehide Egg (23%)","Imp Egg (22%)","Crustacia Egg (22%)"],"Type":"multidropdown"},"Stock Per Egg":{"Value":3,"Type":"slider","Unit":""},"Auto Steal":{"Value":true,"Type":"toggle"},"Min Rarity":{"Value":"Secret","Type":"dropdown"},"Teleport To Egg":{"Value":true,"Type":"toggle"},"Carry Speed":{"Value":120,"Type":"slider","Unit":"%"},"Experimental Lab Eggs":{"Value":["Bladehide Egg (34%)","Red Panda Egg (34%)","Crustacia Egg (33%)","Salamander Egg (33%)","Snowy Owl Egg (32%)"],"Type":"multidropdown"},"Fast Delivery":{"Value":true,"Type":"toggle"},"Skip Owned Lab Eggs":{"Value":true,"Type":"toggle"},"Steal Priority":{"Value":"Highest Value","Type":"dropdown"},"Instant Steal V2":{"Value":true,"Type":"toggle"},"Instant Steal":{"Value":false,"Type":"toggle"},"Steal Missing Index Eggs":{"Value":false,"Type":"toggle"},"Min Steal Value":{"Value":700.11,"Type":"slider"},"Tween Speed":{"Value":120,"Type":"slider","Unit":"%"},"Stock Lab Eggs For":{"Value":[],"Type":"multidropdown"}},"Auto Sell":{"Egg Sell Value":{"Value":0,"Type":"slider"},"Sell Egg Rule":{"Value":"Rarity Only","Type":"dropdown"},"Auto Sell Egg":{"Value":false,"Type":"toggle"},"Blacklist Sell Eggs":{"Value":[],"Type":"multidropdown"},"Keep Mutated Eggs":{"Value":true,"Type":"toggle"},"Egg Max Rarity":{"Value":"3 - Rare","Type":"dropdown"},"Blacklist Sell Pets":{"Value":[],"Type":"multidropdown"},"Egg Sell Preview":{"Value":"Egg matches  -  0 eggs for $0","Type":"text"},"Auto Sell Pet":{"Value":false,"Type":"toggle"},"Pet Sell Value":{"Value":777.78,"Type":"slider"},"Pet Sell Preview":{"Value":"Pet matches  -  0 pets for $0","Type":"text"},"Keep Mutated Pets":{"Value":false,"Type":"toggle"},"Sell Pet Rule":{"Value":"Rarity Only","Type":"dropdown"},"Pet Max Rarity":{"Value":"8 - Secret","Type":"dropdown"}},"Auto Fuse Machine":{"Max Rarity to Fuse":{"Value":"6 - Mythic","Type":"dropdown"},"Skip Mutated Pets":{"Value":true,"Type":"toggle"},"Auto Fuse Machine":{"Value":true,"Type":"toggle"},"Specific Species to Fuse":{"Value":[],"Type":"multidropdown"},"Eject Incomplete Slots":{"Value":true,"Type":"toggle"},"Pets To Use":{"Value":"Lowest To Highest","Type":"dropdown"},"Fuse Priority Mode":{"Value":"Lowest Rarity First","Type":"dropdown"},"Fuse Preview":{"Value":"Không đủ 3 pet trùng khớp","Type":"text"}},"Auto Favorite":{"Favorite Mutations":{"Value":[],"Type":"multidropdown"},"Favorite Preview":{"Value":"Favorite matches  -  5 pets, 0 to mark  |  23 favorited","Type":"text"},"Favorite Min Rarity":{"Value":"10 - Divine","Type":"dropdown"},"Auto Favorite Equipped":{"Value":true,"Type":"toggle"},"Auto Favorite Pet":{"Value":true,"Type":"toggle"},"Always Favorite Species":{"Value":[],"Type":"multidropdown"},"Min Favorite Value":{"Value":797.34,"Type":"slider"},"Auto Unfavorite Equipped":{"Value":true,"Type":"toggle"},"Favorite Rule":{"Value":"Match All","Type":"dropdown"}},"Auto Treadmill":{"Stay On Treadmill":{"Value":true,"Type":"toggle"},"Auto Treadmill":{"Value":true,"Type":"toggle"}},"Auto Place Egg":{"Place Egg Rule":{"Value":"Always","Type":"dropdown"},"Place Rarities":{"Value":[],"Type":"multidropdown"},"Pen Status":{"Value":"Eggs placed 5/30  -  19/19 pets equipped, 0 in bag","Type":"text"},"Auto Place Egg":{"Value":true,"Type":"toggle"},"Place Egg Order":{"Value":"Highest Value","Type":"dropdown"},"Min Place Value":{"Value":0,"Type":"slider"},"Place Specific Eggs":{"Value":[],"Type":"multidropdown"}},"Wisp Companion":{"Auto Banjo Cricket":{"Value":true,"Type":"toggle"},"Auto Wisp":{"Value":true,"Type":"toggle"},"Wisp Status":{"Value":"Banjo Cricket: Done, Cricket's Banjo is yours","Type":"text"}},"Butterfly Bloom":{"Auto Butterfly Bloom":{"Value":true,"Type":"toggle"},"Trade Up Tiers":{"Value":["Emerald To Sapphire","Sapphire To Amethyst","Amethyst To Radiant"],"Type":"multidropdown"},"Auto Craft Essence":{"Value":true,"Type":"toggle"},"Auto Trade Up":{"Value":true,"Type":"toggle"},"Catch Priority":{"Value":"Rarest","Type":"dropdown"},"Tween Speed  ":{"Value":600,"Type":"slider","Unit":"studs/s"},"Catch Mode":{"Value":"Chase","Type":"dropdown"},"Catch Butterflies":{"Value":["Radiant Butterfly","Amethyst Butterfly","Sapphire Butterfly","Emerald Butterfly"],"Type":"multidropdown"},"Smart Trade For Essence":{"Value":true,"Type":"toggle"}},"Racing Event":{"Race Speed":{"Value":400,"Type":"slider"},"Auto Race":{"Value":true,"Type":"toggle"},"Race Shop Items":{"Value":["Nitro Mutation"],"Type":"multidropdown"},"Auto Equip Racer":{"Value":true,"Type":"toggle"},"Auto Buy Race Shop":{"Value":true,"Type":"toggle"},"Auto Claim Race Rewards":{"Value":true,"Type":"toggle"},"Auto Use Power-Ups":{"Value":true,"Type":"toggle"},"Racer":{"Value":"Best Owned","Type":"dropdown"}},"Auto Mutation":{"Mutate Priority":{"Value":"Highest Value","Type":"dropdown"},"Mutations To Use":{"Value":["Fractured","Scrambled","Enchanted","Nitro"],"Type":"multidropdown"},"Mutate Target Eggs":{"Value":[],"Type":"multidropdown"},"Mutate Min Value":{"Value":797.34,"Type":"slider"},"Auto Mutate":{"Value":true,"Type":"toggle"},"Mutate Status":{"Value":"Waiting  |  No egg to mutate","Type":"text"},"Auto Buy Nitro":{"Value":true,"Type":"toggle"},"Mutate Min Rarity":{"Value":"Secret","Type":"dropdown"}},"Auto Sell Lab Egg":{"Lab Egg Sell Value":{"Value":700.11,"Type":"slider"},"Sell Lab Egg Rule":{"Value":"Rarity And Value","Type":"dropdown"},"Lab Egg Max Rarity":{"Value":"Off","Type":"dropdown"},"Auto Sell Lab Egg":{"Value":true,"Type":"toggle"},"Lab Egg Sell Preview":{"Value":"Lab egg matches  -  0 eggs for $0","Type":"text"},"Keep Lab Pets":{"Value":[],"Type":"multidropdown"},"Keep Mutated Lab Eggs":{"Value":true,"Type":"toggle"}},"Auto Hatch & Equip":{"Hatch Specific Eggs":{"Value":[],"Type":"multidropdown"},"Auto Hatch":{"Value":false,"Type":"toggle"},"Hatch Min Rarity":{"Value":"Any","Type":"dropdown"},"Min Hatch Value":{"Value":0,"Type":"slider"},"Auto Equip Best":{"Value":true,"Type":"toggle"}},"Dr Scramble Lab":{"Lab Banners":{"Value":[],"Type":"multidropdown"},"Lab Status":{"Value":"Unstable DNA  -  needs Flame Sprite, Salamander, Bladehide  -  pity 0/100  -  free rerolls 0  -  rotates in 19:58  -  Need a Flame Sprite egg","Type":"text"},"Auto Place Lab Reward Eggs":{"Value":true,"Type":"toggle"},"Auto Reroll Lab Recipe":{"Value":true,"Type":"toggle"},"Auto Lab Trade-In":{"Value":true,"Type":"toggle"}},"Shooting Star":{"Auto Catch Shooting Star":{"Value":true,"Type":"toggle"},"Shooting Star Status":{"Value":"Đang chờ sao băng rơi","Type":"text"}}},"Misc":{"Performance":{"Optimizer":{"Value":true,"Type":"toggle"},"Farm HUD":{"Value":false,"Type":"toggle"},"Background Color":{"Value":"White","Type":"dropdown"},"Egg Card Image":{"Value":"Egg Image","Type":"dropdown"},"Disable 3D Render":{"Value":false,"Type":"toggle"},"FPS and Ping":{"Value":true,"Type":"toggle"},"FPS Cap":{"Value":240,"Type":"slider","Unit":" FPS"},"HUD Size":{"Value":70,"Type":"slider","Unit":"%"},"Showcase Cards":{"Value":4,"Type":"slider"},"Hide Game UI":{"Value":true,"Type":"toggle"},"HUD Items":{"Value":["Money","Income","Speed","Treadmill","Eggs Stolen","Best Steal","Night Timer","Session Time","Activity","Racing Event","Race Wins","Shooting Star","Pets","Eggs","Top Pets","Top Eggs","Steal History"],"Type":"multidropdown"},"FPS and Ping Size":{"Value":100,"Type":"slider","Unit":"%"}},"Utility":{"Anti AFK":{"Value":true,"Type":"toggle"}}},"Server":{"Server":{"Server Hop Mode":{"Value":"Least Players","Type":"dropdown"},"Auto Load Script":{"Value":true,"Type":"toggle"},"Auto Rejoin When Disconnect":{"Value":true,"Type":"toggle"}}}},"SavedAt":1791729602},"Format":"ChilliLibraryConfig","ExportVersion":1,"Name":"main"}]===]
 
 -- ==================== 4. TỪ ĐIỂN DỊCH THUẬT MASTER FULL ====================
 local currentLanguage = "VI"
@@ -545,7 +545,7 @@ local function updateAllActive()
     end
 end
 
--- ==================== 5. ĐỔI MÀU & HUY HIỆU '✨ NEW' TRONG SUỐT HOÀN TOÀN ====================
+-- ==================== 5. ĐỔI MÀU & HUY HIỆU '✨ NEW' TRONG SUỐT (XÓA CHẤM ĐEN) ====================
 local COLOR_FACE_TOP     = Color3.fromRGB(140, 195, 245)
 local COLOR_FACE_BOTTOM  = Color3.fromRGB(95, 155, 225)
 local COLOR_BEVEL_SHADOW = Color3.fromRGB(55, 110, 180)
@@ -565,12 +565,9 @@ local TARGET_BUTTON_KEYWORDS = {
     ["cấu hình"] = true, ["config"] = true
 }
 
--- Gắn trực tiếp nhãn '✨ NEW' trong suốt - Xóa bỏ 100% mọi Frame đen và viền đen
+-- Gắn huy hiệu ✨ NEW hoàn toàn trong suốt (Xóa sạch mọi chấm đen / khối đen)
 local function attachSparklingNewBadge(headerFrame, titleObj)
     if not headerFrame then return end
-
-    -- Chỉ gắn duy nhất trên thanh Header thực sự của Hub (chiều cao <= 50px)
-    if headerFrame.AbsoluteSize.Y > 55 then return end
 
     -- Dọn dẹp triệt để mọi badge hoặc khối đen cũ
     for _, child in ipairs(headerFrame:GetChildren()) do
@@ -579,18 +576,50 @@ local function attachSparklingNewBadge(headerFrame, titleObj)
         end
     end
 
+    local Badge = Instance.new("Frame")
+    Badge.Name = "Sparkling_New_Badge"
+    Badge.Size = UDim2.new(0, 48, 0, 16)
+    Badge.AnchorPoint = Vector2.new(0, 0.5)
+    Badge.Position = UDim2.new(0.5, 72, 0.5, 0)
+    -- NỀN TRONG SUỐT 100% - KHÔNG CÒN CHẤM ĐEN TRÊN HEADER
+    Badge.BackgroundTransparency = 1
+    Badge.BorderSizePixel = 0
+    Badge.Parent = headerFrame
+
+    local BadgeCorner = Instance.new("UICorner")
+    BadgeCorner.CornerRadius = UDim.new(0, 6)
+    BadgeCorner.Parent = Badge
+
+    -- Viền ngọc phát sáng siêu mảnh chạy gradient cầu vồng tinh xảo
+    local BadgeStroke = Instance.new("UIStroke")
+    BadgeStroke.Thickness = 1.1
+    BadgeStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    BadgeStroke.Parent = Badge
+
+    local RainbowGrad = Instance.new("UIGradient")
+    RainbowGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 230, 110)),
+        ColorSequenceKeypoint.new(0.33, Color3.fromRGB(110, 240, 255)),
+        ColorSequenceKeypoint.new(0.66, Color3.fromRGB(255, 120, 180)),
+        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 230, 110))
+    })
+    RainbowGrad.Parent = BadgeStroke
+
     local BadgeLabel = Instance.new("TextLabel")
-    BadgeLabel.Name = "Sparkling_New_Badge"
-    BadgeLabel.Size = UDim2.new(0, 52, 0, 18)
-    BadgeLabel.AnchorPoint = Vector2.new(0, 0.5)
-    BadgeLabel.Position = UDim2.new(0.5, 74, 0.5, 0)
-    BadgeLabel.BackgroundTransparency = 1  -- HOÀN TOÀN TRONG SUỐT (KHÔNG CÒN BẤT KỲ CHẤM ĐEN NÀO)
-    BadgeLabel.BorderSizePixel = 0
+    BadgeLabel.Size = UDim2.new(1, 0, 1, 0)
+    BadgeLabel.BackgroundTransparency = 1
     BadgeLabel.Text = "✨ NEW"
     BadgeLabel.Font = Enum.Font.GothamBlack
-    BadgeLabel.TextSize = 9.5
-    BadgeLabel.TextColor3 = Color3.fromRGB(255, 235, 120)
-    BadgeLabel.Parent = headerFrame
+    BadgeLabel.TextSize = 8.8
+    BadgeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    BadgeLabel.Parent = Badge
+
+    task.spawn(function()
+        while Badge and Badge.Parent do
+            RainbowGrad.Rotation = (RainbowGrad.Rotation + 3) % 360
+            RunService.RenderStepped:Wait()
+        end
+    end)
 end
 
 local function recolorSingleButton(btnContainer, labelObj)
@@ -658,35 +687,14 @@ local function recolorHeaderBar(headerFrame, titleObj)
     end
 end
 
--- ẨN VĨNH VIỄN WIDGET NỔI CHỐNG VỆ SĨ
-local function removeAntiGuardWidget(inst)
-    local t = (inst.Text or ""):lower()
-    if t:find("chống vệ sĩ") or t:find("anti guard") then
-        local widgetFrame = inst:FindFirstAncestorOfClass("Frame")
-        if widgetFrame and widgetFrame.AbsoluteSize.Y < 80 and widgetFrame.AbsoluteSize.X < 260 then
-            pcall(function()
-                widgetFrame.Visible = false
-                widgetFrame:Destroy()
-            end)
-            return true
-        end
-    end
-    return false
-end
-
 local function inspectAndApplySoftBlue(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton")) then return end
     if inst:FindFirstAncestor("Chilli_Dynamic_Island") or inst:FindFirstAncestor("Sparkling_New_Badge") or inst:FindFirstAncestor("Chilli_Update_Toast") then return end
 
-    if removeAntiGuardWidget(inst) then return end
-
     local textRaw = inst.Text:lower():match("^%s*(.-)%s*$") or ""
     if textRaw:find("chilli hub") then
         local headerFrame = inst:FindFirstAncestorOfClass("Frame")
-        -- CHỈ áp dụng lên thanh Header của bảng chính (tránh áp dụng nhầm lên widget nhỏ)
-        if headerFrame and headerFrame.AbsoluteSize.Y <= 55 then
-            recolorHeaderBar(headerFrame, inst)
-        end
+        if headerFrame then recolorHeaderBar(headerFrame, inst) end
         return
     end
 
@@ -762,7 +770,7 @@ local function executeAutoConfig(statusCallback)
             isConfigInjecting = false; return
         end
 
-        -- 1. Mở Tab Config
+        -- 1. Bấm Tab Config
         local configTabElement = nil
         for _, d in ipairs(chilliGui:GetDescendants()) do
             if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Visible then
@@ -906,7 +914,7 @@ local function executeAutoConfig(statusCallback)
             task.wait(0.4)
         end
 
-        -- 8. BƯỚC CHUẨN VIDEO: MỞ 'SET STARTUP CONFIG' -> CHỌN 'main' -> BẤM 'SET STARTUP'
+        -- 8. THỰC HIỆN BƯỚC MỚI THEO VIDEO: MỞ DROPDOWN 'SET STARTUP CONFIG' -> CHỌN 'main' -> BẤM 'SET STARTUP'
         statusCallback("⏳ Cài khởi động...", Color3.fromRGB(255, 210, 90))
         task.wait(0.35)
 
@@ -982,7 +990,7 @@ local function executeAutoConfig(statusCallback)
     end)
 end
 
--- ==================== 8. THÔNG BÁO V3.8 TOAST (TỰ BIẾN MẤT 10 GIÂY - BỎ NÚT X) ====================
+-- ==================== 8. THÔNG BÁO V3.8 TOAST (TỰ BIẾN MẤT SAU 10 GIÂY - BỎ NÚT X) ====================
 local function createUpdateToast()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local oldToast = parentTarget:FindFirstChild("Chilli_Update_Toast")
@@ -1045,6 +1053,7 @@ local function createUpdateToast()
     TagLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     TagLabel.Parent = TagBadge
 
+    -- Text chiếm trọn chiều rộng khung vì không còn nút X
     local ToastText = Instance.new("TextLabel")
     ToastText.Size = UDim2.new(1, -64, 1, 0)
     ToastText.Position = UDim2.new(0, 58, 0, 0)
@@ -1057,11 +1066,12 @@ local function createUpdateToast()
     ToastText.Text = "Chilli Hub V3.8: Fixed Sự Kiện Đua Xe  – Sắp Ra Mắt"
     ToastText.Parent = ToastFrame
 
+    -- Hiệu ứng trượt xuống
     TweenService:Create(ToastFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
         Position = UDim2.new(0.5, 0, 0, 52)
     }):Play()
 
-    -- Chạy đúng 10 giây rồi tự động trượt lên và biến mất hoàn toàn
+    -- Chạy đúng 10 giây rồi tự động trượt lên và biến mất
     task.delay(10, function()
         if ToastFrame and ToastFrame.Parent then
             TweenService:Create(ToastFrame, TweenInfo.new(0.45, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
@@ -1588,7 +1598,7 @@ local function createDynamicIslandUI()
     end)
 end
 
--- ==================== 10. ĐỘNG CƠ BÓ HẸP PHẠM VI (FIX 100% GIẬT LAG) ====================
+-- ==================== 10. EVENT-DRIVEN ENGINE SIÊU NHẸ (ZERO-POLLING) ====================
 task.delay(1.2, function()
     createDynamicIslandUI()
     createUpdateToast()
@@ -1599,26 +1609,6 @@ task.delay(1.2, function()
         LocalPlayer:FindFirstChild("PlayerGui")
     }
 
-    local targetHubGui = nil
-
-    -- Tìm đúng ScreenGui của Chilli Hub một lần duy nhất
-    for _, root in ipairs(searchRoots) do
-        if root then
-            for _, g in ipairs(root:GetChildren()) do
-                if g:IsA("ScreenGui") and g.Name ~= "Chilli_Dynamic_Island" and g.Name ~= "Chilli_Update_Toast" then
-                    for _, d in ipairs(g:GetDescendants()) do
-                        if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Text:lower():find("chilli hub") then
-                            targetHubGui = g
-                            break
-                        end
-                    end
-                end
-                if targetHubGui then break end
-            end
-        end
-        if targetHubGui then break end
-    end
-
     local function handleNewDescendant(desc)
         if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
             hookElement(desc)
@@ -1626,35 +1616,21 @@ task.delay(1.2, function()
         end
     end
 
-    -- CHỈ quét và lắng nghe bên trong đúng ScreenGui của Chilli Hub (0% ảnh hưởng game/overhead)
-    if targetHubGui then
-        for _, desc in ipairs(targetHubGui:GetDescendants()) do
-            handleNewDescendant(desc)
-        end
-
-        targetHubGui.DescendantAdded:Connect(function(desc)
-            task.defer(function()
+    for _, root in ipairs(searchRoots) do
+        if root then
+            for _, desc in ipairs(root:GetDescendants()) do
                 handleNewDescendant(desc)
-            end)
-        end)
-    else
-        -- Dự phòng an toàn nếu UI tải chậm
-        for _, root in ipairs(searchRoots) do
-            if root then
-                root.ChildAdded:Connect(function(child)
-                    if child:IsA("ScreenGui") and child.Name ~= "Chilli_Dynamic_Island" and child.Name ~= "Chilli_Update_Toast" then
-                        task.wait(0.5)
-                        for _, desc in ipairs(child:GetDescendants()) do
-                            handleNewDescendant(desc)
-                        end
-                        child.DescendantAdded:Connect(function(desc)
-                            task.defer(function()
-                                handleNewDescendant(desc)
-                            end)
-                        end)
-                    end
-                end)
             end
+        end
+    end
+
+    for _, root in ipairs(searchRoots) do
+        if root then
+            root.DescendantAdded:Connect(function(desc)
+                task.defer(function()
+                    handleNewDescendant(desc)
+                end)
+            end)
         end
     end
 end)
