@@ -1,12 +1,5 @@
 -- ==============================================================================
---  CHILLI HUB V3.8 - PERFECT UI & ACTIVE TAB GLOW EDITION
---  Khắc phục dứt điểm:
---    1. KHÔI PHỤC ĐỦ 100% NÚT: Giải cứu toàn bộ 6 nút bên trái bị ẩn nhầm.
---    2. HẾT CHÓI (ZERO CHOÉ): Chuyển sang tone Soft Sky Blue dịu mát, cao cấp.
---    3. SÁNG BỪNG KHI BẤM: Tab đang chọn sáng rực Xanh Cyan Neon (Aqua Glow).
---    4. BANNER ĐÁY MÀN HÌNH: Tự ẩn sau 10s, không che thanh tiêu đề Hub.
---    5. TIÊU ĐỀ V3.8: Chữ ✨ NEW vàng hoàng kim qua RichText, không cục đen.
---    6. TỰ ĐỘNG SET STARTUP: Chọn 'main' và lưu cấu hình khởi động chuẩn video.
+--  CHILLI HUB V3.8 - CLEAN FIX & ACCURATE TARGETING ENGINE
 -- ==============================================================================
 
 -- ==================== 0. DỌN DẸP SẠCH TÀN DƯ GUI CŨ ====================
@@ -53,7 +46,7 @@ if rawQueue then
     pcall(function() if fluxus then fluxus.queue_on_teleport = autoHookQueue end end)
 end
 
--- ==================== 2. KHỞI ĐỘNG AN TOÀN TUYỆT ĐỐI ====================
+-- ==================== 2. KHỞI ĐỘNG AN TOÀN ====================
 if not game:IsLoaded() then
     game.Loaded:Wait()
 end
@@ -549,17 +542,7 @@ local function updateAllActive()
     end
 end
 
--- ==================== 5. AN TOÀN TUYỆT ĐỐI: KHUNG SOFT SKY BLUE & ACTIVE GLOW ====================
--- Tông màu Xanh Trời Dịu Mắt (Soft Sky Blue) - Tuyệt đối không chói mắt ("không choé")
-local COLOR_BASE_TOP     = Color3.fromRGB(140, 195, 245)
-local COLOR_BASE_BOTTOM  = Color3.fromRGB(95, 155, 225)
-local COLOR_BASE_STROKE  = Color3.fromRGB(55, 110, 180)
-
--- Tông màu Sáng Bừng Neon khi bấm (Active Glow)
-local COLOR_ACTIVE_TOP    = Color3.fromRGB(80, 240, 255)
-local COLOR_ACTIVE_BOTTOM = Color3.fromRGB(0, 170, 255)
-local COLOR_ACTIVE_STROKE = Color3.fromRGB(255, 255, 255)
-
+-- ==================== 5. CHỈ ĐỔI TIÊU ĐỀ V3.8 & HIỆU ỨNG SÁNG TAB (KHÔNG CHẠM KHUNG MẸ) ====================
 local TARGET_BUTTON_KEYWORDS = {
     ["cày cuốc"] = true, ["farm"] = true,
     ["người chơi"] = true, ["player"] = true,
@@ -575,188 +558,87 @@ local TARGET_BUTTON_KEYWORDS = {
     ["cấu hình"] = true, ["config"] = true
 }
 
-local currentActiveBtn = nil
-local buttonRegistry = {}
+local activeBtn = nil
+local registeredButtons = {}
 
-local function updateBtnVisual(entry, isActive)
-    local btn = entry.btn
-    local grad = entry.grad
+local function updateButtonGlow(entry, isActive)
     local stroke = entry.stroke
-
-    if isActive then
-        -- 🌟 TRẠNG THÁI ACTIVE: SÁNG BỪNG CYAN NEON (AQUA GLOW)
-        stroke.Color = COLOR_ACTIVE_STROKE
-        stroke.Thickness = 2.2
-        grad.Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0.0, COLOR_ACTIVE_TOP),
-            ColorSequenceKeypoint.new(1.0, COLOR_ACTIVE_BOTTOM)
-        })
-
-        -- Nảy nhẹ phản hồi chạm ngón tay
-        TweenService:Create(btn, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-            Size = UDim2.new(entry.baseSize.X.Scale, entry.baseSize.X.Offset + 4, entry.baseSize.Y.Scale, entry.baseSize.Y.Offset)
-        }):Play()
-        task.delay(0.08, function()
-            TweenService:Create(btn, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                Size = entry.baseSize
-            }):Play()
-        end)
-    else
-        -- 🌙 TRẠNG THÁI INACTIVE: XANH TRỜI DỊU MÁT (KHÔNG CHOÉ)
-        stroke.Color = COLOR_BASE_STROKE
-        stroke.Thickness = 1.2
-        grad.Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0.0, COLOR_BASE_TOP),
-            ColorSequenceKeypoint.new(1.0, COLOR_BASE_BOTTOM)
-        })
-    end
-end
-
-local function selectActiveTab(targetBtn)
-    currentActiveBtn = targetBtn
-    for _, entry in ipairs(buttonRegistry) do
-        if entry.btn and entry.btn.Parent then
-            updateBtnVisual(entry, entry.btn == targetBtn)
+    if stroke then
+        if isActive then
+            -- 🌟 SÁNG BỪNG VIỀN CYAN NEON PHÁT QUANG
+            stroke.Color = Color3.fromRGB(0, 240, 255)
+            stroke.Thickness = 2.4
+        else
+            -- 🌙 BÌNH THƯỜNG: VIỀN TỐI NỀN NÃ (KHÔNG CHOÉ)
+            stroke.Color = Color3.fromRGB(20, 20, 30)
+            stroke.Thickness = 1.4
         end
     end
 end
 
-local function applySoftCyberButton(btn, labelObj)
+local function selectTab(btn)
+    activeBtn = btn
+    for _, entry in ipairs(registeredButtons) do
+        if entry.btn and entry.btn.Parent then
+            updateButtonGlow(entry, entry.btn == btn)
+        end
+    end
+end
+
+-- Xử lý an toàn: Không thay đổi Size, không can thiệp Layout của Hub
+local function attachSafeTabGlow(btn, labelObj)
     if not btn or not btn:IsA("GuiButton") then return end
 
-    -- 1. Đảm bảo nút và chữ luôn hiển thị rõ ràng (Không bao giờ bị ẩn nhầm)
+    -- Đảm bảo nút và chữ luôn hiển thị đầy đủ
     btn.Visible = true
-    btn.BackgroundTransparency = 0
-    btn.BorderSizePixel = 0
-    if btn:IsA("TextButton") then
-        btn.AutoButtonColor = false
-        btn.TextTransparency = 0
-    end
 
-    -- Dọn sạch tàn dư decal cũ gây khối đen
-    for _, c in ipairs(btn:GetChildren()) do
-        if c.Name == "CustomWingFrame" or c.Name:find("WingFrame") then
-            pcall(function() c:Destroy() end)
-        end
-    end
-
-    -- 2. Bo góc dáng Capsule mềm mại
-    local corner = btn:FindFirstChild("CyberCorner")
-    if not corner then
-        corner = Instance.new("UICorner")
-        corner.Name = "CyberCorner"
-        corner.CornerRadius = UDim.new(0, 8)
-        corner.Parent = btn
-    end
-
-    -- Viền ngọc phát quang
-    local stroke = btn:FindFirstChild("CyberStroke")
+    -- Thêm hiệu ứng viền sáng mượt mà
+    local stroke = btn:FindFirstChild("TabGlowStroke")
     if not stroke then
         stroke = Instance.new("UIStroke")
-        stroke.Name = "CyberStroke"
+        stroke.Name = "TabGlowStroke"
         stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+        stroke.Thickness = 1.4
+        stroke.Color = Color3.fromRGB(20, 20, 30)
         stroke.Parent = btn
     end
 
-    -- Gradient Soft Sky Blue dịu mắt
-    local grad = btn:FindFirstChild("CyberGrad")
-    if not grad then
-        grad = Instance.new("UIGradient")
-        grad.Name = "CyberGrad"
-        grad.Rotation = 90
-        grad.Parent = btn
+    local alreadyRegistered = false
+    for _, e in ipairs(registeredButtons) do
+        if e.btn == btn then alreadyRegistered = true; break end
     end
 
-    -- 3. Chữ trắng nổi bật viền đen đậm
-    local textTarget = labelObj or (btn:IsA("TextButton") and btn)
-    if textTarget then
-        textTarget.Visible = true
-        textTarget.TextColor3 = Color3.fromRGB(255, 255, 255)
-        textTarget.Font = Enum.Font.FredokaOne
-        textTarget.TextSize = 13.5
-        textTarget.TextStrokeTransparency = 1
-
-        local textStroke = textTarget:FindFirstChild("CyberTextStroke")
-        if not textStroke then
-            textStroke = Instance.new("UIStroke")
-            textStroke.Name = "CyberTextStroke"
-            textStroke.Thickness = 2.4
-            textStroke.Color = Color3.fromRGB(15, 25, 45)
-            textStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
-            textStroke.Parent = textTarget
-        end
-    end
-
-    -- 4. Đăng ký sự kiện chạm đổi màu sáng bừng
-    local isRegistered = false
-    for _, e in ipairs(buttonRegistry) do
-        if e.btn == btn then isRegistered = true; break end
-    end
-
-    if not isRegistered then
-        local entry = {
-            btn = btn,
-            grad = grad,
-            stroke = stroke,
-            baseSize = btn.Size
-        }
-        table.insert(buttonRegistry, entry)
+    if not alreadyRegistered then
+        local entry = { btn = btn, stroke = stroke }
+        table.insert(registeredButtons, entry)
 
         btn.MouseButton1Click:Connect(function()
-            selectActiveTab(btn)
+            selectTab(btn)
         end)
 
-        -- Mặc định tab Cày Cuốc sáng trước
-        if not currentActiveBtn and (textTarget and (textTarget.Text:find("Cày Cuốc") or textTarget.Text:find("Farm"))) then
-            selectActiveTab(btn)
+        local txt = labelObj and labelObj.Text or (btn:IsA("TextButton") and btn.Text or "")
+        if not activeBtn and (txt:find("Cày Cuốc") or txt:find("Farm")) then
+            selectTab(btn)
         else
-            updateBtnVisual(entry, btn == currentActiveBtn)
+            updateButtonGlow(entry, btn == activeBtn)
         end
     end
 end
 
-local function recolorHeaderBar(headerFrame, titleObj)
-    if not headerFrame then return end
+-- CHỈ ĐỔI DUY NHẤT DÒNG CHỮ TIÊU ĐỀ, TUYỆT ĐỐI KHÔNG CHẠM KHUNG MẸ
+local function formatTitleText(titleLabel)
+    if not titleLabel or not (titleLabel:IsA("TextLabel") or titleLabel:IsA("TextButton")) then return end
 
-    for _, child in ipairs(headerFrame:GetChildren()) do
-        if child.Name == "Sparkling_New_Badge" or child.Name:find("Badge") then
-            pcall(function() child:Destroy() end)
-        end
+    -- Xóa huy hiệu đen cũ nếu có
+    if titleLabel.Parent then
+        local oldB = titleLabel.Parent:FindFirstChild("Sparkling_New_Badge")
+        if oldB then pcall(function() oldB:Destroy() end) end
     end
 
-    local grad = headerFrame:FindFirstChildOfClass("UIGradient")
-    if not grad then
-        grad = Instance.new("UIGradient")
-        grad.Rotation = 90
-        grad.Parent = headerFrame
-    end
-    grad.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, COLOR_BASE_TOP),
-        ColorSequenceKeypoint.new(1, COLOR_BASE_BOTTOM)
-    })
-    headerFrame.BackgroundColor3 = COLOR_BASE_BOTTOM
-
-    if titleObj and (titleObj:IsA("TextLabel") or titleObj:IsA("TextButton")) then
-        titleObj.RichText = true
-        titleObj.TextColor3 = Color3.fromRGB(255, 255, 255)
-        titleObj.Text = 'Chilli Hub V3.8  <font color="#FFE650">✨ NEW</font>'
-    end
-
-    for _, item in ipairs(headerFrame:GetDescendants()) do
-        if item:IsA("TextButton") or item:IsA("ImageButton") then
-            item.BackgroundColor3 = COLOR_BASE_BOTTOM
-            local xGrad = item:FindFirstChildOfClass("UIGradient")
-            if xGrad then
-                xGrad.Color = ColorSequence.new({
-                    ColorSequenceKeypoint.new(0, COLOR_BASE_TOP),
-                    ColorSequenceKeypoint.new(1, COLOR_BASE_BOTTOM)
-                })
-            end
-            if item:IsA("TextButton") then
-                item.TextColor3 = Color3.fromRGB(255, 255, 255)
-            end
-        end
-    end
+    -- Đổi chữ tiêu đề sang V3.8 và ✨ NEW vàng sáng
+    titleLabel.RichText = true
+    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleLabel.Text = 'Chilli Hub V3.8  <font color="#FFE650">✨ NEW</font>'
 end
 
 local function inspectAndApplyTheme(inst)
@@ -764,17 +646,19 @@ local function inspectAndApplyTheme(inst)
     if inst:FindFirstAncestor("Chilli_Dynamic_Island") or inst:FindFirstAncestor("Chilli_Update_Toast") then return end
 
     local textRaw = inst.Text:lower():match("^%s*(.-)%s*$") or ""
-    if textRaw:find("chilli hub") then
-        local headerFrame = inst:FindFirstAncestorOfClass("Frame")
-        if headerFrame then recolorHeaderBar(headerFrame, inst) end
+
+    -- 1. Bắt tiêu đề Hub
+    if textRaw:find("chilli hub") and not inst:GetAttribute("__TitleSet") then
+        inst:SetAttribute("__TitleSet", true)
+        formatTitleText(inst)
         return
     end
 
+    -- 2. Bắt các nút Tab Menu
     if TARGET_BUTTON_KEYWORDS[textRaw] then
-        -- KHÓA CHẶT VÀO GUIBUTTON, TUYỆT ĐỐI KHÔNG CHẠM KHUNG DANH SÁCH CHA!
         local actualBtn = inst:IsA("GuiButton") and inst or inst:FindFirstAncestorWhichIsA("GuiButton")
         if actualBtn then
-            applySoftCyberButton(actualBtn, inst)
+            attachSafeTabGlow(actualBtn, inst)
         end
         return
     end
@@ -1054,7 +938,7 @@ local function executeAutoConfig(statusCallback)
     end)
 end
 
--- ==================== 8. THÔNG BÁO V3.8 TOAST (ĐÁY MÀN HÌNH - KHÔNG CHE HUB) ====================
+-- ==================== 8. THÔNG BÁO V3.8 (Ở ĐÁY MÀN HÌNH - KHÔNG CHE TIÊU ĐỀ) ====================
 local function createUpdateToast()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local oldToast = parentTarget:FindFirstChild("Chilli_Update_Toast")
@@ -1071,7 +955,7 @@ local function createUpdateToast()
     ToastFrame.Name = "ToastFrame"
     ToastFrame.Size = UDim2.new(0, 330, 0, 44)
     ToastFrame.AnchorPoint = Vector2.new(0.5, 1)
-    ToastFrame.Position = UDim2.new(0.5, 0, 1, 60) -- Trượt từ đáy màn hình lên
+    ToastFrame.Position = UDim2.new(0.5, 0, 1, 60) -- Trượt từ mép đáy lên
     ToastFrame.BackgroundColor3 = Color3.fromRGB(12, 18, 28)
     ToastFrame.BackgroundTransparency = 0.12
     ToastFrame.BorderSizePixel = 0
@@ -1087,15 +971,6 @@ local function createUpdateToast()
     ToastStroke.Color = Color3.fromRGB(0, 215, 255)
     ToastStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     ToastStroke.Parent = ToastFrame
-
-    local ToastGrad = Instance.new("UIGradient")
-    ToastGrad.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0.0, Color3.fromRGB(0, 230, 255)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 95, 140)),
-        ColorSequenceKeypoint.new(1.0, Color3.fromRGB(0, 230, 255))
-    })
-    ToastGrad.Rotation = 45
-    ToastGrad.Parent = ToastStroke
 
     local TagBadge = Instance.new("Frame")
     TagBadge.Size = UDim2.new(0, 48, 0, 20)
@@ -1129,7 +1004,7 @@ local function createUpdateToast()
     ToastText.Text = "+ Bản cập nhật mới đã sửa lỗi sự kiện đua xe tự động.\n+ và sửa các lỗi lặt vặt khác"
     ToastText.Parent = ToastFrame
 
-    -- Trượt lên êm ái từ đáy màn hình
+    -- Trượt lên êm ái ở đáy màn hình
     TweenService:Create(ToastFrame, TweenInfo.new(0.45, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
         Position = UDim2.new(0.5, 0, 1, -25)
     }):Play()
@@ -1187,7 +1062,7 @@ local function createDynamicIslandUI()
 
     local IslandStroke = Instance.new("UIStroke")
     IslandStroke.Thickness = 1.4
-    IslandStroke.Color = COLOR_BASE_TOP
+    IslandStroke.Color = Color3.fromRGB(140, 195, 245)
     IslandStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     IslandStroke.Parent = Island
 
@@ -1281,7 +1156,7 @@ local function createDynamicIslandUI()
     local LangSlider = Instance.new("Frame")
     LangSlider.Size = UDim2.new(0.5, -2, 1, -4)
     LangSlider.Position = UDim2.new(0, 2, 0, 2)
-    LangSlider.BackgroundColor3 = COLOR_BASE_BOTTOM
+    LangSlider.BackgroundColor3 = Color3.fromRGB(95, 155, 225)
     LangSlider.BorderSizePixel = 0
     LangSlider.Parent = LangCapsule
 
@@ -1291,8 +1166,8 @@ local function createDynamicIslandUI()
 
     local SliderGrad = Instance.new("UIGradient")
     SliderGrad.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, COLOR_BASE_TOP),
-        ColorSequenceKeypoint.new(1, COLOR_BASE_BOTTOM)
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(140, 195, 245)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(95, 155, 225))
     })
     SliderGrad.Rotation = 90
     SliderGrad.Parent = LangSlider
@@ -1380,7 +1255,7 @@ local function createDynamicIslandUI()
     local AutoFarmBtn = Instance.new("TextButton")
     AutoFarmBtn.Size = UDim2.new(1, -12, 0, 28)
     AutoFarmBtn.Position = UDim2.new(0, 6, 0, 6)
-    AutoFarmBtn.BackgroundColor3 = COLOR_BASE_BOTTOM
+    AutoFarmBtn.BackgroundColor3 = Color3.fromRGB(95, 155, 225)
     AutoFarmBtn.BorderSizePixel = 0
     AutoFarmBtn.Text = "⚙️ SETTING AUTO FARM"
     AutoFarmBtn.Font = Enum.Font.GothamBold
@@ -1394,8 +1269,8 @@ local function createDynamicIslandUI()
 
     local BtnGrad = Instance.new("UIGradient")
     BtnGrad.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, COLOR_BASE_TOP),
-        ColorSequenceKeypoint.new(1, COLOR_BASE_BOTTOM)
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(140, 195, 245)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(95, 155, 225))
     })
     BtnGrad.Rotation = 90
     BtnGrad.Parent = AutoFarmBtn
@@ -1655,7 +1530,7 @@ local function createDynamicIslandUI()
     end)
 end
 
--- ==================== 10. BỘ GIẢI CỨU KHÔI PHỤC HIỂN THỊ NÚT & QUÉT SỰ KIỆN ====================
+-- ==================== 10. PHỤC HỒI TOÀN BỘ NÚT VÀ LẮNG NGHE SỰ KIỆN AN TOÀN ====================
 task.delay(1.0, function()
     createDynamicIslandUI()
     createUpdateToast()
@@ -1666,24 +1541,20 @@ task.delay(1.0, function()
         LocalPlayer:FindFirstChild("PlayerGui")
     }
 
-    -- 🌟 BỘ GIẢI CỨU TỰ ĐỘNG: Un-hide lại tất cả nút bên trái bị ẩn nhầm
-    local function rescueAndRestoreButtons()
+    -- 🌟 BẬT LẠI TOÀN BỘ NÚT BỊ ẨN NHẦM
+    local function restoreAllHiddenButtons()
         for _, root in ipairs(searchRoots) do
             if root then
                 for _, g in ipairs(root:GetChildren()) do
                     if g:IsA("ScreenGui") and g.Name ~= "Chilli_Dynamic_Island" and g.Name ~= "Chilli_Update_Toast" then
                         for _, desc in ipairs(g:GetDescendants()) do
                             if desc:IsA("GuiObject") then
-                                -- Dọn sạch tàn dư decal đen cũ
+                                -- Dọn sạch các decal đen thử nghiệm cũ
                                 if desc.Name == "CustomWingFrame" or desc.Name == "CustomButtonText" or desc.Name == "Sparkling_New_Badge" then
                                     pcall(function() desc:Destroy() end)
                                 else
-                                    -- Bật lại hiển thị ngay lập tức
-                                    if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("ImageButton") then
-                                        desc.Visible = true
-                                    elseif desc:IsA("Frame") and not desc.Visible and desc.Name:lower():find("tab") then
-                                        desc.Visible = true
-                                    end
+                                    -- Bật lại hiển thị 100% cho các nút và khung tab
+                                    desc.Visible = true
                                 end
                             end
                         end
@@ -1693,7 +1564,7 @@ task.delay(1.0, function()
         end
     end
 
-    rescueAndRestoreButtons()
+    restoreAllHiddenButtons()
 
     local function handleNewDescendant(desc)
         if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
