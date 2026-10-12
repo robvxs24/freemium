@@ -1,24 +1,26 @@
 -- ==============================================================================
---  CHILLI HUB V3.6 - AUTO PERSISTENCE & TIKTOK LOGO EDITION (105105387426191)
+--  CHILLI HUB V3.6 - ZERO-TOUCH TELEPORT HIJACKER & AUTO REJOIN
+--  Hỗ trợ hàng ngàn người dùng: Tự động duy trì 100% khi Rejoin / Hop Server
 -- ==============================================================================
 
-local PERSISTENT_FILE_NAME = "Chilli_V36_AutoRun.lua"
+-- 👉 ĐIỀN ĐƯỜNG LINK RAW SCRIPT V3.6 CỦA BẠN VÀO ĐÂY (Pastebin Raw hoặc GitHub Raw):
+local MY_SCRIPT_URL = "https://raw.githubusercontent.com/tienkhanh1/spicy/main/Chilli.lua" 
+-- (Nếu bạn chưa có link riêng, tạm thời nó sẽ nạp link trên; khi bạn up lên Pastebin/GitHub thì thay link của bạn vào đây)
 
--- ==================== 0. ĐÁNH CHẶN TELEPORT & DUY TRÌ BẢN V3.6 ====================
+-- ==================== 0. ĐÁNH CHẶN TELEPORT & REJOIN (TRÁO LINK ONLINE) ====================
 local rawQueue = queue_on_teleport or (syn and syn.queue_on_teleport) or (fluxus and fluxus.queue_on_teleport)
 if rawQueue then
     local function autoRedirectQueue(code)
-        -- Chặn đứng mọi lệnh nạp lại script gốc của tác giả cũ khi Server Hop / Rejoin
+        -- Phát hiện script gốc chuẩn bị đẩy link tác giả cũ vào hàng đợi
         if type(code) == "string" and (code:find("tienkhanh1") or code:find("Chilli.lua") or code:find("spicy")) then
-            local overridePayload = string.format([[
+            -- Tráo bằng lệnh kéo link V3.6 của bạn về chạy lại
+            local hijackPayload = string.format([[
                 task.wait(2.5)
-                if isfile and isfile("%s") then
-                    loadstring(readfile("%s"))()
-                elseif isfile and isfile("autoexec/%s") then
-                    loadstring(readfile("autoexec/%s"))()
-                end
-            ]], PERSISTENT_FILE_NAME, PERSISTENT_FILE_NAME, PERSISTENT_FILE_NAME, PERSISTENT_FILE_NAME)
-            return rawQueue(overridePayload)
+                pcall(function()
+                    loadstring(game:HttpGet("%s"))()
+                end)
+            ]], MY_SCRIPT_URL)
+            return rawQueue(hijackPayload)
         end
         return rawQueue(code)
     end
@@ -62,7 +64,7 @@ if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("Humano
     repeat task.wait(0.2) until LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 end
 
-task.wait(2.5) -- Đệm an toàn chống BAC-8512
+task.wait(2.5) -- Đệm an toàn né mã kick BAC-8512
 
 -- ==================== 3. TẢI SCRIPT CHILLI HUB GỐC ====================
 task.spawn(function()
@@ -280,6 +282,7 @@ local MAP_VI = {
     ["Auto Sell Pet"] = "Tự Động Bán Pet",
     ["Auto Fuse Machine"] = "Máy Dung Hợp Pet",
     ["Auto Favorite"] = "Tự Động Khóa Pet",
+
     ["Race Speed"] = "Tốc Độ Đua",
     ["Auto Race"] = "Tự Động Đua Xe",
     ["Race Shop Items"] = "Vật Phẩm Shop Đua",
@@ -1173,7 +1176,7 @@ local function createDynamicIslandUI()
     TikTokStrokeGrad.Rotation = 45
     TikTokStrokeGrad.Parent = TikTokStroke
 
-    -- KHUNG CHỨA LOGO TIKTOK CHÍNH THỨC
+    -- KHUNG LOGO TIKTOK CHÍNH THỨC
     local AvatarCircle = Instance.new("Frame")
     AvatarCircle.Size = UDim2.new(0, 24, 0, 24)
     AvatarCircle.Position = UDim2.new(0, 8, 0.5, -12)
@@ -1190,7 +1193,6 @@ local function createDynamicIslandUI()
     AvatarStroke.Color = Color3.fromRGB(254, 9, 121)
     AvatarStroke.Parent = AvatarCircle
 
-    -- Hình ảnh Logo TikTok Asset 105105387426191
     local AvatarImg = Instance.new("ImageLabel")
     AvatarImg.Size = UDim2.new(1, -4, 1, -4)
     AvatarImg.Position = UDim2.new(0, 2, 0, 2)
@@ -1384,26 +1386,9 @@ local function createDynamicIslandUI()
     end)
 end
 
--- ==================== 9. OBSERVER ENGINE THỜI GIAN THỰC & TỰ ĐỘNG GHI FILE ====================
+-- ==================== 9. OBSERVER ENGINE THỜI GIAN THỰC (QUÉT GIAO DIỆN) ====================
 task.delay(1.2, function()
     createDynamicIslandUI()
-
-    -- Tự động lưu bản sao vào máy người dùng để Rejoin / Hop luôn có file V3.6 chạy ngầm
-    pcall(function()
-        if writefile then
-            local selfLoaderCode = string.format([[
-                task.wait(2)
-                pcall(function()
-                    if isfile and isfile("%s") then
-                        loadstring(readfile("%s"))()
-                    end
-                end)
-            ]], PERSISTENT_FILE_NAME, PERSISTENT_FILE_NAME)
-
-            -- Lưu vào autoexec của Delta
-            pcall(function() writefile("autoexec/" .. PERSISTENT_FILE_NAME, selfLoaderCode) end)
-        end
-    end)
 
     local searchRoots = {
         gethui and gethui(),
