@@ -1,5 +1,11 @@
 -- ==============================================================================
---  CHILLI HUB V3.8 - MASTER FINAL EDITION (ZERO BLACK BLOB & AUTO STARTUP)
+--  CHILLI HUB V3.8 - ULTRA CLEAN & AUTO STARTUP CONFIG EDITION
+--  Cải tiến chính:
+--    1. NÂNG CẤP V3.8 TOÀN DIỆN: Đồng bộ tiêu đề, menu, đảo Dynamic Island.
+--    2. XÓA CỤC ĐEN CHỮ NEW: Chuyển sang Hologram Golden Glass trong suốt 100%.
+--    3. THÔNG BÁO V3.8 MỚI (10S TỰ BIẾN MẤT): Cập nhật 2 dòng sửa lỗi sự kiện đua xe.
+--    4. TỰ ĐỘNG CÀI KHỞI ĐỘNG (SET STARTUP): Tự chọn 'main' và Set Startup chuẩn video.
+--    5. TIKTOK CYBER GLASS: Logo ID 105105387426191 & 1-Click Copy link ronnei7.htk.
 -- ==============================================================================
 
 getgenv().CHILLI_V38_SOURCE = [====[
@@ -491,7 +497,7 @@ local TrackedElements = {}
 
 local function applyTranslation(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
-    if inst:FindFirstAncestor("Chilli_Dynamic_Island") or inst:FindFirstAncestor("Chilli_Update_Toast") then return end
+    if inst:FindFirstAncestor("Chilli_Dynamic_Island") or inst:FindFirstAncestor("Sparkling_New_Badge") or inst:FindFirstAncestor("Chilli_Update_Toast") then return end
     if inst:GetAttribute("__IsTranslating") then return end
 
     local original = inst:GetAttribute("OriginalRawText")
@@ -539,7 +545,7 @@ local function updateAllActive()
     end
 end
 
--- ==================== 5. ĐỔI MÀU SOFT BLUE & GẮN CHỮ NEW HOÀNG KIM (KHÔNG DÙNG FRAME) ====================
+-- ==================== 5. ĐỔI MÀU & HUY HIỆU '✨ NEW' TRONG SUỐT (XÓA SẠCH NỀN ĐEN) ====================
 local COLOR_FACE_TOP     = Color3.fromRGB(140, 195, 245)
 local COLOR_FACE_BOTTOM  = Color3.fromRGB(95, 155, 225)
 local COLOR_BEVEL_SHADOW = Color3.fromRGB(55, 110, 180)
@@ -558,6 +564,60 @@ local TARGET_BUTTON_KEYWORDS = {
     ["cài đặt"] = true, ["settings"] = true,
     ["cấu hình"] = true, ["config"] = true
 }
+
+-- Gắn huy hiệu ✨ NEW hoàn toàn trong suốt - Không màu nền, triệt tiêu 100% cục đen
+local function attachSparklingNewBadge(headerFrame, titleObj)
+    if not headerFrame then return end
+
+    for _, child in ipairs(headerFrame:GetChildren()) do
+        if child.Name == "Sparkling_New_Badge" or child.Name:find("Badge") then
+            pcall(function() child:Destroy() end)
+        end
+    end
+
+    local Badge = Instance.new("Frame")
+    Badge.Name = "Sparkling_New_Badge"
+    Badge.Size = UDim2.new(0, 48, 0, 16)
+    Badge.AnchorPoint = Vector2.new(0, 0.5)
+    Badge.Position = UDim2.new(0.5, 72, 0.5, 0)
+    Badge.BackgroundTransparency = 1 -- TRONG SUỐT HOÀN TOÀN
+    Badge.BorderSizePixel = 0
+    Badge.Parent = headerFrame
+
+    local BadgeCorner = Instance.new("UICorner")
+    BadgeCorner.CornerRadius = UDim.new(0, 5)
+    BadgeCorner.Parent = Badge
+
+    local BadgeStroke = Instance.new("UIStroke")
+    BadgeStroke.Thickness = 1.1
+    BadgeStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    BadgeStroke.Parent = Badge
+
+    local RainbowGrad = Instance.new("UIGradient")
+    RainbowGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 230, 90)),
+        ColorSequenceKeypoint.new(0.33, Color3.fromRGB(110, 240, 255)),
+        ColorSequenceKeypoint.new(0.66, Color3.fromRGB(255, 120, 180)),
+        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 230, 90))
+    })
+    RainbowGrad.Parent = BadgeStroke
+
+    local BadgeLabel = Instance.new("TextLabel")
+    BadgeLabel.Size = UDim2.new(1, 0, 1, 0)
+    BadgeLabel.BackgroundTransparency = 1
+    BadgeLabel.Text = "✨ NEW"
+    BadgeLabel.Font = Enum.Font.GothamBlack
+    BadgeLabel.TextSize = 8.8
+    BadgeLabel.TextColor3 = Color3.fromRGB(255, 230, 90) -- Chữ Vàng Hoàng Kim phát sáng
+    BadgeLabel.Parent = Badge
+
+    task.spawn(function()
+        while Badge and Badge.Parent do
+            RainbowGrad.Rotation = (RainbowGrad.Rotation + 3) % 360
+            RunService.RenderStepped:Wait()
+        end
+    end)
+end
 
 local function recolorSingleButton(btnContainer, labelObj)
     if not btnContainer then return end
@@ -588,14 +648,6 @@ end
 
 local function recolorHeaderBar(headerFrame, titleObj)
     if not headerFrame then return end
-
-    -- TRIỆT TIÊU VĨNH VIỄN MỌI FRAME/BADGE GÂY CỤC ĐEN TRÊN HEADER
-    for _, child in ipairs(headerFrame:GetChildren()) do
-        if child.Name == "Sparkling_New_Badge" or child.Name:find("Badge") then
-            pcall(function() child:Destroy() end)
-        end
-    end
-
     local grad = headerFrame:FindFirstChildOfClass("UIGradient")
     if not grad then
         grad = Instance.new("UIGradient")
@@ -608,12 +660,12 @@ local function recolorHeaderBar(headerFrame, titleObj)
     })
     headerFrame.BackgroundColor3 = COLOR_FACE_BOTTOM
 
-    -- GẮN CHỮ NEW HOÀNG KIM TRỰC TIẾP QUA RICHTEXT - 100% KHÔNG THỂ BỊ CỤC ĐEN
     if titleObj and (titleObj:IsA("TextLabel") or titleObj:IsA("TextButton")) then
-        titleObj.RichText = true
         titleObj.TextColor3 = Color3.fromRGB(255, 255, 255)
-        titleObj.Text = 'Chilli Hub V3.8  <font color="#FFE650">✨ NEW</font>'
+        titleObj.Text = "Chilli Hub V3.8"
     end
+
+    attachSparklingNewBadge(headerFrame, titleObj)
 
     for _, item in ipairs(headerFrame:GetDescendants()) do
         if item:IsA("TextButton") or item:IsA("ImageButton") then
@@ -634,7 +686,7 @@ end
 
 local function inspectAndApplySoftBlue(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton")) then return end
-    if inst:FindFirstAncestor("Chilli_Dynamic_Island") or inst:FindFirstAncestor("Chilli_Update_Toast") then return end
+    if inst:FindFirstAncestor("Chilli_Dynamic_Island") or inst:FindFirstAncestor("Sparkling_New_Badge") or inst:FindFirstAncestor("Chilli_Update_Toast") then return end
 
     local textRaw = inst.Text:lower():match("^%s*(.-)%s*$") or ""
     if textRaw:find("chilli hub") then
@@ -859,7 +911,7 @@ local function executeAutoConfig(statusCallback)
             task.wait(0.4)
         end
 
-        -- 8. BƯỚC MỚI THEO VIDEO: MỞ DROPDOWN 'SET STARTUP CONFIG' -> CHỌN 'main' -> BẤM 'SET STARTUP'
+        -- 8. BƯỚC THEO VIDEO: MỞ DROPDOWN 'SET STARTUP CONFIG' -> CHỌN 'main' -> BẤM 'SET STARTUP'
         statusCallback("⏳ Cài khởi động...", Color3.fromRGB(255, 210, 90))
         task.wait(0.35)
 
@@ -933,7 +985,7 @@ local function executeAutoConfig(statusCallback)
     end)
 end
 
--- ==================== 8. THÔNG BÁO V3.8 TOAST (10S TỰ BIẾN MẤT - KHÔNG NÚT X) ====================
+-- ==================== 8. THÔNG BÁO V3.8 TOAST (TỰ BIẾN MẤT 10S - KHÔNG NÚT X) ====================
 local function createUpdateToast()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local oldToast = parentTarget:FindFirstChild("Chilli_Update_Toast")
@@ -1012,7 +1064,7 @@ local function createUpdateToast()
         Position = UDim2.new(0.5, 0, 0, 52)
     }):Play()
 
-    -- ĐÚNG 10 GIÂY TỰ ĐỘNG BIẾN MẤT - KHÔNG NÚT X
+    -- Đúng 10 giây tự động biến mất
     task.delay(10, function()
         if ToastFrame and ToastFrame.Parent then
             TweenService:Create(ToastFrame, TweenInfo.new(0.45, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
@@ -1240,7 +1292,7 @@ local function createDynamicIslandUI()
     NoticeContent.TextColor3 = Color3.fromRGB(240, 245, 255)
     NoticeContent.TextXAlignment = Enum.TextXAlignment.Left
     NoticeContent.TextWrapped = true
-    NoticeContent.Text = "• Sửa lỗi sự kiện đua xe tự động\n• Sửa các lỗi lặt vặt khác"[cite: 22]
+    NoticeContent.Text = "• Sửa lỗi sự kiện đua xe tự động\n• Sửa các lỗi lặt vặt khác"
     NoticeContent.Parent = UpdateNoticeCard
 
     -- Hàng 3: Thẻ Setting Auto Farm
@@ -1429,7 +1481,7 @@ local function createDynamicIslandUI()
     updateIslandContentLanguage = function(lang)
         if lang == "VI" then
             NoticeTag.Text = "📢 V3.8:"
-            NoticeContent.Text = "• Sửa lỗi sự kiện đua xe tự động\n• Sửa các lỗi lặt vặt khác"[cite: 22]
+            NoticeContent.Text = "• Sửa lỗi sự kiện đua xe tự động\n• Sửa các lỗi lặt vặt khác"
             AutoFarmBtn.Text = "⚙️ SETTING AUTO FARM"
             SubLabel.Text = "• Tự động làm từ A-Z\n• Nhặt trứng trên Secret 2B+\n• Tự động chạy máy tập khi rảnh rỗi\n• Tự động làm các nhiệm vụ còn thiếu và sự kiện..."
             if not isCopiedAnimating then
