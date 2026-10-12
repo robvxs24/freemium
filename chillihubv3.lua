@@ -1,13 +1,14 @@
 -- ==============================================================================
---  CHILLI HUB V3.6 - AUTO-RACE FIX ANNOUNCEMENT & PERFORMANCE EDITION
---  Nội dung cập nhật:
---    + VI: Bản cập nhật mới đã sửa lỗi sự kiện đua xe tự động.
---    + EN: New update fixed the auto-racing event.
---    + Tự biến mất sau 10 giây (không nút X), không chấm đen Header.
---    + Đầy đủ quy trình tự động nạp Set Startup và nút TikTok 105105387426191.
+--  CHILLI HUB V3.8 - ULTRA CLEAN & AUTO STARTUP CONFIG EDITION
+--  Cải tiến chính:
+--    1. NÂNG CẤP V3.8 TOÀN DIỆN: Đồng bộ tiêu đề, menu, đảo Dynamic Island.
+--    2. XÓA CỤC ĐEN CHỮ NEW: Chuyển sang Hologram Golden Glass trong suốt 100%.
+--    3. THÔNG BÁO V3.8 MỚI (10S TỰ BIẾN MẤT): Cập nhật 2 dòng sửa lỗi sự kiện đua xe.
+--    4. TỰ ĐỘNG CÀI KHỞI ĐỘNG (SET STARTUP): Tự chọn 'main' và Set Startup chuẩn video.
+--    5. TIKTOK CYBER GLASS: Logo ID 105105387426191 & 1-Click Copy link ronnei7.htk.
 -- ==============================================================================
 
-getgenv().CHILLI_V36_SOURCE = [====[
+getgenv().CHILLI_V38_SOURCE = [====[
 -- ==================== 0. DỌN DẸP SẠCH TÀN DƯ GUI CŨ ====================
 local cleanupList = {
     "Chilli_Dynamic_Island",
@@ -32,13 +33,13 @@ end
 
 -- ==================== 1. CHẶN ĐỨNG SCRIPT GỐC KHI REJOIN / HOP SERVER ====================
 local rawQueue = queue_on_teleport or (syn and syn.queue_on_teleport) or (fluxus and fluxus.queue_on_teleport)
-if rawQueue and getgenv().CHILLI_V36_SOURCE then
+if rawQueue and getgenv().CHILLI_V38_SOURCE then
     local function autoHookQueue(code)
         local cleanPayload = string.format([[
             task.wait(1.8)
-            getgenv().CHILLI_V36_SOURCE = %q
-            loadstring(getgenv().CHILLI_V36_SOURCE)()
-        ]], getgenv().CHILLI_V36_SOURCE)
+            getgenv().CHILLI_V38_SOURCE = %q
+            loadstring(getgenv().CHILLI_V38_SOURCE)()
+        ]], getgenv().CHILLI_V38_SOURCE)
         return rawQueue(cleanPayload)
     end
 
@@ -449,7 +450,7 @@ local function translateText(raw)
     if FastCache[cacheKey] then return FastCache[cacheKey] end
 
     if raw:find("Chilli Hub") then
-        local fixedBrand = raw:gsub("Chilli Hub%s*V?[%d%.]*", "Chilli Hub V3.6")
+        local fixedBrand = raw:gsub("Chilli Hub%s*V?[%d%.]*", "Chilli Hub V3.8")
         if raw:match("^%s*Chilli Hub") then
             FastCache[cacheKey] = fixedBrand
             return fixedBrand
@@ -544,7 +545,7 @@ local function updateAllActive()
     end
 end
 
--- ==================== 5. ĐỔI MÀU & HUY HIỆU '✨ NEW' TRONG SUỐT (XÓA CHẤM ĐEN) ====================
+-- ==================== 5. ĐỔI MÀU & HUY HIỆU '✨ NEW' TRONG SUỐT (XÓA SẠCH NỀN ĐEN) ====================
 local COLOR_FACE_TOP     = Color3.fromRGB(140, 195, 245)
 local COLOR_FACE_BOTTOM  = Color3.fromRGB(95, 155, 225)
 local COLOR_BEVEL_SHADOW = Color3.fromRGB(55, 110, 180)
@@ -564,6 +565,7 @@ local TARGET_BUTTON_KEYWORDS = {
     ["cấu hình"] = true, ["config"] = true
 }
 
+-- Gắn huy hiệu ✨ NEW hoàn toàn trong suốt - Không màu nền, triệt tiêu 100% cục đen
 local function attachSparklingNewBadge(headerFrame, titleObj)
     if not headerFrame then return end
 
@@ -578,12 +580,12 @@ local function attachSparklingNewBadge(headerFrame, titleObj)
     Badge.Size = UDim2.new(0, 48, 0, 16)
     Badge.AnchorPoint = Vector2.new(0, 0.5)
     Badge.Position = UDim2.new(0.5, 72, 0.5, 0)
-    Badge.BackgroundTransparency = 1
+    Badge.BackgroundTransparency = 1 -- TRONG SUỐT HOÀN TOÀN
     Badge.BorderSizePixel = 0
     Badge.Parent = headerFrame
 
     local BadgeCorner = Instance.new("UICorner")
-    BadgeCorner.CornerRadius = UDim.new(0, 6)
+    BadgeCorner.CornerRadius = UDim.new(0, 5)
     BadgeCorner.Parent = Badge
 
     local BadgeStroke = Instance.new("UIStroke")
@@ -593,10 +595,10 @@ local function attachSparklingNewBadge(headerFrame, titleObj)
 
     local RainbowGrad = Instance.new("UIGradient")
     RainbowGrad.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 230, 110)),
+        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 230, 90)),
         ColorSequenceKeypoint.new(0.33, Color3.fromRGB(110, 240, 255)),
         ColorSequenceKeypoint.new(0.66, Color3.fromRGB(255, 120, 180)),
-        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 230, 110))
+        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 230, 90))
     })
     RainbowGrad.Parent = BadgeStroke
 
@@ -606,7 +608,7 @@ local function attachSparklingNewBadge(headerFrame, titleObj)
     BadgeLabel.Text = "✨ NEW"
     BadgeLabel.Font = Enum.Font.GothamBlack
     BadgeLabel.TextSize = 8.8
-    BadgeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    BadgeLabel.TextColor3 = Color3.fromRGB(255, 230, 90) -- Chữ Vàng Hoàng Kim phát sáng
     BadgeLabel.Parent = Badge
 
     task.spawn(function()
@@ -660,7 +662,7 @@ local function recolorHeaderBar(headerFrame, titleObj)
 
     if titleObj and (titleObj:IsA("TextLabel") or titleObj:IsA("TextButton")) then
         titleObj.TextColor3 = Color3.fromRGB(255, 255, 255)
-        titleObj.Text = "Chilli Hub V3.6"
+        titleObj.Text = "Chilli Hub V3.8"
     end
 
     attachSparklingNewBadge(headerFrame, titleObj)
@@ -724,7 +726,7 @@ local function stealthClick(inst)
     end
 end
 
--- ==================== 7. ĐỘNG CƠ TỰ ĐỘNG NẠP & CÀI KHỞI ĐỘNG ====================
+-- ==================== 7. ĐỘNG CƠ TỰ ĐỘNG NẠP & CÀI KHỞI ĐỘNG (CHUẨN VIDEO) ====================
 local isConfigInjecting = false
 
 local function executeAutoConfig(statusCallback)
@@ -765,6 +767,7 @@ local function executeAutoConfig(statusCallback)
             isConfigInjecting = false; return
         end
 
+        -- 1. Bấm Tab Config
         local configTabElement = nil
         for _, d in ipairs(chilliGui:GetDescendants()) do
             if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Visible then
@@ -780,6 +783,7 @@ local function executeAutoConfig(statusCallback)
             task.wait(0.35)
         end
 
+        -- 2. Tìm ô TextBox Import
         local importTextBox = nil
         for _, d in ipairs(chilliGui:GetDescendants()) do
             if d:IsA("TextBox") then
@@ -809,6 +813,7 @@ local function executeAutoConfig(statusCallback)
             isConfigInjecting = false; return
         end
 
+        -- 3. Bơm dữ liệu JSON
         importTextBox.Text = RAW_CONFIG_JSON
         task.wait(0.1)
 
@@ -819,6 +824,7 @@ local function executeAutoConfig(statusCallback)
         end
         task.wait(0.25)
 
+        -- 4. Bấm nút đỏ "Import"
         local importBtnElement = nil
         for _, d in ipairs(chilliGui:GetDescendants()) do
             if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Visible then
@@ -839,6 +845,7 @@ local function executeAutoConfig(statusCallback)
         stealthClick(importBtnElement)
         task.wait(0.9)
 
+        -- 5. Mở Dropdown "Load Config"
         local loadDropdownElement = nil
         for _, lbl in ipairs(chilliGui:GetDescendants()) do
             if lbl:IsA("TextLabel") and (lbl.Text:find("Load Config") or lbl.Text:find("Tải Cấu Hình")) then
@@ -862,6 +869,7 @@ local function executeAutoConfig(statusCallback)
             task.wait(0.35)
         end
 
+        -- 6. Chọn profile "main"
         local mainProfileElement = nil
         local t0 = tick()
         while tick() - t0 < 4 do
@@ -887,6 +895,7 @@ local function executeAutoConfig(statusCallback)
         stealthClick(mainProfileElement)
         task.wait(0.35)
 
+        -- 7. Bấm nút đỏ "Load"
         local loadBtnElement = nil
         for _, d in ipairs(chilliGui:GetDescendants()) do
             if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Visible then
@@ -902,7 +911,7 @@ local function executeAutoConfig(statusCallback)
             task.wait(0.4)
         end
 
-        -- THỰC HIỆN BƯỚC MỚI THEO VIDEO: SET STARTUP
+        -- 8. BƯỚC THEO VIDEO: MỞ DROPDOWN 'SET STARTUP CONFIG' -> CHỌN 'main' -> BẤM 'SET STARTUP'
         statusCallback("⏳ Cài khởi động...", Color3.fromRGB(255, 210, 90))
         task.wait(0.35)
 
@@ -964,6 +973,7 @@ local function executeAutoConfig(statusCallback)
             task.wait(0.4)
         end
 
+        -- 9. ĐỔI VỀ TIẾNG VIỆT TOÀN DIỆN
         if switchGlobalLanguage then
             switchGlobalLanguage("VI")
         end
@@ -975,7 +985,7 @@ local function executeAutoConfig(statusCallback)
     end)
 end
 
--- ==================== 8. THÔNG BÁO UPDATE TOAST (TỰ ẨN 10 GIÂY - BỎ NÚT X) ====================
+-- ==================== 8. THÔNG BÁO V3.8 TOAST (TỰ BIẾN MẤT 10S - KHÔNG NÚT X) ====================
 local function createUpdateToast()
     local parentTarget = (gethui and gethui()) or CoreGui or LocalPlayer:WaitForChild("PlayerGui")
     local oldToast = parentTarget:FindFirstChild("Chilli_Update_Toast")
@@ -990,9 +1000,9 @@ local function createUpdateToast()
 
     local ToastFrame = Instance.new("Frame")
     ToastFrame.Name = "ToastFrame"
-    ToastFrame.Size = UDim2.new(0, 320, 0, 40)
+    ToastFrame.Size = UDim2.new(0, 325, 0, 48)
     ToastFrame.AnchorPoint = Vector2.new(0.5, 0)
-    ToastFrame.Position = UDim2.new(0.5, 0, 0, -60)
+    ToastFrame.Position = UDim2.new(0.5, 0, 0, -70)
     ToastFrame.BackgroundColor3 = Color3.fromRGB(12, 18, 28)
     ToastFrame.BackgroundTransparency = 0.12
     ToastFrame.BorderSizePixel = 0
@@ -1000,7 +1010,7 @@ local function createUpdateToast()
     ToastFrame.Parent = ToastGui
 
     local ToastCorner = Instance.new("UICorner")
-    ToastCorner.CornerRadius = UDim.new(0, 9)
+    ToastCorner.CornerRadius = UDim.new(0, 10)
     ToastCorner.Parent = ToastFrame
 
     local ToastStroke = Instance.new("UIStroke")
@@ -1019,11 +1029,11 @@ local function createUpdateToast()
     ToastGrad.Parent = ToastStroke
 
     local TagBadge = Instance.new("Frame")
-    TagBadge.Size = UDim2.new(0, 46, 0, 18)
-    TagBadge.Position = UDim2.new(0, 8, 0.5, -9)
+    TagBadge.Size = UDim2.new(0, 48, 0, 20)
+    TagBadge.Position = UDim2.new(0, 9, 0.5, -10)
     TagBadge.BackgroundColor3 = Color3.fromRGB(0, 140, 255)
     TagBadge.BorderSizePixel = 0
-    TagBadge.Parent = TagBadge
+    TagBadge.Parent = ToastFrame
 
     local TagCorner = Instance.new("UICorner")
     TagCorner.CornerRadius = UDim.new(0, 5)
@@ -1032,35 +1042,33 @@ local function createUpdateToast()
     local TagLabel = Instance.new("TextLabel")
     TagLabel.Size = UDim2.new(1, 0, 1, 0)
     TagLabel.BackgroundTransparency = 1
-    TagLabel.Text = "🚀 FIX"
+    TagLabel.Text = "🚀 V3.8"
     TagLabel.Font = Enum.Font.GothamBlack
     TagLabel.TextSize = 8.5
     TagLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     TagLabel.Parent = TagBadge
 
     local ToastText = Instance.new("TextLabel")
-    ToastText.Name = "ToastText"
-    ToastText.Size = UDim2.new(1, -64, 1, 0)
-    ToastText.Position = UDim2.new(0, 58, 0, 0)
+    ToastText.Size = UDim2.new(1, -68, 1, -8)
+    ToastText.Position = UDim2.new(0, 63, 0, 4)
     ToastText.BackgroundTransparency = 1
-    ToastText.Font = Enum.Font.GothamBold
+    ToastText.Font = Enum.Font.GothamMedium
     ToastText.TextSize = 8.8
     ToastText.TextColor3 = Color3.fromRGB(235, 245, 255)
     ToastText.TextXAlignment = Enum.TextXAlignment.Left
     ToastText.TextWrapped = true
-    -- NỘI DUNG MỚI TIẾNG VIỆT
-    ToastText.Text = "+ Bản cập nhật mới đã sửa lỗi sự kiện đua xe tự động."
+    ToastText.Text = "+ Bản cập nhật mới đã sửa lỗi sự kiện đua xe tự động.\n+ và sửa các lỗi lặt vặt khác"
     ToastText.Parent = ToastFrame
 
     TweenService:Create(ToastFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
         Position = UDim2.new(0.5, 0, 0, 52)
     }):Play()
 
-    -- Tự ẩn sau đúng 10 giây
+    -- Đúng 10 giây tự động biến mất
     task.delay(10, function()
         if ToastFrame and ToastFrame.Parent then
             TweenService:Create(ToastFrame, TweenInfo.new(0.45, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
-                Position = UDim2.new(0.5, 0, 0, -60)
+                Position = UDim2.new(0.5, 0, 0, -70)
             }):Play()
             task.delay(0.5, function() pcall(function() ToastGui:Destroy() end) end)
         end
@@ -1069,9 +1077,9 @@ local function createUpdateToast()
     updateToastLanguage = function(lang)
         if ToastText and ToastText.Parent then
             if lang == "VI" then
-                ToastText.Text = "+ Bản cập nhật mới đã sửa lỗi sự kiện đua xe tự động."
+                ToastText.Text = "+ Bản cập nhật mới đã sửa lỗi sự kiện đua xe tự động.\n+ và sửa các lỗi lặt vặt khác"
             else
-                ToastText.Text = "+ New update fixed the auto-racing event."
+                ToastText.Text = "+ new update fixed the auto-racing event.\n+ and fix other minor bugs"
             end
         end
     end
@@ -1136,7 +1144,7 @@ local function createDynamicIslandUI()
     IslandTitle.Size = UDim2.new(1, -55, 1, 0)
     IslandTitle.Position = UDim2.new(0, 28, 0, 0)
     IslandTitle.BackgroundTransparency = 1
-    IslandTitle.Text = "🌶️ Chilli Hub V3.6"
+    IslandTitle.Text = "🌶️ Chilli Hub V3.8"
     IslandTitle.Font = Enum.Font.GothamBold
     IslandTitle.TextSize = 11
     IslandTitle.TextColor3 = Color3.fromRGB(245, 250, 255)
@@ -1170,7 +1178,7 @@ local function createDynamicIslandUI()
     ExpTitle.Size = UDim2.new(1, -50, 1, 0)
     ExpTitle.Position = UDim2.new(0, 14, 0, 0)
     ExpTitle.BackgroundTransparency = 1
-    ExpTitle.Text = "🌶️ Chilli Hub V3.6 Control"
+    ExpTitle.Text = "🌶️ Chilli Hub V3.8 Control"
     ExpTitle.Font = Enum.Font.GothamBold
     ExpTitle.TextSize = 11
     ExpTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -1244,10 +1252,10 @@ local function createDynamicIslandUI()
     BtnEN.ZIndex = 5
     BtnEN.Parent = LangCapsule
 
-    -- Hàng 2: Thẻ Thông Báo Sửa Lỗi Đua Xe Mới
+    -- Hàng 2: Thẻ Thông Báo Update V3.8
     local UpdateNoticeCard = Instance.new("Frame")
     UpdateNoticeCard.Name = "UpdateNoticeCard"
-    UpdateNoticeCard.Size = UDim2.new(1, -24, 0, 30)
+    UpdateNoticeCard.Size = UDim2.new(1, -24, 0, 36)
     UpdateNoticeCard.Position = UDim2.new(0, 12, 0, 72)
     UpdateNoticeCard.BackgroundColor3 = Color3.fromRGB(15, 22, 36)
     UpdateNoticeCard.BorderSizePixel = 0
@@ -1264,33 +1272,33 @@ local function createDynamicIslandUI()
     UpdateStroke.Parent = UpdateNoticeCard
 
     local NoticeTag = Instance.new("TextLabel")
-    NoticeTag.Size = UDim2.new(0, 42, 1, 0)
+    NoticeTag.Size = UDim2.new(0, 48, 1, 0)
     NoticeTag.Position = UDim2.new(0, 6, 0, 0)
     NoticeTag.BackgroundTransparency = 1
-    NoticeTag.Text = "📢 FIX:"
+    NoticeTag.Text = "📢 V3.8:"
     NoticeTag.Font = Enum.Font.GothamBlack
-    NoticeTag.TextSize = 9
+    NoticeTag.TextSize = 9.5
     NoticeTag.TextColor3 = Color3.fromRGB(0, 230, 255)
     NoticeTag.TextXAlignment = Enum.TextXAlignment.Left
     NoticeTag.Parent = UpdateNoticeCard
 
     local NoticeContent = Instance.new("TextLabel")
     NoticeContent.Name = "NoticeContent"
-    NoticeContent.Size = UDim2.new(1, -50, 1, 0)
-    NoticeContent.Position = UDim2.new(0, 46, 0, 0)
+    NoticeContent.Size = UDim2.new(1, -56, 1, -4)
+    NoticeContent.Position = UDim2.new(0, 52, 0, 2)
     NoticeContent.BackgroundTransparency = 1
     NoticeContent.Font = Enum.Font.GothamMedium
-    NoticeContent.TextSize = 8.6
+    NoticeContent.TextSize = 8.5
     NoticeContent.TextColor3 = Color3.fromRGB(240, 245, 255)
     NoticeContent.TextXAlignment = Enum.TextXAlignment.Left
-    NoticeContent.TextTruncate = Enum.TextTruncate.AtEnd
-    NoticeContent.Text = "Bản cập nhật mới đã sửa lỗi sự kiện đua xe tự động."
+    NoticeContent.TextWrapped = true
+    NoticeContent.Text = "• Sửa lỗi sự kiện đua xe tự động\n• Sửa các lỗi lặt vặt khác"
     NoticeContent.Parent = UpdateNoticeCard
 
     -- Hàng 3: Thẻ Setting Auto Farm
     local AutoFarmCard = Instance.new("Frame")
     AutoFarmCard.Size = UDim2.new(1, -24, 0, 96)
-    AutoFarmCard.Position = UDim2.new(0, 12, 0, 108)
+    AutoFarmCard.Position = UDim2.new(0, 12, 0, 114)
     AutoFarmCard.BackgroundColor3 = Color3.fromRGB(14, 20, 30)
     AutoFarmCard.BorderSizePixel = 0
     AutoFarmCard.Parent = ExpandedView
@@ -1346,7 +1354,7 @@ local function createDynamicIslandUI()
     local TikTokBtn = Instance.new("TextButton")
     TikTokBtn.Name = "TikTokBtn"
     TikTokBtn.Size = UDim2.new(1, -24, 0, 36)
-    TikTokBtn.Position = UDim2.new(0, 12, 0, 210)
+    TikTokBtn.Position = UDim2.new(0, 12, 0, 216)
     TikTokBtn.BackgroundColor3 = Color3.fromRGB(15, 18, 26)
     TikTokBtn.BorderSizePixel = 0
     TikTokBtn.Text = ""
@@ -1472,16 +1480,16 @@ local function createDynamicIslandUI()
 
     updateIslandContentLanguage = function(lang)
         if lang == "VI" then
-            NoticeTag.Text = "📢 FIX:"
-            NoticeContent.Text = "Bản cập nhật mới đã sửa lỗi sự kiện đua xe tự động."
+            NoticeTag.Text = "📢 V3.8:"
+            NoticeContent.Text = "• Sửa lỗi sự kiện đua xe tự động\n• Sửa các lỗi lặt vặt khác"
             AutoFarmBtn.Text = "⚙️ SETTING AUTO FARM"
             SubLabel.Text = "• Tự động làm từ A-Z\n• Nhặt trứng trên Secret 2B+\n• Tự động chạy máy tập khi rảnh rỗi\n• Tự động làm các nhiệm vụ còn thiếu và sự kiện..."
             if not isCopiedAnimating then
                 CopyTagLabel.Text = "📋 SAO CHÉP"
             end
         else
-            NoticeTag.Text = "📢 FIX:"
-            NoticeContent.Text = "New update fixed the auto-racing event."
+            NoticeTag.Text = "📢 V3.8:"
+            NoticeContent.Text = "• Fixed auto-racing event\n• Fix other minor bugs"
             AutoFarmBtn.Text = "⚙️ SETTING AUTO FARM"
             SubLabel.Text = "• Automated from A to Z\n• Steal Secret eggs 2B+\n• Auto run treadmill when idle\n• Complete missing quests & live events..."
             if not isCopiedAnimating then
@@ -1498,7 +1506,7 @@ local function createDynamicIslandUI()
             CollapsedView.Visible = false
             ExpandedView.Visible = true
             TweenService:Create(Island, TweenInfo.new(0.38, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                Size = UDim2.new(0, 320, 0, 258)
+                Size = UDim2.new(0, 320, 0, 264)
             }):Play()
             TweenService:Create(IslandCorner, TweenInfo.new(0.35), {CornerRadius = UDim.new(0, 16)}):Play()
         else
@@ -1623,5 +1631,5 @@ end)
 
 -- KÍCH HOẠT KHỞI ĐỘNG NGAY
 task.spawn(function()
-    loadstring(getgenv().CHILLI_V36_SOURCE)()
+    loadstring(getgenv().CHILLI_V38_SOURCE)()
 end)
