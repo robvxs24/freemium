@@ -1,15 +1,13 @@
 -- ==============================================================================
---  CHILLI HUB V3.8 - FIXED GOLDEN WING FRAME & ZERO BLACK BLOCKS
---  Sửa dứt điểm:
---    1. XÓA SẠCH KHỐI ĐEN: Ẩn 100% slot nền và shadow đen ngầm quanh nút.
---    2. CHỮ NỔI LÊN TRÊN: Tạo TextLabel độc lập (ZIndex 10) nổi bật trên khung ảnh.
---    3. CHỮ TRẮNG VIỀN ĐEN ĐẬM: Giữ nguyên màu chữ và font FredokaOne sắc nét.
---    4. TIÊU ĐỀ V3.8 KHÔNG CỤC ĐEN: Chữ ✨ NEW vàng hoàng kim qua RichText.
---    5. THÔNG BÁO V3.8 (10S TỰ BIẾN MẤT): Chuẩn 2 dòng sửa lỗi đua xe tự động.
+--  CHILLI HUB V3.8 - ROYAL CAPSULE & ACTIVE GLOW ENGINE
+--  Xử lý triệt để:
+--    1. XÓA SẠCH 100% KHỐI ĐEN: Dựng khung thuần code, loại bỏ hoàn toàn decal đen.
+--    2. HIỆU ỨNG SÁNG KHI BẤM: Nút được chọn sẽ sáng bừng viền vàng neon phát quang.
+--    3. CHỮ NỔI BẬT: Chữ trắng viền đen đậm nằm ngay tâm nút, không bị che khuất.
+--    4. TIÊU ĐỀ V3.8: Chữ ✨ NEW vàng hoàng kim qua RichText, không cục đen.
+--    5. THÔNG BÁO V3.8: 2 dòng cập nhật sửa lỗi đua xe, tự biến mất sau 10s (bỏ nút X).
 --    6. TỰ ĐỘNG SET STARTUP: Tự chọn 'main' và lưu cấu hình khởi động chuẩn video.
 -- ==============================================================================
-
-local CUSTOM_FRAME_IMAGE = "rbxassetid://137708378399703"
 
 -- ==================== 0. DỌN DẸP SẠCH TÀN DƯ GUI CŨ ====================
 local cleanupList = {
@@ -504,7 +502,6 @@ local TrackedElements = {}
 local function applyTranslation(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
     if inst:FindFirstAncestor("Chilli_Dynamic_Island") or inst:FindFirstAncestor("Chilli_Update_Toast") then return end
-    if inst.Name == "CustomButtonText" then return end
     if inst:GetAttribute("__IsTranslating") then return end
 
     local original = inst:GetAttribute("OriginalRawText")
@@ -527,7 +524,6 @@ end
 local function hookElement(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
     if inst:GetAttribute("HasTranslateHook") then return end
-    if inst.Name == "CustomButtonText" then return end
     inst:SetAttribute("HasTranslateHook", true)
 
     table.insert(TrackedElements, inst)
@@ -553,7 +549,7 @@ local function updateAllActive()
     end
 end
 
--- ==================== 5. GẮN KHUNG NÚT HOÀNG KIM (FIX DỨT ĐIỂM CHỮ NỔI & KHỐI ĐEN) ====================
+-- ==================== 5. HỆ THỐNG KHUNG ROYAL CAPSULE & ACTIVE GLOW SÁNG BỪNG ====================
 local COLOR_FACE_TOP     = Color3.fromRGB(140, 195, 245)
 local COLOR_FACE_BOTTOM  = Color3.fromRGB(95, 155, 225)
 
@@ -572,88 +568,171 @@ local TARGET_BUTTON_KEYWORDS = {
     ["cấu hình"] = true, ["config"] = true
 }
 
-local function applyCustomButtonFrame(btnContainer, labelObj)
+local currentActiveButton = nil
+local registeredTabButtons = {}
+
+local function updateTabAppearance(entry, isActive)
+    local btn = entry.btn
+    local stroke = entry.stroke
+    local grad = entry.grad
+    local label = entry.label
+
+    if isActive then
+        -- 🌟 TRẠNG THÁI ACTIVE: SÁNG BỪNG VIỀN VÀNG NEON PHÁT QUANG
+        stroke.Color = Color3.fromRGB(255, 245, 120) -- Vàng Neon cực sáng
+        stroke.Thickness = 2.4
+
+        -- Nền Đỏ Cam Hoàng Kim rực rỡ
+        grad.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0.0, Color3.fromRGB(255, 80, 90)),
+            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(230, 40, 55)),
+            ColorSequenceKeypoint.new(1.0, Color3.fromRGB(180, 20, 35))
+        })
+
+        if label then
+            label.TextColor3 = Color3.fromRGB(255, 255, 255)
+        end
+
+        -- Nhịp nảy nhẹ (Button Pop Animation) khi bấm
+        TweenService:Create(btn, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Size = UDim2.new(entry.baseSize.X.Scale, entry.baseSize.X.Offset + 4, entry.baseSize.Y.Scale, entry.baseSize.Y.Offset)
+        }):Play()
+        task.delay(0.1, function()
+            TweenService:Create(btn, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                Size = entry.baseSize
+            }):Play()
+        end)
+    else
+        -- 🌙 TRẠNG THÁI INACTIVE: VIỀN VÀNG HOÀNG GIA DỊU MẮT
+        stroke.Color = Color3.fromRGB(215, 175, 75) -- Viền vàng đồng sang trọng
+        stroke.Thickness = 1.3
+
+        grad.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0.0, Color3.fromRGB(195, 40, 50)),
+            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(155, 25, 35)),
+            ColorSequenceKeypoint.new(1.0, Color3.fromRGB(115, 15, 25))
+        })
+
+        if label then
+            label.TextColor3 = Color3.fromRGB(240, 240, 240)
+        end
+    end
+end
+
+local function selectActiveTab(targetBtn)
+    currentActiveButton = targetBtn
+    for _, entry in ipairs(registeredTabButtons) do
+        if entry.btn and entry.btn.Parent then
+            updateTabAppearance(entry, entry.btn == targetBtn)
+        end
+    end
+end
+
+local function applyCleanRoyalCapsuleButton(btnContainer, labelObj)
     if not btnContainer then return end
 
-    -- 1. TRIỆT TIÊU TOÀN BỘ KHỐI ĐEN VÀ CHỮ NGẦM BỊ ĐÈ
-    btnContainer.BackgroundTransparency = 1
-    btnContainer.BorderSizePixel = 0
-    if btnContainer:IsA("TextButton") then
-        btnContainer.TextTransparency = 1 -- Ẩn chữ gốc để tránh bị đè dưới ảnh
-    end
-
-    -- Ẩn sạch mọi Frame shadow / Stroke đen gây khối đen xì trong ảnh 6516
+    -- 1. TRIỆT TIÊU TOÀN BỘ DECAL ĐEN & FRAME SHADOW GÂY CỤC ĐEN TRONG ẢNH 6516
     for _, child in ipairs(btnContainer:GetChildren()) do
-        if child.Name ~= "CustomWingFrame" and child.Name ~= "CustomButtonText" then
-            if child:IsA("UIStroke") or child:IsA("UIGradient") then
-                child.Enabled = false
-            elseif child:IsA("Frame") or child:IsA("ImageLabel") then
-                child.Visible = false
-            end
+        if child.Name == "CustomWingFrame" or child.Name:find("WingFrame") then
+            pcall(function() child:Destroy() end)
         end
     end
 
-    -- Ẩn luôn nền đen của khung bao slot bên ngoài
+    -- Ẩn khung bao slot đen bên ngoài nếu có
     if btnContainer.Parent and btnContainer.Parent:IsA("GuiObject") and btnContainer.Parent ~= btnContainer then
         pcall(function()
-            btnContainer.Parent.BackgroundTransparency = 1
-            btnContainer.Parent.BorderSizePixel = 0
-            for _, pChild in ipairs(btnContainer.Parent:GetChildren()) do
-                if pChild:IsA("UIStroke") then pChild.Enabled = false end
+            if btnContainer.Parent.BackgroundColor3.R < 0.2 then
+                btnContainer.Parent.BackgroundTransparency = 1
+                btnContainer.Parent.BorderSizePixel = 0
             end
         end)
     end
 
-    -- 2. GẮN KHUNG CÁNH HOÀNG KIM (ZINDEX = 2)
-    local frameImg = btnContainer:FindFirstChild("CustomWingFrame")
-    if not frameImg then
-        frameImg = Instance.new("ImageLabel")
-        frameImg.Name = "CustomWingFrame"
-        frameImg.Size = UDim2.new(1.15, 0, 1.25, 0)
-        frameImg.Position = UDim2.new(0.5, 0, 0.5, 0)
-        frameImg.AnchorPoint = Vector2.new(0.5, 0.5)
-        frameImg.BackgroundTransparency = 1
-        frameImg.BorderSizePixel = 0
-        frameImg.ScaleType = Enum.ScaleType.Fit
-        frameImg.ZIndex = 2
-        frameImg.Image = CUSTOM_FRAME_IMAGE
-        frameImg.Parent = btnContainer
-    else
-        frameImg.Image = CUSTOM_FRAME_IMAGE
-        frameImg.Visible = true
+    -- 2. TẠO KHUNG CAPSULE ĐỎ RUBY & VIỀN VÀNG THUẦN CODE
+    btnContainer.BackgroundColor3 = Color3.fromRGB(175, 30, 40)
+    btnContainer.BackgroundTransparency = 0 -- Hiện thân nút đỏ sạch sẽ
+    btnContainer.BorderSizePixel = 0
+    if btnContainer:IsA("TextButton") then
+        btnContainer.AutoButtonColor = false
+        btnContainer.TextTransparency = 0
     end
 
-    -- 3. TẠO LỚP CHỮ ĐỘC LẬP (ZINDEX = 10) - ĐẢM BẢO CHỮ LUÔN NẰM TRÊN MẶT KHUNG
-    local rawText = ""
-    if labelObj and (labelObj:IsA("TextLabel") or labelObj:IsA("TextButton")) then
-        rawText = labelObj:GetAttribute("OriginalRawText") or labelObj.Text
-        if labelObj ~= btnContainer then
-            labelObj.Visible = false -- Ẩn nhãn cũ
+    -- Bo góc tròn dáng Capsule mềm mại
+    local corner = btnContainer:FindFirstChild("RoyalCorner")
+    if not corner then
+        corner = Instance.new("UICorner")
+        corner.Name = "RoyalCorner"
+        corner.CornerRadius = UDim.new(0, 9)
+        corner.Parent = btnContainer
+    end
+
+    -- Viền Vàng Hoàng Kim phát sáng
+    local stroke = btnContainer:FindFirstChild("RoyalStroke")
+    if not stroke then
+        stroke = Instance.new("UIStroke")
+        stroke.Name = "RoyalStroke"
+        stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+        stroke.Parent = btnContainer
+    end
+
+    -- Gradient Đỏ Ruby chiều sâu
+    local grad = btnContainer:FindFirstChild("RoyalGrad")
+    if not grad then
+        grad = Instance.new("UIGradient")
+        grad.Name = "RoyalGrad"
+        grad.Rotation = 90
+        grad.Parent = btnContainer
+    end
+
+    -- 3. CHỮ NỔI BẬT Ở GIỮA (TRẮNG VIỀN ĐEN ĐẬM)
+    local targetLabel = labelObj or (btnContainer:IsA("TextButton") and btnContainer)
+    if targetLabel then
+        targetLabel.ZIndex = 5
+        targetLabel.Font = Enum.Font.FredokaOne
+        targetLabel.TextSize = 13.5
+        targetLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        targetLabel.TextStrokeTransparency = 1
+
+        local textStroke = targetLabel:FindFirstChild("RoyalTextStroke")
+        if not textStroke then
+            textStroke = Instance.new("UIStroke")
+            textStroke.Name = "RoyalTextStroke"
+            textStroke.Thickness = 2.4
+            textStroke.Color = Color3.fromRGB(15, 10, 20)
+            textStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+            textStroke.Parent = targetLabel
         end
     end
 
-    local textOverlay = btnContainer:FindFirstChild("CustomButtonText")
-    if not textOverlay then
-        textOverlay = Instance.new("TextLabel")
-        textOverlay.Name = "CustomButtonText"
-        textOverlay.Size = UDim2.new(1, 0, 1, 0)
-        textOverlay.Position = UDim2.new(0, 0, 0, 0)
-        textOverlay.BackgroundTransparency = 1
-        textOverlay.Font = Enum.Font.FredokaOne
-        textOverlay.TextSize = 13
-        textOverlay.TextColor3 = Color3.fromRGB(255, 255, 255)
-        textOverlay.ZIndex = 10 -- NỔI BẬT TRÊN MẶT ẢNH
-        textOverlay.Parent = btnContainer
-
-        local stroke = Instance.new("UIStroke")
-        stroke.Thickness = 2.4
-        stroke.Color = Color3.fromRGB(15, 10, 20)
-        stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
-        stroke.Parent = textOverlay
+    -- 4. ĐĂNG KÝ HỆ THỐNG CLICK ACTIVE HIGHLIGHT
+    local isRegistered = false
+    for _, e in ipairs(registeredTabButtons) do
+        if e.btn == btnContainer then isRegistered = true; break end
     end
 
-    if rawText ~= "" then
-        textOverlay.Text = translateText(rawText)
+    if not isRegistered then
+        local entry = {
+            btn = btnContainer,
+            stroke = stroke,
+            grad = grad,
+            label = targetLabel,
+            baseSize = btnContainer.Size
+        }
+        table.insert(registeredTabButtons, entry)
+
+        -- Bấm vào là sáng bừng lên ngay lập tức
+        if btnContainer:IsA("TextButton") or btnContainer:IsA("ImageButton") then
+            btnContainer.MouseButton1Click:Connect(function()
+                selectActiveTab(btnContainer)
+            end)
+        end
+
+        -- Mặc định nút đầu tiên ("Cày Cuốc") sẽ sáng ngay lúc mở Hub
+        if not currentActiveButton and (targetLabel and targetLabel.Text:find("Cày Cuốc") or targetLabel.Text:find("Farm")) then
+            selectActiveTab(btnContainer)
+        else
+            updateTabAppearance(entry, btnContainer == currentActiveButton)
+        end
     end
 end
 
@@ -678,6 +757,7 @@ local function recolorHeaderBar(headerFrame, titleObj)
     })
     headerFrame.BackgroundColor3 = COLOR_FACE_BOTTOM
 
+    -- Tiêu đề V3.8 không cục đen qua RichText
     if titleObj and (titleObj:IsA("TextLabel") or titleObj:IsA("TextButton")) then
         titleObj.RichText = true
         titleObj.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -704,7 +784,6 @@ end
 local function inspectAndApplyTheme(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton")) then return end
     if inst:FindFirstAncestor("Chilli_Dynamic_Island") or inst:FindFirstAncestor("Chilli_Update_Toast") then return end
-    if inst.Name == "CustomButtonText" then return end
 
     local textRaw = inst.Text:lower():match("^%s*(.-)%s*$") or ""
     if textRaw:find("chilli hub") then
@@ -715,7 +794,7 @@ local function inspectAndApplyTheme(inst)
 
     if TARGET_BUTTON_KEYWORDS[textRaw] then
         local btnTarget = inst:IsA("TextButton") and inst or inst:FindFirstAncestorOfClass("TextButton") or inst:FindFirstAncestorOfClass("Frame")
-        if btnTarget then applyCustomButtonFrame(btnTarget, inst) end
+        if btnTarget then applyCleanRoyalCapsuleButton(btnTarget, inst) end
         return
     end
 end
