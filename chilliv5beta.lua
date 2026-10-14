@@ -1,11 +1,10 @@
 -- ==============================================================================
---  CHILLI HUB V5 - DYNAMIC ISLAND ACTION TRANSLATOR & FULL VIETNAMESE ENGINE
---  Bảo toàn 100% cấu trúc cũ + Bổ sung:
---    1. DỊCH MỌI TRẠNG THÁI DYNAMIC ISLAND: Dịch toàn bộ các hành động thời gian
---       thực (VD: "Carrying ... home" -> "Đang mang ... về nhà ✨ rainbow").
---    2. ĐỒNG BỘ CÔNG TẮC VI / EN: Chuyển đổi ngôn ngữ áp dụng ngay cho cả
---       Dynamic Island lẫn toàn bộ bảng Menu.
---    3. GIỮ NGUYÊN 100%: Nút tròn 60x60 1:1, Nền đen #000000, Nút ▼, Zero-Lag.
+--  CHILLI HUB V5 - FIXED SINGLE-ISLAND LOCK & FULL VIETNAMESE ENGINE
+--  Sửa đúng vị trí lỗi dòng 958:
+--    1. KHÓA CỨNG 1 DYNAMIC ISLAND DUY NHẤT: Chỉ tách đúng nút trạng thái nhỏ,
+--       tuyệt đối không chạm vào thanh Header hay các Label ẩn.
+--    2. DỊCH TRẠNG THÁI DYNAMIC ISLAND: "Đang mang ... về nhà ✨ rainbow".
+--    3. GIỮ NGUYÊN 100%: Nút tròn 60x60, nền đen #000000, nút ▼, 30 ảnh dịch.
 -- ==============================================================================
 
 local NEW_TITLE = "Chilli Hub V5"
@@ -70,11 +69,10 @@ end
 local currentLanguage = "VI"
 local FastCache = {}
 local TrackedTexts = {}
-local GlobalRefreshIslandStatus = nil -- Callback đồng bộ ngôn ngữ cho Dynamic Island
+local GlobalRefreshIslandStatus = nil
 
 local EXACT_MATCH_VI = {
-    -- Trạng thái tĩnh phổ biến trên Dynamic Island & DOING
-    ["Idle"] = "Đang rảnh",
+    -- Trạng thái tĩnh trên Dynamic Island & DOING
     ["Waiting"] = "Đang chờ",
     ["Nothing"] = "Không có gì",
     ["Waiting in safe zone"] = "Đợi ở vùng an toàn",
@@ -508,7 +506,6 @@ local EXACT_MATCH_VI = {
 
 -- BỘ MẪU CÂU HÀNH ĐỘNG ĐỘNG TRÊN DYNAMIC ISLAND & Ô DOING
 local STATUS_ACTION_PATTERNS_VI = {
-    -- Nhóm mang / giao trứng (VD: "Carrying Astral Jackalope home")
     { pat = "^[Cc]arrying (.+) to safe zone$", rep = "Đang mang %1 về vùng an toàn" },
     { pat = "^[Cc]arrying (.+) to base$", rep = "Đang mang %1 về căn cứ" },
     { pat = "^[Cc]arrying (.+) to pen$", rep = "Đang mang %1 về chuồng" },
@@ -522,8 +519,6 @@ local STATUS_ACTION_PATTERNS_VI = {
     { pat = "^[Tt]aking (.+) from (.+)$", rep = "Đang giật %1 từ %2" },
     { pat = "^[Tt]aking (.+) home$", rep = "Đang đem %1 về nhà" },
     { pat = "^[Tt]aking (.+)$", rep = "Đang lấy %1" },
-
-    -- Nhóm cướp / nhặt trứng
     { pat = "^[Ss]tealing (.+) from (.+)$", rep = "Đang cướp %1 từ %2" },
     { pat = "^[Ss]tealing (.+)$", rep = "Đang cướp %1" },
     { pat = "^[Gg]rabbing (.+)$", rep = "Đang chộp lấy %1" },
@@ -533,8 +528,6 @@ local STATUS_ACTION_PATTERNS_VI = {
     { pat = "^[Cc]apturing (.+)$", rep = "Đang bắt giữ %1" },
     { pat = "^[Dd]ropping (.+) at (.+)$", rep = "Đang thả %1 tại %2" },
     { pat = "^[Dd]ropping (.+)$", rep = "Đang thả %1" },
-
-    -- Nhóm di chuyển / dịch chuyển / bay
     { pat = "^[Tt]weening to (.+)$", rep = "Đang bay tới %1" },
     { pat = "^[Tt]eleporting to (.+)$", rep = "Đang dịch chuyển tới %1" },
     { pat = "^[Gg]oing to (.+)$", rep = "Đang đi tới %1" },
@@ -544,8 +537,6 @@ local STATUS_ACTION_PATTERNS_VI = {
     { pat = "^[Ff]lying to (.+)$", rep = "Đang bay tới %1" },
     { pat = "^[Rr]eturning to (.+)$", rep = "Đang quay về %1" },
     { pat = "^[Hh]eading to (.+)$", rep = "Đang hướng tới %1" },
-
-    -- Nhóm cày cuốc (Đặt, Ấp, Đột biến, Bán, Dung hợp, Máy tập)
     { pat = "^[Pp]lacing (.+)$", rep = "Đang đặt %1" },
     { pat = "^[Hh]atching (.+)$", rep = "Đang ấp %1" },
     { pat = "^[Mm]utating (.+)$", rep = "Đang đột biến %1" },
@@ -557,8 +548,6 @@ local STATUS_ACTION_PATTERNS_VI = {
     { pat = "^[Ee]quipping (.+)$", rep = "Đang trang bị %1" },
     { pat = "^[Ff]avoriting (.+)$", rep = "Đang khóa bảo vệ %1" },
     { pat = "^[Ee]jecting (.+)$", rep = "Đang đẩy %1 ra" },
-
-    -- Nhóm Sự kiện & Chiến đấu (Bắt bướm, Sao băng, Đua xe, Wisp, Lab, Đánh)
     { pat = "^[Cc]atching (.+)$", rep = "Đang bắt %1" },
     { pat = "^[Cc]hasing (.+)$", rep = "Đang đuổi theo %1" },
     { pat = "^[Aa]ttacking (.+)$", rep = "Đang tấn công %1" },
@@ -582,7 +571,6 @@ local STATUS_ACTION_PATTERNS_VI = {
     { pat = "^[Hh]opping (.+)$", rep = "Đang đổi %1" }
 }
 
--- Bảng từ khóa hành động đầu câu dự phòng (Fallback cho bất kỳ trạng thái mới nào)
 local FALLBACK_VERB_PREFIX_VI = {
     ["Carrying "] = "Đang mang ",
     ["Delivering "] = "Đang giao ",
@@ -639,23 +627,23 @@ local DYNAMIC_PATTERNS_VI = {
     { pat = "^Eternal · 1 in ([%d%.]+)$", rep = "Vĩnh Cửu · 1 trên %1" }
 }
 
--- HÀM DỊCH CHUYÊN BIỆT CHO TRẠNG THÁI ĐỘNG TRÊN DYNAMIC ISLAND (O(1) CACHE)
 local function translateStatusAction(cleanEn)
     if not cleanEn or cleanEn == "" then return "Đang rảnh" end
     if currentLanguage == "EN" then return cleanEn end
 
-    local cacheKey = "STATUS_VI|" .. cleanEn
+    local trimmed = (cleanEn:match("^%s*(.-)%s*$") or cleanEn):gsub("%s+", " ")
+    if trimmed:lower() == "idle" then
+        return "Đang rảnh"
+    end
+
+    local cacheKey = "STATUS_VI|" .. trimmed
     if FastCache[cacheKey] then return FastCache[cacheKey] end
 
-    local trimmed = (cleanEn:match("^%s*(.-)%s*$") or cleanEn):gsub("%s+", " ")
-
-    -- 1. Khớp trực tiếp O(1)
     if EXACT_MATCH_VI[trimmed] then
         FastCache[cacheKey] = EXACT_MATCH_VI[trimmed]
         return EXACT_MATCH_VI[trimmed]
     end
 
-    -- 2. Khớp mẫu câu hành động động (VD: "Carrying Astral Jackalope home")
     for _, item in ipairs(STATUS_ACTION_PATTERNS_VI) do
         if trimmed:find(item.pat) then
             local out = trimmed:gsub(item.pat, item.rep)
@@ -664,7 +652,6 @@ local function translateStatusAction(cleanEn)
         end
     end
 
-    -- 3. Khớp động từ đầu câu + hậu tố cuối câu dự phòng
     local result = trimmed
     for engPrefix, viPrefix in pairs(FALLBACK_VERB_PREFIX_VI) do
         if result:sub(1, #engPrefix):lower() == engPrefix:lower() then
@@ -703,7 +690,6 @@ local function translateVenyxText(raw)
         return out
     end
 
-    -- Xử lý các nhãn có biểu tượng đi kèm ở đầu
     local prefix, wordPart = normalized:match("^([^%w%s]+%s*)(.+)$")
     if prefix and wordPart and EXACT_MATCH_VI[wordPart] then
         local out = prefix .. EXACT_MATCH_VI[wordPart]
@@ -720,7 +706,6 @@ local function translateVenyxText(raw)
         end
     end
 
-    -- Áp dụng luôn bộ mẫu câu hành động cho ô DOING trong tab Priority
     for _, item in ipairs(STATUS_ACTION_PATTERNS_VI) do
         if result:find(item.pat) then
             result = result:gsub(item.pat, item.rep)
@@ -809,7 +794,6 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     local pill = statusLbl.Parent
     if not (pill and pill:IsA("GuiObject")) then return end
 
-    -- 1. Xóa ngay IslandClickHitbox (Scale 1) nếu còn sót từ phiên trước
     local badHitbox = pill:FindFirstChild("IslandClickHitbox")
     if badHitbox then
         badHitbox:Destroy()
@@ -821,7 +805,6 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
         end
     end
 
-    -- 2. Khóa màu nền ĐEN TUYỀN (#000000) và giữ kích thước con nhộng nhỏ gọn
     pill.BackgroundColor3 = ISLAND_BLACK_BG
     pill.BackgroundTransparency = 0
     pill.Size = UDim2.new(0, 0, 0, 28)
@@ -841,7 +824,6 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
         end)
     end
 
-    -- 3. Nút chỉ báo mở rộng (▼) 18x18 px cố định (Scale = 0)
     local expandHint = pill:FindFirstChild("IslandExpandHint")
     if not expandHint then
         expandHint = Instance.new("TextLabel")
@@ -872,7 +854,6 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     end
     statusLbl:SetAttribute("__IslandDone", true)
 
-    -- HÀM CẬP NHẬT & DỊCH TRẠNG THÁI DYNAMIC ISLAND THỜI GIAN THỰC
     local function updateStatusText(forceFromSavedOrig)
         if statusLbl:GetAttribute("__Updating") then return end
         statusLbl:SetAttribute("__Updating", true)
@@ -884,7 +865,6 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
             local raw = statusLbl.Text
             cleanEn = raw:gsub("●", ""):gsub("•", ""):gsub("✨%s*rainbow", ""):match("^%s*(.-)%s*$") or "Idle"
             if cleanEn == "" then cleanEn = "Idle" end
-            -- Chỉ lưu làm gốc tiếng Anh nếu chuỗi mới từ Venyx chưa phải là bản đã dịch
             if cleanEn ~= statusLbl:GetAttribute("__LastTranslatedStatus") then
                 statusLbl:SetAttribute("OrigStatusEn", cleanEn)
             else
@@ -1269,6 +1249,7 @@ local function tryPatchVenyx()
                             end
                         end
 
+                        local headerBar = titleLbl.Parent
                         local headerY = titleLbl.AbsolutePosition.Y
 
                         -- Bắt sự kiện cho các phần tử Text khi mở Dropdown / Modal mới
@@ -1287,15 +1268,21 @@ local function tryPatchVenyx()
                         for _, desc in ipairs(gui:GetDescendants()) do
                             if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
                                 local txt = desc.Text or ""
+                                local isAlreadyMovedIdle = desc:GetAttribute("__IslandDone")
 
-                                -- 2. Định vị đúng nút Trạng thái trên Header (bắt được cả khi đang Idle lẫn khi đang Carrying/Stealing...)
-                                local isHeaderStatusPill = (not desc:FindFirstAncestorOfClass("ScrollingFrame"))
+                                -- 2. KHÔI PHỤC ĐÚNG ĐIỀU KIỆN BẢN 6599.JPG + KHÓA CỨNG CHỈ 1 ISLAND DUY NHẤT:
+                                -- Bắt buộc pill phải là con của thanh Header (desc.Parent.Parent == headerBar),
+                                -- tuyệt đối không bao giờ bắt nhầm chính thanh Header hay các Label ẩn!
+                                local isHeaderIdle = (not gui:GetAttribute("__IslandLocked"))
+                                    and headerBar
+                                    and desc.Parent
+                                    and desc.Parent.Parent == headerBar
                                     and math.abs(desc.AbsolutePosition.Y - headerY) < 35
                                     and desc.AbsolutePosition.X > titleLbl.AbsolutePosition.X + 60
-                                    and (txt:lower():find("idle") or (desc.Parent and desc.Parent:FindFirstChildOfClass("Frame") and not txt:find("v1.")))
-                                local isAlreadyMovedIdle = desc:GetAttribute("__IslandDone") or txt:find("✨ rainbow")
+                                    and txt:lower():find("idle")
 
-                                if isHeaderStatusPill or isAlreadyMovedIdle then
+                                if isHeaderIdle or isAlreadyMovedIdle then
+                                    gui:SetAttribute("__IslandLocked", true)
                                     setupDynamicIslandFromStatus(desc, gui)
                                 else
                                     hookTextForTranslation(desc)
