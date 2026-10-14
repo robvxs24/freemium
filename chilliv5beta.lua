@@ -1,12 +1,11 @@
 -- ==============================================================================
---  CHILLI HUB V5 - COMPACT BLACK DYNAMIC ISLAND & FULL VIETNAMESE ENGINE
+--  CHILLI HUB V5 - COMPACT BLACK DYNAMIC ISLAND & FULL 30-SCREEN TRANSLATION
 --  Bảo toàn 100%:
---    1. SỬA DỨT ĐIỂM LỖI GIÃN NGANG: Xóa IslandClickHitbox (Scale 1), trả lại
---       kích thước nhỏ gọn chuẩn ban đầu.
---    2. CHỈ BÁO NÚT BẤM (▼): Thêm nút mũi tên tròn 20x20px bên phải chữ
---       "Idle ✨ rainbow" để người chơi biết bấm vào sẽ mở bảng điều khiển.
---    3. DYNAMIC ISLAND NỀN ĐEN TUYỀN (#000000): Chữ cầu vồng sắc nét.
---    4. LOGO TRÒN 1:1 (60x60) & DỊCH THUẬT TIẾNG VIỆT: Giữ nguyên vẹn 100%.
+--    1. DYNAMIC ISLAND NHỎ GỌN NỀN ĐEN (#000000): Kèm nút ▼ nhận diện bấm mở.
+--    2. LOGO TRÒN 1:1 (60x60) & HEADER LOGO: Giữ nguyên vẹn cấu trúc chuẩn.
+--    3. DỊCH FULL 30 ẢNH: Bao gồm Dashboard, Steal, Farm, Event, Lab, AA,
+--       Player (ESP/Move/Combat), System (Server/Webhook/Optimizer) & Egg Cards.
+--    4. ZERO-LAG ENGINE: Chạy 1 luồng duy nhất, khóa chống đệ quy tuyệt đối.
 -- ==============================================================================
 
 local NEW_TITLE = "Chilli Hub V5"
@@ -103,7 +102,7 @@ local EXACT_MATCH_VI = {
     ["Search"] = "Tìm kiếm",
     ["Filter"] = "Lọc tìm",
 
-    -- Steal & Egg Predictor
+    -- Steal & Egg Predictor & Egg Cards (Ảnh 6596, 6597)
     ["Steal"] = "Cướp Trứng",
     ["Auto Steal"] = "Tự Động Cướp",
     ["AUTO STEAL"] = "TỰ ĐỘNG CƯỚP",
@@ -150,6 +149,14 @@ local EXACT_MATCH_VI = {
     ["Default"] = "Mặc định",
     ["Clear"] = "Xóa chọn",
     ["Select all"] = "Chọn tất cả",
+    ["SIZE"] = "KÍCH CỠ",
+    ["WEIGHT"] = "CÂN NẶNG",
+    ["READY"] = "SẴN SÀNG",
+    ["IN BAG"] = "TRONG TÚI",
+    ["GROWING"] = "ĐANG LỚN",
+    ["Hatch now"] = "Ấp ngay",
+    ["Hold egg"] = "Cầm trứng",
+    ["Fly to egg"] = "Bay tới trứng",
 
     -- Zones (Khu vực)
     ["Enchanted Forest"] = "Rừng Phù Phép (Enchanted Forest)",
@@ -173,8 +180,12 @@ local EXACT_MATCH_VI = {
     ["Scrambled"] = "Hỗn Loạn (Scrambled)",
     ["Enchanted"] = "Phù Phép (Enchanted)",
     ["Nitro"] = "Nitro",
+    ["SCRAMBLED"] = "HỖN LOẠN",
+    ["NITRO"] = "NITRO",
+    ["FRACTURED"] = "RẠN NỨT",
+    ["ENCHANTED"] = "PHÙ PHÉP",
 
-    -- Farm: Pen, Treadmill, Mutate, Sell, Fuse
+    -- Farm: Pen, Treadmill, Mutate, Sell, Fuse, Priority
     ["Farm"] = "Cày Cuốc",
     ["Pen"] = "Chuồng Ấp",
     ["PEN"] = "CHUỒNG ẤP",
@@ -253,8 +264,6 @@ local EXACT_MATCH_VI = {
     ["CHANCE"] = "TỶ LỆ",
     ["VALUE"] = "GIÁ TRỊ",
     ["BEST CASE"] = "TỐT NHẤT CÓ THỂ",
-
-    -- Farm -> Priority (Thứ tự ưu tiên tác vụ 1 - 12)
     ["TASK ORDER"] = "THỨ TỰ TÁC VỤ",
     ["Top goes first. A carried egg is always delivered first, and before the field opens every task waits in the safe zone."] = "Mục ở trên làm trước. Trứng đang bê luôn được giao trước, và trước khi khu vực mở thì mọi tác vụ sẽ đợi ở vùng an toàn.",
     ["DOING"] = "ĐANG LÀM",
@@ -271,7 +280,7 @@ local EXACT_MATCH_VI = {
     ["Place"] = "Đặt trứng vào chuồng",
     ["Butterfly machine"] = "Máy đổi Bướm",
 
-    -- Event: Race, Star, Butterfly, Lab, AA
+    -- Event: Race, Star, Butterfly, Lab, AA (Ảnh 6588, 6589, 6590)
     ["Race"] = "Đua Xe",
     ["RACE"] = "ĐUA XE",
     ["Star"] = "Sao Băng",
@@ -322,8 +331,128 @@ local EXACT_MATCH_VI = {
     ["Smart trade for essence"] = "Đổi bướm lấy tinh chất thông minh",
     ["Auto craft essence"] = "Tự chế tạo tinh chất",
     ["WISP COMPANION"] = "ĐỒNG HÀNH WISP",
+    ["Catch priority"] = "Ưu tiên bắt",
+    ["Rarest"] = "Hiếm nhất",
+    ["Catch"] = "Loại bướm bắt",
+    ["Radiant"] = "Rực Rỡ (Radiant)",
+    ["Catch speed"] = "Tốc độ bắt",
+    ["Auto wisp quest"] = "Tự làm nhiệm vụ Wisp",
+    ["Auto banjo cricket"] = "Tự bắt dế Banjo",
+    ["STAGE"] = "GIAI ĐOẠN",
+    ["LAB ODDS"] = "TỶ LỆ PHÒNG LAB",
+    ["BANNER"] = "BĂNG RÔN",
+    ["ENDS IN"] = "KẾT THÚC SAU",
+    ["BANNER CHANCE"] = "TỶ LỆ BĂNG RÔN",
+    ["NEXT"] = "TIẾP THEO",
+    ["Experimental Pets"] = "Pet Thí Nghiệm",
+    ["Biohazard Pets"] = "Pet Sinh Học",
+    ["Lab banners"] = "Băng rôn phòng Lab",
+    ["Auto trade in"] = "Tự động đổi trứng Lab",
+    ["Auto reroll recipe"] = "Tự đổi lại công thức",
+    ["Place lab reward eggs"] = "Đặt trứng thưởng từ Lab",
+    ["ADMIN ABUSE"] = "LẠM DỤNG ADMIN (ABUSE)",
+    ["No admin boost right now"] = "Hiện không có buff Admin nào",
+    ["Instant steal (Admin Treadmill)"] = "Cướp tức thì (Máy tập Admin)",
+    ["Use admin treadmill"] = "Tự dùng máy tập Admin",
+    ["CAPTURE THE EGG"] = "CƯỚP TRỨNG SỰ KIỆN",
+    ["Auto capture event egg"] = "Tự bắt trứng sự kiện",
+    ["Take it from the holder"] = "Giật trứng từ người đang cầm",
+    ["Hold height"] = "Độ cao giữ trứng",
+    ["Keep away"] = "Khoảng cách né tránh",
+    ["MINIGAME EGGS"] = "TRỨNG MINIGAME",
+    ["Waiting for Red Light Green Light or T-Rex Run"] = "Đang chờ Đèn Đỏ Đèn Xanh hoặc Chạy Trốn T-Rex",
+    ["Auto steal minigame egg"] = "Tự cướp trứng Minigame",
 
-    -- Độ hiếm
+    -- Player: ESP, Move, Combat (Ảnh 6591, 6592, 6593)
+    ["Player"] = "Người Chơi",
+    ["ESP"] = "Định Vị (ESP)",
+    ["Move"] = "Di Chuyển",
+    ["MOVE"] = "DI CHUYỂN",
+    ["Combat"] = "Chiến Đấu",
+    ["COMBAT"] = "CHIẾN ĐẤU",
+    ["FIELD EGGS"] = "TRỨNG NGOÀI SÂN",
+    ["Egg ESP"] = "ESP Trứng",
+    ["Show"] = "Hiển thị",
+    ["Name"] = "Tên",
+    ["Fixed size"] = "Cố định kích cỡ",
+    ["OTHERS"] = "MỤC KHÁC",
+    ["Pen egg ESP"] = "ESP trứng trong chuồng",
+    ["Other pens ESP"] = "ESP chuồng người khác",
+    ["Guard ESP"] = "ESP Vệ sĩ",
+    ["Player ESP"] = "ESP Người chơi",
+    ["ESP size"] = "Kích cỡ ESP",
+    ["MOVEMENT"] = "TỐC ĐỘ & DI CHUYỂN",
+    ["Speed boost"] = "Tăng tốc chạy",
+    ["Boost speed"] = "Tốc độ tăng thêm",
+    ["Infinite jump"] = "Nhảy vô hạn",
+    ["God mode"] = "Bất tử (God mode)",
+    ["PROTECTION"] = "BẢO VỆ NHÂN VẬT",
+    ["Anti ragdoll"] = "Chống ngã (Anti Ragdoll)",
+    ["Ignore traps"] = "Bỏ qua bẫy",
+    ["Instant prompts"] = "Tương tác nhấn giữ tức thì",
+    ["Anti AFK"] = "Chống treo máy (Anti AFK)",
+    ["Invisible"] = "Tàng hình",
+    ["AUTO HIT"] = "TỰ ĐỘNG ĐÁNH",
+    ["Auto hit"] = "Tự động đánh",
+    ["Hit who"] = "Mục tiêu đánh",
+    ["Nearest player"] = "Người chơi gần nhất",
+    ["Chosen player"] = "Người chơi chỉ định",
+    ["Chase speed"] = "Tốc độ đuổi theo",
+    ["HIT AURA"] = "VÒNG ĐÁNH TỰ ĐỘNG",
+    ["Hit aura"] = "Vòng đánh tự động (Hit Aura)",
+    ["Skip friends"] = "Bỏ qua bạn bè",
+    ["WEAPONS"] = "VŨ KHÍ",
+    ["Use weapons"] = "Sử dụng vũ khí",
+    ["Hold each"] = "Thời gian cầm mỗi món",
+
+    -- System: Server, Webhook, Optimizer, Interface, Config (Ảnh 6594, 6595)
+    ["System"] = "Hệ Thống",
+    ["Server"] = "Máy Chủ",
+    ["SERVER"] = "MÁY CHỦ",
+    ["Webhook"] = "Webhook",
+    ["WEBHOOK"] = "WEBHOOK",
+    ["Optimizer"] = "Tối Ưu Hóa",
+    ["OPTIMIZER"] = "TỐI ƯU HÓA (GIẢM LAG)",
+    ["Interface"] = "Giao Diện",
+    ["Config"] = "Cấu Hình",
+    ["Hop to"] = "Chuyển tới server",
+    ["Least players"] = "Ít người chơi nhất",
+    ["Hop server"] = "Đổi máy chủ",
+    ["Hop"] = "Đổi ngay",
+    ["Rejoin this server"] = "Vào lại máy chủ này",
+    ["Copy"] = "Sao chép",
+    ["JOIN AND STAY"] = "VÀO PHÒNG & DUY TRÌ",
+    ["Job ID"] = "Mã phòng (Job ID)",
+    ["Paste a Job ID"] = "Dán mã Job ID vào đây",
+    ["Join that server"] = "Vào máy chủ đó",
+    ["Join"] = "Vào ngay",
+    ["Rejoin on kick"] = "Tự vào lại khi bị văng/kick",
+    ["Auto load script"] = "Tự chạy lại script khi chuyển server",
+    ["DISCORD WEBHOOK"] = "WEBHOOK DISCORD",
+    ["Webhook URL"] = "Đường dẫn Webhook",
+    ["Ping everyone"] = "Tag @everyone",
+    ["WHAT TO POST"] = "NỘI DUNG GỬI BÁO CÁO",
+    ["Post stolen eggs"] = "Báo cáo trứng cướp được",
+    ["Post fused eggs"] = "Báo cáo trứng dung hợp",
+    ["POSTED"] = "ĐÃ GỬI",
+    ["Send a test post"] = "Gửi tin nhắn thử nghiệm",
+    ["Test"] = "Thử nghiệm",
+    ["Post when bag is full"] = "Gửi thông báo khi đầy túi",
+    ["GRAPHICS"] = "ĐỒ HỌA",
+    ["Low graphics"] = "Đồ họa thấp (Tăng FPS)",
+    ["Disable 3D Render"] = "Tắt kết xuất 3D (Treo máy)",
+    ["Background color"] = "Màu nền màn hình",
+    ["Black"] = "Màu Đen",
+    ["White"] = "Màu Trắng",
+    ["Hide game UI"] = "Ẩn giao diện gốc của Game",
+    ["FRAME RATE"] = "TỐC ĐỘ KHUNG HÌNH (FPS)",
+    ["FPS cap"] = "Giới hạn FPS",
+    ["Show FPS and ping"] = "Hiện chỉ số FPS và Ping",
+    ["BASES"] = "CĂN CỨ (BASES)",
+    ["Hide other players' pets and eggs"] = "Ẩn pet và trứng của người chơi khác",
+    ["Hide my pets and eggs"] = "Ẩn pet và trứng của bản thân",
+
+    -- Độ hiếm (Hoa & Thường)
     ["Common"] = "Phổ Thông (Common)",
     ["Uncommon"] = "Thường (Uncommon)",
     ["Rare"] = "Hiếm (Rare)",
@@ -333,7 +462,17 @@ local EXACT_MATCH_VI = {
     ["Cosmic"] = "Vũ Trụ (Cosmic)",
     ["Secret"] = "Bí Ẩn (Secret)",
     ["Divine"] = "Thánh Thần (Divine)",
-    ["Eternal"] = "Vĩnh Cửu (Eternal)"
+    ["Eternal"] = "Vĩnh Cửu (Eternal)",
+    ["COMMON"] = "PHỔ THÔNG",
+    ["UNCOMMON"] = "THƯỜNG",
+    ["RARE"] = "HIẾM",
+    ["EPIC"] = "SỬ THI",
+    ["LEGENDARY"] = "HUYỀN THOẠI",
+    ["MYTHIC"] = "THẦN THOẠI",
+    ["COSMIC"] = "VŨ TRỤ",
+    ["SECRET"] = "BÍ ẨN",
+    ["DIVINE"] = "THÁNH THẦN",
+    ["ETERNAL"] = "VĨNH CỬU"
 }
 
 local DYNAMIC_PATTERNS_VI = {
@@ -346,7 +485,16 @@ local DYNAMIC_PATTERNS_VI = {
     { pat = "(%d+) pet%(s%) match", rep = "%1 pet khớp bộ lọc" },
     { pat = "(%d+) egg%(s%) match", rep = "%1 trứng khớp bộ lọc" },
     { pat = "(%d+) lab egg%(s%) match", rep = "%1 trứng Lab khớp bộ lọc" },
-    { pat = "^(%d+) pets$", rep = "%1 thú cưng" }
+    { pat = "^(%d+) pets$", rep = "%1 thú cưng" },
+    { pat = "(%d+ / %d+) players · (.+)", rep = "%1 người chơi · %2" },
+    { pat = "Experimental Pets · needs (.-) · pity (%d+/%d+) · rerolls (%d+) · (.+)", rep = "Pet Thí Nghiệm · cần %1 · bảo hiểm %2 · lượt đổi %3 · %4" },
+    { pat = "Biohazard Pets · needs (.-) · pity (%d+/%d+) · rerolls (%d+) · (.+)", rep = "Pet Sinh Học · cần %1 · bảo hiểm %2 · lượt đổi %3 · %4" },
+    { pat = "Unstable DNA · needs (.-) · pity (%d+/%d+) · rerolls (%d+) · (.+)", rep = "DNA Bất Ổn · cần %1 · bảo hiểm %2 · lượt đổi %3 · %4" },
+    { pat = "^Mythic · 1 in ([%d%.]+)$", rep = "Thần Thoại · 1 trên %1" },
+    { pat = "^Cosmic · 1 in ([%d%.]+)$", rep = "Vũ Trụ · 1 trên %1" },
+    { pat = "^Secret · 1 in ([%d%.]+)$", rep = "Bí Ẩn · 1 trên %1" },
+    { pat = "^Divine · 1 in ([%d%.]+)$", rep = "Thánh Thần · 1 trên %1" },
+    { pat = "^Eternal · 1 in ([%d%.]+)$", rep = "Vĩnh Cửu · 1 trên %1" }
 }
 
 local function translateVenyxText(raw)
@@ -372,7 +520,15 @@ local function translateVenyxText(raw)
         return out
     end
 
-    local result = raw
+    -- Xử lý các nhãn có biểu tượng đi kèm ở đầu (VD: "✨ READY", "🥚 IN BAG", "✨ Hatch now", "✋ Hold egg")
+    local prefix, wordPart = normalized:match("^([^%w%s]+%s*)(.+)$")
+    if prefix and wordPart and EXACT_MATCH_VI[wordPart] then
+        local out = prefix .. EXACT_MATCH_VI[wordPart]
+        FastCache[cacheKey] = out
+        return out
+    end
+
+    local result = normalized
     for _, item in ipairs(DYNAMIC_PATTERNS_VI) do
         if result:find(item.pat) then
             result = result:gsub(item.pat, item.rep)
@@ -381,8 +537,8 @@ local function translateVenyxText(raw)
         end
     end
 
-    FastCache[cacheKey] = result
-    return result
+    FastCache[cacheKey] = raw
+    return raw
 end
 
 local function applyElementTranslation(inst)
@@ -458,20 +614,19 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     local pill = statusLbl.Parent
     if not (pill and pill:IsA("GuiObject")) then return end
 
-    -- 1. XÓA NGAY IslandClickHitbox (Scale 1) GÂY LỖI GIÃN NGANG TOÀN MÀN HÌNH
+    -- 1. Xóa ngay IslandClickHitbox (Scale 1) nếu còn sót từ phiên trước
     local badHitbox = pill:FindFirstChild("IslandClickHitbox")
     if badHitbox then
         badHitbox:Destroy()
     end
 
-    -- Xóa UIGradient nếu bị gắn nhầm lên nền pill
     for _, child in ipairs(pill:GetChildren()) do
         if child:IsA("UIGradient") then
             child:Destroy()
         end
     end
 
-    -- 2. Khóa màu nền ĐEN TUYỀN (#000000) và trả lại kích thước con nhộng nhỏ gọn ban đầu
+    -- 2. Khóa màu nền ĐEN TUYỀN (#000000) và giữ kích thước con nhộng nhỏ gọn
     pill.BackgroundColor3 = ISLAND_BLACK_BG
     pill.BackgroundTransparency = 0
     pill.Size = UDim2.new(0, 0, 0, 28)
@@ -491,12 +646,12 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
         end)
     end
 
-    -- 3. THÊM NÚT CHỈ BÁO MỞ RỘNG (▼) NHỎ GỌN (20x20 PX CỐ ĐỊNH, SCALE = 0)
+    -- 3. Nút chỉ báo mở rộng (▼) 18x18 px cố định (Scale = 0)
     local expandHint = pill:FindFirstChild("IslandExpandHint")
     if not expandHint then
         expandHint = Instance.new("TextLabel")
         expandHint.Name = "IslandExpandHint"
-        expandHint.Size = UDim2.new(0, 18, 0, 18) -- Scale = 0 nên không bao giờ làm giãn khung
+        expandHint.Size = UDim2.new(0, 18, 0, 18)
         expandHint.BackgroundColor3 = Color3.fromRGB(28, 32, 48)
         expandHint.BorderSizePixel = 0
         expandHint.Text = "▼"
@@ -522,7 +677,6 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     end
     statusLbl:SetAttribute("__IslandDone", true)
 
-    -- Giữ nguyên chữ Idle ✨ rainbow và hiệu ứng cầu vồng của chữ
     local function updateStatusText()
         if statusLbl:GetAttribute("__Updating") then return end
         statusLbl:SetAttribute("__Updating", true)
@@ -550,7 +704,6 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     txtGrad.Parent = statusLbl
     table.insert(ActiveGradients, txtGrad)
 
-    -- Định vị nút trạng thái ở đỉnh màn hình (Chế độ thu gọn)
     pill.Parent = venyxGui
     pill.AnchorPoint = Vector2.new(0.5, 0)
     pill.Position = UDim2.new(0.5, 0, 0, 10)
@@ -635,7 +788,6 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     CollapseCorner.CornerRadius = UDim.new(1, 0)
     CollapseCorner.Parent = CollapseBtn
 
-    -- Thanh gạt đổi ngôn ngữ (Tiếng Việt / English)
     local LangCapsule = Instance.new("Frame")
     LangCapsule.Size = UDim2.new(1, -20, 0, 34)
     LangCapsule.Position = UDim2.new(0, 10, 0, 36)
@@ -709,7 +861,7 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     local function toggleIsland(expand)
         if expand then
             ExpandedIsland.Position = pill.Position
-            pill.Visible = false -- Ẩn nút trạng thái Idle khi phóng to
+            pill.Visible = false
             ExpandedIsland.Size = UDim2.new(0, 150, 0, 28)
             ExpandedIsland.Visible = true
             TweenService:Create(ExpandedIsland, TweenInfo.new(0.28, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
@@ -718,7 +870,7 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
         else
             pill.Position = ExpandedIsland.Position
             ExpandedIsland.Visible = false
-            pill.Visible = true -- Hiện lại nút trạng thái Idle ✨ rainbow khi thu gọn
+            pill.Visible = true
         end
     end
 
@@ -726,7 +878,6 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
         toggleIsland(false)
     end)
 
-    -- Bắt cảm ứng/chuột trực tiếp trên pill, statusLbl và nút ▼ mà không cần tạo Frame Scale=1
     local function attachDragAndClick(triggerObj, moveFrame, onTapCallback)
         if triggerObj:GetAttribute("__DragBound") then return end
         triggerObj:SetAttribute("__DragBound", true)
