@@ -1,16 +1,17 @@
 -- ==============================================================================
---  CHILLI HUB V5 - DYNAMIC ISLAND LANGUAGE SWITCHER & FULL VIETNAMESE ENGINE
+--  CHILLI HUB V5 - PURE BLACK DYNAMIC ISLAND & FULL VIETNAMESE ENGINE
 --  Bảo toàn 100%:
---    1. LOGO TRÒN 1:1 (60x60) & HEADER LOGO: Giữ nguyên vẹn bản chuẩn 6568.jpg.
---    2. DYNAMIC ISLAND THÔNG MINH: Thu gọn hiện "● Idle ✨ rainbow", bấm vào ẩn
---       nút Idle và mở bảng chọn ngôn ngữ (Tiếng Việt / English).
---    3. DỊCH FULL GIAO DIỆN: Dịch 100% nội dung các tab trong 10 ảnh sang Tiếng Việt.
+--    1. DYNAMIC ISLAND NỀN ĐEN TUYỀN (#000000): Làm nổi bật chữ "Idle ✨ rainbow",
+--       thu gọn hiện trạng thái Idle, bấm vào ẩn Idle và mở bảng đổi ngôn ngữ.
+--    2. LOGO TRÒN 1:1 (60x60) & HEADER LOGO: Giữ nguyên vẹn cấu trúc chuẩn.
+--    3. DỊCH FULL 20 ẢNH: Bao gồm Dashboard, Steal, Farm, Priority, Modals & Event.
 --    4. ZERO-LAG ENGINE: Chạy 1 luồng duy nhất, khóa chống đệ quy tuyệt đối.
 -- ==============================================================================
 
 local NEW_TITLE = "Chilli Hub V5"
 local CHILLI_LOGO_ID = "rbxassetid://92622270383869"
 local LOGO_BG_COLOR = Color3.fromRGB(5, 7, 15)
+local ISLAND_BLACK_BG = Color3.fromRGB(0, 0, 0) -- Màu đen tuyền tuyệt đối cho nền Dynamic Island
 
 -- 1. KHỞI CHẠY BASE SCRIPT LUARMOR
 if not getgenv().__VenyxV5Loaded then
@@ -46,29 +47,32 @@ local COLOR_SEQ_RAINBOW = ColorSequence.new({
 })
 
 -- VÒNG LẶP XOAY CẦU VỒNG DUY NHẤT TOÀN HỆ THỐNG (NHẸ TUYỆT ĐỐI)
-task.spawn(function()
-    local rot = 0
-    while true do
-        rot = (rot + 4) % 360
-        for i = #ActiveGradients, 1, -1 do
-            local g = ActiveGradients[i]
-            if g and g.Parent then
-                g.Rotation = rot
-            else
-                table.remove(ActiveGradients, i)
+if not getgenv().__ChilliV5RainbowLoop then
+    getgenv().__ChilliV5RainbowLoop = true
+    task.spawn(function()
+        local rot = 0
+        while true do
+            rot = (rot + 4) % 360
+            for i = #ActiveGradients, 1, -1 do
+                local g = ActiveGradients[i]
+                if g and g.Parent then
+                    g.Rotation = rot
+                else
+                    table.remove(ActiveGradients, i)
+                end
             end
+            task.wait(0.03)
         end
-        task.wait(0.03)
-    end
-end)
+    end)
+end
 
--- ==================== 2. HỆ THỐNG TỪ ĐIỂN DỊCH THUẬT (CHUẨN 10 ẢNH) ====================
+-- ==================== 2. HỆ THỐNG TỪ ĐIỂN DỊCH THUẬT TOÀN DIỆN ====================
 local currentLanguage = "VI"
 local FastCache = {}
 local TrackedTexts = {}
 
 local EXACT_MATCH_VI = {
-    -- Dashboard (Ảnh 1)
+    -- Dashboard
     ["Dashboard"] = "Bảng Điều Khiển",
     ["Welcome back"] = "Chào mừng trở lại",
     ["Beta version"] = "Phiên bản Beta",
@@ -91,14 +95,14 @@ local EXACT_MATCH_VI = {
     ["PET BAG"] = "TÚI PET",
     ["WHAT'S NEW"] = "CÓ GÌ MỚI",
     ["NEW"] = "MỚI",
-    ["Event"] = "Sự kiện",
+    ["Event"] = "Sự Kiện",
     ["Racing Event: ragdoll jump to the portal, races, leaves and claims"] = "Sự Kiện Đua Xe: tự nhảy vào cổng, đua, rời đi và nhận thưởng",
     ["Shooting Star catcher with ragdoll jump and run fallback"] = "Bắt Sao Băng kết hợp nhảy ragdoll và chạy dự phòng",
     ["Steal panel joins the game buttons and lists every egg"] = "Bảng Cướp tích hợp nút game và liệt kê mọi quả trứng",
     ["Search"] = "Tìm kiếm",
     ["Filter"] = "Lọc tìm",
 
-    -- Steal & Egg Predictor (Ảnh 2, 3, 4)
+    -- Steal & Egg Predictor
     ["Steal"] = "Cướp Trứng",
     ["Auto Steal"] = "Tự Động Cướp",
     ["AUTO STEAL"] = "TỰ ĐỘNG CƯỚP",
@@ -120,6 +124,11 @@ local EXACT_MATCH_VI = {
     ["None"] = "Không có",
     ["Steal first"] = "Ưu tiên cướp",
     ["Best value"] = "Giá trị cao nhất",
+    ["Lowest value"] = "Giá trị thấp nhất",
+    ["Best rarity"] = "Độ hiếm cao nhất",
+    ["Best mutation"] = "Đột biến tốt nhất",
+    ["Biggest"] = "Kích thước to nhất",
+    ["Closest"] = "Khoảng cách gần nhất",
     ["Mutations"] = "Đột biến",
     ["Rarities"] = "Độ hiếm",
     ["Only these eggs"] = "Chỉ những trứng này",
@@ -133,11 +142,38 @@ local EXACT_MATCH_VI = {
     ["Sort eggs"] = "Sắp xếp trứng",
     ["Preview card"] = "Thẻ xem trước",
     ["Pick one"] = "Chọn một mục",
+    ["Pick any"] = "Chọn bất kỳ",
     ["Value"] = "Giá trị",
     ["Rarity"] = "Độ hiếm",
     ["Time left"] = "Thời gian còn lại",
+    ["Default"] = "Mặc định",
+    ["Clear"] = "Xóa chọn",
+    ["Select all"] = "Chọn tất cả",
 
-    -- Farm: Pen, Treadmill, Mutate (Ảnh 5, 6, 7)
+    -- Zones (Khu vực)
+    ["Enchanted Forest"] = "Rừng Phù Phép (Enchanted Forest)",
+    ["Light Dark"] = "Sáng Tối (Light Dark)",
+    ["Titan Temple"] = "Đền Titan (Titan Temple)",
+    ["Cherry Blossom"] = "Hoa Anh Đào (Cherry Blossom)",
+    ["Prehistoric"] = "Tiền Sử (Prehistoric)",
+    ["Abyss Ocean"] = "Đáy Đại Dương (Abyss Ocean)",
+    ["Volcano"] = "Núi Lửa (Volcano)",
+    ["Snow"] = "Tuyết (Snow)",
+    ["Jungle"] = "Rừng Rậm (Jungle)",
+    ["Desert"] = "Sa Mạc (Desert)",
+    ["Lake"] = "Hồ Nước (Lake)",
+    ["Forest"] = "Khu Rừng (Forest)",
+
+    -- Mutations (Đột biến)
+    ["Silver"] = "Bạc (Silver)",
+    ["Rainbow"] = "Cầu Vồng (Rainbow)",
+    ["Golden"] = "Vàng (Golden)",
+    ["Fractured"] = "Rạn Nứt (Fractured)",
+    ["Scrambled"] = "Hỗn Loạn (Scrambled)",
+    ["Enchanted"] = "Phù Phép (Enchanted)",
+    ["Nitro"] = "Nitro",
+
+    -- Farm: Pen, Treadmill, Mutate, Sell, Fuse
     ["Farm"] = "Cày Cuốc",
     ["Pen"] = "Chuồng Ấp",
     ["PEN"] = "CHUỒNG ẤP",
@@ -150,6 +186,7 @@ local EXACT_MATCH_VI = {
     ["Fuse"] = "Dung Hợp",
     ["FUSE"] = "DUNG HỢP",
     ["Priority"] = "Ưu Tiên",
+    ["PRIORITY"] = "THỨ TỰ ƯU TIÊN",
     ["AUTO PLACE"] = "TỰ ĐỘNG ĐẶT TRỨNG",
     ["Auto place"] = "Tự động đặt trứng",
     ["Place when"] = "Đặt khi",
@@ -174,14 +211,12 @@ local EXACT_MATCH_VI = {
     ["Auto buy Nitro"] = "Tự mua Nitro",
     ["PETS"] = "THÚ CƯNG (PETS)",
     ["EGGS"] = "TRỨNG (EGGS)",
-
-    -- Farm: Sell, Lab Eggs, Favorite, Fuse (Ảnh 8, 9, 10)
     ["Auto sell pets"] = "Tự động bán pet",
     ["Auto sell eggs"] = "Tự động bán trứng",
     ["Sell rarities"] = "Độ hiếm bán",
     ["Never sell"] = "Không bao giờ bán",
     ["Only mutations"] = "Chỉ bán đột biến",
-    ["Only below /s"] = "Chỉ bán dưới mức /s",
+    ["Only below /s"] = "Chỉ dưới mức /s",
     ["Keep mutated"] = "Giữ lại đồ đột biến",
     ["Sell matching pets now"] = "Bán các pet khớp ngay",
     ["Sell matching eggs now"] = "Bán các trứng khớp ngay",
@@ -215,6 +250,77 @@ local EXACT_MATCH_VI = {
     ["Waiting for pets"] = "Đang chờ pet",
     ["LIKELY SIZE"] = "KÍCH CỠ DỰ KIẾN",
     ["CHANCE"] = "TỶ LỆ",
+    ["VALUE"] = "GIÁ TRỊ",
+    ["BEST CASE"] = "TỐT NHẤT CÓ THỂ",
+
+    -- Farm -> Priority (Thứ tự ưu tiên tác vụ 1 - 12)
+    ["TASK ORDER"] = "THỨ TỰ TÁC VỤ",
+    ["Top goes first. A carried egg is always delivered first, and before the field opens every task waits in the safe zone."] = "Mục ở trên làm trước. Trứng đang bê luôn được giao trước, và trước khi khu vực mở thì mọi tác vụ sẽ đợi ở vùng an toàn.",
+    ["DOING"] = "ĐANG LÀM",
+    ["WAITING"] = "ĐANG CHỜ",
+    ["Nothing"] = "Không có gì",
+    ["Steal filter eggs"] = "Cướp trứng theo bộ lọc",
+    ["Shooting Star"] = "Bắt Sao Băng",
+    ["Racing Event"] = "Sự Kiện Đua Xe",
+    ["Butterfly"] = "Bắt Bướm",
+    ["Steal wisp eggs"] = "Cướp trứng Wisp",
+    ["Wisp"] = "Nhặt Wisp",
+    ["Steal missing index"] = "Cướp trứng thiếu trong Chỉ mục",
+    ["Steal lab eggs"] = "Cướp trứng phòng Lab",
+    ["Place"] = "Đặt trứng vào chuồng",
+    ["Butterfly machine"] = "Máy đổi Bướm",
+
+    -- Event: Race, Star, Butterfly, Lab, AA
+    ["Race"] = "Đua Xe",
+    ["RACE"] = "ĐUA XE",
+    ["Star"] = "Sao Băng",
+    ["STAR"] = "SAO BĂNG",
+    ["BUTTERFLY"] = "BẮT BƯỚM",
+    ["Lab"] = "Phòng Lab",
+    ["LAB"] = "PHÒNG LAB",
+    ["AA"] = "Admin (AA)",
+    ["RACING EVENT"] = "SỰ KIỆN ĐUA XE",
+    ["NEXT RACE"] = "ĐUA TIẾP THEO",
+    ["Waiting"] = "Đang chờ",
+    ["WINS"] = "THẮNG",
+    ["TROPHIES"] = "CÚP",
+    ["Auto race"] = "Tự động đua xe",
+    ["Race speed"] = "Tốc độ đua",
+    ["Lower it if wins do not count"] = "Giảm tốc độ nếu thắng không được tính",
+    ["Use power-ups"] = "Tự dùng vật phẩm tăng tốc",
+    ["REWARDS"] = "PHẦN THƯỞNG",
+    ["Auto claim rewards"] = "Tự nhận phần thưởng",
+    ["Auto equip racer"] = "Tự trang bị xe đua",
+    ["Racer"] = "Xe đua",
+    ["Best owned"] = "Tốt nhất đang có",
+    ["Auto buy shop"] = "Tự mua vật phẩm Shop",
+    ["Shop items"] = "Vật phẩm Shop",
+    ["SHOOTING STAR"] = "SAO BĂNG RƠI",
+    ["LANDS IN"] = "RƠI SAU",
+    ["CATCH"] = "BẮT SAO BĂNG",
+    ["A Shooting Star is rare and only you can catch yours. It lands in Cosmic, runs from you, and needs a 1.6 s hold."] = "Sao Băng rất hiếm và chỉ bạn mới bắt được của mình. Nó rơi ở khu Vũ Trụ (Cosmic), chạy trốn bạn và cần nhấn giữ 1.6 giây.",
+    ["CAUGHT"] = "ĐÃ BẮT",
+    ["EXPIRES IN"] = "BIẾN MẤT SAU",
+    ["SLIPPED"] = "TUỘT MẤT",
+    ["TRIES"] = "SỐ LẦN THỬ",
+    ["DISTANCE"] = "KHOẢNG CÁCH",
+    ["Auto catch shooting star"] = "Tự động bắt sao băng",
+    ["BUTTERFLY BLOOM"] = "MÙA BƯỚM NỞ",
+    ["Auto butterfly bloom"] = "Tự động bắt bướm",
+    ["EMERALD"] = "LỤC BẢO",
+    ["SAPPHIRE"] = "LAM NGỌC",
+    ["AMETHYST"] = "THẠCH ANH TÍM",
+    ["RADIANT"] = "RỰC RỠ",
+    ["ESSENCE"] = "TINH CHẤT",
+    ["Catch mode"] = "Chế độ bắt",
+    ["Stand"] = "Đứng yên",
+    ["Chase"] = "Đuổi theo",
+    ["BUTTERFLY MACHINE"] = "MÁY ĐỔI BƯỚM",
+    ["Auto trade up"] = "Tự nâng cấp bậc bướm",
+    ["Trade"] = "Giao dịch đổi",
+    ["Smart trade for essence"] = "Đổi bướm lấy tinh chất thông minh",
+    ["Auto craft essence"] = "Tự chế tạo tinh chất",
+    ["WISP COMPANION"] = "ĐỒNG HÀNH WISP",
 
     -- Độ hiếm
     ["Common"] = "Phổ Thông (Common)",
@@ -258,9 +364,10 @@ local function translateVenyxText(raw)
         return raw
     end
 
-    local trimmed = raw:match("^%s*(.-)%s*$") or raw
-    if EXACT_MATCH_VI[trimmed] then
-        local out = raw:gsub(trimmed:gsub("([%^%$%(%)%%%.%[%]%*%+%-%?])", "%%%1"), EXACT_MATCH_VI[trimmed], 1)
+    -- Chuẩn hóa khoảng trắng và dòng mới để bắt chính xác các câu mô tả dài
+    local normalized = (raw:match("^%s*(.-)%s*$") or raw):gsub("%s+", " ")
+    if EXACT_MATCH_VI[normalized] then
+        local out = EXACT_MATCH_VI[normalized]
         FastCache[cacheKey] = out
         return out
     end
@@ -317,12 +424,13 @@ end
 
 local function hookTextForTranslation(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
-    if inst:GetAttribute("__TransHooked") then return end
     if inst:GetAttribute("__IslandDone") or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") then return end
-    inst:SetAttribute("__TransHooked", true)
 
-    table.insert(TrackedTexts, inst)
     applyElementTranslation(inst)
+
+    if inst:GetAttribute("__TransHooked") then return end
+    inst:SetAttribute("__TransHooked", true)
+    table.insert(TrackedTexts, inst)
 
     inst:GetPropertyChangedSignal("Text"):Connect(function()
         if inst:GetAttribute("__IsTranslating") then return end
@@ -345,16 +453,42 @@ local function refreshAllTranslations()
     end
 end
 
--- ==================== 3. DYNAMIC ISLAND & NÚT TRẠNG THÁI IDLE ✨ RAINBOW ====================
--- Thu gọn: Hiện nút trạng thái "● Idle ✨ rainbow"
--- Phóng to (Bấm vào): Ẩn nút trạng thái Idle, hiện bảng chọn Tiếng Việt / English
+-- ==================== 3. DYNAMIC ISLAND NỀN ĐEN TUYỀN & NÚT IDLE ✨ RAINBOW ====================
 local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
-    if statusLbl:GetAttribute("__IslandDone") then return end
-    statusLbl:SetAttribute("__IslandDone", true)
-
     local pill = statusLbl.Parent
     if not (pill and pill:IsA("GuiObject")) then return end
 
+    -- Xóa bất kỳ UIGradient nào gắn nhầm trực tiếp lên khung nền pill (chỉ giữ Gradient trên chữ và viền)
+    for _, child in ipairs(pill:GetChildren()) do
+        if child:IsA("UIGradient") then
+            child:Destroy()
+        end
+    end
+
+    -- Ép màu nền ĐEN TUYỀN (#000000) và độ đặc 100% (Transparency = 0) để làm nổi rõ chữ Rainbow
+    pill.BackgroundColor3 = ISLAND_BLACK_BG
+    pill.BackgroundTransparency = 0
+
+    if not pill:GetAttribute("__BlackBgLocked") then
+        pill:SetAttribute("__BlackBgLocked", true)
+        pill:GetPropertyChangedSignal("BackgroundColor3"):Connect(function()
+            if pill.BackgroundColor3 ~= ISLAND_BLACK_BG then
+                pill.BackgroundColor3 = ISLAND_BLACK_BG
+            end
+        end)
+        pill:GetPropertyChangedSignal("BackgroundTransparency"):Connect(function()
+            if pill.BackgroundTransparency ~= 0 then
+                pill.BackgroundTransparency = 0
+            end
+        end)
+    end
+
+    if statusLbl:GetAttribute("__IslandDone") and venyxGui:FindFirstChild("ChilliV5_ExpandedIsland") then
+        return
+    end
+    statusLbl:SetAttribute("__IslandDone", true)
+
+    -- Giữ nguyên chữ Idle ✨ rainbow và hiệu ứng cầu vồng của chữ
     local function updateStatusText()
         if statusLbl:GetAttribute("__Updating") then return end
         statusLbl:SetAttribute("__Updating", true)
@@ -365,6 +499,7 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
 
         statusLbl.Text = clean .. " ✨ rainbow"
         statusLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+        statusLbl.TextTransparency = 0
         statusLbl.AutomaticSize = Enum.AutomaticSize.X
 
         task.defer(function()
@@ -374,21 +509,19 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
 
     updateStatusText()
 
-    local txtGrad = pill:FindFirstChild("TextRainbow", true) or Instance.new("UIGradient")
+    local txtGrad = statusLbl:FindFirstChild("TextRainbow") or Instance.new("UIGradient")
     txtGrad.Name = "TextRainbow"
     txtGrad.Color = COLOR_SEQ_RAINBOW
     txtGrad.Parent = statusLbl
     table.insert(ActiveGradients, txtGrad)
 
-    -- Đưa nút trạng thái gốc lên đỉnh màn hình (Chế độ thu gọn)
-    local currentHeight = math.clamp(pill.AbsoluteSize.Y, 26, 32)
+    -- Định vị nút trạng thái ở đỉnh màn hình (Chế độ thu gọn)
+    local currentHeight = math.clamp(pill.AbsoluteSize.Y, 28, 32)
     pill.Parent = venyxGui
     pill.AnchorPoint = Vector2.new(0.5, 0)
     pill.Position = UDim2.new(0.5, 0, 0, 10)
     pill.Size = UDim2.new(0, 0, 0, currentHeight)
     pill.AutomaticSize = Enum.AutomaticSize.X
-    pill.BackgroundColor3 = Color3.fromRGB(22, 24, 36)
-    pill.BackgroundTransparency = 0.08
     pill.ZIndex = 9999
     pill.Active = true
 
@@ -398,7 +531,7 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
 
     local pillStroke = pill:FindFirstChild("IslandStroke") or Instance.new("UIStroke")
     pillStroke.Name = "IslandStroke"
-    pillStroke.Thickness = 1.4
+    pillStroke.Thickness = 1.6
     pillStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     pillStroke.Color = Color3.fromRGB(255, 255, 255)
     pillStroke.Parent = pill
@@ -408,7 +541,7 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     strokeGrad.Parent = pillStroke
     table.insert(ActiveGradients, strokeGrad)
 
-    -- TẠO BẢNG DYNAMIC ISLAND PHÓNG TO (ẨN MẶC ĐỊNH, HIỆN KHI ẤN VÀO NÚT IDLE)
+    -- TẠO BẢNG DYNAMIC ISLAND PHÓNG TO (NỀN ĐEN TUYỀN #000000)
     local oldExp = venyxGui:FindFirstChild("ChilliV5_ExpandedIsland")
     if oldExp then oldExp:Destroy() end
 
@@ -417,8 +550,8 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     ExpandedIsland.AnchorPoint = Vector2.new(0.5, 0)
     ExpandedIsland.Position = pill.Position
     ExpandedIsland.Size = UDim2.new(0, 260, 0, 78)
-    ExpandedIsland.BackgroundColor3 = Color3.fromRGB(16, 18, 28)
-    ExpandedIsland.BackgroundTransparency = 0.05
+    ExpandedIsland.BackgroundColor3 = ISLAND_BLACK_BG
+    ExpandedIsland.BackgroundTransparency = 0
     ExpandedIsland.BorderSizePixel = 0
     ExpandedIsland.Visible = false
     ExpandedIsland.Active = true
@@ -440,7 +573,6 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     ExpStrokeGrad.Parent = ExpStroke
     table.insert(ActiveGradients, ExpStrokeGrad)
 
-    -- Tiêu đề trong Dynamic Island khi mở rộng
     local ExpTitle = Instance.new("TextLabel")
     ExpTitle.Size = UDim2.new(1, -44, 0, 28)
     ExpTitle.Position = UDim2.new(0, 14, 0, 4)
@@ -448,16 +580,15 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     ExpTitle.Text = "🌶️ Chilli Hub V5"
     ExpTitle.Font = Enum.Font.GothamBold
     ExpTitle.TextSize = 11.5
-    ExpTitle.TextColor3 = Color3.fromRGB(245, 248, 255)
+    ExpTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
     ExpTitle.TextXAlignment = Enum.TextXAlignment.Left
     ExpTitle.ZIndex = 10001
     ExpTitle.Parent = ExpandedIsland
 
-    -- Nút thu gọn lại về trạng thái Idle ✨ rainbow
     local CollapseBtn = Instance.new("TextButton")
     CollapseBtn.Size = UDim2.new(0, 24, 0, 22)
     CollapseBtn.Position = UDim2.new(1, -32, 0, 7)
-    CollapseBtn.BackgroundColor3 = Color3.fromRGB(32, 36, 54)
+    CollapseBtn.BackgroundColor3 = Color3.fromRGB(22, 24, 34)
     CollapseBtn.BorderSizePixel = 0
     CollapseBtn.Text = "▲"
     CollapseBtn.Font = Enum.Font.GothamBold
@@ -474,7 +605,7 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     local LangCapsule = Instance.new("Frame")
     LangCapsule.Size = UDim2.new(1, -20, 0, 34)
     LangCapsule.Position = UDim2.new(0, 10, 0, 36)
-    LangCapsule.BackgroundColor3 = Color3.fromRGB(24, 28, 42)
+    LangCapsule.BackgroundColor3 = Color3.fromRGB(18, 20, 30)
     LangCapsule.BorderSizePixel = 0
     LangCapsule.ZIndex = 10001
     LangCapsule.Parent = ExpandedIsland
@@ -541,11 +672,10 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     BtnVI.MouseButton1Click:Connect(function() setLanguage("VI") end)
     BtnEN.MouseButton1Click:Connect(function() setLanguage("EN") end)
 
-    -- HÀM ĐÓNG / MỞ DYNAMIC ISLAND (ẨN NÚT IDLE KHI MỞ RỘNG, HIỆN LẠI KHI THU GỌN)
     local function toggleIsland(expand)
         if expand then
             ExpandedIsland.Position = pill.Position
-            pill.Visible = false -- Ẩn hoàn toàn nút trạng thái Idle khi phóng to
+            pill.Visible = false -- Ẩn nút trạng thái Idle khi phóng to
             ExpandedIsland.Size = UDim2.new(0, 150, 0, 32)
             ExpandedIsland.Visible = true
             TweenService:Create(ExpandedIsland, TweenInfo.new(0.28, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
@@ -562,16 +692,24 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
         toggleIsland(false)
     end)
 
-    -- Hỗ trợ vừa Kéo Thả vừa Bấm Mở trên cả Nút Idle và Bảng Mở Rộng
-    local function attachDragAndClick(frameObj, onTapCallback)
+    -- Lớp nút bấm trong suốt phủ trên pill để nhận cảm ứng nhạy 100%
+    local hitBtn = pill:FindFirstChild("IslandClickHitbox") or Instance.new("TextButton")
+    hitBtn.Name = "IslandClickHitbox"
+    hitBtn.Size = UDim2.new(1, 0, 1, 0)
+    hitBtn.BackgroundTransparency = 1
+    hitBtn.Text = ""
+    hitBtn.ZIndex = 10005
+    hitBtn.Parent = pill
+
+    local function attachDragAndClick(triggerObj, moveFrame, onTapCallback)
         local dragging, dragStart, startPos, moved = false, nil, nil, false
 
-        frameObj.InputBegan:Connect(function(input)
+        triggerObj.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                 dragging = true
                 moved = false
                 dragStart = input.Position
-                startPos = frameObj.Position
+                startPos = moveFrame.Position
                 input.Changed:Connect(function()
                     if input.UserInputState == Enum.UserInputState.End then
                         if dragging and not moved and onTapCallback then
@@ -583,7 +721,7 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
             end
         end)
 
-        frameObj.InputChanged:Connect(function(input)
+        triggerObj.InputChanged:Connect(function(input)
             if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragging then
                 local delta = input.Position - dragStart
                 if delta.Magnitude > 6 then
@@ -595,20 +733,16 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
                 local newX = math.clamp(startPos.X.Offset + delta.X, -maxX / 2, maxX / 2)
                 local newY = math.clamp(startPos.Y.Offset + delta.Y, 4, maxY)
                 local newPos = UDim2.new(startPos.X.Scale, newX, startPos.Y.Scale, newY)
-                frameObj.Position = newPos
-                if frameObj == pill then
-                    ExpandedIsland.Position = newPos
-                else
-                    pill.Position = newPos
-                end
+                pill.Position = newPos
+                ExpandedIsland.Position = newPos
             end
         end)
     end
 
-    attachDragAndClick(pill, function()
+    attachDragAndClick(hitBtn, pill, function()
         toggleIsland(true)
     end)
-    attachDragAndClick(ExpandedIsland, nil)
+    attachDragAndClick(ExpandedIsland, ExpandedIsland, nil)
 
     statusLbl:GetPropertyChangedSignal("Text"):Connect(function()
         if not statusLbl:GetAttribute("__Updating") and not statusLbl.Text:find("✨ rainbow") then
@@ -617,7 +751,7 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     end)
 end
 
--- ==================== 4. NÚT TRÒN NỔI 1:1 (GIỮ NGUYÊN BẢN 6568.JPG) ====================
+-- ==================== 4. NÚT TRÒN NỔI 1:1 (GIỮ NGUYÊN TUYỆT ĐỐI) ====================
 local function setupUnclippedCircularLogo(img)
     if img:GetAttribute("__FloatingLogoV5Perfect") then return end
     img:SetAttribute("__FloatingLogoV5Perfect", true)
@@ -742,7 +876,7 @@ local function tryPatchVenyx()
 
                         local headerY = titleLbl.AbsolutePosition.Y
 
-                        -- Bắt sự kiện cho các phần tử Text khi mở Dropdown / Modal mới (Chỉ bắt Text, không tạo Instance gây đệ quy)
+                        -- Bắt sự kiện cho các phần tử Text khi mở Dropdown / Modal mới
                         if not gui:GetAttribute("__TextListenerAttached") then
                             gui:SetAttribute("__TextListenerAttached", true)
                             gui.DescendantAdded:Connect(function(newDesc)
@@ -759,15 +893,16 @@ local function tryPatchVenyx()
                             if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
                                 local txt = desc.Text or ""
 
-                                -- 2. Định vị đúng nút Idle trên Header để đưa lên Dynamic Island
-                                if not desc:GetAttribute("__IslandDone")
-                                and not desc:FindFirstAncestorOfClass("ScrollingFrame")
-                                and math.abs(desc.AbsolutePosition.Y - headerY) < 35
-                                and desc.AbsolutePosition.X > titleLbl.AbsolutePosition.X + 60
-                                and txt:lower():find("idle") then
+                                -- 2. Định vị đúng nút Idle (kể cả khi còn trên Header hoặc đã tách lên đỉnh đầu)
+                                local isHeaderIdle = (not desc:FindFirstAncestorOfClass("ScrollingFrame"))
+                                    and math.abs(desc.AbsolutePosition.Y - headerY) < 35
+                                    and desc.AbsolutePosition.X > titleLbl.AbsolutePosition.X + 60
+                                    and txt:lower():find("idle")
+                                local isAlreadyMovedIdle = desc:GetAttribute("__IslandDone") or txt:find("✨ rainbow")
+
+                                if isHeaderIdle or isAlreadyMovedIdle then
                                     setupDynamicIslandFromStatus(desc, gui)
                                 else
-                                    -- Dịch thuật sang Tiếng Việt
                                     hookTextForTranslation(desc)
                                 end
 
@@ -797,7 +932,7 @@ local function tryPatchVenyx()
     end
 end
 
--- Chạy kiểm tra nhịp nhàng mỗi 0.5s trong 10 giây đầu (Tuyệt đối không gây lag hay treo máy)
+-- Chạy kiểm tra nhịp nhàng mỗi 0.5s trong 10 giây đầu
 task.spawn(function()
     for _ = 1, 20 do
         pcall(tryPatchVenyx)
