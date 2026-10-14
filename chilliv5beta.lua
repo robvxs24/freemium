@@ -1,17 +1,18 @@
 -- ==============================================================================
---  CHILLI HUB V5 - PURE BLACK DYNAMIC ISLAND & FULL VIETNAMESE ENGINE
+--  CHILLI HUB V5 - COMPACT BLACK DYNAMIC ISLAND & FULL VIETNAMESE ENGINE
 --  Bảo toàn 100%:
---    1. DYNAMIC ISLAND NỀN ĐEN TUYỀN (#000000): Làm nổi bật chữ "Idle ✨ rainbow",
---       thu gọn hiện trạng thái Idle, bấm vào ẩn Idle và mở bảng đổi ngôn ngữ.
---    2. LOGO TRÒN 1:1 (60x60) & HEADER LOGO: Giữ nguyên vẹn cấu trúc chuẩn.
---    3. DỊCH FULL 20 ẢNH: Bao gồm Dashboard, Steal, Farm, Priority, Modals & Event.
---    4. ZERO-LAG ENGINE: Chạy 1 luồng duy nhất, khóa chống đệ quy tuyệt đối.
+--    1. SỬA DỨT ĐIỂM LỖI GIÃN NGANG: Xóa IslandClickHitbox (Scale 1), trả lại
+--       kích thước nhỏ gọn chuẩn ban đầu.
+--    2. CHỈ BÁO NÚT BẤM (▼): Thêm nút mũi tên tròn 20x20px bên phải chữ
+--       "Idle ✨ rainbow" để người chơi biết bấm vào sẽ mở bảng điều khiển.
+--    3. DYNAMIC ISLAND NỀN ĐEN TUYỀN (#000000): Chữ cầu vồng sắc nét.
+--    4. LOGO TRÒN 1:1 (60x60) & DỊCH THUẬT TIẾNG VIỆT: Giữ nguyên vẹn 100%.
 -- ==============================================================================
 
 local NEW_TITLE = "Chilli Hub V5"
 local CHILLI_LOGO_ID = "rbxassetid://92622270383869"
 local LOGO_BG_COLOR = Color3.fromRGB(5, 7, 15)
-local ISLAND_BLACK_BG = Color3.fromRGB(0, 0, 0) -- Màu đen tuyền tuyệt đối cho nền Dynamic Island
+local ISLAND_BLACK_BG = Color3.fromRGB(0, 0, 0)
 
 -- 1. KHỞI CHẠY BASE SCRIPT LUARMOR
 if not getgenv().__VenyxV5Loaded then
@@ -364,7 +365,6 @@ local function translateVenyxText(raw)
         return raw
     end
 
-    -- Chuẩn hóa khoảng trắng và dòng mới để bắt chính xác các câu mô tả dài
     local normalized = (raw:match("^%s*(.-)%s*$") or raw):gsub("%s+", " ")
     if EXACT_MATCH_VI[normalized] then
         local out = EXACT_MATCH_VI[normalized]
@@ -387,7 +387,7 @@ end
 
 local function applyElementTranslation(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
-    if inst:GetAttribute("__IslandDone") or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") then return end
+    if inst:GetAttribute("__IslandDone") or inst.Name == "IslandExpandHint" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") then return end
     if inst:GetAttribute("__IsTranslating") then return end
 
     if inst:IsA("TextBox") then
@@ -424,7 +424,7 @@ end
 
 local function hookTextForTranslation(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
-    if inst:GetAttribute("__IslandDone") or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") then return end
+    if inst:GetAttribute("__IslandDone") or inst.Name == "IslandExpandHint" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") then return end
 
     applyElementTranslation(inst)
 
@@ -453,21 +453,29 @@ local function refreshAllTranslations()
     end
 end
 
--- ==================== 3. DYNAMIC ISLAND NỀN ĐEN TUYỀN & NÚT IDLE ✨ RAINBOW ====================
+-- ==================== 3. DYNAMIC ISLAND NHỎ GỌN NỀN ĐEN & CHỈ BÁO NÚT BẤM (▼) ====================
 local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     local pill = statusLbl.Parent
     if not (pill and pill:IsA("GuiObject")) then return end
 
-    -- Xóa bất kỳ UIGradient nào gắn nhầm trực tiếp lên khung nền pill (chỉ giữ Gradient trên chữ và viền)
+    -- 1. XÓA NGAY IslandClickHitbox (Scale 1) GÂY LỖI GIÃN NGANG TOÀN MÀN HÌNH
+    local badHitbox = pill:FindFirstChild("IslandClickHitbox")
+    if badHitbox then
+        badHitbox:Destroy()
+    end
+
+    -- Xóa UIGradient nếu bị gắn nhầm lên nền pill
     for _, child in ipairs(pill:GetChildren()) do
         if child:IsA("UIGradient") then
             child:Destroy()
         end
     end
 
-    -- Ép màu nền ĐEN TUYỀN (#000000) và độ đặc 100% (Transparency = 0) để làm nổi rõ chữ Rainbow
+    -- 2. Khóa màu nền ĐEN TUYỀN (#000000) và trả lại kích thước con nhộng nhỏ gọn ban đầu
     pill.BackgroundColor3 = ISLAND_BLACK_BG
     pill.BackgroundTransparency = 0
+    pill.Size = UDim2.new(0, 0, 0, 28)
+    pill.AutomaticSize = Enum.AutomaticSize.X
 
     if not pill:GetAttribute("__BlackBgLocked") then
         pill:SetAttribute("__BlackBgLocked", true)
@@ -481,6 +489,32 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
                 pill.BackgroundTransparency = 0
             end
         end)
+    end
+
+    -- 3. THÊM NÚT CHỈ BÁO MỞ RỘNG (▼) NHỎ GỌN (20x20 PX CỐ ĐỊNH, SCALE = 0)
+    local expandHint = pill:FindFirstChild("IslandExpandHint")
+    if not expandHint then
+        expandHint = Instance.new("TextLabel")
+        expandHint.Name = "IslandExpandHint"
+        expandHint.Size = UDim2.new(0, 18, 0, 18) -- Scale = 0 nên không bao giờ làm giãn khung
+        expandHint.BackgroundColor3 = Color3.fromRGB(28, 32, 48)
+        expandHint.BorderSizePixel = 0
+        expandHint.Text = "▼"
+        expandHint.Font = Enum.Font.GothamBold
+        expandHint.TextSize = 9
+        expandHint.TextColor3 = Color3.fromRGB(165, 210, 255)
+        expandHint.LayoutOrder = 99
+        expandHint.ZIndex = 10000
+        expandHint.Parent = pill
+
+        local hintCorner = Instance.new("UICorner")
+        hintCorner.CornerRadius = UDim.new(1, 0)
+        hintCorner.Parent = expandHint
+
+        local hintStroke = Instance.new("UIStroke")
+        hintStroke.Thickness = 1
+        hintStroke.Color = Color3.fromRGB(90, 130, 200)
+        hintStroke.Parent = expandHint
     end
 
     if statusLbl:GetAttribute("__IslandDone") and venyxGui:FindFirstChild("ChilliV5_ExpandedIsland") then
@@ -500,6 +534,7 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
         statusLbl.Text = clean .. " ✨ rainbow"
         statusLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
         statusLbl.TextTransparency = 0
+        statusLbl.Size = UDim2.new(0, 0, 1, 0)
         statusLbl.AutomaticSize = Enum.AutomaticSize.X
 
         task.defer(function()
@@ -516,14 +551,13 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     table.insert(ActiveGradients, txtGrad)
 
     -- Định vị nút trạng thái ở đỉnh màn hình (Chế độ thu gọn)
-    local currentHeight = math.clamp(pill.AbsoluteSize.Y, 28, 32)
     pill.Parent = venyxGui
     pill.AnchorPoint = Vector2.new(0.5, 0)
     pill.Position = UDim2.new(0.5, 0, 0, 10)
-    pill.Size = UDim2.new(0, 0, 0, currentHeight)
-    pill.AutomaticSize = Enum.AutomaticSize.X
     pill.ZIndex = 9999
     pill.Active = true
+    statusLbl.Active = true
+    expandHint.Active = true
 
     local pillCorner = pill:FindFirstChildOfClass("UICorner") or Instance.new("UICorner")
     pillCorner.CornerRadius = UDim.new(1, 0)
@@ -676,7 +710,7 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
         if expand then
             ExpandedIsland.Position = pill.Position
             pill.Visible = false -- Ẩn nút trạng thái Idle khi phóng to
-            ExpandedIsland.Size = UDim2.new(0, 150, 0, 32)
+            ExpandedIsland.Size = UDim2.new(0, 150, 0, 28)
             ExpandedIsland.Visible = true
             TweenService:Create(ExpandedIsland, TweenInfo.new(0.28, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
                 Size = UDim2.new(0, 260, 0, 78)
@@ -692,16 +726,11 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
         toggleIsland(false)
     end)
 
-    -- Lớp nút bấm trong suốt phủ trên pill để nhận cảm ứng nhạy 100%
-    local hitBtn = pill:FindFirstChild("IslandClickHitbox") or Instance.new("TextButton")
-    hitBtn.Name = "IslandClickHitbox"
-    hitBtn.Size = UDim2.new(1, 0, 1, 0)
-    hitBtn.BackgroundTransparency = 1
-    hitBtn.Text = ""
-    hitBtn.ZIndex = 10005
-    hitBtn.Parent = pill
-
+    -- Bắt cảm ứng/chuột trực tiếp trên pill, statusLbl và nút ▼ mà không cần tạo Frame Scale=1
     local function attachDragAndClick(triggerObj, moveFrame, onTapCallback)
+        if triggerObj:GetAttribute("__DragBound") then return end
+        triggerObj:SetAttribute("__DragBound", true)
+
         local dragging, dragStart, startPos, moved = false, nil, nil, false
 
         triggerObj.InputBegan:Connect(function(input)
@@ -739,9 +768,10 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
         end)
     end
 
-    attachDragAndClick(hitBtn, pill, function()
-        toggleIsland(true)
-    end)
+    local openCallback = function() toggleIsland(true) end
+    attachDragAndClick(pill, pill, openCallback)
+    attachDragAndClick(statusLbl, pill, openCallback)
+    attachDragAndClick(expandHint, pill, openCallback)
     attachDragAndClick(ExpandedIsland, ExpandedIsland, nil)
 
     statusLbl:GetPropertyChangedSignal("Text"):Connect(function()
