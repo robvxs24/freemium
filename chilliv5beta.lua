@@ -1,10 +1,13 @@
 -- ==============================================================================
---  CHILLI HUB V5 - DYNAMIC ISLAND, FAKE 85-120 FPS & FULL VIETNAMESE ENGINE
---  Sửa đúng vị trí lỗi mất Dynamic Island (Giữ nguyên 100% các phần đã chuẩn):
---    1. KHÔI PHỤC DYNAMIC ISLAND: Bắt chính xác cả khi chữ gốc là "Idle" hoặc
---       đã dịch thành "Đang rảnh", khóa chống bốc nhầm thanh Header.
---    2. BỎ CHỮ "✨ rainbow": Chỉ hiện trạng thái màu cầu vồng trên nền đen #000000.
---    3. GIỮ NGUYÊN 100%: Fake FPS (85-120 FPS), Bảo vệ Quick Bar, Logo 60x60.
+--  CHILLI HUB V5 - VENYXHUB NEW LOADER EDITION (FULL FEATURES & TRANSLATION)
+--  Tích hợp đầy đủ:
+--    1. LOADER MỚI: raw.githubusercontent.com/tienkhanh1/Venyx/main/VenyxHub
+--    2. LOGO TRÒN 1:1 (60x60) & HEADER LOGO: Đè hoàn toàn logo "Vx" mới,
+--       cách ly tuyệt đối không dính vào QUICK BAR 1.
+--    3. DYNAMIC ISLAND NỀN ĐEN (#000000): Hiện trạng thái cầu vồng (đã bỏ chữ
+--       "✨ rainbow"), kèm nút ▼ bấm vào mở công tắc Tiếng Việt / English.
+--    4. FAKE FPS (85 - 120 FPS): Dao động mượt tự nhiên, giữ nguyên ms thật.
+--    5. DỊCH FULL GIAO DIỆN MỚI: Bao gồm trang Home mới, Discord card & 30 ảnh.
 -- ==============================================================================
 
 local NEW_TITLE = "Chilli Hub V5"
@@ -12,12 +15,12 @@ local CHILLI_LOGO_ID = "rbxassetid://92622270383869"
 local LOGO_BG_COLOR = Color3.fromRGB(5, 7, 15)
 local ISLAND_BLACK_BG = Color3.fromRGB(0, 0, 0)
 
--- 1. KHỞI CHẠY BASE SCRIPT LUARMOR
-if not getgenv().__VenyxV5Loaded then
-    getgenv().__VenyxV5Loaded = true
+-- 1. KHỞI CHẠY SCRIPT VENYXHUB MỚI
+if not getgenv().__VenyxV5NewLoaded then
+    getgenv().__VenyxV5NewLoaded = true
     task.spawn(function()
         pcall(function()
-            loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/a40becae9d58ed4c969ab2f9d26f2f1b.lua"))()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/tienkhanh1/Venyx/main/VenyxHub"))()
         end)
     end)
 end
@@ -65,7 +68,7 @@ if not getgenv().__ChilliV5RainbowLoop then
     end)
 end
 
--- ==================== 2. BỘ TẠO FPS ẢO (85 - 120 FPS) (GIỮ NGUYÊN) ====================
+-- ==================== 2. BỘ TẠO FPS ẢO (85 - 120 FPS) ====================
 local currentFakeFps = math.random(96, 112)
 
 local function generateNextFakeFps()
@@ -119,7 +122,7 @@ local function hookFakeFpsCounter(lbl)
     end
 end
 
--- ==================== 3. HỆ THỐNG TỪ ĐIỂN DỊCH THUẬT TOÀN DIỆN ====================
+-- ==================== 3. HỆ THỐNG TỪ ĐIỂN DỊCH THUẬT (CẬP NHẬT BẢN MỚI) ====================
 local currentLanguage = "VI"
 local FastCache = {}
 local TrackedTexts = {}
@@ -158,9 +161,17 @@ local EXACT_MATCH_VI = {
     ["Joining race"] = "Đang vào đường đua",
     ["Racing"] = "Đang đua xe",
 
-    -- Dashboard
+    -- Trang Home & Dashboard Mới (Ảnh 6662.jpg)
+    ["Home"] = "Trang Chủ",
     ["Dashboard"] = "Bảng Điều Khiển",
     ["Welcome back"] = "Chào mừng trở lại",
+    ["Venyx Discord"] = "Chilli Hub Discord",
+    ["Updates, keys, support"] = "Cập nhật, nhận key, hỗ trợ",
+    ["Copy Invite"] = "Chép Link Mời",
+    ["Discord"] = "Discord",
+    ["MONEY /S"] = "TIỀN /GIÂY",
+    ["OPEN"] = "MỞ",
+    ["Welcome to Venyx 1.0.0! Join our Discord for updates and support"] = "Chào mừng tới Chilli Hub V5! Tham gia Discord để cập nhật và nhận hỗ trợ",
     ["Beta version"] = "Phiên bản Beta",
     ["This is a test build. Features may change and bugs can happen."] = "Đây là bản thử nghiệm. Tính năng có thể thay đổi và phát sinh lỗi.",
     ["Rejoin"] = "Vào lại",
@@ -662,6 +673,9 @@ local FALLBACK_VERB_PREFIX_VI = {
 
 local DYNAMIC_PATTERNS_VI = {
     { pat = "^QUICK BAR (%d+)$", rep = "THANH NHANH %1" },
+    { pat = "Venyx(.-)(%d+) hours? ago", rep = "Chilli Hub%1%2 giờ trước" },
+    { pat = "Venyx(.-)(%d+) minutes? ago", rep = "Chilli Hub%1%2 phút trước" },
+    { pat = "Venyx(.-)(%d+) days? ago", rep = "Chilli Hub%1%2 ngày trước" },
     { pat = "^ALL (%d+)$", rep = "TẤT CẢ %1" },
     { pat = "^READY (%d+)$", rep = "SẴN SÀNG %1" },
     { pat = "^GROWING (%d+)$", rep = "ĐANG LỚN %1" },
@@ -779,7 +793,7 @@ end
 
 local function applyElementTranslation(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
-    if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__FpsHooked") or inst.Name == "IslandExpandHint" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") then return end
+    if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__FpsHooked") or inst:GetAttribute("__HiddenVxLogo") or inst.Name == "IslandExpandHint" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") then return end
     if inst:GetAttribute("__IsTranslating") then return end
 
     if inst:IsA("TextBox") then
@@ -819,7 +833,7 @@ end
 
 local function hookTextForTranslation(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
-    if inst:GetAttribute("__IslandDone") or inst.Name == "IslandExpandHint" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") then return end
+    if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__HiddenVxLogo") or inst.Name == "IslandExpandHint" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") then return end
 
     if not inst:IsA("TextBox") and isFpsCounterText(inst.Text) then
         hookFakeFpsCounter(inst)
@@ -833,7 +847,7 @@ local function hookTextForTranslation(inst)
     table.insert(TrackedTexts, inst)
 
     inst:GetPropertyChangedSignal("Text"):Connect(function()
-        if inst:GetAttribute("__IsTranslating") or inst:GetAttribute("__IslandDone") then return end
+        if inst:GetAttribute("__IsTranslating") or inst:GetAttribute("__IslandDone") or inst:GetAttribute("__HiddenVxLogo") then return end
         if isFpsCounterText(inst.Text) then
             hookFakeFpsCounter(inst)
             return
@@ -1201,29 +1215,25 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     end)
 end
 
--- ==================== 5. NÚT TRÒN NỔI 1:1 (GIỮ NGUYÊN TUYỆT ĐỐI) ====================
-local function setupUnclippedCircularLogo(img)
-    if img:GetAttribute("__FloatingLogoV5Perfect") then return end
-
-    local topPanel = img
+-- ==================== 5. NÚT TRÒN NỔI 1:1 & HEADER LOGO (TƯƠNG THÍCH LOGO Vx MỚI) ====================
+local function setupUnclippedCircularLogo(targetObj)
+    local topPanel = targetObj
     while topPanel.Parent and topPanel.Parent:IsA("GuiObject") and not topPanel.Parent:IsA("ScreenGui") do
         topPanel = topPanel.Parent
     end
 
-    if topPanel:FindFirstChildWhichIsA("TextLabel", true) or topPanel.AbsoluteSize.X > 130 or topPanel.AbsolutePosition.X > 350 then
+    if topPanel:GetAttribute("__FloatingLogoV5Perfect") then return end
+
+    -- Cách ly tuyệt đối QUICK BAR 1 & FPS Pill:
+    -- Nút mở menu nổi nằm ở nửa trái màn hình, kích thước vuông nhỏ (<= 100x100)
+    local sz = topPanel.AbsoluteSize
+    local pos = topPanel.AbsolutePosition
+    if sz.X > 105 or sz.Y > 105 or sz.X < 28 or math.abs(sz.X - sz.Y) > 25 or pos.X > 350 then
         return
     end
 
-    img:SetAttribute("__FloatingLogoV5Perfect", true)
-
-    local container = img
-    while container.Parent and container.Parent:IsA("GuiObject") and not container.Parent:IsA("ScreenGui") do
-        if container.Parent.AbsoluteSize.X <= 130 and container.Parent.AbsoluteSize.Y <= 130 then
-            container = container.Parent
-        else
-            break
-        end
-    end
+    topPanel:SetAttribute("__FloatingLogoV5Perfect", true)
+    local container = topPanel
 
     for _, child in ipairs(container:GetDescendants()) do
         if child:IsA("UIPadding") or child:IsA("UIAspectRatioConstraint") or child:IsA("UISizeConstraint") then
@@ -1231,9 +1241,22 @@ local function setupUnclippedCircularLogo(img)
                 pcall(function() child:Destroy() end)
             end
         end
-        if child.Name == "InnerChilliLogo" or child.Name == "ChilliFullInnerLogo" then
-            pcall(function() child:Destroy() end)
+        -- Ẩn hoàn toàn cả Image lẫn Text ("Vx") bên trong nút nổi cũ
+        if (child:IsA("ImageLabel") or child:IsA("ImageButton")) and child.Name ~= "ChilliV5CoverLogo" then
+            child.ImageTransparency = 1
+            child.BackgroundTransparency = 1
+        elseif child:IsA("TextLabel") or child:IsA("TextButton") then
+            child:SetAttribute("__HiddenVxLogo", true)
+            child.TextTransparency = 1
+            child.BackgroundTransparency = 1
         end
+    end
+
+    if container:IsA("ImageLabel") or container:IsA("ImageButton") then
+        container.ImageTransparency = 1
+    elseif container:IsA("TextLabel") or container:IsA("TextButton") then
+        container:SetAttribute("__HiddenVxLogo", true)
+        container.TextTransparency = 1
     end
 
     container.Size = UDim2.new(0, 60, 0, 60)
@@ -1272,16 +1295,6 @@ local function setupUnclippedCircularLogo(img)
     strokeGrad.Parent = stroke
     table.insert(ActiveGradients, strokeGrad)
 
-    for _, desc in ipairs(container:GetDescendants()) do
-        if (desc:IsA("ImageLabel") or desc:IsA("ImageButton")) and desc.Name ~= "ChilliV5CoverLogo" then
-            desc.ImageTransparency = 1
-            desc.BackgroundTransparency = 1
-        end
-    end
-    if container:IsA("ImageLabel") or container:IsA("ImageButton") then
-        container.ImageTransparency = 1
-    end
-
     local coverLogo = container:FindFirstChild("ChilliV5CoverLogo") or Instance.new("ImageLabel")
     coverLogo.Name = "ChilliV5CoverLogo"
     coverLogo.Size = UDim2.new(1, 0, 1, 0)
@@ -1300,22 +1313,39 @@ local function setupUnclippedCircularLogo(img)
     logoCorner.Parent = coverLogo
 end
 
-local function cleanupAccidentalQuickBarLogos(gui)
-    for _, desc in ipairs(gui:GetDescendants()) do
-        if desc.Name == "ChilliV5CoverLogo" then
-            local topPanel = desc
-            while topPanel.Parent and topPanel.Parent:IsA("GuiObject") and not topPanel.Parent:IsA("ScreenGui") do
-                topPanel = topPanel.Parent
-            end
-            if topPanel:FindFirstChildWhichIsA("TextLabel", true) then
-                local parentBox = desc.Parent
-                desc:Destroy()
-                if parentBox then
-                    local rb = parentBox:FindFirstChild("RainbowBorder")
-                    if rb then rb:Destroy() end
-                    local pa = parentBox:FindFirstChild("PerfectCircleAspect")
-                    if pa then pa:Destroy() end
-                    parentBox.BackgroundTransparency = 1
+-- Hàm thay thế Logo "Vx" trên thanh Header (hỗ trợ cả Image lẫn Text "Vx")
+local function patchHeaderLogoLeftOfTitle(headerContainer, titleLbl)
+    if not headerContainer or not titleLbl then return end
+    local headerY = titleLbl.AbsolutePosition.Y
+    local titleX = titleLbl.AbsolutePosition.X
+
+    for _, item in ipairs(headerContainer:GetDescendants()) do
+        if item ~= titleLbl and item:IsA("GuiObject") and item.Name ~= "ChilliHeaderLogo" then
+            local pos = item.AbsolutePosition
+            local sz = item.AbsoluteSize
+            if math.abs(pos.Y - headerY) < 35 and pos.X < titleX and sz.X >= 10 and sz.X <= 45 then
+                if item:IsA("ImageLabel") or item:IsA("ImageButton") then
+                    item.Image = CHILLI_LOGO_ID
+                    item.ImageTransparency = 0
+                    item.BackgroundTransparency = 1
+                    item.ScaleType = Enum.ScaleType.Fit
+                elseif item:IsA("TextLabel") or item:IsA("TextButton") then
+                    -- Nếu logo Vx mới trên Header được vẽ bằng chữ "V" / "x"
+                    item:SetAttribute("__HiddenVxLogo", true)
+                    item.TextTransparency = 1
+                    local holder = item.Parent
+                    if holder and not holder:FindFirstChild("ChilliHeaderLogo") then
+                        local hLogo = Instance.new("ImageLabel")
+                        hLogo.Name = "ChilliHeaderLogo"
+                        hLogo.Size = UDim2.new(0, 24, 0, 24)
+                        hLogo.Position = UDim2.new(0.5, 0, 0.5, 0)
+                        hLogo.AnchorPoint = Vector2.new(0.5, 0.5)
+                        hLogo.BackgroundTransparency = 1
+                        hLogo.Image = CHILLI_LOGO_ID
+                        hLogo.ScaleType = Enum.ScaleType.Fit
+                        hLogo.ZIndex = item.ZIndex + 2
+                        hLogo.Parent = holder
+                    end
                 end
             end
         end
@@ -1328,13 +1358,14 @@ local function tryPatchVenyx()
         if root then
             for _, gui in ipairs(root:GetChildren()) do
                 if gui:IsA("ScreenGui") and gui.Name ~= "RobloxGui" and gui.Name ~= "TopBarApp" then
-                    -- Quét bắt thanh FPS (59 FPS - 97 ms) trên mọi ScreenGui của Venyx
+                    -- 1. Quét bắt thanh FPS (60 FPS - 144 ms) trên mọi ScreenGui của Venyx
                     for _, d in ipairs(gui:GetDescendants()) do
                         if (d:IsA("TextLabel") or d:IsA("TextButton")) and isFpsCounterText(d.Text) then
                             hookFakeFpsCounter(d)
                         end
                     end
 
+                    -- 2. Tìm nhãn tiêu đề chính ("VENYX" hoặc "Chilli Hub V5")
                     local titleLbl = nil
                     for _, d in ipairs(gui:GetDescendants()) do
                         if (d:IsA("TextLabel") or d:IsA("TextButton")) and not d:FindFirstAncestorOfClass("ScrollingFrame") then
@@ -1347,9 +1378,6 @@ local function tryPatchVenyx()
                     end
 
                     if titleLbl then
-                        cleanupAccidentalQuickBarLogos(gui)
-
-                        -- 1. Đổi tên tiêu đề
                         if titleLbl.Text ~= NEW_TITLE then
                             titleLbl.Text = NEW_TITLE
                             titleLbl.AutomaticSize = Enum.AutomaticSize.X
@@ -1367,6 +1395,11 @@ local function tryPatchVenyx()
 
                         local headerY = titleLbl.AbsolutePosition.Y
 
+                        -- Đổi Logo "Vx" trên thanh Header (bên trái tiêu đề)
+                        if mainWindow then
+                            patchHeaderLogoLeftOfTitle(mainWindow, titleLbl)
+                        end
+
                         -- Bắt sự kiện cho các phần tử Text khi mở Dropdown / Modal / Quick Bar mới
                         if not gui:GetAttribute("__TextListenerAttached") then
                             gui:SetAttribute("__TextListenerAttached", true)
@@ -1379,6 +1412,16 @@ local function tryPatchVenyx()
                             end)
                         end
 
+                        -- Quét các nhánh con trực thuộc ScreenGui nhưng nằm ngoài mainWindow để bắt Nút Tròn Nổi "Vx"
+                        for _, topChild in ipairs(gui:GetChildren()) do
+                            if topChild:IsA("GuiObject")
+                            and topChild ~= mainWindow
+                            and topChild.Name ~= "ChilliV5_ExpandedIsland"
+                            and not topChild:FindFirstChild("IslandExpandHint") then
+                                setupUnclippedCircularLogo(topChild)
+                            end
+                        end
+
                         -- Quét có kiểm soát bên trong ScreenGui của Venyx
                         for _, desc in ipairs(gui:GetDescendants()) do
                             if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
@@ -1386,9 +1429,6 @@ local function tryPatchVenyx()
                                 local origTxt = desc:GetAttribute("OrigRawText") or ""
                                 local isAlreadyMovedIdle = desc:GetAttribute("__IslandDone")
 
-                                -- 2. SỬA ĐÚNG VỊ TRÍ LỖI MẤT DYNAMIC ISLAND:
-                                -- Bắt chuẩn cả khi chữ còn là "Idle" hoặc đã dịch sang "Đang rảnh",
-                                -- đồng thời đảm bảo desc.Parent không chứa titleLbl (chặn bốc nhầm Header)
                                 local isStatusKeyword = txt:lower():find("idle")
                                     or origTxt:lower():find("idle")
                                     or txt == "Đang rảnh"
@@ -1410,18 +1450,10 @@ local function tryPatchVenyx()
 
                             elseif (desc:IsA("ImageLabel") or desc:IsA("ImageButton"))
                             and desc.Name ~= "ChilliV5CoverLogo"
+                            and desc.Name ~= "ChilliHeaderLogo"
                             and desc.Name ~= "InnerChilliLogo" then
                                 if not desc:FindFirstAncestorOfClass("ScrollingFrame") then
-                                    -- 3. Đổi Logo nhỏ trên thanh Header (bên trái tiêu đề)
-                                    if math.abs(desc.AbsolutePosition.Y - headerY) < 35 and desc.AbsolutePosition.X < titleLbl.AbsolutePosition.X then
-                                        if desc.Image ~= CHILLI_LOGO_ID then
-                                            desc.Image = CHILLI_LOGO_ID
-                                            desc.BackgroundTransparency = 1
-                                            desc.ScaleType = Enum.ScaleType.Fit
-                                        end
-
-                                    -- 4. Định vị đúng Nút Tròn Nổi bên ngoài Main Window
-                                    elseif mainWindow and not desc:IsDescendantOf(mainWindow) then
+                                    if mainWindow and not desc:IsDescendantOf(mainWindow) then
                                         setupUnclippedCircularLogo(desc)
                                     end
                                 end
@@ -1434,10 +1466,11 @@ local function tryPatchVenyx()
     end
 end
 
--- Chạy kiểm tra nhịp nhàng mỗi 0.5s trong 10 giây đầu
+-- Chạy kiểm tra ngay lập tức và đồng bộ nhịp nhàng mỗi 0.5s trong 10 giây đầu
+pcall(tryPatchVenyx)
 task.spawn(function()
     for _ = 1, 20 do
-        pcall(tryPatchVenyx)
         task.wait(0.5)
+        pcall(tryPatchVenyx)
     end
 end)
