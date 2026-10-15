@@ -1,10 +1,12 @@
 -- ==============================================================================
---  CHILLI HUB V5 - FIXED SINGLE-ISLAND LOCK & FULL VIETNAMESE ENGINE
---  Sửa đúng vị trí lỗi dòng 958:
---    1. KHÓA CỨNG 1 DYNAMIC ISLAND DUY NHẤT: Chỉ tách đúng nút trạng thái nhỏ,
---       tuyệt đối không chạm vào thanh Header hay các Label ẩn.
---    2. DỊCH TRẠNG THÁI DYNAMIC ISLAND: "Đang mang ... về nhà ✨ rainbow".
---    3. GIỮ NGUYÊN 100%: Nút tròn 60x60, nền đen #000000, nút ▼, 30 ảnh dịch.
+--  CHILLI HUB V5 - DYNAMIC ISLAND, FAKE 85-120 FPS & FULL VIETNAMESE ENGINE
+--  Sửa đúng vị trí lỗi (Giữ nguyên 100% các phần đã ổn định):
+--    1. CHẶN GẮN NHẦM LOGO VÀO QUICK BAR: Cô lập nút nổi không chứa TextLabel,
+--       tự động khôi phục nếu Quick Bar từng bị gắn nhầm logo.
+--    2. BỎ CHỮ "✨ rainbow": Chỉ hiện trạng thái (VD: "● Đang rảnh") với màu chữ
+--       cầu vồng trên nền đen tuyền #000000.
+--    3. FPS ẢO (85 - 120 FPS): Tự động biến đổi thanh FPS luôn dao động mượt
+--       từ 85 đến 120 FPS, giữ nguyên chỉ số ms (Ping) thật.
 -- ==============================================================================
 
 local NEW_TITLE = "Chilli Hub V5"
@@ -65,7 +67,62 @@ if not getgenv().__ChilliV5RainbowLoop then
     end)
 end
 
--- ==================== 2. HỆ THỐNG TỪ ĐIỂN DỊCH THUẬT TOÀN DIỆN ====================
+-- ==================== 2. BỘ TẠO FPS ẢO (85 - 120 FPS) ====================
+local currentFakeFps = math.random(96, 112)
+
+local function generateNextFakeFps()
+    local delta = math.random(-4, 4)
+    currentFakeFps = math.clamp(currentFakeFps + delta, 85, 120)
+    return currentFakeFps
+end
+
+local function isFpsCounterText(str)
+    if not str then return false end
+    return str:find("FPS") ~= nil and str:find("ms") ~= nil
+end
+
+local function hookFakeFpsCounter(lbl)
+    if not (lbl:IsA("TextLabel") or lbl:IsA("TextButton")) then return end
+
+    local function applyFakeFps()
+        if lbl:GetAttribute("__UpdatingFps") then return end
+        local raw = lbl.Text
+        if not isFpsCounterText(raw) then return end
+
+        lbl:SetAttribute("__UpdatingFps", true)
+        local fakeVal = generateNextFakeFps()
+        local patched = raw:gsub("%d+%s*FPS", tostring(fakeVal) .. " FPS", 1)
+        if lbl.Text ~= patched then
+            lbl.Text = patched
+        end
+        task.defer(function()
+            lbl:SetAttribute("__UpdatingFps", false)
+        end)
+    end
+
+    applyFakeFps()
+
+    if not lbl:GetAttribute("__FpsHooked") then
+        lbl:SetAttribute("__FpsHooked", true)
+        lbl:GetPropertyChangedSignal("Text"):Connect(function()
+            if not lbl:GetAttribute("__UpdatingFps") and isFpsCounterText(lbl.Text) then
+                applyFakeFps()
+            end
+        end)
+
+        -- Tự động nhích nhẹ số FPS mỗi 0.7s ngay cả khi game đứng yên
+        task.spawn(function()
+            while lbl and lbl.Parent do
+                task.wait(0.7)
+                if isFpsCounterText(lbl.Text) then
+                    applyFakeFps()
+                end
+            end
+        end)
+    end
+end
+
+-- ==================== 3. HỆ THỐNG TỪ ĐIỂN DỊCH THUẬT TOÀN DIỆN ====================
 local currentLanguage = "VI"
 local FastCache = {}
 local TrackedTexts = {}
@@ -73,6 +130,7 @@ local GlobalRefreshIslandStatus = nil
 
 local EXACT_MATCH_VI = {
     -- Trạng thái tĩnh trên Dynamic Island & DOING
+    ["Idle"] = "Đang rảnh",
     ["Waiting"] = "Đang chờ",
     ["Nothing"] = "Không có gì",
     ["Waiting in safe zone"] = "Đợi ở vùng an toàn",
@@ -606,6 +664,7 @@ local FALLBACK_VERB_PREFIX_VI = {
 }
 
 local DYNAMIC_PATTERNS_VI = {
+    { pat = "^QUICK BAR (%d+)$", rep = "THANH NHANH %1" },
     { pat = "^ALL (%d+)$", rep = "TẤT CẢ %1" },
     { pat = "^READY (%d+)$", rep = "SẴN SÀNG %1" },
     { pat = "^GROWING (%d+)$", rep = "ĐANG LỚN %1" },
@@ -632,7 +691,7 @@ local function translateStatusAction(cleanEn)
     if currentLanguage == "EN" then return cleanEn end
 
     local trimmed = (cleanEn:match("^%s*(.-)%s*$") or cleanEn):gsub("%s+", " ")
-    if trimmed:lower() == "idle" then
+    if trimmed:lower() == "idle" or trimmed == "Đang rảnh" then
         return "Đang rảnh"
     end
 
@@ -720,7 +779,7 @@ end
 
 local function applyElementTranslation(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
-    if inst:GetAttribute("__IslandDone") or inst.Name == "IslandExpandHint" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") then return end
+    if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__FpsHooked") or inst.Name == "IslandExpandHint" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") then return end
     if inst:GetAttribute("__IsTranslating") then return end
 
     if inst:IsA("TextBox") then
@@ -736,7 +795,10 @@ local function applyElementTranslation(inst)
     end
 
     local rawText = inst.Text
-    if rawText:find("✨ rainbow") then return end
+    if isFpsCounterText(rawText) then
+        hookFakeFpsCounter(inst)
+        return
+    end
 
     local original = inst:GetAttribute("OrigRawText")
     if not original then
@@ -759,6 +821,11 @@ local function hookTextForTranslation(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
     if inst:GetAttribute("__IslandDone") or inst.Name == "IslandExpandHint" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") then return end
 
+    if not inst:IsA("TextBox") and isFpsCounterText(inst.Text) then
+        hookFakeFpsCounter(inst)
+        return
+    end
+
     applyElementTranslation(inst)
 
     if inst:GetAttribute("__TransHooked") then return end
@@ -766,8 +833,11 @@ local function hookTextForTranslation(inst)
     table.insert(TrackedTexts, inst)
 
     inst:GetPropertyChangedSignal("Text"):Connect(function()
-        if inst:GetAttribute("__IsTranslating") then return end
-        if inst.Text:find("✨ rainbow") then return end
+        if inst:GetAttribute("__IsTranslating") or inst:GetAttribute("__IslandDone") then return end
+        if isFpsCounterText(inst.Text) then
+            hookFakeFpsCounter(inst)
+            return
+        end
         if inst.Text ~= inst:GetAttribute("__LastTranslated") then
             inst:SetAttribute("OrigRawText", inst.Text)
             applyElementTranslation(inst)
@@ -789,7 +859,7 @@ local function refreshAllTranslations()
     end
 end
 
--- ==================== 3. DYNAMIC ISLAND NHỎ GỌN NỀN ĐEN & DỊCH TRẠNG THÁI ĐỘNG ====================
+-- ==================== 4. DYNAMIC ISLAND NỀN ĐEN (ĐÃ BỎ CHỮ "✨ rainbow") ====================
 local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     local pill = statusLbl.Parent
     if not (pill and pill:IsA("GuiObject")) then return end
@@ -849,11 +919,7 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
         hintStroke.Parent = expandHint
     end
 
-    if statusLbl:GetAttribute("__IslandDone") and venyxGui:FindFirstChild("ChilliV5_ExpandedIsland") then
-        return
-    end
-    statusLbl:SetAttribute("__IslandDone", true)
-
+    -- Hàm cập nhật trạng thái (Đã xóa bỏ chữ "✨ rainbow", giữ nguyên dải màu cầu vồng)
     local function updateStatusText(forceFromSavedOrig)
         if statusLbl:GetAttribute("__Updating") then return end
         statusLbl:SetAttribute("__Updating", true)
@@ -875,7 +941,8 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
         local translatedStatus = translateStatusAction(cleanEn)
         statusLbl:SetAttribute("__LastTranslatedStatus", translatedStatus)
 
-        statusLbl.Text = translatedStatus .. " ✨ rainbow"
+        -- Hiển thị trực tiếp trạng thái gọn gàng (KHÔNG còn chữ "✨ rainbow")
+        statusLbl.Text = translatedStatus
         statusLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
         statusLbl.TextTransparency = 0
         statusLbl.Size = UDim2.new(0, 0, 1, 0)
@@ -889,6 +956,12 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     GlobalRefreshIslandStatus = function()
         updateStatusText(true)
     end
+
+    if statusLbl:GetAttribute("__IslandDone") and venyxGui:FindFirstChild("ChilliV5_ExpandedIsland") then
+        updateStatusText(true)
+        return
+    end
+    statusLbl:SetAttribute("__IslandDone", true)
 
     updateStatusText(false)
 
@@ -992,7 +1065,7 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
 
     local LangCorner = Instance.new("UICorner")
     LangCorner.CornerRadius = UDim.new(1, 0)
-    LangCorner.Parent = LangCapsule
+    LangCapsule.Parent = ExpandedIsland
 
     local LangSlider = Instance.new("Frame")
     LangSlider.Size = UDim2.new(0.5, -4, 1, -4)
@@ -1120,15 +1193,29 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     attachDragAndClick(ExpandedIsland, ExpandedIsland, nil)
 
     statusLbl:GetPropertyChangedSignal("Text"):Connect(function()
-        if not statusLbl:GetAttribute("__Updating") and not statusLbl.Text:find("✨ rainbow") then
+        if not statusLbl:GetAttribute("__Updating") and statusLbl.Text ~= statusLbl:GetAttribute("__LastTranslatedStatus") then
             updateStatusText(false)
         end
     end)
 end
 
--- ==================== 4. NÚT TRÒN NỔI 1:1 (GIỮ NGUYÊN TUYỆT ĐỐI) ====================
+-- ==================== 5. NÚT TRÒN NỔI 1:1 (CHẶN TUYỆT ĐỐI QUICK BAR) ====================
 local function setupUnclippedCircularLogo(img)
     if img:GetAttribute("__FloatingLogoV5Perfect") then return end
+
+    -- Tìm khung ngoài cùng trực thuộc ScreenGui của đối tượng này
+    local topPanel = img
+    while topPanel.Parent and topPanel.Parent:IsA("GuiObject") and not topPanel.Parent:IsA("ScreenGui") do
+        topPanel = topPanel.Parent
+    end
+
+    -- BẢO VỆ TUYỆT ĐỐI QUICK BAR & CÁC BẢNG PHỤ:
+    -- Nút mở menu nổi thực sự KHÔNG chứa bất kỳ TextLabel nào bên trong.
+    -- Nếu khung ngoài có chứa TextLabel (như "QUICK BAR 1", "Tăng tốc chạy"), LẬP TỨC BỎ QUA!
+    if topPanel:FindFirstChildWhichIsA("TextLabel", true) or topPanel.AbsoluteSize.X > 130 or topPanel.AbsolutePosition.X > 350 then
+        return
+    end
+
     img:SetAttribute("__FloatingLogoV5Perfect", true)
 
     local container = img
@@ -1215,12 +1302,42 @@ local function setupUnclippedCircularLogo(img)
     logoCorner.Parent = coverLogo
 end
 
--- ==================== 5. BỘ QUÉT ĐỊNH VỊ & DỊCH THUẬT AN TOÀN ====================
+-- Hàm dọn sạch logo nếu bảng QUICK BAR từng bị gắn nhầm từ lần chạy trước
+local function cleanupAccidentalQuickBarLogos(gui)
+    for _, desc in ipairs(gui:GetDescendants()) do
+        if desc.Name == "ChilliV5CoverLogo" then
+            local topPanel = desc
+            while topPanel.Parent and topPanel.Parent:IsA("GuiObject") and not topPanel.Parent:IsA("ScreenGui") do
+                topPanel = topPanel.Parent
+            end
+            if topPanel:FindFirstChildWhichIsA("TextLabel", true) then
+                local parentBox = desc.Parent
+                desc:Destroy()
+                if parentBox then
+                    local rb = parentBox:FindFirstChild("RainbowBorder")
+                    if rb then rb:Destroy() end
+                    local pa = parentBox:FindFirstChild("PerfectCircleAspect")
+                    if pa then pa:Destroy() end
+                    parentBox.BackgroundTransparency = 1
+                end
+            end
+        end
+    end
+end
+
+-- ==================== 6. BỘ QUÉT ĐỊNH VỊ & DỊCH THUẬT AN TOÀN ====================
 local function tryPatchVenyx()
     for _, root in ipairs(roots) do
         if root then
             for _, gui in ipairs(root:GetChildren()) do
                 if gui:IsA("ScreenGui") and gui.Name ~= "RobloxGui" and gui.Name ~= "TopBarApp" then
+                    -- Quét bắt thanh FPS (59 FPS - 97 ms) trên mọi ScreenGui của Venyx
+                    for _, d in ipairs(gui:GetDescendants()) do
+                        if (d:IsA("TextLabel") or d:IsA("TextButton")) and isFpsCounterText(d.Text) then
+                            hookFakeFpsCounter(d)
+                        end
+                    end
+
                     local titleLbl = nil
                     for _, d in ipairs(gui:GetDescendants()) do
                         if (d:IsA("TextLabel") or d:IsA("TextButton")) and not d:FindFirstAncestorOfClass("ScrollingFrame") then
@@ -1233,6 +1350,8 @@ local function tryPatchVenyx()
                     end
 
                     if titleLbl then
+                        cleanupAccidentalQuickBarLogos(gui)
+
                         -- 1. Đổi tên tiêu đề
                         if titleLbl.Text ~= NEW_TITLE then
                             titleLbl.Text = NEW_TITLE
@@ -1252,7 +1371,7 @@ local function tryPatchVenyx()
                         local headerBar = titleLbl.Parent
                         local headerY = titleLbl.AbsolutePosition.Y
 
-                        -- Bắt sự kiện cho các phần tử Text khi mở Dropdown / Modal mới
+                        -- Bắt sự kiện cho các phần tử Text khi mở Dropdown / Modal / Quick Bar mới
                         if not gui:GetAttribute("__TextListenerAttached") then
                             gui:SetAttribute("__TextListenerAttached", true)
                             gui.DescendantAdded:Connect(function(newDesc)
@@ -1270,9 +1389,6 @@ local function tryPatchVenyx()
                                 local txt = desc.Text or ""
                                 local isAlreadyMovedIdle = desc:GetAttribute("__IslandDone")
 
-                                -- 2. KHÔI PHỤC ĐÚNG ĐIỀU KIỆN BẢN 6599.JPG + KHÓA CỨNG CHỈ 1 ISLAND DUY NHẤT:
-                                -- Bắt buộc pill phải là con của thanh Header (desc.Parent.Parent == headerBar),
-                                -- tuyệt đối không bao giờ bắt nhầm chính thanh Header hay các Label ẩn!
                                 local isHeaderIdle = (not gui:GetAttribute("__IslandLocked"))
                                     and headerBar
                                     and desc.Parent
@@ -1300,7 +1416,7 @@ local function tryPatchVenyx()
                                             desc.ScaleType = Enum.ScaleType.Fit
                                         end
 
-                                    -- 4. Định vị đúng Nút Tròn Nổi bên ngoài Main Window
+                                    -- 4. Định vị đúng Nút Tròn Nổi bên ngoài Main Window (Khóa 1 nút duy nhất, loại trừ Quick Bar)
                                     elseif mainWindow and not desc:IsDescendantOf(mainWindow) then
                                         setupUnclippedCircularLogo(desc)
                                     end
