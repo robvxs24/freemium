@@ -1,12 +1,10 @@
 -- ==============================================================================
 --  CHILLI HUB V5 - DYNAMIC ISLAND, FAKE 85-120 FPS & FULL VIETNAMESE ENGINE
---  Sửa đúng vị trí lỗi (Giữ nguyên 100% các phần đã ổn định):
---    1. CHẶN GẮN NHẦM LOGO VÀO QUICK BAR: Cô lập nút nổi không chứa TextLabel,
---       tự động khôi phục nếu Quick Bar từng bị gắn nhầm logo.
---    2. BỎ CHỮ "✨ rainbow": Chỉ hiện trạng thái (VD: "● Đang rảnh") với màu chữ
---       cầu vồng trên nền đen tuyền #000000.
---    3. FPS ẢO (85 - 120 FPS): Tự động biến đổi thanh FPS luôn dao động mượt
---       từ 85 đến 120 FPS, giữ nguyên chỉ số ms (Ping) thật.
+--  Sửa đúng vị trí lỗi mất Dynamic Island (Giữ nguyên 100% các phần đã chuẩn):
+--    1. KHÔI PHỤC DYNAMIC ISLAND: Bắt chính xác cả khi chữ gốc là "Idle" hoặc
+--       đã dịch thành "Đang rảnh", khóa chống bốc nhầm thanh Header.
+--    2. BỎ CHỮ "✨ rainbow": Chỉ hiện trạng thái màu cầu vồng trên nền đen #000000.
+--    3. GIỮ NGUYÊN 100%: Fake FPS (85-120 FPS), Bảo vệ Quick Bar, Logo 60x60.
 -- ==============================================================================
 
 local NEW_TITLE = "Chilli Hub V5"
@@ -67,7 +65,7 @@ if not getgenv().__ChilliV5RainbowLoop then
     end)
 end
 
--- ==================== 2. BỘ TẠO FPS ẢO (85 - 120 FPS) ====================
+-- ==================== 2. BỘ TẠO FPS ẢO (85 - 120 FPS) (GIỮ NGUYÊN) ====================
 local currentFakeFps = math.random(96, 112)
 
 local function generateNextFakeFps()
@@ -110,7 +108,6 @@ local function hookFakeFpsCounter(lbl)
             end
         end)
 
-        -- Tự động nhích nhẹ số FPS mỗi 0.7s ngay cả khi game đứng yên
         task.spawn(function()
             while lbl and lbl.Parent do
                 task.wait(0.7)
@@ -688,7 +685,10 @@ local DYNAMIC_PATTERNS_VI = {
 
 local function translateStatusAction(cleanEn)
     if not cleanEn or cleanEn == "" then return "Đang rảnh" end
-    if currentLanguage == "EN" then return cleanEn end
+    if currentLanguage == "EN" then
+        if cleanEn == "Đang rảnh" then return "Idle" end
+        return cleanEn
+    end
 
     local trimmed = (cleanEn:match("^%s*(.-)%s*$") or cleanEn):gsub("%s+", " ")
     if trimmed:lower() == "idle" or trimmed == "Đang rảnh" then
@@ -859,7 +859,7 @@ local function refreshAllTranslations()
     end
 end
 
--- ==================== 4. DYNAMIC ISLAND NỀN ĐEN (ĐÃ BỎ CHỮ "✨ rainbow") ====================
+-- ==================== 4. DYNAMIC ISLAND NỀN ĐEN (BỎ CHỮ "✨ rainbow") ====================
 local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     local pill = statusLbl.Parent
     if not (pill and pill:IsA("GuiObject")) then return end
@@ -919,7 +919,6 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
         hintStroke.Parent = expandHint
     end
 
-    -- Hàm cập nhật trạng thái (Đã xóa bỏ chữ "✨ rainbow", giữ nguyên dải màu cầu vồng)
     local function updateStatusText(forceFromSavedOrig)
         if statusLbl:GetAttribute("__Updating") then return end
         statusLbl:SetAttribute("__Updating", true)
@@ -928,10 +927,14 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
         if forceFromSavedOrig and statusLbl:GetAttribute("OrigStatusEn") then
             cleanEn = statusLbl:GetAttribute("OrigStatusEn")
         else
-            local raw = statusLbl.Text
+            local raw = statusLbl:GetAttribute("OrigRawText") or statusLbl.Text
             cleanEn = raw:gsub("●", ""):gsub("•", ""):gsub("✨%s*rainbow", ""):match("^%s*(.-)%s*$") or "Idle"
-            if cleanEn == "" then cleanEn = "Idle" end
-            if cleanEn ~= statusLbl:GetAttribute("__LastTranslatedStatus") then
+            if cleanEn == "" or cleanEn == "Đang rảnh" then cleanEn = "Idle" end
+            if statusLbl.Text ~= statusLbl:GetAttribute("__LastTranslatedStatus") then
+                local currentRaw = statusLbl.Text:gsub("●", ""):gsub("•", ""):gsub("✨%s*rainbow", ""):match("^%s*(.-)%s*$") or ""
+                if currentRaw ~= "" and currentRaw ~= "Đang rảnh" then
+                    cleanEn = currentRaw
+                end
                 statusLbl:SetAttribute("OrigStatusEn", cleanEn)
             else
                 cleanEn = statusLbl:GetAttribute("OrigStatusEn") or cleanEn
@@ -941,7 +944,6 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
         local translatedStatus = translateStatusAction(cleanEn)
         statusLbl:SetAttribute("__LastTranslatedStatus", translatedStatus)
 
-        -- Hiển thị trực tiếp trạng thái gọn gàng (KHÔNG còn chữ "✨ rainbow")
         statusLbl.Text = translatedStatus
         statusLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
         statusLbl.TextTransparency = 0
@@ -1065,7 +1067,7 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
 
     local LangCorner = Instance.new("UICorner")
     LangCorner.CornerRadius = UDim.new(1, 0)
-    LangCapsule.Parent = ExpandedIsland
+    LangCorner.Parent = LangCapsule
 
     local LangSlider = Instance.new("Frame")
     LangSlider.Size = UDim2.new(0.5, -4, 1, -4)
@@ -1199,19 +1201,15 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     end)
 end
 
--- ==================== 5. NÚT TRÒN NỔI 1:1 (CHẶN TUYỆT ĐỐI QUICK BAR) ====================
+-- ==================== 5. NÚT TRÒN NỔI 1:1 (GIỮ NGUYÊN TUYỆT ĐỐI) ====================
 local function setupUnclippedCircularLogo(img)
     if img:GetAttribute("__FloatingLogoV5Perfect") then return end
 
-    -- Tìm khung ngoài cùng trực thuộc ScreenGui của đối tượng này
     local topPanel = img
     while topPanel.Parent and topPanel.Parent:IsA("GuiObject") and not topPanel.Parent:IsA("ScreenGui") do
         topPanel = topPanel.Parent
     end
 
-    -- BẢO VỆ TUYỆT ĐỐI QUICK BAR & CÁC BẢNG PHỤ:
-    -- Nút mở menu nổi thực sự KHÔNG chứa bất kỳ TextLabel nào bên trong.
-    -- Nếu khung ngoài có chứa TextLabel (như "QUICK BAR 1", "Tăng tốc chạy"), LẬP TỨC BỎ QUA!
     if topPanel:FindFirstChildWhichIsA("TextLabel", true) or topPanel.AbsoluteSize.X > 130 or topPanel.AbsolutePosition.X > 350 then
         return
     end
@@ -1302,7 +1300,6 @@ local function setupUnclippedCircularLogo(img)
     logoCorner.Parent = coverLogo
 end
 
--- Hàm dọn sạch logo nếu bảng QUICK BAR từng bị gắn nhầm từ lần chạy trước
 local function cleanupAccidentalQuickBarLogos(gui)
     for _, desc in ipairs(gui:GetDescendants()) do
         if desc.Name == "ChilliV5CoverLogo" then
@@ -1368,7 +1365,6 @@ local function tryPatchVenyx()
                             end
                         end
 
-                        local headerBar = titleLbl.Parent
                         local headerY = titleLbl.AbsolutePosition.Y
 
                         -- Bắt sự kiện cho các phần tử Text khi mở Dropdown / Modal / Quick Bar mới
@@ -1387,15 +1383,23 @@ local function tryPatchVenyx()
                         for _, desc in ipairs(gui:GetDescendants()) do
                             if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
                                 local txt = desc.Text or ""
+                                local origTxt = desc:GetAttribute("OrigRawText") or ""
                                 local isAlreadyMovedIdle = desc:GetAttribute("__IslandDone")
 
+                                -- 2. SỬA ĐÚNG VỊ TRÍ LỖI MẤT DYNAMIC ISLAND:
+                                -- Bắt chuẩn cả khi chữ còn là "Idle" hoặc đã dịch sang "Đang rảnh",
+                                -- đồng thời đảm bảo desc.Parent không chứa titleLbl (chặn bốc nhầm Header)
+                                local isStatusKeyword = txt:lower():find("idle")
+                                    or origTxt:lower():find("idle")
+                                    or txt == "Đang rảnh"
+
                                 local isHeaderIdle = (not gui:GetAttribute("__IslandLocked"))
-                                    and headerBar
+                                    and (not desc:FindFirstAncestorOfClass("ScrollingFrame"))
                                     and desc.Parent
-                                    and desc.Parent.Parent == headerBar
+                                    and (not titleLbl:IsDescendantOf(desc.Parent))
                                     and math.abs(desc.AbsolutePosition.Y - headerY) < 35
                                     and desc.AbsolutePosition.X > titleLbl.AbsolutePosition.X + 60
-                                    and txt:lower():find("idle")
+                                    and isStatusKeyword
 
                                 if isHeaderIdle or isAlreadyMovedIdle then
                                     gui:SetAttribute("__IslandLocked", true)
@@ -1416,7 +1420,7 @@ local function tryPatchVenyx()
                                             desc.ScaleType = Enum.ScaleType.Fit
                                         end
 
-                                    -- 4. Định vị đúng Nút Tròn Nổi bên ngoài Main Window (Khóa 1 nút duy nhất, loại trừ Quick Bar)
+                                    -- 4. Định vị đúng Nút Tròn Nổi bên ngoài Main Window
                                     elseif mainWindow and not desc:IsDescendantOf(mainWindow) then
                                         setupUnclippedCircularLogo(desc)
                                     end
