@@ -1,14 +1,12 @@
 -- ==============================================================================
---  CHILLI HUB V5 - 100% VIETNAMESE ENGINE (DYNAMIC ISLAND + ELLIPSIS + TEXTBOX)
---  Giữ nguyên 100% cấu trúc chuẩn + Khắc phục triệt để:
---    1. DỊCH 100% DYNAMIC ISLAND: Bổ sung bộ dịch 3 tầng (Exact + Regex +
---       Smart Phrase Fallback) dịch sạch mọi trạng thái như "No egg matches
---       your targets" -> "Không có trứng nào khớp mục tiêu".
---    2. XỬ LÝ DẤU "..." (ELLIPSIS): Dịch chuẩn "Enchanted Forest...", "Divine..."
---       khi chọn nhiều mục (+2, +3) trong Dropdown.
---    3. DỊCH TEXTBOX "Off": Sửa lỗi bỏ sót chữ "Off" trong ô nhập số Slider.
---    4. CẬP NHẬT TỪ ĐIỂN VENYXHUB MỚI: "Teleport zones", "Steal from other
---       players" và toàn bộ cụm từ mới.
+--  CHILLI HUB V5 - TELEPORT HIJACKER & ZERO-FREEZE STARTUP ENGINE
+--  Nâng cấp toàn diện:
+--    1. CHẶN 100% VENYX GỐC TỰ KHỞI ĐỘNG: Hook queue_on_teleport, chặn script
+--       gốc khi Rejoin / Server Hop và thay bằng bộ nạp Chilli Hub V5 của bạn.
+--    2. CHỐNG ĐỨNG MÁY LÚC ĐẦU (ZERO-FREEZE): Cô lập ScreenGui O(1), bỏ quét
+--       PlayerGui thừa, dịch theo lô Micro-Batch giúp khởi động mượt 60 FPS.
+--    3. GIỮ NGUYÊN 100%: Dynamic Island nền đen, Nút tròn 60x60, Fake FPS 85-120,
+--       Dịch 100% trạng thái động, dấu "..." và toàn bộ Menu.
 -- ==============================================================================
 
 local NEW_TITLE = "Chilli Hub V5"
@@ -16,7 +14,63 @@ local CHILLI_LOGO_ID = "rbxassetid://92622270383869"
 local LOGO_BG_COLOR = Color3.fromRGB(5, 7, 15)
 local ISLAND_BLACK_BG = Color3.fromRGB(0, 0, 0)
 
--- 1. KHỞI CHẠY SCRIPT VENYXHUB MỚI
+-- Dán link Raw (GitHub/Pastebin) chứa bản Chilli Hub V5 của bạn vào đây (nếu có):
+local MY_CHILLI_RAW_URL = ""
+local LOCAL_CACHE_FILE  = "ChilliHubV5.lua"
+local LANG_SAVE_FILE    = "ChilliV5_Lang.txt"
+
+-- ==================== 1. HOOK CHẶN AUTO-LOAD GỐC & CHẠY SCRIPT CỦA BẠN ====================
+do
+    local env = (getgenv and getgenv()) or _G
+    local realQueue = env.queue_on_teleport
+        or env.queueonteleport
+        or (syn and syn.queue_on_teleport)
+        or (fluxus and fluxus.queue_on_teleport)
+
+    -- Payload khởi chạy lại Chilli Hub V5 thay thế cho Venyx gốc
+    local function getMyCustomPayload()
+        if MY_CHILLI_RAW_URL ~= "" and MY_CHILLI_RAW_URL:find("^https?://") then
+            return string.format('pcall(function() loadstring(game:HttpGet("%s"))() end)', MY_CHILLI_RAW_URL)
+        end
+        return string.format([[
+            pcall(function()
+                if isfile and isfile("%s") then
+                    loadstring(readfile("%s"))()
+                end
+            end)
+        ]], LOCAL_CACHE_FILE, LOCAL_CACHE_FILE)
+    end
+
+    if realQueue and not env.__ChilliTeleportHooked then
+        env.__ChilliTeleportHooked = true
+
+        local function interceptedQueue(scriptCode)
+            local codeStr = tostring(scriptCode or "")
+            -- Chặn đứng mọi lệnh tự khởi động lại của Venyx / Luarmor gốc
+            if codeStr:lower():find("venyx") or codeStr:lower():find("luarmor") or codeStr:lower():find("tienkhanh") then
+                local myPayload = getMyCustomPayload()
+                return realQueue(myPayload)
+            end
+            return realQueue(scriptCode)
+        end
+
+        env.queue_on_teleport = interceptedQueue
+        env.queueonteleport = interceptedQueue
+        if syn and syn.queue_on_teleport then
+            pcall(function() syn.queue_on_teleport = interceptedQueue end)
+        end
+        if fluxus and fluxus.queue_on_teleport then
+            pcall(function() fluxus.queue_on_teleport = interceptedQueue end)
+        end
+
+        -- Đăng ký sẵn sàng nạp Chilli Hub V5 ngay khi người chơi chuyển server
+        pcall(function()
+            realQueue(getMyCustomPayload())
+        end)
+    end
+end
+
+-- Khởi chạy Base Script trong luồng riêng
 if not getgenv().__VenyxV5NewLoaded then
     getgenv().__VenyxV5NewLoaded = true
     task.spawn(function()
@@ -31,10 +85,16 @@ local LocalPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("Loc
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 
-local roots = {
+-- Chỉ quét gethui() và CoreGui trước, chỉ dùng PlayerGui khi thực sự cần và lọc bỏ GUI game
+local primaryRoots = {
     gethui and gethui(),
-    CoreGui,
-    LocalPlayer:WaitForChild("PlayerGui")
+    CoreGui
+}
+
+local IGNORED_GUI_NAMES = {
+    ["RobloxGui"] = true, ["TopBarApp"] = true, ["TouchGui"] = true,
+    ["Chat"] = true, ["BubbleChat"] = true, ["Freecam"] = true,
+    ["BackpackGui"] = true, ["PlayerList"] = true, ["PurchasePrompt"] = true
 }
 
 -- Danh sách chứa các Gradient để xoay chung trong 1 luồng duy nhất (0% CPU)
@@ -49,7 +109,6 @@ local COLOR_SEQ_RAINBOW = ColorSequence.new({
     ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 55, 55))
 })
 
--- VÒNG LẶP XOAY CẦU VỒNG DUY NHẤT TOÀN HỆ THỐNG (NHẸ TUYỆT ĐỐI)
 if not getgenv().__ChilliV5RainbowLoop then
     getgenv().__ChilliV5RainbowLoop = true
     task.spawn(function()
@@ -80,7 +139,7 @@ end
 
 local function isFpsCounterText(str)
     if not str then return false end
-    return str:find("FPS") ~= nil and str:find("ms") ~= nil
+    return str:find("FPS", 1, true) ~= nil and str:find("ms", 1, true) ~= nil
 end
 
 local function hookFakeFpsCounter(lbl)
@@ -125,6 +184,15 @@ end
 
 -- ==================== 3. HỆ THỐNG TỪ ĐIỂN DỊCH THUẬT 3 TẦNG (100% TIẾNG VIỆT) ====================
 local currentLanguage = "VI"
+pcall(function()
+    if isfile and isfile(LANG_SAVE_FILE) then
+        local saved = readfile(LANG_SAVE_FILE)
+        if saved == "EN" or saved == "VI" then
+            currentLanguage = saved
+        end
+    end
+end)
+
 local FastCache = {}
 local TrackedTexts = {}
 local GlobalRefreshIslandStatus = nil
@@ -224,7 +292,7 @@ local EXACT_MATCH_VI = {
     ["Search"] = "Tìm kiếm",
     ["Filter"] = "Lọc tìm",
 
-    -- Steal & Egg Predictor & Các mục mới trong ảnh 6669.jpg
+    -- Steal & Egg Predictor
     ["Steal"] = "Cướp Trứng",
     ["Auto Steal"] = "Tự Động Cướp",
     ["AUTO STEAL"] = "TỰ ĐỘNG CƯỚP",
@@ -623,17 +691,13 @@ local EXACT_MATCH_VI = {
     ["ETERNAL"] = "VĨNH CỬU"
 }
 
--- BỘ MẪU CÂU HÀNH ĐỘNG & TRẠNG THÁI ĐỘNG TRÊN DYNAMIC ISLAND
 local STATUS_ACTION_PATTERNS_VI = {
-    -- Các mẫu câu thông báo phủ định / điều kiện
     { pat = "^[Nn]o eggs? match%(?e?s?%)? your (.+)$", rep = "Không có trứng nào khớp %1" },
     { pat = "^[Nn]o eggs? match%(?e?s?%)? (.+)$", rep = "Không có trứng nào khớp %1" },
     { pat = "^[Nn]o pets? match%(?e?s?%)? (.+)$", rep = "Không có pet nào khớp %1" },
     { pat = "^[Nn]o (.+) found$", rep = "Không tìm thấy %1" },
     { pat = "^[Nn]o (.+) available$", rep = "Không có sẵn %1" },
     { pat = "^[Nn]o (.+) to (.+)$", rep = "Không có %1 để %2" },
-
-    -- Nhóm mang / giao / cướp trứng
     { pat = "^[Cc]arrying (.+) to safe zone$", rep = "Đang mang %1 về vùng an toàn" },
     { pat = "^[Cc]arrying (.+) to base$", rep = "Đang mang %1 về căn cứ" },
     { pat = "^[Cc]arrying (.+) to pen$", rep = "Đang mang %1 về chuồng" },
@@ -699,7 +763,6 @@ local STATUS_ACTION_PATTERNS_VI = {
     { pat = "^[Hh]opping (.+)$", rep = "Đang đổi %1" }
 }
 
--- TẦNG 3: BỘ DỊCH CỤM TỪ THÔNG MINH DỰ PHÒNG (ĐẢM BẢO 100% TIẾNG VIỆT MỌI TRẠNG THÁI MỚI)
 local SMART_PHRASE_FALLBACK_VI = {
     { "No egg matches your targets", "Không có trứng nào khớp mục tiêu" },
     { "no egg matches your targets", "không có trứng nào khớp mục tiêu" },
@@ -800,7 +863,6 @@ local function applySmartPhraseFallback(str)
     return out
 end
 
--- HÀM DỊCH CHUYÊN BIỆT CHO DYNAMIC ISLAND (ĐẢM BẢO 100% TIẾNG VIỆT)
 local function translateStatusAction(cleanEn)
     if not cleanEn or cleanEn == "" then return "Đang rảnh" end
     if currentLanguage == "EN" then
@@ -816,13 +878,11 @@ local function translateStatusAction(cleanEn)
     local cacheKey = "STATUS_VI|" .. trimmed
     if FastCache[cacheKey] then return FastCache[cacheKey] end
 
-    -- Tầng 1: Khớp chính xác O(1)
     if EXACT_MATCH_VI[trimmed] then
         FastCache[cacheKey] = EXACT_MATCH_VI[trimmed]
         return EXACT_MATCH_VI[trimmed]
     end
 
-    -- Tầng 2: Khớp mẫu câu động
     for _, item in ipairs(STATUS_ACTION_PATTERNS_VI) do
         if trimmed:find(item.pat) then
             local out = trimmed:gsub(item.pat, item.rep)
@@ -832,7 +892,6 @@ local function translateStatusAction(cleanEn)
         end
     end
 
-    -- Tầng 3: Dịch cụm từ thông minh dự phòng
     local fallbackOut = applySmartPhraseFallback(trimmed)
     FastCache[cacheKey] = fallbackOut
     return fallbackOut
@@ -843,7 +902,7 @@ local function translateVenyxText(raw)
     local cacheKey = currentLanguage .. "|" .. raw
     if FastCache[cacheKey] then return FastCache[cacheKey] end
 
-    if raw:find("Venyx SAE") then
+    if raw:find("Venyx SAE", 1, true) then
         raw = raw:gsub("Venyx SAE", "Chilli SAE")
     elseif raw == "VENYX" then
         raw = NEW_TITLE
@@ -856,14 +915,12 @@ local function translateVenyxText(raw)
 
     local normalized = (raw:match("^%s*(.-)%s*$") or raw):gsub("%s+", " ")
 
-    -- 1. Khớp trực tiếp O(1)
     if EXACT_MATCH_VI[normalized] then
         local out = EXACT_MATCH_VI[normalized]
         FastCache[cacheKey] = out
         return out
     end
 
-    -- 2. XỬ LÝ DẤU BA CHẤM "..." TRONG DROPDOWN (VD: "Enchanted Forest...", "Divine...")
     local baseBeforeDots = normalized:match("^(.+)%.%.%.$")
     if baseBeforeDots then
         baseBeforeDots = baseBeforeDots:match("^%s*(.-)%s*$") or baseBeforeDots
@@ -874,7 +931,6 @@ local function translateVenyxText(raw)
         end
     end
 
-    -- 3. Xử lý các nhãn có biểu tượng đi kèm ở đầu
     local prefix, wordPart = normalized:match("^([^%w%s]+%s*)(.+)$")
     if prefix and wordPart and EXACT_MATCH_VI[wordPart] then
         local out = prefix .. EXACT_MATCH_VI[wordPart]
@@ -882,7 +938,6 @@ local function translateVenyxText(raw)
         return out
     end
 
-    -- 4. Khớp mẫu biểu thức động
     local result = normalized
     for _, item in ipairs(DYNAMIC_PATTERNS_VI) do
         if result:find(item.pat) then
@@ -910,7 +965,6 @@ local function applyElementTranslation(inst)
     if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__FpsHooked") or inst:GetAttribute("__HiddenVxLogo") or inst.Name == "IslandExpandHint" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") then return end
     if inst:GetAttribute("__IsTranslating") then return end
 
-    -- SỬA LỖI TEXTBOX: Vừa dịch PlaceholderText, vừa dịch luôn chữ "Off" trong ô nhập số Slider
     if inst:IsA("TextBox") then
         local origPh = inst:GetAttribute("OrigPlaceholder")
         if not origPh and inst.PlaceholderText ~= "" then
@@ -997,21 +1051,29 @@ local function hookTextForTranslation(inst)
     end)
 end
 
+-- Chuyển đổi ngôn ngữ theo lô (Micro-Batch) chống khựng máy
 local function refreshAllTranslations()
-    for i = #TrackedTexts, 1, -1 do
-        local el = TrackedTexts[i]
-        if el and el.Parent then
-            applyElementTranslation(el)
-        else
-            table.remove(TrackedTexts, i)
+    task.spawn(function()
+        if GlobalRefreshIslandStatus then
+            GlobalRefreshIslandStatus()
         end
-    end
-    if GlobalRefreshIslandStatus then
-        GlobalRefreshIslandStatus()
-    end
+        local count = 0
+        for i = #TrackedTexts, 1, -1 do
+            local el = TrackedTexts[i]
+            if el and el.Parent then
+                applyElementTranslation(el)
+                count = count + 1
+                if count % 50 == 0 then
+                    task.wait()
+                end
+            else
+                table.remove(TrackedTexts, i)
+            end
+        end
+    end)
 end
 
--- ==================== 4. DYNAMIC ISLAND NỀN ĐEN (DỊCH 100% TRẠNG THÁI) ====================
+-- ==================== 4. DYNAMIC ISLAND NỀN ĐEN (GIỮ NGUYÊN 100%) ====================
 local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     local pill = statusLbl.Parent
     if not (pill and pill:IsA("GuiObject")) then return end
@@ -1144,7 +1206,6 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     strokeGrad.Parent = pillStroke
     table.insert(ActiveGradients, strokeGrad)
 
-    -- TẠO BẢNG DYNAMIC ISLAND PHÓNG TO (NỀN ĐEN TUYỀN #000000)
     local oldExp = venyxGui:FindFirstChild("ChilliV5_ExpandedIsland")
     if oldExp then oldExp:Destroy() end
 
@@ -1218,7 +1279,7 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
 
     local LangSlider = Instance.new("Frame")
     LangSlider.Size = UDim2.new(0.5, -4, 1, -4)
-    LangSlider.Position = UDim2.new(0, 2, 0, 2)
+    LangSlider.Position = (currentLanguage == "VI") and UDim2.new(0, 2, 0, 2) or UDim2.new(0.5, 2, 0, 2)
     LangSlider.BackgroundColor3 = Color3.fromRGB(95, 110, 235)
     LangSlider.BorderSizePixel = 0
     LangSlider.ZIndex = 10002
@@ -1235,7 +1296,7 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     BtnVI.Text = "🇻🇳 TIẾNG VIỆT"
     BtnVI.Font = Enum.Font.GothamBold
     BtnVI.TextSize = 10.5
-    BtnVI.TextColor3 = Color3.fromRGB(255, 255, 255)
+    BtnVI.TextColor3 = (currentLanguage == "VI") and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(150, 165, 190)
     BtnVI.ZIndex = 10003
     BtnVI.Parent = LangCapsule
 
@@ -1246,13 +1307,16 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     BtnEN.Text = "🌐 ENGLISH"
     BtnEN.Font = Enum.Font.GothamBold
     BtnEN.TextSize = 10.5
-    BtnEN.TextColor3 = Color3.fromRGB(150, 165, 190)
+    BtnEN.TextColor3 = (currentLanguage == "EN") and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(150, 165, 190)
     BtnEN.ZIndex = 10003
     BtnEN.Parent = LangCapsule
 
     local function setLanguage(lang)
         if currentLanguage == lang then return end
         currentLanguage = lang
+        pcall(function()
+            if writefile then writefile(LANG_SAVE_FILE, lang) end
+        end)
 
         if lang == "VI" then
             TweenService:Create(LangSlider, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
@@ -1480,125 +1544,158 @@ local function patchHeaderLogoLeftOfTitle(headerContainer, titleLbl)
     end
 end
 
--- ==================== 6. BỘ QUÉT ĐỊNH VỊ & DỊCH THUẬT AN TOÀN ====================
+-- ==================== 6. BỘ QUÉT KHỞI ĐỘNG KHÔNG ĐỨNG MÁY (MICRO-BATCH ENGINE) ====================
+local function patchVenyxScreenGui(gui, titleLbl)
+    -- BƯỚC 1: SỬA TỨC THÌ TRONG FRAME ĐẦU TIÊN (0ms) CÁC PHẦN TỬ TRƯỚC MẮT
+    if titleLbl.Text ~= NEW_TITLE then
+        titleLbl.Text = NEW_TITLE
+        titleLbl.AutomaticSize = Enum.AutomaticSize.X
+    end
+
+    local mainWindow = nil
+    local curr = titleLbl
+    while curr.Parent and curr.Parent ~= gui do
+        curr = curr.Parent
+        if curr:IsA("GuiObject") and curr.AbsoluteSize.X >= 350 and curr.AbsoluteSize.Y >= 220 then
+            mainWindow = curr
+        end
+    end
+
+    local headerY = titleLbl.AbsolutePosition.Y
+
+    if mainWindow then
+        patchHeaderLogoLeftOfTitle(mainWindow, titleLbl)
+    end
+
+    for _, topChild in ipairs(gui:GetChildren()) do
+        if topChild:IsA("GuiObject")
+        and topChild ~= mainWindow
+        and topChild.Name ~= "ChilliV5_ExpandedIsland"
+        and not topChild:FindFirstChild("IslandExpandHint") then
+            setupUnclippedCircularLogo(topChild)
+        end
+    end
+
+    if not gui:GetAttribute("__TextListenerAttached") then
+        gui:SetAttribute("__TextListenerAttached", true)
+        gui.DescendantAdded:Connect(function(newDesc)
+            if newDesc:IsA("TextLabel") or newDesc:IsA("TextButton") or newDesc:IsA("TextBox") then
+                task.defer(function()
+                    hookTextForTranslation(newDesc)
+                end)
+            end
+        end)
+    end
+
+    -- BƯỚC 2: QUÉT 1 VÒNG DUY NHẤT ĐỂ BẮT DYNAMIC ISLAND NGAY LẬP TỨC,
+    -- CÒN CÁC NHÃN TRONG MENU ĐƯỢC ĐƯA VÀO HÀNG ĐỢI MICRO-BATCH ĐỂ KHÔNG BỊ ĐỨNG MÁY!
+    local allDescendants = gui:GetDescendants()
+    local pendingTextQueue = {}
+
+    for i = 1, #allDescendants do
+        local desc = allDescendants[i]
+        if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
+            local txt = desc.Text or ""
+            local origTxt = desc:GetAttribute("OrigRawText") or ""
+            local isAlreadyMovedIdle = desc:GetAttribute("__IslandDone")
+
+            local isStatusKeyword = txt:lower():find("idle", 1, true)
+                or origTxt:lower():find("idle", 1, true)
+                or txt == "Đang rảnh"
+
+            local isHeaderIdle = (not gui:GetAttribute("__IslandLocked"))
+                and (not desc:FindFirstAncestorOfClass("ScrollingFrame"))
+                and desc.Parent
+                and (not titleLbl:IsDescendantOf(desc.Parent))
+                and math.abs(desc.AbsolutePosition.Y - headerY) < 35
+                and desc.AbsolutePosition.X > titleLbl.AbsolutePosition.X + 60
+                and isStatusKeyword
+
+            if isHeaderIdle or isAlreadyMovedIdle then
+                gui:SetAttribute("__IslandLocked", true)
+                setupDynamicIslandFromStatus(desc, gui)
+            elseif isFpsCounterText(txt) then
+                hookFakeFpsCounter(desc)
+            else
+                pendingTextQueue[#pendingTextQueue + 1] = desc
+            end
+
+        elseif (desc:IsA("ImageLabel") or desc:IsA("ImageButton"))
+        and desc.Name ~= "ChilliV5CoverLogo"
+        and desc.Name ~= "ChilliHeaderLogo"
+        and desc.Name ~= "InnerChilliLogo" then
+            if not desc:FindFirstAncestorOfClass("ScrollingFrame") then
+                if mainWindow and not desc:IsDescendantOf(mainWindow) then
+                    setupUnclippedCircularLogo(desc)
+                end
+            end
+        end
+    end
+
+    -- BƯỚC 3: DỊCH THEO LÔ NHỎ (45 NHÃN / FRAME) -> MƯỢT 100%, KHÔNG ĐỨNG MÁY
+    if not gui:GetAttribute("__BatchTranslating") then
+        gui:SetAttribute("__BatchTranslating", true)
+        task.spawn(function()
+            for idx = 1, #pendingTextQueue do
+                local item = pendingTextQueue[idx]
+                if item and item.Parent then
+                    hookTextForTranslation(item)
+                end
+                if idx % 45 == 0 then
+                    task.wait()
+                end
+            end
+            gui:SetAttribute("__BatchTranslating", false)
+        end)
+    end
+end
+
 local function tryPatchVenyx()
-    for _, root in ipairs(roots) do
+    for _, root in ipairs(primaryRoots) do
         if root then
             for _, gui in ipairs(root:GetChildren()) do
-                if gui:IsA("ScreenGui") and gui.Name ~= "RobloxGui" and gui.Name ~= "TopBarApp" then
-                    -- 1. Quét bắt thanh FPS (60 FPS - 144 ms) trên mọi ScreenGui của Venyx
-                    for _, d in ipairs(gui:GetDescendants()) do
-                        if (d:IsA("TextLabel") or d:IsA("TextButton")) and isFpsCounterText(d.Text) then
-                            hookFakeFpsCounter(d)
-                        end
-                    end
-
-                    -- 2. Tìm nhãn tiêu đề chính ("VENYX" hoặc "Chilli Hub V5")
+                if gui:IsA("ScreenGui") and not IGNORED_GUI_NAMES[gui.Name] then
                     local titleLbl = nil
-                    for _, d in ipairs(gui:GetDescendants()) do
-                        if (d:IsA("TextLabel") or d:IsA("TextButton")) and not d:FindFirstAncestorOfClass("ScrollingFrame") then
+                    local descendants = gui:GetDescendants()
+
+                    for i = 1, #descendants do
+                        local d = descendants[i]
+                        if d:IsA("TextLabel") or d:IsA("TextButton") then
                             local t = d.Text
-                            if t == "VENYX" or t == NEW_TITLE then
+                            if isFpsCounterText(t) then
+                                hookFakeFpsCounter(d)
+                            elseif (t == "VENYX" or t == NEW_TITLE) and not d:FindFirstAncestorOfClass("ScrollingFrame") then
                                 titleLbl = d
-                                break
                             end
                         end
                     end
 
                     if titleLbl then
-                        if titleLbl.Text ~= NEW_TITLE then
-                            titleLbl.Text = NEW_TITLE
-                            titleLbl.AutomaticSize = Enum.AutomaticSize.X
-                        end
-
-                        -- Tìm khung Main Window (kích thước lớn >= 350x220)
-                        local mainWindow = nil
-                        local curr = titleLbl
-                        while curr.Parent and curr.Parent ~= gui do
-                            curr = curr.Parent
-                            if curr:IsA("GuiObject") and curr.AbsoluteSize.X >= 350 and curr.AbsoluteSize.Y >= 220 then
-                                mainWindow = curr
-                            end
-                        end
-
-                        local headerY = titleLbl.AbsolutePosition.Y
-
-                        -- Đổi Logo "Vx" trên thanh Header (bên trái tiêu đề)
-                        if mainWindow then
-                            patchHeaderLogoLeftOfTitle(mainWindow, titleLbl)
-                        end
-
-                        -- Bắt sự kiện cho các phần tử Text khi mở Dropdown / Modal / Quick Bar mới
-                        if not gui:GetAttribute("__TextListenerAttached") then
-                            gui:SetAttribute("__TextListenerAttached", true)
-                            gui.DescendantAdded:Connect(function(newDesc)
-                                if newDesc:IsA("TextLabel") or newDesc:IsA("TextButton") or newDesc:IsA("TextBox") then
-                                    task.defer(function()
-                                        hookTextForTranslation(newDesc)
-                                    end)
-                                end
-                            end)
-                        end
-
-                        -- Quét các nhánh con trực thuộc ScreenGui nhưng nằm ngoài mainWindow để bắt Nút Tròn Nổi "Vx"
-                        for _, topChild in ipairs(gui:GetChildren()) do
-                            if topChild:IsA("GuiObject")
-                            and topChild ~= mainWindow
-                            and topChild.Name ~= "ChilliV5_ExpandedIsland"
-                            and not topChild:FindFirstChild("IslandExpandHint") then
-                                setupUnclippedCircularLogo(topChild)
-                            end
-                        end
-
-                        -- Quét có kiểm soát bên trong ScreenGui của Venyx
-                        for _, desc in ipairs(gui:GetDescendants()) do
-                            if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
-                                local txt = desc.Text or ""
-                                local origTxt = desc:GetAttribute("OrigRawText") or ""
-                                local isAlreadyMovedIdle = desc:GetAttribute("__IslandDone")
-
-                                local isStatusKeyword = txt:lower():find("idle")
-                                    or origTxt:lower():find("idle")
-                                    or txt == "Đang rảnh"
-
-                                local isHeaderIdle = (not gui:GetAttribute("__IslandLocked"))
-                                    and (not desc:FindFirstAncestorOfClass("ScrollingFrame"))
-                                    and desc.Parent
-                                    and (not titleLbl:IsDescendantOf(desc.Parent))
-                                    and math.abs(desc.AbsolutePosition.Y - headerY) < 35
-                                    and desc.AbsolutePosition.X > titleLbl.AbsolutePosition.X + 60
-                                    and isStatusKeyword
-
-                                if isHeaderIdle or isAlreadyMovedIdle then
-                                    gui:SetAttribute("__IslandLocked", true)
-                                    setupDynamicIslandFromStatus(desc, gui)
-                                else
-                                    hookTextForTranslation(desc)
-                                end
-
-                            elseif (desc:IsA("ImageLabel") or desc:IsA("ImageButton"))
-                            and desc.Name ~= "ChilliV5CoverLogo"
-                            and desc.Name ~= "ChilliHeaderLogo"
-                            and desc.Name ~= "InnerChilliLogo" then
-                                if not desc:FindFirstAncestorOfClass("ScrollingFrame") then
-                                    if mainWindow and not desc:IsDescendantOf(mainWindow) then
-                                        setupUnclippedCircularLogo(desc)
-                                    end
-                                end
-                            end
-                        end
+                        patchVenyxScreenGui(gui, titleLbl)
+                        return true
                     end
                 end
             end
         end
     end
+    return false
 end
 
--- Chạy kiểm tra ngay lập tức và đồng bộ nhịp nhàng mỗi 0.5s trong 10 giây đầu
-pcall(tryPatchVenyx)
+-- Khởi chạy thông minh: Ngay khi bắt được và patch xong Venyx thì giảm tần suất quét về mức tối thiểu
 task.spawn(function()
-    for _ = 1, 20 do
-        task.wait(0.5)
-        pcall(tryPatchVenyx)
+    for _ = 1, 25 do
+        local found = false
+        pcall(function()
+            found = tryPatchVenyx()
+        end)
+        if found then
+            -- Chờ thêm 2 nhịp nhẹ để bắt nốt các phần tử trễ rồi dừng hẳn vòng quét khởi động
+            task.wait(0.6)
+            pcall(tryPatchVenyx)
+            task.wait(1.0)
+            pcall(tryPatchVenyx)
+            break
+        end
+        task.wait(0.25)
     end
 end)
