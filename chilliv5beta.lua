@@ -1,55 +1,70 @@
 -- ==============================================================================
---  CHILLI HUB V5 - TELEPORT HIJACKER & ZERO-FREEZE STARTUP ENGINE
---  Nâng cấp toàn diện:
---    1. CHẶN 100% VENYX GỐC TỰ KHỞI ĐỘNG: Hook queue_on_teleport, chặn script
---       gốc khi Rejoin / Server Hop và thay bằng bộ nạp Chilli Hub V5 của bạn.
---    2. CHỐNG ĐỨNG MÁY LÚC ĐẦU (ZERO-FREEZE): Cô lập ScreenGui O(1), bỏ quét
---       PlayerGui thừa, dịch theo lô Micro-Batch giúp khởi động mượt 60 FPS.
---    3. GIỮ NGUYÊN 100%: Dynamic Island nền đen, Nút tròn 60x60, Fake FPS 85-120,
---       Dịch 100% trạng thái động, dấu "..." và toàn bộ Menu.
+--  CHILLI HUB V5 - SELF-REPLICATING AUTO-LOAD & FAKE 85-120 FPS ENGINE
+--  Khắc phục triệt để 2 vấn đề:
+--    1. TỰ ĐỘNG BẬT LẠI KHI ĐỔI SERVER / REJOIN: Tự động đóng gói và ghi chính
+--       mã nguồn này vào "ChilliHubV5_AutoRun.lua" ngay khi bấm Execute, chặn
+--       100% Venyx gốc và tự nạp lại Chilli Hub V5 ở mọi server tiếp theo.
+--    2. KHÔI PHỤC 100% FPS ẢO (85 - 120 FPS): Quét xuyên suốt mọi ScreenGui,
+--       mở khóa đồng bộ (Synchronous Unlock) đè trực tiếp lên "57 FPS - 149 ms".
+--    3. GIỮ NGUYÊN 100%: Dynamic Island nền đen, Nút tròn 60x60, Micro-Batch
+--       chống đứng máy lúc đầu, Dịch 100% Tiếng Việt.
 -- ==============================================================================
 
+local CHILLI_CORE_PAYLOAD = [===[
 local NEW_TITLE = "Chilli Hub V5"
 local CHILLI_LOGO_ID = "rbxassetid://92622270383869"
 local LOGO_BG_COLOR = Color3.fromRGB(5, 7, 15)
 local ISLAND_BLACK_BG = Color3.fromRGB(0, 0, 0)
 
--- Dán link Raw (GitHub/Pastebin) chứa bản Chilli Hub V5 của bạn vào đây (nếu có):
-local MY_CHILLI_RAW_URL = ""
-local LOCAL_CACHE_FILE  = "ChilliHubV5.lua"
-local LANG_SAVE_FILE    = "ChilliV5_Lang.txt"
+local AUTO_RUN_FILE  = "ChilliHubV5_AutoRun.lua"
+local LANG_SAVE_FILE = "ChilliV5_Lang.txt"
 
--- ==================== 1. HOOK CHẶN AUTO-LOAD GỐC & CHẠY SCRIPT CỦA BẠN ====================
+-- ==================== 1. HOOK CHẶN VENYX GỐC & TỰ KHỞI ĐỘNG BẢN CHILLI HUB V5 ====================
 do
     local env = (getgenv and getgenv()) or _G
-    local realQueue = env.queue_on_teleport
+    local realQueue = env.__ChilliOrigQueue
+        or env.queue_on_teleport
         or env.queueonteleport
         or (syn and syn.queue_on_teleport)
         or (fluxus and fluxus.queue_on_teleport)
 
-    -- Payload khởi chạy lại Chilli Hub V5 thay thế cho Venyx gốc
-    local function getMyCustomPayload()
-        if MY_CHILLI_RAW_URL ~= "" and MY_CHILLI_RAW_URL:find("^https?://") then
-            return string.format('pcall(function() loadstring(game:HttpGet("%s"))() end)', MY_CHILLI_RAW_URL)
-        end
-        return string.format([[
-            pcall(function()
-                if isfile and isfile("%s") then
-                    loadstring(readfile("%s"))()
-                end
-            end)
-        ]], LOCAL_CACHE_FILE, LOCAL_CACHE_FILE)
-    end
+    if realQueue then
+        env.__ChilliOrigQueue = realQueue
 
-    if realQueue and not env.__ChilliTeleportHooked then
-        env.__ChilliTeleportHooked = true
+        local teleportBootstrap = string.format([[
+            task.spawn(function()
+                if not game:IsLoaded() then
+                    game.Loaded:Wait()
+                end
+                local Players = game:GetService("Players")
+                while not Players.LocalPlayer do
+                    task.wait(0.1)
+                end
+                task.wait(1.2)
+                pcall(function()
+                    if isfile and isfile("%s") then
+                        loadstring(readfile("%s"))()
+                    end
+                end)
+            end)
+        ]], AUTO_RUN_FILE, AUTO_RUN_FILE)
+
+        -- Chỉ nạp vào hàng đợi Teleport đúng 1 lần duy nhất mỗi phiên server
+        local function queueChilliOnce()
+            if not env.__ChilliQueuedThisSession then
+                env.__ChilliQueuedThisSession = true
+                pcall(function()
+                    realQueue(teleportBootstrap)
+                end)
+            end
+        end
 
         local function interceptedQueue(scriptCode)
-            local codeStr = tostring(scriptCode or "")
+            local codeStr = tostring(scriptCode or ""):lower()
             -- Chặn đứng mọi lệnh tự khởi động lại của Venyx / Luarmor gốc
-            if codeStr:lower():find("venyx") or codeStr:lower():find("luarmor") or codeStr:lower():find("tienkhanh") then
-                local myPayload = getMyCustomPayload()
-                return realQueue(myPayload)
+            if codeStr:find("venyx", 1, true) or codeStr:find("luarmor", 1, true) or codeStr:find("tienkhanh", 1, true) then
+                queueChilliOnce()
+                return
             end
             return realQueue(scriptCode)
         end
@@ -63,14 +78,12 @@ do
             pcall(function() fluxus.queue_on_teleport = interceptedQueue end)
         end
 
-        -- Đăng ký sẵn sàng nạp Chilli Hub V5 ngay khi người chơi chuyển server
-        pcall(function()
-            realQueue(getMyCustomPayload())
-        end)
+        -- Đăng ký sẵn sàng nạp Chilli Hub V5 ngay khi người chơi Rejoin / Server Hop
+        queueChilliOnce()
     end
 end
 
--- Khởi chạy Base Script trong luồng riêng
+-- Khởi chạy Base Script VenyxHub trong luồng riêng
 if not getgenv().__VenyxV5NewLoaded then
     getgenv().__VenyxV5NewLoaded = true
     task.spawn(function()
@@ -85,10 +98,10 @@ local LocalPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("Loc
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 
--- Chỉ quét gethui() và CoreGui trước, chỉ dùng PlayerGui khi thực sự cần và lọc bỏ GUI game
-local primaryRoots = {
+local scanRoots = {
     gethui and gethui(),
-    CoreGui
+    CoreGui,
+    LocalPlayer:WaitForChild("PlayerGui")
 }
 
 local IGNORED_GUI_NAMES = {
@@ -128,17 +141,22 @@ if not getgenv().__ChilliV5RainbowLoop then
     end)
 end
 
--- ==================== 2. BỘ TẠO FPS ẢO (85 - 120 FPS) ====================
+-- ==================== 2. BỘ TẠO FPS ẢO (85 - 120 FPS) ĐỒNG BỘ TỨC THÌ ====================
 local currentFakeFps = math.random(96, 112)
+local lastFpsStepClock = 0
 
-local function generateNextFakeFps()
-    local delta = math.random(-4, 4)
-    currentFakeFps = math.clamp(currentFakeFps + delta, 85, 120)
+local function getSmoothFakeFps()
+    local now = os.clock()
+    if now - lastFpsStepClock >= 0.65 then
+        lastFpsStepClock = now
+        local delta = math.random(-4, 4)
+        currentFakeFps = math.clamp(currentFakeFps + delta, 85, 120)
+    end
     return currentFakeFps
 end
 
 local function isFpsCounterText(str)
-    if not str then return false end
+    if not str or str == "" then return false end
     return str:find("FPS", 1, true) ~= nil and str:find("ms", 1, true) ~= nil
 end
 
@@ -150,15 +168,14 @@ local function hookFakeFpsCounter(lbl)
         local raw = lbl.Text
         if not isFpsCounterText(raw) then return end
 
-        lbl:SetAttribute("__UpdatingFps", true)
-        local fakeVal = generateNextFakeFps()
+        local fakeVal = getSmoothFakeFps()
         local patched = raw:gsub("%d+%s*FPS", tostring(fakeVal) .. " FPS", 1)
-        if lbl.Text ~= patched then
+        if raw ~= patched then
+            -- Mở/đóng khóa ĐỒNG BỘ ngay lập tức để bắt trọn mọi nhịp cập nhật của Venyx
+            lbl:SetAttribute("__UpdatingFps", true)
             lbl.Text = patched
-        end
-        task.defer(function()
             lbl:SetAttribute("__UpdatingFps", false)
-        end)
+        end
     end
 
     applyFakeFps()
@@ -173,7 +190,7 @@ local function hookFakeFpsCounter(lbl)
 
         task.spawn(function()
             while lbl and lbl.Parent do
-                task.wait(0.7)
+                task.wait(0.65)
                 if isFpsCounterText(lbl.Text) then
                     applyFakeFps()
                 end
@@ -987,9 +1004,7 @@ local function applyElementTranslation(inst)
                 if inst.Text ~= mappedBox then
                     inst:SetAttribute("__IsTranslating", true)
                     pcall(function() inst.Text = mappedBox end)
-                    task.defer(function()
-                        inst:SetAttribute("__IsTranslating", false)
-                    end)
+                    inst:SetAttribute("__IsTranslating", false)
                 end
             end
         end
@@ -1013,9 +1028,7 @@ local function applyElementTranslation(inst)
         inst:SetAttribute("__IsTranslating", true)
         inst:SetAttribute("__LastTranslated", mapped)
         pcall(function() inst.Text = mapped end)
-        task.defer(function()
-            inst:SetAttribute("__IsTranslating", false)
-        end)
+        inst:SetAttribute("__IsTranslating", false)
     end
 end
 
@@ -1051,7 +1064,6 @@ local function hookTextForTranslation(inst)
     end)
 end
 
--- Chuyển đổi ngôn ngữ theo lô (Micro-Batch) chống khựng máy
 local function refreshAllTranslations()
     task.spawn(function()
         if GlobalRefreshIslandStatus then
@@ -1159,9 +1171,7 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
         statusLbl.Size = UDim2.new(0, 0, 1, 0)
         statusLbl.AutomaticSize = Enum.AutomaticSize.X
 
-        task.defer(function()
-            statusLbl:SetAttribute("__Updating", false)
-        end)
+        statusLbl:SetAttribute("__Updating", false)
     end
 
     GlobalRefreshIslandStatus = function()
@@ -1544,9 +1554,8 @@ local function patchHeaderLogoLeftOfTitle(headerContainer, titleLbl)
     end
 end
 
--- ==================== 6. BỘ QUÉT KHỞI ĐỘNG KHÔNG ĐỨNG MÁY (MICRO-BATCH ENGINE) ====================
+-- ==================== 6. BỘ QUÉT KHỞI ĐỘNG KHÔNG ĐỨNG MÁY & BẮT 100% FPS ẢO ====================
 local function patchVenyxScreenGui(gui, titleLbl)
-    -- BƯỚC 1: SỬA TỨC THÌ TRONG FRAME ĐẦU TIÊN (0ms) CÁC PHẦN TỬ TRƯỚC MẮT
     if titleLbl.Text ~= NEW_TITLE then
         titleLbl.Text = NEW_TITLE
         titleLbl.AutomaticSize = Enum.AutomaticSize.X
@@ -1576,19 +1585,6 @@ local function patchVenyxScreenGui(gui, titleLbl)
         end
     end
 
-    if not gui:GetAttribute("__TextListenerAttached") then
-        gui:SetAttribute("__TextListenerAttached", true)
-        gui.DescendantAdded:Connect(function(newDesc)
-            if newDesc:IsA("TextLabel") or newDesc:IsA("TextButton") or newDesc:IsA("TextBox") then
-                task.defer(function()
-                    hookTextForTranslation(newDesc)
-                end)
-            end
-        end)
-    end
-
-    -- BƯỚC 2: QUÉT 1 VÒNG DUY NHẤT ĐỂ BẮT DYNAMIC ISLAND NGAY LẬP TỨC,
-    -- CÒN CÁC NHÃN TRONG MENU ĐƯỢC ĐƯA VÀO HÀNG ĐỢI MICRO-BATCH ĐỂ KHÔNG BỊ ĐỨNG MÁY!
     local allDescendants = gui:GetDescendants()
     local pendingTextQueue = {}
 
@@ -1616,7 +1612,7 @@ local function patchVenyxScreenGui(gui, titleLbl)
                 setupDynamicIslandFromStatus(desc, gui)
             elseif isFpsCounterText(txt) then
                 hookFakeFpsCounter(desc)
-            else
+            elseif not desc:GetAttribute("__TransHooked") then
                 pendingTextQueue[#pendingTextQueue + 1] = desc
             end
 
@@ -1632,8 +1628,7 @@ local function patchVenyxScreenGui(gui, titleLbl)
         end
     end
 
-    -- BƯỚC 3: DỊCH THEO LÔ NHỎ (45 NHÃN / FRAME) -> MƯỢT 100%, KHÔNG ĐỨNG MÁY
-    if not gui:GetAttribute("__BatchTranslating") then
+    if #pendingTextQueue > 0 and not gui:GetAttribute("__BatchTranslating") then
         gui:SetAttribute("__BatchTranslating", true)
         task.spawn(function()
             for idx = 1, #pendingTextQueue do
@@ -1651,13 +1646,30 @@ local function patchVenyxScreenGui(gui, titleLbl)
 end
 
 local function tryPatchVenyx()
-    for _, root in ipairs(primaryRoots) do
+    for _, root in ipairs(scanRoots) do
         if root then
             for _, gui in ipairs(root:GetChildren()) do
                 if gui:IsA("ScreenGui") and not IGNORED_GUI_NAMES[gui.Name] then
+                    -- Gắn bộ lắng nghe nhẹ cho mọi ScreenGui (bắt cả FPS Pill và Quick Bar nằm ở ScreenGui riêng)
+                    if not gui:GetAttribute("__GlobalTextListener") then
+                        gui:SetAttribute("__GlobalTextListener", true)
+                        gui.DescendantAdded:Connect(function(newDesc)
+                            if newDesc:IsA("TextLabel") or newDesc:IsA("TextButton") or newDesc:IsA("TextBox") then
+                                task.defer(function()
+                                    if not newDesc:IsA("TextBox") and isFpsCounterText(newDesc.Text) then
+                                        hookFakeFpsCounter(newDesc)
+                                    else
+                                        hookTextForTranslation(newDesc)
+                                    end
+                                end)
+                            end
+                        end)
+                    end
+
                     local titleLbl = nil
                     local descendants = gui:GetDescendants()
 
+                    -- Quét xuyên suốt mọi ScreenGui (KHÔNG return sớm để không bao giờ bỏ sót thanh 57 FPS - 149 ms)
                     for i = 1, #descendants do
                         local d = descendants[i]
                         if d:IsA("TextLabel") or d:IsA("TextButton") then
@@ -1672,30 +1684,36 @@ local function tryPatchVenyx()
 
                     if titleLbl then
                         patchVenyxScreenGui(gui, titleLbl)
-                        return true
                     end
                 end
             end
         end
     end
-    return false
 end
 
--- Khởi chạy thông minh: Ngay khi bắt được và patch xong Venyx thì giảm tần suất quét về mức tối thiểu
+pcall(tryPatchVenyx)
 task.spawn(function()
-    for _ = 1, 25 do
-        local found = false
-        pcall(function()
-            found = tryPatchVenyx()
-        end)
-        if found then
-            -- Chờ thêm 2 nhịp nhẹ để bắt nốt các phần tử trễ rồi dừng hẳn vòng quét khởi động
-            task.wait(0.6)
-            pcall(tryPatchVenyx)
-            task.wait(1.0)
-            pcall(tryPatchVenyx)
-            break
-        end
-        task.wait(0.25)
+    for _ = 1, 15 do
+        task.wait(0.45)
+        pcall(tryPatchVenyx)
     end
 end)
+]===]
+
+-- TỰ ĐỘNG ĐÓNG GÓI & LƯU FILE TỰ KHỞI ĐỘNG NGAY KHI BẤM EXECUTE (SELF-REPLICATING QUINE)
+if writefile then
+    pcall(function()
+        local selfReplicatingWrapper = "local CHILLI_CORE_PAYLOAD = [===[" .. CHILLI_CORE_PAYLOAD .. "]===]\n" .. [[
+if writefile then
+    pcall(function()
+        writefile("ChilliHubV5_AutoRun.lua", "local CHILLI_CORE_PAYLOAD = [===[" .. CHILLI_CORE_PAYLOAD .. "]===]\nloadstring(CHILLI_CORE_PAYLOAD)()")
+    end)
+end
+loadstring(CHILLI_CORE_PAYLOAD)()
+]]
+        writefile("ChilliHubV5_AutoRun.lua", selfReplicatingWrapper)
+    end)
+end
+
+-- Khởi chạy ngay lập tức
+loadstring(CHILLI_CORE_PAYLOAD)()
