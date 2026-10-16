@@ -1,13 +1,14 @@
 -- ==============================================================================
---  CHILLI HUB V5 - VENYXHUB NEW LOADER EDITION (FULL FEATURES & TRANSLATION)
---  Tích hợp đầy đủ:
---    1. LOADER MỚI: raw.githubusercontent.com/tienkhanh1/Venyx/main/VenyxHub
---    2. LOGO TRÒN 1:1 (60x60) & HEADER LOGO: Đè hoàn toàn logo "Vx" mới,
---       cách ly tuyệt đối không dính vào QUICK BAR 1.
---    3. DYNAMIC ISLAND NỀN ĐEN (#000000): Hiện trạng thái cầu vồng (đã bỏ chữ
---       "✨ rainbow"), kèm nút ▼ bấm vào mở công tắc Tiếng Việt / English.
---    4. FAKE FPS (85 - 120 FPS): Dao động mượt tự nhiên, giữ nguyên ms thật.
---    5. DỊCH FULL GIAO DIỆN MỚI: Bao gồm trang Home mới, Discord card & 30 ảnh.
+--  CHILLI HUB V5 - 100% VIETNAMESE ENGINE (DYNAMIC ISLAND + ELLIPSIS + TEXTBOX)
+--  Giữ nguyên 100% cấu trúc chuẩn + Khắc phục triệt để:
+--    1. DỊCH 100% DYNAMIC ISLAND: Bổ sung bộ dịch 3 tầng (Exact + Regex +
+--       Smart Phrase Fallback) dịch sạch mọi trạng thái như "No egg matches
+--       your targets" -> "Không có trứng nào khớp mục tiêu".
+--    2. XỬ LÝ DẤU "..." (ELLIPSIS): Dịch chuẩn "Enchanted Forest...", "Divine..."
+--       khi chọn nhiều mục (+2, +3) trong Dropdown.
+--    3. DỊCH TEXTBOX "Off": Sửa lỗi bỏ sót chữ "Off" trong ô nhập số Slider.
+--    4. CẬP NHẬT TỪ ĐIỂN VENYXHUB MỚI: "Teleport zones", "Steal from other
+--       players" và toàn bộ cụm từ mới.
 -- ==============================================================================
 
 local NEW_TITLE = "Chilli Hub V5"
@@ -122,21 +123,42 @@ local function hookFakeFpsCounter(lbl)
     end
 end
 
--- ==================== 3. HỆ THỐNG TỪ ĐIỂN DỊCH THUẬT (CẬP NHẬT BẢN MỚI) ====================
+-- ==================== 3. HỆ THỐNG TỪ ĐIỂN DỊCH THUẬT 3 TẦNG (100% TIẾNG VIỆT) ====================
 local currentLanguage = "VI"
 local FastCache = {}
 local TrackedTexts = {}
 local GlobalRefreshIslandStatus = nil
 
 local EXACT_MATCH_VI = {
-    -- Trạng thái tĩnh trên Dynamic Island & DOING
+    -- Trạng thái tĩnh & Thông báo điều kiện trên Dynamic Island / DOING
     ["Idle"] = "Đang rảnh",
     ["Waiting"] = "Đang chờ",
     ["Nothing"] = "Không có gì",
+    ["No egg matches your targets"] = "Không có trứng nào khớp mục tiêu",
+    ["No eggs match your targets"] = "Không có trứng nào khớp mục tiêu",
+    ["No egg matches filter"] = "Không có trứng khớp bộ lọc",
+    ["No eggs match filter"] = "Không có trứng khớp bộ lọc",
+    ["No target egg found"] = "Không tìm thấy trứng mục tiêu",
+    ["No matching eggs"] = "Không có trứng nào khớp",
+    ["No matching pets"] = "Không có pet nào khớp",
+    ["No valid targets"] = "Không có mục tiêu hợp lệ",
+    ["No targets found"] = "Không tìm thấy mục tiêu",
+    ["Bag is full"] = "Túi đã đầy",
+    ["Egg bag is full"] = "Túi trứng đã đầy",
+    ["Pet bag is full"] = "Túi pet đã đầy",
+    ["Pen is full"] = "Chuồng ấp đã đầy",
+    ["All pens are full"] = "Tất cả chuồng đã đầy",
+    ["Field is closed"] = "Sân trứng đang đóng",
+    ["Waiting for field to open"] = "Đang chờ sân trứng mở",
+    ["Waiting for eggs to spawn"] = "Đang chờ trứng xuất hiện",
+    ["Waiting for next race"] = "Đang chờ chặng đua tiếp theo",
+    ["Waiting for shooting star"] = "Đang chờ sao băng rơi",
+    ["Waiting for butterfly bloom"] = "Đang chờ mùa bướm nở",
     ["Waiting in safe zone"] = "Đợi ở vùng an toàn",
     ["Returning to safe zone"] = "Đang về vùng an toàn",
     ["Returning home"] = "Đang quay về nhà",
     ["Going home"] = "Đang về nhà",
+    ["Going to safe zone"] = "Đang về vùng an toàn",
     ["Delivering egg"] = "Đang giao trứng về chuồng",
     ["Dropping egg"] = "Đang thả trứng",
     ["Dropping eggs"] = "Đang thả trứng",
@@ -148,6 +170,7 @@ local EXACT_MATCH_VI = {
     ["Mutating eggs"] = "Đang đột biến trứng",
     ["Fusing pets"] = "Đang dung hợp pet",
     ["Hopping server"] = "Đang đổi máy chủ",
+    ["Finding server"] = "Đang tìm máy chủ mới",
     ["Rejoining"] = "Đang vào lại phòng",
     ["Avoiding guard"] = "Đang né vệ sĩ",
     ["Evading guard"] = "Đang né vệ sĩ",
@@ -161,7 +184,7 @@ local EXACT_MATCH_VI = {
     ["Joining race"] = "Đang vào đường đua",
     ["Racing"] = "Đang đua xe",
 
-    -- Trang Home & Dashboard Mới (Ảnh 6662.jpg)
+    -- Trang Home & Dashboard Mới
     ["Home"] = "Trang Chủ",
     ["Dashboard"] = "Bảng Điều Khiển",
     ["Welcome back"] = "Chào mừng trở lại",
@@ -171,6 +194,8 @@ local EXACT_MATCH_VI = {
     ["Discord"] = "Discord",
     ["MONEY /S"] = "TIỀN /GIÂY",
     ["OPEN"] = "MỞ",
+    ["Open"] = "Mở",
+    ["Close"] = "Đóng",
     ["Welcome to Venyx 1.0.0! Join our Discord for updates and support"] = "Chào mừng tới Chilli Hub V5! Tham gia Discord để cập nhật và nhận hỗ trợ",
     ["Beta version"] = "Phiên bản Beta",
     ["This is a test build. Features may change and bugs can happen."] = "Đây là bản thử nghiệm. Tính năng có thể thay đổi và phát sinh lỗi.",
@@ -199,7 +224,7 @@ local EXACT_MATCH_VI = {
     ["Search"] = "Tìm kiếm",
     ["Filter"] = "Lọc tìm",
 
-    -- Steal & Egg Predictor & Egg Cards
+    -- Steal & Egg Predictor & Các mục mới trong ảnh 6669.jpg
     ["Steal"] = "Cướp Trứng",
     ["Auto Steal"] = "Tự Động Cướp",
     ["AUTO STEAL"] = "TỰ ĐỘNG CƯỚP",
@@ -208,16 +233,22 @@ local EXACT_MATCH_VI = {
     ["EGG PREDICTOR"] = "DỰ ĐOÁN TRỨNG",
     ["Go to egg"] = "Di chuyển tới trứng",
     ["Teleport to egg"] = "Dịch chuyển tới trứng",
+    ["Teleport zones"] = "Khu vực dịch chuyển",
+    ["Teleport zone"] = "Khu vực dịch chuyển",
     ["Tween"] = "Bay (Tween)",
+    ["Walk"] = "Đi bộ",
     ["Delivery method"] = "Cách mang về",
     ["Fast tween speed"] = "Tốc độ bay nhanh",
     ["Tween speed"] = "Tốc độ bay",
     ["Steal missing index eggs"] = "Cướp trứng thiếu trong Chỉ mục",
     ["Steal back from players"] = "Cướp lại từ người chơi",
+    ["Steal from other players"] = "Cướp từ người chơi khác",
+    ["Steal from players"] = "Cướp từ người chơi",
     ["Anti guard"] = "Chống vệ sĩ",
     ["Drop eggs at safe zone"] = "Thả trứng ở vùng an toàn",
     ["FILTER"] = "BỘ LỌC",
     ["Zones"] = "Khu vực",
+    ["Zone"] = "Khu vực",
     ["None"] = "Không có",
     ["Steal first"] = "Ưu tiên cướp",
     ["Best value"] = "Giá trị cao nhất",
@@ -230,10 +261,18 @@ local EXACT_MATCH_VI = {
     ["Rarities"] = "Độ hiếm",
     ["Only these eggs"] = "Chỉ những trứng này",
     ["Min value /s"] = "Giá trị tối thiểu /s",
+    ["Max value /s"] = "Giá trị tối đa /s",
     ["Off"] = "Tắt",
+    ["OFF"] = "TẮT",
+    ["On"] = "Bật",
+    ["ON"] = "BẬT",
     ["Sell cheapest egg when bag is full"] = "Bán trứng rẻ nhất khi đầy túi",
     ["Keep lab eggs"] = "Giữ lại trứng Lab",
     ["AUTO HOP SERVER"] = "TỰ ĐỔI MÁY CHỦ",
+    ["Auto hop server"] = "Tự đổi máy chủ",
+    ["Hop when no matching egg"] = "Đổi server khi không có trứng khớp",
+    ["Hop when no egg matches"] = "Đổi server khi không có trứng khớp",
+    ["Hop delay"] = "Độ trễ đổi server",
     ["Only sell eggs below /s"] = "Chỉ bán trứng dưới mức /s",
     ["EGG SHOWCASE"] = "TRƯNG BÀY TRỨNG",
     ["Sort eggs"] = "Sắp xếp trứng",
@@ -254,28 +293,29 @@ local EXACT_MATCH_VI = {
     ["Hatch now"] = "Ấp ngay",
     ["Hold egg"] = "Cầm trứng",
     ["Fly to egg"] = "Bay tới trứng",
+    ["Steal egg"] = "Cướp trứng",
 
     -- Zones (Khu vực)
-    ["Enchanted Forest"] = "Rừng Phù Phép (Enchanted Forest)",
-    ["Light Dark"] = "Sáng Tối (Light Dark)",
-    ["Titan Temple"] = "Đền Titan (Titan Temple)",
-    ["Cherry Blossom"] = "Hoa Anh Đào (Cherry Blossom)",
-    ["Prehistoric"] = "Tiền Sử (Prehistoric)",
-    ["Abyss Ocean"] = "Đáy Đại Dương (Abyss Ocean)",
-    ["Volcano"] = "Núi Lửa (Volcano)",
-    ["Snow"] = "Tuyết (Snow)",
-    ["Jungle"] = "Rừng Rậm (Jungle)",
-    ["Desert"] = "Sa Mạc (Desert)",
-    ["Lake"] = "Hồ Nước (Lake)",
-    ["Forest"] = "Khu Rừng (Forest)",
+    ["Enchanted Forest"] = "Rừng Phù Phép",
+    ["Light Dark"] = "Sáng Tối",
+    ["Titan Temple"] = "Đền Titan",
+    ["Cherry Blossom"] = "Hoa Anh Đào",
+    ["Prehistoric"] = "Tiền Sử",
+    ["Abyss Ocean"] = "Đáy Đại Dương",
+    ["Volcano"] = "Núi Lửa",
+    ["Snow"] = "Tuyết",
+    ["Jungle"] = "Rừng Rậm",
+    ["Desert"] = "Sa Mạc",
+    ["Lake"] = "Hồ Nước",
+    ["Forest"] = "Khu Rừng",
 
     -- Mutations (Đột biến)
-    ["Silver"] = "Bạc (Silver)",
-    ["Rainbow"] = "Cầu Vồng (Rainbow)",
-    ["Golden"] = "Vàng (Golden)",
-    ["Fractured"] = "Rạn Nứt (Fractured)",
-    ["Scrambled"] = "Hỗn Loạn (Scrambled)",
-    ["Enchanted"] = "Phù Phép (Enchanted)",
+    ["Silver"] = "Bạc",
+    ["Rainbow"] = "Cầu Vồng",
+    ["Golden"] = "Vàng",
+    ["Fractured"] = "Rạn Nứt",
+    ["Scrambled"] = "Hỗn Loạn",
+    ["Enchanted"] = "Phù Phép",
     ["Nitro"] = "Nitro",
     ["SCRAMBLED"] = "HỖN LOẠN",
     ["NITRO"] = "NITRO",
@@ -429,7 +469,7 @@ local EXACT_MATCH_VI = {
     ["Catch priority"] = "Ưu tiên bắt",
     ["Rarest"] = "Hiếm nhất",
     ["Catch"] = "Loại bướm bắt",
-    ["Radiant"] = "Rực Rỡ (Radiant)",
+    ["Radiant"] = "Rực Rỡ",
     ["Catch speed"] = "Tốc độ bắt",
     ["Auto wisp quest"] = "Tự làm nhiệm vụ Wisp",
     ["Auto banjo cricket"] = "Tự bắt dế Banjo",
@@ -509,9 +549,13 @@ local EXACT_MATCH_VI = {
     ["Optimizer"] = "Tối Ưu Hóa",
     ["OPTIMIZER"] = "TỐI ƯU HÓA (GIẢM LAG)",
     ["Interface"] = "Giao Diện",
+    ["INTERFACE"] = "GIAO DIỆN",
     ["Config"] = "Cấu Hình",
+    ["CONFIG"] = "CẤU HÌNH",
     ["Hop to"] = "Chuyển tới server",
     ["Least players"] = "Ít người chơi nhất",
+    ["Most players"] = "Đông người chơi nhất",
+    ["Random"] = "Ngẫu nhiên",
     ["Hop server"] = "Đổi máy chủ",
     ["Hop"] = "Đổi ngay",
     ["Rejoin this server"] = "Vào lại máy chủ này",
@@ -546,18 +590,27 @@ local EXACT_MATCH_VI = {
     ["BASES"] = "CĂN CỨ (BASES)",
     ["Hide other players' pets and eggs"] = "Ẩn pet và trứng của người chơi khác",
     ["Hide my pets and eggs"] = "Ẩn pet và trứng của bản thân",
+    ["Theme"] = "Chủ đề màu",
+    ["Toggle key"] = "Phím đóng/mở Menu",
+    ["Quick bar"] = "Thanh phím tắt nhanh",
+    ["QUICK BAR"] = "THANH PHÍM TẮT NHANH",
+    ["Auto save"] = "Tự động lưu cấu hình",
+    ["Auto load"] = "Tự động nạp cấu hình",
+    ["Load config"] = "Nạp cấu hình",
+    ["Reset config"] = "Đặt lại mặc định",
+    ["Delete config"] = "Xóa cấu hình",
 
     -- Độ hiếm
-    ["Common"] = "Phổ Thông (Common)",
-    ["Uncommon"] = "Thường (Uncommon)",
-    ["Rare"] = "Hiếm (Rare)",
-    ["Epic"] = "Sử Thi (Epic)",
-    ["Legendary"] = "Huyền Thoại (Legendary)",
-    ["Mythic"] = "Thần Thoại (Mythic)",
-    ["Cosmic"] = "Vũ Trụ (Cosmic)",
-    ["Secret"] = "Bí Ẩn (Secret)",
-    ["Divine"] = "Thánh Thần (Divine)",
-    ["Eternal"] = "Vĩnh Cửu (Eternal)",
+    ["Common"] = "Phổ Thông",
+    ["Uncommon"] = "Thường",
+    ["Rare"] = "Hiếm",
+    ["Epic"] = "Sử Thi",
+    ["Legendary"] = "Huyền Thoại",
+    ["Mythic"] = "Thần Thoại",
+    ["Cosmic"] = "Vũ Trụ",
+    ["Secret"] = "Bí Ẩn",
+    ["Divine"] = "Thánh Thần",
+    ["Eternal"] = "Vĩnh Cửu",
     ["COMMON"] = "PHỔ THÔNG",
     ["UNCOMMON"] = "THƯỜNG",
     ["RARE"] = "HIẾM",
@@ -570,8 +623,17 @@ local EXACT_MATCH_VI = {
     ["ETERNAL"] = "VĨNH CỬU"
 }
 
--- BỘ MẪU CÂU HÀNH ĐỘNG ĐỘNG TRÊN DYNAMIC ISLAND & Ô DOING
+-- BỘ MẪU CÂU HÀNH ĐỘNG & TRẠNG THÁI ĐỘNG TRÊN DYNAMIC ISLAND
 local STATUS_ACTION_PATTERNS_VI = {
+    -- Các mẫu câu thông báo phủ định / điều kiện
+    { pat = "^[Nn]o eggs? match%(?e?s?%)? your (.+)$", rep = "Không có trứng nào khớp %1" },
+    { pat = "^[Nn]o eggs? match%(?e?s?%)? (.+)$", rep = "Không có trứng nào khớp %1" },
+    { pat = "^[Nn]o pets? match%(?e?s?%)? (.+)$", rep = "Không có pet nào khớp %1" },
+    { pat = "^[Nn]o (.+) found$", rep = "Không tìm thấy %1" },
+    { pat = "^[Nn]o (.+) available$", rep = "Không có sẵn %1" },
+    { pat = "^[Nn]o (.+) to (.+)$", rep = "Không có %1 để %2" },
+
+    -- Nhóm mang / giao / cướp trứng
     { pat = "^[Cc]arrying (.+) to safe zone$", rep = "Đang mang %1 về vùng an toàn" },
     { pat = "^[Cc]arrying (.+) to base$", rep = "Đang mang %1 về căn cứ" },
     { pat = "^[Cc]arrying (.+) to pen$", rep = "Đang mang %1 về chuồng" },
@@ -637,38 +699,68 @@ local STATUS_ACTION_PATTERNS_VI = {
     { pat = "^[Hh]opping (.+)$", rep = "Đang đổi %1" }
 }
 
-local FALLBACK_VERB_PREFIX_VI = {
-    ["Carrying "] = "Đang mang ",
-    ["Delivering "] = "Đang giao ",
-    ["Stealing "] = "Đang cướp ",
-    ["Going "] = "Đang đi ",
-    ["Tweening "] = "Đang bay ",
-    ["Teleporting "] = "Đang dịch chuyển ",
-    ["Moving "] = "Đang di chuyển ",
-    ["Walking "] = "Đang đi bộ ",
-    ["Running "] = "Đang chạy ",
-    ["Placing "] = "Đang đặt ",
-    ["Hatching "] = "Đang ấp ",
-    ["Mutating "] = "Đang đột biến ",
-    ["Selling "] = "Đang bán ",
-    ["Fusing "] = "Đang dung hợp ",
-    ["Catching "] = "Đang bắt ",
-    ["Chasing "] = "Đang đuổi theo ",
-    ["Waiting "] = "Đang chờ ",
-    ["Searching "] = "Đang tìm ",
-    ["Claiming "] = "Đang nhận ",
-    ["Upgrading "] = "Đang nâng cấp ",
-    ["Buying "] = "Đang mua ",
-    ["Trading "] = "Đang đổi ",
-    ["Crafting "] = "Đang chế tạo ",
-    ["Collecting "] = "Đang thu thập ",
-    ["Holding "] = "Đang giữ ",
-    ["Dropping "] = "Đang thả ",
-    ["Returning "] = "Đang quay về ",
-    ["Avoiding "] = "Đang né ",
-    ["Evading "] = "Đang né ",
-    ["Attacking "] = "Đang đánh ",
-    ["Hitting "] = "Đang đánh "
+-- TẦNG 3: BỘ DỊCH CỤM TỪ THÔNG MINH DỰ PHÒNG (ĐẢM BẢO 100% TIẾNG VIỆT MỌI TRẠNG THÁI MỚI)
+local SMART_PHRASE_FALLBACK_VI = {
+    { "No egg matches your targets", "Không có trứng nào khớp mục tiêu" },
+    { "no egg matches your targets", "không có trứng nào khớp mục tiêu" },
+    { "your targets", "mục tiêu của bạn" },
+    { "matches your", "khớp với" },
+    { "matches filter", "khớp bộ lọc" },
+    { "safe zone", "vùng an toàn" },
+    { "other players", "người chơi khác" },
+    { "from players", "từ người chơi" },
+    { "missing index", "thiếu trong Chỉ mục" },
+    { "shooting star", "sao băng" },
+    { "butterfly bloom", "mùa bướm nở" },
+    { "admin treadmill", "máy tập Admin" },
+    { "offline cash", "tiền ngoại tuyến" },
+    { "index rewards", "thưởng Chỉ mục" },
+    { "lab eggs", "trứng Lab" },
+    { "lab egg", "trứng Lab" },
+    { "event egg", "trứng sự kiện" },
+    { "minigame egg", "trứng Minigame" },
+    { "is full", "đã đầy" },
+    { "is closed", "đang đóng" },
+    { "is open", "đang mở" },
+    { "to open", "mở cửa" },
+    { "Carrying ", "Đang mang " },
+    { "Delivering ", "Đang giao " },
+    { "Stealing ", "Đang cướp " },
+    { "Teleporting ", "Đang dịch chuyển " },
+    { "Tweening ", "Đang bay " },
+    { "Moving ", "Đang di chuyển " },
+    { "Walking ", "Đang đi bộ " },
+    { "Running ", "Đang chạy " },
+    { "Placing ", "Đang đặt " },
+    { "Hatching ", "Đang ấp " },
+    { "Mutating ", "Đang đột biến " },
+    { "Selling ", "Đang bán " },
+    { "Fusing ", "Đang dung hợp " },
+    { "Catching ", "Đang bắt " },
+    { "Chasing ", "Đang đuổi theo " },
+    { "Waiting ", "Đang chờ " },
+    { "Searching ", "Đang tìm " },
+    { "Claiming ", "Đang nhận " },
+    { "Upgrading ", "Đang nâng cấp " },
+    { "Buying ", "Đang mua " },
+    { "Trading ", "Đang đổi " },
+    { "Crafting ", "Đang chế tạo " },
+    { "Collecting ", "Đang thu thập " },
+    { "Holding ", "Đang giữ " },
+    { "Dropping ", "Đang thả " },
+    { "Returning ", "Đang quay về " },
+    { "Avoiding ", "Đang né " },
+    { "Evading ", "Đang né " },
+    { "Attacking ", "Đang đánh " },
+    { "Hitting ", "Đang đánh " },
+    { "Finding ", "Đang tìm " },
+    { "Checking ", "Đang kiểm tra " },
+    { "Skipping ", "Đang bỏ qua " },
+    { " home", " về nhà" },
+    { "targets", "mục tiêu" },
+    { "target", "mục tiêu" },
+    { "guards", "vệ sĩ" },
+    { "guard", "vệ sĩ" }
 }
 
 local DYNAMIC_PATTERNS_VI = {
@@ -697,6 +789,18 @@ local DYNAMIC_PATTERNS_VI = {
     { pat = "^Eternal · 1 in ([%d%.]+)$", rep = "Vĩnh Cửu · 1 trên %1" }
 }
 
+local function applySmartPhraseFallback(str)
+    local out = str
+    for _, pair in ipairs(SMART_PHRASE_FALLBACK_VI) do
+        local en, vi = pair[1], pair[2]
+        if out:find(en, 1, true) then
+            out = out:gsub(en:gsub("([%^%$%(%)%%%.%[%]%*%+%-%?])", "%%%1"), vi)
+        end
+    end
+    return out
+end
+
+-- HÀM DỊCH CHUYÊN BIỆT CHO DYNAMIC ISLAND (ĐẢM BẢO 100% TIẾNG VIỆT)
 local function translateStatusAction(cleanEn)
     if not cleanEn or cleanEn == "" then return "Đang rảnh" end
     if currentLanguage == "EN" then
@@ -712,32 +816,26 @@ local function translateStatusAction(cleanEn)
     local cacheKey = "STATUS_VI|" .. trimmed
     if FastCache[cacheKey] then return FastCache[cacheKey] end
 
+    -- Tầng 1: Khớp chính xác O(1)
     if EXACT_MATCH_VI[trimmed] then
         FastCache[cacheKey] = EXACT_MATCH_VI[trimmed]
         return EXACT_MATCH_VI[trimmed]
     end
 
+    -- Tầng 2: Khớp mẫu câu động
     for _, item in ipairs(STATUS_ACTION_PATTERNS_VI) do
         if trimmed:find(item.pat) then
             local out = trimmed:gsub(item.pat, item.rep)
+            out = applySmartPhraseFallback(out)
             FastCache[cacheKey] = out
             return out
         end
     end
 
-    local result = trimmed
-    for engPrefix, viPrefix in pairs(FALLBACK_VERB_PREFIX_VI) do
-        if result:sub(1, #engPrefix):lower() == engPrefix:lower() then
-            result = viPrefix .. result:sub(#engPrefix + 1)
-            break
-        end
-    end
-    result = result:gsub(" home$", " về nhà")
-                   :gsub(" to safe zone$", " về vùng an toàn")
-                   :gsub(" to base$", " về căn cứ")
-
-    FastCache[cacheKey] = result
-    return result
+    -- Tầng 3: Dịch cụm từ thông minh dự phòng
+    local fallbackOut = applySmartPhraseFallback(trimmed)
+    FastCache[cacheKey] = fallbackOut
+    return fallbackOut
 end
 
 local function translateVenyxText(raw)
@@ -757,12 +855,26 @@ local function translateVenyxText(raw)
     end
 
     local normalized = (raw:match("^%s*(.-)%s*$") or raw):gsub("%s+", " ")
+
+    -- 1. Khớp trực tiếp O(1)
     if EXACT_MATCH_VI[normalized] then
         local out = EXACT_MATCH_VI[normalized]
         FastCache[cacheKey] = out
         return out
     end
 
+    -- 2. XỬ LÝ DẤU BA CHẤM "..." TRONG DROPDOWN (VD: "Enchanted Forest...", "Divine...")
+    local baseBeforeDots = normalized:match("^(.+)%.%.%.$")
+    if baseBeforeDots then
+        baseBeforeDots = baseBeforeDots:match("^%s*(.-)%s*$") or baseBeforeDots
+        if EXACT_MATCH_VI[baseBeforeDots] then
+            local out = EXACT_MATCH_VI[baseBeforeDots] .. "..."
+            FastCache[cacheKey] = out
+            return out
+        end
+    end
+
+    -- 3. Xử lý các nhãn có biểu tượng đi kèm ở đầu
     local prefix, wordPart = normalized:match("^([^%w%s]+%s*)(.+)$")
     if prefix and wordPart and EXACT_MATCH_VI[wordPart] then
         local out = prefix .. EXACT_MATCH_VI[wordPart]
@@ -770,6 +882,7 @@ local function translateVenyxText(raw)
         return out
     end
 
+    -- 4. Khớp mẫu biểu thức động
     local result = normalized
     for _, item in ipairs(DYNAMIC_PATTERNS_VI) do
         if result:find(item.pat) then
@@ -782,6 +895,7 @@ local function translateVenyxText(raw)
     for _, item in ipairs(STATUS_ACTION_PATTERNS_VI) do
         if result:find(item.pat) then
             result = result:gsub(item.pat, item.rep)
+            result = applySmartPhraseFallback(result)
             FastCache[cacheKey] = result
             return result
         end
@@ -796,6 +910,7 @@ local function applyElementTranslation(inst)
     if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__FpsHooked") or inst:GetAttribute("__HiddenVxLogo") or inst.Name == "IslandExpandHint" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") then return end
     if inst:GetAttribute("__IsTranslating") then return end
 
+    -- SỬA LỖI TEXTBOX: Vừa dịch PlaceholderText, vừa dịch luôn chữ "Off" trong ô nhập số Slider
     if inst:IsA("TextBox") then
         local origPh = inst:GetAttribute("OrigPlaceholder")
         if not origPh and inst.PlaceholderText ~= "" then
@@ -804,6 +919,25 @@ local function applyElementTranslation(inst)
         end
         if origPh then
             inst.PlaceholderText = translateVenyxText(origPh)
+        end
+
+        if not inst:IsFocused() then
+            local boxTxt = inst.Text
+            if boxTxt == "Off" or boxTxt == "Tắt" or boxTxt == "None" or boxTxt == "Không có" then
+                local origBox = inst:GetAttribute("OrigBoxText")
+                if not origBox or (boxTxt == "Off" or boxTxt == "None") then
+                    origBox = (boxTxt == "Tắt") and "Off" or ((boxTxt == "Không có") and "None" or boxTxt)
+                    inst:SetAttribute("OrigBoxText", origBox)
+                end
+                local mappedBox = translateVenyxText(origBox)
+                if inst.Text ~= mappedBox then
+                    inst:SetAttribute("__IsTranslating", true)
+                    pcall(function() inst.Text = mappedBox end)
+                    task.defer(function()
+                        inst:SetAttribute("__IsTranslating", false)
+                    end)
+                end
+            end
         end
         return
     end
@@ -848,8 +982,12 @@ local function hookTextForTranslation(inst)
 
     inst:GetPropertyChangedSignal("Text"):Connect(function()
         if inst:GetAttribute("__IsTranslating") or inst:GetAttribute("__IslandDone") or inst:GetAttribute("__HiddenVxLogo") then return end
-        if isFpsCounterText(inst.Text) then
+        if not inst:IsA("TextBox") and isFpsCounterText(inst.Text) then
             hookFakeFpsCounter(inst)
+            return
+        end
+        if inst:IsA("TextBox") then
+            applyElementTranslation(inst)
             return
         end
         if inst.Text ~= inst:GetAttribute("__LastTranslated") then
@@ -873,7 +1011,7 @@ local function refreshAllTranslations()
     end
 end
 
--- ==================== 4. DYNAMIC ISLAND NỀN ĐEN (BỎ CHỮ "✨ rainbow") ====================
+-- ==================== 4. DYNAMIC ISLAND NỀN ĐEN (DỊCH 100% TRẠNG THÁI) ====================
 local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     local pill = statusLbl.Parent
     if not (pill and pill:IsA("GuiObject")) then return end
@@ -941,17 +1079,12 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
         if forceFromSavedOrig and statusLbl:GetAttribute("OrigStatusEn") then
             cleanEn = statusLbl:GetAttribute("OrigStatusEn")
         else
-            local raw = statusLbl:GetAttribute("OrigRawText") or statusLbl.Text
-            cleanEn = raw:gsub("●", ""):gsub("•", ""):gsub("✨%s*rainbow", ""):match("^%s*(.-)%s*$") or "Idle"
-            if cleanEn == "" or cleanEn == "Đang rảnh" then cleanEn = "Idle" end
-            if statusLbl.Text ~= statusLbl:GetAttribute("__LastTranslatedStatus") then
-                local currentRaw = statusLbl.Text:gsub("●", ""):gsub("•", ""):gsub("✨%s*rainbow", ""):match("^%s*(.-)%s*$") or ""
-                if currentRaw ~= "" and currentRaw ~= "Đang rảnh" then
-                    cleanEn = currentRaw
-                end
+            local currentRaw = statusLbl.Text:gsub("●", ""):gsub("•", ""):gsub("✨%s*rainbow", ""):match("^%s*(.-)%s*$") or ""
+            if currentRaw ~= "" and currentRaw ~= statusLbl:GetAttribute("__LastTranslatedStatus") then
+                cleanEn = currentRaw
                 statusLbl:SetAttribute("OrigStatusEn", cleanEn)
             else
-                cleanEn = statusLbl:GetAttribute("OrigStatusEn") or cleanEn
+                cleanEn = statusLbl:GetAttribute("OrigStatusEn") or currentRaw or "Idle"
             end
         end
 
@@ -974,7 +1107,7 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     end
 
     if statusLbl:GetAttribute("__IslandDone") and venyxGui:FindFirstChild("ChilliV5_ExpandedIsland") then
-        updateStatusText(true)
+        updateStatusText(false)
         return
     end
     statusLbl:SetAttribute("__IslandDone", true)
@@ -1215,7 +1348,7 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     end)
 end
 
--- ==================== 5. NÚT TRÒN NỔI 1:1 & HEADER LOGO (TƯƠNG THÍCH LOGO Vx MỚI) ====================
+-- ==================== 5. NÚT TRÒN NỔI 1:1 & HEADER LOGO (GIỮ NGUYÊN) ====================
 local function setupUnclippedCircularLogo(targetObj)
     local topPanel = targetObj
     while topPanel.Parent and topPanel.Parent:IsA("GuiObject") and not topPanel.Parent:IsA("ScreenGui") do
@@ -1224,8 +1357,6 @@ local function setupUnclippedCircularLogo(targetObj)
 
     if topPanel:GetAttribute("__FloatingLogoV5Perfect") then return end
 
-    -- Cách ly tuyệt đối QUICK BAR 1 & FPS Pill:
-    -- Nút mở menu nổi nằm ở nửa trái màn hình, kích thước vuông nhỏ (<= 100x100)
     local sz = topPanel.AbsoluteSize
     local pos = topPanel.AbsolutePosition
     if sz.X > 105 or sz.Y > 105 or sz.X < 28 or math.abs(sz.X - sz.Y) > 25 or pos.X > 350 then
@@ -1241,7 +1372,6 @@ local function setupUnclippedCircularLogo(targetObj)
                 pcall(function() child:Destroy() end)
             end
         end
-        -- Ẩn hoàn toàn cả Image lẫn Text ("Vx") bên trong nút nổi cũ
         if (child:IsA("ImageLabel") or child:IsA("ImageButton")) and child.Name ~= "ChilliV5CoverLogo" then
             child.ImageTransparency = 1
             child.BackgroundTransparency = 1
@@ -1313,7 +1443,6 @@ local function setupUnclippedCircularLogo(targetObj)
     logoCorner.Parent = coverLogo
 end
 
--- Hàm thay thế Logo "Vx" trên thanh Header (hỗ trợ cả Image lẫn Text "Vx")
 local function patchHeaderLogoLeftOfTitle(headerContainer, titleLbl)
     if not headerContainer or not titleLbl then return end
     local headerY = titleLbl.AbsolutePosition.Y
@@ -1330,7 +1459,6 @@ local function patchHeaderLogoLeftOfTitle(headerContainer, titleLbl)
                     item.BackgroundTransparency = 1
                     item.ScaleType = Enum.ScaleType.Fit
                 elseif item:IsA("TextLabel") or item:IsA("TextButton") then
-                    -- Nếu logo Vx mới trên Header được vẽ bằng chữ "V" / "x"
                     item:SetAttribute("__HiddenVxLogo", true)
                     item.TextTransparency = 1
                     local holder = item.Parent
