@@ -1,11 +1,5 @@
 -- ==============================================================================
 --  CHILLI HUB V5 - RONNEI OFFICIAL EDITION (UPDATE NOTIFICATION & FIX APPLY NOW)
---  Cập nhật tính năng:
---    1. BẢNG THÔNG BÁO UPDATE SẮP RA MẮT: Hỗ trợ 2 ngôn ngữ (VI / EN) cực đẹp.
---    2. SỬA LỖI ẤN APPLY NOW: Khắc phục triệt để thời gian trễ render giao diện,
---       đảm bảo tự động bấm Apply now 100% thành công sau khi Import config.
---    3. TÍCH HỢP ĐẦY ĐỦ: Auto-Load GitHub, Fake FPS 85-120, Nút tròn 60x60,
---       Dynamic Island nền đen #000000 & Bộ dịch thuật 4 tầng toàn diện.
 -- ==============================================================================
 
 local MY_CHILLI_URL  = "https://raw.githubusercontent.com/ronnei/hihi/refs/heads/main/chillihubv5.lua"
@@ -712,7 +706,7 @@ local EXACT_MATCH_VI = {
     ["Use weapons"] = "Sử dụng vũ khí",
     ["Hold each"] = "Thời gian cầm mỗi món",
 
-    -- System: Server, Webhook, Optimizer, Interface, Config (Bổ sung đầy đủ từ Video)
+    -- System: Server, Webhook, Optimizer, Interface, Config
     ["System"] = "Hệ Thống",
     ["Server"] = "Máy Chủ",
     ["SERVER"] = "MÁY CHỦ",
@@ -1355,7 +1349,7 @@ local function refreshAllTranslations()
     end)
 end
 
--- ==================== 4. HÀM KÍCH HOẠT TỰ ĐỘNG IMPORT CONFIG & APPLY NOW (TỐI ƯU GÂY KHOÁNG THỜI GIAN) ====================
+-- ==================== 4. HÀM KÍCH HOẠT TỰ ĐỘNG IMPORT CONFIG & APPLY NOW (TĂNG TỐC ĐỘ PHẢN HỒI) ====================
 local function fireGuiButton(btn)
     if not btn then return false end
     local fired = false
@@ -1485,16 +1479,16 @@ local function executeAutoFarmConfigImport(venyxGui, statusBtnLabel)
             fireGuiButton(importBtn)
         end
 
-        -- VÒNG LẶP SĂN HỘP THOẠI "APPLY NOW" LIÊN TỤC (TĂNG ĐỘ NHẬY 100%)
+        -- VÒNG LẶP SĂN HỘP THOẠI "APPLY NOW" TỐC ĐỘ CAO (BẮT TRỌN NGAY LẬP TỨC)
         local applied = false
-        for _ = 1, 40 do
-            task.wait(0.08)
+        for _ = 1, 60 do
+            task.wait(0.05)
             for _, root in ipairs(scanRoots) do
                 if root then
                     for _, d in ipairs(root:GetDescendants()) do
                         if d:IsA("TextButton") or d:IsA("TextLabel") then
                             local origTxt = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
-                            if origTxt == "Apply now" or d.Text == "Áp dụng ngay" or origTxt:find("Apply now", 1, true) then
+                            if origTxt == "Apply now" or d.Text == "Áp dụng ngay" or origTxt:find("Apply now", 1, true) or origTxt:find("Áp dụng ngay", 1, true) then
                                 fireGuiButton(d)
                                 applied = true
                                 break
@@ -1545,7 +1539,6 @@ local function showUpdateNotificationModal(venyxGui)
     modalGrad.Parent = modalStroke
     table.insert(State.ActiveGradients, modalGrad)
 
-    -- Tiêu đề thông báo
     local titleLbl = Instance.new("TextLabel")
     titleLbl.Size = UDim2.new(1, -30, 0, 36)
     titleLbl.Position = UDim2.new(0, 15, 0, 14)
@@ -1558,7 +1551,6 @@ local function showUpdateNotificationModal(venyxGui)
     titleLbl.ZIndex = 20001
     titleLbl.Parent = modalGui
 
-    -- Nội dung thông báo
     local descLbl = Instance.new("TextLabel")
     descLbl.Size = UDim2.new(1, -30, 0, 120)
     descLbl.Position = UDim2.new(0, 15, 0, 52)
@@ -1575,13 +1567,12 @@ local function showUpdateNotificationModal(venyxGui)
     descLbl.ZIndex = 20001
     descLbl.Parent = modalGui
 
-    -- Nút Đóng (OK / Got it)
     local closeBtn = Instance.new("TextButton")
     closeBtn.Size = UDim2.new(1, -30, 0, 36)
     closeBtn.Position = UDim2.new(0, 15, 1, -48)
     closeBtn.BackgroundColor3 = Color3.fromRGB(95, 110, 235)
     closeBtn.BorderSizePixel = 0
-    closeBtn.Text = (State.Language == "EN") and "GOT IT (OK)" | "ĐÃ HIỂU (OK)"
+    closeBtn.Text = (State.Language == "EN") and "GOT IT (OK)" or "ĐÃ HIỂU (OK)"
     closeBtn.Font = Enum.Font.GothamBold
     closeBtn.TextSize = 12
     closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -2044,7 +2035,7 @@ local function setupUnclippedCircularLogo(targetObj)
     stroke.Color = Color3.fromRGB(255, 255, 255)
     stroke.Parent = container
 
-    local strokeGrad = stroke:FindFirstChildOfClass("UIGradient") or Instance.new("UIGradient")
+    local strokeGrad = stroke:FindFirstChild("UIGradient") or Instance.new("UIGradient")
     strokeGrad.Color = COLOR_SEQ_RAINBOW
     strokeGrad.Parent = stroke
     table.insert(State.ActiveGradients, strokeGrad)
@@ -2137,7 +2128,6 @@ local function patchVenyxScreenGui(gui, titleLbl)
         end
     end
 
-    -- Hiển thị bảng thông báo Update sắp ra mắt đúng 1 lần duy nhất mỗi phiên
     if not gui:GetAttribute("__UpdateModalShown") then
         gui:SetAttribute("__UpdateModalShown", true)
         task.defer(function()
