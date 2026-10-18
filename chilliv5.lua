@@ -1,12 +1,12 @@
 -- ==============================================================================
---  CHILLI HUB V5 - RONNEI OFFICIAL EDITION (UPDATE NOTICE & AUTO-APPLY FIX)
+--  CHILLI HUB V5.1 - HALLOWEEN EVENT UPDATE (DYNAMIC ISLAND FIX & FULL TRANSLATION)
 --  Cập nhật mới nhất:
---    1. BẢNG THÔNG BÁO UPDATE SẮP RA MẮT: Modal siêu đẹp hiện 1 lần lúc bật,
---       hỗ trợ song ngữ VI/EN, giới thiệu tính năng Auto Farm chuẩn và UI mới.
---    2. SỬA DỨT ĐIỂM LỖI CHƯA BẤM "APPLY NOW": Nâng cấp engine mô phỏng click
---       chuột, đợi hộp thoại hiện rõ mới bấm, đảm bảo ăn 100% trên mọi Executor.
---    3. GIỮ NGUYÊN 100% TÍNH NĂNG CŨ: Auto-Load GitHub, Dynamic Island nền đen,
---       Fake FPS 85-120, Nút tròn 60x60, Dịch 4 tầng NLP.
+--    1. SỬA LỖI MẤT DYNAMIC ISLAND: Mở rộng bộ định vị để bắt chính xác nút
+--       trạng thái ngay cả khi đang chạy chuỗi sự kiện "Halloween: ...".
+--    2. DỊCH 100% SỰ KIỆN HALLOWEEN: Phantom Express, Chó Ma, Quái vật,
+--       Trăng Bí Ngô, Câu cá & toàn bộ các thông số tốc độ (st/s).
+--    3. BẢO TOÀN TÍNH NĂNG CŨ: Auto-Apply Config, Update Notice, Fake FPS,
+--       Nút tròn 60x60, và cơ chế chống giật ngôn ngữ.
 -- ==============================================================================
 
 local MY_CHILLI_URL  = "https://raw.githubusercontent.com/ronnei/hihi/refs/heads/main/chillihubv5.lua"
@@ -23,7 +23,7 @@ local MY_CHILLI_URL  = "https://raw.githubusercontent.com/ronnei/hihi/refs/heads
 local AUTO_RUN_FILE  = "ChilliHubV5_AutoRun.lua"
 local LANG_SAVE_FILE = "ChilliV5_Lang.txt"
 
--- CHUỖI JSON CONFIG SETTING AUTO FARM CHUẨN
+-- CHUỖI JSON CONFIG SETTING AUTO FARM CHUẨN CỦA BẠN
 local PRESET_AUTOFARM_JSON = [=[{"venyx":1,"name":"hihi","data":{"System / Interface/Quick bars/Show quick bars":false,"Farm / Sell/Favorite/Auto favorite":false,"System / Interface/Quick bars/Quick bar layout":"{\"pins\":{\"Player / Move/Movement/Boost speed\":1,\"Player / Move/Movement/Speed boost\":1},\"fold\":{\"1\":true},\"at\":[],\"keys\":[]}","Farm / Sell/Eggs/Only below /s":0,"Farm / Pen/Auto place/Place first":"Best value","Steal / Auto Steal/Filter/Only below /s":0,"Farm / Pen/Auto hatch/Equip best pets":false,"Event / AA/Capture the egg/Auto capture event egg":false,"Farm / Mutate/Mutate filter/Only these eggs":[],"Event / Race/Rewards/Auto claim rewards":true,"Farm / Treadmill/Treadmill/Auto upgrade treadmill":false,"Event / Race/Rewards/Racer":"Best owned","Steal / Auto Steal/Auto steal/Drop eggs at safe zone":false,"Steal / Auto Steal/Auto hop server/Auto hop":false,"System / Interface/Interface/Dim the game":0,"Player / Combat/Hit aura/Skip friends":true,"Player / ESP/Others/Pen egg ESP":true,"System / Optimizer/Frame rate/FPS position":"","Event / Butterfly/Butterfly bloom/Auto butterfly bloom":true,"Farm / Pen/Auto hatch/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Steal / Auto Steal/Filter/Min value /s":1000000000,"Player / Combat/Hit aura/Hit aura":true,"Event / AA/Capture the egg/Take it from the holder":true,"Steal / Egg Predictor/Egg showcase/Calculate mutations":[],"Steal / Egg Predictor/Egg showcase/Sort eggs":"Value","System / Optimizer/Bases/Hide other players' pets and eggs":true,"Player / Combat/Auto hit/Auto hit":false,"Event / Butterfly/Butterfly bloom/Catch mode":"Chase","Event / Butterfly/Butterfly machine/Trade":[],"Event / Lab/Lab stock/Biohazard Pets eggs":[],"Event / Race/Rewards/Auto equip racer":true,"Farm / Pen/Auto place/Auto place":false,"Steal / Auto Steal/Filter/Rarities":["Divine","Eternal","Secret"],"Farm / Sell/Lab eggs/Keep mutated":true,"System / Webhook/What to post/Post fused eggs":false,"Farm / Sell/Pets/Sell rarities":["Rare","Uncommon","Common"],"Farm / Sell/Lab eggs/Only mutations":[],"Farm / Fuse/Fuse filter/Rarities":["Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Event / Lab/Lab stock/Stock per egg":3,"System / Webhook/Discord webhook/Ping role ID":"","Player / ESP/Others/Hide sleeping guards":true,"System / Optimizer/Frame rate/Show FPS and ping":false,"Farm / Treadmill/Progress/Auto claim index rewards":false,"System / Interface/Quick bars/Keybinds":true,"Steal / Auto Steal/Auto steal/Instant steps":1,"Farm / Fuse/Fuse filter/Never fuse":[],"Farm / Pen/Auto hatch/Mutations":[],"System / Optimizer/Bases/Hide my pets and eggs":true,"Steal / Auto Steal/Filter/Zones":["Enchanted Forest","Light Dark","Titan Temple","Cherry Blossom"],"Event / Butterfly/Butterfly machine/Auto craft essence":false,"Farm / Mutate/Auto mutate/Auto mutate":false,"Farm / Sell/Lab eggs/Never sell":[],"Player / ESP/Field eggs/Egg ESP":false,"Farm / Pen/Keep eggs/Min value /s":0,"Steal / Auto Steal/Auto steal/Delivery method":"Instant steps","Farm / Sell/Eggs/Keep mutated":true,"Farm / Sell/Eggs/Sell rarities":["Rare","Uncommon","Common"],"System / Interface/Interface/Tone":100,"Player / ESP/Others/Player ESP":true,"Event / Lab/Lab stock/Experimental Pets eggs":[],"System / Webhook/What to post/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Event / AA/Admin abuse/Instant steal (Admin Treadmill)":true,"Player / Move/Protection/Anti ragdoll":true,"Event / Race/Racing Event/Auto race":true,"Event / Butterfly/Wisp companion/Auto banjo cricket":false,"Event / Lab/Lab/Auto reroll recipe":false,"Farm / Mutate/Auto mutate/Use items":["Fractured","Scrambled","Enchanted","Nitro"],"System / Interface/Interface/Opacity":50,"Farm / Fuse/Fuse machine/Fuse first":"Lowest rarity","Farm / Sell/Lab eggs/Only below /s":0,"System / Webhook/Discord webhook/Webhook URL":"","Player / Move/Movement/Boost speed":120,"Farm / Pen/Auto place/Place when":"Always","Player / ESP/Others/ESP size":60,"System / Webhook/What to post/Post stolen eggs":false,"Farm / Sell/Favorite/Always favorite":[],"Farm / Treadmill/Progress/Auto upgrade base":false,"Farm / Sell/Eggs/Auto sell eggs":false,"Farm / Treadmill/Progress/Auto buy trails":false,"System / Server/Join and stay/Rejoin on kick":true,"Steal / Auto Steal/Filter/Steal first":"Best value","Farm / Sell/Pets/Only below /s":0,"Event / Lab/Lab/Auto trade in":false,"Event / Lab/Lab/Steal lab eggs":false,"Farm / Pen/Auto hatch/Min value /s":0,"Steal / Auto Steal/Auto hop server/Hop when":"After stealing a match","System / Optimizer/Frame rate/FPS cap":360,"Event / Butterfly/Butterfly bloom/Catch":["Radiant","Amethyst","Sapphire","Emerald"],"Farm / Treadmill/Treadmill/Auto treadmill":true,"System / Interface/Game HUD/Steal panel button on game HUD":true,"System / Server/Server/Hop to":"Least players","Farm / Mutate/Mutate filter/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Player / Move/Protection/Instant prompts":true,"Event / Race/Racing Event/Race speed":144,"Steal / Auto Steal/Filter/Keep lab eggs":true,"Player / Combat/Auto hit/Hit who":"Nearest player","Player / ESP/Field eggs/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic"],"Steal / Auto Steal/Auto steal/Steal missing index eggs":false,"Steal / Auto Steal/Filter/Only these eggs":["ArchAngel","Kitsune","Nightflame","Royal Skywhale","Unicorn","World Burner","Celestial Sunlion","Gorilla King","Pegasus","Skeleton Horse","Strawberry Elephant","67","Amethyst Runebear","Starry Fox"],"Farm / Sell/Favorite/Min value /s":0,"System / Server/Join and stay/Auto load script":true,"Farm / Pen/Keep eggs/Eggs to keep":[],"System / Optimizer/Graphics/Low graphics":true,"Event / Race/Racing Event/Use power-ups":true,"Event / AA/Minigame eggs/Auto steal minigame egg":true,"Farm / Sell/Favorite/Favorite equipped":false,"System / Optimizer/Graphics/Background color":"Black","Farm / Sell/Eggs/Never sell":[],"Farm / Pen/Auto place/Min value /s":0,"Player / Move/Movement/Speed boost":false,"System / Optimizer/Graphics/Disable 3D Render":false,"Farm / Fuse/Fuse machine/Skip mutated":true,"Event / Lab/Lab/Place lab reward eggs":false,"Farm / Mutate/Auto mutate/Auto buy Nitro":false,"Steal / Auto Steal/Auto hop server/Rare from":"Cosmic","Steal / Auto Steal/Auto steal/Anti guard":true,"Steal / Auto Steal/Auto steal/Steal from other players":false,"Event / AA/Capture the egg/Keep away":45,"Farm / Fuse/Fuse filter/Only below /s":0,"Farm / Sell/Favorite/Unfavorite pets not matching":false,"System / Webhook/What to post/Min value /s":0,"Farm / Pen/Auto hatch/Auto hatch":false,"Event / Butterfly/Butterfly bloom/Catch speed":600,"Farm / Priority/Task order/Task order":["Steal filter eggs","Shooting Star","Racing Event","Butterfly","Steal wisp eggs","Wisp","Steal missing index","Steal lab eggs","Place","Mutate","Butterfly machine","Treadmill"],"Event / Butterfly/Butterfly machine/Auto trade up":true,"Player / ESP/Others/Guard ESP":true,"System / Webhook/What to post/Post when bag is full":false,"Event / Lab/Lab stock/Stock lab eggs":false,"Event / Lab/Lab stock/Unstable DNA eggs":[],"Player / ESP/Field eggs/Mutations":[],"Player / ESP/Field eggs/Show":[],"Event / AA/Admin abuse/Use admin treadmill":true,"Player / Combat/Weapons/Use weapons":[],"Player / Move/Movement/Infinite jump":true,"System / Interface/Quick bars/Bar size":95,"Player / ESP/Field eggs/Min value /s":0,"Player / Combat/Weapons/Hold each":0.2,"Farm / Mutate/Auto mutate/Mutate first":"Best value","Farm / Mutate/Mutate filter/Min value /s":0,"Farm / Sell/Pets/Never sell":[],"Event / Race/Rewards/Shop items":[],"Farm / Pen/Auto place/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Event / Race/Rewards/Auto buy shop":false,"System / Webhook/Discord webhook/Ping everyone":false,"Event / Star/Shooting Star/Auto catch shooting star":true,"Event / Butterfly/Butterfly machine/Smart trade for essence":false,"Farm / Fuse/Fuse machine/Eject odd pets":true,"Player / ESP/Field eggs/Fixed size":false,"Player / Combat/Auto hit/Chase speed":1000,"Farm / Pen/Auto place/Mutations":[],"Steal / Auto Steal/Auto steal/Fast tween speed":4500,"Player / Move/Protection/Anti AFK":true,"Farm / Sell/Favorite/Rarities":[],"Steal / Auto Steal/Auto hop server/First hop after":5,"Steal / Auto Steal/Auto steal/Tween speed":110,"Farm / Sell/Pets/Auto sell pets":false,"Farm / Sell/Pets/Only mutations":[],"Farm / Sell/Pets/Keep mutated":true,"Steal / Auto Steal/Filter/Sell cheapest egg when bag is full":false,"Farm / Sell/Lab eggs/Sell rarities":[],"Steal / Auto Steal/Auto steal/Go to egg":"Teleport to egg","Event / Lab/Lab stock/Stock for banners":[],"Event / AA/Capture the egg/Hold height":45,"Steal / Auto Steal/Filter/Mutations":[],"Farm / Pen/Auto hatch/Only these eggs":[],"Player / Move/Movement/God mode":true,"Steal / Auto Steal/Auto steal/Teleport zones":["Enchanted Forest","Light Dark","Titan Temple","Cherry Blossom"],"Steal / Auto Steal/Auto steal/Auto steal":true,"Farm / Fuse/Fuse machine/Auto fuse":false,"System / Interface/Interface/UI scale":90,"Farm / Fuse/Fuse filter/Only these pets":[],"Steal / Egg Predictor/Egg showcase/Preview card":true,"Farm / Sell/Favorite/Match":"All picked rules","Player / ESP/Others/Other pens ESP":true,"Farm / Mutate/Mutate filter/Skip eggs with":[],"System / Interface/Interface/Show / hide UI":{"k":"LeftControl"},"Farm / Sell/Lab eggs/Auto sell lab eggs":false,"Farm / Sell/Eggs/Only mutations":[],"Event / Butterfly/Butterfly bloom/Catch priority":"Rarest","System / Webhook/Discord webhook/Ping user ID":"","Farm / Pen/Auto place/Only these eggs":[],"Farm / Treadmill/Progress/Auto claim offline cash":false,"Player / Move/Protection/Ignore traps":true,"Event / Lab/Lab/Lab banners":[],"Player / Move/Protection/Invisible":false,"Farm / Sell/Favorite/Mutations":[],"Farm / Fuse/Fuse machine/Use pets":"Lowest value first","Event / Butterfly/Wisp companion/Auto wisp quest":false,"System / Optimizer/Graphics/Hide game UI":false}}]=]
 
 -- ==================== 0. QUẢN LÝ PHIÊN TOÀN CỤC ====================
@@ -35,6 +35,7 @@ env.__ChilliV5State = env.__ChilliV5State or {
     TrackedTexts = {},
     TrackedFpsLabels = {},
     RefreshIslandCallback = nil,
+    RefreshNoticeCallback = nil,
     NoticeShown = false
 }
 
@@ -67,13 +68,9 @@ do
     local teleportBootstrap = string.format([[
         --CHILLI_V5_AUTHORIZED_TELEPORT--
         task.spawn(function()
-            if not game:IsLoaded() then
-                game.Loaded:Wait()
-            end
+            if not game:IsLoaded() then game.Loaded:Wait() end
             local Players = game:GetService("Players")
-            while not Players.LocalPlayer do
-                task.wait(0.1)
-            end
+            while not Players.LocalPlayer do task.wait(0.1) end
             task.wait(1.0)
             local executed = false
             if isfile and readfile and isfile("%s") then
@@ -84,9 +81,7 @@ do
                 end
             end
             if not executed then
-                pcall(function()
-                    loadstring(game:HttpGet("%s"))()
-                end)
+                pcall(function() loadstring(game:HttpGet("%s"))() end)
             end
         end)
     ]], AUTO_RUN_FILE, AUTO_RUN_FILE, MY_CHILLI_URL)
@@ -116,9 +111,7 @@ do
                 local oldHook
                 oldHook = hookfunction(realQueue, function(code)
                     local s = tostring(code or "")
-                    if s:find("CHILLI_V5_AUTHORIZED_TELEPORT", 1, true) then
-                        return oldHook(code)
-                    end
+                    if s:find("CHILLI_V5_AUTHORIZED_TELEPORT", 1, true) then return oldHook(code) end
                     return oldHook(teleportBootstrap)
                 end)
             end)
@@ -130,9 +123,7 @@ do
         if syn then pcall(function() syn.clear_teleport_queue = noop end) end
         if fluxus then pcall(function() fluxus.clear_teleport_queue = noop end) end
 
-        pcall(function()
-            realQueue(teleportBootstrap)
-        end)
+        pcall(function() realQueue(teleportBootstrap) end)
 
         task.spawn(function()
             local Players = game:GetService("Players")
@@ -143,15 +134,11 @@ do
                     if getconnections then
                         pcall(function()
                             for _, conn in ipairs(getconnections(lp.OnTeleport)) do
-                                if conn.Function and not isexecutorclosure(conn.Function) then
-                                    conn:Disable()
-                                end
+                                if conn.Function and not isexecutorclosure(conn.Function) then conn:Disable() end
                             end
                         end)
                     end
-                    pcall(function()
-                        realQueue(teleportBootstrap)
-                    end)
+                    pcall(function() realQueue(teleportBootstrap) end)
                 end)
             end
         end)
@@ -161,12 +148,8 @@ end
 if not env.__VenyxV5NewLoaded then
     env.__VenyxV5NewLoaded = true
     task.spawn(function()
-        if not game:IsLoaded() then
-            game.Loaded:Wait()
-        end
-        pcall(function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/tienkhanh1/Venyx/main/VenyxHub"))()
-        end)
+        if not game:IsLoaded() then game.Loaded:Wait() end
+        pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/tienkhanh1/Venyx/main/VenyxHub"))() end)
     end)
 end
 
@@ -175,11 +158,7 @@ local LocalPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("Loc
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 
-local scanRoots = {
-    gethui and gethui(),
-    CoreGui,
-    LocalPlayer:WaitForChild("PlayerGui")
-}
+local scanRoots = { gethui and gethui(), CoreGui, LocalPlayer:WaitForChild("PlayerGui") }
 
 local IGNORED_GUI_NAMES = {
     ["RobloxGui"] = true, ["TopBarApp"] = true, ["TouchGui"] = true,
@@ -204,11 +183,7 @@ task.spawn(function()
         local list = State.ActiveGradients
         for i = #list, 1, -1 do
             local g = list[i]
-            if g and g.Parent then
-                g.Rotation = rot
-            else
-                table.remove(list, i)
-            end
+            if g and g.Parent then g.Rotation = rot else table.remove(list, i) end
         end
         task.wait(0.03)
     end
@@ -222,8 +197,7 @@ local function getSmoothFakeFps()
     local now = os.clock()
     if now - lastFpsStepClock >= 0.65 then
         lastFpsStepClock = now
-        local delta = math.random(-4, 4)
-        currentFakeFps = math.clamp(currentFakeFps + delta, 85, 120)
+        currentFakeFps = math.clamp(currentFakeFps + math.random(-4, 4), 85, 120)
     end
     return currentFakeFps
 end
@@ -257,9 +231,7 @@ local function hookFakeFpsCounter(lbl)
         lbl:SetAttribute("__FpsHookSession", MY_SESSION_ID)
         lbl:GetPropertyChangedSignal("Text"):Connect(function()
             if not isCurrentSession() then return end
-            if not lbl:GetAttribute("__UpdatingFps") then
-                forceUpdateFpsLabel(lbl)
-            end
+            if not lbl:GetAttribute("__UpdatingFps") then forceUpdateFpsLabel(lbl) end
         end)
     end
 end
@@ -269,11 +241,7 @@ task.spawn(function()
         task.wait(0.5)
         getSmoothFakeFps()
         for lbl in pairs(State.TrackedFpsLabels) do
-            if lbl and lbl.Parent then
-                forceUpdateFpsLabel(lbl)
-            else
-                State.TrackedFpsLabels[lbl] = nil
-            end
+            if lbl and lbl.Parent then forceUpdateFpsLabel(lbl) else State.TrackedFpsLabels[lbl] = nil end
         end
     end
 end)
@@ -295,14 +263,44 @@ local VIETNAMESE_CHAR_PATTERNS = {
 local function containsVietnameseChars(str)
     if type(str) ~= "string" or str == "" then return false end
     for i = 1, #VIETNAMESE_CHAR_PATTERNS do
-        if str:find(VIETNAMESE_CHAR_PATTERNS[i], 1, true) then
-            return true
-        end
+        if str:find(VIETNAMESE_CHAR_PATTERNS[i], 1, true) then return true end
     end
     return false
 end
 
 local EXACT_MATCH_VI = {
+    -- HALLOWEEN EVENT UPDATE
+    ["Halloween"] = "Halloween",
+    ["HALLOWEEN DIMENSION"] = "CHIỀU KHÔNG GIAN HALLOWEEN",
+    ["Auto steal Halloween eggs"] = "Tự động cướp trứng Halloween",
+    ["Instant steal Halloween eggs"] = "Cướp tức thì trứng Halloween",
+    ["Steal speed"] = "Tốc độ cướp",
+    ["Halloween eggs"] = "Trứng Halloween",
+    ["Halloween rarities"] = "Độ hiếm Halloween",
+    ["Auto Pumpkin Moon"] = "Trăng Bí Ngô Tự Động",
+    ["Walk speed"] = "Tốc độ đi bộ",
+    ["Auto buy Halloween Dimension Egg"] = "Tự mua trứng Chiều không gian Halloween",
+    ["MONSTERS"] = "QUÁI VẬT",
+    ["Auto kill monsters"] = "Tự động diệt quái",
+    ["Monsters"] = "Quái vật",
+    ["Monster order"] = "Thứ tự quái",
+    ["GHOST DOG AND FISHING"] = "CHÓ MA & CÂU CÁ",
+    ["QUEST"] = "NHIỆM VỤ",
+    ["FISH CAUGHT"] = "CÁ ĐÃ CÂU",
+    ["Done"] = "Hoàn thành",
+    ["Auto Ghost Dog quest"] = "Tự làm nhiệm vụ Chó Ma",
+    ["Auto fishing"] = "Tự động câu cá",
+    ["Cast luck"] = "May mắn quăng cần",
+    ["PHANTOM EXPRESS"] = "CHUYẾN TÀU MA",
+    ["TRAIN"] = "CHUYẾN TÀU",
+    ["Not here"] = "Chưa đến",
+    ["SOULS"] = "LINH HỒN",
+    ["Auto Phantom Express"] = "Tự lên Chuyến Tàu Ma",
+    ["Auto vacuum Ghouler boss"] = "Tự hút Boss Ghouler",
+    ["Ghost target"] = "Mục tiêu ma",
+    ["Rarest first"] = "Hiếm nhất trước",
+    ["Auto trade souls"] = "Tự động đổi linh hồn",
+
     -- Upcoming Update Notice
     ["🚀 UPCOMING UPDATE"] = "🚀 CẬP NHẬT SẮP RA MẮT",
     ["✨ Auto Config Feature: 100% optimized Auto Farm preset for all accounts (even beginners/low speed) and devices (even laggy ones). Strictly tested for the best and most suitable results!"] = "✨ Tính năng Auto Config: Tự động nhập cấu hình Auto Farm chuẩn, tối ưu 100% cho mọi tài khoản (mới chơi/ít tốc độ) và thiết bị (kể cả máy yếu/lag). Cấu hình đã được test kỹ càng để mang lại hiệu quả cao nhất!",
@@ -432,6 +430,8 @@ local EXACT_MATCH_VI = {
     ["Teleport to egg"] = "Dịch chuyển tới trứng",
     ["Teleport zones"] = "Khu vực dịch chuyển",
     ["Teleport zone"] = "Khu vực dịch chuyển",
+    ["Delivery speed"] = "Tốc độ giao trứng",
+    ["Change if steal fails"] = "Đổi nếu cướp thất bại",
     ["Tween"] = "Bay (Tween)",
     ["Walk"] = "Đi bộ",
     ["Delivery method"] = "Cách mang về",
@@ -732,7 +732,7 @@ local EXACT_MATCH_VI = {
     ["Use weapons"] = "Sử dụng vũ khí",
     ["Hold each"] = "Thời gian cầm mỗi món",
 
-    -- System: Config & Mới trong video
+    -- System: Config
     ["System"] = "Hệ Thống",
     ["Server"] = "Máy Chủ",
     ["SERVER"] = "MÁY CHỦ",
@@ -744,6 +744,13 @@ local EXACT_MATCH_VI = {
     ["INTERFACE"] = "GIAO DIỆN",
     ["Config"] = "Cấu Hình",
     ["CONFIG"] = "CẤU HÌNH",
+    ["DEFAULTS"] = "MẶC ĐỊNH",
+    ["Reset to defaults"] = "Khôi phục mặc định",
+    ["Reset"] = "Đặt lại",
+    ["Turn off all toggles"] = "Tắt toàn bộ nút gạt",
+    ["Turn off"] = "Tắt hết",
+    ["Clear all quick bars"] = "Xóa hết thanh phím tắt",
+    ["Clear all keybinds"] = "Xóa hết phím tắt",
     ["ACTIVE"] = "ĐANG DÙNG",
     ["SAVED CONFIGS"] = "ĐÃ LƯU",
     ["Set as active config"] = "Đặt làm cấu hình chính",
@@ -767,6 +774,8 @@ local EXACT_MATCH_VI = {
     ["Config imported"] = "Đã nhập cấu hình",
     ["Config Imported"] = "Đã nhập cấu hình",
     ["Config loaded"] = "Đã nạp cấu hình",
+    ["Import failed"] = "Nhập thất bại",
+    ["Not a Venyx config text"] = "Mã cấu hình không hợp lệ",
     ["Later"] = "Để sau",
     ["Apply now"] = "Áp dụng ngay",
     ["Hop to"] = "Chuyển tới server",
@@ -841,9 +850,7 @@ local EXACT_MATCH_VI = {
 }
 
 local LOWER_EXACT_MATCH_VI = {}
-for k, v in pairs(EXACT_MATCH_VI) do
-    LOWER_EXACT_MATCH_VI[k:lower()] = v
-end
+for k, v in pairs(EXACT_MATCH_VI) do LOWER_EXACT_MATCH_VI[k:lower()] = v end
 
 local STATUS_ACTION_PATTERNS_VI = {
     { pat = "^[Nn]o eggs? match%w* your (.+)$", rep = "Không có trứng nào khớp %1" },
@@ -853,6 +860,11 @@ local STATUS_ACTION_PATTERNS_VI = {
     { pat = "^[Nn]o (.+) available(.*)$", rep = "Không có sẵn %1%2" },
     { pat = "^[Nn]o (.+) in (.+)$", rep = "Không có %1 trong %2" },
     { pat = "^[Nn]o (.+) to (.+)$", rep = "Không có %1 để %2" },
+    { pat = "^[Hh]alloween:%s*[Cc]arrying (.+) to safe zone(.*)$", rep = "Halloween: Đang mang %1 về vùng an toàn%2" },
+    { pat = "^[Hh]alloween:%s*[Cc]arrying (.+) to base(.*)$", rep = "Halloween: Đang mang %1 về căn cứ%2" },
+    { pat = "^[Hh]alloween:%s*[Cc]arrying (.+) to pen(.*)$", rep = "Halloween: Đang mang %1 về chuồng%2" },
+    { pat = "^[Hh]alloween:%s*[Cc]arrying (.+) home(.*)$", rep = "Halloween: Đang mang %1 về nhà%2" },
+    { pat = "^[Hh]alloween:%s*[Cc]arrying (.+)$", rep = "Halloween: Đang mang %1" },
     { pat = "^[Cc]arrying (.+) to safe zone(.*)$", rep = "Đang mang %1 về vùng an toàn%2" },
     { pat = "^[Cc]arrying (.+) to base(.*)$", rep = "Đang mang %1 về căn cứ%2" },
     { pat = "^[Cc]arrying (.+) to pen(.*)$", rep = "Đang mang %1 về chuồng%2" },
@@ -960,6 +972,7 @@ local SMART_PHRASE_FALLBACK_VI = {
     { "minigame egg", "trứng Minigame" },
     { "wisp eggs", "trứng Wisp" },
     { "wisp egg", "trứng Wisp" },
+    { "halloween: ", "Halloween: " },
     { "to safe zone", "về vùng an toàn" },
     { "to base", "về căn cứ" },
     { "to pen", "vào chuồng" },
@@ -1076,7 +1089,10 @@ local WORD_TOKEN_VI = {
     ["for"] = "cho",
     ["with"] = "với",
     ["and"] = "và",
-    ["or"] = "hoặc"
+    ["or"] = "hoặc",
+    ["st"] = "st",
+    ["st/s"] = "st/s",
+    ["perfect"] = "Perfect"
 }
 
 local DYNAMIC_PATTERNS_VI = {
@@ -1104,7 +1120,10 @@ local DYNAMIC_PATTERNS_VI = {
     { pat = "^Cosmic · 1 in ([%d%.]+)$", rep = "Vũ Trụ · 1 trên %1" },
     { pat = "^Secret · 1 in ([%d%.]+)$", rep = "Bí Ẩn · 1 trên %1" },
     { pat = "^Divine · 1 in ([%d%.]+)$", rep = "Thánh Thần · 1 trên %1" },
-    { pat = "^Eternal · 1 in ([%d%.]+)$", rep = "Vĩnh Cửu · 1 trên %1" }
+    { pat = "^Eternal · 1 in ([%d%.]+)$", rep = "Vĩnh Cửu · 1 trên %1" },
+    { pat = "^(%d+) st$", rep = "%1 st" },
+    { pat = "^(%d+) st/s$", rep = "%1 st/s" },
+    { pat = "^x([%d%.]+) (.+)$", rep = "x%1 %2" }
 }
 
 local function applyCaseInsensitivePhrases(str)
@@ -1228,7 +1247,7 @@ end
 
 local function applyElementTranslation(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
-    if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__FpsHookSession") or inst:GetAttribute("__HiddenVxLogo") or inst.Name == "IslandExpandHint" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliV5_NoticeGui") then return end
+    if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__FpsHookSession") or inst:GetAttribute("__HiddenVxLogo") or inst:GetAttribute("__IsConfigInputBox") or inst.Name == "IslandExpandHint" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliV5_NoticeGui") then return end
     if inst:GetAttribute("__IsTranslating") then return end
 
     if inst:IsA("TextBox") then
@@ -1237,7 +1256,14 @@ local function applyElementTranslation(inst)
             origPh = inst.PlaceholderText
             inst:SetAttribute("OrigPlaceholder", origPh)
         end
-        if origPh then inst.PlaceholderText = translateVenyxText(origPh) end
+        if origPh then
+            if origPh:lower():find("paste config", 1, true) then
+                inst:SetAttribute("__IsConfigInputBox", true)
+                inst.PlaceholderText = translateVenyxText(origPh)
+                return
+            end
+            inst.PlaceholderText = translateVenyxText(origPh)
+        end
 
         if not inst:IsFocused() then
             local boxTxt = inst.Text
@@ -1284,13 +1310,9 @@ end
 
 local function hookTextForTranslation(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
-    if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__HiddenVxLogo") or inst.Name == "IslandExpandHint" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliV5_NoticeGui") then return end
+    if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__HiddenVxLogo") or inst:GetAttribute("__IsConfigInputBox") or inst.Name == "IslandExpandHint" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliV5_NoticeGui") then return end
 
-    if not inst:IsA("TextBox") and isFpsCounterText(inst.Text) then
-        hookFakeFpsCounter(inst)
-        return
-    end
-
+    if not inst:IsA("TextBox") and isFpsCounterText(inst.Text) then hookFakeFpsCounter(inst) return end
     applyElementTranslation(inst)
 
     if inst:GetAttribute("__TransHookSession") == MY_SESSION_ID then return end
@@ -1299,8 +1321,7 @@ local function hookTextForTranslation(inst)
 
     inst:GetPropertyChangedSignal("Text"):Connect(function()
         if not isCurrentSession() then return end
-        if inst:GetAttribute("__IsTranslating") or inst:GetAttribute("__IslandDone") or inst:GetAttribute("__HiddenVxLogo") then return end
-
+        if inst:GetAttribute("__IsTranslating") or inst:GetAttribute("__IslandDone") or inst:GetAttribute("__HiddenVxLogo") or inst:GetAttribute("__IsConfigInputBox") then return end
         if not inst:IsA("TextBox") and isFpsCounterText(inst.Text) then hookFakeFpsCounter(inst) return end
         if inst:IsA("TextBox") then applyElementTranslation(inst) return end
 
@@ -1312,35 +1333,40 @@ local function hookTextForTranslation(inst)
     end)
 end
 
--- ==================== 4. BẢNG THÔNG BÁO UPDATE SẮP RA MẮT (UPCOMING UPDATE NOTICE) ====================
+-- ==================== 4. BẢNG THÔNG BÁO UPDATE SẮP RA MẮT ====================
 local function showUpcomingUpdateNotice()
     if State.NoticeShown then return end
     State.NoticeShown = true
 
+    local parentTarget = (gethui and gethui()) or CoreGui
+    local oldNotice = parentTarget:FindFirstChild("ChilliV5_NoticeGui")
+    if oldNotice then oldNotice:Destroy() end
+
     local noticeGui = Instance.new("ScreenGui")
     noticeGui.Name = "ChilliV5_NoticeGui"
     noticeGui.DisplayOrder = 2147483647
+    noticeGui.IgnoreGuiInset = true
     noticeGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    noticeGui.Parent = CoreGui
+    noticeGui.Parent = parentTarget
 
     local overlay = Instance.new("Frame")
     overlay.Size = UDim2.new(1, 0, 1, 0)
     overlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    overlay.BackgroundTransparency = 0.5
+    overlay.BackgroundTransparency = 0.45
     overlay.Active = true
     overlay.Parent = noticeGui
 
     local modal = Instance.new("Frame")
-    modal.Size = UDim2.new(0, 360, 0, 220)
+    modal.Size = UDim2.new(0, 380, 0, 235)
     modal.Position = UDim2.new(0.5, 0, 0.5, 0)
     modal.AnchorPoint = Vector2.new(0.5, 0.5)
-    modal.BackgroundColor3 = Color3.fromRGB(15, 18, 28)
+    modal.BackgroundColor3 = Color3.fromRGB(12, 14, 22)
     modal.BorderSizePixel = 0
     modal.ClipsDescendants = true
     modal.Parent = overlay
 
     local mCorner = Instance.new("UICorner")
-    mCorner.CornerRadius = UDim.new(0, 12)
+    mCorner.CornerRadius = UDim.new(0, 14)
     mCorner.Parent = modal
 
     local mStroke = Instance.new("UIStroke")
@@ -1355,52 +1381,52 @@ local function showUpcomingUpdateNotice()
     table.insert(State.ActiveGradients, mGrad)
 
     local titleLbl = Instance.new("TextLabel")
-    titleLbl.Size = UDim2.new(1, 0, 0, 40)
+    titleLbl.Size = UDim2.new(1, -24, 0, 38)
+    titleLbl.Position = UDim2.new(0, 12, 0, 6)
     titleLbl.BackgroundTransparency = 1
     titleLbl.Font = Enum.Font.GothamBlack
-    titleLbl.TextSize = 16
+    titleLbl.TextSize = 15
     titleLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
     titleLbl.Parent = modal
 
     local bodyLbl = Instance.new("TextLabel")
-    bodyLbl.Size = UDim2.new(1, -30, 0, 110)
-    bodyLbl.Position = UDim2.new(0, 15, 0, 45)
+    bodyLbl.Size = UDim2.new(1, -32, 0, 130)
+    bodyLbl.Position = UDim2.new(0, 16, 0, 46)
     bodyLbl.BackgroundTransparency = 1
     bodyLbl.TextWrapped = true
     bodyLbl.Font = Enum.Font.GothamMedium
-    bodyLbl.TextSize = 13
-    bodyLbl.TextColor3 = Color3.fromRGB(220, 230, 255)
+    bodyLbl.TextSize = 12.5
+    bodyLbl.TextColor3 = Color3.fromRGB(225, 232, 255)
     bodyLbl.TextXAlignment = Enum.TextXAlignment.Left
     bodyLbl.TextYAlignment = Enum.TextYAlignment.Top
     bodyLbl.Parent = modal
 
     local closeBtn = Instance.new("TextButton")
-    closeBtn.Size = UDim2.new(0, 120, 0, 32)
-    closeBtn.Position = UDim2.new(0.5, 0, 1, -45)
+    closeBtn.Size = UDim2.new(0, 140, 0, 34)
+    closeBtn.Position = UDim2.new(0.5, 0, 1, -44)
     closeBtn.AnchorPoint = Vector2.new(0.5, 0)
-    closeBtn.BackgroundColor3 = Color3.fromRGB(235, 60, 60)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(95, 110, 235)
     closeBtn.Font = Enum.Font.GothamBold
-    closeBtn.TextSize = 13
+    closeBtn.TextSize = 12.5
     closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     closeBtn.Parent = modal
 
     local bCorner = Instance.new("UICorner")
-    bCorner.CornerRadius = UDim.new(0, 6)
+    bCorner.CornerRadius = UDim.new(1, 0)
     bCorner.Parent = closeBtn
 
     local function updateNoticeLang()
         if State.Language == "VI" then
             titleLbl.Text = "🚀 CẬP NHẬT SẮP RA MẮT"
-            bodyLbl.Text = "✨ Tính năng Auto Config: Tự động nhập cấu hình Auto Farm chuẩn, tối ưu 100% cho mọi tài khoản (mới chơi/ít tốc độ) và thiết bị (kể cả máy yếu/lag). Cấu hình đã được test kỹ càng để mang lại hiệu quả cao nhất!\n\n✨ Giao diện mới: Thiết kế lại toàn bộ giao diện đẹp mắt và chuyên nghiệp hơn."
-            closeBtn.Text = "ĐÓNG"
+            bodyLbl.Text = "+ Tính năng Setting tự động nhập cấu hình Auto Farm chuẩn, phù hợp với tất cả tài khoản (mới chơi/ít tốc độ) và thiết bị (kể cả máy yếu/lag). Cấu hình đã được test kỹ càng để mang lại hiệu quả cao nhất!\n\n+ Giao diện mới: Thiết kế lại toàn bộ giao diện đẹp mắt và chuyên nghiệp hơn."
+            closeBtn.Text = "ĐÃ HIỂU / ĐÓNG"
         else
             titleLbl.Text = "🚀 UPCOMING UPDATE"
             bodyLbl.Text = "✨ Auto Config Feature: 100% optimized Auto Farm preset for all accounts (even beginners/low speed) and devices (even laggy ones). Strictly tested for the best and most suitable results!\n\n✨ New Interface: Completely redesigned for a more beautiful and professional look."
-            closeBtn.Text = "CLOSE"
+            closeBtn.Text = "GOT IT / CLOSE"
         end
     end
     updateNoticeLang()
-
     State.RefreshNoticeCallback = updateNoticeLang
 
     closeBtn.MouseButton1Click:Connect(function()
@@ -1409,7 +1435,6 @@ local function showUpcomingUpdateNotice()
     end)
 end
 
--- Cập nhật hàm refresh ngôn ngữ để dính kèm Notice
 local function refreshAllTranslations()
     task.spawn(function()
         if State.RefreshIslandCallback then State.RefreshIslandCallback() end
@@ -1429,154 +1454,227 @@ local function refreshAllTranslations()
     end)
 end
 
--- ==================== 5. HÀM KÍCH HOẠT TỰ ĐỘNG BẤM "APPLY NOW" ĐÃ SỬA LỖI ====================
-local function forceFireButton(btn)
-    if not btn then return false end
-    local fired = false
-    local clickable = (btn:IsA("TextButton") or btn:IsA("ImageButton")) and btn
-        or btn:FindFirstAncestorWhichIsA("TextButton")
-        or btn:FindFirstAncestorWhichIsA("ImageButton")
-        or btn
+-- ==================== 5. HÀM TỰ ĐỘNG BẤM "APPLY NOW" ĐA TẦNG ====================
+local function isElementActuallyVisible(guiObj)
+    if not (guiObj and guiObj:IsA("GuiObject")) then return false end
+    if guiObj.AbsoluteSize.X <= 2 or guiObj.AbsoluteSize.Y <= 2 then return false end
+    local curr = guiObj
+    while curr and curr:IsA("GuiObject") do
+        if curr.Visible == false then return false end
+        curr = curr.Parent
+    end
+    return true
+end
 
-    if getconnections then
-        for _, sigName in ipairs({"MouseButton1Click", "Activated", "MouseButton1Down", "MouseButton1Up"}) do
-            pcall(function()
-                local sig = clickable[sigName]
-                if sig then
-                    for _, conn in ipairs(getconnections(sig)) do
-                        if conn.Function then
-                            task.spawn(conn.Function)
-                            fired = true
+local function createSyntheticClickInput(stateEnum, posVec2)
+    local fakeInput = nil
+    pcall(function()
+        fakeInput = {
+            UserInputType = Enum.UserInputType.MouseButton1,
+            UserInputState = stateEnum,
+            Position = Vector3.new(posVec2.X, posVec2.Y, 0),
+            KeyCode = Enum.KeyCode.Unknown
+        }
+    end)
+    return fakeInput
+end
+
+local function triggerAllSignalsOnTarget(obj)
+    if not (obj and obj:IsA("GuiObject")) then return false end
+    local firedAny = false
+    local centerPos = obj.AbsolutePosition + (obj.AbsoluteSize / 2)
+
+    local candidates = { obj }
+    if obj.Parent and obj.Parent:IsA("GuiObject") and obj.Parent.AbsoluteSize.X < 250 then
+        table.insert(candidates, obj.Parent)
+        if obj.Parent.Parent and obj.Parent.Parent:IsA("GuiObject") and obj.Parent.Parent.AbsoluteSize.X < 250 then
+            table.insert(candidates, obj.Parent.Parent)
+        end
+    end
+
+    for _, target in ipairs(candidates) do
+        if target:IsA("GuiButton") then
+            if firesignal then
+                pcall(function() firesignal(target.MouseButton1Down, centerPos.X, centerPos.Y) firedAny = true end)
+                pcall(function() firesignal(target.MouseButton1Up, centerPos.X, centerPos.Y) firedAny = true end)
+                pcall(function() firesignal(target.MouseButton1Click) firedAny = true end)
+                pcall(function() firesignal(target.Activated) firedAny = true end)
+            end
+            if getconnections then
+                for _, sigName in ipairs({"MouseButton1Click", "Activated", "MouseButton1Down", "MouseButton1Up"}) do
+                    pcall(function()
+                        local sig = target[sigName]
+                        if sig then
+                            for _, conn in ipairs(getconnections(sig)) do
+                                if conn.Function then task.spawn(conn.Function) firedAny = true end
+                            end
                         end
-                    end
+                    end)
+                end
+            end
+        end
+
+        if getconnections then
+            local downInput = createSyntheticClickInput(Enum.UserInputState.Begin, centerPos)
+            local upInput   = createSyntheticClickInput(Enum.UserInputState.End, centerPos)
+            pcall(function()
+                for _, conn in ipairs(getconnections(target.InputBegan)) do
+                    if conn.Function then task.spawn(conn.Function, downInput, false) firedAny = true end
+                end
+            end)
+            pcall(function()
+                for _, conn in ipairs(getconnections(target.InputEnded)) do
+                    if conn.Function then task.spawn(conn.Function, upInput, false) firedAny = true end
                 end
             end)
         end
     end
 
-    if firesignal then
-        pcall(function() firesignal(clickable.MouseButton1Click) fired = true end)
-        pcall(function() firesignal(clickable.Activated) fired = true end)
-    end
+    pcall(function()
+        local vim = game:GetService("VirtualInputManager")
+        if vim then
+            local inset = game:GetService("GuiService"):GetGuiInset()
+            local cx = math.floor(centerPos.X)
+            local cyRaw = math.floor(centerPos.Y)
+            local cyInset = math.floor(centerPos.Y + inset.Y)
 
-    if not fired and clickable:IsA("GuiObject") and clickable.Visible and clickable.AbsoluteSize.X > 0 then
-        pcall(function()
-            local vim = game:GetService("VirtualInputManager")
-            if vim then
-                local inset = game:GetService("GuiService"):GetGuiInset()
-                local cx = clickable.AbsolutePosition.X + clickable.AbsoluteSize.X / 2
-                local cy = clickable.AbsolutePosition.Y + clickable.AbsoluteSize.Y / 2 + inset.Y
-                vim:SendMouseButtonEvent(cx, cy, 0, true, game, 1)
-                task.wait(0.05)
-                vim:SendMouseButtonEvent(cx, cy, 0, false, game, 1)
-                fired = true
-            end
-        end)
-    end
-    return fired
+            vim:SendMouseButtonEvent(cx, cyInset, 0, true, game, 1)
+            vim:SendMouseButtonEvent(cx, cyRaw, 0, true, game, 1)
+            task.wait(0.03)
+            vim:SendMouseButtonEvent(cx, cyInset, 0, false, game, 1)
+            vim:SendMouseButtonEvent(cx, cyRaw, 0, false, game, 1)
+            firedAny = true
+        end
+    end)
+    return firedAny
 end
 
-local function executeAutoFarmConfigImport(venyxGui, statusBtnLabel)
-    task.spawn(function()
-        if statusBtnLabel then statusBtnLabel.Text = "⏳ ĐANG NẠP CONFIG..." end
+local function isApplyNowNode(inst)
+    if not (inst:IsA("TextLabel") or inst:IsA("TextButton")) then return false end
+    local raw = (inst.Text or ""):match("^%s*(.-)%s*$"):lower()
+    local orig = (inst:GetAttribute("OrigRawText") or ""):match("^%s*(.-)%s*$"):lower()
+    return raw == "apply now" or orig == "apply now" or raw == "áp dụng ngay" or raw:find("apply now", 1, true) ~= nil or raw:find("áp dụng ngay", 1, true) ~= nil
+end
 
-        local importBox, importBtn
-        for _, d in ipairs(venyxGui:GetDescendants()) do
-            if d:IsA("TextBox") then
-                local origPh = (d:GetAttribute("OrigPlaceholder") or d.PlaceholderText or ""):lower()
-                if origPh:find("paste config", 1, true) or origPh:find("dán mã", 1, true) then
-                    importBox = d
-                end
-            elseif d:IsA("TextButton") or d:IsA("TextLabel") then
-                local origTxt = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
-                if origTxt == "Import" or d.Text == "Nhập" then
+local function isImportButtonNode(inst)
+    if not (inst:IsA("TextLabel") or inst:IsA("TextButton")) then return false end
+    local raw = (inst.Text or ""):match("^%s*(.-)%s*$")
+    local orig = (inst:GetAttribute("OrigRawText") or ""):match("^%s*(.-)%s*$")
+    return orig == "Import" or raw == "Import" or raw == "Nhập"
+end
+
+local isRunningMacro = false
+
+local function executeAutoFarmConfigImport(venyxGui, statusBtnLabel, onFinishCollapseIsland)
+    if isRunningMacro then return end
+    isRunningMacro = true
+
+    task.spawn(function()
+        local function setBtnStatus(viTxt, enTxt)
+            if statusBtnLabel and statusBtnLabel.Parent then
+                statusBtnLabel.Text = (State.Language == "EN") and enTxt or viTxt
+            end
+        end
+
+        setBtnStatus("⏳ ĐANG NẠP CONFIG...", "⏳ IMPORTING CONFIG...")
+
+        local importBox, importBtn = nil, nil
+        local function locateImportControls()
+            for _, d in ipairs(venyxGui:GetDescendants()) do
+                if d:IsA("TextBox") then
+                    local origPh = (d:GetAttribute("OrigPlaceholder") or d.PlaceholderText or ""):lower()
+                    if origPh:find("paste config", 1, true) or origPh:find("dán mã", 1, true) or d:GetAttribute("__IsConfigInputBox") then
+                        importBox = d
+                    end
+                elseif isImportButtonNode(d) then
                     importBtn = d
                 end
             end
         end
+
+        locateImportControls()
 
         if not importBox or not importBtn then
             for _, d in ipairs(venyxGui:GetDescendants()) do
                 if d:IsA("TextButton") or d:IsA("TextLabel") then
                     local origTxt = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
                     if origTxt == "Config" or d.Text == "Cấu Hình" then
-                        forceFireButton(d)
+                        triggerAllSignalsOnTarget(d)
                         break
                     end
                 end
             end
             task.wait(0.25)
-            for _, d in ipairs(venyxGui:GetDescendants()) do
-                if d:IsA("TextBox") then
-                    local origPh = (d:GetAttribute("OrigPlaceholder") or d.PlaceholderText or ""):lower()
-                    if origPh:find("paste config", 1, true) or origPh:find("dán mã", 1, true) then importBox = d end
-                elseif d:IsA("TextButton") or d:IsA("TextLabel") then
-                    local origTxt = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
-                    if origTxt == "Import" or d.Text == "Nhập" then importBtn = d end
-                end
-            end
+            locateImportControls()
         end
 
         if not importBox then
-            if statusBtnLabel then
-                statusBtnLabel.Text = "⚠️ MỞ MỤC CẤU HÌNH TRƯỚC!"
-                task.wait(2)
-                statusBtnLabel.Text = "⚡ CONFIG SETTING AUTO FARM"
-            end
+            setBtnStatus("⚠️ MỞ TAB CẤU HÌNH TRƯỚC!", "⚠️ OPEN CONFIG TAB FIRST!")
+            task.wait(2.0)
+            setBtnStatus("⚡ CONFIG SETTING AUTO FARM", "⚡ CONFIG SETTING AUTO FARM")
+            isRunningMacro = false
             return
         end
 
+        importBox:SetAttribute("__IsConfigInputBox", true)
         importBox:SetAttribute("__IsTranslating", true)
         pcall(function() importBox:CaptureFocus() end)
-        task.wait(0.05)
+        task.wait(0.04)
         importBox.Text = PRESET_AUTOFARM_JSON
+        task.wait(0.04)
         pcall(function() importBox:ReleaseFocus(true) end)
         if firesignal then pcall(function() firesignal(importBox.FocusLost, true) end) end
         importBox:SetAttribute("__IsTranslating", false)
 
-        task.wait(0.15)
-        if importBtn then forceFireButton(importBtn) end
+        task.wait(0.12)
+        if importBtn and importBox.Text ~= "" then
+            triggerAllSignalsOnTarget(importBtn)
+        end
 
-        -- SỬA LỖI TẠI ĐÂY: Đợi khung chứa nút Apply Now hiện rõ ràng (Visible = true) mới nã lệnh Click
-        local applied = false
-        for _ = 1, 35 do
-            task.wait(0.15)
+        local clickedApply = false
+        for attempt = 1, 30 do
+            task.wait(0.12)
+            local foundApplyObj = nil
             for _, root in ipairs(scanRoots) do
                 if root then
                     for _, d in ipairs(root:GetDescendants()) do
-                        if d:IsA("TextButton") or d:IsA("TextLabel") then
-                            local origTxt = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
-                            if origTxt == "Apply now" or d.Text == "Áp dụng ngay" then
-                                local frame = d:FindFirstAncestorWhichIsA("Frame")
-                                if frame and frame.Visible and frame.BackgroundTransparency < 0.9 then
-                                    forceFireButton(d)
-                                    applied = true
-                                    break
-                                end
+                        if isApplyNowNode(d) and isElementActuallyVisible(d) then
+                            local frame = d:FindFirstAncestorWhichIsA("Frame")
+                            if frame and frame.Visible and frame.BackgroundTransparency < 0.9 then
+                                foundApplyObj = d
+                                break
                             end
                         end
                     end
                 end
-                if applied then break end
+                if foundApplyObj then break end
             end
-            if applied then break end
+
+            if foundApplyObj then
+                setBtnStatus("⚡ ĐANG ẤN ÁP DỤNG NGAY...", "⚡ CLICKING APPLY NOW...")
+                if onFinishCollapseIsland then pcall(onFinishCollapseIsland) end
+                triggerAllSignalsOnTarget(foundApplyObj)
+                clickedApply = true
+                task.wait(0.18)
+                if not isElementActuallyVisible(foundApplyObj) then break end
+            elseif clickedApply then
+                break
+            end
         end
 
-        if statusBtnLabel then
-            statusBtnLabel.Text = applied and "✅ ĐÃ ÁP DỤNG CONFIG!" or "⚠️ LỖI BẤM ÁP DỤNG!"
-            task.wait(2.0)
-            statusBtnLabel.Text = "⚡ CONFIG SETTING AUTO FARM"
-        end
+        if clickedApply then setBtnStatus("✅ ĐÃ ÁP DỤNG CONFIG!", "✅ CONFIG APPLIED!") else setBtnStatus("✅ ĐÃ NHẬP CONFIG!", "✅ CONFIG IMPORTED!") end
+        task.wait(1.8)
+        setBtnStatus("⚡ CONFIG SETTING AUTO FARM", "⚡ CONFIG SETTING AUTO FARM")
+        isRunningMacro = false
     end)
 end
 
--- ==================== 6. DYNAMIC ISLAND NỀN ĐEN & CHỈ BÁO NÚT BẤM (▼) ====================
+-- ==================== 6. DYNAMIC ISLAND NỀN ĐEN & CHỈ BÁO NÚT BẤM ====================
 local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     local pill = statusLbl.Parent
     if not (pill and pill:IsA("GuiObject")) then return end
 
     statusLbl:SetAttribute("__IslandDone", true)
-
     local badHitbox = pill:FindFirstChild("IslandClickHitbox")
     if badHitbox then badHitbox:Destroy() end
     for _, child in ipairs(pill:GetChildren()) do
@@ -1673,20 +1771,19 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     statusLbl.Active = true
     expandHint.Active = true
 
-    local pillCorner = pill:FindFirstChildOfClass("UICorner") or Instance.new("UICorner")
+    local pillCorner = pill:FindFirstChildOfClass("UICorner")
+    if not pillCorner then pillCorner = Instance.new("UICorner"); pillCorner.Parent = pill end
     pillCorner.CornerRadius = UDim.new(1, 0)
-    pillCorner.Parent = pill
 
-    local pillStroke = pill:FindFirstChild("IslandStroke") or Instance.new("UIStroke")
-    pillStroke.Name = "IslandStroke"
+    local pillStroke = pill:FindFirstChild("IslandStroke")
+    if not pillStroke then pillStroke = Instance.new("UIStroke"); pillStroke.Name = "IslandStroke"; pillStroke.Parent = pill end
     pillStroke.Thickness = 1.6
     pillStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     pillStroke.Color = Color3.fromRGB(255, 255, 255)
-    pillStroke.Parent = pill
 
-    local strokeGrad = pillStroke:FindFirstChildOfClass("UIGradient") or Instance.new("UIGradient")
+    local strokeGrad = pillStroke:FindFirstChildOfClass("UIGradient")
+    if not strokeGrad then strokeGrad = Instance.new("UIGradient"); strokeGrad.Parent = pillStroke end
     strokeGrad.Color = COLOR_SEQ_RAINBOW
-    strokeGrad.Parent = pillStroke
     table.insert(State.ActiveGradients, strokeGrad)
 
     if ExpandedIsland then ExpandedIsland:Destroy() end
@@ -1821,16 +1918,30 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     ConfigBtnGrad.Parent = ConfigBtnStroke
     table.insert(State.ActiveGradients, ConfigBtnGrad)
 
+    local function toggleIsland(expand)
+        if expand then
+            ExpandedIsland.Position = pill.Position
+            pill.Visible = false
+            ExpandedIsland.Size = UDim2.new(0, 160, 0, 28)
+            ExpandedIsland.Visible = true
+            TweenService:Create(ExpandedIsland, TweenInfo.new(0.28, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+                Size = UDim2.new(0, 268, 0, 118)
+            }):Play()
+        else
+            pill.Position = ExpandedIsland.Position
+            ExpandedIsland.Visible = false
+            pill.Visible = true
+        end
+    end
+
     ConfigMacroBtn.MouseButton1Click:Connect(function()
-        executeAutoFarmConfigImport(venyxGui, ConfigMacroBtn)
+        executeAutoFarmConfigImport(venyxGui, ConfigMacroBtn, function() toggleIsland(false) end)
     end)
 
     local function setLanguage(lang)
         if State.Language == lang then return end
         State.Language = lang
-        pcall(function()
-            if writefile then writefile(LANG_SAVE_FILE, lang) end
-        end)
+        pcall(function() if writefile then writefile(LANG_SAVE_FILE, lang) end end)
 
         if lang == "VI" then
             TweenService:Create(LangSlider, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
@@ -1850,23 +1961,6 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
 
     BtnVI.MouseButton1Click:Connect(function() setLanguage("VI") end)
     BtnEN.MouseButton1Click:Connect(function() setLanguage("EN") end)
-
-    local function toggleIsland(expand)
-        if expand then
-            ExpandedIsland.Position = pill.Position
-            pill.Visible = false
-            ExpandedIsland.Size = UDim2.new(0, 160, 0, 28)
-            ExpandedIsland.Visible = true
-            TweenService:Create(ExpandedIsland, TweenInfo.new(0.28, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                Size = UDim2.new(0, 268, 0, 118)
-            }):Play()
-        else
-            pill.Position = ExpandedIsland.Position
-            ExpandedIsland.Visible = false
-            pill.Visible = true
-        end
-    end
-
     CollapseBtn.MouseButton1Click:Connect(function() toggleIsland(false) end)
 
     local function attachDragAndClick(triggerObj, moveFrame, onTapCallback)
@@ -2037,7 +2131,6 @@ local function patchVenyxScreenGui(gui, titleLbl)
         local desc = allDescendants[i]
         if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
             local txt = desc.Text or ""
-            local origTxt = desc:GetAttribute("OrigRawText") or ""
             local isAlreadyMovedIdle = desc:GetAttribute("__IslandDone")
 
             local hasDotSibling = false
@@ -2052,7 +2145,7 @@ local function patchVenyxScreenGui(gui, titleLbl)
                 and desc.Parent and (not titleLbl:IsDescendantOf(desc.Parent))
                 and math.abs(desc.AbsolutePosition.Y - headerY) < 35
                 and desc.AbsolutePosition.X > titleLbl.AbsolutePosition.X + 60
-                and (hasDotSibling or txt:lower():find("idle", 1, true) or txt == "Đang rảnh")
+                and (hasDotSibling or txt:lower():find("idle", 1, true) or txt:lower():find("halloween:", 1, true) or txt == "Đang rảnh")
                 and not txt:find("v1.", 1, true)
 
             if isHeaderStatus or isAlreadyMovedIdle then
@@ -2151,7 +2244,6 @@ task.spawn(function()
         elapsed = elapsed + 0.35
         pcall(tryPatchVenyx)
     end
-    -- Gọi popup thông báo 1 lần duy nhất khi UI đã hiện lên
     if isCurrentSession() then
         showUpcomingUpdateNotice()
     end
