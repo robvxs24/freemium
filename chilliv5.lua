@@ -1,27 +1,22 @@
 -- ==============================================================================
---  CHILLI HUB V5 - RONNEI OFFICIAL EDITION (HALLOWEEN EVENT TRANSLATION)
---  Bảo toàn 100% engine cũ, chỉ bổ sung từ vựng:
---    1. DỊCH FULL SỰ KIỆN HALLOWEEN: Phantom Express, Chó Ma, Câu cá, Trăng
---       bí ngô, Đánh quái, Trứng Halloween, Tàu ma, Thu thập linh hồn.
---    2. DỊCH TRẠNG THÁI HALLOWEEN: "Halloween: carrying the egg to safety" ->
---       "Halloween: đang mang trứng đến nơi an toàn".
---    3. GIỮ NGUYÊN 100%: Bảng Update, Auto-Config, FPS ảo 85-120, Logo 60x60,
---       Dynamic Island nền đen và cơ chế chống giật ngôn ngữ VI/EN.
+--  CHILLI HUB V5 - LUAUFORGE ZERO-FOOTPRINT SECURE EDITION
+--  Bảo mật tuyệt đối:
+--    1. KHÔNG LƯU RAW CODE: File ChilliHubV5_AutoRun.lua trong máy giờ chỉ chứa
+--       đúng 1 dòng link LuauForge, hoàn toàn tàng hình trước kẻ cắp.
+--    2. TELEPORT HIJACKER: Khóa queue_on_teleport chỉ cho phép nạp link LuauForge.
+--    3. BẢO TOÀN 100% TÍNH NĂNG CŨ: Bảng Update, Auto-Config, FPS ảo 85-120,
+--       Logo 60x60, Dynamic Island nền đen và cơ chế dịch thuật 4 tầng NLP.
 -- ==============================================================================
 
-local MY_CHILLI_URL  = "https://raw.githubusercontent.com/ronnei/hihi/refs/heads/main/chillihubv5.lua"
-local AUTO_RUN_FILE  = "ChilliHubV5_AutoRun.lua"
-local LANG_SAVE_FILE = "ChilliV5_Lang.txt"
-
-local CHILLI_CORE_PAYLOAD = [===[
 local NEW_TITLE = "Chilli Hub V5"
 local CHILLI_LOGO_ID = "rbxassetid://92622270383869"
 local LOGO_BG_COLOR = Color3.fromRGB(5, 7, 15)
 local ISLAND_BLACK_BG = Color3.fromRGB(0, 0, 0)
 
-local MY_CHILLI_URL  = "https://raw.githubusercontent.com/ronnei/hihi/refs/heads/main/chillihubv5.lua"
-local AUTO_RUN_FILE  = "ChilliHubV5_AutoRun.lua"
-local LANG_SAVE_FILE = "ChilliV5_Lang.txt"
+-- LINK LUAUFORGE BẢO MẬT CỦA BẠN (SẼ LÀ THỨ DUY NHẤT ĐƯỢC LƯU VÀO MÁY)
+local SECURE_LOADER_URL = "https://luauforge-antiraw.netlify.app/raw/b2GaCbtITNxIA6Qayyauq1a"
+local AUTO_RUN_FILE     = "ChilliHubV5_AutoRun.lua"
+local LANG_SAVE_FILE    = "ChilliV5_Lang.txt"
 
 -- CHUỖI JSON CONFIG SETTING AUTO FARM CHUẨN
 local PRESET_AUTOFARM_JSON = [=[{"venyx":1,"name":"hihi","data":{"System / Interface/Quick bars/Show quick bars":false,"Farm / Sell/Favorite/Auto favorite":false,"System / Interface/Quick bars/Quick bar layout":"{\"pins\":{\"Player / Move/Movement/Boost speed\":1,\"Player / Move/Movement/Speed boost\":1},\"fold\":{\"1\":true},\"at\":[],\"keys\":[]}","Farm / Sell/Eggs/Only below /s":0,"Farm / Pen/Auto place/Place first":"Best value","Steal / Auto Steal/Filter/Only below /s":0,"Farm / Pen/Auto hatch/Equip best pets":false,"Event / AA/Capture the egg/Auto capture event egg":false,"Farm / Mutate/Mutate filter/Only these eggs":[],"Event / Race/Rewards/Auto claim rewards":true,"Farm / Treadmill/Treadmill/Auto upgrade treadmill":false,"Event / Race/Rewards/Racer":"Best owned","Steal / Auto Steal/Auto steal/Drop eggs at safe zone":false,"Steal / Auto Steal/Auto hop server/Auto hop":false,"System / Interface/Interface/Dim the game":0,"Player / Combat/Hit aura/Skip friends":true,"Player / ESP/Others/Pen egg ESP":true,"System / Optimizer/Frame rate/FPS position":"","Event / Butterfly/Butterfly bloom/Auto butterfly bloom":true,"Farm / Pen/Auto hatch/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Steal / Auto Steal/Filter/Min value /s":1000000000,"Player / Combat/Hit aura/Hit aura":true,"Event / AA/Capture the egg/Take it from the holder":true,"Steal / Egg Predictor/Egg showcase/Calculate mutations":[],"Steal / Egg Predictor/Egg showcase/Sort eggs":"Value","System / Optimizer/Bases/Hide other players' pets and eggs":true,"Player / Combat/Auto hit/Auto hit":false,"Event / Butterfly/Butterfly bloom/Catch mode":"Chase","Event / Butterfly/Butterfly machine/Trade":[],"Event / Lab/Lab stock/Biohazard Pets eggs":[],"Event / Race/Rewards/Auto equip racer":true,"Farm / Pen/Auto place/Auto place":false,"Steal / Auto Steal/Filter/Rarities":["Divine","Eternal","Secret"],"Farm / Sell/Lab eggs/Keep mutated":true,"System / Webhook/What to post/Post fused eggs":false,"Farm / Sell/Pets/Sell rarities":["Rare","Uncommon","Common"],"Farm / Sell/Lab eggs/Only mutations":[],"Farm / Fuse/Fuse filter/Rarities":["Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Event / Lab/Lab stock/Stock per egg":3,"System / Webhook/Discord webhook/Ping role ID":"","Player / ESP/Others/Hide sleeping guards":true,"System / Optimizer/Frame rate/Show FPS and ping":false,"Farm / Treadmill/Progress/Auto claim index rewards":false,"System / Interface/Quick bars/Keybinds":true,"Steal / Auto Steal/Auto steal/Instant steps":1,"Farm / Fuse/Fuse filter/Never fuse":[],"Farm / Pen/Auto hatch/Mutations":[],"System / Optimizer/Bases/Hide my pets and eggs":true,"Steal / Auto Steal/Filter/Zones":["Enchanted Forest","Light Dark","Titan Temple","Cherry Blossom"],"Event / Butterfly/Butterfly machine/Auto craft essence":false,"Farm / Mutate/Auto mutate/Auto mutate":false,"Farm / Sell/Lab eggs/Never sell":[],"Player / ESP/Field eggs/Egg ESP":false,"Farm / Pen/Keep eggs/Min value /s":0,"Steal / Auto Steal/Auto steal/Delivery method":"Instant steps","Farm / Sell/Eggs/Keep mutated":true,"Farm / Sell/Eggs/Sell rarities":["Rare","Uncommon","Common"],"System / Interface/Interface/Tone":100,"Player / ESP/Others/Player ESP":true,"Event / Lab/Lab stock/Experimental Pets eggs":[],"System / Webhook/What to post/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Event / AA/Admin abuse/Instant steal (Admin Treadmill)":true,"Player / Move/Protection/Anti ragdoll":true,"Event / Race/Racing Event/Auto race":true,"Event / Butterfly/Wisp companion/Auto banjo cricket":false,"Event / Lab/Lab/Auto reroll recipe":false,"Farm / Mutate/Auto mutate/Use items":["Fractured","Scrambled","Enchanted","Nitro"],"System / Interface/Interface/Opacity":50,"Farm / Fuse/Fuse machine/Fuse first":"Lowest rarity","Farm / Sell/Lab eggs/Only below /s":0,"System / Webhook/Discord webhook/Webhook URL":"","Player / Move/Movement/Boost speed":120,"Farm / Pen/Auto place/Place when":"Always","Player / ESP/Others/ESP size":60,"System / Webhook/What to post/Post stolen eggs":false,"Farm / Sell/Favorite/Always favorite":[],"Farm / Treadmill/Progress/Auto upgrade base":false,"Farm / Sell/Eggs/Auto sell eggs":false,"Farm / Treadmill/Progress/Auto buy trails":false,"System / Server/Join and stay/Rejoin on kick":true,"Steal / Auto Steal/Filter/Steal first":"Best value","Farm / Sell/Pets/Only below /s":0,"Event / Lab/Lab/Auto trade in":false,"Event / Lab/Lab/Steal lab eggs":false,"Farm / Pen/Auto hatch/Min value /s":0,"Steal / Auto Steal/Auto hop server/Hop when":"After stealing a match","System / Optimizer/Frame rate/FPS cap":360,"Event / Butterfly/Butterfly bloom/Catch":["Radiant","Amethyst","Sapphire","Emerald"],"Farm / Treadmill/Treadmill/Auto treadmill":true,"System / Interface/Game HUD/Steal panel button on game HUD":true,"System / Server/Server/Hop to":"Least players","Farm / Mutate/Mutate filter/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Player / Move/Protection/Instant prompts":true,"Event / Race/Racing Event/Race speed":144,"Steal / Auto Steal/Filter/Keep lab eggs":true,"Player / Combat/Auto hit/Hit who":"Nearest player","Player / ESP/Field eggs/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic"],"Steal / Auto Steal/Auto steal/Steal missing index eggs":false,"Steal / Auto Steal/Filter/Only these eggs":["ArchAngel","Kitsune","Nightflame","Royal Skywhale","Unicorn","World Burner","Celestial Sunlion","Gorilla King","Pegasus","Skeleton Horse","Strawberry Elephant","67","Amethyst Runebear","Starry Fox"],"Farm / Sell/Favorite/Min value /s":0,"System / Server/Join and stay/Auto load script":true,"Farm / Pen/Keep eggs/Eggs to keep":[],"System / Optimizer/Graphics/Low graphics":true,"Event / Race/Racing Event/Use power-ups":true,"Event / AA/Minigame eggs/Auto steal minigame egg":true,"Farm / Sell/Favorite/Favorite equipped":false,"System / Optimizer/Graphics/Background color":"Black","Farm / Sell/Eggs/Never sell":[],"Farm / Pen/Auto place/Min value /s":0,"Player / Move/Movement/Speed boost":false,"System / Optimizer/Graphics/Disable 3D Render":false,"Farm / Fuse/Fuse machine/Skip mutated":true,"Event / Lab/Lab/Place lab reward eggs":false,"Farm / Mutate/Auto mutate/Auto buy Nitro":false,"Steal / Auto Steal/Auto hop server/Rare from":"Cosmic","Steal / Auto Steal/Auto steal/Anti guard":true,"Steal / Auto Steal/Auto steal/Steal from other players":false,"Event / AA/Capture the egg/Keep away":45,"Farm / Fuse/Fuse filter/Only below /s":0,"Farm / Sell/Favorite/Unfavorite pets not matching":false,"System / Webhook/What to post/Min value /s":0,"Farm / Pen/Auto hatch/Auto hatch":false,"Event / Butterfly/Butterfly bloom/Catch speed":600,"Farm / Priority/Task order/Task order":["Steal filter eggs","Shooting Star","Racing Event","Butterfly","Steal wisp eggs","Wisp","Steal missing index","Steal lab eggs","Place","Mutate","Butterfly machine","Treadmill"],"Event / Butterfly/Butterfly machine/Auto trade up":true,"Player / ESP/Others/Guard ESP":true,"System / Webhook/What to post/Post when bag is full":false,"Event / Lab/Lab stock/Stock lab eggs":false,"Event / Lab/Lab stock/Unstable DNA eggs":[],"Player / ESP/Field eggs/Mutations":[],"Player / ESP/Field eggs/Show":[],"Event / AA/Admin abuse/Use admin treadmill":true,"Player / Combat/Weapons/Use weapons":[],"Player / Move/Movement/Infinite jump":true,"System / Interface/Quick bars/Bar size":95,"Player / ESP/Field eggs/Min value /s":0,"Player / Combat/Weapons/Hold each":0.2,"Farm / Mutate/Auto mutate/Mutate first":"Best value","Farm / Mutate/Mutate filter/Min value /s":0,"Farm / Sell/Pets/Never sell":[],"Event / Race/Rewards/Shop items":[],"Farm / Pen/Auto place/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Event / Race/Rewards/Auto buy shop":false,"System / Webhook/Discord webhook/Ping everyone":false,"Event / Star/Shooting Star/Auto catch shooting star":true,"Event / Butterfly/Butterfly machine/Smart trade for essence":false,"Farm / Fuse/Fuse machine/Eject odd pets":true,"Player / ESP/Field eggs/Fixed size":false,"Player / Combat/Auto hit/Chase speed":1000,"Farm / Pen/Auto place/Mutations":[],"Steal / Auto Steal/Auto steal/Fast tween speed":4500,"Player / Move/Protection/Anti AFK":true,"Farm / Sell/Favorite/Rarities":[],"Steal / Auto Steal/Auto hop server/First hop after":5,"Steal / Auto Steal/Auto steal/Tween speed":110,"Farm / Sell/Pets/Auto sell pets":false,"Farm / Sell/Pets/Only mutations":[],"Farm / Sell/Pets/Keep mutated":true,"Steal / Auto Steal/Filter/Sell cheapest egg when bag is full":false,"Farm / Sell/Lab eggs/Sell rarities":[],"Steal / Auto Steal/Auto steal/Go to egg":"Teleport to egg","Event / Lab/Lab stock/Stock for banners":[],"Event / AA/Capture the egg/Hold height":45,"Steal / Auto Steal/Filter/Mutations":[],"Farm / Pen/Auto hatch/Only these eggs":[],"Player / Move/Movement/God mode":true,"Steal / Auto Steal/Auto steal/Teleport zones":["Enchanted Forest","Light Dark","Titan Temple","Cherry Blossom"],"Steal / Auto Steal/Auto steal/Auto steal":true,"Farm / Fuse/Fuse machine/Auto fuse":false,"System / Interface/Interface/UI scale":90,"Farm / Fuse/Fuse filter/Only these pets":[],"Steal / Egg Predictor/Egg showcase/Preview card":true,"Farm / Sell/Favorite/Match":"All picked rules","Player / ESP/Others/Other pens ESP":true,"Farm / Mutate/Mutate filter/Skip eggs with":[],"System / Interface/Interface/Show / hide UI":{"k":"LeftControl"},"Farm / Sell/Lab eggs/Auto sell lab eggs":false,"Farm / Sell/Eggs/Only mutations":[],"Event / Butterfly/Butterfly bloom/Catch priority":"Rarest","System / Webhook/Discord webhook/Ping user ID":"","Farm / Pen/Auto place/Only these eggs":[],"Farm / Treadmill/Progress/Auto claim offline cash":false,"Player / Move/Protection/Ignore traps":true,"Event / Lab/Lab/Lab banners":[],"Player / Move/Protection/Invisible":false,"Farm / Sell/Favorite/Mutations":[],"Farm / Fuse/Fuse machine/Use pets":"Lowest value first","Event / Butterfly/Wisp companion/Auto wisp quest":false,"System / Optimizer/Graphics/Hide game UI":false}}]=]
@@ -56,7 +51,7 @@ local function isCurrentSession()
     return State.SessionId == MY_SESSION_ID
 end
 
--- ==================== 1. BỘ CHẶN TELEPORT ====================
+-- ==================== 1. BỘ CHẶN TELEPORT (BẢO MẬT LINK LUAUFORGE) ====================
 do
     local realQueue = env.__ChilliOrigQueue
         or env.queue_on_teleport
@@ -65,32 +60,17 @@ do
         or (fluxus and fluxus.queue_on_teleport)
         or (delta and delta.queue_on_teleport)
 
+    -- CHỈ TRUYỀN DUY NHẤT LINK LUAUFORGE ĐỂ CHỐNG LỘ CODE
     local teleportBootstrap = string.format([[
         --CHILLI_V5_AUTHORIZED_TELEPORT--
         task.spawn(function()
-            if not game:IsLoaded() then
-                game.Loaded:Wait()
-            end
+            if not game:IsLoaded() then game.Loaded:Wait() end
             local Players = game:GetService("Players")
-            while not Players.LocalPlayer do
-                task.wait(0.1)
-            end
+            while not Players.LocalPlayer do task.wait(0.1) end
             task.wait(1.0)
-            local executed = false
-            if isfile and readfile and isfile("%s") then
-                local ok, fn = pcall(function() return loadstring(readfile("%s")) end)
-                if ok and type(fn) == "function" then
-                    executed = true
-                    task.spawn(fn)
-                end
-            end
-            if not executed then
-                pcall(function()
-                    loadstring(game:HttpGet("%s"))()
-                end)
-            end
+            pcall(function() loadstring(game:HttpGet("%s"))() end)
         end)
-    ]], AUTO_RUN_FILE, AUTO_RUN_FILE, MY_CHILLI_URL)
+    ]], SECURE_LOADER_URL)
 
     if realQueue then
         env.__ChilliOrigQueue = realQueue
@@ -117,9 +97,7 @@ do
                 local oldHook
                 oldHook = hookfunction(realQueue, function(code)
                     local s = tostring(code or "")
-                    if s:find("CHILLI_V5_AUTHORIZED_TELEPORT", 1, true) then
-                        return oldHook(code)
-                    end
+                    if s:find("CHILLI_V5_AUTHORIZED_TELEPORT", 1, true) then return oldHook(code) end
                     return oldHook(teleportBootstrap)
                 end)
             end)
@@ -131,9 +109,7 @@ do
         if syn then pcall(function() syn.clear_teleport_queue = noop end) end
         if fluxus then pcall(function() fluxus.clear_teleport_queue = noop end) end
 
-        pcall(function()
-            realQueue(teleportBootstrap)
-        end)
+        pcall(function() realQueue(teleportBootstrap) end)
 
         task.spawn(function()
             local Players = game:GetService("Players")
@@ -144,15 +120,11 @@ do
                     if getconnections then
                         pcall(function()
                             for _, conn in ipairs(getconnections(lp.OnTeleport)) do
-                                if conn.Function and not isexecutorclosure(conn.Function) then
-                                    conn:Disable()
-                                end
+                                if conn.Function and not isexecutorclosure(conn.Function) then conn:Disable() end
                             end
                         end)
                     end
-                    pcall(function()
-                        realQueue(teleportBootstrap)
-                    end)
+                    pcall(function() realQueue(teleportBootstrap) end)
                 end)
             end
         end)
@@ -162,12 +134,8 @@ end
 if not env.__VenyxV5NewLoaded then
     env.__VenyxV5NewLoaded = true
     task.spawn(function()
-        if not game:IsLoaded() then
-            game.Loaded:Wait()
-        end
-        pcall(function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/tienkhanh1/Venyx/main/VenyxHub"))()
-        end)
+        if not game:IsLoaded() then game.Loaded:Wait() end
+        pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/tienkhanh1/Venyx/main/VenyxHub"))() end)
     end)
 end
 
@@ -176,11 +144,7 @@ local LocalPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("Loc
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 
-local scanRoots = {
-    gethui and gethui(),
-    CoreGui,
-    LocalPlayer:WaitForChild("PlayerGui")
-}
+local scanRoots = { gethui and gethui(), CoreGui, LocalPlayer:WaitForChild("PlayerGui") }
 
 local IGNORED_GUI_NAMES = {
     ["RobloxGui"] = true, ["TopBarApp"] = true, ["TouchGui"] = true,
@@ -205,11 +169,7 @@ task.spawn(function()
         local list = State.ActiveGradients
         for i = #list, 1, -1 do
             local g = list[i]
-            if g and g.Parent then
-                g.Rotation = rot
-            else
-                table.remove(list, i)
-            end
+            if g and g.Parent then g.Rotation = rot else table.remove(list, i) end
         end
         task.wait(0.03)
     end
@@ -258,9 +218,7 @@ local function hookFakeFpsCounter(lbl)
         lbl:SetAttribute("__FpsHookSession", MY_SESSION_ID)
         lbl:GetPropertyChangedSignal("Text"):Connect(function()
             if not isCurrentSession() then return end
-            if not lbl:GetAttribute("__UpdatingFps") then
-                forceUpdateFpsLabel(lbl)
-            end
+            if not lbl:GetAttribute("__UpdatingFps") then forceUpdateFpsLabel(lbl) end
         end)
     end
 end
@@ -270,11 +228,7 @@ task.spawn(function()
         task.wait(0.5)
         getSmoothFakeFps()
         for lbl in pairs(State.TrackedFpsLabels) do
-            if lbl and lbl.Parent then
-                forceUpdateFpsLabel(lbl)
-            else
-                State.TrackedFpsLabels[lbl] = nil
-            end
+            if lbl and lbl.Parent then forceUpdateFpsLabel(lbl) else State.TrackedFpsLabels[lbl] = nil end
         end
     end
 end)
@@ -296,21 +250,17 @@ local VIETNAMESE_CHAR_PATTERNS = {
 local function containsVietnameseChars(str)
     if type(str) ~= "string" or str == "" then return false end
     for i = 1, #VIETNAMESE_CHAR_PATTERNS do
-        if str:find(VIETNAMESE_CHAR_PATTERNS[i], 1, true) then
-            return true
-        end
+        if str:find(VIETNAMESE_CHAR_PATTERNS[i], 1, true) then return true end
     end
     return false
 end
 
 local EXACT_MATCH_VI = {
-    -- Upcoming Update Notice
     ["🚀 UPCOMING UPDATE"] = "🚀 CẬP NHẬT SẮP RA MẮT",
     ["✨ Auto Config Feature: 100% optimized Auto Farm preset for all accounts (even beginners/low speed) and devices (even laggy ones). Strictly tested for the best and most suitable results!"] = "✨ Tính năng Auto Config: Tự động nhập cấu hình Auto Farm chuẩn, tối ưu 100% cho mọi tài khoản (mới chơi/ít tốc độ) và thiết bị (kể cả máy yếu/lag). Cấu hình đã được test kỹ càng để mang lại hiệu quả cao nhất!",
     ["✨ New Interface: Completely redesigned for a more beautiful and professional look."] = "✨ Giao diện mới: Thiết kế lại toàn bộ giao diện đẹp mắt và chuyên nghiệp hơn.",
     ["CLOSE"] = "ĐÓNG",
 
-    -- Trạng thái tĩnh (Dynamic Island)
     ["Idle"] = "Đang rảnh",
     ["Waiting"] = "Đang chờ",
     ["Nothing"] = "Không có gì",
@@ -382,7 +332,6 @@ local EXACT_MATCH_VI = {
     ["Joining race"] = "Đang vào đường đua",
     ["Racing"] = "Đang đua xe",
 
-    -- Trang Home & Dashboard
     ["Home"] = "Trang Chủ",
     ["Dashboard"] = "Bảng Điều Khiển",
     ["Welcome back"] = "Chào mừng trở lại",
@@ -422,7 +371,6 @@ local EXACT_MATCH_VI = {
     ["Search"] = "Tìm kiếm",
     ["Filter"] = "Lọc tìm",
 
-    -- Steal & Egg Predictor
     ["Steal"] = "Cướp Trứng",
     ["Auto Steal"] = "Tự Động Cướp",
     ["AUTO STEAL"] = "TỰ ĐỘNG CƯỚP",
@@ -488,7 +436,6 @@ local EXACT_MATCH_VI = {
     ["Fly to egg"] = "Bay tới trứng",
     ["Steal egg"] = "Cướp trứng",
 
-    -- Zones (Khu vực)
     ["Enchanted Forest"] = "Rừng Phù Phép",
     ["Light Dark"] = "Sáng Tối",
     ["Titan Temple"] = "Đền Titan",
@@ -502,7 +449,6 @@ local EXACT_MATCH_VI = {
     ["Lake"] = "Hồ Nước",
     ["Forest"] = "Khu Rừng",
 
-    -- Mutations (Đột biến)
     ["Silver"] = "Bạc",
     ["Rainbow"] = "Cầu Vồng",
     ["Golden"] = "Vàng",
@@ -515,7 +461,6 @@ local EXACT_MATCH_VI = {
     ["FRACTURED"] = "RẠN NỨT",
     ["ENCHANTED"] = "PHÙ PHÉP",
 
-    -- Farm: Pen, Treadmill, Mutate, Sell, Fuse, Priority
     ["Farm"] = "Cày Cuốc",
     ["Pen"] = "Chuồng Ấp",
     ["PEN"] = "CHUỒNG ẤP",
@@ -609,7 +554,6 @@ local EXACT_MATCH_VI = {
     ["Place"] = "Đặt trứng vào chuồng",
     ["Butterfly machine"] = "Máy đổi Bướm",
 
-    -- Event: Race, Star, Butterfly, Lab, AA & HALLOWEEN NEW
     ["Race"] = "Đua Xe",
     ["RACE"] = "ĐUA XE",
     ["Star"] = "Sao Băng",
@@ -721,7 +665,6 @@ local EXACT_MATCH_VI = {
     ["Waiting for Red Light Green Light or T-Rex Run"] = "Đang chờ Đèn Đỏ Đèn Xanh hoặc Chạy Trốn T-Rex",
     ["Auto steal minigame egg"] = "Tự cướp trứng Minigame",
 
-    -- Player: ESP, Move, Combat
     ["Player"] = "Người Chơi",
     ["ESP"] = "Định Vị (ESP)",
     ["Move"] = "Di Chuyển",
@@ -763,7 +706,6 @@ local EXACT_MATCH_VI = {
     ["Use weapons"] = "Sử dụng vũ khí",
     ["Hold each"] = "Thời gian cầm mỗi món",
 
-    -- System: Config & Giao diện
     ["System"] = "Hệ Thống",
     ["Server"] = "Máy Chủ",
     ["SERVER"] = "MÁY CHỦ",
@@ -848,7 +790,6 @@ local EXACT_MATCH_VI = {
     ["Reset config"] = "Đặt lại mặc định",
     ["Delete config"] = "Xóa cấu hình",
 
-    -- Độ hiếm
     ["Common"] = "Phổ Thông",
     ["Uncommon"] = "Thường",
     ["Rare"] = "Hiếm",
@@ -872,12 +813,11 @@ local EXACT_MATCH_VI = {
 }
 
 local LOWER_EXACT_MATCH_VI = {}
-for k, v in pairs(EXACT_MATCH_VI) do
-    LOWER_EXACT_MATCH_VI[k:lower()] = v
-end
+for k, v in pairs(EXACT_MATCH_VI) do LOWER_EXACT_MATCH_VI[k:lower()] = v end
 
 local STATUS_ACTION_PATTERNS_VI = {
     { pat = "^[Hh]alloween: carrying the egg to safety$", rep = "Halloween: đang mang trứng đến nơi an toàn" },
+    { pat = "^[Hh]alloween: (.+)$", rep = "Halloween: %1" },
     { pat = "^[Nn]o eggs? match%w* your (.+)$", rep = "Không có trứng nào khớp %1" },
     { pat = "^[Nn]o eggs? match%w* (.+)$", rep = "Không có trứng nào khớp %1" },
     { pat = "^[Nn]o pets? match%w* (.+)$", rep = "Không có pet nào khớp %1" },
@@ -1005,114 +945,35 @@ local SMART_PHRASE_FALLBACK_VI = {
 }
 
 local WORD_TOKEN_VI = {
-    ["idle"] = "Đang rảnh",
-    ["carrying"] = "Đang mang",
-    ["delivering"] = "Đang giao",
-    ["stealing"] = "Đang cướp",
-    ["grabbing"] = "Đang chộp",
-    ["picking"] = "Đang nhặt",
-    ["collecting"] = "Đang thu thập",
-    ["holding"] = "Đang giữ",
-    ["capturing"] = "Đang bắt giữ",
-    ["dropping"] = "Đang thả",
-    ["tweening"] = "Đang bay",
-    ["teleporting"] = "Đang dịch chuyển",
-    ["going"] = "Đang đi",
-    ["moving"] = "Đang di chuyển",
-    ["walking"] = "Đang đi bộ",
-    ["running"] = "Đang chạy",
-    ["flying"] = "Đang bay",
-    ["returning"] = "Đang quay về",
-    ["heading"] = "Đang hướng",
-    ["placing"] = "Đang đặt",
-    ["hatching"] = "Đang ấp",
-    ["mutating"] = "Đang đột biến",
-    ["selling"] = "Đang bán",
-    ["fusing"] = "Đang dung hợp",
-    ["upgrading"] = "Đang nâng cấp",
-    ["buying"] = "Đang mua",
-    ["claiming"] = "Đang nhận",
-    ["equipping"] = "Đang trang bị",
-    ["favoriting"] = "Đang khóa",
-    ["ejecting"] = "Đang đẩy",
-    ["catching"] = "Đang bắt",
-    ["chasing"] = "Đang đuổi theo",
-    ["attacking"] = "Đang tấn công",
-    ["hitting"] = "Đang đánh",
-    ["killing"] = "Đang hạ",
-    ["trading"] = "Đang đổi",
-    ["crafting"] = "Đang chế tạo",
-    ["rerolling"] = "Đang đổi lại",
-    ["avoiding"] = "Đang né",
-    ["evading"] = "Đang tránh",
-    ["waiting"] = "Đang chờ",
-    ["searching"] = "Đang tìm",
-    ["looking"] = "Đang tìm",
-    ["scanning"] = "Đang quét",
-    ["farming"] = "Đang cày",
-    ["using"] = "Đang dùng",
-    ["joining"] = "Đang vào",
-    ["hopping"] = "Đang đổi",
-    ["rejoining"] = "Đang vào lại",
-    ["finding"] = "Đang tìm",
-    ["checking"] = "Đang kiểm tra",
-    ["skipping"] = "Đang bỏ qua",
-    ["racing"] = "Đang đua",
-    ["cooldown"] = "Hồi chiêu",
-    ["ready"] = "Sẵn sàng",
-    ["nothing"] = "Không có gì",
-    ["none"] = "Không có",
-    ["no"] = "Không có",
-    ["egg"] = "trứng",
-    ["eggs"] = "trứng",
-    ["pet"] = "pet",
-    ["pets"] = "pet",
-    ["matches"] = "khớp",
-    ["match"] = "khớp",
-    ["matching"] = "khớp",
-    ["your"] = "của bạn",
-    ["target"] = "mục tiêu",
-    ["targets"] = "mục tiêu",
-    ["filter"] = "bộ lọc",
-    ["home"] = "về nhà",
-    ["base"] = "căn cứ",
-    ["pen"] = "chuồng",
-    ["pens"] = "chuồng",
-    ["field"] = "sân trứng",
-    ["zone"] = "khu vực",
-    ["zones"] = "khu vực",
-    ["bag"] = "túi",
-    ["full"] = "đầy",
-    ["empty"] = "trống",
-    ["closed"] = "đóng",
-    ["open"] = "mở",
-    ["guard"] = "vệ sĩ",
-    ["guards"] = "vệ sĩ",
-    ["player"] = "người chơi",
-    ["players"] = "người chơi",
-    ["server"] = "máy chủ",
-    ["treadmill"] = "máy tập",
-    ["race"] = "đua xe",
-    ["star"] = "sao băng",
-    ["butterfly"] = "bướm",
-    ["portal"] = "cổng",
-    ["rewards"] = "thưởng",
-    ["reward"] = "thưởng",
-    ["cash"] = "tiền",
-    ["found"] = "tìm thấy",
-    ["available"] = "khả dụng",
-    ["to"] = "tới",
-    ["from"] = "từ",
-    ["in"] = "trong",
-    ["at"] = "tại",
-    ["for"] = "cho",
-    ["with"] = "với",
-    ["and"] = "và",
-    ["or"] = "hoặc"
+    ["idle"] = "Đang rảnh", ["carrying"] = "Đang mang", ["delivering"] = "Đang giao", ["stealing"] = "Đang cướp",
+    ["grabbing"] = "Đang chộp", ["picking"] = "Đang nhặt", ["collecting"] = "Đang thu thập", ["holding"] = "Đang giữ",
+    ["capturing"] = "Đang bắt giữ", ["dropping"] = "Đang thả", ["tweening"] = "Đang bay", ["teleporting"] = "Đang dịch chuyển",
+    ["going"] = "Đang đi", ["moving"] = "Đang di chuyển", ["walking"] = "Đang đi bộ", ["running"] = "Đang chạy",
+    ["flying"] = "Đang bay", ["returning"] = "Đang quay về", ["heading"] = "Đang hướng", ["placing"] = "Đang đặt",
+    ["hatching"] = "Đang ấp", ["mutating"] = "Đang đột biến", ["selling"] = "Đang bán", ["fusing"] = "Đang dung hợp",
+    ["upgrading"] = "Đang nâng cấp", ["buying"] = "Đang mua", ["claiming"] = "Đang nhận", ["equipping"] = "Đang trang bị",
+    ["favoriting"] = "Đang khóa", ["ejecting"] = "Đang đẩy", ["catching"] = "Đang bắt", ["chasing"] = "Đang đuổi theo",
+    ["attacking"] = "Đang tấn công", ["hitting"] = "Đang đánh", ["killing"] = "Đang hạ", ["trading"] = "Đang đổi",
+    ["crafting"] = "Đang chế tạo", ["rerolling"] = "Đang đổi lại", ["avoiding"] = "Đang né", ["evading"] = "Đang tránh",
+    ["waiting"] = "Đang chờ", ["searching"] = "Đang tìm", ["looking"] = "Đang tìm", ["scanning"] = "Đang quét",
+    ["farming"] = "Đang cày", ["using"] = "Đang dùng", ["joining"] = "Đang vào", ["hopping"] = "Đang đổi",
+    ["rejoining"] = "Đang vào lại", ["finding"] = "Đang tìm", ["checking"] = "Đang kiểm tra", ["skipping"] = "Đang bỏ qua",
+    ["racing"] = "Đang đua", ["cooldown"] = "Hồi chiêu", ["ready"] = "Sẵn sàng", ["nothing"] = "Không có gì",
+    ["none"] = "Không có", ["no"] = "Không có", ["egg"] = "trứng", ["eggs"] = "trứng", ["pet"] = "pet", ["pets"] = "pet",
+    ["matches"] = "khớp", ["match"] = "khớp", ["matching"] = "khớp", ["your"] = "của bạn", ["target"] = "mục tiêu",
+    ["targets"] = "mục tiêu", ["filter"] = "bộ lọc", ["home"] = "về nhà", ["base"] = "căn cứ", ["pen"] = "chuồng",
+    ["pens"] = "chuồng", ["field"] = "sân trứng", ["zone"] = "khu vực", ["zones"] = "khu vực", ["bag"] = "túi",
+    ["full"] = "đầy", ["empty"] = "trống", ["closed"] = "đóng", ["open"] = "mở", ["guard"] = "vệ sĩ", ["guards"] = "vệ sĩ",
+    ["player"] = "người chơi", ["players"] = "người chơi", ["server"] = "máy chủ", ["treadmill"] = "máy tập",
+    ["race"] = "đua xe", ["star"] = "sao băng", ["butterfly"] = "bướm", ["portal"] = "cổng", ["rewards"] = "thưởng",
+    ["reward"] = "thưởng", ["cash"] = "tiền", ["found"] = "tìm thấy", ["available"] = "khả dụng", ["to"] = "tới",
+    ["from"] = "từ", ["in"] = "trong", ["at"] = "tại", ["for"] = "cho", ["with"] = "với", ["and"] = "và", ["or"] = "hoặc"
 }
 
 local DYNAMIC_PATTERNS_VI = {
     { pat = "^QUICK BAR (%d+)$", rep = "THANH NHANH %1" },
+    { pat = "^(.+) was added to your configs%. Apply it now%??$", rep = "Đã thêm '%1' vào danh sách cấu hình. Áp dụng ngay?" },
+    { pat = "^(.+) was added to your configs$", rep = "Đã thêm '%1' vào danh sách cấu hình" },
     { pat = "Venyx(.-)(%d+) hours? ago", rep = "Chilli Hub%1%2 giờ trước" },
     { pat = "Venyx(.-)(%d+) minutes? ago", rep = "Chilli Hub%1%2 phút trước" },
     { pat = "Venyx(.-)(%d+) days? ago", rep = "Chilli Hub%1%2 ngày trước" },
@@ -1142,12 +1003,8 @@ local function applyCaseInsensitivePhrases(str)
     for i = 1, #SMART_PHRASE_FALLBACK_VI do
         local pair = SMART_PHRASE_FALLBACK_VI[i]
         local enLower = pair[1]:lower()
-        local viRep = pair[2]
-        local lowerOut = out:lower()
-        local sIdx, eIdx = lowerOut:find(enLower, 1, true)
-        if sIdx then
-            out = out:sub(1, sIdx - 1) .. viRep .. out:sub(eIdx + 1)
-        end
+        local sIdx, eIdx = out:lower():find(enLower, 1, true)
+        if sIdx then out = out:sub(1, sIdx - 1) .. pair[2] .. out:sub(eIdx + 1) end
     end
     return out
 end
@@ -1177,16 +1034,13 @@ local function translateStatusAction(cleanEn)
     local cacheKey = "STATUS_VI|" .. stripped
     if FastCache[cacheKey] then return FastCache[cacheKey] end
 
-    if EXACT_MATCH_VI[stripped] then FastCache[cacheKey] = EXACT_MATCH_VI[stripped]; return EXACT_MATCH_VI[stripped] end
-    if LOWER_EXACT_MATCH_VI[lowerStripped] then FastCache[cacheKey] = LOWER_EXACT_MATCH_VI[lowerStripped]; return LOWER_EXACT_MATCH_VI[lowerStripped] end
+    if EXACT_MATCH_VI[stripped] then FastCache[cacheKey] = EXACT_MATCH_VI[stripped] return EXACT_MATCH_VI[stripped] end
+    if LOWER_EXACT_MATCH_VI[lowerStripped] then FastCache[cacheKey] = LOWER_EXACT_MATCH_VI[lowerStripped] return LOWER_EXACT_MATCH_VI[lowerStripped] end
 
     local out = stripped
     for i = 1, #STATUS_ACTION_PATTERNS_VI do
         local item = STATUS_ACTION_PATTERNS_VI[i]
-        if out:find(item.pat) then
-            out = out:gsub(item.pat, item.rep)
-            break
-        end
+        if out:find(item.pat) then out = out:gsub(item.pat, item.rep); break end
     end
 
     out = applyCaseInsensitivePhrases(out)
@@ -1205,12 +1059,11 @@ local function translateVenyxText(raw)
     if raw:find("Venyx SAE", 1, true) then raw = raw:gsub("Venyx SAE", "Chilli SAE")
     elseif raw == "VENYX" then raw = NEW_TITLE end
 
-    if lang == "EN" then FastCache[cacheKey] = raw; return raw end
-
+    if lang == "EN" then FastCache[cacheKey] = raw return raw end
     local normalized = (raw:match("^%s*(.-)%s*$") or raw):gsub("%s+", " ")
 
-    if EXACT_MATCH_VI[normalized] then FastCache[cacheKey] = EXACT_MATCH_VI[normalized]; return EXACT_MATCH_VI[normalized] end
-    if LOWER_EXACT_MATCH_VI[normalized:lower()] then FastCache[cacheKey] = LOWER_EXACT_MATCH_VI[normalized:lower()]; return LOWER_EXACT_MATCH_VI[normalized:lower()] end
+    if EXACT_MATCH_VI[normalized] then FastCache[cacheKey] = EXACT_MATCH_VI[normalized] return EXACT_MATCH_VI[normalized] end
+    if LOWER_EXACT_MATCH_VI[normalized:lower()] then FastCache[cacheKey] = LOWER_EXACT_MATCH_VI[normalized:lower()] return LOWER_EXACT_MATCH_VI[normalized:lower()] end
 
     local baseBeforeDots = normalized:match("^(.+)%.%.%.$")
     if baseBeforeDots then
@@ -1235,18 +1088,16 @@ local function translateVenyxText(raw)
 
     local result = normalized
     for i = 1, #DYNAMIC_PATTERNS_VI do
-        local item = DYNAMIC_PATTERNS_VI[i]
-        if result:find(item.pat) then
-            result = result:gsub(item.pat, item.rep)
+        if result:find(DYNAMIC_PATTERNS_VI[i].pat) then
+            result = result:gsub(DYNAMIC_PATTERNS_VI[i].pat, DYNAMIC_PATTERNS_VI[i].rep)
             FastCache[cacheKey] = result
             return result
         end
     end
 
     for i = 1, #STATUS_ACTION_PATTERNS_VI do
-        local item = STATUS_ACTION_PATTERNS_VI[i]
-        if result:find(item.pat) then
-            result = result:gsub(item.pat, item.rep)
+        if result:find(STATUS_ACTION_PATTERNS_VI[i].pat) then
+            result = result:gsub(STATUS_ACTION_PATTERNS_VI[i].pat, STATUS_ACTION_PATTERNS_VI[i].rep)
             result = applyCaseInsensitivePhrases(result)
             FastCache[cacheKey] = result
             return result
@@ -1291,16 +1142,14 @@ local function applyElementTranslation(inst)
     end
 
     local rawText = inst.Text
-    if isFpsCounterText(rawText) then hookFakeFpsCounter(inst); return end
+    if isFpsCounterText(rawText) then hookFakeFpsCounter(inst) return end
 
     local original = inst:GetAttribute("OrigRawText")
     if not original then
         if not containsVietnameseChars(rawText) then
             original = rawText
             inst:SetAttribute("OrigRawText", original)
-        else
-            return
-        end
+        else return end
     end
 
     local mapped = translateVenyxText(original)
@@ -1317,11 +1166,7 @@ local function hookTextForTranslation(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
     if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__HiddenVxLogo") or inst.Name == "IslandExpandHint" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliV5_NoticeGui") then return end
 
-    if not inst:IsA("TextBox") and isFpsCounterText(inst.Text) then
-        hookFakeFpsCounter(inst)
-        return
-    end
-
+    if not inst:IsA("TextBox") and isFpsCounterText(inst.Text) then hookFakeFpsCounter(inst) return end
     applyElementTranslation(inst)
 
     if inst:GetAttribute("__TransHookSession") == MY_SESSION_ID then return end
@@ -1332,8 +1177,8 @@ local function hookTextForTranslation(inst)
         if not isCurrentSession() then return end
         if inst:GetAttribute("__IsTranslating") or inst:GetAttribute("__IslandDone") or inst:GetAttribute("__HiddenVxLogo") then return end
 
-        if not inst:IsA("TextBox") and isFpsCounterText(inst.Text) then hookFakeFpsCounter(inst); return end
-        if inst:IsA("TextBox") then applyElementTranslation(inst); return end
+        if not inst:IsA("TextBox") and isFpsCounterText(inst.Text) then hookFakeFpsCounter(inst) return end
+        if inst:IsA("TextBox") then applyElementTranslation(inst) return end
 
         local currentTxt = inst.Text
         if currentTxt ~= inst:GetAttribute("__LastTranslated") and not containsVietnameseChars(currentTxt) then
@@ -1451,9 +1296,7 @@ local function refreshAllTranslations()
                 applyElementTranslation(el)
                 count = count + 1
                 if count % 60 == 0 then task.wait() end
-            else
-                table.remove(State.TrackedTexts, i)
-            end
+            else table.remove(State.TrackedTexts, i) end
         end
     end)
 end
@@ -1473,10 +1316,7 @@ local function forceFireButton(btn)
                 local sig = clickable[sigName]
                 if sig then
                     for _, conn in ipairs(getconnections(sig)) do
-                        if conn.Function then
-                            task.spawn(conn.Function)
-                            fired = true
-                        end
+                        if conn.Function then task.spawn(conn.Function); fired = true end
                     end
                 end
             end)
@@ -1508,7 +1348,6 @@ end
 local function executeAutoFarmConfigImport(venyxGui, statusBtnLabel)
     task.spawn(function()
         if statusBtnLabel then statusBtnLabel.Text = "⏳ ĐANG NẠP CONFIG..." end
-
         local importBox, importBtn
         for _, d in ipairs(venyxGui:GetDescendants()) do
             if d:IsA("TextBox") then
@@ -1524,10 +1363,7 @@ local function executeAutoFarmConfigImport(venyxGui, statusBtnLabel)
             for _, d in ipairs(venyxGui:GetDescendants()) do
                 if d:IsA("TextButton") or d:IsA("TextLabel") then
                     local origTxt = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
-                    if origTxt == "Config" or d.Text == "Cấu Hình" then
-                        forceFireButton(d)
-                        break
-                    end
+                    if origTxt == "Config" or d.Text == "Cấu Hình" then forceFireButton(d); break end
                 end
             end
             task.wait(0.25)
@@ -1562,7 +1398,7 @@ local function executeAutoFarmConfigImport(venyxGui, statusBtnLabel)
         task.wait(0.15)
         if importBtn then forceFireButton(importBtn) end
 
-        -- SỬA LỖI TẠI ĐÂY: Đợi khung chứa nút Apply Now hiện rõ ràng (Visible = true) mới nã lệnh Click
+        -- SỬA LỖI AUTO APPLY NOW: Liên tục check xem bảng hộp thoại đã TẢI HIỂN THỊ 100% chưa
         local applied = false
         for _ = 1, 35 do
             task.wait(0.15)
@@ -1572,8 +1408,9 @@ local function executeAutoFarmConfigImport(venyxGui, statusBtnLabel)
                         if d:IsA("TextButton") or d:IsA("TextLabel") then
                             local origTxt = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
                             if origTxt == "Apply now" or d.Text == "Áp dụng ngay" then
+                                -- TÌM KHUNG HỘP THOẠI CHA CỦA NÚT "APPLY NOW" VÀ KIỂM TRA ĐỘ MỜ (CHỐNG CLICK TRƯỢT LÚC ĐANG HIỆN)
                                 local frame = d:FindFirstAncestorWhichIsA("Frame")
-                                if frame and frame.Visible and frame.BackgroundTransparency < 0.9 then
+                                if frame and frame.Visible and frame.BackgroundTransparency < 0.8 then
                                     forceFireButton(d)
                                     applied = true
                                     break
@@ -1604,7 +1441,6 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
 
     local badHitbox = pill:FindFirstChild("IslandClickHitbox")
     if badHitbox then badHitbox:Destroy() end
-
     for _, child in ipairs(pill:GetChildren()) do
         if child:IsA("UIGradient") then child:Destroy() end
     end
@@ -1854,20 +1690,14 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     local function setLanguage(lang)
         if State.Language == lang then return end
         State.Language = lang
-        pcall(function()
-            if writefile then writefile(LANG_SAVE_FILE, lang) end
-        end)
+        pcall(function() if writefile then writefile(LANG_SAVE_FILE, lang) end end)
 
         if lang == "VI" then
-            TweenService:Create(LangSlider, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                Position = UDim2.new(0, 2, 0, 2)
-            }):Play()
+            TweenService:Create(LangSlider, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Position = UDim2.new(0, 2, 0, 2) }):Play()
             BtnVI.TextColor3 = Color3.fromRGB(255, 255, 255)
             BtnEN.TextColor3 = Color3.fromRGB(150, 165, 190)
         else
-            TweenService:Create(LangSlider, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                Position = UDim2.new(0.5, 2, 0, 2)
-            }):Play()
+            TweenService:Create(LangSlider, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Position = UDim2.new(0.5, 2, 0, 2) }):Play()
             BtnEN.TextColor3 = Color3.fromRGB(255, 255, 255)
             BtnVI.TextColor3 = Color3.fromRGB(150, 165, 190)
         end
@@ -1883,9 +1713,7 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
             pill.Visible = false
             ExpandedIsland.Size = UDim2.new(0, 160, 0, 28)
             ExpandedIsland.Visible = true
-            TweenService:Create(ExpandedIsland, TweenInfo.new(0.28, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                Size = UDim2.new(0, 268, 0, 118)
-            }):Play()
+            TweenService:Create(ExpandedIsland, TweenInfo.new(0.28, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Size = UDim2.new(0, 268, 0, 118) }):Play()
         else
             pill.Position = ExpandedIsland.Position
             ExpandedIsland.Visible = false
@@ -1900,7 +1728,6 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
         triggerObj:SetAttribute("__DragSession", MY_SESSION_ID)
 
         local dragging, dragStart, startPos, moved = false, nil, nil, false
-
         triggerObj.InputBegan:Connect(function(input)
             if not isCurrentSession() then return end
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -1913,7 +1740,6 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
                 end)
             end
         end)
-
         triggerObj.InputChanged:Connect(function(input)
             if not isCurrentSession() then return end
             if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragging then
@@ -1948,10 +1774,7 @@ end
 -- ==================== 7. NÚT TRÒN NỔI 1:1 & HEADER LOGO ====================
 local function setupUnclippedCircularLogo(targetObj)
     local topPanel = targetObj
-    while topPanel.Parent and topPanel.Parent:IsA("GuiObject") and not topPanel.Parent:IsA("ScreenGui") do
-        topPanel = topPanel.Parent
-    end
-
+    while topPanel.Parent and topPanel.Parent:IsA("GuiObject") and not topPanel.Parent:IsA("ScreenGui") do topPanel = topPanel.Parent end
     if topPanel:GetAttribute("__FloatingLogoV5Perfect") then return end
 
     local sz = topPanel.AbsoluteSize
@@ -1968,8 +1791,7 @@ local function setupUnclippedCircularLogo(targetObj)
         if (child:IsA("ImageLabel") or child:IsA("ImageButton")) and child.Name ~= "ChilliV5CoverLogo" then
             child.ImageTransparency = 1; child.BackgroundTransparency = 1
         elseif child:IsA("TextLabel") or child:IsA("TextButton") then
-            child:SetAttribute("__HiddenVxLogo", true)
-            child.TextTransparency = 1; child.BackgroundTransparency = 1
+            child:SetAttribute("__HiddenVxLogo", true); child.TextTransparency = 1; child.BackgroundTransparency = 1
         end
     end
 
@@ -2011,7 +1833,6 @@ local function patchHeaderLogoLeftOfTitle(headerContainer, titleLbl)
     if not headerContainer or not titleLbl then return end
     local headerY = titleLbl.AbsolutePosition.Y
     local titleX = titleLbl.AbsolutePosition.X
-
     for _, item in ipairs(headerContainer:GetDescendants()) do
         if item ~= titleLbl and item:IsA("GuiObject") and item.Name ~= "ChilliHeaderLogo" then
             local pos = item.AbsolutePosition; local sz = item.AbsoluteSize
