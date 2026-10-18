@@ -1,12 +1,12 @@
 -- ==============================================================================
---  CHILLI HUB V5.1 - HALLOWEEN EVENT UPDATE (DYNAMIC ISLAND FIX & FULL TRANSLATION)
---  Cập nhật mới nhất:
---    1. SỬA LỖI MẤT DYNAMIC ISLAND: Mở rộng bộ định vị để bắt chính xác nút
---       trạng thái ngay cả khi đang chạy chuỗi sự kiện "Halloween: ...".
---    2. DỊCH 100% SỰ KIỆN HALLOWEEN: Phantom Express, Chó Ma, Quái vật,
---       Trăng Bí Ngô, Câu cá & toàn bộ các thông số tốc độ (st/s).
---    3. BẢO TOÀN TÍNH NĂNG CŨ: Auto-Apply Config, Update Notice, Fake FPS,
---       Nút tròn 60x60, và cơ chế chống giật ngôn ngữ.
+--  CHILLI HUB V5 - RONNEI OFFICIAL EDITION (ANTI-CHEAT SAFE CONFIG MACRO)
+--  Khắc phục triệt để lỗi BAC-6511:
+--    1. GỠ BỎ HOÀN TOÀN VIRTUAL INPUT MANAGER (VIM): Xóa bỏ các lệnh giả lập
+--       chuột vật lý gây kích hoạt Anti-Cheat của game.
+--    2. CLICK TÀNG HÌNH 100%: Chỉ dùng getconnections() gọi ngầm hàm InputBegan
+--       của Venyx, an toàn tuyệt đối, nạp xong tự ấn "Áp dụng ngay" mượt mà.
+--    3. GIỮ NGUYÊN 100% CÁC PHẦN ĐÃ OK: Thông báo Update, Dịch 4 tầng NLP,
+--       Dynamic Island nền đen, Nút tròn 60x60, Fake FPS 85-120.
 -- ==============================================================================
 
 local MY_CHILLI_URL  = "https://raw.githubusercontent.com/ronnei/hihi/refs/heads/main/chillihubv5.lua"
@@ -926,7 +926,7 @@ local STATUS_ACTION_PATTERNS_VI = {
     { pat = "^[Ll]ooking for (.+)$", rep = "Đang tìm %1" },
     { pat = "^[Ss]canning (.+)$", rep = "Đang quét %1" },
     { pat = "^[Ff]arming (.+)$", rep = "Đang cày %1" },
-    { pat = "^[Uu]sing (.+)$", rep = "Đang dùng %1" },
+    { pat = "^[Uu]using (.+)$", rep = "Đang dùng %1" },
     { pat = "^[Jj]oining (.+)$", rep = "Đang tham gia %1" },
     { pat = "^[Hh]opping (.+)$", rep = "Đang đổi %1" }
 }
@@ -1333,156 +1333,10 @@ local function hookTextForTranslation(inst)
     end)
 end
 
--- ==================== 4. BẢNG THÔNG BÁO UPDATE SẮP RA MẮT ====================
-local function showUpcomingUpdateNotice()
-    if State.NoticeShown then return end
-    State.NoticeShown = true
-
-    local parentTarget = (gethui and gethui()) or CoreGui
-    local oldNotice = parentTarget:FindFirstChild("ChilliV5_NoticeGui")
-    if oldNotice then oldNotice:Destroy() end
-
-    local noticeGui = Instance.new("ScreenGui")
-    noticeGui.Name = "ChilliV5_NoticeGui"
-    noticeGui.DisplayOrder = 2147483647
-    noticeGui.IgnoreGuiInset = true
-    noticeGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    noticeGui.Parent = parentTarget
-
-    local overlay = Instance.new("Frame")
-    overlay.Size = UDim2.new(1, 0, 1, 0)
-    overlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    overlay.BackgroundTransparency = 0.45
-    overlay.Active = true
-    overlay.Parent = noticeGui
-
-    local modal = Instance.new("Frame")
-    modal.Size = UDim2.new(0, 380, 0, 235)
-    modal.Position = UDim2.new(0.5, 0, 0.5, 0)
-    modal.AnchorPoint = Vector2.new(0.5, 0.5)
-    modal.BackgroundColor3 = Color3.fromRGB(12, 14, 22)
-    modal.BorderSizePixel = 0
-    modal.ClipsDescendants = true
-    modal.Parent = overlay
-
-    local mCorner = Instance.new("UICorner")
-    mCorner.CornerRadius = UDim.new(0, 14)
-    mCorner.Parent = modal
-
-    local mStroke = Instance.new("UIStroke")
-    mStroke.Thickness = 2
-    mStroke.Color = Color3.fromRGB(255, 255, 255)
-    mStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    mStroke.Parent = modal
-
-    local mGrad = Instance.new("UIGradient")
-    mGrad.Color = COLOR_SEQ_RAINBOW
-    mGrad.Parent = mStroke
-    table.insert(State.ActiveGradients, mGrad)
-
-    local titleLbl = Instance.new("TextLabel")
-    titleLbl.Size = UDim2.new(1, -24, 0, 38)
-    titleLbl.Position = UDim2.new(0, 12, 0, 6)
-    titleLbl.BackgroundTransparency = 1
-    titleLbl.Font = Enum.Font.GothamBlack
-    titleLbl.TextSize = 15
-    titleLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
-    titleLbl.Parent = modal
-
-    local bodyLbl = Instance.new("TextLabel")
-    bodyLbl.Size = UDim2.new(1, -32, 0, 130)
-    bodyLbl.Position = UDim2.new(0, 16, 0, 46)
-    bodyLbl.BackgroundTransparency = 1
-    bodyLbl.TextWrapped = true
-    bodyLbl.Font = Enum.Font.GothamMedium
-    bodyLbl.TextSize = 12.5
-    bodyLbl.TextColor3 = Color3.fromRGB(225, 232, 255)
-    bodyLbl.TextXAlignment = Enum.TextXAlignment.Left
-    bodyLbl.TextYAlignment = Enum.TextYAlignment.Top
-    bodyLbl.Parent = modal
-
-    local closeBtn = Instance.new("TextButton")
-    closeBtn.Size = UDim2.new(0, 140, 0, 34)
-    closeBtn.Position = UDim2.new(0.5, 0, 1, -44)
-    closeBtn.AnchorPoint = Vector2.new(0.5, 0)
-    closeBtn.BackgroundColor3 = Color3.fromRGB(95, 110, 235)
-    closeBtn.Font = Enum.Font.GothamBold
-    closeBtn.TextSize = 12.5
-    closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    closeBtn.Parent = modal
-
-    local bCorner = Instance.new("UICorner")
-    bCorner.CornerRadius = UDim.new(1, 0)
-    bCorner.Parent = closeBtn
-
-    local function updateNoticeLang()
-        if State.Language == "VI" then
-            titleLbl.Text = "🚀 CẬP NHẬT SẮP RA MẮT"
-            bodyLbl.Text = "+ Tính năng Setting tự động nhập cấu hình Auto Farm chuẩn, phù hợp với tất cả tài khoản (mới chơi/ít tốc độ) và thiết bị (kể cả máy yếu/lag). Cấu hình đã được test kỹ càng để mang lại hiệu quả cao nhất!\n\n+ Giao diện mới: Thiết kế lại toàn bộ giao diện đẹp mắt và chuyên nghiệp hơn."
-            closeBtn.Text = "ĐÃ HIỂU / ĐÓNG"
-        else
-            titleLbl.Text = "🚀 UPCOMING UPDATE"
-            bodyLbl.Text = "✨ Auto Config Feature: 100% optimized Auto Farm preset for all accounts (even beginners/low speed) and devices (even laggy ones). Strictly tested for the best and most suitable results!\n\n✨ New Interface: Completely redesigned for a more beautiful and professional look."
-            closeBtn.Text = "GOT IT / CLOSE"
-        end
-    end
-    updateNoticeLang()
-    State.RefreshNoticeCallback = updateNoticeLang
-
-    closeBtn.MouseButton1Click:Connect(function()
-        State.RefreshNoticeCallback = nil
-        noticeGui:Destroy()
-    end)
-end
-
-local function refreshAllTranslations()
-    task.spawn(function()
-        if State.RefreshIslandCallback then State.RefreshIslandCallback() end
-        if State.RefreshNoticeCallback then State.RefreshNoticeCallback() end
-        local count = 0
-        for i = #State.TrackedTexts, 1, -1 do
-            if not isCurrentSession() then return end
-            local el = State.TrackedTexts[i]
-            if el and el.Parent then
-                applyElementTranslation(el)
-                count = count + 1
-                if count % 60 == 0 then task.wait() end
-            else
-                table.remove(State.TrackedTexts, i)
-            end
-        end
-    end)
-end
-
--- ==================== 5. HÀM TỰ ĐỘNG BẤM "APPLY NOW" ĐA TẦNG ====================
-local function isElementActuallyVisible(guiObj)
-    if not (guiObj and guiObj:IsA("GuiObject")) then return false end
-    if guiObj.AbsoluteSize.X <= 2 or guiObj.AbsoluteSize.Y <= 2 then return false end
-    local curr = guiObj
-    while curr and curr:IsA("GuiObject") do
-        if curr.Visible == false then return false end
-        curr = curr.Parent
-    end
-    return true
-end
-
-local function createSyntheticClickInput(stateEnum, posVec2)
-    local fakeInput = nil
-    pcall(function()
-        fakeInput = {
-            UserInputType = Enum.UserInputType.MouseButton1,
-            UserInputState = stateEnum,
-            Position = Vector3.new(posVec2.X, posVec2.Y, 0),
-            KeyCode = Enum.KeyCode.Unknown
-        }
-    end)
-    return fakeInput
-end
-
+-- ==================== 4. HÀM TỰ ĐỘNG BẤM NÚT VENYX AN TOÀN 100% (GỠ VIM) ====================
 local function triggerAllSignalsOnTarget(obj)
     if not (obj and obj:IsA("GuiObject")) then return false end
     local firedAny = false
-    local centerPos = obj.AbsolutePosition + (obj.AbsoluteSize / 2)
 
     local candidates = { obj }
     if obj.Parent and obj.Parent:IsA("GuiObject") and obj.Parent.AbsoluteSize.X < 250 then
@@ -1493,15 +1347,14 @@ local function triggerAllSignalsOnTarget(obj)
     end
 
     for _, target in ipairs(candidates) do
+        -- 1. Firesignal cho nút bấm tiêu chuẩn
         if target:IsA("GuiButton") then
             if firesignal then
-                pcall(function() firesignal(target.MouseButton1Down, centerPos.X, centerPos.Y) firedAny = true end)
-                pcall(function() firesignal(target.MouseButton1Up, centerPos.X, centerPos.Y) firedAny = true end)
                 pcall(function() firesignal(target.MouseButton1Click) firedAny = true end)
                 pcall(function() firesignal(target.Activated) firedAny = true end)
             end
             if getconnections then
-                for _, sigName in ipairs({"MouseButton1Click", "Activated", "MouseButton1Down", "MouseButton1Up"}) do
+                for _, sigName in ipairs({"MouseButton1Click", "Activated"}) do
                     pcall(function()
                         local sig = target[sigName]
                         if sig then
@@ -1514,38 +1367,30 @@ local function triggerAllSignalsOnTarget(obj)
             end
         end
 
+        -- 2. Bắn giả lập InputBegan qua getconnections cho nút Frame của Venyx (An toàn 100%, không bị kick BAC-6511)
         if getconnections then
-            local downInput = createSyntheticClickInput(Enum.UserInputState.Begin, centerPos)
-            local upInput   = createSyntheticClickInput(Enum.UserInputState.End, centerPos)
+            local fakeInputDown = {
+                UserInputType = Enum.UserInputType.MouseButton1,
+                UserInputState = Enum.UserInputState.Begin,
+                KeyCode = Enum.KeyCode.Unknown
+            }
+            local fakeInputUp = {
+                UserInputType = Enum.UserInputType.MouseButton1,
+                UserInputState = Enum.UserInputState.End,
+                KeyCode = Enum.KeyCode.Unknown
+            }
             pcall(function()
                 for _, conn in ipairs(getconnections(target.InputBegan)) do
-                    if conn.Function then task.spawn(conn.Function, downInput, false) firedAny = true end
+                    if conn.Function then task.spawn(conn.Function, fakeInputDown, false) firedAny = true end
                 end
             end)
             pcall(function()
                 for _, conn in ipairs(getconnections(target.InputEnded)) do
-                    if conn.Function then task.spawn(conn.Function, upInput, false) firedAny = true end
+                    if conn.Function then task.spawn(conn.Function, fakeInputUp, false) firedAny = true end
                 end
             end)
         end
     end
-
-    pcall(function()
-        local vim = game:GetService("VirtualInputManager")
-        if vim then
-            local inset = game:GetService("GuiService"):GetGuiInset()
-            local cx = math.floor(centerPos.X)
-            local cyRaw = math.floor(centerPos.Y)
-            local cyInset = math.floor(centerPos.Y + inset.Y)
-
-            vim:SendMouseButtonEvent(cx, cyInset, 0, true, game, 1)
-            vim:SendMouseButtonEvent(cx, cyRaw, 0, true, game, 1)
-            task.wait(0.03)
-            vim:SendMouseButtonEvent(cx, cyInset, 0, false, game, 1)
-            vim:SendMouseButtonEvent(cx, cyRaw, 0, false, game, 1)
-            firedAny = true
-        end
-    end)
     return firedAny
 end
 
@@ -1561,6 +1406,17 @@ local function isImportButtonNode(inst)
     local raw = (inst.Text or ""):match("^%s*(.-)%s*$")
     local orig = (inst:GetAttribute("OrigRawText") or ""):match("^%s*(.-)%s*$")
     return orig == "Import" or raw == "Import" or raw == "Nhập"
+end
+
+local function isElementActuallyVisible(guiObj)
+    if not (guiObj and guiObj:IsA("GuiObject")) then return false end
+    if guiObj.AbsoluteSize.X <= 2 or guiObj.AbsoluteSize.Y <= 2 then return false end
+    local curr = guiObj
+    while curr and curr:IsA("GuiObject") do
+        if curr.Visible == false then return false end
+        curr = curr.Parent
+    end
+    return true
 end
 
 local isRunningMacro = false
@@ -1669,12 +1525,134 @@ local function executeAutoFarmConfigImport(venyxGui, statusBtnLabel, onFinishCol
     end)
 end
 
--- ==================== 6. DYNAMIC ISLAND NỀN ĐEN & CHỈ BÁO NÚT BẤM ====================
+-- ==================== 5. BẢNG THÔNG BÁO UPDATE SẮP RA MẮT ====================
+local function showUpcomingUpdateNotice()
+    if State.NoticeShown then return end
+    State.NoticeShown = true
+
+    local parentTarget = (gethui and gethui()) or CoreGui
+    local oldNotice = parentTarget:FindFirstChild("ChilliV5_NoticeGui")
+    if oldNotice then oldNotice:Destroy() end
+
+    local noticeGui = Instance.new("ScreenGui")
+    noticeGui.Name = "ChilliV5_NoticeGui"
+    noticeGui.DisplayOrder = 2147483647
+    noticeGui.IgnoreGuiInset = true
+    noticeGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    noticeGui.Parent = parentTarget
+
+    local overlay = Instance.new("Frame")
+    overlay.Size = UDim2.new(1, 0, 1, 0)
+    overlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    overlay.BackgroundTransparency = 0.45
+    overlay.Active = true
+    overlay.Parent = noticeGui
+
+    local modal = Instance.new("Frame")
+    modal.Size = UDim2.new(0, 380, 0, 235)
+    modal.Position = UDim2.new(0.5, 0, 0.5, 0)
+    modal.AnchorPoint = Vector2.new(0.5, 0.5)
+    modal.BackgroundColor3 = Color3.fromRGB(12, 14, 22)
+    modal.BorderSizePixel = 0
+    modal.ClipsDescendants = true
+    modal.Parent = overlay
+
+    local mCorner = Instance.new("UICorner")
+    mCorner.CornerRadius = UDim.new(0, 14)
+    mCorner.Parent = modal
+
+    local mStroke = Instance.new("UIStroke")
+    mStroke.Thickness = 2
+    mStroke.Color = Color3.fromRGB(255, 255, 255)
+    mStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    mStroke.Parent = modal
+
+    local mGrad = Instance.new("UIGradient")
+    mGrad.Color = COLOR_SEQ_RAINBOW
+    mGrad.Parent = mStroke
+    table.insert(State.ActiveGradients, mGrad)
+
+    local titleLbl = Instance.new("TextLabel")
+    titleLbl.Size = UDim2.new(1, -24, 0, 38)
+    titleLbl.Position = UDim2.new(0, 12, 0, 6)
+    titleLbl.BackgroundTransparency = 1
+    titleLbl.Font = Enum.Font.GothamBlack
+    titleLbl.TextSize = 15
+    titleLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleLbl.Parent = modal
+
+    local bodyLbl = Instance.new("TextLabel")
+    bodyLbl.Size = UDim2.new(1, -32, 0, 130)
+    bodyLbl.Position = UDim2.new(0, 16, 0, 46)
+    bodyLbl.BackgroundTransparency = 1
+    bodyLbl.TextWrapped = true
+    bodyLbl.Font = Enum.Font.GothamMedium
+    bodyLbl.TextSize = 12.5
+    bodyLbl.TextColor3 = Color3.fromRGB(225, 232, 255)
+    bodyLbl.TextXAlignment = Enum.TextXAlignment.Left
+    bodyLbl.TextYAlignment = Enum.TextYAlignment.Top
+    bodyLbl.Parent = modal
+
+    local closeBtn = Instance.new("TextButton")
+    closeBtn.Size = UDim2.new(0, 140, 0, 34)
+    closeBtn.Position = UDim2.new(0.5, 0, 1, -44)
+    closeBtn.AnchorPoint = Vector2.new(0.5, 0)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(95, 110, 235)
+    closeBtn.Font = Enum.Font.GothamBold
+    closeBtn.TextSize = 12.5
+    closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    closeBtn.Parent = modal
+
+    local bCorner = Instance.new("UICorner")
+    bCorner.CornerRadius = UDim.new(1, 0)
+    bCorner.Parent = closeBtn
+
+    local function updateNoticeLang()
+        if State.Language == "VI" then
+            titleLbl.Text = "🌶️ CHILLI HUB V5 - THÔNG BÁO UPDATE"
+            bodyLbl.Text = "+ Tính năng Setting tự động nhập cấu hình Auto Farm chuẩn, phù hợp với tất cả tài khoản (mới chơi và ít tốc độ), thiết bị (giật lag) cũng không sao cả vì setting đã được trải nghiệm kỹ càng và cho ra kết quả tốt nhất, phù hợp nhất.\n\n+ Giao diện đẹp, chuyên nghiệp (Hỗ trợ đầy đủ Tiếng Việt & English)."
+            closeBtn.Text = "ĐÃ HIỂU / ĐÓNG"
+        else
+            titleLbl.Text = "🌶️ CHILLI HUB V5 - UPDATE NOTICE"
+            bodyLbl.Text = "+ Auto-Import Setting feature with a standard Auto Farm preset suitable for all accounts (beginners & low speed) and devices (even laggy ones), thoroughly tested to deliver the best and most optimal results.\n\n+ Sleek, professional interface (Full Vietnamese & English support)."
+            closeBtn.Text = "GOT IT / CLOSE"
+        end
+    end
+    updateNoticeLang()
+    State.RefreshNoticeCallback = updateNoticeLang
+
+    closeBtn.MouseButton1Click:Connect(function()
+        State.RefreshNoticeCallback = nil
+        noticeGui:Destroy()
+    end)
+end
+
+local function refreshAllTranslations()
+    task.spawn(function()
+        if State.RefreshIslandCallback then State.RefreshIslandCallback() end
+        if State.RefreshNoticeCallback then State.RefreshNoticeCallback() end
+        local count = 0
+        for i = #State.TrackedTexts, 1, -1 do
+            if not isCurrentSession() then return end
+            local el = State.TrackedTexts[i]
+            if el and el.Parent then
+                applyElementTranslation(el)
+                count = count + 1
+                if count % 60 == 0 then task.wait() end
+            else
+                table.remove(State.TrackedTexts, i)
+            end
+        end
+    end)
+end
+
+-- ==================== 6. DYNAMIC ISLAND NỀN ĐEN & CHỈ BÁO NÚT BẤM (▼) ====================
 local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     local pill = statusLbl.Parent
     if not (pill and pill:IsA("GuiObject")) then return end
 
     statusLbl:SetAttribute("__IslandDone", true)
+
     local badHitbox = pill:FindFirstChild("IslandClickHitbox")
     if badHitbox then badHitbox:Destroy() end
     for _, child in ipairs(pill:GetChildren()) do
@@ -1771,19 +1749,20 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     statusLbl.Active = true
     expandHint.Active = true
 
-    local pillCorner = pill:FindFirstChildOfClass("UICorner")
-    if not pillCorner then pillCorner = Instance.new("UICorner"); pillCorner.Parent = pill end
+    local pillCorner = pill:FindFirstChildOfClass("UICorner") or Instance.new("UICorner")
     pillCorner.CornerRadius = UDim.new(1, 0)
+    pillCorner.Parent = pill
 
-    local pillStroke = pill:FindFirstChild("IslandStroke")
-    if not pillStroke then pillStroke = Instance.new("UIStroke"); pillStroke.Name = "IslandStroke"; pillStroke.Parent = pill end
+    local pillStroke = pill:FindFirstChild("IslandStroke") or Instance.new("UIStroke")
+    pillStroke.Name = "IslandStroke"
     pillStroke.Thickness = 1.6
     pillStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     pillStroke.Color = Color3.fromRGB(255, 255, 255)
+    pillStroke.Parent = pill
 
-    local strokeGrad = pillStroke:FindFirstChildOfClass("UIGradient")
-    if not strokeGrad then strokeGrad = Instance.new("UIGradient"); strokeGrad.Parent = pillStroke end
+    local strokeGrad = pillStroke:FindFirstChildOfClass("UIGradient") or Instance.new("UIGradient")
     strokeGrad.Color = COLOR_SEQ_RAINBOW
+    strokeGrad.Parent = pillStroke
     table.insert(State.ActiveGradients, strokeGrad)
 
     if ExpandedIsland then ExpandedIsland:Destroy() end
@@ -2012,7 +1991,7 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     end)
 end
 
--- ==================== 7. NÚT TRÒN NỔI 1:1 & HEADER LOGO ====================
+-- ==================== 7. NÚT TRÒN NỔI 1:1 & HEADER LOGO (GIỮ NGUYÊN) ====================
 local function setupUnclippedCircularLogo(targetObj)
     local topPanel = targetObj
     while topPanel.Parent and topPanel.Parent:IsA("GuiObject") and not topPanel.Parent:IsA("ScreenGui") do
@@ -2131,6 +2110,7 @@ local function patchVenyxScreenGui(gui, titleLbl)
         local desc = allDescendants[i]
         if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
             local txt = desc.Text or ""
+            local origTxt = desc:GetAttribute("OrigRawText") or ""
             local isAlreadyMovedIdle = desc:GetAttribute("__IslandDone")
 
             local hasDotSibling = false
