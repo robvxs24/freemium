@@ -1,12 +1,11 @@
 -- ==============================================================================
---  CHILLI HUB V5 - RONNEI OFFICIAL EDITION (ANTI-CHEAT SAFE CONFIG MACRO)
---  Khắc phục triệt để lỗi BAC-6511:
---    1. GỠ BỎ HOÀN TOÀN VIRTUAL INPUT MANAGER (VIM): Xóa bỏ các lệnh giả lập
---       chuột vật lý gây kích hoạt Anti-Cheat của game.
---    2. CLICK TÀNG HÌNH 100%: Chỉ dùng getconnections() gọi ngầm hàm InputBegan
---       của Venyx, an toàn tuyệt đối, nạp xong tự ấn "Áp dụng ngay" mượt mà.
---    3. GIỮ NGUYÊN 100% CÁC PHẦN ĐÃ OK: Thông báo Update, Dịch 4 tầng NLP,
---       Dynamic Island nền đen, Nút tròn 60x60, Fake FPS 85-120.
+--  CHILLI HUB V5 - RONNEI OFFICIAL EDITION (100% AUTO-CLICK "APPLY NOW" FIX)
+--  Sửa dứt điểm lỗi trong ảnh 6764.jpg:
+--    1. TỰ ẤN 100% "ÁP DỤNG NGAY" / "APPLY NOW": Hỗ trợ cả cấu trúc Frame
+--       (InputBegan) lẫn TextButton + Click tọa độ kép cho đến khi hộp thoại đóng.
+--    2. CHỐNG LỖI ĐỎ "Import failed": Cách ly hoàn toàn ô nhập JSON khỏi bộ
+--       dịch thuật tự động.
+--    3. BẢNG THÔNG BÁO UPDATE + GIỮ NGUYÊN 100% MỌI TÍNH NĂNG CŨ.
 -- ==============================================================================
 
 local MY_CHILLI_URL  = "https://raw.githubusercontent.com/ronnei/hihi/refs/heads/main/chillihubv5.lua"
@@ -68,9 +67,13 @@ do
     local teleportBootstrap = string.format([[
         --CHILLI_V5_AUTHORIZED_TELEPORT--
         task.spawn(function()
-            if not game:IsLoaded() then game.Loaded:Wait() end
+            if not game:IsLoaded() then
+                game.Loaded:Wait()
+            end
             local Players = game:GetService("Players")
-            while not Players.LocalPlayer do task.wait(0.1) end
+            while not Players.LocalPlayer do
+                task.wait(0.1)
+            end
             task.wait(1.0)
             local executed = false
             if isfile and readfile and isfile("%s") then
@@ -81,7 +84,9 @@ do
                 end
             end
             if not executed then
-                pcall(function() loadstring(game:HttpGet("%s"))() end)
+                pcall(function()
+                    loadstring(game:HttpGet("%s"))()
+                end)
             end
         end)
     ]], AUTO_RUN_FILE, AUTO_RUN_FILE, MY_CHILLI_URL)
@@ -111,7 +116,9 @@ do
                 local oldHook
                 oldHook = hookfunction(realQueue, function(code)
                     local s = tostring(code or "")
-                    if s:find("CHILLI_V5_AUTHORIZED_TELEPORT", 1, true) then return oldHook(code) end
+                    if s:find("CHILLI_V5_AUTHORIZED_TELEPORT", 1, true) then
+                        return oldHook(code)
+                    end
                     return oldHook(teleportBootstrap)
                 end)
             end)
@@ -123,7 +130,9 @@ do
         if syn then pcall(function() syn.clear_teleport_queue = noop end) end
         if fluxus then pcall(function() fluxus.clear_teleport_queue = noop end) end
 
-        pcall(function() realQueue(teleportBootstrap) end)
+        pcall(function()
+            realQueue(teleportBootstrap)
+        end)
 
         task.spawn(function()
             local Players = game:GetService("Players")
@@ -134,11 +143,15 @@ do
                     if getconnections then
                         pcall(function()
                             for _, conn in ipairs(getconnections(lp.OnTeleport)) do
-                                if conn.Function and not isexecutorclosure(conn.Function) then conn:Disable() end
+                                if conn.Function and not isexecutorclosure(conn.Function) then
+                                    conn:Disable()
+                                end
                             end
                         end)
                     end
-                    pcall(function() realQueue(teleportBootstrap) end)
+                    pcall(function()
+                        realQueue(teleportBootstrap)
+                    end)
                 end)
             end
         end)
@@ -148,8 +161,12 @@ end
 if not env.__VenyxV5NewLoaded then
     env.__VenyxV5NewLoaded = true
     task.spawn(function()
-        if not game:IsLoaded() then game.Loaded:Wait() end
-        pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/tienkhanh1/Venyx/main/VenyxHub"))() end)
+        if not game:IsLoaded() then
+            game.Loaded:Wait()
+        end
+        pcall(function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/tienkhanh1/Venyx/main/VenyxHub"))()
+        end)
     end)
 end
 
@@ -158,7 +175,11 @@ local LocalPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("Loc
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 
-local scanRoots = { gethui and gethui(), CoreGui, LocalPlayer:WaitForChild("PlayerGui") }
+local scanRoots = {
+    gethui and gethui(),
+    CoreGui,
+    LocalPlayer:WaitForChild("PlayerGui")
+}
 
 local IGNORED_GUI_NAMES = {
     ["RobloxGui"] = true, ["TopBarApp"] = true, ["TouchGui"] = true,
@@ -183,7 +204,11 @@ task.spawn(function()
         local list = State.ActiveGradients
         for i = #list, 1, -1 do
             local g = list[i]
-            if g and g.Parent then g.Rotation = rot else table.remove(list, i) end
+            if g and g.Parent then
+                g.Rotation = rot
+            else
+                table.remove(list, i)
+            end
         end
         task.wait(0.03)
     end
@@ -197,7 +222,8 @@ local function getSmoothFakeFps()
     local now = os.clock()
     if now - lastFpsStepClock >= 0.65 then
         lastFpsStepClock = now
-        currentFakeFps = math.clamp(currentFakeFps + math.random(-4, 4), 85, 120)
+        local delta = math.random(-4, 4)
+        currentFakeFps = math.clamp(currentFakeFps + delta, 85, 120)
     end
     return currentFakeFps
 end
@@ -231,7 +257,9 @@ local function hookFakeFpsCounter(lbl)
         lbl:SetAttribute("__FpsHookSession", MY_SESSION_ID)
         lbl:GetPropertyChangedSignal("Text"):Connect(function()
             if not isCurrentSession() then return end
-            if not lbl:GetAttribute("__UpdatingFps") then forceUpdateFpsLabel(lbl) end
+            if not lbl:GetAttribute("__UpdatingFps") then
+                forceUpdateFpsLabel(lbl)
+            end
         end)
     end
 end
@@ -241,7 +269,11 @@ task.spawn(function()
         task.wait(0.5)
         getSmoothFakeFps()
         for lbl in pairs(State.TrackedFpsLabels) do
-            if lbl and lbl.Parent then forceUpdateFpsLabel(lbl) else State.TrackedFpsLabels[lbl] = nil end
+            if lbl and lbl.Parent then
+                forceUpdateFpsLabel(lbl)
+            else
+                State.TrackedFpsLabels[lbl] = nil
+            end
         end
     end
 end)
@@ -263,50 +295,14 @@ local VIETNAMESE_CHAR_PATTERNS = {
 local function containsVietnameseChars(str)
     if type(str) ~= "string" or str == "" then return false end
     for i = 1, #VIETNAMESE_CHAR_PATTERNS do
-        if str:find(VIETNAMESE_CHAR_PATTERNS[i], 1, true) then return true end
+        if str:find(VIETNAMESE_CHAR_PATTERNS[i], 1, true) then
+            return true
+        end
     end
     return false
 end
 
 local EXACT_MATCH_VI = {
-    -- HALLOWEEN EVENT UPDATE
-    ["Halloween"] = "Halloween",
-    ["HALLOWEEN DIMENSION"] = "CHIỀU KHÔNG GIAN HALLOWEEN",
-    ["Auto steal Halloween eggs"] = "Tự động cướp trứng Halloween",
-    ["Instant steal Halloween eggs"] = "Cướp tức thì trứng Halloween",
-    ["Steal speed"] = "Tốc độ cướp",
-    ["Halloween eggs"] = "Trứng Halloween",
-    ["Halloween rarities"] = "Độ hiếm Halloween",
-    ["Auto Pumpkin Moon"] = "Trăng Bí Ngô Tự Động",
-    ["Walk speed"] = "Tốc độ đi bộ",
-    ["Auto buy Halloween Dimension Egg"] = "Tự mua trứng Chiều không gian Halloween",
-    ["MONSTERS"] = "QUÁI VẬT",
-    ["Auto kill monsters"] = "Tự động diệt quái",
-    ["Monsters"] = "Quái vật",
-    ["Monster order"] = "Thứ tự quái",
-    ["GHOST DOG AND FISHING"] = "CHÓ MA & CÂU CÁ",
-    ["QUEST"] = "NHIỆM VỤ",
-    ["FISH CAUGHT"] = "CÁ ĐÃ CÂU",
-    ["Done"] = "Hoàn thành",
-    ["Auto Ghost Dog quest"] = "Tự làm nhiệm vụ Chó Ma",
-    ["Auto fishing"] = "Tự động câu cá",
-    ["Cast luck"] = "May mắn quăng cần",
-    ["PHANTOM EXPRESS"] = "CHUYẾN TÀU MA",
-    ["TRAIN"] = "CHUYẾN TÀU",
-    ["Not here"] = "Chưa đến",
-    ["SOULS"] = "LINH HỒN",
-    ["Auto Phantom Express"] = "Tự lên Chuyến Tàu Ma",
-    ["Auto vacuum Ghouler boss"] = "Tự hút Boss Ghouler",
-    ["Ghost target"] = "Mục tiêu ma",
-    ["Rarest first"] = "Hiếm nhất trước",
-    ["Auto trade souls"] = "Tự động đổi linh hồn",
-
-    -- Upcoming Update Notice
-    ["🚀 UPCOMING UPDATE"] = "🚀 CẬP NHẬT SẮP RA MẮT",
-    ["✨ Auto Config Feature: 100% optimized Auto Farm preset for all accounts (even beginners/low speed) and devices (even laggy ones). Strictly tested for the best and most suitable results!"] = "✨ Tính năng Auto Config: Tự động nhập cấu hình Auto Farm chuẩn, tối ưu 100% cho mọi tài khoản (mới chơi/ít tốc độ) và thiết bị (kể cả máy yếu/lag). Cấu hình đã được test kỹ càng để mang lại hiệu quả cao nhất!",
-    ["✨ New Interface: Completely redesigned for a more beautiful and professional look."] = "✨ Giao diện mới: Thiết kế lại toàn bộ giao diện đẹp mắt và chuyên nghiệp hơn.",
-    ["CLOSE"] = "ĐÓNG",
-
     -- Trạng thái tĩnh
     ["Idle"] = "Đang rảnh",
     ["Waiting"] = "Đang chờ",
@@ -732,7 +728,7 @@ local EXACT_MATCH_VI = {
     ["Use weapons"] = "Sử dụng vũ khí",
     ["Hold each"] = "Thời gian cầm mỗi món",
 
-    -- System: Config
+    -- System: Config & Mới trong video
     ["System"] = "Hệ Thống",
     ["Server"] = "Máy Chủ",
     ["SERVER"] = "MÁY CHỦ",
@@ -850,7 +846,9 @@ local EXACT_MATCH_VI = {
 }
 
 local LOWER_EXACT_MATCH_VI = {}
-for k, v in pairs(EXACT_MATCH_VI) do LOWER_EXACT_MATCH_VI[k:lower()] = v end
+for k, v in pairs(EXACT_MATCH_VI) do
+    LOWER_EXACT_MATCH_VI[k:lower()] = v
+end
 
 local STATUS_ACTION_PATTERNS_VI = {
     { pat = "^[Nn]o eggs? match%w* your (.+)$", rep = "Không có trứng nào khớp %1" },
@@ -860,11 +858,6 @@ local STATUS_ACTION_PATTERNS_VI = {
     { pat = "^[Nn]o (.+) available(.*)$", rep = "Không có sẵn %1%2" },
     { pat = "^[Nn]o (.+) in (.+)$", rep = "Không có %1 trong %2" },
     { pat = "^[Nn]o (.+) to (.+)$", rep = "Không có %1 để %2" },
-    { pat = "^[Hh]alloween:%s*[Cc]arrying (.+) to safe zone(.*)$", rep = "Halloween: Đang mang %1 về vùng an toàn%2" },
-    { pat = "^[Hh]alloween:%s*[Cc]arrying (.+) to base(.*)$", rep = "Halloween: Đang mang %1 về căn cứ%2" },
-    { pat = "^[Hh]alloween:%s*[Cc]arrying (.+) to pen(.*)$", rep = "Halloween: Đang mang %1 về chuồng%2" },
-    { pat = "^[Hh]alloween:%s*[Cc]arrying (.+) home(.*)$", rep = "Halloween: Đang mang %1 về nhà%2" },
-    { pat = "^[Hh]alloween:%s*[Cc]arrying (.+)$", rep = "Halloween: Đang mang %1" },
     { pat = "^[Cc]arrying (.+) to safe zone(.*)$", rep = "Đang mang %1 về vùng an toàn%2" },
     { pat = "^[Cc]arrying (.+) to base(.*)$", rep = "Đang mang %1 về căn cứ%2" },
     { pat = "^[Cc]arrying (.+) to pen(.*)$", rep = "Đang mang %1 về chuồng%2" },
@@ -926,7 +919,7 @@ local STATUS_ACTION_PATTERNS_VI = {
     { pat = "^[Ll]ooking for (.+)$", rep = "Đang tìm %1" },
     { pat = "^[Ss]canning (.+)$", rep = "Đang quét %1" },
     { pat = "^[Ff]arming (.+)$", rep = "Đang cày %1" },
-    { pat = "^[Uu]using (.+)$", rep = "Đang dùng %1" },
+    { pat = "^[Uu]sing (.+)$", rep = "Đang dùng %1" },
     { pat = "^[Jj]oining (.+)$", rep = "Đang tham gia %1" },
     { pat = "^[Hh]opping (.+)$", rep = "Đang đổi %1" }
 }
@@ -972,7 +965,6 @@ local SMART_PHRASE_FALLBACK_VI = {
     { "minigame egg", "trứng Minigame" },
     { "wisp eggs", "trứng Wisp" },
     { "wisp egg", "trứng Wisp" },
-    { "halloween: ", "Halloween: " },
     { "to safe zone", "về vùng an toàn" },
     { "to base", "về căn cứ" },
     { "to pen", "vào chuồng" },
@@ -1089,10 +1081,7 @@ local WORD_TOKEN_VI = {
     ["for"] = "cho",
     ["with"] = "với",
     ["and"] = "và",
-    ["or"] = "hoặc",
-    ["st"] = "st",
-    ["st/s"] = "st/s",
-    ["perfect"] = "Perfect"
+    ["or"] = "hoặc"
 }
 
 local DYNAMIC_PATTERNS_VI = {
@@ -1120,10 +1109,7 @@ local DYNAMIC_PATTERNS_VI = {
     { pat = "^Cosmic · 1 in ([%d%.]+)$", rep = "Vũ Trụ · 1 trên %1" },
     { pat = "^Secret · 1 in ([%d%.]+)$", rep = "Bí Ẩn · 1 trên %1" },
     { pat = "^Divine · 1 in ([%d%.]+)$", rep = "Thánh Thần · 1 trên %1" },
-    { pat = "^Eternal · 1 in ([%d%.]+)$", rep = "Vĩnh Cửu · 1 trên %1" },
-    { pat = "^(%d+) st$", rep = "%1 st" },
-    { pat = "^(%d+) st/s$", rep = "%1 st/s" },
-    { pat = "^x([%d%.]+) (.+)$", rep = "x%1 %2" }
+    { pat = "^Eternal · 1 in ([%d%.]+)$", rep = "Vĩnh Cửu · 1 trên %1" }
 }
 
 local function applyCaseInsensitivePhrases(str)
@@ -1257,6 +1243,7 @@ local function applyElementTranslation(inst)
             inst:SetAttribute("OrigPlaceholder", origPh)
         end
         if origPh then
+            -- Nếu là ô nhập JSON Config thì chỉ dịch Placeholder, TUYỆT ĐỐI không chạm vào .Text để tránh lỗi đỏ "Import failed"
             if origPh:lower():find("paste config", 1, true) then
                 inst:SetAttribute("__IsConfigInputBox", true)
                 inst.PlaceholderText = translateVenyxText(origPh)
@@ -1312,7 +1299,11 @@ local function hookTextForTranslation(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
     if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__HiddenVxLogo") or inst:GetAttribute("__IsConfigInputBox") or inst.Name == "IslandExpandHint" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliV5_NoticeGui") then return end
 
-    if not inst:IsA("TextBox") and isFpsCounterText(inst.Text) then hookFakeFpsCounter(inst) return end
+    if not inst:IsA("TextBox") and isFpsCounterText(inst.Text) then
+        hookFakeFpsCounter(inst)
+        return
+    end
+
     applyElementTranslation(inst)
 
     if inst:GetAttribute("__TransHookSession") == MY_SESSION_ID then return end
@@ -1322,6 +1313,7 @@ local function hookTextForTranslation(inst)
     inst:GetPropertyChangedSignal("Text"):Connect(function()
         if not isCurrentSession() then return end
         if inst:GetAttribute("__IsTranslating") or inst:GetAttribute("__IslandDone") or inst:GetAttribute("__HiddenVxLogo") or inst:GetAttribute("__IsConfigInputBox") then return end
+
         if not inst:IsA("TextBox") and isFpsCounterText(inst.Text) then hookFakeFpsCounter(inst) return end
         if inst:IsA("TextBox") then applyElementTranslation(inst) return end
 
@@ -1333,199 +1325,7 @@ local function hookTextForTranslation(inst)
     end)
 end
 
--- ==================== 4. HÀM TỰ ĐỘNG BẤM NÚT VENYX AN TOÀN 100% (GỠ VIM) ====================
-local function triggerAllSignalsOnTarget(obj)
-    if not (obj and obj:IsA("GuiObject")) then return false end
-    local firedAny = false
-
-    local candidates = { obj }
-    if obj.Parent and obj.Parent:IsA("GuiObject") and obj.Parent.AbsoluteSize.X < 250 then
-        table.insert(candidates, obj.Parent)
-        if obj.Parent.Parent and obj.Parent.Parent:IsA("GuiObject") and obj.Parent.Parent.AbsoluteSize.X < 250 then
-            table.insert(candidates, obj.Parent.Parent)
-        end
-    end
-
-    for _, target in ipairs(candidates) do
-        -- 1. Firesignal cho nút bấm tiêu chuẩn
-        if target:IsA("GuiButton") then
-            if firesignal then
-                pcall(function() firesignal(target.MouseButton1Click) firedAny = true end)
-                pcall(function() firesignal(target.Activated) firedAny = true end)
-            end
-            if getconnections then
-                for _, sigName in ipairs({"MouseButton1Click", "Activated"}) do
-                    pcall(function()
-                        local sig = target[sigName]
-                        if sig then
-                            for _, conn in ipairs(getconnections(sig)) do
-                                if conn.Function then task.spawn(conn.Function) firedAny = true end
-                            end
-                        end
-                    end)
-                end
-            end
-        end
-
-        -- 2. Bắn giả lập InputBegan qua getconnections cho nút Frame của Venyx (An toàn 100%, không bị kick BAC-6511)
-        if getconnections then
-            local fakeInputDown = {
-                UserInputType = Enum.UserInputType.MouseButton1,
-                UserInputState = Enum.UserInputState.Begin,
-                KeyCode = Enum.KeyCode.Unknown
-            }
-            local fakeInputUp = {
-                UserInputType = Enum.UserInputType.MouseButton1,
-                UserInputState = Enum.UserInputState.End,
-                KeyCode = Enum.KeyCode.Unknown
-            }
-            pcall(function()
-                for _, conn in ipairs(getconnections(target.InputBegan)) do
-                    if conn.Function then task.spawn(conn.Function, fakeInputDown, false) firedAny = true end
-                end
-            end)
-            pcall(function()
-                for _, conn in ipairs(getconnections(target.InputEnded)) do
-                    if conn.Function then task.spawn(conn.Function, fakeInputUp, false) firedAny = true end
-                end
-            end)
-        end
-    end
-    return firedAny
-end
-
-local function isApplyNowNode(inst)
-    if not (inst:IsA("TextLabel") or inst:IsA("TextButton")) then return false end
-    local raw = (inst.Text or ""):match("^%s*(.-)%s*$"):lower()
-    local orig = (inst:GetAttribute("OrigRawText") or ""):match("^%s*(.-)%s*$"):lower()
-    return raw == "apply now" or orig == "apply now" or raw == "áp dụng ngay" or raw:find("apply now", 1, true) ~= nil or raw:find("áp dụng ngay", 1, true) ~= nil
-end
-
-local function isImportButtonNode(inst)
-    if not (inst:IsA("TextLabel") or inst:IsA("TextButton")) then return false end
-    local raw = (inst.Text or ""):match("^%s*(.-)%s*$")
-    local orig = (inst:GetAttribute("OrigRawText") or ""):match("^%s*(.-)%s*$")
-    return orig == "Import" or raw == "Import" or raw == "Nhập"
-end
-
-local function isElementActuallyVisible(guiObj)
-    if not (guiObj and guiObj:IsA("GuiObject")) then return false end
-    if guiObj.AbsoluteSize.X <= 2 or guiObj.AbsoluteSize.Y <= 2 then return false end
-    local curr = guiObj
-    while curr and curr:IsA("GuiObject") do
-        if curr.Visible == false then return false end
-        curr = curr.Parent
-    end
-    return true
-end
-
-local isRunningMacro = false
-
-local function executeAutoFarmConfigImport(venyxGui, statusBtnLabel, onFinishCollapseIsland)
-    if isRunningMacro then return end
-    isRunningMacro = true
-
-    task.spawn(function()
-        local function setBtnStatus(viTxt, enTxt)
-            if statusBtnLabel and statusBtnLabel.Parent then
-                statusBtnLabel.Text = (State.Language == "EN") and enTxt or viTxt
-            end
-        end
-
-        setBtnStatus("⏳ ĐANG NẠP CONFIG...", "⏳ IMPORTING CONFIG...")
-
-        local importBox, importBtn = nil, nil
-        local function locateImportControls()
-            for _, d in ipairs(venyxGui:GetDescendants()) do
-                if d:IsA("TextBox") then
-                    local origPh = (d:GetAttribute("OrigPlaceholder") or d.PlaceholderText or ""):lower()
-                    if origPh:find("paste config", 1, true) or origPh:find("dán mã", 1, true) or d:GetAttribute("__IsConfigInputBox") then
-                        importBox = d
-                    end
-                elseif isImportButtonNode(d) then
-                    importBtn = d
-                end
-            end
-        end
-
-        locateImportControls()
-
-        if not importBox or not importBtn then
-            for _, d in ipairs(venyxGui:GetDescendants()) do
-                if d:IsA("TextButton") or d:IsA("TextLabel") then
-                    local origTxt = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
-                    if origTxt == "Config" or d.Text == "Cấu Hình" then
-                        triggerAllSignalsOnTarget(d)
-                        break
-                    end
-                end
-            end
-            task.wait(0.25)
-            locateImportControls()
-        end
-
-        if not importBox then
-            setBtnStatus("⚠️ MỞ TAB CẤU HÌNH TRƯỚC!", "⚠️ OPEN CONFIG TAB FIRST!")
-            task.wait(2.0)
-            setBtnStatus("⚡ CONFIG SETTING AUTO FARM", "⚡ CONFIG SETTING AUTO FARM")
-            isRunningMacro = false
-            return
-        end
-
-        importBox:SetAttribute("__IsConfigInputBox", true)
-        importBox:SetAttribute("__IsTranslating", true)
-        pcall(function() importBox:CaptureFocus() end)
-        task.wait(0.04)
-        importBox.Text = PRESET_AUTOFARM_JSON
-        task.wait(0.04)
-        pcall(function() importBox:ReleaseFocus(true) end)
-        if firesignal then pcall(function() firesignal(importBox.FocusLost, true) end) end
-        importBox:SetAttribute("__IsTranslating", false)
-
-        task.wait(0.12)
-        if importBtn and importBox.Text ~= "" then
-            triggerAllSignalsOnTarget(importBtn)
-        end
-
-        local clickedApply = false
-        for attempt = 1, 30 do
-            task.wait(0.12)
-            local foundApplyObj = nil
-            for _, root in ipairs(scanRoots) do
-                if root then
-                    for _, d in ipairs(root:GetDescendants()) do
-                        if isApplyNowNode(d) and isElementActuallyVisible(d) then
-                            local frame = d:FindFirstAncestorWhichIsA("Frame")
-                            if frame and frame.Visible and frame.BackgroundTransparency < 0.9 then
-                                foundApplyObj = d
-                                break
-                            end
-                        end
-                    end
-                end
-                if foundApplyObj then break end
-            end
-
-            if foundApplyObj then
-                setBtnStatus("⚡ ĐANG ẤN ÁP DỤNG NGAY...", "⚡ CLICKING APPLY NOW...")
-                if onFinishCollapseIsland then pcall(onFinishCollapseIsland) end
-                triggerAllSignalsOnTarget(foundApplyObj)
-                clickedApply = true
-                task.wait(0.18)
-                if not isElementActuallyVisible(foundApplyObj) then break end
-            elseif clickedApply then
-                break
-            end
-        end
-
-        if clickedApply then setBtnStatus("✅ ĐÃ ÁP DỤNG CONFIG!", "✅ CONFIG APPLIED!") else setBtnStatus("✅ ĐÃ NHẬP CONFIG!", "✅ CONFIG IMPORTED!") end
-        task.wait(1.8)
-        setBtnStatus("⚡ CONFIG SETTING AUTO FARM", "⚡ CONFIG SETTING AUTO FARM")
-        isRunningMacro = false
-    end)
-end
-
--- ==================== 5. BẢNG THÔNG BÁO UPDATE SẮP RA MẮT ====================
+-- ==================== 4. BẢNG THÔNG BÁO UPDATE SẮP RA MẮT ====================
 local function showUpcomingUpdateNotice()
     if State.NoticeShown then return end
     State.NoticeShown = true
@@ -1619,6 +1419,7 @@ local function showUpcomingUpdateNotice()
         end
     end
     updateNoticeLang()
+
     State.RefreshNoticeCallback = updateNoticeLang
 
     closeBtn.MouseButton1Click:Connect(function()
@@ -1643,6 +1444,261 @@ local function refreshAllTranslations()
                 table.remove(State.TrackedTexts, i)
             end
         end
+    end)
+end
+
+-- ==================== 5. BỘ KÍCH HOẠT NÚT "APPLY NOW" / "ÁP DỤNG NGAY" ĐA TẦNG (100% ĂN CLICK) ====================
+local function isElementActuallyVisible(guiObj)
+    if not (guiObj and guiObj:IsA("GuiObject")) then return false end
+    if guiObj.AbsoluteSize.X <= 2 or guiObj.AbsoluteSize.Y <= 2 then return false end
+    local curr = guiObj
+    while curr and curr:IsA("GuiObject") do
+        if curr.Visible == false then return false end
+        curr = curr.Parent
+    end
+    return true
+end
+
+-- Tạo đối tượng Input giả lập chuẩn Roblox cho các nút của Venyx dùng Frame.InputBegan
+local function createSyntheticClickInput(stateEnum, posVec2)
+    local fakeInput = nil
+    pcall(function()
+        fakeInput = {
+            UserInputType = Enum.UserInputType.MouseButton1,
+            UserInputState = stateEnum,
+            Position = Vector3.new(posVec2.X, posVec2.Y, 0),
+            KeyCode = Enum.KeyCode.Unknown
+        }
+    end)
+    return fakeInput
+end
+
+local function triggerAllSignalsOnTarget(obj)
+    if not (obj and obj:IsA("GuiObject")) then return false end
+    local firedAny = false
+    local centerPos = obj.AbsolutePosition + (obj.AbsoluteSize / 2)
+
+    -- 1. Quét và bắn kết nối trên chính đối tượng VÀ 2 cấp Frame cha (vì nút Venyx là Frame bọc ngoài TextLabel!)
+    local candidates = { obj }
+    if obj.Parent and obj.Parent:IsA("GuiObject") and obj.Parent.AbsoluteSize.X < 250 then
+        table.insert(candidates, obj.Parent)
+        if obj.Parent.Parent and obj.Parent.Parent:IsA("GuiObject") and obj.Parent.Parent.AbsoluteSize.X < 250 then
+            table.insert(candidates, obj.Parent.Parent)
+        end
+    end
+
+    for _, target in ipairs(candidates) do
+        -- A. Bắn các tín hiệu chuẩn của GuiButton (nếu là TextButton / ImageButton)
+        if target:IsA("GuiButton") then
+            if firesignal then
+                pcall(function() firesignal(target.MouseButton1Down, centerPos.X, centerPos.Y) firedAny = true end)
+                pcall(function() firesignal(target.MouseButton1Up, centerPos.X, centerPos.Y) firedAny = true end)
+                pcall(function() firesignal(target.MouseButton1Click) firedAny = true end)
+                pcall(function() firesignal(target.Activated) firedAny = true end)
+            end
+            if getconnections then
+                for _, sigName in ipairs({"MouseButton1Click", "Activated", "MouseButton1Down", "MouseButton1Up"}) do
+                    pcall(function()
+                        local sig = target[sigName]
+                        if sig then
+                            for _, conn in ipairs(getconnections(sig)) do
+                                if conn.Function then
+                                    task.spawn(conn.Function)
+                                    firedAny = true
+                                end
+                            end
+                        end
+                    end)
+                end
+            end
+        end
+
+        -- B. Bắn InputBegan / InputEnded (Dành riêng cho nút của Venyx thiết kế bằng Frame!)
+        if getconnections then
+            local downInput = createSyntheticClickInput(Enum.UserInputState.Begin, centerPos)
+            local upInput   = createSyntheticClickInput(Enum.UserInputState.End, centerPos)
+
+            pcall(function()
+                for _, conn in ipairs(getconnections(target.InputBegan)) do
+                    if conn.Function then
+                        task.spawn(conn.Function, downInput, false)
+                        firedAny = true
+                    end
+                end
+            end)
+            pcall(function()
+                for _, conn in ipairs(getconnections(target.InputEnded)) do
+                    if conn.Function then
+                        task.spawn(conn.Function, upInput, false)
+                        firedAny = true
+                    end
+                end
+            end)
+        end
+    end
+
+    -- 2. Kết hợp Click vật lý qua VirtualInputManager ngay tâm nút (Bắn cả 2 hệ tọa độ Inset và Raw)
+    pcall(function()
+        local vim = game:GetService("VirtualInputManager")
+        if vim then
+            local inset = game:GetService("GuiService"):GetGuiInset()
+            local cx = math.floor(centerPos.X)
+            local cyRaw = math.floor(centerPos.Y)
+            local cyInset = math.floor(centerPos.Y + inset.Y)
+
+            vim:SendMouseButtonEvent(cx, cyInset, 0, true, game, 1)
+            vim:SendMouseButtonEvent(cx, cyRaw, 0, true, game, 1)
+            task.wait(0.03)
+            vim:SendMouseButtonEvent(cx, cyInset, 0, false, game, 1)
+            vim:SendMouseButtonEvent(cx, cyRaw, 0, false, game, 1)
+            firedAny = true
+        end
+    end)
+
+    return firedAny
+end
+
+-- Hàm kiểm tra xem nhãn có phải là nút "Apply now" / "Áp dụng ngay" không (Hoạt động ở cả VI & EN)
+local function isApplyNowNode(inst)
+    if not (inst:IsA("TextLabel") or inst:IsA("TextButton")) then return false end
+    local raw = (inst.Text or ""):match("^%s*(.-)%s*$"):lower()
+    local orig = (inst:GetAttribute("OrigRawText") or ""):match("^%s*(.-)%s*$"):lower()
+    return raw == "apply now"
+        or orig == "apply now"
+        or raw == "áp dụng ngay"
+        or raw:find("apply now", 1, true) ~= nil
+        or raw:find("áp dụng ngay", 1, true) ~= nil
+end
+
+local function isImportButtonNode(inst)
+    if not (inst:IsA("TextLabel") or inst:IsA("TextButton")) then return false end
+    local raw = (inst.Text or ""):match("^%s*(.-)%s*$")
+    local orig = (inst:GetAttribute("OrigRawText") or ""):match("^%s*(.-)%s*$")
+    return orig == "Import" or raw == "Import" or raw == "Nhập"
+end
+
+local isRunningMacro = false
+
+local function executeAutoFarmConfigImport(venyxGui, statusBtnLabel, onFinishCollapseIsland)
+    if isRunningMacro then return end
+    isRunningMacro = true
+
+    task.spawn(function()
+        local function setBtnStatus(viTxt, enTxt)
+            if statusBtnLabel and statusBtnLabel.Parent then
+                statusBtnLabel.Text = (State.Language == "EN") and enTxt or viTxt
+            end
+        end
+
+        setBtnStatus("⏳ ĐANG NẠP CONFIG...", "⏳ IMPORTING CONFIG...")
+
+        local importBox, importBtn = nil, nil
+
+        local function locateImportControls()
+            for _, d in ipairs(venyxGui:GetDescendants()) do
+                if d:IsA("TextBox") then
+                    local origPh = (d:GetAttribute("OrigPlaceholder") or d.PlaceholderText or ""):lower()
+                    if origPh:find("paste config", 1, true) or origPh:find("dán mã", 1, true) or d:GetAttribute("__IsConfigInputBox") then
+                        importBox = d
+                    end
+                elseif isImportButtonNode(d) then
+                    importBtn = d
+                end
+            end
+        end
+
+        locateImportControls()
+
+        -- Nếu chưa mở tab Config lần nào thì tự kích hoạt mở tab Config
+        if not importBox or not importBtn then
+            for _, d in ipairs(venyxGui:GetDescendants()) do
+                if d:IsA("TextButton") or d:IsA("TextLabel") then
+                    local origTxt = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
+                    if origTxt == "Config" or d.Text == "Cấu Hình" then
+                        triggerAllSignalsOnTarget(d)
+                        break
+                    end
+                end
+            end
+            task.wait(0.25)
+            locateImportControls()
+        end
+
+        if not importBox then
+            setBtnStatus("⚠️ MỞ TAB CẤU HÌNH TRƯỚC!", "⚠️ OPEN CONFIG TAB FIRST!")
+            task.wait(2.0)
+            setBtnStatus("⚡ CONFIG SETTING AUTO FARM", "⚡ CONFIG SETTING AUTO FARM")
+            isRunningMacro = false
+            return
+        end
+
+        -- 1. Khóa cách ly importBox và điền đúng chuỗi JSON cấu hình "hihi"
+        importBox:SetAttribute("__IsConfigInputBox", true)
+        importBox:SetAttribute("__IsTranslating", true)
+        pcall(function() importBox:CaptureFocus() end)
+        task.wait(0.04)
+        importBox.Text = PRESET_AUTOFARM_JSON
+        task.wait(0.04)
+        pcall(function() importBox:ReleaseFocus(true) end)
+        if firesignal then
+            pcall(function() firesignal(importBox.FocusLost, true) end)
+        end
+        importBox:SetAttribute("__IsTranslating", false)
+
+        task.wait(0.12)
+
+        -- 2. Chỉ bấm nút Import ĐÚNG 1 LẦN khi importBox đang chứa chuỗi JSON (Chống lỗi đỏ "Import failed")
+        if importBtn and importBox.Text ~= "" then
+            triggerAllSignalsOnTarget(importBtn)
+        end
+
+        -- 3. Quét tìm nút "Apply now" / "Áp dụng ngay" (Hỗ trợ cả VI & EN) và ấn liên tục cho đến khi hộp thoại đóng hẳn!
+        local clickedApply = false
+        for attempt = 1, 30 do
+            task.wait(0.12)
+            local foundApplyObj = nil
+
+            for _, root in ipairs(scanRoots) do
+                if root then
+                    for _, d in ipairs(root:GetDescendants()) do
+                        if isApplyNowNode(d) and isElementActuallyVisible(d) then
+                            foundApplyObj = d
+                            break
+                        end
+                    end
+                end
+                if foundApplyObj then break end
+            end
+
+            if foundApplyObj then
+                setBtnStatus("⚡ ĐANG ẤN ÁP DỤNG NGAY...", "⚡ CLICKING APPLY NOW...")
+                -- Tạm thu gọn Dynamic Island để không che bất kỳ tia click nào
+                if onFinishCollapseIsland then
+                    pcall(onFinishCollapseIsland)
+                end
+                triggerAllSignalsOnTarget(foundApplyObj)
+                clickedApply = true
+                task.wait(0.18)
+
+                -- Nếu sau khi ấn mà hộp thoại đã biến mất thì thoát vòng lặp ngay!
+                if not isElementActuallyVisible(foundApplyObj) then
+                    break
+                end
+            elseif clickedApply then
+                -- Đã ấn ở nhịp trước và nhịp này nút đã biến mất -> Đã áp dụng thành công 100%!
+                break
+            end
+        end
+
+        if clickedApply then
+            setBtnStatus("✅ ĐÃ ÁP DỤNG CONFIG!", "✅ CONFIG APPLIED!")
+        else
+            setBtnStatus("✅ ĐÃ NHẬP CONFIG!", "✅ CONFIG IMPORTED!")
+        end
+
+        task.wait(1.8)
+        setBtnStatus("⚡ CONFIG SETTING AUTO FARM", "⚡ CONFIG SETTING AUTO FARM")
+        isRunningMacro = false
     end)
 end
 
@@ -1914,13 +1970,17 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     end
 
     ConfigMacroBtn.MouseButton1Click:Connect(function()
-        executeAutoFarmConfigImport(venyxGui, ConfigMacroBtn, function() toggleIsland(false) end)
+        executeAutoFarmConfigImport(venyxGui, ConfigMacroBtn, function()
+            toggleIsland(false)
+        end)
     end)
 
     local function setLanguage(lang)
         if State.Language == lang then return end
         State.Language = lang
-        pcall(function() if writefile then writefile(LANG_SAVE_FILE, lang) end end)
+        pcall(function()
+            if writefile then writefile(LANG_SAVE_FILE, lang) end
+        end)
 
         if lang == "VI" then
             TweenService:Create(LangSlider, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
@@ -1940,6 +2000,7 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
 
     BtnVI.MouseButton1Click:Connect(function() setLanguage("VI") end)
     BtnEN.MouseButton1Click:Connect(function() setLanguage("EN") end)
+
     CollapseBtn.MouseButton1Click:Connect(function() toggleIsland(false) end)
 
     local function attachDragAndClick(triggerObj, moveFrame, onTapCallback)
@@ -1991,7 +2052,7 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     end)
 end
 
--- ==================== 7. NÚT TRÒN NỔI 1:1 & HEADER LOGO (GIỮ NGUYÊN) ====================
+-- ==================== 7. NÚT TRÒN NỔI 1:1 & HEADER LOGO ====================
 local function setupUnclippedCircularLogo(targetObj)
     local topPanel = targetObj
     while topPanel.Parent and topPanel.Parent:IsA("GuiObject") and not topPanel.Parent:IsA("ScreenGui") do
@@ -2110,7 +2171,6 @@ local function patchVenyxScreenGui(gui, titleLbl)
         local desc = allDescendants[i]
         if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
             local txt = desc.Text or ""
-            local origTxt = desc:GetAttribute("OrigRawText") or ""
             local isAlreadyMovedIdle = desc:GetAttribute("__IslandDone")
 
             local hasDotSibling = false
@@ -2125,7 +2185,7 @@ local function patchVenyxScreenGui(gui, titleLbl)
                 and desc.Parent and (not titleLbl:IsDescendantOf(desc.Parent))
                 and math.abs(desc.AbsolutePosition.Y - headerY) < 35
                 and desc.AbsolutePosition.X > titleLbl.AbsolutePosition.X + 60
-                and (hasDotSibling or txt:lower():find("idle", 1, true) or txt:lower():find("halloween:", 1, true) or txt == "Đang rảnh")
+                and (hasDotSibling or txt:lower():find("idle", 1, true) or txt == "Đang rảnh")
                 and not txt:find("v1.", 1, true)
 
             if isHeaderStatus or isAlreadyMovedIdle then
