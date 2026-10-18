@@ -13,7 +13,6 @@ local MY_CHILLI_URL  = "https://raw.githubusercontent.com/ronnei/hihi/refs/heads
 local AUTO_RUN_FILE  = "ChilliHubV5_AutoRun.lua"
 local LANG_SAVE_FILE = "ChilliV5_Lang.txt"
 
-local CHILLI_CORE_PAYLOAD = [===[
 local NEW_TITLE = "Chilli Hub V5"
 local CHILLI_LOGO_ID = "rbxassetid://92622270383869"
 local LOGO_BG_COLOR = Color3.fromRGB(5, 7, 15)
