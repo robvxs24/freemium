@@ -1,4 +1,4 @@
--- Chilli Hub V5 | Ultra-Compact Zero-Lag Build | 100% Features & Dictionary Preserved
+-- Chilli Hub V5 | Zero-Lag Compact Edition | Manual Apply Mode (No Auto-Apply)
 local NEW_TITLE, LOGO_ID = "Chilli Hub V5", "rbxassetid://92622270383869"
 local LOGO_BG, BLACK_BG = Color3.fromRGB(5, 7, 15), Color3.fromRGB(0, 0, 0)
 local MY_URL = "https://raw.githubusercontent.com/ronnei/hihi/refs/heads/main/chillihubv5.lua"
@@ -6,10 +6,12 @@ local AUTO_FILE, LANG_FILE = "ChilliHubV5_AutoRun.lua", "ChilliV5_Lang.txt"
 
 local PRESET_JSON = [=[{"venyx":1,"name":"hihi 2","data":{"System / Interface/Quick bars/Show quick bars":true,"Farm / Sell/Favorite/Auto favorite":false,"System / Interface/Quick bars/Quick bar layout":"{\"pins\":{\"Event / Butterfly/Butterfly bloom/Auto butterfly bloom\":2,\"Player / Combat/Hit aura/Hit aura\":1,\"Player / Combat/Auto hit/Chase speed\":1,\"Steal / Auto Steal/Auto hop server/Auto hop\":1,\"Player / Move/Movement/Boost speed\":1,\"Player / Combat/Auto hit/Auto hit\":1,\"Steal / Auto Steal/Auto steal/Auto steal\":1,\"Event / Race/Racing Event/Auto race\":2,\"Farm / Treadmill/Treadmill/Auto treadmill\":1,\"Player / Move/Movement/Speed boost\":1},\"keys\":[],\"at\":{\"1\":[766.9053955078125,21.74544906616211],\"2\":[624.3492431640625,21.080074310302736]},\"fold\":{\"1\":true,\"2\":true}}","System / Optimizer/Graphics/Disable 3D Render":false,"Farm / Pen/Auto place/Place first":"Best value","Steal / Auto Steal/Filter/Only below /s":0,"Farm / Pen/Auto hatch/Equip best pets":false,"Event / AA/Capture the egg/Auto capture event egg":true,"Farm / Mutate/Mutate filter/Only these eggs":[],"Farm / Treadmill/Treadmill/Auto upgrade treadmill":false,"Steal / Auto Steal/Auto steal/Drop eggs at safe zone":false,"Steal / Auto Steal/Auto hop server/Auto hop":false,"System / Interface/Interface/Dim the game":0,"Player / Combat/Hit aura/Skip friends":true,"Player / ESP/Others/Pen egg ESP":true,"System / Optimizer/Frame rate/FPS position":"0.5000,-550,0.0000,49","Event / Butterfly/Butterfly bloom/Auto butterfly bloom":true,"Farm / Pen/Auto hatch/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Steal / Auto Steal/Filter/Min value /s":2000000000,"Player / Combat/Hit aura/Hit aura":true,"Event / Star/Shooting Star/Auto catch shooting star":true,"Steal / Egg Predictor/Egg showcase/Calculate mutations":[],"Steal / Egg Predictor/Egg showcase/Sort eggs":"Value","Event / Halloween/Ghost Dog and fishing/Auto fishing":true,"System / Optimizer/Bases/Hide other players' pets and eggs":true,"Player / Combat/Auto hit/Auto hit":false,"Event / Halloween/Ghost Dog and fishing/Auto Ghost Dog quest":false,"Event / Butterfly/Butterfly bloom/Catch mode":"Chase","Event / Butterfly/Butterfly machine/Trade":[],"Event / Halloween/Halloween Dimension/Halloween eggs":["Bone Emperor","Voidseer Pumpkin","Zombified Bone Emperor","Ghost Reaper","Gorillastein","Phantom Dragon","Shelltide Voyager","Zombified Grave Cerberus","Zombified Phantom Dragon","BloodBloom","Grave Cerberus","Graveyard Brute","Werewolf","Zombified Night Fang","Zombified Pumpkin Fiend","Zombified Tombstone Bear"],"Farm / Pen/Auto place/Auto place":false,"Steal / Auto Steal/Filter/Rarities":["Divine","Eternal","Secret"],"System / Webhook/What to post/Post fused eggs":false,"Event / Halloween/Halloween Dimension/Auto Pumpkin Moon":true,"Farm / Sell/Pets/Sell rarities":["Rare","Uncommon","Common"],"Player / Move/Protection/Ignore traps":true,"Farm / Fuse/Fuse filter/Rarities":["Mythic","Legendary","Epic","Rare","Uncommon","Common"],"System / Webhook/Discord webhook/Ping role ID":"","Player / ESP/Others/Hide sleeping guards":true,"Event / Halloween/Halloween Dimension/Min value /s":1000000000,"System / Optimizer/Frame rate/Show FPS and ping":true,"Farm / Treadmill/Progress/Auto claim index rewards":false,"System / Interface/Quick bars/Keybinds":true,"Steal / Auto Steal/Auto steal/Instant steps":2,"Farm / Fuse/Fuse filter/Never fuse":[],"Farm / Pen/Auto hatch/Mutations":[],"System / Optimizer/Bases/Hide my pets and eggs":true,"Event / Halloween/Monsters/Monster order":"Most tokens","Steal / Auto Steal/Filter/Zones":["Enchanted Forest","Light Dark","Titan Temple","Cherry Blossom"],"Event / Butterfly/Butterfly machine/Auto craft essence":true,"Farm / Mutate/Auto mutate/Auto mutate":false,"Player / ESP/Others/Other pens ESP":true,"Player / ESP/Field eggs/Egg ESP":false,"Farm / Pen/Keep eggs/Min value /s":0,"Steal / Auto Steal/Auto steal/Delivery method":"Instant steps","Farm / Treadmill/Progress/Auto buy trails":false,"Farm / Sell/Eggs/Sell rarities":["Rare","Uncommon","Common"],"System / Interface/Interface/Tone":100,"Event / AA/Admin abuse/Admin treadmill":false,"System / Webhook/What to post/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Farm / Pen/Auto place/Place when":"Always","Event / Halloween/Monsters/Monsters":["Candy Corn","Hollow Bat","Scarecrow","Chest Mimic","Pumpkin Golem","Soul Phantom"],"Event / Butterfly/Wisp companion/Auto banjo cricket":false,"Event / Halloween/Halloween Dimension/Auto buy Halloween Dimension Egg":false,"Event / Halloween/Halloween Dimension/Walk speed":1000,"Steal / Auto Steal/Auto steal/Delivery speed":4500,"Farm / Mutate/Auto mutate/Use items":["Fractured","Scrambled","Enchanted","Nitro","Spectral"],"Farm / Fuse/Fuse machine/Fuse first":"Lowest rarity","Steal / Auto Steal/Auto hop server/Rare from":"Cosmic","Player / Move/Movement/Boost speed":720,"System / Interface/Interface/Opacity":50,"Player / ESP/Others/Guard ESP":true,"Farm / Sell/Favorite/Always favorite":[],"Event / Halloween/Halloween Dimension/Steal speed":100,"Farm / Sell/Eggs/Auto sell eggs":false,"System / Webhook/What to post/Post stolen eggs":false,"Player / ESP/Others/ESP size":60,"Steal / Auto Steal/Filter/Steal first":"Best value","Farm / Sell/Pets/Only below /s":0,"Player / Move/Protection/Anti ragdoll":true,"Player / ESP/Field eggs/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic"],"Player / Move/Protection/Invisible":false,"Steal / Auto Steal/Auto hop server/Hop when":"After stealing a match","Event / AA/Cursed Island Wars/Auto play Cursed Island Wars":true,"Event / Butterfly/Butterfly bloom/Catch":["Radiant","Amethyst","Sapphire","Emerald"],"Farm / Treadmill/Treadmill/Auto treadmill":false,"System / Interface/Game HUD/Steal panel button on game HUD":true,"System / Server/Server/Hop to":"Least players","Farm / Mutate/Mutate filter/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Player / Move/Protection/Instant prompts":true,"System / Server/Join and stay/Rejoin on kick":true,"Farm / Sell/Favorite/Favorite equipped":false,"Event / Halloween/Phantom Express/Auto Phantom Express":true,"System / Optimizer/Frame rate/FPS cap":360,"Steal / Auto Steal/Auto steal/Steal missing index eggs":false,"Steal / Auto Steal/Filter/Only these eggs":["ArchAngel","Kitsune","Nightflame","Royal Skywhale","Unicorn","World Burner","Celestial Sunlion","Gorilla King","Pegasus","Skeleton Horse","Strawberry Elephant","67","Amethyst Runebear","Starry Fox"],"Farm / Sell/Favorite/Min value /s":0,"System / Server/Join and stay/Auto load script":true,"Farm / Mutate/Mutate filter/Skip eggs with":[],"System / Optimizer/Graphics/Low graphics":true,"Event / Halloween/Monsters/Walk speed":1000,"Event / AA/Minigame eggs/Auto steal minigame egg":true,"Farm / Pen/Auto place/Only these eggs":[],"Player / Combat/Auto hit/Hit who":"Nearest player","Farm / Sell/Eggs/Never sell":[],"Farm / Pen/Keep eggs/Eggs to keep":[],"Farm / Fuse/Fuse filter/Only below /s":0,"Event / Halloween/Monsters/Use weapons":["Enchanted Hammer","Racing Bat","Cricket's Banjo","Flyswatter"],"Farm / Fuse/Fuse machine/Skip mutated":true,"Farm / Sell/Pets/Never sell":[],"Farm / Sell/Favorite/Match":"All picked rules","Event / Halloween/Ghost Dog and fishing/Cast luck":"x1.5 Perfect","System / Optimizer/Graphics/Background color":"Black","Player / Move/Movement/God mode":true,"Farm / Pen/Auto place/Mutations":[],"Steal / Auto Steal/Auto steal/Anti guard":true,"Farm / Sell/Favorite/Unfavorite pets not matching":false,"System / Webhook/What to post/Min value /s":0,"Farm / Pen/Auto hatch/Auto hatch":false,"Farm / Sell/Pets/Only mutations":[],"Farm / Fuse/Fuse machine/Eject odd pets":true,"Event / Butterfly/Butterfly machine/Auto trade up":false,"Event / AA/Admin abuse/Instant steal":false,"System / Webhook/What to post/Post when bag is full":false,"Farm / Fuse/Fuse machine/Auto fuse":false,"Farm / Pen/Auto hatch/Only these eggs":[],"Event / Butterfly/Butterfly machine/Smart trade for essence":true,"Event / Halloween/Halloween Dimension/Auto steal Halloween eggs":true,"System / Interface/Quick bars/Bar size":85,"Player / Combat/Weapons/Use weapons":[],"Player / ESP/Others/Player ESP":true,"System / Webhook/Discord webhook/Ping everyone":false,"Farm / Fuse/Fuse machine/Use pets":"Lowest value first","Event / Halloween/Monsters/Auto farm monsters":true,"Farm / Mutate/Auto mutate/Mutate first":"Best value","Player / ESP/Field eggs/Min value /s":0,"Event / AA/Cursed Island Wars/Island Wars target":"Enemies and base","Player / Move/Movement/Infinite jump":true,"Farm / Pen/Auto place/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Player / ESP/Field eggs/Mutations":[],"Event / Halloween/Phantom Express/Auto vacuum Ghouler boss":true,"Farm / Treadmill/Progress/Auto upgrade base":false,"Steal / Auto Steal/Auto steal/Auto steal":true,"Player / Combat/Auto hit/Chase speed":1000,"Player / ESP/Field eggs/Fixed size":false,"Event / Halloween/Halloween Dimension/Instant steal Halloween eggs":true,"Event / Halloween/Phantom Express/Walk speed":1000,"Event / Halloween/Phantom Express/Ghost target":"Rarest first","Farm / Sell/Eggs/Only below /s":0,"Farm / Sell/Favorite/Rarities":[],"Steal / Auto Steal/Auto hop server/First hop after":5,"Steal / Auto Steal/Auto steal/Tween speed":110,"Farm / Sell/Pets/Auto sell pets":false,"Event / Halloween/Phantom Express/Auto trade souls":true,"Farm / Sell/Pets/Keep mutated":true,"Steal / Auto Steal/Filter/Sell cheapest egg when bag is full":false,"Player / ESP/Field eggs/Show":[],"Steal / Auto Steal/Auto steal/Go to egg":"Teleport to egg","Player / Combat/Weapons/Hold each":0.2,"Event / AA/Capture the egg/Hold height":120,"Steal / Auto Steal/Filter/Mutations":[],"Event / AA/Capture the egg/Keep away":150,"Farm / Mutate/Mutate filter/Min value /s":0,"Steal / Auto Steal/Auto steal/Teleport zones":["Enchanted Forest","Light Dark","Titan Temple","Cherry Blossom"],"Farm / Pen/Auto hatch/Min value /s":0,"Player / Move/Movement/Speed boost":false,"System / Interface/Interface/UI scale":90,"Farm / Fuse/Fuse filter/Only these pets":[],"Steal / Egg Predictor/Egg showcase/Preview card":false,"Event / Butterfly/Butterfly bloom/Catch speed":600,"Player / Move/Protection/Anti AFK":true,"Event / Halloween/Halloween Dimension/Halloween rarities":[],"System / Interface/Interface/Show / hide UI":{"k":"LeftControl"},"Steal / Auto Steal/Auto steal/Steal from other players":true,"Farm / Pen/Auto place/Min value /s":0,"Event / Butterfly/Butterfly bloom/Catch priority":"Rarest","System / Webhook/Discord webhook/Ping user ID":"","Farm / Sell/Eggs/Only mutations":[],"Farm / Treadmill/Progress/Auto claim offline cash":false,"Farm / Sell/Favorite/Mutations":[],"Event / AA/Capture the egg/Take it from the holder":true,"System / Webhook/Discord webhook/Webhook URL":"","Farm / Priority/Task order/Task order":["Steal filter eggs","Shooting Star","Phantom Express","Pumpkin Moon","Butterfly","Steal wisp eggs","Wisp","Steal missing index","Place","Mutate","Butterfly machine","Ghost Dog quest","Halloween monsters","Halloween fishing","Treadmill"],"Farm / Sell/Eggs/Keep mutated":true,"Event / Butterfly/Wisp companion/Auto wisp quest":false,"System / Optimizer/Graphics/Hide game UI":false}}]=]
 
+-- 0. LƯU FILE AUTORUN 1 DÒNG DUY NHẤT (BẢO MẬT 100%, KHÔNG LỘ CODE)
 if writefile then
     pcall(writefile, AUTO_FILE, ('pcall(function() loadstring(game:HttpGet("%s"))() end)'):format(MY_URL))
 end
 
+-- 1. QUẢN LÝ PHIÊN TOÀN CỤC & CHẶN TELEPORT GỐC
 local env = (getgenv and getgenv()) or _G
 env.__ChilliV5State = env.__ChilliV5State or {
     SessionId = 0, Language = "VI", ActiveGradients = {}, TrackedTexts = {}, TrackedFpsLabels = {}, NoticeShown = false
@@ -26,7 +28,6 @@ pcall(function()
     end
 end)
 
--- 1. TELEPORT HIJACK
 do
     local rq = env.__ChilliOrigQueue or env.queue_on_teleport or env.queueonteleport
         or (syn and syn.queue_on_teleport) or (fluxus and fluxus.queue_on_teleport) or (delta and delta.queue_on_teleport)
@@ -50,23 +51,6 @@ do
         local noop = function() end
         env.clearteleportqueue, env.clear_teleport_queue = noop, noop
         pcall(rq, boot)
-        task.spawn(function()
-            local P = game:GetService("Players")
-            local lp = P.LocalPlayer or P:GetPropertyChangedSignal("LocalPlayer"):Wait()
-            if lp and lp.OnTeleport then
-                lp.OnTeleport:Connect(function()
-                    if not isAlive() then return end
-                    if getconnections then
-                        pcall(function()
-                            for _, conn in ipairs(getconnections(lp.OnTeleport)) do
-                                if conn.Function and not isexecutorclosure(conn.Function) then conn:Disable() end
-                            end
-                        end)
-                    end
-                    pcall(rq, boot)
-                end)
-            end
-        end)
     end
 end
 
@@ -100,7 +84,7 @@ local RAINBOW = ColorSequence.new({
     ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 55, 55))
 })
 
--- 2. UNIFIED SINGLE-LOOP DAEMON (RAINBOW + FAKE FPS 85-120)
+-- 2. VÒNG LẶP HỢP NHẤT (XOAY CẦU VỒNG + FPS ẢO 85-120 TRONG 1 THREAD DUY NHẤT)
 local fakeFps, lastFpsT = math.random(96, 112), 0
 local function getFakeFps()
     local now = os.clock()
@@ -146,19 +130,14 @@ task.spawn(function()
     end
 end)
 
--- 3. 5-TIER TRANSLATION ENGINE (O(1) UTF-8 CHECK)
+-- 3. BỘ DỊCH THUẬT 5 TẦNG O(1) (KIỂM TRA DẤU TIẾNG VIỆT BẰNG BYTE UTF-8 SIÊU NHANH)
 local FastCache = {}
 local function hasVi(s)
-    if type(s) ~= "string" or s == "" then return false end
-    local stripped = s:gsub("·", ""):gsub("•", ""):gsub("●", "")
-    return stripped:find("[\194-\225][\128-\191]") ~= nil
+    return type(s) == "string" and s ~= "" and s:find("[\194-\244][\128-\191]") ~= nil and not s:find("^[%w%s%p·•●🌶️🇻🇳🌐⚡⏳✅⚠️🚀✨▲▼]+$")
 end
 
 local EXACT_VI = {
-    ["🚀 UPCOMING UPDATE"]="🚀 CẬP NHẬT SẮP RA MẮT",
-    ["✨ Auto Config Feature: 100% optimized Auto Farm preset for all accounts (even beginners/low speed) and devices (even laggy ones). Strictly tested for the best and most suitable results!"]="✨ Tính năng Auto Config: Tự động nhập cấu hình Auto Farm chuẩn, tối ưu 100% cho mọi tài khoản (mới chơi/ít tốc độ) và thiết bị (kể cả máy yếu/lag). Cấu hình đã được test kỹ càng để mang lại hiệu quả cao nhất!",
-    ["✨ New Interface: Completely redesigned for a more beautiful and professional look."]="✨ Giao diện mới: Thiết kế lại toàn bộ giao diện đẹp mắt và chuyên nghiệp hơn.",
-    ["CLOSE"]="ĐÓNG", ["CANDY CORN"]="KẸO NGÔ", ["Candy Corn"]="Kẹo Ngô", ["Calculate mutations"]="Tính thử đột biến",
+    ["CANDY CORN"]="KẸO NGÔ", ["Candy Corn"]="Kẹo Ngô", ["Calculate mutations"]="Tính thử đột biến",
     ["Cards show the value with these mutations added"]="Thẻ trứng sẽ hiển thị giá trị sau khi cộng thêm các đột biến này",
     ["Delivery speed"]="Tốc độ mang trứng về", ["Change if steal fails"]="Hãy chỉnh giảm xuống nếu cướp trứng bị lỗi",
     ["Auto farm monsters"]="Tự động cày quái vật", ["Auto kill monsters"]="Tự động đánh quái vật", ["Bat"]="Gậy Dơi (Bat)",
@@ -320,10 +299,7 @@ local GRAMMAR_VI = {
     { pat="^[Dd]elivering (.+) home(.*)$", rep="Đang giao %1 về nhà%2" },
     { pat="^[Dd]elivering (.+)$", rep="Đang giao %1" },
     { pat="^[Bb]ringing (.+) to (.+)$", rep="Đang đem %1 tới %2" },
-    { pat="^[Bb]ringing (.+) home(.*)$", rep="Đang mang %1 về nhà%2" },
     { pat="^[Tt]aking (.+) from (.+)$", rep="Đang giật %1 từ %2" },
-    { pat="^[Tt]aking (.+) to (.+)$", rep="Đang đem %1 tới %2" },
-    { pat="^[Tt]aking (.+) home(.*)$", rep="Đang đem %1 về nhà%2" },
     { pat="^[Ss]tealing (.+) from (.+)$", rep="Đang cướp %1 từ %2" },
     { pat="^[Ss]tealing (.+)$", rep="Đang cướp %1" },
     { pat="^[Gg]rabbing (.+)$", rep="Đang nhặt %1" }, { pat="^[Pp]icking up (.+)$", rep="Đang nhặt %1" },
@@ -332,19 +308,17 @@ local GRAMMAR_VI = {
     { pat="^[Gg]oing to (.+)$", rep="Đang đi tới %1" }, { pat="^[Mm]oving to (.+)$", rep="Đang di chuyển tới %1" },
     { pat="^[Ww]alking to (.+)$", rep="Đang chạy tới %1" }, { pat="^[Rr]unning to (.+)$", rep="Đang chạy tới %1" },
     { pat="^[Ff]lying to (.+)$", rep="Đang bay tới %1" }, { pat="^[Rr]eturning to (.+)$", rep="Đang quay về %1" },
-    { pat="^[Hh]eading to (.+)$", rep="Đang hướng tới %1" }, { pat="^[Pp]lacing (.+)$", rep="Đang đặt %1" },
-    { pat="^[Hh]atching (.+)$", rep="Đang ấp %1" }, { pat="^[Mm]utating (.+)$", rep="Đang đột biến %1" },
-    { pat="^[Ss]elling (.+)$", rep="Đang bán %1" }, { pat="^[Ff]using (.+)$", rep="Đang dung hợp %1" },
-    { pat="^[Uu]pgrading (.+)$", rep="Đang nâng cấp %1" }, { pat="^[Bb]uying (.+)$", rep="Đang mua %1" },
-    { pat="^[Cc]laiming (.+)$", rep="Đang nhận %1" }, { pat="^[Ee]quipping (.+)$", rep="Đang trang bị %1" },
-    { pat="^[Ff]avoriting (.+)$", rep="Đang khóa bảo vệ %1" }, { pat="^[Cc]atching (.+)$", rep="Đang bắt %1" },
+    { pat="^[Pp]lacing (.+)$", rep="Đang đặt %1" }, { pat="^[Hh]atching (.+)$", rep="Đang ấp %1" },
+    { pat="^[Mm]utating (.+)$", rep="Đang đột biến %1" }, { pat="^[Ss]elling (.+)$", rep="Đang bán %1" },
+    { pat="^[Ff]using (.+)$", rep="Đang dung hợp %1" }, { pat="^[Uu]pgrading (.+)$", rep="Đang nâng cấp %1" },
+    { pat="^[Bb]uying (.+)$", rep="Đang mua %1" }, { pat="^[Cc]laiming (.+)$", rep="Đang nhận %1" },
+    { pat="^[Ee]quipping (.+)$", rep="Đang trang bị %1" }, { pat="^[Cc]atching (.+)$", rep="Đang bắt %1" },
     { pat="^[Cc]hasing (.+)$", rep="Đang đuổi theo %1" }, { pat="^[Aa]ttacking (.+)$", rep="Đang tấn công %1" },
     { pat="^[Hh]itting (.+)$", rep="Đang đánh %1" }, { pat="^[Kk]illing (.+)$", rep="Đang tiêu diệt %1" },
     { pat="^[Tt]rading in (.+)$", rep="Đang đổi %1" }, { pat="^[Cc]rafting (.+)$", rep="Đang chế tạo %1" },
-    { pat="^[Rr]erolling (.+)$", rep="Đang đổi lại %1" }, { pat="^[Aa]voiding (.+)$", rep="Đang né %1" },
-    { pat="^[Ww]aiting for (.+)$", rep="Đang chờ %1" }, { pat="^[Ww]aiting in (.+)$", rep="Đang đợi ở %1" },
-    { pat="^[Ww]aiting %((.+)%)$", rep="Đang chờ (%1)" }, { pat="^[Ss]earching for (.+)$", rep="Đang tìm %1" },
-    { pat="^[Ss]canning (.+)$", rep="Đang quét %1" }, { pat="^[Ff]arming (.+)$", rep="Đang cày %1" },
+    { pat="^[Aa]voiding (.+)$", rep="Đang né %1" }, { pat="^[Ww]aiting for (.+)$", rep="Đang chờ %1" },
+    { pat="^[Ww]aiting in (.+)$", rep="Đang đợi ở %1" }, { pat="^[Ww]aiting %((.+)%)$", rep="Đang chờ (%1)" },
+    { pat="^[Ss]earching for (.+)$", rep="Đang tìm %1" }, { pat="^[Ff]arming (.+)$", rep="Đang cày %1" },
     { pat="^[Uu]sing (.+)$", rep="Đang dùng %1" }, { pat="^[Jj]oining (.+)$", rep="Đang tham gia %1" },
     { pat="^[Hh]opping (.+)$", rep="Đang đổi %1" }
 }
@@ -357,49 +331,40 @@ local PHRASES_VI = {
     {"no egg matches your targets","Không có trứng nào khớp mục tiêu"}, {"no eggs match filter","Không có trứng khớp bộ lọc"},
     {"waiting for field to open","Đang chờ sân trứng mở"}, {"waiting for eggs to spawn","Đang chờ trứng xuất hiện"},
     {"waiting in safe zone","Đợi ở vùng an toàn"}, {"returning to safe zone","Đang về vùng an toàn"},
-    {"going to safe zone","Đang về vùng an toàn"}, {"to the altar","tới bệ thờ"}, {"to altar","tới bệ thờ"},
-    {"the altar","bệ thờ"}, {"a pumpkin","bí ngô"}, {"an egg","trứng"}, {"the egg","trứng"},
+    {"to the altar","tới bệ thờ"}, {"to altar","tới bệ thờ"}, {"the altar","bệ thờ"}, {"a pumpkin","bí ngô"},
     {"egg bag is full","Túi trứng đã đầy"}, {"pet bag is full","Túi pet đã đầy"}, {"bag is full","Túi đã đầy"},
-    {"pen is full","Chuồng đã đầy"}, {"field is closed","Sân trứng đang đóng"}, {"field opens in","Sân mở sau"},
-    {"opens in","mở sau"}, {"starts in","bắt đầu sau"}, {"ends in","kết thúc sau"}, {"lands in","rơi sau"},
-    {"spawns in","xuất hiện sau"}, {"your targets","mục tiêu"}, {"matches your","khớp với"}, {"matches filter","khớp bộ lọc"},
-    {"safe zone","vùng an toàn"}, {"other players","người chơi khác"}, {"missing index","thiếu trong Chỉ mục"},
-    {"shooting star","sao băng"}, {"butterfly bloom","mùa bướm nở"}, {"racing event","sự kiện đua xe"},
-    {"offline cash","tiền ngoại tuyến"}, {"index rewards","thưởng Chỉ mục"}, {"lab eggs","trứng Lab"},
-    {"event egg","trứng sự kiện"}, {"minigame eggs","trứng Minigame"}, {"minigame egg","trứng Minigame"},
-    {"wisp eggs","trứng Wisp"}, {"to safe zone","về vùng an toàn"}, {"to safety","đến nơi an toàn"},
-    {"to base","về căn cứ"}, {"to pen","vào chuồng"}, {"is full","đã đầy"}, {"is closed","đang đóng"},
-    {"is open","đang mở"}, {"to open","mở cửa"}, {"to spawn","xuất hiện"},
-    {"was added to your configs","đã được thêm vào danh sách cấu hình"},
-    {"join our discord for updates and support","Tham gia Discord để cập nhật và nhận hỗ trợ"}
+    {"pen is full","Chuồng đã đầy"}, {"field is closed","Sân trứng đang đóng"}, {"safe zone","vùng an toàn"},
+    {"other players","người chơi khác"}, {"missing index","thiếu trong Chỉ mục"}, {"shooting star","sao băng"},
+    {"butterfly bloom","mùa bướm nở"}, {"racing event","sự kiện đua xe"}, {"offline cash","tiền ngoại tuyến"},
+    {"index rewards","thưởng Chỉ mục"}, {"lab eggs","trứng Lab"}, {"event egg","trứng sự kiện"},
+    {"minigame eggs","trứng Minigame"}, {"minigame egg","trứng Minigame"}, {"wisp eggs","trứng Wisp"},
+    {"to safe zone","về vùng an toàn"}, {"to safety","đến nơi an toàn"}, {"to base","về căn cứ"}, {"to pen","vào chuồng"},
+    {"was added to your configs","đã được thêm vào danh sách cấu hình"}
 }
 
 local WORDS_VI = {
     idle="Đang rảnh", carrying="Đang mang", delivering="Đang giao", stealing="Đang cướp", grabbing="Đang nhặt",
     picking="Đang nhặt", collecting="Đang thu thập", holding="Đang giữ", capturing="Đang bắt giữ", dropping="Đang thả",
     tweening="Đang bay", teleporting="Đang dịch chuyển", going="Đang đi", moving="Đang di chuyển", walking="Đang đi bộ",
-    running="Đang chạy", flying="Đang bay", returning="Đang quay về", heading="Đang hướng", placing="Đang đặt",
-    hatching="Đang ấp", mutating="Đang đột biến", selling="Đang bán", fusing="Đang dung hợp", upgrading="Đang nâng cấp",
-    buying="Đang mua", claiming="Đang nhận", equipping="Đang trang bị", favoriting="Đang khóa", ejecting="Đang đẩy",
-    catching="Đang nhặt", chasing="Đang đuổi theo", attacking="Đang tấn công", hitting="Đang đánh", killing="Đang tiêu diệt",
-    trading="Đang đổi", crafting="Đang chế tạo", rerolling="Đang đổi lại", avoiding="Đang né", evading="Đang tránh",
-    waiting="Đang chờ", searching="Đang tìm", looking="Đang tìm", scanning="Đang quét", farming="Đang cày",
-    using="Đang dùng", joining="Đang vào", hopping="Đang đổi", rejoining="Đang vào lại", finding="Đang tìm",
-    checking="Đang kiểm tra", skipping="Đang bỏ qua", racing="Đang đua", cooldown="Hồi chiêu", ready="Sẵn sàng",
-    nothing="Không có gì", none="Không có", no="Không có", pumpkin="bí ngô", pumpkins="bí ngô", altar="bệ thờ",
-    monster="quái vật", monsters="quái vật", ghost="ma", ghosts="ma", soul="linh hồn", souls="linh hồn",
-    train="chuyến tàu", boss="Boss", cursed="nguyền rủa", island="đảo", wars="đại chiến", war="chiến tranh",
-    enemies="kẻ địch", enemy="kẻ địch", walls="tường chắn", wall="tường", crystal="pha lê", crystals="pha lê",
-    candy="kẹo", corn="ngô", fishing="câu cá", fish="cá", quest="nhiệm vụ", quests="nhiệm vụ", dimension="không gian",
-    delivery="mang về", calculate="tính thử", mutation="đột biến", mutations="đột biến", weapon="vũ khí", weapons="vũ khí",
-    removed="đã gỡ bỏ", added="đã thêm", fixed="đã sửa", egg="trứng", eggs="trứng", pet="pet", pets="pet",
-    matches="khớp", match="khớp", matching="khớp", your="của bạn", target="mục tiêu", targets="mục tiêu",
-    filter="bộ lọc", home="về nhà", base="căn cứ", pen="chuồng", pens="chuồng", field="sân trứng", zone="khu vực",
-    zones="khu vực", bag="túi", full="đầy", empty="trống", closed="đóng", open="mở", guard="vệ sĩ", guards="vệ sĩ",
-    player="người chơi", players="người chơi", server="máy chủ", treadmill="máy tập", race="đua xe", star="sao băng",
-    butterfly="bướm", portal="cổng", rewards="thưởng", reward="thưởng", cash="tiền", found="tìm thấy",
-    available="khả dụng", speed="tốc độ", instant="tức thì", steal="cướp", auto="tự động", to="tới", from="từ",
-    ["in"]="trong", at="tại", ["for"]="cho", with="với", ["and"]="và", ["or"]="hoặc"
+    running="Đang chạy", flying="Đang bay", returning="Đang quay về", placing="Đang đặt", hatching="Đang ấp",
+    mutating="Đang đột biến", selling="Đang bán", fusing="Đang dung hợp", upgrading="Đang nâng cấp", buying="Đang mua",
+    claiming="Đang nhận", equipping="Đang trang bị", catching="Đang nhặt", chasing="Đang đuổi theo", attacking="Đang tấn công",
+    hitting="Đang đánh", killing="Đang tiêu diệt", trading="Đang đổi", crafting="Đang chế tạo", avoiding="Đang né",
+    waiting="Đang chờ", searching="Đang tìm", scanning="Đang quét", farming="Đang cày", using="Đang dùng",
+    joining="Đang vào", hopping="Đang đổi", rejoining="Đang vào lại", finding="Đang tìm", racing="Đang đua",
+    ready="Sẵn sàng", nothing="Không có gì", none="Không có", no="Không có", pumpkin="bí ngô", pumpkins="bí ngô",
+    altar="bệ thờ", monster="quái vật", monsters="quái vật", ghost="ma", ghosts="ma", soul="linh hồn", souls="linh hồn",
+    train="chuyến tàu", boss="Boss", cursed="nguyền rủa", island="đảo", wars="đại chiến", enemies="kẻ địch",
+    walls="tường chắn", crystal="pha lê", candy="kẹo", corn="ngô", fishing="câu cá", fish="cá", quest="nhiệm vụ",
+    dimension="không gian", delivery="mang về", calculate="tính thử", mutation="đột biến", mutations="đột biến",
+    weapon="vũ khí", weapons="vũ khí", removed="đã gỡ bỏ", added="đã thêm", fixed="đã sửa", egg="trứng", eggs="trứng",
+    pet="pet", pets="pet", matches="khớp", match="khớp", matching="khớp", your="của bạn", target="mục tiêu",
+    targets="mục tiêu", filter="bộ lọc", home="về nhà", base="căn cứ", pen="chuồng", pens="chuồng", field="sân trứng",
+    zone="khu vực", zones="khu vực", bag="túi", full="đầy", empty="trống", closed="đóng", open="mở", guard="vệ sĩ",
+    guards="vệ sĩ", player="người chơi", players="người chơi", server="máy chủ", treadmill="máy tập", race="đua xe",
+    star="sao băng", butterfly="bướm", portal="cổng", rewards="thưởng", reward="thưởng", cash="tiền", found="tìm thấy",
+    speed="tốc độ", instant="tức thì", steal="cướp", auto="tự động", to="tới", from="từ", ["in"]="trong", at="tại",
+    ["for"]="cho", with="với", ["and"]="và", ["or"]="hoặc"
 }
 
 local DYN_VI = {
@@ -561,7 +526,7 @@ local function hookTrans(inst)
     end)
 end
 
--- 4. UPCOMING UPDATE NOTICE MODAL
+-- 4. BẢNG THÔNG BÁO UPDATE
 local function showNotice()
     if State.NoticeShown then return end
     State.NoticeShown = true
@@ -606,67 +571,27 @@ local function refreshAll()
     end)
 end
 
--- 5. MULTI-LAYER BUTTON ACTIVATOR (GUARANTEED APPLY NOW CLICK)
-local function fireNode(node)
-    if not node then return false end
-    local targets = { node }
-    if node.Parent and node.Parent:IsA("GuiObject") then table.insert(targets, node.Parent) end
-    if node.Parent and node.Parent.Parent and node.Parent.Parent:IsA("GuiObject") then table.insert(targets, node.Parent.Parent) end
-    for _, ch in ipairs(node.Parent and node.Parent:GetChildren() or {}) do
-        if (ch:IsA("TextButton") or ch:IsA("ImageButton")) and ch ~= node then table.insert(targets, ch) end
-    end
-
+-- 5. NẠP CONFIG (CHỈ DÁN JSON VÀ BẤM IMPORT, KHÔNG TỰ ĐỘNG BẤM APPLY NOW)
+local function fireBtn(btn)
+    if not btn then return false end
     local fired = false
-    for _, t in ipairs(targets) do
-        if getconnections then
-            for _, sigName in ipairs({"MouseButton1Click", "Activated", "MouseButton1Down", "MouseButton1Up", "InputBegan", "InputEnded"}) do
-                pcall(function()
-                    local sig = t[sigName]
-                    if sig then
-                        for _, conn in ipairs(getconnections(sig)) do
-                            if conn.Function then
-                                task.spawn(function()
-                                    if sigName == "InputBegan" or sigName == "InputEnded" then
-                                        local st = (sigName == "InputBegan" and Enum.UserInputState.Begin or Enum.UserInputState.End)
-                                        pcall(conn.Function, { UserInputType = Enum.UserInputType.MouseButton1, UserInputState = st })
-                                        pcall(conn.Function, { UserInputType = Enum.UserInputType.Touch, UserInputState = st })
-                                    else
-                                        pcall(conn.Function)
-                                    end
-                                end)
-                                fired = true
-                            end
-                        end
+    local clickable = (btn:IsA("TextButton") or btn:IsA("ImageButton")) and btn
+        or btn:FindFirstAncestorWhichIsA("TextButton") or btn:FindFirstAncestorWhichIsA("ImageButton") or btn
+    if getconnections then
+        for _, sigName in ipairs({"MouseButton1Click", "Activated", "MouseButton1Down", "MouseButton1Up"}) do
+            pcall(function()
+                local sig = clickable[sigName]
+                if sig then
+                    for _, conn in ipairs(getconnections(sig)) do
+                        if conn.Function then task.spawn(conn.Function); fired = true end
                     end
-                end)
-            end
-        end
-        if firesignal then
-            pcall(function() firesignal(t.MouseButton1Click); fired = true end)
-            pcall(function() firesignal(t.Activated); fired = true end)
-            pcall(function() firesignal(t.MouseButton1Down); firesignal(t.MouseButton1Up); fired = true end)
+                end
+            end)
         end
     end
-
-    local box = (node:IsA("GuiObject") and node.AbsoluteSize.X > 10) and node or (node.Parent and node.Parent:IsA("GuiObject") and node.Parent)
-    if box and box.Visible and box.AbsoluteSize.X > 0 then
-        pcall(function()
-            local vim = game:GetService("VirtualInputManager")
-            if vim then
-                local inset = game:GetService("GuiService"):GetGuiInset()
-                local cx = box.AbsolutePosition.X + box.AbsoluteSize.X * 0.5
-                local cy1 = box.AbsolutePosition.Y + box.AbsoluteSize.Y * 0.5
-                local cy2 = cy1 + inset.Y
-                vim:SendMouseButtonEvent(cx, cy1, 0, true, game, 1)
-                task.wait(0.03)
-                vim:SendMouseButtonEvent(cx, cy1, 0, false, game, 1)
-                task.wait(0.03)
-                vim:SendMouseButtonEvent(cx, cy2, 0, true, game, 1)
-                task.wait(0.03)
-                vim:SendMouseButtonEvent(cx, cy2, 0, false, game, 1)
-                fired = true
-            end
-        end)
+    if firesignal then
+        pcall(function() firesignal(clickable.MouseButton1Click); fired = true end)
+        pcall(function() firesignal(clickable.Activated); fired = true end)
     end
     return fired
 end
@@ -693,7 +618,7 @@ local function runAutoFarmMacro(venyxGui, btnLbl)
             for _, d in ipairs(venyxGui:GetDescendants()) do
                 if d:IsA("TextButton") or d:IsA("TextLabel") then
                     local ot = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
-                    if ot == "Config" or d.Text == "Cấu Hình" then fireNode(d); break end
+                    if ot == "Config" or d.Text == "Cấu Hình" then fireBtn(d); break end
                 end
             end
             task.wait(0.25)
@@ -714,38 +639,11 @@ local function runAutoFarmMacro(venyxGui, btnLbl)
         importBox:SetAttribute("__IsTranslating", false)
 
         task.wait(0.12)
-        if importBtn then fireNode(importBtn) end
+        if importBtn then fireBtn(importBtn) end
 
-        local applied = false
-        for _ = 1, 35 do
-            task.wait(0.12)
-            local foundApplyNode = nil
-            for _, root in ipairs(scanRoots) do
-                if root then
-                    for _, d in ipairs(root:GetDescendants()) do
-                        if (d:IsA("TextButton") or d:IsA("TextLabel")) and d.Visible and d.AbsoluteSize.X > 0 then
-                            local ot = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
-                            if ot == "Apply now" or d.Text == "Áp dụng ngay" then
-                                foundApplyNode = d
-                                break
-                            end
-                        end
-                    end
-                end
-                if foundApplyNode then break end
-            end
-
-            if foundApplyNode then
-                fireNode(foundApplyNode)
-                applied = true
-                task.wait(0.2)
-            elseif applied then
-                break
-            end
-        end
-
+        -- Dừng tại đây để người chơi tự bấm "Áp dụng ngay" (Apply now) theo ý muốn
         if btnLbl then
-            btnLbl.Text = "✅ ĐÃ ÁP DỤNG CONFIG!"
+            btnLbl.Text = "✅ ĐÃ NHẬP CONFIG!"
             task.wait(2.0)
             btnLbl.Text = "⚡ CONFIG SETTING AUTO FARM"
         end
@@ -887,7 +785,7 @@ local function setupIsland(statusLbl, venyxGui)
     end)
 end
 
--- 7. FLOATING LOGO 60x60 & HEADER LOGO
+-- 7. NÚT TRÒN NỔI 60x60 & HEADER LOGO
 local function setupCircleLogo(obj)
     local top = obj
     while top.Parent and top.Parent:IsA("GuiObject") and not top.Parent:IsA("ScreenGui") do top = top.Parent end
@@ -939,7 +837,7 @@ local function patchHeaderLogo(win, titleLbl)
     end
 end
 
--- 8. EVENT-DRIVEN SCANNER (ZERO-LAG AFTER INITIAL PATCH)
+-- 8. BỘ QUÉT SỰ KIỆN ZERO-LAG (DỪNG QUÉT CÂY DOM NGẦM SAU KHI KHỞI TẠO)
 local venyxGuiLocked = nil
 
 local function patchVenyxGui(gui, titleLbl)
@@ -973,7 +871,7 @@ local function patchVenyxGui(gui, titleLbl)
                 gui:SetAttribute("__IslandLocked", true); setupIsland(d, gui)
             elseif isFpsTxt(txt) then hookFps(d)
             elseif d:GetAttribute("__TransHookSession") ~= SID then queue[#queue + 1] = d end
-        elseif (d:IsA("ImageLabel") or d:IsA("ImageButton")) and d.Name ~= "ChilliV5CoverLogo" and d.Name ~= "ChilliHeaderLogo" and d.Name ~= "InnerChilliLogo" then
+        elseif (d:IsA("ImageLabel") or d:IsA("ImageButton")) and d.Name ~= "ChilliV5CoverLogo" and d.Name ~= "ChilliHeaderLogo" then
             if not d:FindFirstAncestorOfClass("ScrollingFrame") and win and not d:IsDescendantOf(win) then setupCircleLogo(d) end
         end
     end
