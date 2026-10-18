@@ -1420,8 +1420,8 @@ local function showUpcomingUpdateNotice()
 
     local function updateNoticeLang()
         if State.Language == "VI" then
-            titleLbl.Text = "🚀 CẬP NHẬT SẮP RA MẮT"
-            bodyLbl.Text = "✨ Tính năng Auto Config: Tự động nhập cấu hình Auto Farm chuẩn, tối ưu 100% cho mọi tài khoản (mới chơi/ít tốc độ) và thiết bị (kể cả máy yếu/lag). Cấu hình đã được test kỹ càng để mang lại hiệu quả cao nhất!\n\n✨ Giao diện mới: Thiết kế lại toàn bộ giao diện đẹp mắt và chuyên nghiệp hơn."
+            titleLbl.Text = "🚀 CẬP NHẬT TÍNH NĂNG"
+            bodyLbl.Text = "✨ Tính năng Auto Config: Tự động nhập cấu hình Auto Farm chuẩn, tối ưu 100% cho mọi tài khoản (mới chơi/ít tốc độ) và thiết bị (kể cả máy yếu/lag). Cấu hình đã được test kỹ càng để mang lại hiệu quả cao nhất!\n\n✨ tuy nhiên nó chưa hoàn thiện :]."
             closeBtn.Text = "ĐÓNG"
         else
             titleLbl.Text = "🚀 UPCOMING UPDATE"
