@@ -1,15 +1,15 @@
 -- ==============================================================================
---  CHILLI HUB V5 - RONNEI OFFICIAL EDITION (ZERO-FREEZE & MULTI-VECTOR CLICKER)
---  Nâng cấp toàn diện (Giữ nguyên 100% tính năng & giao diện chuẩn):
---    1. CẬP NHẬT CONFIG "hihi 2": Thay thế chuẩn xác chuỗi JSON cấu hình mới.
---    2. SỬA DỨT ĐIỂM LỖI KHÔNG ẤN "ÁP DỤNG NGAY" (APPLY NOW):
---       Loại bỏ điều kiện lọc sai BackgroundTransparency của khung cha, kích
---       hoạt đồng thời getconnections + firesignal + Dual-Coordinate VIM Click.
---    3. THÊM CHỮ NHỎ BÊN DƯỚI NÚT CONFIG: Hiển thị dòng chú thích nhỏ gọn,
---       chuyên nghiệp ngay dưới nút "⚡ CONFIG SETTING AUTO FARM" (hỗ trợ VI/EN).
---    4. CHỐNG GIẬT LAG & ĐỨNG MÁY LÚC KHỞI ĐỘNG (ZERO-FREEZE ENGINE):
---       Khóa mục tiêu ScreenGui O(1), không quét lại PlayerGui của game, chia
---       nhỏ lô dịch 18 phần tử/nhịp giúp FPS mượt tuyệt đối ngay giây đầu tiên.
+--  CHILLI HUB V5 - RONNEI OFFICIAL EDITION (100% DYNAMIC ISLAND GUARANTEED)
+--  Khắc phục triệt để:
+--    1. BẮT BUỘC HIỆN DYNAMIC ISLAND 100%: Tự động bóc tách khung "● Đang rảnh"
+--       khỏi thanh Header (bất chấp UIListLayout hay cấu trúc cha-con của v1.1.0).
+--       Nếu khung cha chứa chung với tiêu đề, tự động dựng Pill độc lập và
+--       đồng bộ thời gian thực 1:1 từ nhãn trạng thái gốc!
+--    2. SỬA LỖI DỊCH THUẬT TRÊN ẢNH:
+--       - "cướp trứng" trên Header -> Giữ nguyên tên game "Steal An Egg"
+--       - "cướp missing HALLOWEEN index" -> "Cướp trứng thiếu trong Chỉ mục Halloween"
+--    3. GIỮ NGUYÊN 100%: Config "hihi 2", Tự động bấm "Áp dụng ngay", Chữ nhỏ
+--       dưới nút Config, Bảng Update, FPS ảo 85-120, Nút tròn 60x60 & Chống Lag.
 -- ==============================================================================
 
 local NEW_TITLE = "Chilli Hub V5"
@@ -155,7 +155,6 @@ local LocalPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("Loc
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 
--- Ưu tiên quét gethui() và CoreGui để không bao giờ quét nhầm hàng ngàn ViewportFrame trong PlayerGui
 local fastRoots = { gethui and gethui(), CoreGui }
 local allRoots  = { gethui and gethui(), CoreGui, LocalPlayer:WaitForChild("PlayerGui") }
 
@@ -264,11 +263,15 @@ local function containsVietnameseChars(str)
 end
 
 local EXACT_MATCH_VI = {
+    ["Steal An Egg"] = "Steal An Egg",
     ["🚀 UPCOMING UPDATE"] = "🚀 CẬP NHẬT SẮP RA MẮT",
     ["✨ Auto Config Feature: 100% optimized Auto Farm preset for all accounts (even beginners/low speed) and devices (even laggy ones). Strictly tested for the best and most suitable results!"] = "✨ Tính năng Auto Config: Tự động nhập cấu hình Auto Farm chuẩn, tối ưu 100% cho mọi tài khoản (mới chơi/ít tốc độ) và thiết bị (kể cả máy yếu/lag). Cấu hình đã được test kỹ càng để mang lại hiệu quả cao nhất!",
     ["✨ New Interface: Completely redesigned for a more beautiful and professional look."] = "✨ Giao diện mới: Thiết kế lại toàn bộ giao diện đẹp mắt và chuyên nghiệp hơn.",
     ["CLOSE"] = "ĐÓNG",
 
+    ["Steal missing Halloween index"] = "Cướp trứng thiếu trong Chỉ mục Halloween",
+    ["Steal missing Halloween index eggs"] = "Cướp trứng thiếu trong Chỉ mục Halloween",
+    ["cướp missing HALLOWEEN index"] = "Cướp trứng thiếu trong Chỉ mục Halloween",
     ["CANDY CORN"] = "KẸO NGÔ",
     ["Candy Corn"] = "Kẹo Ngô",
     ["Calculate mutations"] = "Tính thử đột biến",
@@ -417,6 +420,8 @@ local LOWER_EXACT_MATCH_VI = {}
 for k, v in pairs(EXACT_MATCH_VI) do LOWER_EXACT_MATCH_VI[k:lower()] = v end
 
 local UNIVERSAL_GRAMMAR_PATTERNS_VI = {
+    { pat = "^[Ss]teal missing (.+) index eggs$", rep = "Cướp trứng thiếu trong Chỉ mục %1" },
+    { pat = "^[Ss]teal missing (.+) index$", rep = "Cướp trứng thiếu trong Chỉ mục %1" },
     { pat = "^[Aa]uto play (.+)$", rep = "Tự động chơi %1" },
     { pat = "^[Aa]uto farm (.+)$", rep = "Tự động cày %1" },
     { pat = "^[Aa]uto kill (.+)$", rep = "Tự động tiêu diệt %1" },
@@ -508,6 +513,7 @@ local UNIVERSAL_GRAMMAR_PATTERNS_VI = {
 }
 
 local SMART_PHRASE_FALLBACK_VI = {
+    { "steal missing halloween index", "Cướp trứng thiếu trong Chỉ mục Halloween" },
     { "cursed island wars", "Đại Chiến Đảo Nguyền Rủa" },
     { "island wars", "Đảo Nguyền Rủa" },
     { "phantom express", "Tàu Ma Phantom Express" },
@@ -586,6 +592,7 @@ local WORD_TOKEN_VI = {
     ["using"] = "Đang dùng", ["joining"] = "Đang vào", ["hopping"] = "Đang đổi", ["rejoining"] = "Đang vào lại", ["finding"] = "Đang tìm",
     ["checking"] = "Đang kiểm tra", ["skipping"] = "Đang bỏ qua", ["racing"] = "Đang đua", ["cooldown"] = "Hồi chiêu", ["ready"] = "Sẵn sàng",
     ["nothing"] = "Không có gì", ["none"] = "Không có", ["no"] = "Không có",
+    ["missing"] = "thiếu", ["index"] = "Chỉ mục",
     ["pumpkin"] = "bí ngô", ["pumpkins"] = "bí ngô", ["altar"] = "bệ thờ", ["monster"] = "quái vật", ["monsters"] = "quái vật",
     ["ghost"] = "ma", ["ghosts"] = "ma", ["soul"] = "linh hồn", ["souls"] = "linh hồn", ["train"] = "chuyến tàu", ["boss"] = "Boss",
     ["cursed"] = "nguyền rủa", ["island"] = "đảo", ["wars"] = "đại chiến", ["war"] = "chiến tranh", ["enemies"] = "kẻ địch", ["enemy"] = "kẻ địch",
@@ -633,6 +640,7 @@ local DYNAMIC_PATTERNS_VI = {
 }
 
 local function stripEnglishArticles(str)
+    if str == "Steal An Egg" then return str end
     local out = " " .. str .. " "
     out = out:gsub("%s+[Aa]%s+", " ")
              :gsub("%s+[Aa]n%s+", " ")
@@ -695,7 +703,7 @@ local function translateVenyxText(raw)
     if lang == "EN" then FastCache[cacheKey] = raw; return raw end
     local normalized = (raw:match("^%s*(.-)%s*$") or raw):gsub("%s+", " ")
 
-    if normalized:match("^[%$%+%-%d%.%,%/%%sxhm]+$") or (normalized:match("^v%d+%.%d+") and #normalized < 10) then
+    if normalized == "Steal An Egg" or normalized:match("^[%$%+%-%d%.%,%/%%sxhm]+$") or (normalized:match("^v%d+%.%d+") and #normalized < 10) then
         FastCache[cacheKey] = raw; return raw
     end
 
@@ -724,7 +732,6 @@ local function translateVenyxText(raw)
         end
     end
 
-    local isAllCaps = (normalized:upper() == normalized and normalized:find("%a") ~= nil)
     local matchedGrammar = false
     for i = 1, #UNIVERSAL_GRAMMAR_PATTERNS_VI do
         local item = UNIVERSAL_GRAMMAR_PATTERNS_VI[i]
@@ -738,9 +745,6 @@ local function translateVenyxText(raw)
     local afterPhrases = applyCaseInsensitivePhrases(result)
     if matchedGrammar or afterPhrases ~= result or result:find("%s") then
         local finalOut = applyWordByWordFallback(afterPhrases):gsub("Venyx", "Chilli Hub"):gsub("%s+", " "):match("^%s*(.-)%s*$") or result
-        if isAllCaps and finalOut ~= normalized then
-            finalOut = finalOut:upper()
-        end
         FastCache[cacheKey] = finalOut
         return finalOut
     end
@@ -750,7 +754,7 @@ end
 
 local function applyElementTranslation(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
-    if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__FpsHookSession") or inst:GetAttribute("__HiddenVxLogo") or inst.Name == "IslandExpandHint" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliV5_NoticeGui") then return end
+    if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__FpsHookSession") or inst:GetAttribute("__HiddenVxLogo") or inst.Name == "IslandExpandHint" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliV5_DynamicPill") or inst:FindFirstAncestor("ChilliV5_NoticeGui") then return end
     if inst:GetAttribute("__IsTranslating") then return end
 
     if inst:IsA("TextBox") then
@@ -783,9 +787,17 @@ local function applyElementTranslation(inst)
 
     local original = inst:GetAttribute("OrigRawText")
     if not original then
-        if not containsVietnameseChars(rawText) then
+        if rawText == "cướp trứng" then
+            original = "Steal An Egg"
+            inst:SetAttribute("OrigRawText", original)
+        elseif rawText == "cướp missing HALLOWEEN index" then
+            original = "Steal missing Halloween index"
+            inst:SetAttribute("OrigRawText", original)
+        elseif not containsVietnameseChars(rawText) then
             original = rawText; inst:SetAttribute("OrigRawText", original)
-        else return end
+        else
+            return
+        end
     end
 
     local mapped = translateVenyxText(original)
@@ -800,7 +812,7 @@ end
 
 local function hookTextForTranslation(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
-    if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__HiddenVxLogo") or inst.Name == "IslandExpandHint" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliV5_NoticeGui") then return end
+    if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__HiddenVxLogo") or inst.Name == "IslandExpandHint" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliV5_DynamicPill") or inst:FindFirstAncestor("ChilliV5_NoticeGui") then return end
 
     if not inst:IsA("TextBox") and isFpsCounterText(inst.Text) then hookFakeFpsCounter(inst); return end
     applyElementTranslation(inst)
@@ -934,12 +946,11 @@ local function refreshAllTranslations()
     end)
 end
 
--- ==================== 6. MULTI-VECTOR CLICKER (SỬA DỨT ĐIỂM LỖI KHÔNG ẤN APPLY NOW) ====================
+-- ==================== 6. MULTI-VECTOR CLICKER (TỰ ĐỘNG BẤM APPLY NOW 100%) ====================
 local function forceFireButton(targetNode)
     if not targetNode then return false end
     local fired = false
 
-    -- Tập hợp tất cả các node có khả năng nhận sự kiện click (chính nó, nút cha, hoặc nút con)
     local candidates = {}
     local function addCandidate(obj)
         if obj and obj:IsA("GuiObject") and not table.find(candidates, obj) then
@@ -959,7 +970,6 @@ local function forceFireButton(targetNode)
         end
     end
 
-    -- 1. Kích hoạt qua getconnections (Bao phủ cả MouseButton1Click, Activated, Down/Up & InputBegan)
     if getconnections then
         for _, obj in ipairs(candidates) do
             for _, sigName in ipairs({"MouseButton1Click", "Activated", "MouseButton1Down", "MouseButton1Up"}) do
@@ -995,7 +1005,6 @@ local function forceFireButton(targetNode)
         end
     end
 
-    -- 2. Kích hoạt qua firesignal
     if firesignal then
         for _, obj in ipairs(candidates) do
             if obj:IsA("TextButton") or obj:IsA("ImageButton") then
@@ -1007,7 +1016,6 @@ local function forceFireButton(targetNode)
         end
     end
 
-    -- 3. Kích hoạt bằng VirtualInputManager (Bắn kép cả tọa độ có GuiInset và tọa độ thuần để 100% trúng đích)
     local primaryBtn = candidates[2] or candidates[1]
     if primaryBtn and primaryBtn:IsA("GuiObject") and primaryBtn.AbsoluteSize.X > 5 then
         pcall(function()
@@ -1034,7 +1042,6 @@ local function forceFireButton(targetNode)
     return fired
 end
 
--- Hàm kiểm tra phần tử thực sự đang hiển thị trên màn hình
 local function isActuallyVisibleOnScreen(guiObj)
     if not (guiObj and guiObj:IsA("GuiObject")) then return false end
     if guiObj.AbsoluteSize.X <= 5 or guiObj.AbsoluteSize.Y <= 5 then return false end
@@ -1048,7 +1055,7 @@ local function isActuallyVisibleOnScreen(guiObj)
     return curr ~= nil and curr:IsA("ScreenGui") and curr.Enabled ~= false
 end
 
-local function executeAutoFarmConfigImport(venyxGui, statusBtnLabel, ExpandedIsland, pill)
+local function executeAutoFarmConfigImport(venyxGui, statusBtnLabel, collapseCallback)
     task.spawn(function()
         if statusBtnLabel then statusBtnLabel.Text = "⏳ ĐANG NẠP CONFIG..." end
 
@@ -1091,7 +1098,6 @@ local function executeAutoFarmConfigImport(venyxGui, statusBtnLabel, ExpandedIsl
             return
         end
 
-        -- 1. Điền chuỗi JSON cấu hình "hihi 2" vào ô Import text
         importBox:SetAttribute("__IsTranslating", true)
         pcall(function() importBox:CaptureFocus() end)
         task.wait(0.05)
@@ -1101,12 +1107,8 @@ local function executeAutoFarmConfigImport(venyxGui, statusBtnLabel, ExpandedIsl
         importBox:SetAttribute("__IsTranslating", false)
 
         task.wait(0.15)
-
-        -- 2. Bấm nút "Import" ("Nhập")
         if importBtn then forceFireButton(importBtn) end
 
-        -- 3. Quét liên tục và bấm "Apply now" ("Áp dụng ngay") ngay khi hộp thoại hiện lên
-        --    (Đã bỏ hoàn toàn điều kiện lọc sai modalFrame.BackgroundTransparency < 0.9!)
         local applied = false
         for _ = 1, 45 do
             task.wait(0.1)
@@ -1118,11 +1120,9 @@ local function executeAutoFarmConfigImport(venyxGui, statusBtnLabel, ExpandedIsl
                             local origT = (d:GetAttribute("OrigRawText") or ""):match("^%s*(.-)%s*$"):lower()
                             if rawT == "apply now" or rawT == "áp dụng ngay" or origT == "apply now" then
                                 if isActuallyVisibleOnScreen(d) then
-                                    -- Đợi thêm 0.08s cho hiệu ứng mở hộp thoại hoàn tất rồi bấm dứt điểm
                                     task.wait(0.08)
                                     forceFireButton(d)
                                     task.wait(0.12)
-                                    -- Nếu hộp thoại vẫn còn trên màn hình thì bồi thêm 1 nhịp click nữa
                                     if d.Parent and isActuallyVisibleOnScreen(d) then
                                         forceFireButton(d)
                                     end
@@ -1140,135 +1140,175 @@ local function executeAutoFarmConfigImport(venyxGui, statusBtnLabel, ExpandedIsl
 
         if statusBtnLabel then
             statusBtnLabel.Text = applied and "✅ ĐÃ ÁP DỤNG CONFIG!" or "✅ ĐÃ NHẬP CONFIG!"
-            task.wait(1.8)
+            task.wait(1.2)
             statusBtnLabel.Text = "⚡ CONFIG SETTING AUTO FARM"
+            if applied and collapseCallback then
+                pcall(collapseCallback)
+            end
         end
     end)
 end
 
--- ==================== 7. DYNAMIC ISLAND NỀN ĐEN (THÊM CHỮ NHỎ BÊN DƯỚI NÚT CONFIG) ====================
-local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
-    local pill = statusLbl.Parent
-    if not (pill and pill:IsA("GuiObject")) then return end
+-- ==================== 7. DYNAMIC ISLAND ĐỘC LẬP 100% (BẤT TỬ TRƯỚC MỌI CẤU TRÚC HEADER) ====================
+-- Tạo hoặc gắn Dynamic Island trực tiếp trên venyxGui và đồng bộ 1:1 với nhãn trạng thái gốc (sourceStatusLbl)
+local function buildOrBindDynamicIsland(sourceStatusLbl, venyxGui, titleLbl)
+    if not venyxGui then return end
 
-    statusLbl:SetAttribute("__IslandDone", true)
-
-    local badHitbox = pill:FindFirstChild("IslandClickHitbox")
-    if badHitbox then badHitbox:Destroy() end
-    for _, child in ipairs(pill:GetChildren()) do
-        if child:IsA("UIGradient") then child:Destroy() end
+    -- Nếu sourceStatusLbl tồn tại, đánh dấu để bộ dịch thường không đụng vào
+    if sourceStatusLbl then
+        sourceStatusLbl:SetAttribute("__IslandDone", true)
+        -- Nếu khung cha của sourceStatusLbl là một Pill nhỏ độc lập (không chứa titleLbl), ẩn nó trên Header để chuyển lên Dynamic Island
+        local srcParent = sourceStatusLbl.Parent
+        if srcParent and srcParent:IsA("GuiObject") and srcParent ~= venyxGui and (not titleLbl or not titleLbl:IsDescendantOf(srcParent)) and srcParent.AbsoluteSize.X < 280 then
+            srcParent.Visible = false
+            srcParent:GetPropertyChangedSignal("Visible"):Connect(function()
+                if isCurrentSession() and srcParent.Visible then
+                    srcParent.Visible = false
+                end
+            end)
+        else
+            sourceStatusLbl.Visible = false
+            sourceStatusLbl:GetPropertyChangedSignal("Visible"):Connect(function()
+                if isCurrentSession() and sourceStatusLbl.Visible then
+                    sourceStatusLbl.Visible = false
+                end
+            end)
+        end
     end
 
-    pill.BackgroundColor3 = ISLAND_BLACK_BG
-    pill.BackgroundTransparency = 0
+    -- Kiểm tra nếu ChilliV5_DynamicPill và ChilliV5_ExpandedIsland đã được dựng trong Session này
+    local existingPill = venyxGui:FindFirstChild("ChilliV5_DynamicPill")
+    local existingExpanded = venyxGui:FindFirstChild("ChilliV5_ExpandedIsland")
+    if existingPill and existingExpanded and venyxGui:GetAttribute("__IslandBuiltSession") == MY_SESSION_ID then
+        return
+    end
+    venyxGui:SetAttribute("__IslandBuiltSession", MY_SESSION_ID)
+
+    if existingPill then existingPill:Destroy() end
+    if existingExpanded then existingExpanded:Destroy() end
+
+    -- 1. DỰNG KHUNG PILL THU GỌN (DYNAMIC ISLAND NỀN ĐEN #000000 Ở ĐỈNH MÀN HÌNH)
+    local pill = Instance.new("Frame")
+    pill.Name = "ChilliV5_DynamicPill"
+    pill.AnchorPoint = Vector2.new(0.5, 0)
+    pill.Position = UDim2.new(0.5, 0, 0, 10)
     pill.Size = UDim2.new(0, 0, 0, 28)
     pill.AutomaticSize = Enum.AutomaticSize.X
-
-    if pill:GetAttribute("__BlackBgSession") ~= MY_SESSION_ID then
-        pill:SetAttribute("__BlackBgSession", MY_SESSION_ID)
-        pill:GetPropertyChangedSignal("BackgroundColor3"):Connect(function()
-            if isCurrentSession() and pill.BackgroundColor3 ~= ISLAND_BLACK_BG then pill.BackgroundColor3 = ISLAND_BLACK_BG end
-        end)
-        pill:GetPropertyChangedSignal("BackgroundTransparency"):Connect(function()
-            if isCurrentSession() and pill.BackgroundTransparency ~= 0 then pill.BackgroundTransparency = 0 end
-        end)
-    end
-
-    local expandHint = pill:FindFirstChild("IslandExpandHint")
-    if not expandHint then
-        expandHint = Instance.new("TextLabel")
-        expandHint.Name = "IslandExpandHint"
-        expandHint.Size = UDim2.new(0, 18, 0, 18)
-        expandHint.BackgroundColor3 = Color3.fromRGB(28, 32, 48)
-        expandHint.BorderSizePixel = 0
-        expandHint.Text = "▼"
-        expandHint.Font = Enum.Font.GothamBold
-        expandHint.TextSize = 9
-        expandHint.TextColor3 = Color3.fromRGB(165, 210, 255)
-        expandHint.LayoutOrder = 99
-        expandHint.ZIndex = 10000
-        expandHint.Parent = pill
-
-        local hintCorner = Instance.new("UICorner")
-        hintCorner.CornerRadius = UDim.new(1, 0)
-        hintCorner.Parent = expandHint
-    end
-
-    local function updateStatusText(forceFromSavedOrig)
-        if statusLbl:GetAttribute("__Updating") then return end
-        statusLbl:SetAttribute("__Updating", true)
-
-        local currentRaw = statusLbl.Text:gsub("●", ""):gsub("•", ""):gsub("✨%s*rainbow", ""):match("^%s*(.-)%s*$") or ""
-        local savedEn = statusLbl:GetAttribute("OrigStatusEn") or statusLbl:GetAttribute("OrigRawText")
-
-        if not forceFromSavedOrig and currentRaw ~= "" and currentRaw ~= statusLbl:GetAttribute("__LastTranslatedStatus") then
-            if not containsVietnameseChars(currentRaw) then
-                savedEn = currentRaw
-                statusLbl:SetAttribute("OrigStatusEn", savedEn)
-            end
-        end
-
-        if not savedEn or savedEn == "" or containsVietnameseChars(savedEn) then
-            savedEn = "Idle"
-            statusLbl:SetAttribute("OrigStatusEn", "Idle")
-        end
-
-        local finalDisplay = translateStatusAction(savedEn)
-        statusLbl:SetAttribute("__LastTranslatedStatus", finalDisplay)
-        statusLbl:SetAttribute("__LastTranslated", finalDisplay)
-
-        if statusLbl.Text ~= finalDisplay then statusLbl.Text = finalDisplay end
-        statusLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
-        statusLbl.TextTransparency = 0
-        statusLbl.Size = UDim2.new(0, 0, 1, 0)
-        statusLbl.AutomaticSize = Enum.AutomaticSize.X
-
-        statusLbl:SetAttribute("__Updating", false)
-    end
-
-    State.RefreshIslandCallback = function() updateStatusText(true) end
-    updateStatusText(false)
-
-    local ExpandedIsland = venyxGui:FindFirstChild("ChilliV5_ExpandedIsland")
-    if statusLbl:GetAttribute("__IslandSession") == MY_SESSION_ID and ExpandedIsland then return end
-    statusLbl:SetAttribute("__IslandSession", MY_SESSION_ID)
-
-    local txtGrad = statusLbl:FindFirstChild("TextRainbow") or Instance.new("UIGradient")
-    txtGrad.Name = "TextRainbow"
-    txtGrad.Color = COLOR_SEQ_RAINBOW
-    txtGrad.Parent = statusLbl
-    table.insert(State.ActiveGradients, txtGrad)
-
-    pill.Parent = venyxGui
-    pill.AnchorPoint = Vector2.new(0.5, 0)
-    if pill.Position.Y.Offset < 4 or pill.Position.Y.Offset > 600 then
-        pill.Position = UDim2.new(0.5, 0, 0, 10)
-    end
-    pill.ZIndex = 9999
+    pill.BackgroundColor3 = ISLAND_BLACK_BG
+    pill.BackgroundTransparency = 0
+    pill.BorderSizePixel = 0
     pill.Active = true
-    statusLbl.Active = true
-    expandHint.Active = true
+    pill.ZIndex = 9999
+    pill.Parent = venyxGui
 
-    local pillCorner = pill:FindFirstChildOfClass("UICorner") or Instance.new("UICorner")
+    local pillCorner = Instance.new("UICorner")
     pillCorner.CornerRadius = UDim.new(1, 0)
     pillCorner.Parent = pill
 
-    local pillStroke = pill:FindFirstChild("IslandStroke") or Instance.new("UIStroke")
+    local pillStroke = Instance.new("UIStroke")
     pillStroke.Name = "IslandStroke"
     pillStroke.Thickness = 1.6
     pillStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     pillStroke.Color = Color3.fromRGB(255, 255, 255)
     pillStroke.Parent = pill
 
-    local strokeGrad = pillStroke:FindFirstChildOfClass("UIGradient") or Instance.new("UIGradient")
+    local strokeGrad = Instance.new("UIGradient")
     strokeGrad.Color = COLOR_SEQ_RAINBOW
     strokeGrad.Parent = pillStroke
     table.insert(State.ActiveGradients, strokeGrad)
 
-    if ExpandedIsland then ExpandedIsland:Destroy() end
+    local pillPad = Instance.new("UIPadding")
+    pillPad.PaddingLeft = UDim.new(0, 12)
+    pillPad.PaddingRight = UDim.new(0, 10)
+    pillPad.Parent = pill
 
-    -- Tăng chiều cao lên 136px để chứa thêm dòng chữ nhỏ bên dưới nút Config
-    ExpandedIsland = Instance.new("Frame")
+    local pillLayout = Instance.new("UIListLayout")
+    pillLayout.FillDirection = Enum.FillDirection.Horizontal
+    pillLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+    pillLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    pillLayout.Padding = UDim.new(0, 7)
+    pillLayout.Parent = pill
+
+    -- Chấm tròn xanh trạng thái
+    local dotFrame = Instance.new("Frame")
+    dotFrame.Name = "StatusDot"
+    dotFrame.Size = UDim2.new(0, 7, 0, 7)
+    dotFrame.BackgroundColor3 = Color3.fromRGB(95, 165, 255)
+    dotFrame.BorderSizePixel = 0
+    dotFrame.LayoutOrder = 1
+    dotFrame.ZIndex = 10000
+    dotFrame.Parent = pill
+
+    local dotCorner = Instance.new("UICorner")
+    dotCorner.CornerRadius = UDim.new(1, 0)
+    dotCorner.Parent = dotFrame
+
+    -- Nhãn chữ trạng thái cầu vồng
+    local islandStatusLbl = Instance.new("TextLabel")
+    islandStatusLbl.Name = "StatusText"
+    islandStatusLbl.Size = UDim2.new(0, 0, 1, 0)
+    islandStatusLbl.AutomaticSize = Enum.AutomaticSize.X
+    islandStatusLbl.BackgroundTransparency = 1
+    islandStatusLbl.Font = Enum.Font.GothamBold
+    islandStatusLbl.TextSize = 12
+    islandStatusLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+    islandStatusLbl.Text = (State.Language == "EN") and "Idle" or "Đang rảnh"
+    islandStatusLbl.LayoutOrder = 2
+    islandStatusLbl.Active = true
+    islandStatusLbl.ZIndex = 10000
+    islandStatusLbl.Parent = pill
+
+    local txtGrad = Instance.new("UIGradient")
+    txtGrad.Name = "TextRainbow"
+    txtGrad.Color = COLOR_SEQ_RAINBOW
+    txtGrad.Parent = islandStatusLbl
+    table.insert(State.ActiveGradients, txtGrad)
+
+    -- Nút chỉ báo ▼ mở rộng
+    local expandHint = Instance.new("TextLabel")
+    expandHint.Name = "IslandExpandHint"
+    expandHint.Size = UDim2.new(0, 18, 0, 18)
+    expandHint.BackgroundColor3 = Color3.fromRGB(28, 32, 48)
+    expandHint.BorderSizePixel = 0
+    expandHint.Text = "▼"
+    expandHint.Font = Enum.Font.GothamBold
+    expandHint.TextSize = 9
+    expandHint.TextColor3 = Color3.fromRGB(165, 210, 255)
+    expandHint.LayoutOrder = 3
+    expandHint.Active = true
+    expandHint.ZIndex = 10000
+    expandHint.Parent = pill
+
+    local hintCorner = Instance.new("UICorner")
+    hintCorner.CornerRadius = UDim.new(1, 0)
+    hintCorner.Parent = expandHint
+
+    -- Đồng bộ nội dung từ nhãn trạng thái gốc của Venyx sang Dynamic Island
+    local lastRawEn = "Idle"
+    local function syncStatusFromSource()
+        if sourceStatusLbl and sourceStatusLbl.Parent then
+            local raw = (sourceStatusLbl.Text or ""):gsub("●", ""):gsub("•", ""):gsub("✨%s*rainbow", ""):match("^%s*(.-)%s*$") or ""
+            if raw ~= "" and not containsVietnameseChars(raw) then
+                lastRawEn = raw
+            elseif sourceStatusLbl:GetAttribute("OrigRawText") and not containsVietnameseChars(sourceStatusLbl:GetAttribute("OrigRawText")) then
+                lastRawEn = sourceStatusLbl:GetAttribute("OrigRawText"):gsub("●", ""):gsub("•", ""):match("^%s*(.-)%s*$") or "Idle"
+            end
+        end
+        islandStatusLbl.Text = translateStatusAction(lastRawEn)
+    end
+
+    State.RefreshIslandCallback = syncStatusFromSource
+    syncStatusFromSource()
+
+    if sourceStatusLbl then
+        sourceStatusLbl:GetPropertyChangedSignal("Text"):Connect(function()
+            if not isCurrentSession() then return end
+            syncStatusFromSource()
+        end)
+    end
+
+    -- 2. DỰNG KHUNG DYNAMIC ISLAND MỞ RỘNG (CHỨA NÚT NGÔN NGỮ + NÚT CONFIG + CHỮ NHỎ BÊN DƯỚI)
+    local ExpandedIsland = Instance.new("Frame")
     ExpandedIsland.Name = "ChilliV5_ExpandedIsland"
     ExpandedIsland.AnchorPoint = Vector2.new(0.5, 0)
     ExpandedIsland.Position = pill.Position
@@ -1421,8 +1461,24 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
     updateSubNoteLang()
     State.RefreshSubNoteCallback = updateSubNoteLang
 
+    local function toggleIsland(expand)
+        if expand then
+            ExpandedIsland.Position = pill.Position
+            pill.Visible = false
+            ExpandedIsland.Size = UDim2.new(0, 160, 0, 28)
+            ExpandedIsland.Visible = true
+            TweenService:Create(ExpandedIsland, TweenInfo.new(0.28, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0, 272, 0, 136)}):Play()
+        else
+            pill.Position = ExpandedIsland.Position
+            ExpandedIsland.Visible = false
+            pill.Visible = true
+        end
+    end
+
     ConfigMacroBtn.MouseButton1Click:Connect(function()
-        executeAutoFarmConfigImport(venyxGui, ConfigMacroBtn, ExpandedIsland, pill)
+        executeAutoFarmConfigImport(venyxGui, ConfigMacroBtn, function()
+            toggleIsland(false)
+        end)
     end)
 
     local function setLanguage(lang)
@@ -1444,27 +1500,9 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
 
     BtnVI.MouseButton1Click:Connect(function() setLanguage("VI") end)
     BtnEN.MouseButton1Click:Connect(function() setLanguage("EN") end)
-
-    local function toggleIsland(expand)
-        if expand then
-            ExpandedIsland.Position = pill.Position
-            pill.Visible = false
-            ExpandedIsland.Size = UDim2.new(0, 160, 0, 28)
-            ExpandedIsland.Visible = true
-            TweenService:Create(ExpandedIsland, TweenInfo.new(0.28, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0, 272, 0, 136)}):Play()
-        else
-            pill.Position = ExpandedIsland.Position
-            ExpandedIsland.Visible = false
-            pill.Visible = true
-        end
-    end
-
     CollapseBtn.MouseButton1Click:Connect(function() toggleIsland(false) end)
 
     local function attachDragAndClick(triggerObj, moveFrame, onTapCallback)
-        if triggerObj:GetAttribute("__DragSession") == MY_SESSION_ID then return end
-        triggerObj:SetAttribute("__DragSession", MY_SESSION_ID)
-
         local dragging, dragStart, startPos, moved = false, nil, nil, false
 
         triggerObj.InputBegan:Connect(function(input)
@@ -1499,16 +1537,9 @@ local function setupDynamicIslandFromStatus(statusLbl, venyxGui)
 
     local openCallback = function() toggleIsland(true) end
     attachDragAndClick(pill, pill, openCallback)
-    attachDragAndClick(statusLbl, pill, openCallback)
+    attachDragAndClick(islandStatusLbl, pill, openCallback)
     attachDragAndClick(expandHint, pill, openCallback)
     attachDragAndClick(ExpandedIsland, ExpandedIsland, nil)
-
-    statusLbl:GetPropertyChangedSignal("Text"):Connect(function()
-        if not isCurrentSession() then return end
-        if not statusLbl:GetAttribute("__Updating") and statusLbl.Text ~= statusLbl:GetAttribute("__LastTranslatedStatus") then
-            updateStatusText(false)
-        end
-    end)
 end
 
 -- ==================== 8. NÚT TRÒN NỔI 1:1 & HEADER LOGO ====================
@@ -1590,12 +1621,43 @@ local function patchHeaderLogoLeftOfTitle(headerContainer, titleLbl)
     end
 end
 
--- ==================== 9. BỘ QUÉT SIÊU MƯỢT CHỐNG ĐỨNG MÁY LÚC ĐẦU (ZERO-FREEZE ENGINE) ====================
+-- ==================== 9. BỘ ĐỊNH VỊ DYNAMIC ISLAND BẤT TỬ & QUÉT SIÊU MƯỢT ====================
 local CachedVenyxGui = nil
 local CachedTitleLbl = nil
 
+local function locateSourceStatusAndEnsureIsland(gui, titleLbl)
+    if not gui then return end
+
+    local foundSourceLbl = nil
+    local headerY = titleLbl and titleLbl.AbsolutePosition.Y or 0
+
+    for _, desc in ipairs(gui:GetDescendants()) do
+        if (desc:IsA("TextLabel") or desc:IsA("TextButton"))
+        and desc ~= titleLbl
+        and not desc:FindFirstAncestor("ChilliV5_DynamicPill")
+        and not desc:FindFirstAncestor("ChilliV5_ExpandedIsland")
+        and not desc:FindFirstAncestorOfClass("ScrollingFrame") then
+
+            local raw = (desc.Text or ""):match("^%s*(.-)%s*$")
+            local orig = (desc:GetAttribute("OrigRawText") or ""):match("^%s*(.-)%s*$")
+            local cleanRaw = raw:gsub("●", ""):gsub("•", ""):match("^%s*(.-)%s*$"):lower()
+            local cleanOrig = orig:gsub("●", ""):gsub("•", ""):match("^%s*(.-)%s*$"):lower()
+
+            local isStatusMatch = (cleanRaw == "idle" or cleanOrig == "idle" or cleanRaw == "đang rảnh" or raw:find("●", 1, true) ~= nil)
+            local isNearTop = (headerY == 0) or (math.abs(desc.AbsolutePosition.Y - headerY) < 50)
+
+            if isStatusMatch and isNearTop then
+                foundSourceLbl = desc
+                break
+            end
+        end
+    end
+
+    -- Dựng ngay Dynamic Island ở đỉnh màn hình (dù đã tìm thấy nhãn gốc hay đang chờ nhãn gốc render)
+    buildOrBindDynamicIsland(foundSourceLbl, gui, titleLbl)
+end
+
 local function patchVenyxScreenGui(gui, titleLbl)
-    -- 1. Ưu tiên xử lý ngay lập tức ở Frame 0: Đổi tên Title, Header Logo & Nút tròn 60x60
     if titleLbl.Text ~= NEW_TITLE then
         titleLbl:SetAttribute("__IsTranslating", true)
         titleLbl.Text = NEW_TITLE; titleLbl.AutomaticSize = Enum.AutomaticSize.X; titleLbl:SetAttribute("__IsTranslating", false)
@@ -1607,16 +1669,20 @@ local function patchVenyxScreenGui(gui, titleLbl)
         if curr:IsA("GuiObject") and curr.AbsoluteSize.X >= 350 and curr.AbsoluteSize.Y >= 220 then mainWindow = curr end
     end
 
-    local headerY = titleLbl.AbsolutePosition.Y
     if mainWindow then patchHeaderLogoLeftOfTitle(mainWindow, titleLbl) end
 
     for _, topChild in ipairs(gui:GetChildren()) do
-        if topChild:IsA("GuiObject") and topChild ~= mainWindow and topChild.Name ~= "ChilliV5_ExpandedIsland" and not topChild:FindFirstChild("IslandExpandHint") then
+        if topChild:IsA("GuiObject")
+        and topChild ~= mainWindow
+        and topChild.Name ~= "ChilliV5_DynamicPill"
+        and topChild.Name ~= "ChilliV5_ExpandedIsland" then
             setupUnclippedCircularLogo(topChild)
         end
     end
 
-    -- 2. Nếu ScreenGui này đã hoàn tất quét tổng thể cho Session hiện tại thì KHÔNG gọi lại GetDescendants() nữa (0% Lag!)
+    -- BẮT BUỘC DỰNG DYNAMIC ISLAND Ở ĐỈNH MÀN HÌNH 100%
+    locateSourceStatusAndEnsureIsland(gui, titleLbl)
+
     if gui:GetAttribute("__InitialScanDoneSession") == MY_SESSION_ID then
         return
     end
@@ -1628,31 +1694,15 @@ local function patchVenyxScreenGui(gui, titleLbl)
     for i = 1, #allDescendants do
         local desc = allDescendants[i]
         if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
-            local txt = desc.Text or ""; local isAlreadyMovedIdle = desc:GetAttribute("__IslandDone")
-            local hasDotSibling = false
-            if desc.Parent and desc.Parent:IsA("GuiObject") and desc.Parent.AbsoluteSize.X < 320 then
-                for _, sib in ipairs(desc.Parent:GetChildren()) do
-                    if sib:IsA("Frame") and sib.AbsoluteSize.X <= 14 and sib.AbsoluteSize.Y <= 14 then hasDotSibling = true break end
-                end
-            end
-
-            local isHeaderStatus = (not gui:GetAttribute("__IslandLocked"))
-                and (not desc:FindFirstAncestorOfClass("ScrollingFrame"))
-                and desc.Parent and (not titleLbl:IsDescendantOf(desc.Parent))
-                and math.abs(desc.AbsolutePosition.Y - headerY) < 35
-                and desc.AbsolutePosition.X > titleLbl.AbsolutePosition.X + 60
-                and (hasDotSibling or txt:lower():find("idle", 1, true) or txt == "Đang rảnh")
-                and not txt:find("v1.", 1, true)
-
-            if isHeaderStatus or isAlreadyMovedIdle then
-                gui:SetAttribute("__IslandLocked", true)
-                setupDynamicIslandFromStatus(desc, gui)
-            elseif isFpsCounterText(txt) then
+            local txt = desc.Text or ""
+            if isFpsCounterText(txt) then
                 hookFakeFpsCounter(desc)
-            elseif desc:GetAttribute("__TransHookSession") ~= MY_SESSION_ID then
+            elseif not desc:GetAttribute("__IslandDone")
+            and not desc:FindFirstAncestor("ChilliV5_DynamicPill")
+            and not desc:FindFirstAncestor("ChilliV5_ExpandedIsland")
+            and desc:GetAttribute("__TransHookSession") ~= MY_SESSION_ID then
                 pendingTextQueue[#pendingTextQueue + 1] = desc
             end
-
         elseif (desc:IsA("ImageLabel") or desc:IsA("ImageButton")) and desc.Name ~= "ChilliV5CoverLogo" and desc.Name ~= "ChilliHeaderLogo" and desc.Name ~= "InnerChilliLogo" then
             if not desc:FindFirstAncestorOfClass("ScrollingFrame") then
                 if mainWindow and not desc:IsDescendantOf(mainWindow) then setupUnclippedCircularLogo(desc) end
@@ -1660,17 +1710,19 @@ local function patchVenyxScreenGui(gui, titleLbl)
         end
     end
 
-    -- 3. Chia nhỏ lô dịch 18 phần tử / frame (Micro-Batching) để không bao giờ gây đứng máy lúc mới chạy script
     if #pendingTextQueue > 0 and not gui:GetAttribute("__BatchTranslating") then
         gui:SetAttribute("__BatchTranslating", true)
         task.spawn(function()
             for idx = 1, #pendingTextQueue do
                 if not isCurrentSession() then break end
                 local item = pendingTextQueue[idx]
-                if item and item.Parent then hookTextForTranslation(item) end
+                if item and item.Parent and not item:GetAttribute("__IslandDone") then
+                    hookTextForTranslation(item)
+                end
                 if idx % 18 == 0 then task.wait() end
             end
             gui:SetAttribute("__BatchTranslating", false)
+            locateSourceStatusAndEnsureIsland(gui, titleLbl)
         end)
     end
 end
@@ -1689,7 +1741,9 @@ local function attachScreenGuiListeners(gui)
                 if not isCurrentSession() then return end
                 if not newDesc:IsA("TextBox") and isFpsCounterText(newDesc.Text) then
                     hookFakeFpsCounter(newDesc)
-                else
+                elseif not newDesc:GetAttribute("__IslandDone")
+                and not newDesc:FindFirstAncestor("ChilliV5_DynamicPill")
+                and not newDesc:FindFirstAncestor("ChilliV5_ExpandedIsland") then
                     hookTextForTranslation(newDesc)
                 end
             end)
@@ -1707,18 +1761,8 @@ end
 local function tryPatchVenyx()
     if not isCurrentSession() then return end
 
-    -- Nếu đã bắt được GUI chính của Venyx, chỉ kiểm tra nhanh trên fastRoots (gethui / CoreGui) để tiết kiệm 99% CPU
     if CachedVenyxGui and CachedVenyxGui.Parent and CachedTitleLbl and CachedTitleLbl.Parent then
         patchVenyxScreenGui(CachedVenyxGui, CachedTitleLbl)
-        for _, root in ipairs(fastRoots) do
-            if root then
-                for _, gui in ipairs(root:GetChildren()) do
-                    if gui:IsA("ScreenGui") and not IGNORED_GUI_NAMES[gui.Name] then
-                        attachScreenGuiListeners(gui)
-                    end
-                end
-            end
-        end
         return
     end
 
@@ -1765,8 +1809,13 @@ task.spawn(function()
     while isCurrentSession() and not venyxMainPatched and elapsed < 60 do
         task.wait(0.35); elapsed = elapsed + 0.35; pcall(tryPatchVenyx)
     end
+    for _ = 1, 5 do
+        if not isCurrentSession() then break end
+        task.wait(0.3)
+        pcall(tryPatchVenyx)
+    end
     if isCurrentSession() then showUpcomingUpdateNotice() end
     while isCurrentSession() do
-        task.wait(3.0); pcall(tryPatchVenyx)
+        task.wait(2.5); pcall(tryPatchVenyx)
     end
 end)
