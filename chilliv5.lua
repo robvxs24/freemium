@@ -1,4 +1,4 @@
--- Chilli Hub V5 | Ultra-Compact Zero-Lag Build | Full Features Preserved
+-- Chilli Hub V5 | Ultra-Compact Zero-Lag Build | 100% Features & Dictionary Preserved
 local NEW_TITLE, LOGO_ID = "Chilli Hub V5", "rbxassetid://92622270383869"
 local LOGO_BG, BLACK_BG = Color3.fromRGB(5, 7, 15), Color3.fromRGB(0, 0, 0)
 local MY_URL = "https://raw.githubusercontent.com/ronnei/hihi/refs/heads/main/chillihubv5.lua"
@@ -26,7 +26,7 @@ pcall(function()
     end
 end)
 
--- 1. TELEPORT LOCK
+-- 1. TELEPORT HIJACK
 do
     local rq = env.__ChilliOrigQueue or env.queue_on_teleport or env.queueonteleport
         or (syn and syn.queue_on_teleport) or (fluxus and fluxus.queue_on_teleport) or (delta and delta.queue_on_teleport)
@@ -50,6 +50,23 @@ do
         local noop = function() end
         env.clearteleportqueue, env.clear_teleport_queue = noop, noop
         pcall(rq, boot)
+        task.spawn(function()
+            local P = game:GetService("Players")
+            local lp = P.LocalPlayer or P:GetPropertyChangedSignal("LocalPlayer"):Wait()
+            if lp and lp.OnTeleport then
+                lp.OnTeleport:Connect(function()
+                    if not isAlive() then return end
+                    if getconnections then
+                        pcall(function()
+                            for _, conn in ipairs(getconnections(lp.OnTeleport)) do
+                                if conn.Function and not isexecutorclosure(conn.Function) then conn:Disable() end
+                            end
+                        end)
+                    end
+                    pcall(rq, boot)
+                end)
+            end
+        end)
     end
 end
 
@@ -83,7 +100,7 @@ local RAINBOW = ColorSequence.new({
     ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 55, 55))
 })
 
--- 2. UNIFIED DAEMON (RAINBOW + FAKE FPS 85-120 IN ONE LIGHTWEIGHT LOOP)
+-- 2. UNIFIED SINGLE-LOOP DAEMON (RAINBOW + FAKE FPS 85-120)
 local fakeFps, lastFpsT = math.random(96, 112), 0
 local function getFakeFps()
     local now = os.clock()
@@ -129,12 +146,19 @@ task.spawn(function()
     end
 end)
 
--- 3. 5-TIER TRANSLATION ENGINE
+-- 3. 5-TIER TRANSLATION ENGINE (O(1) UTF-8 CHECK)
 local FastCache = {}
-local function hasVi(s) return type(s) == "string" and s ~= "" and s:find("[\194-\244][\128-\191]") ~= nil and not s:find("^[%w%s%p·•●🌶️🇻🇳🌐⚡⏳✅⚠️🚀✨]+$") end
+local function hasVi(s)
+    if type(s) ~= "string" or s == "" then return false end
+    local stripped = s:gsub("·", ""):gsub("•", ""):gsub("●", "")
+    return stripped:find("[\194-\225][\128-\191]") ~= nil
+end
 
 local EXACT_VI = {
-    ["CANDY CORN"]="KẸO NGÔ", ["Candy Corn"]="Kẹo Ngô", ["Calculate mutations"]="Tính thử đột biến",
+    ["🚀 UPCOMING UPDATE"]="🚀 CẬP NHẬT SẮP RA MẮT",
+    ["✨ Auto Config Feature: 100% optimized Auto Farm preset for all accounts (even beginners/low speed) and devices (even laggy ones). Strictly tested for the best and most suitable results!"]="✨ Tính năng Auto Config: Tự động nhập cấu hình Auto Farm chuẩn, tối ưu 100% cho mọi tài khoản (mới chơi/ít tốc độ) và thiết bị (kể cả máy yếu/lag). Cấu hình đã được test kỹ càng để mang lại hiệu quả cao nhất!",
+    ["✨ New Interface: Completely redesigned for a more beautiful and professional look."]="✨ Giao diện mới: Thiết kế lại toàn bộ giao diện đẹp mắt và chuyên nghiệp hơn.",
+    ["CLOSE"]="ĐÓNG", ["CANDY CORN"]="KẸO NGÔ", ["Candy Corn"]="Kẹo Ngô", ["Calculate mutations"]="Tính thử đột biến",
     ["Cards show the value with these mutations added"]="Thẻ trứng sẽ hiển thị giá trị sau khi cộng thêm các đột biến này",
     ["Delivery speed"]="Tốc độ mang trứng về", ["Change if steal fails"]="Hãy chỉnh giảm xuống nếu cướp trứng bị lỗi",
     ["Auto farm monsters"]="Tự động cày quái vật", ["Auto kill monsters"]="Tự động đánh quái vật", ["Bat"]="Gậy Dơi (Bat)",
@@ -296,7 +320,10 @@ local GRAMMAR_VI = {
     { pat="^[Dd]elivering (.+) home(.*)$", rep="Đang giao %1 về nhà%2" },
     { pat="^[Dd]elivering (.+)$", rep="Đang giao %1" },
     { pat="^[Bb]ringing (.+) to (.+)$", rep="Đang đem %1 tới %2" },
+    { pat="^[Bb]ringing (.+) home(.*)$", rep="Đang mang %1 về nhà%2" },
     { pat="^[Tt]aking (.+) from (.+)$", rep="Đang giật %1 từ %2" },
+    { pat="^[Tt]aking (.+) to (.+)$", rep="Đang đem %1 tới %2" },
+    { pat="^[Tt]aking (.+) home(.*)$", rep="Đang đem %1 về nhà%2" },
     { pat="^[Ss]tealing (.+) from (.+)$", rep="Đang cướp %1 từ %2" },
     { pat="^[Ss]tealing (.+)$", rep="Đang cướp %1" },
     { pat="^[Gg]rabbing (.+)$", rep="Đang nhặt %1" }, { pat="^[Pp]icking up (.+)$", rep="Đang nhặt %1" },
@@ -305,17 +332,19 @@ local GRAMMAR_VI = {
     { pat="^[Gg]oing to (.+)$", rep="Đang đi tới %1" }, { pat="^[Mm]oving to (.+)$", rep="Đang di chuyển tới %1" },
     { pat="^[Ww]alking to (.+)$", rep="Đang chạy tới %1" }, { pat="^[Rr]unning to (.+)$", rep="Đang chạy tới %1" },
     { pat="^[Ff]lying to (.+)$", rep="Đang bay tới %1" }, { pat="^[Rr]eturning to (.+)$", rep="Đang quay về %1" },
-    { pat="^[Pp]lacing (.+)$", rep="Đang đặt %1" }, { pat="^[Hh]atching (.+)$", rep="Đang ấp %1" },
-    { pat="^[Mm]utating (.+)$", rep="Đang đột biến %1" }, { pat="^[Ss]elling (.+)$", rep="Đang bán %1" },
-    { pat="^[Ff]using (.+)$", rep="Đang dung hợp %1" }, { pat="^[Uu]pgrading (.+)$", rep="Đang nâng cấp %1" },
-    { pat="^[Bb]uying (.+)$", rep="Đang mua %1" }, { pat="^[Cc]laiming (.+)$", rep="Đang nhận %1" },
-    { pat="^[Ee]quipping (.+)$", rep="Đang trang bị %1" }, { pat="^[Cc]atching (.+)$", rep="Đang bắt %1" },
+    { pat="^[Hh]eading to (.+)$", rep="Đang hướng tới %1" }, { pat="^[Pp]lacing (.+)$", rep="Đang đặt %1" },
+    { pat="^[Hh]atching (.+)$", rep="Đang ấp %1" }, { pat="^[Mm]utating (.+)$", rep="Đang đột biến %1" },
+    { pat="^[Ss]elling (.+)$", rep="Đang bán %1" }, { pat="^[Ff]using (.+)$", rep="Đang dung hợp %1" },
+    { pat="^[Uu]pgrading (.+)$", rep="Đang nâng cấp %1" }, { pat="^[Bb]uying (.+)$", rep="Đang mua %1" },
+    { pat="^[Cc]laiming (.+)$", rep="Đang nhận %1" }, { pat="^[Ee]quipping (.+)$", rep="Đang trang bị %1" },
+    { pat="^[Ff]avoriting (.+)$", rep="Đang khóa bảo vệ %1" }, { pat="^[Cc]atching (.+)$", rep="Đang bắt %1" },
     { pat="^[Cc]hasing (.+)$", rep="Đang đuổi theo %1" }, { pat="^[Aa]ttacking (.+)$", rep="Đang tấn công %1" },
     { pat="^[Hh]itting (.+)$", rep="Đang đánh %1" }, { pat="^[Kk]illing (.+)$", rep="Đang tiêu diệt %1" },
     { pat="^[Tt]rading in (.+)$", rep="Đang đổi %1" }, { pat="^[Cc]rafting (.+)$", rep="Đang chế tạo %1" },
-    { pat="^[Aa]voiding (.+)$", rep="Đang né %1" }, { pat="^[Ww]aiting for (.+)$", rep="Đang chờ %1" },
-    { pat="^[Ww]aiting in (.+)$", rep="Đang đợi ở %1" }, { pat="^[Ww]aiting %((.+)%)$", rep="Đang chờ (%1)" },
-    { pat="^[Ss]earching for (.+)$", rep="Đang tìm %1" }, { pat="^[Ff]arming (.+)$", rep="Đang cày %1" },
+    { pat="^[Rr]erolling (.+)$", rep="Đang đổi lại %1" }, { pat="^[Aa]voiding (.+)$", rep="Đang né %1" },
+    { pat="^[Ww]aiting for (.+)$", rep="Đang chờ %1" }, { pat="^[Ww]aiting in (.+)$", rep="Đang đợi ở %1" },
+    { pat="^[Ww]aiting %((.+)%)$", rep="Đang chờ (%1)" }, { pat="^[Ss]earching for (.+)$", rep="Đang tìm %1" },
+    { pat="^[Ss]canning (.+)$", rep="Đang quét %1" }, { pat="^[Ff]arming (.+)$", rep="Đang cày %1" },
     { pat="^[Uu]sing (.+)$", rep="Đang dùng %1" }, { pat="^[Jj]oining (.+)$", rep="Đang tham gia %1" },
     { pat="^[Hh]opping (.+)$", rep="Đang đổi %1" }
 }
@@ -328,40 +357,49 @@ local PHRASES_VI = {
     {"no egg matches your targets","Không có trứng nào khớp mục tiêu"}, {"no eggs match filter","Không có trứng khớp bộ lọc"},
     {"waiting for field to open","Đang chờ sân trứng mở"}, {"waiting for eggs to spawn","Đang chờ trứng xuất hiện"},
     {"waiting in safe zone","Đợi ở vùng an toàn"}, {"returning to safe zone","Đang về vùng an toàn"},
-    {"to the altar","tới bệ thờ"}, {"to altar","tới bệ thờ"}, {"the altar","bệ thờ"}, {"a pumpkin","bí ngô"},
+    {"going to safe zone","Đang về vùng an toàn"}, {"to the altar","tới bệ thờ"}, {"to altar","tới bệ thờ"},
+    {"the altar","bệ thờ"}, {"a pumpkin","bí ngô"}, {"an egg","trứng"}, {"the egg","trứng"},
     {"egg bag is full","Túi trứng đã đầy"}, {"pet bag is full","Túi pet đã đầy"}, {"bag is full","Túi đã đầy"},
-    {"pen is full","Chuồng đã đầy"}, {"field is closed","Sân trứng đang đóng"}, {"safe zone","vùng an toàn"},
-    {"other players","người chơi khác"}, {"missing index","thiếu trong Chỉ mục"}, {"shooting star","sao băng"},
-    {"butterfly bloom","mùa bướm nở"}, {"racing event","sự kiện đua xe"}, {"offline cash","tiền ngoại tuyến"},
-    {"index rewards","thưởng Chỉ mục"}, {"lab eggs","trứng Lab"}, {"event egg","trứng sự kiện"},
-    {"minigame eggs","trứng Minigame"}, {"minigame egg","trứng Minigame"}, {"wisp eggs","trứng Wisp"},
-    {"to safe zone","về vùng an toàn"}, {"to safety","đến nơi an toàn"}, {"to base","về căn cứ"}, {"to pen","vào chuồng"},
-    {"was added to your configs","đã được thêm vào danh sách cấu hình"}
+    {"pen is full","Chuồng đã đầy"}, {"field is closed","Sân trứng đang đóng"}, {"field opens in","Sân mở sau"},
+    {"opens in","mở sau"}, {"starts in","bắt đầu sau"}, {"ends in","kết thúc sau"}, {"lands in","rơi sau"},
+    {"spawns in","xuất hiện sau"}, {"your targets","mục tiêu"}, {"matches your","khớp với"}, {"matches filter","khớp bộ lọc"},
+    {"safe zone","vùng an toàn"}, {"other players","người chơi khác"}, {"missing index","thiếu trong Chỉ mục"},
+    {"shooting star","sao băng"}, {"butterfly bloom","mùa bướm nở"}, {"racing event","sự kiện đua xe"},
+    {"offline cash","tiền ngoại tuyến"}, {"index rewards","thưởng Chỉ mục"}, {"lab eggs","trứng Lab"},
+    {"event egg","trứng sự kiện"}, {"minigame eggs","trứng Minigame"}, {"minigame egg","trứng Minigame"},
+    {"wisp eggs","trứng Wisp"}, {"to safe zone","về vùng an toàn"}, {"to safety","đến nơi an toàn"},
+    {"to base","về căn cứ"}, {"to pen","vào chuồng"}, {"is full","đã đầy"}, {"is closed","đang đóng"},
+    {"is open","đang mở"}, {"to open","mở cửa"}, {"to spawn","xuất hiện"},
+    {"was added to your configs","đã được thêm vào danh sách cấu hình"},
+    {"join our discord for updates and support","Tham gia Discord để cập nhật và nhận hỗ trợ"}
 }
 
 local WORDS_VI = {
     idle="Đang rảnh", carrying="Đang mang", delivering="Đang giao", stealing="Đang cướp", grabbing="Đang nhặt",
     picking="Đang nhặt", collecting="Đang thu thập", holding="Đang giữ", capturing="Đang bắt giữ", dropping="Đang thả",
     tweening="Đang bay", teleporting="Đang dịch chuyển", going="Đang đi", moving="Đang di chuyển", walking="Đang đi bộ",
-    running="Đang chạy", flying="Đang bay", returning="Đang quay về", placing="Đang đặt", hatching="Đang ấp",
-    mutating="Đang đột biến", selling="Đang bán", fusing="Đang dung hợp", upgrading="Đang nâng cấp", buying="Đang mua",
-    claiming="Đang nhận", equipping="Đang trang bị", catching="Đang nhặt", chasing="Đang đuổi theo", attacking="Đang tấn công",
-    hitting="Đang đánh", killing="Đang tiêu diệt", trading="Đang đổi", crafting="Đang chế tạo", avoiding="Đang né",
-    waiting="Đang chờ", searching="Đang tìm", scanning="Đang quét", farming="Đang cày", using="Đang dùng",
-    joining="Đang vào", hopping="Đang đổi", rejoining="Đang vào lại", finding="Đang tìm", racing="Đang đua",
-    ready="Sẵn sàng", nothing="Không có gì", none="Không có", no="Không có", pumpkin="bí ngô", pumpkins="bí ngô",
-    altar="bệ thờ", monster="quái vật", monsters="quái vật", ghost="ma", ghosts="ma", soul="linh hồn", souls="linh hồn",
-    train="chuyến tàu", boss="Boss", cursed="nguyền rủa", island="đảo", wars="đại chiến", enemies="kẻ địch",
-    walls="tường chắn", crystal="pha lê", candy="kẹo", corn="ngô", fishing="câu cá", fish="cá", quest="nhiệm vụ",
-    dimension="không gian", delivery="mang về", calculate="tính thử", mutation="đột biến", mutations="đột biến",
-    weapon="vũ khí", weapons="vũ khí", removed="đã gỡ bỏ", added="đã thêm", fixed="đã sửa", egg="trứng", eggs="trứng",
-    pet="pet", pets="pet", matches="khớp", match="khớp", matching="khớp", your="của bạn", target="mục tiêu",
-    targets="mục tiêu", filter="bộ lọc", home="về nhà", base="căn cứ", pen="chuồng", pens="chuồng", field="sân trứng",
-    zone="khu vực", zones="khu vực", bag="túi", full="đầy", empty="trống", closed="đóng", open="mở", guard="vệ sĩ",
-    guards="vệ sĩ", player="người chơi", players="người chơi", server="máy chủ", treadmill="máy tập", race="đua xe",
-    star="sao băng", butterfly="bướm", portal="cổng", rewards="thưởng", reward="thưởng", cash="tiền", found="tìm thấy",
-    speed="tốc độ", instant="tức thì", steal="cướp", auto="tự động", to="tới", from="từ", ["in"]="trong", at="tại",
-    ["for"]="cho", with="với", ["and"]="và", ["or"]="hoặc"
+    running="Đang chạy", flying="Đang bay", returning="Đang quay về", heading="Đang hướng", placing="Đang đặt",
+    hatching="Đang ấp", mutating="Đang đột biến", selling="Đang bán", fusing="Đang dung hợp", upgrading="Đang nâng cấp",
+    buying="Đang mua", claiming="Đang nhận", equipping="Đang trang bị", favoriting="Đang khóa", ejecting="Đang đẩy",
+    catching="Đang nhặt", chasing="Đang đuổi theo", attacking="Đang tấn công", hitting="Đang đánh", killing="Đang tiêu diệt",
+    trading="Đang đổi", crafting="Đang chế tạo", rerolling="Đang đổi lại", avoiding="Đang né", evading="Đang tránh",
+    waiting="Đang chờ", searching="Đang tìm", looking="Đang tìm", scanning="Đang quét", farming="Đang cày",
+    using="Đang dùng", joining="Đang vào", hopping="Đang đổi", rejoining="Đang vào lại", finding="Đang tìm",
+    checking="Đang kiểm tra", skipping="Đang bỏ qua", racing="Đang đua", cooldown="Hồi chiêu", ready="Sẵn sàng",
+    nothing="Không có gì", none="Không có", no="Không có", pumpkin="bí ngô", pumpkins="bí ngô", altar="bệ thờ",
+    monster="quái vật", monsters="quái vật", ghost="ma", ghosts="ma", soul="linh hồn", souls="linh hồn",
+    train="chuyến tàu", boss="Boss", cursed="nguyền rủa", island="đảo", wars="đại chiến", war="chiến tranh",
+    enemies="kẻ địch", enemy="kẻ địch", walls="tường chắn", wall="tường", crystal="pha lê", crystals="pha lê",
+    candy="kẹo", corn="ngô", fishing="câu cá", fish="cá", quest="nhiệm vụ", quests="nhiệm vụ", dimension="không gian",
+    delivery="mang về", calculate="tính thử", mutation="đột biến", mutations="đột biến", weapon="vũ khí", weapons="vũ khí",
+    removed="đã gỡ bỏ", added="đã thêm", fixed="đã sửa", egg="trứng", eggs="trứng", pet="pet", pets="pet",
+    matches="khớp", match="khớp", matching="khớp", your="của bạn", target="mục tiêu", targets="mục tiêu",
+    filter="bộ lọc", home="về nhà", base="căn cứ", pen="chuồng", pens="chuồng", field="sân trứng", zone="khu vực",
+    zones="khu vực", bag="túi", full="đầy", empty="trống", closed="đóng", open="mở", guard="vệ sĩ", guards="vệ sĩ",
+    player="người chơi", players="người chơi", server="máy chủ", treadmill="máy tập", race="đua xe", star="sao băng",
+    butterfly="bướm", portal="cổng", rewards="thưởng", reward="thưởng", cash="tiền", found="tìm thấy",
+    available="khả dụng", speed="tốc độ", instant="tức thì", steal="cướp", auto="tự động", to="tới", from="từ",
+    ["in"]="trong", at="tại", ["for"]="cho", with="với", ["and"]="và", ["or"]="hoặc"
 }
 
 local DYN_VI = {
@@ -379,6 +417,9 @@ local DYN_VI = {
     { pat="(%d+) pet%(s%) match", rep="%1 pet khớp bộ lọc" }, { pat="(%d+) egg%(s%) match", rep="%1 trứng khớp bộ lọc" },
     { pat="(%d+) lab egg%(s%) match", rep="%1 trứng Lab khớp bộ lọc" }, { pat="^(%d+) pets$", rep="%1 thú cưng" },
     { pat="(%d+ / %d+) players · (.+)", rep="%1 người chơi · %2" },
+    { pat="Experimental Pets · needs (.-) · pity (%d+/%d+) · rerolls (%d+) · (.+)", rep="Pet Thí Nghiệm · cần %1 · bảo hiểm %2 · lượt đổi %3 · %4" },
+    { pat="Biohazard Pets · needs (.-) · pity (%d+/%d+) · rerolls (%d+) · (.+)", rep="Pet Sinh Học · cần %1 · bảo hiểm %2 · lượt đổi %3 · %4" },
+    { pat="Unstable DNA · needs (.-) · pity (%d+/%d+) · rerolls (%d+) · (.+)", rep="DNA Bất Ổn · cần %1 · bảo hiểm %2 · lượt đổi %3 · %4" },
     { pat="^Mythic · 1 in ([%d%.]+)$", rep="Thần Thoại · 1 trên %1" },
     { pat="^Cosmic · 1 in ([%d%.]+)$", rep="Vũ Trụ · 1 trên %1" },
     { pat="^Secret · 1 in ([%d%.]+)$", rep="Bí Ẩn · 1 trên %1" },
@@ -565,7 +606,7 @@ local function refreshAll()
     end)
 end
 
--- 5. MULTI-LAYER BUTTON ACTIVATOR (SỬA DỨT ĐIỂM LỖI KHÔNG BẤM APPLY NOW TRONG VIDEO 6810.MP4)
+-- 5. MULTI-LAYER BUTTON ACTIVATOR (GUARANTEED APPLY NOW CLICK)
 local function fireNode(node)
     if not node then return false end
     local targets = { node }
@@ -586,8 +627,9 @@ local function fireNode(node)
                             if conn.Function then
                                 task.spawn(function()
                                     if sigName == "InputBegan" or sigName == "InputEnded" then
-                                        pcall(conn.Function, { UserInputType = Enum.UserInputType.MouseButton1, UserInputState = (sigName == "InputBegan" and Enum.UserInputState.Begin or Enum.UserInputState.End) })
-                                        pcall(conn.Function, { UserInputType = Enum.UserInputType.Touch, UserInputState = (sigName == "InputBegan" and Enum.UserInputState.Begin or Enum.UserInputState.End) })
+                                        local st = (sigName == "InputBegan" and Enum.UserInputState.Begin or Enum.UserInputState.End)
+                                        pcall(conn.Function, { UserInputType = Enum.UserInputType.MouseButton1, UserInputState = st })
+                                        pcall(conn.Function, { UserInputType = Enum.UserInputType.Touch, UserInputState = st })
                                     else
                                         pcall(conn.Function)
                                     end
@@ -606,7 +648,6 @@ local function fireNode(node)
         end
     end
 
-    -- Bắn đồng thời cả 2 hệ tọa độ (Raw AbsolutePosition và Inset-Offset) để trúng 100% nút trên Mobile/PC
     local box = (node:IsA("GuiObject") and node.AbsoluteSize.X > 10) and node or (node.Parent and node.Parent:IsA("GuiObject") and node.Parent)
     if box and box.Visible and box.AbsoluteSize.X > 0 then
         pcall(function()
@@ -675,7 +716,6 @@ local function runAutoFarmMacro(venyxGui, btnLbl)
         task.wait(0.12)
         if importBtn then fireNode(importBtn) end
 
-        -- Quét liên tục và kích hoạt đa tầng nút "Apply now" / "Áp dụng ngay" cho đến khi hộp thoại đóng hẳn
         local applied = false
         for _ = 1, 35 do
             task.wait(0.12)
@@ -700,7 +740,6 @@ local function runAutoFarmMacro(venyxGui, btnLbl)
                 applied = true
                 task.wait(0.2)
             elseif applied then
-                -- Hộp thoại đã đóng sau khi bấm Apply Now thành công
                 break
             end
         end
@@ -934,7 +973,7 @@ local function patchVenyxGui(gui, titleLbl)
                 gui:SetAttribute("__IslandLocked", true); setupIsland(d, gui)
             elseif isFpsTxt(txt) then hookFps(d)
             elseif d:GetAttribute("__TransHookSession") ~= SID then queue[#queue + 1] = d end
-        elseif (d:IsA("ImageLabel") or d:IsA("ImageButton")) and d.Name ~= "ChilliV5CoverLogo" and d.Name ~= "ChilliHeaderLogo" then
+        elseif (d:IsA("ImageLabel") or d:IsA("ImageButton")) and d.Name ~= "ChilliV5CoverLogo" and d.Name ~= "ChilliHeaderLogo" and d.Name ~= "InnerChilliLogo" then
             if not d:FindFirstAncestorOfClass("ScrollingFrame") and win and not d:IsDescendantOf(win) then setupCircleLogo(d) end
         end
     end
