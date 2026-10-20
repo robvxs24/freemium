@@ -9,7 +9,7 @@ local AUTO_FILE, LANG_FILE = "ChilliHubV5_AutoRun.lua", "ChilliV5_Lang.txt"
 task.spawn(function()
     if not game:IsLoaded() then game.Loaded:Wait() end
     pcall(function()
-        loadstring(game:HttpGet(VENYX_URL))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/tienkhanh1/Venyx/main/VenyxHub"))()
     end)
 end)
 
