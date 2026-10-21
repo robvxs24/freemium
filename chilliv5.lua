@@ -1,8 +1,14 @@
--- Chilli Hub V5 | Full Unclipped Logo (74441610995894) + Cosmic Header Bar (83726521558450) + Egg Icon (91536384271341)
+-- Chilli Hub V5 | rbxthumb Asset Fix + 9-Slice Cosmic Header (83726521558450) + Unclipped Logo (74441610995894)
 local NEW_TITLE = "Chilli Hub V5"
-local LOGO_ID = "rbxassetid://74441610995894"
-local HEADER_BAR_IMG_ID = "rbxassetid://83726521558450"
-local STEAL_TAB_ICON_ID = "rbxassetid://91536384271341"
+
+-- Sử dụng giao thức rbxthumb://type=Asset để hiển thị 100% Decal ID không bao giờ bị đen hay ẩn ảnh
+local function toThumb(id)
+    return ("rbxthumb://type=Asset&id=%s&w=420&h=420"):format(tostring(id):match("%d+"))
+end
+
+local LOGO_ID           = toThumb("74441610995894")
+local HEADER_BAR_IMG_ID = toThumb("83726521558450")
+local STEAL_TAB_ICON_ID = toThumb("91536384271341")
 
 local LOGO_BG, BLACK_BG = Color3.fromRGB(5, 7, 15), Color3.fromRGB(0, 0, 0)
 local MY_URL = "https://raw.githubusercontent.com/ronnei/hihi/refs/heads/main/chillihubv5.lua"
@@ -828,7 +834,7 @@ local function setupIsland(statusLbl, venyxGui)
     end)
 end
 
--- 7. LOGO MỚI BAO QUÁT 100% TOÀN BỘ ẢNH (74441610995894) + THANH KHUNG HEADER VŨ TRỤ (83726521558450)
+-- 7. NÚT NỔI BAO QUÁT 100% ẢNH (74441610995894) & THANH KHUNG 9-SLICE VŨ TRỤ (83726521558450)
 local function setupCircleLogo(obj)
     local top = obj
     while top.Parent and top.Parent:IsA("GuiObject") and not top.Parent:IsA("ScreenGui") do top = top.Parent end
@@ -838,21 +844,17 @@ local function setupCircleLogo(obj)
     local existingCov = top:FindFirstChild("ChilliV5CoverLogo")
     if existingCov and existingCov:IsA("ImageLabel") then
         existingCov.Image = LOGO_ID
-        existingCov.Size = UDim2.fromScale(1.18, 1.18)
-        top.ClipsDescendants = false
-        top.BackgroundTransparency = 1
-        local oldRb = top:FindFirstChild("RainbowBorder")
-        if oldRb then oldRb:Destroy() end
-        local oldCorner = existingCov:FindFirstChildOfClass("UICorner")
-        if oldCorner then oldCorner:Destroy() end
+        existingCov.ImageTransparency = 0
+        existingCov.Visible = true
         return
     end
     if top:GetAttribute("__FloatingLogoV5Perfect") then return end
     top:SetAttribute("__FloatingLogoV5Perfect", true)
 
+    -- Ẩn chữ "Vx" và icon gốc bên trong nút mở menu nhưng giữ nguyên sự kiện bấm của nút gốc
     for _, ch in ipairs(top:GetDescendants()) do
-        if ch:IsA("UIPadding") or ch:IsA("UIAspectRatioConstraint") or ch:IsA("UISizeConstraint") or ch:IsA("UIStroke") then
-            if ch.Name ~= "PerfectCircleAspect" then pcall(ch.Destroy, ch) end
+        if (ch:IsA("UIPadding") or ch:IsA("UIAspectRatioConstraint") or ch:IsA("UISizeConstraint") or ch:IsA("UIStroke")) and ch.Name ~= "PerfectCircleAspect" then
+            pcall(ch.Destroy, ch)
         end
         if (ch:IsA("ImageLabel") or ch:IsA("ImageButton")) and ch.Name ~= "ChilliV5CoverLogo" then
             ch.ImageTransparency, ch.BackgroundTransparency = 1, 1
@@ -863,43 +865,45 @@ local function setupCircleLogo(obj)
     if top:IsA("ImageLabel") or top:IsA("ImageButton") then top.ImageTransparency = 1
     elseif top:IsA("TextLabel") or top:IsA("TextButton") then top:SetAttribute("__HiddenVxLogo", true); top.TextTransparency = 1 end
 
-    -- Tắt ClipsDescendants và làm nền trong suốt để lấy trọn vẹn 100% các cánh sao nhô ra ngoài của ảnh 74441610995894
-    top.Size = UDim2.new(0, 68, 0, 68)
-    top.BackgroundTransparency = 1
+    -- Đặt nền tròn tối bên dưới vừa vặn bên trong vòng kim loại, còn ảnh CoverLogo (74441610995894)
+    -- tràn nhẹ ra ngoài (ClipsDescendants = false) để lấy trọn vẹn 100% các cánh sao 4 góc
+    top.Size = UDim2.new(0, 62, 0, 62)
+    top.BackgroundColor3 = LOGO_BG
+    top.BackgroundTransparency = 0.15
     top.BorderSizePixel = 0
     top.ClipsDescendants = false
+    top.Visible = true
 
     if not top:FindFirstChild("PerfectCircleAspect") then mk("UIAspectRatioConstraint", { Name="PerfectCircleAspect", AspectRatio=1 }, top) end
+    if not top:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius=UDim.new(1,0) }, top) end
+
     if not top:GetAttribute("__SizeLocked") then
         top:SetAttribute("__SizeLocked", true)
         top:GetPropertyChangedSignal("Size"):Connect(function()
-            if top.Size ~= UDim2.new(0, 68, 0, 68) then top.Size = UDim2.new(0, 68, 0, 68) end
-        end)
-        top:GetPropertyChangedSignal("BackgroundTransparency"):Connect(function()
-            if top.BackgroundTransparency ~= 1 then top.BackgroundTransparency = 1 end
+            if top.Size ~= UDim2.new(0, 62, 0, 62) then top.Size = UDim2.new(0, 62, 0, 62) end
         end)
     end
 
     mk("ImageLabel", {
         Name = "ChilliV5CoverLogo",
-        Size = UDim2.fromScale(1.18, 1.18),
+        Size = UDim2.fromScale(1.28, 1.28),
         Position = UDim2.fromScale(0.5, 0.5),
         AnchorPoint = Vector2.new(0.5, 0.5),
         BackgroundTransparency = 1,
         Image = LOGO_ID,
+        ImageTransparency = 0,
         ScaleType = Enum.ScaleType.Fit,
         Active = false,
-        ZIndex = top.ZIndex + 5
+        ZIndex = math.max(10, top.ZIndex + 8)
     }, top)
 end
 
--- HÀM ĐỔI THANH KHUNG HEADER (ẢNH 3) SANG THANH KHUNG HÀNH TINH VŨ TRỤ (83726521558450 - ẢNH 2)
--- Tự động kéo giãn và căn chỉnh khớp 100% với chiều rộng & chiều cao thanh Header của Menu Script
+-- HÀM GẮN THANH KHUNG 9-SLICE (83726521558450):
+-- Giữ nguyên 100% tỷ lệ Quả Cầu Hành Tinh bên trái (không bị kéo bẹt), chỉ kéo giãn đoạn thanh trơn bên phải!
 local function patchHeaderLogoAndCosmicBar(win, titleLbl)
     if not win or not titleLbl then return end
     local hy, tx = titleLbl.AbsolutePosition.Y, titleLbl.AbsolutePosition.X
 
-    -- 1. Tìm đúng Frame thanh Header (nằm ở đỉnh của win, chiều rộng bằng win, chiều cao ~32-56px)
     local headerBar = titleLbl.Parent
     local curr = titleLbl
     while curr and curr ~= win do
@@ -910,37 +914,39 @@ local function patchHeaderLogoAndCosmicBar(win, titleLbl)
         curr = curr.Parent
     end
 
-    -- 2. Gắn Thanh Khung Hành Tinh Vũ Trụ (83726521558450) tự động co giãn khớp 100% theo thanh Header
     if headerBar and headerBar:IsA("GuiObject") then
         pcall(function()
             win.ClipsDescendants = false
             headerBar.ClipsDescendants = false
-            headerBar.BackgroundTransparency = 1
         end)
 
         local cosmicBar = headerBar:FindFirstChild("ChilliCosmicHeaderBanner")
         if not cosmicBar then
-            local baseZ = math.max(1, headerBar.ZIndex)
-            -- Nâng ZIndex của toàn bộ chữ, nút tìm kiếm và nút thu gọn trên Header lên trên lớp khung ảnh vũ trụ
+            local baseZ = math.max(2, headerBar.ZIndex)
             for _, desc in ipairs(headerBar:GetDescendants()) do
                 if desc:IsA("GuiObject") and desc.Name ~= "ChilliCosmicHeaderBanner" then
-                    if desc.ZIndex <= baseZ + 1 then
-                        desc.ZIndex = baseZ + 3
+                    if desc.ZIndex <= baseZ + 2 then
+                        desc.ZIndex = baseZ + 5
                     end
                 end
             end
 
-            -- Trong ảnh 83726521558450 (703x301), dải khung ngang nằm ở giữa (chiếm ~42% chiều cao ảnh, quả cầu hành tinh nhô ra ở bên trái).
-            -- Đặt Size = UDim2.new(1.06, 24, 2.35, 0) và AnchorPoint = (0.49, 0.52) giúp dải khung ngang giữa ảnh
-            -- ôm khít 100% chiều dài và chiều cao của thanh Header, tự động kéo giãn mượt mà khi thay đổi kích thước Menu!
+            -- Kỹ thuật 9-Slice (ScaleType.Slice):
+            -- Trên ảnh rbxthumb 420x420:
+            --   + X từ 0 -> 165 là Quả Cầu Hành Tinh & vành đai (ĐƯỢC GIỮ NGUYÊN 100%, KHÔNG KÉO GIÃN)
+            --   + X từ 165 -> 310 là đoạn thanh ngang trơn (TỰ ĐỘNG KÉO DÀI RA THEO CHIỀU RỘNG MENU)
+            --   + X từ 310 -> 420 là đuôi tia tím bên phải (GIỮ NGUYÊN HỌA TIẾT ĐUÔI)
             cosmicBar = mk("ImageLabel", {
                 Name = "ChilliCosmicHeaderBanner",
-                AnchorPoint = Vector2.new(0.49, 0.52),
-                Position = UDim2.fromScale(0.5, 0.5),
-                Size = UDim2.new(1.06, 24, 2.35, 0),
+                AnchorPoint = Vector2.new(0, 0.5),
+                Position = UDim2.new(0, -34, 0.5, 0),
+                Size = UDim2.new(1, 58, 0, 96),
                 BackgroundTransparency = 1,
                 Image = HEADER_BAR_IMG_ID,
-                ScaleType = Enum.ScaleType.Stretch,
+                ImageTransparency = 0,
+                ScaleType = Enum.ScaleType.Slice,
+                SliceCenter = Rect.new(165, 0, 310, 420),
+                SliceScale = 0.24,
                 Active = false,
                 Selectable = false,
                 ZIndex = baseZ + 1
@@ -950,7 +956,7 @@ local function patchHeaderLogoAndCosmicBar(win, titleLbl)
         end
     end
 
-    -- 3. Thay Logo nhỏ bên trái chữ "Chilli Hub V5" sang ảnh 74441610995894 (lấy trọn toàn bộ ảnh không bị cắt góc)
+    -- Thay Logo nhỏ bên trái chữ "Chilli Hub V5" sang ảnh 74441610995894 (hiển thị rõ bằng rbxthumb)
     for _, it in ipairs(win:GetDescendants()) do
         if it ~= titleLbl and it:IsA("GuiObject") and it.Name ~= "ChilliCosmicHeaderBanner" and it.Name ~= "ChilliStealTabIcon" then
             local p, s = it.AbsolutePosition, it.AbsoluteSize
@@ -970,14 +976,15 @@ local function patchHeaderLogoAndCosmicBar(win, titleLbl)
                         it.Parent.BackgroundTransparency = 1
                         mk("ImageLabel", {
                             Name = "ChilliHeaderLogo",
-                            Size = UDim2.new(0, 30, 0, 30),
+                            Size = UDim2.new(0, 32, 0, 32),
                             Position = UDim2.fromScale(0.5, 0.5),
                             AnchorPoint = Vector2.new(0.5, 0.5),
                             BackgroundTransparency = 1,
                             Image = LOGO_ID,
+                            ImageTransparency = 0,
                             ScaleType = Enum.ScaleType.Fit,
                             Active = false,
-                            ZIndex = it.ZIndex + 3
+                            ZIndex = it.ZIndex + 6
                         }, it.Parent)
                     end
                 end
