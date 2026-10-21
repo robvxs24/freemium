@@ -1,5 +1,6 @@
--- Chilli Hub V5 | Arceus X NEO Fixed + Zero-Lag Compact Edition | Manual Apply Mode
+-- Chilli Hub V5 | Custom Egg Tab Icon (91536384271341) + Arceus X NEO Fixed + Zero-Lag
 local NEW_TITLE, LOGO_ID = "Chilli Hub V5", "rbxassetid://92622270383869"
+local STEAL_TAB_ICON_ID = "rbxassetid://91536384271341"
 local LOGO_BG, BLACK_BG = Color3.fromRGB(5, 7, 15), Color3.fromRGB(0, 0, 0)
 local MY_URL = "https://raw.githubusercontent.com/ronnei/hihi/refs/heads/main/chillihubv5.lua"
 local VENYX_URL = "https://raw.githubusercontent.com/tienkhanh1/Venyx/main/VenyxHub"
@@ -12,7 +13,6 @@ if writefile then
     pcall(writefile, AUTO_FILE, ('pcall(function() loadstring(game:HttpGet("%s"))() end)'):format(MY_URL))
 end
 
--- HÀM TẢI HTTP ĐA TẦNG (CHỐNG KẸT TRÊN ARCEUS X NEO & ANDROID CLIENT)
 local function safeHttpGet(url)
     local ok, res = pcall(function() return game:HttpGet(url, true) end)
     if ok and type(res) == "string" and #res > 10 then return res end
@@ -59,7 +59,6 @@ local IGNORED_GUIS = {
     Freecam=true, BackpackGui=true, PlayerList=true, PurchasePrompt=true, ChilliV5_NoticeGui=true
 }
 
--- KIỂM TRA MENU VENYX ĐÃ HIỆN TRÊN MÀN HÌNH HAY CHƯA
 local function isVenyxUiPresent()
     for _, root in ipairs(getScanRoots()) do
         for _, d in ipairs(root:GetDescendants()) do
@@ -71,7 +70,6 @@ local function isVenyxUiPresent()
     return false
 end
 
--- KHỞI CHẠY VENYXHUB SẠCH TRƯỚC KHI HOOK (TRÁNH ANTI-HOOK LUARMOR TRÊN ARCEUS X NEO)
 local function launchVenyxBase()
     if isVenyxUiPresent() then return end
     if env.__VenyxLaunchingNow and (os.clock() - (env.__VenyxLaunchClock or 0) < 8) then return end
@@ -82,9 +80,7 @@ local function launchVenyxBase()
         local rawCode = safeHttpGet(VENYX_URL)
         if rawCode then
             local fn = loadstring(rawCode)
-            if type(fn) == "function" then
-                pcall(fn)
-            end
+            if type(fn) == "function" then pcall(fn) end
         end
         env.__VenyxLaunchingNow = false
     end)
@@ -92,7 +88,6 @@ end
 
 launchVenyxBase()
 
--- HOOK TELEPORT AN TOÀN BẰNG NEWCCLOSURE (KHÔNG CHẠM GETFENV(0) GÂY CRASH ARCEUS X NEO)
 local function setupSafeTeleportHook()
     if env.__ChilliSafeTpInstalled then return end
     env.__ChilliSafeTpInstalled = true
@@ -829,7 +824,7 @@ local function setupIsland(statusLbl, venyxGui)
     end)
 end
 
--- 7. NÚT TRÒN NỔI 60x60 & HEADER LOGO
+-- 7. NÚT TRÒN NỔI 60x60, HEADER LOGO & THAY ICON QUẢ TRỨNG SIDEBAR (91536384271341)
 local function setupCircleLogo(obj)
     local top = obj
     while top.Parent and top.Parent:IsA("GuiObject") and not top.Parent:IsA("ScreenGui") do top = top.Parent end
@@ -865,7 +860,7 @@ end
 local function patchHeaderLogo(win, titleLbl)
     local hy, tx = titleLbl.AbsolutePosition.Y, titleLbl.AbsolutePosition.X
     for _, it in ipairs(win:GetDescendants()) do
-        if it ~= titleLbl and it:IsA("GuiObject") and it.Name ~= "ChilliHeaderLogo" then
+        if it ~= titleLbl and it:IsA("GuiObject") and it.Name ~= "ChilliHeaderLogo" and it.Name ~= "ChilliStealTabIcon" then
             local p, s = it.AbsolutePosition, it.AbsoluteSize
             if math.abs(p.Y - hy) < 35 and p.X < tx and s.X >= 10 and s.X <= 45 then
                 if it:IsA("ImageLabel") or it:IsA("ImageButton") then
@@ -881,7 +876,132 @@ local function patchHeaderLogo(win, titleLbl)
     end
 end
 
--- 8. BỘ QUÉT SỰ KIỆN ZERO-LAG (QUÉT SÂU GETHUI CHO ARCEUS X NEO & FORCE ENABLED)
+-- HÀM THAY BIỂU TƯỢNG QUẢ TRỨNG TRÊN SIDEBAR BẰNG ID 91536384271341
+-- Gắn trực tiếp bằng Scale (0.5, 0.5) bên trong nút Tab thứ 2 -> Không bao giờ lệch khi đổi kích thước Menu & Giữ nguyên 100% hiệu ứng bấm nút
+local function patchSidebarEggIcon(win, titleLbl)
+    if not win or not titleLbl then return end
+    local winX = win.AbsolutePosition.X
+    local headerY = titleLbl.AbsolutePosition.Y
+
+    -- Tìm container chứa dải nút điều hướng dọc bên trái (nằm ở mép trái của win, có từ 5 đến 7 nút con xếp dọc)
+    local navContainer = nil
+    local navButtons = {}
+
+    for _, d in ipairs(win:GetDescendants()) do
+        if d:IsA("GuiObject") and (d.AbsolutePosition.X - winX) < 75 and d.AbsolutePosition.Y > headerY + 15 then
+            local children = {}
+            for _, ch in ipairs(d:GetChildren()) do
+                if ch:IsA("GuiObject") and ch.Visible and ch.AbsoluteSize.X >= 22 and ch.AbsoluteSize.X <= 65 and ch.AbsoluteSize.Y >= 22 and ch.AbsoluteSize.Y <= 65 then
+                    table.insert(children, ch)
+                end
+            end
+            if #children >= 5 and #children <= 8 then
+                navContainer = d
+                navButtons = children
+                break
+            end
+        end
+    end
+
+    if not navContainer or #navButtons < 2 then return end
+
+    -- Sắp xếp các nút trên Sidebar từ trên xuống dưới theo tọa độ Y:
+    -- Nút [1] = Home (Ngôi nhà), Nút [2] = Steal (Quả trứng), Nút [3] = Farm (Cái cây)...
+    table.sort(navButtons, function(a, b)
+        return a.AbsolutePosition.Y < b.AbsolutePosition.Y
+    end)
+
+    local eggBtn = navButtons[2]
+    if not eggBtn then return end
+
+    local existingCustom = eggBtn:FindFirstChild("ChilliStealTabIcon")
+    if existingCustom and existingCustom:IsA("ImageLabel") then
+        existingCustom.Image = STEAL_TAB_ICON_ID
+        return
+    end
+
+    -- Ẩn hình vẽ quả trứng cũ bên trong nút thứ 2 (dù là ImageLabel, TextLabel hay Frame + UIStroke hình bầu dục)
+    -- nhưng giữ nguyên Background và UICorner của chính eggBtn để hiệu ứng sáng nền khi bấm/chọn tab hoạt động 100%!
+    local refColorSource = nil
+    for _, desc in ipairs(eggBtn:GetDescendants()) do
+        if desc.Name ~= "ChilliStealTabIcon" then
+            if desc:IsA("ImageLabel") or desc:IsA("ImageButton") then
+                refColorSource = desc
+                desc.ImageTransparency = 1
+                desc.BackgroundTransparency = 1
+                desc:GetPropertyChangedSignal("ImageTransparency"):Connect(function()
+                    if desc.ImageTransparency ~= 1 then desc.ImageTransparency = 1 end
+                end)
+            elseif desc:IsA("TextLabel") or desc:IsA("TextButton") then
+                refColorSource = desc
+                desc:SetAttribute("__HiddenVxLogo", true)
+                desc.TextTransparency = 1
+                desc.BackgroundTransparency = 1
+                desc:GetPropertyChangedSignal("TextTransparency"):Connect(function()
+                    if desc.TextTransparency ~= 1 then desc.TextTransparency = 1 end
+                end)
+            elseif desc:IsA("Frame") then
+                desc.BackgroundTransparency = 1
+                local st = desc:FindFirstChildOfClass("UIStroke")
+                if st then
+                    refColorSource = st
+                    st.Transparency = 1
+                    st:GetPropertyChangedSignal("Transparency"):Connect(function()
+                        if st.Transparency ~= 1 then st.Transparency = 1 end
+                    end)
+                end
+            end
+        end
+    end
+
+    -- Tạo icon mới nằm chính giữa tâm nút bấm bằng tỷ lệ Scale (UDim2.fromScale)
+    -- Khi bạn phóng to/thu nhỏ Menu (UI scale), nút eggBtn co giãn đến đâu thì icon tự co giãn chuẩn tâm đến đó!
+    local newIcon = mk("ImageLabel", {
+        Name = "ChilliStealTabIcon",
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.fromScale(0.5, 0.5),
+        Size = UDim2.fromScale(0.58, 0.58),
+        BackgroundTransparency = 1,
+        Image = STEAL_TAB_ICON_ID,
+        ScaleType = Enum.ScaleType.Fit,
+        Active = false,
+        Selectable = false,
+        ZIndex = eggBtn.ZIndex + 3
+    }, eggBtn)
+    mk("UIAspectRatioConstraint", { AspectRatio = 1 }, newIcon)
+
+    -- Đồng bộ hiệu ứng đổi màu sáng/mờ khi người chơi bấm chọn hoặc rời khỏi Tab Cướp Trứng
+    local function syncIconActiveVisual()
+        if not newIcon or not newIcon.Parent then return end
+        local isSelected = (eggBtn.BackgroundTransparency < 0.85)
+        if refColorSource then
+            if refColorSource:IsA("ImageLabel") or refColorSource:IsA("ImageButton") then
+                newIcon.ImageColor3 = refColorSource.ImageColor3
+            elseif refColorSource:IsA("TextLabel") or refColorSource:IsA("TextButton") then
+                newIcon.ImageColor3 = refColorSource.TextColor3
+            elseif refColorSource:IsA("UIStroke") then
+                newIcon.ImageColor3 = refColorSource.Color
+            end
+        else
+            newIcon.ImageColor3 = isSelected and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(165, 175, 195)
+        end
+        newIcon.ImageTransparency = isSelected and 0 or 0.15
+    end
+
+    syncIconActiveVisual()
+    eggBtn:GetPropertyChangedSignal("BackgroundTransparency"):Connect(syncIconActiveVisual)
+    eggBtn:GetPropertyChangedSignal("BackgroundColor3"):Connect(syncIconActiveVisual)
+    if refColorSource then
+        pcall(function()
+            local prop = (refColorSource:IsA("UIStroke") and "Color")
+                or ((refColorSource:IsA("TextLabel") or refColorSource:IsA("TextButton")) and "TextColor3")
+                or "ImageColor3"
+            refColorSource:GetPropertyChangedSignal(prop):Connect(syncIconActiveVisual)
+        end)
+    end
+end
+
+-- 8. BỘ QUÉT SỰ KIỆN ZERO-LAG
 local venyxGuiLocked = nil
 
 local function patchVenyxGui(gui, titleLbl)
@@ -898,7 +1018,10 @@ local function patchVenyxGui(gui, titleLbl)
     if win then pcall(function() win.Visible = true end) end
 
     local hy = titleLbl.AbsolutePosition.Y
-    if win then patchHeaderLogo(win, titleLbl) end
+    if win then
+        patchHeaderLogo(win, titleLbl)
+        patchSidebarEggIcon(win, titleLbl)
+    end
     for _, tc in ipairs(gui:GetChildren()) do
         if tc:IsA("GuiObject") and tc ~= win and tc.Name ~= "ChilliV5_ExpandedIsland" and not tc:FindFirstChild("IslandExpandHint") then setupCircleLogo(tc) end
     end
@@ -919,7 +1042,7 @@ local function patchVenyxGui(gui, titleLbl)
                 gui:SetAttribute("__IslandLocked", true); setupIsland(d, gui)
             elseif isFpsTxt(txt) then hookFps(d)
             elseif d:GetAttribute("__TransHookSession") ~= SID then queue[#queue + 1] = d end
-        elseif (d:IsA("ImageLabel") or d:IsA("ImageButton")) and d.Name ~= "ChilliV5CoverLogo" and d.Name ~= "ChilliHeaderLogo" then
+        elseif (d:IsA("ImageLabel") or d:IsA("ImageButton")) and d.Name ~= "ChilliV5CoverLogo" and d.Name ~= "ChilliHeaderLogo" and d.Name ~= "ChilliStealTabIcon" then
             if not d:FindFirstAncestorOfClass("ScrollingFrame") and win and not d:IsDescendantOf(win) then setupCircleLogo(d) end
         end
     end
@@ -947,7 +1070,7 @@ local function bindGuiEvents(gui)
                 if not isAlive() then return end
                 if not nd:IsA("TextBox") and isFpsTxt(nd.Text) then hookFps(nd) else hookTrans(nd) end
             end)
-        elseif (nd:IsA("ImageLabel") or nd:IsA("ImageButton")) and gui == venyxGuiLocked then
+        elseif (nd:IsA("ImageLabel") or nd:IsA("ImageButton")) and gui == venyxGuiLocked and nd.Name ~= "ChilliStealTabIcon" then
             task.defer(function()
                 if isAlive() and not nd:FindFirstAncestorOfClass("ScrollingFrame") then setupCircleLogo(nd) end
             end)
@@ -958,7 +1081,6 @@ end
 local function scanOnce()
     if not isAlive() then return false end
     for _, root in ipairs(getScanRoots()) do
-        -- Quét cả con trực tiếp lẫn ScreenGui nằm trong Folder con của gethui() trên Arceus X NEO
         local guis = {}
         for _, ch in ipairs(root:GetChildren()) do
             if ch:IsA("ScreenGui") then table.insert(guis, ch)
@@ -1000,7 +1122,6 @@ task.spawn(function()
     local t = 0
     while isAlive() and not venyxGuiLocked and t < 60 do
         task.wait(0.35); t = t + 0.35
-        -- Nếu sau 4.5s trên Arceus X NEO vẫn chưa thấy UI Venyx thì tự động gọi nạp lại VenyxHub
         if t > 4.5 and not venyxGuiLocked then
             launchVenyxBase()
         end
