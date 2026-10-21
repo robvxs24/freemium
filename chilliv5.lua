@@ -1,6 +1,9 @@
--- Chilli Hub V5 | Custom Egg Tab Icon (91536384271341) + Arceus X NEO Fixed + Zero-Lag
-local NEW_TITLE, LOGO_ID = "Chilli Hub V5", "rbxassetid://92622270383869"
+-- Chilli Hub V5 | Full Unclipped Logo (74441610995894) + Cosmic Header Bar (83726521558450) + Egg Icon (91536384271341)
+local NEW_TITLE = "Chilli Hub V5"
+local LOGO_ID = "rbxassetid://74441610995894"
+local HEADER_BAR_IMG_ID = "rbxassetid://83726521558450"
 local STEAL_TAB_ICON_ID = "rbxassetid://91536384271341"
+
 local LOGO_BG, BLACK_BG = Color3.fromRGB(5, 7, 15), Color3.fromRGB(0, 0, 0)
 local MY_URL = "https://raw.githubusercontent.com/ronnei/hihi/refs/heads/main/chillihubv5.lua"
 local VENYX_URL = "https://raw.githubusercontent.com/tienkhanh1/Venyx/main/VenyxHub"
@@ -176,6 +179,7 @@ local function hasVi(s)
 end
 
 local EXACT_VI = {
+    ["Steal An Egg"]="Cướp Trứng", ["steal an egg"]="cướp trứng",
     ["CANDY CORN"]="KẸO NGÔ", ["Candy Corn"]="Kẹo Ngô", ["Calculate mutations"]="Tính thử đột biến",
     ["Cards show the value with these mutations added"]="Thẻ trứng sẽ hiển thị giá trị sau khi cộng thêm các đột biến này",
     ["Delivery speed"]="Tốc độ mang trứng về", ["Change if steal fails"]="Hãy chỉnh giảm xuống nếu cướp trứng bị lỗi",
@@ -824,51 +828,157 @@ local function setupIsland(statusLbl, venyxGui)
     end)
 end
 
--- 7. NÚT TRÒN NỔI 60x60, HEADER LOGO & THAY ICON QUẢ TRỨNG SIDEBAR (91536384271341)
+-- 7. LOGO MỚI BAO QUÁT 100% TOÀN BỘ ẢNH (74441610995894) + THANH KHUNG HEADER VŨ TRỤ (83726521558450)
 local function setupCircleLogo(obj)
     local top = obj
     while top.Parent and top.Parent:IsA("GuiObject") and not top.Parent:IsA("ScreenGui") do top = top.Parent end
-    if top:GetAttribute("__FloatingLogoV5Perfect") then return end
     local sz, pos = top.AbsoluteSize, top.AbsolutePosition
-    if sz.X > 105 or sz.Y > 105 or sz.X < 28 or math.abs(sz.X - sz.Y) > 25 or pos.X > 350 then return end
+    if sz.X > 110 or sz.Y > 110 or sz.X < 28 or math.abs(sz.X - sz.Y) > 25 or pos.X > 350 then return end
+
+    local existingCov = top:FindFirstChild("ChilliV5CoverLogo")
+    if existingCov and existingCov:IsA("ImageLabel") then
+        existingCov.Image = LOGO_ID
+        existingCov.Size = UDim2.fromScale(1.18, 1.18)
+        top.ClipsDescendants = false
+        top.BackgroundTransparency = 1
+        local oldRb = top:FindFirstChild("RainbowBorder")
+        if oldRb then oldRb:Destroy() end
+        local oldCorner = existingCov:FindFirstChildOfClass("UICorner")
+        if oldCorner then oldCorner:Destroy() end
+        return
+    end
+    if top:GetAttribute("__FloatingLogoV5Perfect") then return end
     top:SetAttribute("__FloatingLogoV5Perfect", true)
 
     for _, ch in ipairs(top:GetDescendants()) do
-        if (ch:IsA("UIPadding") or ch:IsA("UIAspectRatioConstraint") or ch:IsA("UISizeConstraint")) and ch.Name ~= "PerfectCircleAspect" then pcall(ch.Destroy, ch) end
-        if (ch:IsA("ImageLabel") or ch:IsA("ImageButton")) and ch.Name ~= "ChilliV5CoverLogo" then ch.ImageTransparency, ch.BackgroundTransparency = 1, 1
-        elseif ch:IsA("TextLabel") or ch:IsA("TextButton") then ch:SetAttribute("__HiddenVxLogo", true); ch.TextTransparency, ch.BackgroundTransparency = 1, 1 end
+        if ch:IsA("UIPadding") or ch:IsA("UIAspectRatioConstraint") or ch:IsA("UISizeConstraint") or ch:IsA("UIStroke") then
+            if ch.Name ~= "PerfectCircleAspect" then pcall(ch.Destroy, ch) end
+        end
+        if (ch:IsA("ImageLabel") or ch:IsA("ImageButton")) and ch.Name ~= "ChilliV5CoverLogo" then
+            ch.ImageTransparency, ch.BackgroundTransparency = 1, 1
+        elseif ch:IsA("TextLabel") or ch:IsA("TextButton") then
+            ch:SetAttribute("__HiddenVxLogo", true); ch.TextTransparency, ch.BackgroundTransparency = 1, 1
+        end
     end
     if top:IsA("ImageLabel") or top:IsA("ImageButton") then top.ImageTransparency = 1
     elseif top:IsA("TextLabel") or top:IsA("TextButton") then top:SetAttribute("__HiddenVxLogo", true); top.TextTransparency = 1 end
 
-    top.Size, top.BackgroundColor3, top.BackgroundTransparency, top.BorderSizePixel, top.ClipsDescendants = UDim2.new(0,60,0,60), LOGO_BG, 0, 0, true
+    -- Tắt ClipsDescendants và làm nền trong suốt để lấy trọn vẹn 100% các cánh sao nhô ra ngoài của ảnh 74441610995894
+    top.Size = UDim2.new(0, 68, 0, 68)
+    top.BackgroundTransparency = 1
+    top.BorderSizePixel = 0
+    top.ClipsDescendants = false
+
     if not top:FindFirstChild("PerfectCircleAspect") then mk("UIAspectRatioConstraint", { Name="PerfectCircleAspect", AspectRatio=1 }, top) end
-    if not top:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius=UDim.new(1,0) }, top) end
     if not top:GetAttribute("__SizeLocked") then
         top:SetAttribute("__SizeLocked", true)
-        top:GetPropertyChangedSignal("Size"):Connect(function() if top.Size ~= UDim2.new(0,60,0,60) then top.Size = UDim2.new(0,60,0,60) end end)
+        top:GetPropertyChangedSignal("Size"):Connect(function()
+            if top.Size ~= UDim2.new(0, 68, 0, 68) then top.Size = UDim2.new(0, 68, 0, 68) end
+        end)
+        top:GetPropertyChangedSignal("BackgroundTransparency"):Connect(function()
+            if top.BackgroundTransparency ~= 1 then top.BackgroundTransparency = 1 end
+        end)
     end
-    local st = top:FindFirstChild("RainbowBorder") or mk("UIStroke", { Name="RainbowBorder", Thickness=2.5, ApplyStrokeMode=Enum.ApplyStrokeMode.Border, Color=Color3.new(1,1,1) }, top)
-    table.insert(State.ActiveGradients, st:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color=RAINBOW }, st))
-    local cov = top:FindFirstChild("ChilliV5CoverLogo") or mk("ImageLabel", {
-        Name="ChilliV5CoverLogo", Size=UDim2.new(1,0,1,0), Position=UDim2.new(0.5,0,0.5,0), AnchorPoint=Vector2.new(0.5,0.5),
-        BackgroundTransparency=1, Image=LOGO_ID, ScaleType=Enum.ScaleType.Fit, Active=false, ZIndex=top.ZIndex+5
+
+    mk("ImageLabel", {
+        Name = "ChilliV5CoverLogo",
+        Size = UDim2.fromScale(1.18, 1.18),
+        Position = UDim2.fromScale(0.5, 0.5),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundTransparency = 1,
+        Image = LOGO_ID,
+        ScaleType = Enum.ScaleType.Fit,
+        Active = false,
+        ZIndex = top.ZIndex + 5
     }, top)
-    if not cov:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius=UDim.new(1,0) }, cov) end
 end
 
-local function patchHeaderLogo(win, titleLbl)
+-- HÀM ĐỔI THANH KHUNG HEADER (ẢNH 3) SANG THANH KHUNG HÀNH TINH VŨ TRỤ (83726521558450 - ẢNH 2)
+-- Tự động kéo giãn và căn chỉnh khớp 100% với chiều rộng & chiều cao thanh Header của Menu Script
+local function patchHeaderLogoAndCosmicBar(win, titleLbl)
+    if not win or not titleLbl then return end
     local hy, tx = titleLbl.AbsolutePosition.Y, titleLbl.AbsolutePosition.X
+
+    -- 1. Tìm đúng Frame thanh Header (nằm ở đỉnh của win, chiều rộng bằng win, chiều cao ~32-56px)
+    local headerBar = titleLbl.Parent
+    local curr = titleLbl
+    while curr and curr ~= win do
+        if curr:IsA("GuiObject") and curr.AbsoluteSize.X >= (win.AbsoluteSize.X - 30) and curr.AbsoluteSize.Y >= 24 and curr.AbsoluteSize.Y <= 68 then
+            headerBar = curr
+            break
+        end
+        curr = curr.Parent
+    end
+
+    -- 2. Gắn Thanh Khung Hành Tinh Vũ Trụ (83726521558450) tự động co giãn khớp 100% theo thanh Header
+    if headerBar and headerBar:IsA("GuiObject") then
+        pcall(function()
+            win.ClipsDescendants = false
+            headerBar.ClipsDescendants = false
+            headerBar.BackgroundTransparency = 1
+        end)
+
+        local cosmicBar = headerBar:FindFirstChild("ChilliCosmicHeaderBanner")
+        if not cosmicBar then
+            local baseZ = math.max(1, headerBar.ZIndex)
+            -- Nâng ZIndex của toàn bộ chữ, nút tìm kiếm và nút thu gọn trên Header lên trên lớp khung ảnh vũ trụ
+            for _, desc in ipairs(headerBar:GetDescendants()) do
+                if desc:IsA("GuiObject") and desc.Name ~= "ChilliCosmicHeaderBanner" then
+                    if desc.ZIndex <= baseZ + 1 then
+                        desc.ZIndex = baseZ + 3
+                    end
+                end
+            end
+
+            -- Trong ảnh 83726521558450 (703x301), dải khung ngang nằm ở giữa (chiếm ~42% chiều cao ảnh, quả cầu hành tinh nhô ra ở bên trái).
+            -- Đặt Size = UDim2.new(1.06, 24, 2.35, 0) và AnchorPoint = (0.49, 0.52) giúp dải khung ngang giữa ảnh
+            -- ôm khít 100% chiều dài và chiều cao của thanh Header, tự động kéo giãn mượt mà khi thay đổi kích thước Menu!
+            cosmicBar = mk("ImageLabel", {
+                Name = "ChilliCosmicHeaderBanner",
+                AnchorPoint = Vector2.new(0.49, 0.52),
+                Position = UDim2.fromScale(0.5, 0.5),
+                Size = UDim2.new(1.06, 24, 2.35, 0),
+                BackgroundTransparency = 1,
+                Image = HEADER_BAR_IMG_ID,
+                ScaleType = Enum.ScaleType.Stretch,
+                Active = false,
+                Selectable = false,
+                ZIndex = baseZ + 1
+            }, headerBar)
+        else
+            cosmicBar.Image = HEADER_BAR_IMG_ID
+        end
+    end
+
+    -- 3. Thay Logo nhỏ bên trái chữ "Chilli Hub V5" sang ảnh 74441610995894 (lấy trọn toàn bộ ảnh không bị cắt góc)
     for _, it in ipairs(win:GetDescendants()) do
-        if it ~= titleLbl and it:IsA("GuiObject") and it.Name ~= "ChilliHeaderLogo" and it.Name ~= "ChilliStealTabIcon" then
+        if it ~= titleLbl and it:IsA("GuiObject") and it.Name ~= "ChilliCosmicHeaderBanner" and it.Name ~= "ChilliStealTabIcon" then
             local p, s = it.AbsolutePosition, it.AbsoluteSize
-            if math.abs(p.Y - hy) < 35 and p.X < tx and s.X >= 10 and s.X <= 45 then
+            if math.abs(p.Y - hy) < 35 and p.X < tx and s.X >= 10 and s.X <= 48 then
                 if it:IsA("ImageLabel") or it:IsA("ImageButton") then
-                    it.Image, it.ImageTransparency, it.BackgroundTransparency, it.ScaleType = LOGO_ID, 0, 1, Enum.ScaleType.Fit
-                elseif it:IsA("TextLabel") or it:IsA("TextButton") then
+                    it.Image = LOGO_ID
+                    it.ImageTransparency = 0
+                    it.BackgroundTransparency = 1
+                    it.ClipsDescendants = false
+                    it.ScaleType = Enum.ScaleType.Fit
+                    local c = it:FindFirstChildOfClass("UICorner")
+                    if c then c:Destroy() end
+                elseif (it:IsA("TextLabel") or it:IsA("TextButton")) and it.Name ~= "ChilliHeaderLogo" then
                     it:SetAttribute("__HiddenVxLogo", true); it.TextTransparency = 1
                     if it.Parent and not it.Parent:FindFirstChild("ChilliHeaderLogo") then
-                        mk("ImageLabel", { Name="ChilliHeaderLogo", Size=UDim2.new(0,24,0,24), Position=UDim2.new(0.5,0,0.5,0), AnchorPoint=Vector2.new(0.5,0.5), BackgroundTransparency=1, Image=LOGO_ID, ScaleType=Enum.ScaleType.Fit, ZIndex=it.ZIndex+2 }, it.Parent)
+                        it.Parent.ClipsDescendants = false
+                        it.Parent.BackgroundTransparency = 1
+                        mk("ImageLabel", {
+                            Name = "ChilliHeaderLogo",
+                            Size = UDim2.new(0, 30, 0, 30),
+                            Position = UDim2.fromScale(0.5, 0.5),
+                            AnchorPoint = Vector2.new(0.5, 0.5),
+                            BackgroundTransparency = 1,
+                            Image = LOGO_ID,
+                            ScaleType = Enum.ScaleType.Fit,
+                            Active = false,
+                            ZIndex = it.ZIndex + 3
+                        }, it.Parent)
                     end
                 end
             end
@@ -877,13 +987,11 @@ local function patchHeaderLogo(win, titleLbl)
 end
 
 -- HÀM THAY BIỂU TƯỢNG QUẢ TRỨNG TRÊN SIDEBAR BẰNG ID 91536384271341
--- Gắn trực tiếp bằng Scale (0.5, 0.5) bên trong nút Tab thứ 2 -> Không bao giờ lệch khi đổi kích thước Menu & Giữ nguyên 100% hiệu ứng bấm nút
 local function patchSidebarEggIcon(win, titleLbl)
     if not win or not titleLbl then return end
     local winX = win.AbsolutePosition.X
     local headerY = titleLbl.AbsolutePosition.Y
 
-    -- Tìm container chứa dải nút điều hướng dọc bên trái (nằm ở mép trái của win, có từ 5 đến 7 nút con xếp dọc)
     local navContainer = nil
     local navButtons = {}
 
@@ -905,8 +1013,6 @@ local function patchSidebarEggIcon(win, titleLbl)
 
     if not navContainer or #navButtons < 2 then return end
 
-    -- Sắp xếp các nút trên Sidebar từ trên xuống dưới theo tọa độ Y:
-    -- Nút [1] = Home (Ngôi nhà), Nút [2] = Steal (Quả trứng), Nút [3] = Farm (Cái cây)...
     table.sort(navButtons, function(a, b)
         return a.AbsolutePosition.Y < b.AbsolutePosition.Y
     end)
@@ -920,8 +1026,6 @@ local function patchSidebarEggIcon(win, titleLbl)
         return
     end
 
-    -- Ẩn hình vẽ quả trứng cũ bên trong nút thứ 2 (dù là ImageLabel, TextLabel hay Frame + UIStroke hình bầu dục)
-    -- nhưng giữ nguyên Background và UICorner của chính eggBtn để hiệu ứng sáng nền khi bấm/chọn tab hoạt động 100%!
     local refColorSource = nil
     for _, desc in ipairs(eggBtn:GetDescendants()) do
         if desc.Name ~= "ChilliStealTabIcon" then
@@ -954,8 +1058,6 @@ local function patchSidebarEggIcon(win, titleLbl)
         end
     end
 
-    -- Tạo icon mới nằm chính giữa tâm nút bấm bằng tỷ lệ Scale (UDim2.fromScale)
-    -- Khi bạn phóng to/thu nhỏ Menu (UI scale), nút eggBtn co giãn đến đâu thì icon tự co giãn chuẩn tâm đến đó!
     local newIcon = mk("ImageLabel", {
         Name = "ChilliStealTabIcon",
         AnchorPoint = Vector2.new(0.5, 0.5),
@@ -970,7 +1072,6 @@ local function patchSidebarEggIcon(win, titleLbl)
     }, eggBtn)
     mk("UIAspectRatioConstraint", { AspectRatio = 1 }, newIcon)
 
-    -- Đồng bộ hiệu ứng đổi màu sáng/mờ khi người chơi bấm chọn hoặc rời khỏi Tab Cướp Trứng
     local function syncIconActiveVisual()
         if not newIcon or not newIcon.Parent then return end
         local isSelected = (eggBtn.BackgroundTransparency < 0.85)
@@ -1019,7 +1120,7 @@ local function patchVenyxGui(gui, titleLbl)
 
     local hy = titleLbl.AbsolutePosition.Y
     if win then
-        patchHeaderLogo(win, titleLbl)
+        patchHeaderLogoAndCosmicBar(win, titleLbl)
         patchSidebarEggIcon(win, titleLbl)
     end
     for _, tc in ipairs(gui:GetChildren()) do
@@ -1042,7 +1143,11 @@ local function patchVenyxGui(gui, titleLbl)
                 gui:SetAttribute("__IslandLocked", true); setupIsland(d, gui)
             elseif isFpsTxt(txt) then hookFps(d)
             elseif d:GetAttribute("__TransHookSession") ~= SID then queue[#queue + 1] = d end
-        elseif (d:IsA("ImageLabel") or d:IsA("ImageButton")) and d.Name ~= "ChilliV5CoverLogo" and d.Name ~= "ChilliHeaderLogo" and d.Name ~= "ChilliStealTabIcon" then
+        elseif (d:IsA("ImageLabel") or d:IsA("ImageButton"))
+            and d.Name ~= "ChilliV5CoverLogo"
+            and d.Name ~= "ChilliHeaderLogo"
+            and d.Name ~= "ChilliStealTabIcon"
+            and d.Name ~= "ChilliCosmicHeaderBanner" then
             if not d:FindFirstAncestorOfClass("ScrollingFrame") and win and not d:IsDescendantOf(win) then setupCircleLogo(d) end
         end
     end
@@ -1070,7 +1175,10 @@ local function bindGuiEvents(gui)
                 if not isAlive() then return end
                 if not nd:IsA("TextBox") and isFpsTxt(nd.Text) then hookFps(nd) else hookTrans(nd) end
             end)
-        elseif (nd:IsA("ImageLabel") or nd:IsA("ImageButton")) and gui == venyxGuiLocked and nd.Name ~= "ChilliStealTabIcon" then
+        elseif (nd:IsA("ImageLabel") or nd:IsA("ImageButton"))
+            and gui == venyxGuiLocked
+            and nd.Name ~= "ChilliStealTabIcon"
+            and nd.Name ~= "ChilliCosmicHeaderBanner" then
             task.defer(function()
                 if isAlive() and not nd:FindFirstAncestorOfClass("ScrollingFrame") then setupCircleLogo(nd) end
             end)
