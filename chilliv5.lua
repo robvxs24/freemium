@@ -139,7 +139,7 @@ local ULTRA_TEXT_GRAD = ColorSequence.new({
     ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 215, 75))
 })
 
--- 2. VÒNG LẶP HỢP NHẤT (XOAY CẦU VỒNG + FPS ẢO 95-120 + TELEMETRY PILLS)
+-- 2. VÒNG LẶP HỢP NHẤT (XOAY CẦU VỒNG + FPS ẢO 95-120 + TELEMETRY PILLS + ĐỒNG BỘ GIAO DIỆN)
 local fakeFps, lastFpsT = math.random(98, 114), 0
 local function getFakeFps()
     local now = os.clock()
@@ -184,18 +184,21 @@ task.spawn(function()
                 pcall(State.TelemetryUpdateFn, curFps)
             end
         end
+        -- Luôn đồng bộ trạng thái hiển thị giao diện theo chu kỳ nhịp tim 30 FPS
+        if State.SyncWindowFn then
+            pcall(State.SyncWindowFn)
+        end
         task.wait(0.033)
     end
 end)
 
--- 3. BỘ DỊCH THUẬT 5 TẦNG O(1) (BỔ SUNG ĐẦY ĐỦ CÁC MỤC TRONG ẢNH 6960.JPG)
+-- 3. BỘ DỊCH THUẬT 5 TẦNG O(1)
 local FastCache = {}
 local function hasVi(s)
     return type(s) == "string" and s ~= "" and s:find("[\194-\244][\128-\191]") ~= nil and not s:find("^[%w%s%p·•●🌶️🇻🇳🌐⚡⏳✅⚠️🚀✨▲▼⏱️🥚🍬📶👑]+$")
 end
 
 local EXACT_VI = {
-    -- Các mục mới phát hiện trong ảnh 6960.jpg (Tab Giao Diện & Dynamic Island)
     ["Fighting Small monster"]="Đang đánh quái vật nhỏ", ["Fighting Medium monster"]="Đang đánh quái vật vừa",
     ["Fighting Large monster"]="Đang đánh quái vật lớn", ["Fighting Big monster"]="Đang đánh quái vật lớn",
     ["UI scale"]="Kích cỡ Menu (UI Scale)", ["Show / hide UI"]="Phím ẩn / hiện Menu", ["Hiển thị / hide UI"]="Phím ẩn / hiện Menu",
@@ -651,7 +654,7 @@ local function refreshAll()
     end)
 end
 
--- 5. NẠP CONFIG (CHỈ DÁN JSON VÀ BẤM IMPORT, KHÔNG TỰ ĐỘNG BẤM APPLY NOW)
+-- 5. NẠP CONFIG
 local function fireBtn(btn)
     if not btn then return false end
     local fired = false
@@ -951,9 +954,29 @@ local function setupCircleLogo(obj, win)
     cov.ScaleType = Enum.ScaleType.Fit
     local covCorner = cov:FindFirstChildOfClass("UICorner") or mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cov)
     covCorner.CornerRadius = UDim.new(1, 0)
+
+    -- Đảm bảo khi bấm vào nút nổi mở lại Menu thì kích hoạt đồng bộ hiển thị ngay lập tức
+    if not top:GetAttribute("__SyncClickHooked") then
+        top:SetAttribute("__SyncClickHooked", true)
+        local function triggerSync()
+            task.defer(function()
+                task.wait(0.04)
+                if State.SyncWindowFn then pcall(State.SyncWindowFn) end
+            end)
+        end
+        if top:IsA("GuiButton") then
+            top.Activated:Connect(triggerSync)
+            top.MouseButton1Click:Connect(triggerSync)
+        end
+        top.InputBegan:Connect(function(inp)
+            if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+                triggerSync()
+            end
+        end)
+    end
 end
 
--- 8. CHILLI HUB ULTRA ARCHITECTURE (KHÔI PHỤC TÊN MÀU ULTRA + TẮT VIỀN CẦU VỒNG TỨC THÌ 0MS DELAY)
+-- 8. CHILLI HUB ULTRA ARCHITECTURE (TẮT MỞ GIAO DIỆN & VIỀN TỨC THÌ 0MS, FIX LỖI MẤT GIAO DIỆN)
 local SIDEBAR_PALETTE = {
     Color3.fromRGB(37, 99, 235),  -- [1] Trang Chủ: Xanh Dương
     Color3.fromRGB(239, 68, 68),  -- [2] Cướp Trứng: Đỏ
@@ -973,7 +996,7 @@ local function applySenaV7Architecture(win, titleLbl)
         win.ClipsDescendants = true
     end)
 
-    -- A. VIỀN CẦU VỒNG QUANH MENU ĐỒNG BỘ TẮT TỨC THÌ 0MS (FIX LỖI TẮT MENU 1 LÚC VIỀN MỚI MẤT)
+    -- A. VIỀN CẦU VỒNG QUANH MENU
     local winStroke = win:FindFirstChild("ChilliProWindowStroke")
     if not winStroke then
         winStroke = mk("UIStroke", {
@@ -1017,7 +1040,7 @@ local function applySenaV7Architecture(win, titleLbl)
         curr = curr.Parent
     end
 
-    -- Хôi phục hiển thị toàn bộ container cha của titleLbl (sửa lỗi mất tên ở bản trước)
+    -- Khôi phục hiển thị toàn bộ container cha của titleLbl
     local pWalk = titleLbl
     while pWalk and pWalk ~= win do
         if pWalk:IsA("GuiObject") then pWalk.Visible = true end
@@ -1030,7 +1053,6 @@ local function applySenaV7Architecture(win, titleLbl)
             if desc:IsA("GuiObject") and not desc.Name:find("^ChilliCosmic") and not desc.Name:find("^ChilliSena") then
                 if desc.ZIndex < baseZ + 6 then desc.ZIndex = baseZ + 6 end
             end
-            -- Chỉ làm trong suốt chữ phiên bản v1.2.5 và phụ đề cũ (TUYỆT ĐỐI KHÔNG ẨN PARENT ĐỂ BẢO VỆ TÊN CHÍNH)
             if (desc:IsA("TextLabel") or desc:IsA("TextButton")) and desc ~= titleLbl and desc.Name ~= "ChilliUltraTitleBadge" then
                 local dt = desc.Text or ""
                 if dt:match("^v%d+%.%d+") or dt == "/" or dt:lower():find("steal an egg", 1, true) or dt:lower():find("cướp trứng", 1, true) then
@@ -1090,7 +1112,7 @@ local function applySenaV7Architecture(win, titleLbl)
             table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, bottomLine))
         end
 
-        -- DẢI TELEMETRY PILLS KIỂU SENA V7 (Đặt ở X = 212 bên phải chữ Chilli Hub Ultra để không bao giờ đè lên tên)
+        -- DẢI TELEMETRY PILLS KIỂU SENA V7 (Đặt ở X = 212 bên phải chữ Chilli Hub Ultra)
         local teleRow = headerBar:FindFirstChild("ChilliSenaTopTelemetry")
         if teleRow then teleRow.Position = UDim2.new(0, 212, 0.5, 0); teleRow.Size = UDim2.new(1, -385, 0, 22) end
         if not teleRow then
@@ -1168,7 +1190,7 @@ local function applySenaV7Architecture(win, titleLbl)
             end
 
             State.TelemetryUpdateFn = function(curFps)
-                if not win.Visible or win.BackgroundTransparency > 0.8 then return end
+                if not win.Visible or win.BackgroundTransparency > 0.85 then return end
                 local elapsed = math.floor(os.clock() - (State.StartClock or os.clock()))
                 lblTime.Text = string.format("⏱️ %d:%02d:%02d", math.floor(elapsed / 3600), math.floor((elapsed % 3600) / 60), elapsed % 60)
 
@@ -1181,33 +1203,55 @@ local function applySenaV7Architecture(win, titleLbl)
             end
         end
 
-        -- C. CƠ CHẾ ĐỒNG BỘ TẮT KHUNG VIỀN CẦU VỒNG TỨC THÌ 0MS (KHÔNG BAO GIỜ BỊ DELAY KHI ĐÓNG MENU)
+        -- C. CƠ CHẾ ĐỒNG BỘ HIỂN THỊ MENU CHILLI HUB ULTRA (TẮT MỞ TỨC THÌ 0MS, FIX HOÀN TOÀN LỖI MẤT GIAO DIỆN)
+        local function syncWindowVisibilityInstant()
+            if not win or not win.Parent then return end
+            local bTrans = win.BackgroundTransparency
+            local isOffscreen = (win.AbsolutePosition.X < -500 or win.AbsolutePosition.Y < -500)
+            local isSizeZero = (win.AbsoluteSize.X < 80 or win.AbsoluteSize.Y < 60)
+            local isHdrHidden = headerBar and ((not headerBar.Visible) or (headerBar.BackgroundTransparency >= 0.96))
+            
+            -- Menu chỉ đóng khi win ẩn, kích thước co lại 0, bị dời ra ngoài màn hình, hoặc mờ hoàn toàn (>= 96%)
+            local isClosed = (not win.Visible) or isOffscreen or isSizeZero or (bTrans >= 0.96) or isHdrHidden
+            local isOpen = not isClosed
+
+            if winStroke then
+                winStroke.Enabled = isOpen
+                winStroke.Transparency = isOpen and 0.1 or 1
+            end
+            local cHolder = headerBar and headerBar:FindFirstChild("ChilliCosmicHolder")
+            if cHolder then cHolder.Visible = isOpen end
+            local uBadge = headerBar and headerBar:FindFirstChild("ChilliUltraTitleBadge")
+            if uBadge then uBadge.Visible = isOpen end
+            local tRow = headerBar and headerBar:FindFirstChild("ChilliSenaTopTelemetry")
+            if tRow then tRow.Visible = isOpen end
+            local bBar = win:FindFirstChild("ChilliSenaBottomBar")
+            if bBar then bBar.Visible = isOpen end
+            local wPaper = win:FindFirstChild("ChilliSenaWallpaper")
+            if wPaper then wPaper.Visible = isOpen end
+
+            if titleLbl and titleLbl.Parent then
+                titleLbl.TextTransparency = (isOpen and uBadge and uBadge.Visible) and 1 or 0
+            end
+        end
+
+        State.SyncWindowFn = syncWindowVisibilityInstant
+        syncWindowVisibilityInstant()
+
         if not win:GetAttribute("__InstantHideHooked") then
             win:SetAttribute("__InstantHideHooked", true)
-            local function syncWindowVisibilityInstant()
-                local bTrans = win.BackgroundTransparency
-                local isClosingOrHidden = (not win.Visible) or (bTrans > 0.35) or (win.AbsoluteSize.X < 100) or (win.AbsoluteSize.Y < 80)
-                if winStroke then
-                    winStroke.Enabled = not isClosingOrHidden
-                    winStroke.Transparency = math.clamp(0.1 + bTrans * 1.5, 0.1, 1)
-                end
-                local cHolder = headerBar and headerBar:FindFirstChild("ChilliCosmicHolder")
-                if cHolder then cHolder.Visible = not isClosingOrHidden end
-                local uBadge = headerBar and headerBar:FindFirstChild("ChilliUltraTitleBadge")
-                if uBadge then uBadge.Visible = not isClosingOrHidden end
-                local tRow = headerBar and headerBar:FindFirstChild("ChilliSenaTopTelemetry")
-                if tRow then tRow.Visible = not isClosingOrHidden end
-                local bBar = win:FindFirstChild("ChilliSenaBottomBar")
-                if bBar then bBar.Visible = not isClosingOrHidden end
-                local wPaper = win:FindFirstChild("ChilliSenaWallpaper")
-                if wPaper then wPaper.Visible = not isClosingOrHidden end
-            end
 
             win:GetPropertyChangedSignal("Visible"):Connect(syncWindowVisibilityInstant)
             win:GetPropertyChangedSignal("BackgroundTransparency"):Connect(syncWindowVisibilityInstant)
             win:GetPropertyChangedSignal("Size"):Connect(syncWindowVisibilityInstant)
+            win:GetPropertyChangedSignal("Position"):Connect(syncWindowVisibilityInstant)
 
-            -- Bắt sự kiện bấm nút "-" góc trên phải Header để tắt viền cầu vồng ngay lập tức ở 0ms đầu tiên!
+            if headerBar then
+                headerBar:GetPropertyChangedSignal("Visible"):Connect(syncWindowVisibilityInstant)
+                headerBar:GetPropertyChangedSignal("BackgroundTransparency"):Connect(syncWindowVisibilityInstant)
+            end
+
+            -- Bắt sự kiện bấm nút "-" góc trên phải Header để tắt viền và thanh đáy tức thì 0ms
             for _, d in ipairs(headerBar:GetDescendants()) do
                 if (d:IsA("TextButton") or d:IsA("ImageButton") or d:IsA("TextLabel")) and (d.Text == "-" or d.Text == "—" or d.AbsolutePosition.X > win.AbsolutePosition.X + win.AbsoluteSize.X - 55) then
                     local btn = (d:IsA("TextButton") or d:IsA("ImageButton")) and d or d.Parent
@@ -1215,6 +1259,16 @@ local function applySenaV7Architecture(win, titleLbl)
                         btn:SetAttribute("__CloseSyncHooked", true)
                         btn.MouseButton1Down:Connect(function()
                             if winStroke then winStroke.Enabled = false end
+                            local bBar = win:FindFirstChild("ChilliSenaBottomBar")
+                            if bBar then bBar.Visible = false end
+                            local wPaper = win:FindFirstChild("ChilliSenaWallpaper")
+                            if wPaper then wPaper.Visible = false end
+                            local cHolder = headerBar and headerBar:FindFirstChild("ChilliCosmicHolder")
+                            if cHolder then cHolder.Visible = false end
+                            local uBadge = headerBar and headerBar:FindFirstChild("ChilliUltraTitleBadge")
+                            if uBadge then uBadge.Visible = false end
+                            local tRow = headerBar and headerBar:FindFirstChild("ChilliSenaTopTelemetry")
+                            if tRow then tRow.Visible = false end
                         end)
                     end
                 end
