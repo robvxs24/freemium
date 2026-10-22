@@ -130,13 +130,13 @@ local RAINBOW = ColorSequence.new({
     ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 45, 85))
 })
 
--- Màu Gradient ULTRA đặc biệt (Tím Neon -> Hồng Rực -> Vàng Kim -> Xanh Băng)
+-- Màu Gradient ULTRA Neon Đặc Biệt (Trắng Băng -> Xanh Cyan -> Hồng Rực -> Tím Cosmic -> Vàng Kim)
 local ULTRA_TEXT_GRAD = ColorSequence.new({
     ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)),
-    ColorSequenceKeypoint.new(0.45, Color3.fromRGB(255, 240, 255)),
-    ColorSequenceKeypoint.new(0.62, Color3.fromRGB(255, 90, 200)),
-    ColorSequenceKeypoint.new(0.82, Color3.fromRGB(130, 220, 255)),
-    ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 215, 75))
+    ColorSequenceKeypoint.new(0.20, Color3.fromRGB(135, 230, 255)),
+    ColorSequenceKeypoint.new(0.48, Color3.fromRGB(255, 65, 205)),
+    ColorSequenceKeypoint.new(0.75, Color3.fromRGB(180, 100, 255)),
+    ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 220, 70))
 })
 
 -- 2. VÒNG LẶP HỢP NHẤT (XOAY CẦU VỒNG + FPS ẢO 95-120 + TELEMETRY PILLS + ĐỒNG BỘ GIAO DIỆN)
@@ -184,7 +184,6 @@ task.spawn(function()
                 pcall(State.TelemetryUpdateFn, curFps)
             end
         end
-        -- Luôn đồng bộ trạng thái hiển thị giao diện theo chu kỳ nhịp tim 30 FPS
         if State.SyncWindowFn then
             pcall(State.SyncWindowFn)
         end
@@ -781,7 +780,7 @@ local function setupIsland(statusLbl, venyxGui)
     if pill.Position.Y.Offset < 4 or pill.Position.Y.Offset > 600 then pill.Position = UDim2.new(0.5,0,0,8) end
     if not pill:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius=UDim.new(1,0) }, pill) end
     local ps = pill:FindFirstChild("IslandStroke") or mk("UIStroke", { Name="IslandStroke", Thickness=1.8, ApplyStrokeMode=Enum.ApplyStrokeMode.Border, Color=Color3.new(1,1,1) }, pill)
-    table.insert(State.ActiveGradients, ps:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color=RAINBOW }, ps))
+    table.insert(State.ActiveGradients, ps:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, ps))
 
     if exp then exp:Destroy() end
     exp = mk("Frame", {
@@ -867,11 +866,11 @@ local function setupIsland(statusLbl, venyxGui)
     end)
 end
 
--- 7. NÚT NỔI TRÒN HÀO QUANG KÉP
+-- 7. NÚT NỔI TRÒN HÀO QUANG KÉP (BAO QUÁT TRỌN VẸN CHI TIẾT ẢNH 2)
 local function cleanupStrayLogos(gui, win)
     if not gui or not win then return end
     for _, d in ipairs(win:GetDescendants()) do
-        if d.Name == "ChilliV5CoverLogo" or d.Name == "RainbowBorder" or d.Name == "PerfectCircleAspect" or d.Name == "ChilliInnerRing" then
+        if d.Name == "ChilliV5CoverLogo" or d.Name == "RainbowBorder" or d.Name == "PerfectCircleAspect" or d.Name == "ChilliInnerRing" or d.Name == "ChilliCosmicAura" then
             pcall(d.Destroy, d)
         end
     end
@@ -897,7 +896,7 @@ local function setupCircleLogo(obj, win)
         if (ch:IsA("UIPadding") or ch:IsA("UIAspectRatioConstraint") or ch:IsA("UISizeConstraint")) and ch.Name ~= "PerfectCircleAspect" then
             pcall(ch.Destroy, ch)
         end
-        if (ch:IsA("ImageLabel") or ch:IsA("ImageButton")) and ch.Name ~= "ChilliV5CoverLogo" and ch.Name ~= "ChilliInnerRing" then
+        if (ch:IsA("ImageLabel") or ch:IsA("ImageButton")) and ch.Name ~= "ChilliV5CoverLogo" and ch.Name ~= "ChilliCosmicAura" then
             ch.ImageTransparency, ch.BackgroundTransparency = 1, 1
         elseif ch:IsA("TextLabel") or ch:IsA("TextButton") then
             ch:SetAttribute("__HiddenVxLogo", true); ch.TextTransparency, ch.BackgroundTransparency = 1, 1
@@ -906,7 +905,8 @@ local function setupCircleLogo(obj, win)
     if top:IsA("ImageLabel") or top:IsA("ImageButton") then top.ImageTransparency = 1
     elseif top:IsA("TextLabel") or top:IsA("TextButton") then top:SetAttribute("__HiddenVxLogo", true); top.TextTransparency = 1 end
 
-    top.Size = UDim2.new(0, 62, 0, 62)
+    -- Nâng cấp Logo Script bao quát trọn vẹn 100% chi tiết như Ảnh 2 (không bị cắt xén sao và vòng nguyên tử)
+    top.Size = UDim2.new(0, 72, 0, 72)
     if not top:GetAttribute("__SafePosAdjusted") then
         top:SetAttribute("__SafePosAdjusted", true)
         if pos.Y > 125 and pos.Y < 260 then
@@ -914,51 +914,54 @@ local function setupCircleLogo(obj, win)
         end
     end
     top.BackgroundColor3 = LOGO_BG
-    top.BackgroundTransparency = 0
+    top.BackgroundTransparency = 1 -- Trong suốt để lộ trọn vẹn viền tinh vân và các ngôi sao góc ngoài
     top.BorderSizePixel = 0
-    top.ClipsDescendants = true
+    top.ClipsDescendants = false -- Tuyệt đối KHÔNG cắt xén chi tiết ảnh
 
     if not top:FindFirstChild("PerfectCircleAspect") then
         mk("UIAspectRatioConstraint", { Name = "PerfectCircleAspect", AspectRatio = 1 }, top)
     end
-    local topCorner = top:FindFirstChildOfClass("UICorner") or mk("UICorner", { CornerRadius = UDim.new(1, 0) }, top)
-    topCorner.CornerRadius = UDim.new(1, 0)
 
     if not top:GetAttribute("__SizeLockedV5Pro") then
         top:SetAttribute("__SizeLockedV5Pro", true)
         top:GetPropertyChangedSignal("Size"):Connect(function()
-            if top.Size ~= UDim2.new(0, 62, 0, 62) then top.Size = UDim2.new(0, 62, 0, 62) end
+            if top.Size ~= UDim2.new(0, 72, 0, 72) then top.Size = UDim2.new(0, 72, 0, 72) end
         end)
     end
 
-    local st = top:FindFirstChild("RainbowBorder") or mk("UIStroke", {
-        Name = "RainbowBorder", Thickness = 2.8, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Color3.new(1, 1, 1)
+    -- Hào quang nền mờ dịu bao quanh quả ớt
+    local auraGlow = top:FindFirstChild("ChilliCosmicAura") or mk("Frame", {
+        Name = "ChilliCosmicAura", AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
+        Size = UDim2.fromScale(0.86, 0.86), BackgroundColor3 = LOGO_BG, BackgroundTransparency = 0.35,
+        BorderSizePixel = 0, Active = false, ZIndex = top.ZIndex + 1
     }, top)
-    table.insert(State.ActiveGradients, st:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, st))
+    if not auraGlow:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, auraGlow) end
+    local auraStroke = auraGlow:FindFirstChildOfClass("UIStroke") or mk("UIStroke", {
+        Thickness = 2.2, Transparency = 0.15, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Color3.new(1, 1, 1)
+    }, auraGlow)
+    table.insert(State.ActiveGradients, auraStroke:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, auraStroke))
 
-    local innerRing = top:FindFirstChild("ChilliInnerRing") or mk("Frame", {
-        Name = "ChilliInnerRing", AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
-        Size = UDim2.fromScale(0.92, 0.92), BackgroundTransparency = 1, Active = false, ZIndex = top.ZIndex + 6
-    }, top)
-    if not innerRing:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, innerRing) end
-    local inStroke = innerRing:FindFirstChildOfClass("UIStroke") or mk("UIStroke", { Thickness = 1.2, Transparency = 0.35, Color = Color3.new(1, 1, 1) }, innerRing)
-    table.insert(State.ActiveGradients, inStroke:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, inStroke))
-
+    -- Ảnh Logo vũ trụ hiển thị trọn vẹn 100% bao quát hết ngôi sao, vòng quỹ đạo nguyên tử và ngọn lửa cầu vồng
     local cov = top:FindFirstChild("ChilliV5CoverLogo") or mk("ImageLabel", {
         Name = "ChilliV5CoverLogo", AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
-        Size = UDim2.fromScale(0.94, 0.94), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit,
+        Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit,
         Active = false, ZIndex = top.ZIndex + 5
     }, top)
     cov.Image = LOGO_ID
-    cov.Size = UDim2.fromScale(0.94, 0.94)
+    cov.Size = UDim2.fromScale(1, 1)
     cov.ScaleType = Enum.ScaleType.Fit
-    local covCorner = cov:FindFirstChildOfClass("UICorner") or mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cov)
-    covCorner.CornerRadius = UDim.new(1, 0)
+    local oldCorner = cov:FindFirstChildOfClass("UICorner")
+    if oldCorner then oldCorner:Destroy() end
 
-    -- Đảm bảo khi bấm vào nút nổi mở lại Menu thì kích hoạt đồng bộ hiển thị ngay lập tức
+    -- Đảm bảo khi bấm vào nút nổi mở lại Menu thì kích hoạt đồng bộ hiển thị ngay lập tức + hiệu ứng nảy
     if not top:GetAttribute("__SyncClickHooked") then
         top:SetAttribute("__SyncClickHooked", true)
         local function triggerSync()
+            -- Hiệu ứng nảy đàn hồi khi chạm nút nổi logo
+            TweenService:Create(top, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = UDim2.new(0, 64, 0, 64) }):Play()
+            task.delay(0.1, function()
+                TweenService:Create(top, TweenInfo.new(0.18, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = UDim2.new(0, 72, 0, 72) }):Play()
+            end)
             task.defer(function()
                 task.wait(0.04)
                 if State.SyncWindowFn then pcall(State.SyncWindowFn) end
@@ -1029,7 +1032,7 @@ local function applySenaV7Architecture(win, titleLbl)
         end
     end
 
-    -- B. THANH HEADER + NHÃN TÊN "Chilli Hub Ultra" MÀU NEON ULTRA RỰC RỠ
+    -- B. THANH HEADER + NHÃN TÊN "Chilli Hub Ultra" MÀU NEON ULTRA RỰC RỠ + BANNER ẢNH 3
     local headerBar = titleLbl.Parent
     local curr = titleLbl
     while curr and curr ~= win do
@@ -1062,7 +1065,7 @@ local function applySenaV7Architecture(win, titleLbl)
             end
         end
 
-        -- Ẩn chữ gốc của titleLbl và dựng nhãn RichText "Chilli Hub Ultra" màu Neon Ultra sang trọng
+        -- Ẩn chữ gốc của titleLbl và dựng nhãn "Chilli Hub Ultra" màu Neon Ultra chuyển sắc rực rỡ
         titleLbl.TextTransparency = 1
         local ultraTitle = headerBar:FindFirstChild("ChilliUltraTitleBadge")
         if not ultraTitle then
@@ -1070,22 +1073,27 @@ local function applySenaV7Architecture(win, titleLbl)
                 Name = "ChilliUltraTitleBadge",
                 AnchorPoint = Vector2.new(0, 0.5),
                 Position = UDim2.new(0, 42, 0.5, 0),
-                Size = UDim2.new(0, 165, 0, 28),
+                Size = UDim2.new(0, 170, 0, 28),
                 BackgroundTransparency = 1,
-                RichText = true,
-                Text = '<b><font color="#FFFFFF">Chilli Hub</font> <font color="#FF45D8">Ultra</font></b>',
+                RichText = false, -- Tắt RichText để UIGradient phủ trọn vẹn toàn bộ các ký tự
+                Text = "Chilli Hub Ultra",
                 Font = Enum.Font.GothamBlack,
-                TextSize = 15,
+                TextSize = 16,
                 TextColor3 = Color3.new(1, 1, 1),
                 TextXAlignment = Enum.TextXAlignment.Left,
                 Active = false,
                 ZIndex = baseZ + 12
             }, headerBar)
-            mk("UIStroke", { Thickness = 1.2, Color = Color3.fromRGB(20, 10, 35), Transparency = 0.25 }, ultraTitle)
+            mk("UIStroke", { Thickness = 1.6, Color = Color3.fromRGB(15, 8, 25), Transparency = 0.15 }, ultraTitle)
             local uGrad = mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, ultraTitle)
             table.insert(State.ActiveGradients, uGrad)
+        else
+            ultraTitle.RichText = false
+            ultraTitle.Text = "Chilli Hub Ultra"
+            ultraTitle.TextSize = 16
         end
 
+        -- Thanh banner không gian của Ảnh 3 (6944.png) phủ lên thanh khung Header, căn chỉnh hài hòa
         local bannerHolder = headerBar:FindFirstChild("ChilliCosmicHolder")
         if not bannerHolder then
             bannerHolder = mk("Frame", {
@@ -1093,21 +1101,18 @@ local function applySenaV7Architecture(win, titleLbl)
                 BackgroundColor3 = Color3.fromRGB(14, 15, 22), BorderSizePixel = 0, ClipsDescendants = true, Active = false, ZIndex = baseZ + 1
             }, headerBar)
             mk("UICorner", { CornerRadius = UDim.new(0, 10) }, bannerHolder)
+            
+            -- Ảnh 3 (6944.png) trải dọc Header làm nổi bật quả cầu hành tinh bên trái và dải mây tinh vân bên phải
             mk("ImageLabel", {
-                Name = "ChilliCosmicRightStretch", AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 90, 0.5, 0),
-                Size = UDim2.new(1, -90, 1.15, 0), BackgroundTransparency = 1, Image = HEADER_BAR_IMG_ID,
-                ImageRectOffset = Vector2.new(230, 118), ImageRectSize = Vector2.new(290, 66),
-                ScaleType = Enum.ScaleType.Stretch, ImageTransparency = 0.55, Active = false, ZIndex = baseZ + 2
+                Name = "ChilliCosmicMainBanner", AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 0, 0.5, 0),
+                Size = UDim2.new(1, 0, 1.35, 0), BackgroundTransparency = 1, Image = HEADER_BAR_IMG_ID,
+                ScaleType = Enum.ScaleType.Stretch, ImageTransparency = 0.32, Active = false, ZIndex = baseZ + 2
             }, bannerHolder)
-            mk("ImageLabel", {
-                Name = "ChilliCosmicLeftPlanet", AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, -4, 0.5, 0),
-                Size = UDim2.new(0, 125, 1.25, 0), BackgroundTransparency = 1, Image = HEADER_BAR_IMG_ID,
-                ImageRectOffset = Vector2.new(35, 102), ImageRectSize = Vector2.new(240, 100),
-                ScaleType = Enum.ScaleType.Stretch, ImageTransparency = 0.25, Active = false, ZIndex = baseZ + 3
-            }, bannerHolder)
+            
+            -- Đường chỉ sáng viền neon dưới đáy thanh Header đổi màu cầu vồng
             local bottomLine = mk("Frame", {
                 Name = "ChilliCosmicBottomGlow", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.fromScale(0.5, 1),
-                Size = UDim2.new(1, 0, 0, 1.5), BackgroundColor3 = Color3.new(1, 1, 1), BorderSizePixel = 0, Active = false, ZIndex = baseZ + 4
+                Size = UDim2.new(1, 0, 0, 1.8), BackgroundColor3 = Color3.new(1, 1, 1), BorderSizePixel = 0, Active = false, ZIndex = baseZ + 4
             }, bannerHolder)
             table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, bottomLine))
         end
@@ -1276,7 +1281,7 @@ local function applySenaV7Architecture(win, titleLbl)
         end
     end
 
-    -- D. NÚT SIDEBAR SQUIRCLE ĐA SẮC + ICON TRỨNG (91536384271341)
+    -- D. NÚT SIDEBAR SQUIRCLE ĐA SẮC + PHÓNG TO ICON TRỨNG (ẢNH 4) + HIỆU ỨNG TƯƠNG TÁC TAB ĐỈNH CAO
     local navButtons = {}
     for _, d in ipairs(win:GetDescendants()) do
         if d:IsA("GuiObject") and (d.AbsolutePosition.X - winX) < 75 and d.AbsolutePosition.Y > hy + 15 then
@@ -1295,6 +1300,70 @@ local function applySenaV7Architecture(win, titleLbl)
 
     if #navButtons >= 2 then
         table.sort(navButtons, function(a, b) return a.AbsolutePosition.Y < b.AbsolutePosition.Y end)
+
+        local TAB_NAMES = {
+            [1] = { title = "BẢNG ĐIỀU KHIỂN", icon = "🏠", sub = "HOME DASHBOARD" },
+            [2] = { title = "CƯỚP TRỨNG", icon = "🥚", sub = "AUTO STEAL & SNIPER" },
+            [3] = { title = "CÀY CUỐC & PET", icon = "🌾", sub = "AUTO FARM & PETS" },
+            [4] = { title = "SỰ KIỆN", icon = "✨", sub = "HALLOWEEN & EVENTS" },
+            [5] = { title = "NGƯỜI CHƠI", icon = "👤", sub = "PLAYER & ESP" },
+            [6] = { title = "HỆ THỐNG", icon = "⚙️", sub = "SYSTEM & CONFIG" },
+        }
+
+        -- Khung thông báo mini xuất hiện cực đẹp khi bấm vào từng tab
+        local function showTabToast(idx, badgeColor)
+            local tabInfo = TAB_NAMES[idx] or { title = "TAB " .. tostring(idx), icon = "⚡", sub = "CHILLI HUB ULTRA" }
+            local oldToast = win:FindFirstChild("ChilliTabToast")
+            if oldToast then oldToast:Destroy() end
+
+            local toast = mk("Frame", {
+                Name = "ChilliTabToast",
+                AnchorPoint = Vector2.new(0.5, 0),
+                Position = UDim2.new(0.5, 20, 0, -32),
+                Size = UDim2.new(0, 248, 0, 30),
+                BackgroundColor3 = Color3.fromRGB(15, 17, 26),
+                BackgroundTransparency = 0.12,
+                BorderSizePixel = 0,
+                ClipsDescendants = true,
+                Active = false,
+                ZIndex = (win.ZIndex or 2) + 20
+            }, win)
+            mk("UICorner", { CornerRadius = UDim.new(1, 0) }, toast)
+            local tStroke = mk("UIStroke", { Thickness = 1.4, Color = badgeColor, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, toast)
+            table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, tStroke))
+
+            local tLbl = mk("TextLabel", {
+                Size = UDim2.new(1, 0, 1, 0),
+                BackgroundTransparency = 1,
+                Font = Enum.Font.GothamBlack,
+                TextSize = 11,
+                TextColor3 = Color3.new(1, 1, 1),
+                Text = tabInfo.icon .. "  " .. tabInfo.title .. "  •  " .. tabInfo.sub,
+                Active = false,
+                ZIndex = toast.ZIndex + 1
+            }, toast)
+            local tGrad = mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, tLbl)
+            table.insert(State.ActiveGradients, tGrad)
+
+            -- Hiệu ứng lướt nhẹ từ trên xuống
+            TweenService:Create(toast, TweenInfo.new(0.24, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+                Position = UDim2.new(0.5, 20, 0, 8)
+            }):Play()
+
+            -- Tự động biến mất mượt mà sau 1.3 giây
+            task.delay(1.3, function()
+                if toast and toast.Parent then
+                    local outTween = TweenService:Create(toast, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+                        Position = UDim2.new(0.5, 20, 0, -32),
+                        BackgroundTransparency = 1
+                    })
+                    TweenService:Create(tLbl, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { TextTransparency = 1 }):Play()
+                    TweenService:Create(tStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Transparency = 1 }):Play()
+                    outTween:Play()
+                    outTween.Completed:Connect(function() toast:Destroy() end)
+                end
+            end)
+        end
 
         for idx, btn in ipairs(navButtons) do
             local badgeColor = SIDEBAR_PALETTE[((idx - 1) % #SIDEBAR_PALETTE) + 1]
@@ -1319,6 +1388,7 @@ local function applySenaV7Architecture(win, titleLbl)
                 end
             end
 
+            -- Tab 2: Phóng to ảnh quả trứng (Ảnh 4: 6935.png) lên kích thước 0.84 cân đối hoàn hảo
             if idx == 2 then
                 for _, desc in ipairs(btn:GetDescendants()) do
                     if desc ~= squircle and desc.Name ~= "ChilliStealTabIcon" and not desc:IsA("UICorner") and not desc:IsA("UIStroke") then
@@ -1335,13 +1405,72 @@ local function applySenaV7Architecture(win, titleLbl)
                 if not stealIcon then
                     stealIcon = mk("ImageLabel", {
                         Name = "ChilliStealTabIcon", AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
-                        Size = UDim2.fromScale(0.56, 0.56), BackgroundTransparency = 1, Image = STEAL_TAB_ICON_ID,
+                        Size = UDim2.fromScale(0.84, 0.84), -- Phóng to quả trứng cân bằng với các icon khác
+                        BackgroundTransparency = 1, Image = STEAL_TAB_ICON_ID,
                         ScaleType = Enum.ScaleType.Fit, Active = false, Selectable = false, ZIndex = squircle.ZIndex + 3
                     }, btn)
                     mk("UIAspectRatioConstraint", { AspectRatio = 1 }, stealIcon)
                 else
                     stealIcon.Image = STEAL_TAB_ICON_ID
+                    stealIcon.Size = UDim2.fromScale(0.84, 0.84)
                 end
+            end
+
+            -- Hiệu ứng nút bấm tương tác khi bấm vào Tab (Shockwave Ripple + Spring Elastic Bounce + Tab Toast)
+            if not btn:GetAttribute("__TabEffectHooked") then
+                btn:SetAttribute("__TabEffectHooked", true)
+                local function onTabTriggered()
+                    -- 1. Hiệu ứng nảy nút bấm (Spring Bounce)
+                    TweenService:Create(squircle, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                        Size = UDim2.new(0, 24, 0, 24)
+                    }):Play()
+                    task.delay(0.08, function()
+                        TweenService:Create(squircle, TweenInfo.new(0.18, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+                            Size = UDim2.new(0, 33, 0, 33)
+                        }):Play()
+                    end)
+                    task.delay(0.26, function()
+                        TweenService:Create(squircle, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                            Size = UDim2.new(0, 30, 0, 30)
+                        }):Play()
+                    end)
+
+                    -- 2. Hiệu ứng sóng ánh sáng lan tỏa (Cosmic Shockwave Ripple)
+                    local ripple = mk("Frame", {
+                        Name = "ChilliTabRipple",
+                        AnchorPoint = Vector2.new(0.5, 0.5),
+                        Position = UDim2.fromScale(0.5, 0.5),
+                        Size = UDim2.new(0, 24, 0, 24),
+                        BackgroundColor3 = badgeColor,
+                        BackgroundTransparency = 0.2,
+                        BorderSizePixel = 0,
+                        Active = false,
+                        ZIndex = squircle.ZIndex - 1
+                    }, btn)
+                    mk("UICorner", { CornerRadius = UDim.new(1, 0) }, ripple)
+                    local ripStroke = mk("UIStroke", { Thickness = 1.8, Color = Color3.new(1, 1, 1), Transparency = 0.2 }, ripple)
+                    
+                    local rTween = TweenService:Create(ripple, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                        Size = UDim2.new(0, 52, 0, 52),
+                        BackgroundTransparency = 1
+                    })
+                    TweenService:Create(ripStroke, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Transparency = 1 }):Play()
+                    rTween:Play()
+                    rTween.Completed:Connect(function() ripple:Destroy() end)
+
+                    -- 3. Hiện huy hiệu thông báo mini của Tab ở đầu trang
+                    showTabToast(idx, badgeColor)
+                end
+
+                if btn:IsA("GuiButton") then
+                    btn.Activated:Connect(onTabTriggered)
+                    btn.MouseButton1Click:Connect(onTabTriggered)
+                end
+                btn.InputBegan:Connect(function(inp)
+                    if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+                        onTabTriggered()
+                    end
+                end)
             end
         end
     end
