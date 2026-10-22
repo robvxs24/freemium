@@ -1610,7 +1610,6 @@ local function applySenaV7Architecture(win, titleLbl)
                 end
             end
         end
-    end
 
     -- D. NÚT SIDEBAR SQUIRCLE ĐA SẮC + ICON TRỨNG (91536384271341)
     local navButtons = {}
