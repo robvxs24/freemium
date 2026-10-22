@@ -1,4 +1,4 @@
--- Chilli Hub V7 | Zero-Delay Border Sync + Soft Ultra Title + Sena V7 OLED Glass Edition
+-- Chilli Hub V7 | Zero-Delay Border Sync + Ultra Text + Cosmic Nameplate Frame + Dynamic Island Pro V7
 local NEW_TITLE = "Chilli Hub V7"
 local LOGO_ID = "rbxassetid://74441610995894"
 local HEADER_BAR_IMG_ID = "rbxassetid://83726521558450"
@@ -130,13 +130,13 @@ local RAINBOW = ColorSequence.new({
     ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 45, 85))
 })
 
--- Màu Gradient ULTRA Pastel Dịu Mắt (Trắng Bạc -> Xanh Băng -> Hồng Tím -> Tím Cosmic -> Vàng Kem)
+-- Màu Gradient ULTRA Cao Cấp (Trắng Băng -> Xanh Cyan -> Hồng Ultra -> Tím Cosmic -> Vàng Hoàng Gia)
 local ULTRA_TEXT_GRAD = ColorSequence.new({
-    ColorSequenceKeypoint.new(0.00, Color3.fromRGB(245, 248, 255)),
-    ColorSequenceKeypoint.new(0.22, Color3.fromRGB(145, 215, 255)),
-    ColorSequenceKeypoint.new(0.50, Color3.fromRGB(240, 125, 220)),
-    ColorSequenceKeypoint.new(0.78, Color3.fromRGB(175, 130, 255)),
-    ColorSequenceKeypoint.new(1.00, Color3.fromRGB(250, 210, 115))
+    ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)),
+    ColorSequenceKeypoint.new(0.20, Color3.fromRGB(125, 225, 255)),
+    ColorSequenceKeypoint.new(0.45, Color3.fromRGB(255, 95, 215)),
+    ColorSequenceKeypoint.new(0.72, Color3.fromRGB(175, 115, 255)),
+    ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 215, 85))
 })
 
 -- 2. VÒNG LẶP HỢP NHẤT (XOAY CẦU VỒNG + FPS ẢO 95-120 + TELEMETRY PILLS + ĐỒNG BỘ GIAO DIỆN)
@@ -168,10 +168,19 @@ task.spawn(function()
     local rot, tickFps = 0, 0
     while isAlive() do
         rot = (rot + 4) % 360
+        local textRot = math.sin(rot * math.pi / 180) * 24
         local grads = State.ActiveGradients
         for i = #grads, 1, -1 do
             local g = grads[i]
-            if g and g.Parent then g.Rotation = rot else table.remove(grads, i) end
+            if g and g.Parent then
+                if g.Parent:IsA("TextLabel") or g.Parent:IsA("TextButton") then
+                    g.Rotation = textRot
+                else
+                    g.Rotation = rot
+                end
+            else
+                table.remove(grads, i)
+            end
         end
         tickFps = tickFps + 1
         if tickFps >= 15 then
@@ -184,6 +193,7 @@ task.spawn(function()
                 pcall(State.TelemetryUpdateFn, curFps)
             end
         end
+        -- Luôn đồng bộ trạng thái hiển thị giao diện theo chu kỳ nhịp tim 30 FPS
         if State.SyncWindowFn then
             pcall(State.SyncWindowFn)
         end
@@ -481,8 +491,12 @@ local function applyPhrases(s)
     return out
 end
 local function applyWords(s)
-    return (stripArt(s):gsub("([%a']+)", function(w)
+    return (s:gsub("([\128-\255%a']+)", function(w)
+        if w:find("[\128-\255]") then return w end
         local l = w:lower()
+        if (l == "an" or l == "to" or l == "in" or l == "at" or l == "or" or l == "no") and hasVi(s) then
+            return w
+        end
         return WORDS_VI[l] or LOWER_VI[l] or w
     end))
 end
@@ -731,25 +745,68 @@ local function runAutoFarmMacro(venyxGui, btnLbl)
     end)
 end
 
--- 6. DYNAMIC ISLAND
+-- 6. DYNAMIC ISLAND PRO V7 (CHUYÊN NGHIỆP + CHỮ MÀU ULTRA + KHUNG VŨ TRỤ)
 local function setupIsland(statusLbl, venyxGui)
     local pill = statusLbl.Parent
     if not (pill and pill:IsA("GuiObject")) then return end
     statusLbl:SetAttribute("__IslandDone", true)
-    for _, ch in ipairs(pill:GetChildren()) do if ch:IsA("UIGradient") or ch.Name == "IslandClickHitbox" then ch:Destroy() end end
-
-    pill.BackgroundColor3, pill.BackgroundTransparency, pill.Size, pill.AutomaticSize = BLACK_BG, 0, UDim2.new(0,0,0,28), Enum.AutomaticSize.X
-    if pill:GetAttribute("__BlackBgSession") ~= SID then
-        pill:SetAttribute("__BlackBgSession", SID)
-        pill:GetPropertyChangedSignal("BackgroundColor3"):Connect(function() if isAlive() and pill.BackgroundColor3 ~= BLACK_BG then pill.BackgroundColor3 = BLACK_BG end end)
-        pill:GetPropertyChangedSignal("BackgroundTransparency"):Connect(function() if isAlive() and pill.BackgroundTransparency ~= 0 then pill.BackgroundTransparency = 0 end end)
+    for _, ch in ipairs(pill:GetChildren()) do
+        if ch:IsA("UIGradient") or ch.Name == "IslandClickHitbox" then ch:Destroy() end
     end
 
-    local hint = pill:FindFirstChild("IslandExpandHint") or mk("TextLabel", {
-        Name="IslandExpandHint", Size=UDim2.new(0,18,0,18), BackgroundColor3=Color3.fromRGB(28,32,48), BorderSizePixel=0,
-        Text="▼", Font=Enum.Font.GothamBold, TextSize=9, TextColor3=Color3.fromRGB(165,210,255), LayoutOrder=99, ZIndex=10000
-    }, pill)
-    if not hint:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius=UDim.new(1,0) }, hint) end
+    pill.BackgroundColor3, pill.BackgroundTransparency, pill.Size, pill.AutomaticSize = Color3.fromRGB(10, 12, 20), 0.04, UDim2.new(0, 0, 0, 32), Enum.AutomaticSize.X
+    if pill:GetAttribute("__BlackBgSession") ~= SID then
+        pill:SetAttribute("__BlackBgSession", SID)
+        pill:GetPropertyChangedSignal("BackgroundColor3"):Connect(function()
+            if isAlive() and pill.BackgroundColor3 ~= Color3.fromRGB(10, 12, 20) then pill.BackgroundColor3 = Color3.fromRGB(10, 12, 20) end
+        end)
+        pill:GetPropertyChangedSignal("BackgroundTransparency"):Connect(function()
+            if isAlive() and pill.BackgroundTransparency > 0.1 then pill.BackgroundTransparency = 0.04 end
+        end)
+    end
+
+    local pad = pill:FindFirstChildOfClass("UIPadding") or mk("UIPadding", {}, pill)
+    pad.PaddingLeft = UDim.new(0, 8)
+    pad.PaddingRight = UDim.new(0, 8)
+
+    -- Huy hiệu Logo Chilli tròn mini bên trái Dynamic Island
+    local leftBadge = pill:FindFirstChild("IslandLogoBadge")
+    if not leftBadge then
+        leftBadge = mk("Frame", {
+            Name = "IslandLogoBadge", Size = UDim2.new(0, 22, 0, 22), BackgroundColor3 = LOGO_BG,
+            BorderSizePixel = 0, LayoutOrder = -10, Active = false, ZIndex = 10000
+        }, pill)
+        mk("UICorner", { CornerRadius = UDim.new(1, 0) }, leftBadge)
+        local lbStroke = mk("UIStroke", { Thickness = 1.4, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, leftBadge)
+        table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, lbStroke))
+        local lbImg = mk("ImageLabel", {
+            AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromScale(0.95, 0.95),
+            BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = 10001
+        }, leftBadge)
+        mk("UICorner", { CornerRadius = UDim.new(1, 0) }, lbImg)
+    end
+
+    -- Nút huy hiệu [ ULTRA ▼ ] bên phải Dynamic Island
+    local hint = pill:FindFirstChild("IslandExpandHint")
+    if not hint then
+        hint = mk("TextLabel", {
+            Name = "IslandExpandHint", Size = UDim2.new(0, 50, 0, 20), BackgroundColor3 = Color3.fromRGB(24, 18, 38),
+            BorderSizePixel = 0, Text = "ULTRA ▼", Font = Enum.Font.GothamBlack, TextSize = 9,
+            TextColor3 = Color3.fromRGB(255, 225, 90), LayoutOrder = 99, Active = true, ZIndex = 10000
+        }, pill)
+    else
+        hint.Size = UDim2.new(0, 50, 0, 20)
+        hint.BackgroundColor3 = Color3.fromRGB(24, 18, 38)
+        hint.Text = "ULTRA ▼"
+        hint.Font = Enum.Font.GothamBlack
+        hint.TextSize = 9
+        hint.TextColor3 = Color3.fromRGB(255, 225, 90)
+    end
+    if not hint:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, hint) end
+    local hStroke = hint:FindFirstChildOfClass("UIStroke") or mk("UIStroke", { Thickness = 1, Color = Color3.fromRGB(255, 200, 75), Transparency = 0.2 }, hint)
+    table.insert(State.ActiveGradients, hStroke:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, hStroke))
+
+    local expTaskLbl = nil
 
     local function syncStatus(fromSaved)
         if statusLbl:GetAttribute("__Updating") then return end
@@ -763,59 +820,146 @@ local function setupIsland(statusLbl, venyxGui)
         local fin = translateStatus(en)
         statusLbl:SetAttribute("__LastTranslatedStatus", fin); statusLbl:SetAttribute("__LastTranslated", fin)
         if statusLbl.Text ~= fin then statusLbl.Text = fin end
-        statusLbl.TextColor3, statusLbl.TextTransparency, statusLbl.Size, statusLbl.AutomaticSize = Color3.new(1,1,1), 0, UDim2.new(0,0,1,0), Enum.AutomaticSize.X
+        statusLbl.Font = Enum.Font.GothamBlack
+        statusLbl.TextSize = 12.5
+        statusLbl.TextColor3, statusLbl.TextTransparency, statusLbl.Size, statusLbl.AutomaticSize = Color3.new(1, 1, 1), 0, UDim2.new(0, 0, 1, 0), Enum.AutomaticSize.X
+        if expTaskLbl and expTaskLbl.Parent then
+            expTaskLbl.Text = "⚡ " .. fin
+        end
         statusLbl:SetAttribute("__Updating", false)
     end
     State.RefreshIslandCallback = function() syncStatus(true) end
     syncStatus(false)
 
+    -- Chữ trên Dynamic Island mang màu ULTRA rực rỡ + viền chữ sắc nét
+    local stStroke = statusLbl:FindFirstChildOfClass("UIStroke") or mk("UIStroke", {
+        Thickness = 1.2, Color = Color3.fromRGB(12, 8, 22), Transparency = 0.2
+    }, statusLbl)
+    local tg = statusLbl:FindFirstChild("TextRainbow") or mk("UIGradient", { Name = "TextRainbow", Color = ULTRA_TEXT_GRAD }, statusLbl)
+    tg.Color = ULTRA_TEXT_GRAD
+    table.insert(State.ActiveGradients, tg)
+
     local exp = venyxGui:FindFirstChild("ChilliV5_ExpandedIsland")
     if statusLbl:GetAttribute("__IslandSession") == SID and exp then return end
     statusLbl:SetAttribute("__IslandSession", SID)
 
-    local tg = statusLbl:FindFirstChild("TextRainbow") or mk("UIGradient", { Name="TextRainbow", Color=RAINBOW }, statusLbl)
-    table.insert(State.ActiveGradients, tg)
-
-    pill.Parent, pill.AnchorPoint, pill.ZIndex, pill.Active, statusLbl.Active, hint.Active = venyxGui, Vector2.new(0.5,0), 9999, true, true, true
-    if pill.Position.Y.Offset < 4 or pill.Position.Y.Offset > 600 then pill.Position = UDim2.new(0.5,0,0,8) end
-    if not pill:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius=UDim.new(1,0) }, pill) end
-    local ps = pill:FindFirstChild("IslandStroke") or mk("UIStroke", { Name="IslandStroke", Thickness=1.8, ApplyStrokeMode=Enum.ApplyStrokeMode.Border, Color=Color3.new(1,1,1) }, pill)
-    table.insert(State.ActiveGradients, ps:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color=RAINBOW }, ps))
+    pill.Parent, pill.AnchorPoint, pill.ZIndex, pill.Active, statusLbl.Active, hint.Active = venyxGui, Vector2.new(0.5, 0), 9999, true, true, true
+    if pill.Position.Y.Offset < 4 or pill.Position.Y.Offset > 600 then pill.Position = UDim2.new(0.5, 0, 0, 8) end
+    if not pill:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, pill) end
+    local ps = pill:FindFirstChild("IslandStroke") or mk("UIStroke", { Name = "IslandStroke", Thickness = 2.0, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Color3.new(1, 1, 1) }, pill)
+    table.insert(State.ActiveGradients, ps:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, ps))
 
     if exp then exp:Destroy() end
     exp = mk("Frame", {
-        Name="ChilliV5_ExpandedIsland", AnchorPoint=Vector2.new(0.5,0), Position=pill.Position, Size=UDim2.new(0,268,0,118),
-        BackgroundColor3=BLACK_BG, BorderSizePixel=0, Visible=false, Active=true, ZIndex=10000
+        Name = "ChilliV5_ExpandedIsland", AnchorPoint = Vector2.new(0.5, 0), Position = pill.Position, Size = UDim2.new(0, 296, 0, 144),
+        BackgroundColor3 = Color3.fromRGB(10, 12, 20), BorderSizePixel = 0, Visible = false, Active = true, ClipsDescendants = true, ZIndex = 10000
     }, venyxGui)
-    mk("UICorner", { CornerRadius=UDim.new(0,16) }, exp)
-    local es = mk("UIStroke", { Thickness=1.8, Color=Color3.new(1,1,1), ApplyStrokeMode=Enum.ApplyStrokeMode.Border }, exp)
-    table.insert(State.ActiveGradients, mk("UIGradient", { Color=RAINBOW }, es))
+    mk("UICorner", { CornerRadius = UDim.new(0, 18) }, exp)
+    local es = mk("UIStroke", { Thickness = 2.0, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, exp)
+    table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, es))
 
-    mk("TextLabel", { Size=UDim2.new(1,-44,0,28), Position=UDim2.new(0,14,0,4), BackgroundTransparency=1, Text="🌶️ Chilli Hub V7", Font=Enum.Font.GothamBold, TextSize=11.5, TextColor3=Color3.new(1,1,1), TextXAlignment=Enum.TextXAlignment.Left, ZIndex=10001 }, exp)
-    local colBtn = mk("TextButton", { Size=UDim2.new(0,24,0,22), Position=UDim2.new(1,-32,0,7), BackgroundColor3=Color3.fromRGB(22,24,34), BorderSizePixel=0, Text="▲", Font=Enum.Font.GothamBold, TextSize=10, TextColor3=Color3.fromRGB(160,205,255), ZIndex=10002 }, exp)
-    mk("UICorner", { CornerRadius=UDim.new(1,0) }, colBtn)
+    -- Khung nền vũ trụ 83726521558450 trang trí bên trong Dynamic Island mở rộng
+    mk("ImageLabel", {
+        Name = "IslandCosmicBg", AnchorPoint = Vector2.new(0, 0), Position = UDim2.new(0, 0, 0, 0),
+        Size = UDim2.new(1, 0, 0, 42), BackgroundTransparency = 1, Image = HEADER_BAR_IMG_ID,
+        ImageRectOffset = Vector2.new(15, 60), ImageRectSize = Vector2.new(650, 170),
+        ScaleType = Enum.ScaleType.Stretch, ImageTransparency = 0.22, Active = false, ZIndex = 10000
+    }, exp)
 
-    local cap = mk("Frame", { Size=UDim2.new(1,-20,0,34), Position=UDim2.new(0,10,0,36), BackgroundColor3=Color3.fromRGB(18,20,30), BorderSizePixel=0, ZIndex=10001 }, exp)
-    mk("UICorner", { CornerRadius=UDim.new(1,0) }, cap)
-    local sld = mk("Frame", { Size=UDim2.new(0.5,-4,1,-4), Position=(State.Language=="VI" and UDim2.new(0,2,0,2) or UDim2.new(0.5,2,0,2)), BackgroundColor3=Color3.fromRGB(95,110,235), BorderSizePixel=0, ZIndex=10002 }, cap)
-    mk("UICorner", { CornerRadius=UDim.new(1,0) }, sld)
+    -- Logo tròn góc trái trong bảng mở rộng
+    local expLogo = mk("Frame", {
+        Position = UDim2.new(0, 10, 0, 7), Size = UDim2.new(0, 24, 0, 24), BackgroundColor3 = LOGO_BG,
+        BorderSizePixel = 0, Active = false, ZIndex = 10002
+    }, exp)
+    mk("UICorner", { CornerRadius = UDim.new(1, 0) }, expLogo)
+    local elStroke = mk("UIStroke", { Thickness = 1.4, Color = Color3.new(1, 1, 1) }, expLogo)
+    table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, elStroke))
+    local elImg = mk("ImageLabel", {
+        AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromScale(0.95, 0.95),
+        BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = 10003
+    }, expLogo)
+    mk("UICorner", { CornerRadius = UDim.new(1, 0) }, elImg)
 
-    local bVI = mk("TextButton", { Size=UDim2.new(0.5,0,1,0), BackgroundTransparency=1, Text="🇻🇳 TIẾNG VIỆT", Font=Enum.Font.GothamBold, TextSize=10.5, TextColor3=(State.Language=="VI" and Color3.new(1,1,1) or Color3.fromRGB(150,165,190)), ZIndex=10003 }, cap)
-    local bEN = mk("TextButton", { Size=UDim2.new(0.5,0,1,0), Position=UDim2.new(0.5,0,0,0), BackgroundTransparency=1, Text="🌐 ENGLISH", Font=Enum.Font.GothamBold, TextSize=10.5, TextColor3=(State.Language=="EN" and Color3.new(1,1,1) or Color3.fromRGB(150,165,190)), ZIndex=10003 }, cap)
+    -- Tiêu đề Chilli Hub V7 màu ULTRA trong Dynamic Island
+    local expTitle = mk("TextLabel", {
+        Size = UDim2.new(0, 110, 0, 24), Position = UDim2.new(0, 40, 0, 7), BackgroundTransparency = 1,
+        Text = "Chilli Hub V7", Font = Enum.Font.GothamBlack, TextSize = 13.5, TextColor3 = Color3.new(1, 1, 1),
+        TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 10002
+    }, exp)
+    mk("UIStroke", { Thickness = 1.2, Color = Color3.fromRGB(12, 8, 22), Transparency = 0.2 }, expTitle)
+    table.insert(State.ActiveGradients, mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, expTitle))
 
-    local cfgBtn = mk("TextButton", { Name="AutoFarmConfigBtn", Size=UDim2.new(1,-20,0,34), Position=UDim2.new(0,10,0,74), BackgroundColor3=Color3.fromRGB(24,28,44), BorderSizePixel=0, Text="⚡ CONFIG SETTING AUTO FARM", Font=Enum.Font.GothamBold, TextSize=10.5, TextColor3=Color3.new(1,1,1), ZIndex=10003 }, exp)
-    mk("UICorner", { CornerRadius=UDim.new(1,0) }, cfgBtn)
-    local cs = mk("UIStroke", { Thickness=1.3, Color=Color3.new(1,1,1), ApplyStrokeMode=Enum.ApplyStrokeMode.Border }, cfgBtn)
-    table.insert(State.ActiveGradients, mk("UIGradient", { Color=RAINBOW }, cs))
+    -- Huy hiệu [ 👑 ULTRA ] trên Dynamic Island
+    local expBadge = mk("Frame", {
+        Position = UDim2.new(0, 145, 0, 10), Size = UDim2.new(0, 52, 0, 18), BackgroundColor3 = Color3.fromRGB(24, 18, 38),
+        BorderSizePixel = 0, Active = false, ZIndex = 10002
+    }, exp)
+    mk("UICorner", { CornerRadius = UDim.new(1, 0) }, expBadge)
+    local ebStroke = mk("UIStroke", { Thickness = 1, Color = Color3.fromRGB(255, 200, 75), Transparency = 0.2 }, expBadge)
+    table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, ebStroke))
+    mk("TextLabel", {
+        Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = "👑 ULTRA", Font = Enum.Font.GothamBold,
+        TextSize = 9, TextColor3 = Color3.fromRGB(255, 225, 90), Active = false, ZIndex = 10003
+    }, expBadge)
+
+    local colBtn = mk("TextButton", {
+        Size = UDim2.new(0, 26, 0, 22), Position = UDim2.new(1, -34, 0, 8), BackgroundColor3 = Color3.fromRGB(22, 24, 36),
+        BorderSizePixel = 0, Text = "▲", Font = Enum.Font.GothamBold, TextSize = 10, TextColor3 = Color3.fromRGB(160, 205, 255), ZIndex = 10003
+    }, exp)
+    mk("UICorner", { CornerRadius = UDim.new(1, 0) }, colBtn)
+
+    -- Thanh hiển thị trạng thái trực tiếp (Live Task Pill) bên trong Dynamic Island
+    local taskBox = mk("Frame", {
+        Size = UDim2.new(1, -20, 0, 24), Position = UDim2.new(0, 10, 0, 36), BackgroundColor3 = Color3.fromRGB(16, 18, 28),
+        BackgroundTransparency = 0.15, BorderSizePixel = 0, ZIndex = 10001
+    }, exp)
+    mk("UICorner", { CornerRadius = UDim.new(1, 0) }, taskBox)
+    mk("UIStroke", { Thickness = 1, Color = Color3.fromRGB(45, 52, 78), Transparency = 0.35 }, taskBox)
+    expTaskLbl = mk("TextLabel", {
+        Size = UDim2.new(1, -16, 1, 0), Position = UDim2.new(0, 8, 0, 0), BackgroundTransparency = 1,
+        Text = "⚡ " .. (statusLbl.Text or "Đang rảnh"), Font = Enum.Font.GothamBold, TextSize = 10.5,
+        TextColor3 = Color3.new(1, 1, 1), TextTruncate = Enum.TextTruncate.AtEnd, ZIndex = 10002
+    }, taskBox)
+    table.insert(State.ActiveGradients, mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, expTaskLbl))
+
+    local cap = mk("Frame", {
+        Size = UDim2.new(1, -20, 0, 32), Position = UDim2.new(0, 10, 0, 65), BackgroundColor3 = Color3.fromRGB(18, 20, 30),
+        BorderSizePixel = 0, ZIndex = 10001
+    }, exp)
+    mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cap)
+    local sld = mk("Frame", {
+        Size = UDim2.new(0.5, -4, 1, -4), Position = (State.Language == "VI" and UDim2.new(0, 2, 0, 2) or UDim2.new(0.5, 2, 0, 2)),
+        BackgroundColor3 = Color3.fromRGB(95, 110, 235), BorderSizePixel = 0, ZIndex = 10002
+    }, cap)
+    mk("UICorner", { CornerRadius = UDim.new(1, 0) }, sld)
+
+    local bVI = mk("TextButton", {
+        Size = UDim2.new(0.5, 0, 1, 0), BackgroundTransparency = 1, Text = "🇻🇳 TIẾNG VIỆT", Font = Enum.Font.GothamBold,
+        TextSize = 10.5, TextColor3 = (State.Language == "VI" and Color3.new(1, 1, 1) or Color3.fromRGB(150, 165, 190)), ZIndex = 10003
+    }, cap)
+    local bEN = mk("TextButton", {
+        Size = UDim2.new(0.5, 0, 1, 0), Position = UDim2.new(0.5, 0, 0, 0), BackgroundTransparency = 1, Text = "🌐 ENGLISH",
+        Font = Enum.Font.GothamBold, TextSize = 10.5, TextColor3 = (State.Language == "EN" and Color3.new(1, 1, 1) or Color3.fromRGB(150, 165, 190)), ZIndex = 10003
+    }, cap)
+
+    local cfgBtn = mk("TextButton", {
+        Name = "AutoFarmConfigBtn", Size = UDim2.new(1, -20, 0, 34), Position = UDim2.new(0, 10, 0, 102),
+        BackgroundColor3 = Color3.fromRGB(22, 25, 40), BorderSizePixel = 0, Text = "⚡ CONFIG SETTING AUTO FARM",
+        Font = Enum.Font.GothamBlack, TextSize = 10.5, TextColor3 = Color3.new(1, 1, 1), ZIndex = 10003
+    }, exp)
+    mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cfgBtn)
+    table.insert(State.ActiveGradients, mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, cfgBtn))
+    local cs = mk("UIStroke", { Thickness = 1.4, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, cfgBtn)
+    table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, cs))
     cfgBtn.MouseButton1Click:Connect(function() runAutoFarmMacro(venyxGui, cfgBtn) end)
 
     local function setLang(l)
         if State.Language == l then return end
         State.Language = l
         if writefile then pcall(writefile, LANG_FILE, l) end
-        TweenService:Create(sld, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Position=(l=="VI" and UDim2.new(0,2,0,2) or UDim2.new(0.5,2,0,2)) }):Play()
-        bVI.TextColor3 = l=="VI" and Color3.new(1,1,1) or Color3.fromRGB(150,165,190)
-        bEN.TextColor3 = l=="EN" and Color3.new(1,1,1) or Color3.fromRGB(150,165,190)
+        TweenService:Create(sld, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Position = (l == "VI" and UDim2.new(0, 2, 0, 2) or UDim2.new(0.5, 2, 0, 2)) }):Play()
+        bVI.TextColor3 = l == "VI" and Color3.new(1, 1, 1) or Color3.fromRGB(150, 165, 190)
+        bEN.TextColor3 = l == "EN" and Color3.new(1, 1, 1) or Color3.fromRGB(150, 165, 190)
         refreshAll()
     end
     bVI.MouseButton1Click:Connect(function() setLang("VI") end)
@@ -823,8 +967,8 @@ local function setupIsland(statusLbl, venyxGui)
 
     local function toggleExp(open)
         if open then
-            exp.Position, pill.Visible, exp.Size, exp.Visible = pill.Position, false, UDim2.new(0,160,0,28), true
-            TweenService:Create(exp, TweenInfo.new(0.28, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Size=UDim2.new(0,268,0,118) }):Play()
+            exp.Position, pill.Visible, exp.Size, exp.Visible = pill.Position, false, UDim2.new(0, 180, 0, 32), true
+            TweenService:Create(exp, TweenInfo.new(0.28, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = UDim2.new(0, 296, 0, 144) }):Play()
         else
             pill.Position, exp.Visible, pill.Visible = exp.Position, false, true
         end
@@ -866,7 +1010,7 @@ local function setupIsland(statusLbl, venyxGui)
     end)
 end
 
--- 7. NÚT NỔI TRÒN HÀO QUANG KÉP (BÓC TÁCH HOÀN HẢO KHUNG TRÒN + VIỀN CẦU VỒNG SÁT MÉP)
+-- 7. NÚT NỔI TRÒN HÀO QUANG KÉP
 local function cleanupStrayLogos(gui, win)
     if not gui or not win then return end
     for _, d in ipairs(win:GetDescendants()) do
@@ -968,6 +1112,7 @@ local function setupCircleLogo(obj, win)
     if not top:GetAttribute("__SyncClickHooked") then
         top:SetAttribute("__SyncClickHooked", true)
         local function triggerSync()
+            State.CloseHideUntil = 0
             TweenService:Create(disc, TweenInfo.new(0.09, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = UDim2.new(0, 56, 0, 56) }):Play()
             task.delay(0.09, function()
                 TweenService:Create(disc, TweenInfo.new(0.18, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = UDim2.new(0, 62, 0, 62) }):Play()
@@ -989,7 +1134,7 @@ local function setupCircleLogo(obj, win)
     end
 end
 
--- 8. CHILLI HUB V7 ARCHITECTURE (TẮT MỞ GIAO DIỆN & VIỀN TỨC THÌ 0MS, FIX LỖI MẤT GIAO DIỆN)
+-- 8. CHILLI HUB V7 ARCHITECTURE (QUẢ KHUNG VŨ TRỤ TRÊN THANH TÊN + CHỮ ULTRA + ĐỒNG BỘ 0MS)
 local SIDEBAR_PALETTE = {
     Color3.fromRGB(37, 99, 235),  -- [1] Trang Chủ: Xanh Dương
     Color3.fromRGB(239, 68, 68),  -- [2] Cướp Trứng: Đỏ
@@ -1009,7 +1154,7 @@ local function applySenaV7Architecture(win, titleLbl)
         win.ClipsDescendants = true
     end)
 
-    -- A. VIỀN CẦU VỒNG QUANH MENU
+    -- A. VIỀN CẦU VỒNG QUANH MENU ĐỒNG BỘ TẮT MỞ TỨC THÌ 0MS
     local winStroke = win:FindFirstChild("ChilliProWindowStroke")
     if not winStroke then
         winStroke = mk("UIStroke", {
@@ -1019,7 +1164,7 @@ local function applySenaV7Architecture(win, titleLbl)
         table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, winStroke))
     end
 
-    -- Lớp Wallpaper hình nền Vũ Trụ Mắt Thần (Ảnh 2 - Asset ID 90615151648668) tự động mờ/rõ theo độ trong suốt menu
+    -- Lớp Wallpaper hình nền Vũ Trụ Mắt Thần (Asset ID 90615151648668) tự động mờ/rõ theo độ trong suốt menu
     local wp = win:FindFirstChild("ChilliSenaWallpaper")
     if not wp then
         wp = mk("ImageLabel", {
@@ -1054,7 +1199,7 @@ local function applySenaV7Architecture(win, titleLbl)
         end
     end
 
-    -- B. THANH HEADER + NHÃN TÊN "Chilli Hub V7" MÀU ULTRA PASTEL + HUY HIỆU [ ULTRA ] + BANNER ẢNH 3
+    -- B. THANH HEADER + QUẢ KHUNG 83726521558450 + NHÃN TÊN "Chilli Hub V7" MÀU ULTRA
     local headerBar = titleLbl.Parent
     local curr = titleLbl
     while curr and curr ~= win do
@@ -1087,15 +1232,22 @@ local function applySenaV7Architecture(win, titleLbl)
             end
         end
 
-        -- Tiêu đề "Chilli Hub V7" với màu Ultra cao cấp, dịu mắt không chói lóa
+        -- Phủ màu ULTRA lên cả chữ gốc lẫn nhãn tiêu đề "Chilli Hub V7"
+        titleLbl.TextColor3 = Color3.new(1, 1, 1)
+        titleLbl.Font = Enum.Font.GothamBlack
+        if not titleLbl:FindFirstChild("TitleUltraGrad") then
+            local origGrad = mk("UIGradient", { Name = "TitleUltraGrad", Color = ULTRA_TEXT_GRAD }, titleLbl)
+            table.insert(State.ActiveGradients, origGrad)
+        end
         titleLbl.TextTransparency = 1
+
         local ultraTitle = headerBar:FindFirstChild("ChilliUltraTitleBadge")
         if not ultraTitle then
             ultraTitle = mk("TextLabel", {
                 Name = "ChilliUltraTitleBadge",
                 AnchorPoint = Vector2.new(0, 0.5),
-                Position = UDim2.new(0, 38, 0.5, 0),
-                Size = UDim2.new(0, 120, 0, 26),
+                Position = UDim2.new(0, 40, 0.5, 0),
+                Size = UDim2.new(0, 118, 0, 26),
                 BackgroundTransparency = 1,
                 RichText = false,
                 Text = "Chilli Hub V7",
@@ -1106,35 +1258,35 @@ local function applySenaV7Architecture(win, titleLbl)
                 Active = false,
                 ZIndex = baseZ + 12
             }, headerBar)
-            mk("UIStroke", { Thickness = 1.3, Color = Color3.fromRGB(12, 10, 20), Transparency = 0.25 }, ultraTitle)
+            mk("UIStroke", { Thickness = 1.4, Color = Color3.fromRGB(12, 8, 22), Transparency = 0.2 }, ultraTitle)
             local uGrad = mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, ultraTitle)
             table.insert(State.ActiveGradients, uGrad)
         else
             ultraTitle.RichText = false
             ultraTitle.Text = "Chilli Hub V7"
             ultraTitle.TextSize = 15
-            ultraTitle.Size = UDim2.new(0, 120, 0, 26)
+            ultraTitle.Size = UDim2.new(0, 118, 0, 26)
         end
 
-        -- Huy hiệu [ ULTRA ] gắn riêng biệt bên cạnh tên trên thanh Menu
+        -- Huy hiệu [ 👑 ULTRA ] gắn riêng biệt bên cạnh tên trên thanh Menu
         local ultraBadge = headerBar:FindFirstChild("ChilliUltraBadgePill")
         if not ultraBadge then
             ultraBadge = mk("Frame", {
                 Name = "ChilliUltraBadgePill",
                 AnchorPoint = Vector2.new(0, 0.5),
-                Position = UDim2.new(0, 156, 0.5, 0),
+                Position = UDim2.new(0, 158, 0.5, 0),
                 Size = UDim2.new(0, 56, 0, 18),
-                BackgroundColor3 = Color3.fromRGB(24, 18, 36),
-                BackgroundTransparency = 0.15,
+                BackgroundColor3 = Color3.fromRGB(24, 18, 38),
+                BackgroundTransparency = 0.12,
                 BorderSizePixel = 0,
                 Active = false,
                 ZIndex = baseZ + 12
             }, headerBar)
             mk("UICorner", { CornerRadius = UDim.new(1, 0) }, ultraBadge)
-            local bStroke = mk("UIStroke", { Thickness = 1, Color = Color3.fromRGB(255, 200, 75), Transparency = 0.2 }, ultraBadge)
+            local bStroke = mk("UIStroke", { Thickness = 1.1, Color = Color3.fromRGB(255, 200, 75), Transparency = 0.15 }, ultraBadge)
             table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, bStroke))
 
-            local bLbl = mk("TextLabel", {
+            mk("TextLabel", {
                 Size = UDim2.fromScale(1, 1),
                 BackgroundTransparency = 1,
                 Font = Enum.Font.GothamBold,
@@ -1146,20 +1298,30 @@ local function applySenaV7Architecture(win, titleLbl)
             }, ultraBadge)
         end
 
-        -- Thanh banner không gian của Ảnh 3 (6944.png) phủ lên thanh khung Header, căn chỉnh hài hòa
+        -- Gắn Quả Khung Vũ Trụ (83726521558450) lên thanh tên và toàn bộ thanh Header
         local bannerHolder = headerBar:FindFirstChild("ChilliCosmicHolder")
         if not bannerHolder then
             bannerHolder = mk("Frame", {
                 Name = "ChilliCosmicHolder", Size = UDim2.fromScale(1, 1), Position = UDim2.fromScale(0, 0),
-                BackgroundColor3 = Color3.fromRGB(14, 15, 22), BorderSizePixel = 0, ClipsDescendants = true, Active = false, ZIndex = baseZ + 1
+                BackgroundColor3 = Color3.fromRGB(12, 13, 20), BackgroundTransparency = 0.15, BorderSizePixel = 0,
+                ClipsDescendants = true, Active = false, ZIndex = baseZ + 1
             }, headerBar)
             mk("UICorner", { CornerRadius = UDim.new(0, 10) }, bannerHolder)
             
-            -- Ảnh 3 (6944.png) trải dọc Header làm nổi bật quả cầu hành tinh bên trái và dải mây tinh vân bên phải
+            -- Lớp nền dải tinh vân phủ dọc thanh Header
             mk("ImageLabel", {
-                Name = "ChilliCosmicMainBanner", AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 0, 0.5, 0),
-                Size = UDim2.new(1, 0, 1.35, 0), BackgroundTransparency = 1, Image = HEADER_BAR_IMG_ID,
-                ScaleType = Enum.ScaleType.Stretch, ImageTransparency = 0.32, Active = false, ZIndex = baseZ + 2
+                Name = "ChilliCosmicRightStretch", AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 80, 0.5, 0),
+                Size = UDim2.new(1, -80, 1.25, 0), BackgroundTransparency = 1, Image = HEADER_BAR_IMG_ID,
+                ImageRectOffset = Vector2.new(230, 80), ImageRectSize = Vector2.new(300, 130),
+                ScaleType = Enum.ScaleType.Stretch, ImageTransparency = 0.45, Active = false, ZIndex = baseZ + 2
+            }, bannerHolder)
+
+            -- Quả Khung Tên Vũ Trụ (83726521558450) ôm trọn vùng Logo + Tên "Chilli Hub V7" + Huy hiệu ULTRA
+            mk("ImageLabel", {
+                Name = "ChilliCosmicTitleFrame", AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 0, 0.5, 0),
+                Size = UDim2.new(0, 226, 1.38, 0), BackgroundTransparency = 1, Image = HEADER_BAR_IMG_ID,
+                ImageRectOffset = Vector2.new(15, 60), ImageRectSize = Vector2.new(650, 170),
+                ScaleType = Enum.ScaleType.Stretch, ImageTransparency = 0.08, Active = false, ZIndex = baseZ + 3
             }, bannerHolder)
             
             -- Đường chỉ sáng viền neon dưới đáy thanh Header đổi màu cầu vồng
@@ -1170,7 +1332,7 @@ local function applySenaV7Architecture(win, titleLbl)
             table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, bottomLine))
         end
 
-        -- DẢI TELEMETRY PILLS KIỂU SENA V7 (Đặt sau tiêu đề và huy hiệu Ultra)
+        -- DẢI TELEMETRY PILLS KIỂU SENA V7 (Đặt ở X = 222 bên phải khung tên)
         local teleRow = headerBar:FindFirstChild("ChilliSenaTopTelemetry")
         if teleRow then teleRow.Position = UDim2.new(0, 222, 0.5, 0); teleRow.Size = UDim2.new(1, -395, 0, 22) end
         if not teleRow then
@@ -1223,7 +1385,7 @@ local function applySenaV7Architecture(win, titleLbl)
                 local dName = (LocalPlayer and LocalPlayer.Name) or "Player"
                 mk("TextLabel", {
                     Name = "WelcomeLbl", Position = UDim2.new(0, 10, 0, 0), Size = UDim2.new(0, 200, 1, 0), BackgroundTransparency = 1,
-                    Text = "Chào mừng, " .. dName:sub(1, 12) .. "  •  V7 VIP", Font = Enum.Font.GothamBold, TextSize = 10,
+                    Text = "Chào mừng, " .. dName:sub(1, 12) .. "  •  ULTRA VIP", Font = Enum.Font.GothamBold, TextSize = 10,
                     TextColor3 = Color3.fromRGB(185, 195, 220), TextXAlignment = Enum.TextXAlignment.Left, Active = false, ZIndex = baseZ + 9
                 }, botBar)
 
@@ -1248,7 +1410,7 @@ local function applySenaV7Architecture(win, titleLbl)
             end
 
             State.TelemetryUpdateFn = function(curFps)
-                if not win.Visible or win.BackgroundTransparency > 0.85 then return end
+                if not win.Visible or win.BackgroundTransparency > 0.8 then return end
                 local elapsed = math.floor(os.clock() - (State.StartClock or os.clock()))
                 lblTime.Text = string.format("⏱️ %d:%02d:%02d", math.floor(elapsed / 3600), math.floor((elapsed % 3600) / 60), elapsed % 60)
 
@@ -1261,15 +1423,16 @@ local function applySenaV7Architecture(win, titleLbl)
             end
         end
 
-        -- C. CƠ CHẾ ĐỒNG BỘ HIỂN THỊ MENU CHILLI HUB V7 (TẮT MỞ TỨC THÌ 0MS, FIX HOÀN TOÀN LỖI MẤT GIAO DIỆN)
+        -- C. CƠ CHẾ ĐỒNG BỘ HIỂN THỊ MENU CHILLI HUB V7 (LUÔN HIỆN QUẢ KHUNG & CHỮ ULTRA KHI MỞ, TẮT 0MS KHI ĐÓNG)
         local function syncWindowVisibilityInstant()
             if not win or not win.Parent then return end
-            local bTrans = win.BackgroundTransparency
             local isOffscreen = (win.AbsolutePosition.X < -500 or win.AbsolutePosition.Y < -500)
             local isSizeZero = (win.AbsoluteSize.X < 80 or win.AbsoluteSize.Y < 60)
-            local isHdrHidden = headerBar and ((not headerBar.Visible) or (headerBar.BackgroundTransparency >= 0.96))
+            local isHdrHidden = (headerBar ~= nil) and (not headerBar.Visible)
+            local isForceClosing = (State.CloseHideUntil ~= nil) and (os.clock() < State.CloseHideUntil)
             
-            local isClosed = (not win.Visible) or isOffscreen or isSizeZero or (bTrans >= 0.96) or isHdrHidden
+            -- Tuyệt đối không kiểm tra headerBar.BackgroundTransparency vì mặc định của Venyx là 1.0
+            local isClosed = (not win.Visible) or isOffscreen or isSizeZero or isHdrHidden or isForceClosing or (win.BackgroundTransparency >= 0.99)
             local isOpen = not isClosed
 
             if winStroke then
@@ -1317,6 +1480,7 @@ local function applySenaV7Architecture(win, titleLbl)
                     if btn and (btn:IsA("TextButton") or btn:IsA("ImageButton")) and not btn:GetAttribute("__CloseSyncHooked") then
                         btn:SetAttribute("__CloseSyncHooked", true)
                         btn.MouseButton1Down:Connect(function()
+                            State.CloseHideUntil = os.clock() + 0.42
                             if winStroke then winStroke.Enabled = false end
                             local bBar = win:FindFirstChild("ChilliSenaBottomBar")
                             if bBar then bBar.Visible = false end
@@ -1337,7 +1501,7 @@ local function applySenaV7Architecture(win, titleLbl)
         end
     end
 
-    -- D. NÚT SIDEBAR SQUIRCLE ĐA SẮC + PHÓNG TO ICON TRỨNG (ẢNH 4) + HIỆU ỨNG TƯƠNG TÁC TAB ĐỈNH CAO
+    -- D. NÚT SIDEBAR SQUIRCLE ĐA SẮC + ICON TRỨNG (91536384271341)
     local navButtons = {}
     for _, d in ipairs(win:GetDescendants()) do
         if d:IsA("GuiObject") and (d.AbsolutePosition.X - winX) < 75 and d.AbsolutePosition.Y > hy + 15 then
@@ -1461,7 +1625,7 @@ local function applySenaV7Architecture(win, titleLbl)
                 if not stealIcon then
                     stealIcon = mk("ImageLabel", {
                         Name = "ChilliStealTabIcon", AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
-                        Size = UDim2.fromScale(0.84, 0.84),
+                        Size = UDim2.fromScale(0.84, 0.84), -- Phóng to quả trứng cân bằng với các icon khác
                         BackgroundTransparency = 1, Image = STEAL_TAB_ICON_ID,
                         ScaleType = Enum.ScaleType.Fit, Active = false, Selectable = false, ZIndex = squircle.ZIndex + 3
                     }, btn)
