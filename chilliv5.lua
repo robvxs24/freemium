@@ -1,4 +1,4 @@
--- Chilli Hub V7 Supreme | Fixed Import Click + Smooth UI Performance Edition
+-- Chilli Hub V7 Supreme | Precision Import Lock (Under Box) + Silky Smooth Performance Edition
 local NEW_TITLE = "Chilli Hub V7"
 local LOGO_ID = "rbxassetid://74441610995894"
 local HEADER_BAR_IMG_ID = "rbxassetid://83726521558450"
@@ -10,6 +10,7 @@ local MY_URL = "https://raw.githubusercontent.com/ronnei/hihi/refs/heads/main/ch
 local VENYX_URL = "https://raw.githubusercontent.com/tienkhanh1/Venyx/main/VenyxHub"
 local AUTO_FILE, LANG_FILE = "ChilliHubV5_AutoRun.lua", "ChilliV5_Lang.txt"
 
+-- PRESET CONFIG AUTO FARM AN TOÀN TUYỆT ĐỐI (KHÔNG BỊ KICK BAC-4511)
 local PRESET_JSON = [=[{"venyx":1,"name":"hihi 2","data":{"System / Interface/Quick bars/Show quick bars":true,"Farm / Sell/Favorite/Auto favorite":false,"System / Interface/Quick bars/Quick bar layout":"{\"pins\":{\"Event / Butterfly/Butterfly bloom/Auto butterfly bloom\":2,\"Player / Combat/Hit aura/Hit aura\":1,\"Player / Combat/Auto hit/Chase speed\":1,\"Steal / Auto Steal/Auto hop server/Auto hop\":1,\"Player / Move/Movement/Boost speed\":1,\"Player / Combat/Auto hit/Auto hit\":1,\"Steal / Auto Steal/Auto steal/Auto steal\":1,\"Event / Race/Racing Event/Auto race\":2,\"Farm / Treadmill/Treadmill/Auto treadmill\":1,\"Player / Move/Movement/Speed boost\":1},\"keys\":[],\"at\":{\"1\":[766.9053955078125,21.74544906616211],\"2\":[624.3492431640625,21.080074310302736]},\"fold\":{\"1\":true,\"2\":true}}","System / Optimizer/Graphics/Disable 3D Render":false,"Farm / Pen/Auto place/Place first":"Best value","Steal / Auto Steal/Filter/Only below /s":0,"Farm / Pen/Auto hatch/Equip best pets":false,"Event / AA/Capture the egg/Auto capture event egg":true,"Farm / Mutate/Mutate filter/Only these eggs":[],"Farm / Treadmill/Treadmill/Auto upgrade treadmill":false,"Steal / Auto Steal/Auto steal/Drop eggs at safe zone":false,"Steal / Auto Steal/Auto hop server/Auto hop":false,"System / Interface/Interface/Dim the game":0,"Player / Combat/Hit aura/Skip friends":true,"Player / ESP/Others/Pen egg ESP":true,"System / Optimizer/Frame rate/FPS position":"0.5000,-550,0.0000,49","Event / Butterfly/Butterfly bloom/Auto butterfly bloom":true,"Farm / Pen/Auto hatch/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Steal / Auto Steal/Filter/Min value /s":2000000000,"Player / Combat/Hit aura/Hit aura":true,"Event / Star/Shooting Star/Auto catch shooting star":true,"Steal / Egg Predictor/Egg showcase/Calculate mutations":[],"Steal / Egg Predictor/Egg showcase/Sort eggs":"Value","Event / Halloween/Ghost Dog and fishing/Auto fishing":true,"System / Optimizer/Bases/Hide other players' pets and eggs":true,"Player / Combat/Auto hit/Auto hit":false,"Event / Halloween/Ghost Dog and fishing/Auto Ghost Dog quest":false,"Event / Butterfly/Butterfly bloom/Catch mode":"Chase","Event / Butterfly/Butterfly machine/Trade":[],"Event / Halloween/Halloween Dimension/Halloween eggs":["Bone Emperor","Voidseer Pumpkin","Zombified Bone Emperor","Ghost Reaper","Gorillastein","Phantom Dragon","Shelltide Voyager","Zombified Grave Cerberus","Zombified Phantom Dragon","BloodBloom","Grave Cerberus","Graveyard Brute","Werewolf","Zombified Night Fang","Zombified Pumpkin Fiend","Zombified Tombstone Bear"],"Farm / Pen/Auto place/Auto place":false,"Steal / Auto Steal/Filter/Rarities":["Divine","Eternal","Secret"],"System / Webhook/What to post/Post fused eggs":false,"Event / Halloween/Halloween Dimension/Auto Pumpkin Moon":true,"Farm / Sell/Pets/Sell rarities":["Rare","Uncommon","Common"],"Player / Move/Protection/Ignore traps":true,"Farm / Fuse/Fuse filter/Rarities":["Mythic","Legendary","Epic","Rare","Uncommon","Common"],"System / Webhook/Discord webhook/Ping role ID":"","Player / ESP/Others/Hide sleeping guards":true,"Event / Halloween/Halloween Dimension/Min value /s":1000000000,"System / Optimizer/Frame rate/Show FPS and ping":true,"Farm / Treadmill/Progress/Auto claim index rewards":false,"System / Interface/Quick bars/Keybinds":true,"Steal / Auto Steal/Auto steal/Instant steps":1,"Farm / Fuse/Fuse filter/Never fuse":[],"Farm / Pen/Auto hatch/Mutations":[],"System / Optimizer/Bases/Hide my pets and eggs":true,"Event / Halloween/Monsters/Monster order":"Most tokens","Steal / Auto Steal/Filter/Zones":["Enchanted Forest","Light Dark","Titan Temple","Cherry Blossom"],"Event / Butterfly/Butterfly machine/Auto craft essence":true,"Farm / Mutate/Auto mutate/Auto mutate":false,"Player / ESP/Others/Other pens ESP":true,"Player / ESP/Field eggs/Egg ESP":false,"Farm / Pen/Keep eggs/Min value /s":0,"Steal / Auto Steal/Auto steal/Delivery method":"Instant steps","Farm / Treadmill/Progress/Auto buy trails":false,"Farm / Sell/Eggs/Sell rarities":["Rare","Uncommon","Common"],"System / Interface/Interface/Tone":100,"Event / AA/Admin abuse/Admin treadmill":false,"System / Webhook/What to post/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Farm / Pen/Auto place/Place when":"Always","Event / Halloween/Monsters/Monsters":["Candy Corn","Hollow Bat","Scarecrow","Chest Mimic","Pumpkin Golem","Soul Phantom"],"Event / Butterfly/Wisp companion/Auto banjo cricket":false,"Event / Halloween/Halloween Dimension/Auto buy Halloween Dimension Egg":false,"Event / Halloween/Halloween Dimension/Walk speed":300,"Steal / Auto Steal/Auto steal/Delivery speed":3500,"Farm / Mutate/Auto mutate/Use items":["Fractured","Scrambled","Enchanted","Nitro","Spectral"],"Farm / Fuse/Fuse machine/Fuse first":"Lowest rarity","Steal / Auto Steal/Auto hop server/Rare from":"Cosmic","Player / Move/Movement/Boost speed":220,"System / Interface/Interface/Opacity":50,"Player / ESP/Others/Guard ESP":true,"Farm / Sell/Favorite/Always favorite":[],"Event / Halloween/Halloween Dimension/Steal speed":60,"Farm / Sell/Eggs/Auto sell eggs":false,"System / Webhook/What to post/Post stolen eggs":false,"Player / ESP/Others/ESP size":60,"Steal / Auto Steal/Filter/Steal first":"Best value","Farm / Sell/Pets/Only below /s":0,"Player / Move/Protection/Anti ragdoll":true,"Player / ESP/Field eggs/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic"],"Player / Move/Protection/Invisible":false,"Steal / Auto Steal/Auto hop server/Hop when":"After stealing a match","Event / AA/Cursed Island Wars/Auto play Cursed Island Wars":true,"Event / Butterfly/Butterfly bloom/Catch":["Radiant","Amethyst","Sapphire","Emerald"],"Farm / Treadmill/Treadmill/Auto treadmill":false,"System / Interface/Game HUD/Steal panel button on game HUD":true,"System / Server/Server/Hop to":"Least players","Farm / Mutate/Mutate filter/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Player / Move/Protection/Instant prompts":true,"System / Server/Join and stay/Rejoin on kick":true,"Farm / Sell/Favorite/Favorite equipped":false,"Event / Halloween/Phantom Express/Auto Phantom Express":true,"System / Optimizer/Frame rate/FPS cap":360,"Steal / Auto Steal/Auto steal/Steal missing index eggs":false,"Steal / Auto Steal/Filter/Only these eggs":["ArchAngel","Kitsune","Nightflame","Royal Skywhale","Unicorn","World Burner","Celestial Sunlion","Gorilla King","Pegasus","Skeleton Horse","Strawberry Elephant","67","Amethyst Runebear","Starry Fox"],"Farm / Sell/Favorite/Min value /s":0,"System / Server/Join and stay/Auto load script":true,"Farm / Mutate/Mutate filter/Skip eggs with":[],"System / Optimizer/Graphics/Low graphics":true,"Event / Halloween/Monsters/Walk speed":300,"Event / AA/Minigame eggs/Auto steal minigame egg":true,"Farm / Pen/Auto place/Only these eggs":[],"Player / Combat/Auto hit/Hit who":"Nearest player","Farm / Sell/Eggs/Never sell":[],"Farm / Pen/Keep eggs/Eggs to keep":[],"Farm / Fuse/Fuse filter/Only below /s":0,"Event / Halloween/Monsters/Use weapons":["Enchanted Hammer","Racing Bat","Cricket's Banjo","Flyswatter"],"Farm / Fuse/Fuse machine/Skip mutated":true,"Farm / Sell/Pets/Never sell":[],"Farm / Sell/Favorite/Match":"All picked rules","Event / Halloween/Ghost Dog and fishing/Cast luck":"x1.5 Perfect","System / Optimizer/Graphics/Background color":"Black","Player / Move/Movement/God mode":true,"Farm / Pen/Auto place/Mutations":[],"Steal / Auto Steal/Auto steal/Anti guard":true,"Farm / Sell/Favorite/Unfavorite pets not matching":false,"System / Webhook/What to post/Min value /s":0,"Farm / Pen/Auto hatch/Auto hatch":false,"Farm / Sell/Pets/Only mutations":[],"Farm / Fuse/Fuse machine/Eject odd pets":true,"Event / Butterfly/Butterfly machine/Auto trade up":false,"Event / AA/Admin abuse/Instant steal":false,"System / Webhook/What to post/Post when bag is full":false,"Farm / Fuse/Fuse machine/Auto fuse":false,"Farm / Pen/Auto hatch/Only these eggs":[],"Event / Butterfly/Butterfly machine/Smart trade for essence":true,"Event / Halloween/Halloween Dimension/Auto steal Halloween eggs":true,"System / Interface/Quick bars/Bar size":85,"Player / Combat/Weapons/Use weapons":[],"Player / ESP/Others/Player ESP":true,"System / Webhook/Discord webhook/Ping everyone":false,"Farm / Fuse/Fuse machine/Use pets":"Lowest value first","Event / Halloween/Monsters/Auto farm monsters":true,"Farm / Mutate/Auto mutate/Mutate first":"Best value","Player / ESP/Field eggs/Min value /s":0,"Event / AA/Cursed Island Wars/Island Wars target":"Enemies and base","Player / Move/Movement/Infinite jump":true,"Farm / Pen/Auto place/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Player / ESP/Field eggs/Mutations":[],"Event / Halloween/Phantom Express/Auto vacuum Ghouler boss":true,"Farm / Treadmill/Progress/Auto upgrade base":false,"Steal / Auto Steal/Auto steal/Auto steal":true,"Player / Combat/Auto hit/Chase speed":300,"Player / ESP/Field eggs/Fixed size":false,"Event / Halloween/Halloween Dimension/Instant steal Halloween eggs":true,"Event / Halloween/Phantom Express/Walk speed":300,"Event / Halloween/Phantom Express/Ghost target":"Rarest first","Farm / Sell/Eggs/Only below /s":0,"Farm / Sell/Favorite/Rarities":[],"Steal / Auto Steal/Auto hop server/First hop after":5,"Steal / Auto Steal/Auto steal/Tween speed":110,"Farm / Sell/Pets/Auto sell pets":false,"Event / Halloween/Phantom Express/Auto trade souls":true,"Farm / Sell/Pets/Keep mutated":true,"Steal / Auto Steal/Filter/Sell cheapest egg when bag is full":false,"Player / ESP/Field eggs/Show":[],"Steal / Auto Steal/Auto steal/Go to egg":"Teleport to egg","Player / Combat/Weapons/Hold each":0.2,"Event / AA/Capture the egg/Hold height":120,"Steal / Auto Steal/Filter/Mutations":[],"Event / AA/Capture the egg/Keep away":150,"Farm / Mutate/Mutate filter/Min value /s":0,"Steal / Auto Steal/Auto steal/Teleport zones":["Enchanted Forest","Light Dark","Titan Temple","Cherry Blossom"],"Farm / Pen/Auto hatch/Min value /s":0,"Player / Move/Movement/Speed boost":false,"System / Interface/Interface/UI scale":90,"Farm / Fuse/Fuse filter/Only these pets":[],"Steal / Egg Predictor/Egg showcase/Preview card":false,"Event / Butterfly/Butterfly bloom/Catch speed":300,"Player / Move/Protection/Anti AFK":true,"Event / Halloween/Halloween Dimension/Halloween rarities":[],"System / Interface/Interface/Show / hide UI":{"k":"LeftControl"},"Steal / Auto Steal/Auto steal/Steal from other players":true,"Farm / Pen/Auto place/Min value /s":0,"Event / Butterfly/Butterfly bloom/Catch priority":"Rarest","System / Webhook/Discord webhook/Ping user ID":"","Farm / Sell/Eggs/Only mutations":[],"Farm / Treadmill/Progress/Auto claim offline cash":false,"Farm / Sell/Favorite/Mutations":[],"Event / AA/Capture the egg/Take it from the holder":true,"System / Webhook/Discord webhook/Webhook URL":"","Farm / Priority/Task order/Task order":["Steal filter eggs","Shooting Star","Phantom Express","Pumpkin Moon","Butterfly","Steal wisp eggs","Wisp","Steal missing index","Place","Mutate","Butterfly machine","Ghost Dog quest","Halloween monsters","Halloween fishing","Treadmill"],"Farm / Sell/Eggs/Keep mutated":true,"Event / Butterfly/Wisp companion/Auto wisp quest":false,"System / Optimizer/Graphics/Hide game UI":false}}]=]
 
 if writefile then
@@ -180,17 +181,18 @@ local function hookFps(lbl)
     end
 end
 
+-- VÒNG LẶP RENDER MƯỢT MÀ (25 FPS, GIẢM TẢI CPU TỐI ĐA TRÊN MOBILE)
 task.spawn(function()
     local rot, tickCount = 0, 0
     while isAlive() do
-        rot = (rot + 3) % 360
+        rot = (rot + 3.5) % 360
         tickCount = tickCount + 1
         local g = State.ActiveGradients
         for i = #g, 1, -1 do
             local item = g[i]
             if item and item.Parent then item.Rotation = rot else table.remove(g, i) end
         end
-        if tickCount % 22 == 0 then
+        if tickCount % 20 == 0 then
             local f = getFakeFps()
             local fl = State.TrackedFpsLabels
             for i = #fl, 1, -1 do
@@ -203,7 +205,7 @@ task.spawn(function()
             end
         end
         if tickCount % 8 == 0 and State.SyncWindowFn then pcall(State.SyncWindowFn) end
-        task.wait(0.033)
+        task.wait(0.04)
     end
 end)
 
@@ -517,7 +519,7 @@ local function fireExactNode(b)
     end
 end
 
--- SỬA LỖI TẠI ĐÂY: TỰ ĐỘNG CHUYỂN SANG TAB CẤU HÌNH, ĐIỀN JSON VÀ KÍCH HOẠT NÚT "NHẬP CẤU HÌNH" CHÍNH XÁC 100%
+-- SỬA DỨT ĐIỂM: ĐỊNH VỊ CHÍNH XÁC Ô DÁN JSON VÀ BẤM ĐÚNG VÀO NÚT "NHẬP CẤU HÌNH" PHÍA DƯỚI
 local function runAutoFarmMacro(venyxGui, statusBtn)
     if State.MacroRunning then return end
     State.MacroRunning = true
@@ -530,26 +532,53 @@ local function runAutoFarmMacro(venyxGui, statusBtn)
 
             local function findConfigControls()
                 local box, iBtn
-                -- 1. Tìm đúng TextBox dán mã cấu hình (Paste config text / Dán mã JSON vào đây)
+                -- 1. Tìm TextBox dán mã cấu hình
                 for _, d in ipairs(venyxGui:GetDescendants()) do
-                    if d:IsA("TextBox") and d.Visible then
+                    if d:IsA("TextBox") and d.Visible and d.AbsoluteSize.X > 50 then
                         local ph = (d:GetAttribute("OrigPh") or d.PlaceholderText or ""):lower()
-                        if ph:find("json", 1, true) or ph:find("paste", 1, true) or ph:find("config", 1, true) or ph:find("dán", 1, true) then
+                        local curText = (d.Text or ""):lower()
+                        if ph:find("dán", 1, true) or ph:find("json", 1, true) or ph:find("paste", 1, true) or ph:find("config", 1, true) or curText:find("venyx", 1, true) then
                             box = d
                             break
                         end
                     end
                 end
 
-                -- 2. Tìm nút "Nhập cấu hình" / "Import config" (Khớp từ khóa đầy đủ, không để lọt)
-                for _, d in ipairs(venyxGui:GetDescendants()) do
-                    if (d:IsA("TextButton") or d:IsA("TextLabel")) and d.Visible and d.AbsolutePosition.Y > 180 then
-                        local raw = (d:GetAttribute("OrigRawText") or d.Text or ""):lower():match("^%s*(.-)%s*$")
-                        local cur = (d.Text or ""):lower():match("^%s*(.-)%s*$")
-                        local isImportWord = (raw == "import config" or cur == "nhập cấu hình" or raw == "import" or cur == "nhập" or cur == "nhập từ mã json")
-                        if isImportWord and d.AbsoluteSize.X < 180 and d.AbsoluteSize.Y < 50 then
-                            iBtn = (d:IsA("TextButton") and d) or (d.Parent and (d.Parent:IsA("TextButton") or d.Parent:IsA("ImageButton")) and d.Parent) or d
-                            break
+                -- 2. Tìm nút "Nhập cấu hình" nằm ngay bên dưới ô TextBox
+                if box then
+                    local sc = box:FindFirstAncestorOfClass("ScrollingFrame") or venyxGui
+                    for _, d in ipairs(sc:GetDescendants()) do
+                        if (d:IsA("TextButton") or d:IsA("ImageButton")) and d.Visible and d.AbsoluteSize.X > 20 and d.AbsoluteSize.Y > 15 then
+                            local txt = (d:IsA("TextButton") and d.Text or "")
+                            for _, lbl in ipairs(d:GetDescendants()) do
+                                if lbl:IsA("TextLabel") and lbl.Text ~= "" then
+                                    txt = txt .. " " .. lbl.Text
+                                end
+                            end
+                            txt = txt:lower()
+                            if (txt:find("nhập", 1, true) or txt:find("import", 1, true))
+                               and d.AbsolutePosition.Y >= box.AbsolutePosition.Y - 10
+                               and (d.AbsolutePosition.Y - box.AbsolutePosition.Y) < 90 then
+                                iBtn = d
+                                break
+                            end
+                        end
+                    end
+                end
+
+                -- Fallback quét rộng nếu chưa bắt được
+                if not iBtn then
+                    for _, d in ipairs(venyxGui:GetDescendants()) do
+                        if (d:IsA("TextButton") or d:IsA("ImageButton")) and d.Visible and d.AbsoluteSize.X < 200 and d.AbsoluteSize.Y < 50 then
+                            local txt = (d:IsA("TextButton") and d.Text or "")
+                            for _, lbl in ipairs(d:GetDescendants()) do
+                                if lbl:IsA("TextLabel") and lbl.Text ~= "" then txt = txt .. " " .. lbl.Text end
+                            end
+                            txt = txt:lower()
+                            if txt:find("nhập cấu hình", 1, true) or txt:find("import config", 1, true) or (txt:find("nhập", 1, true) and not txt:find("mã", 1, true)) then
+                                iBtn = d
+                                break
+                            end
                         end
                     end
                 end
@@ -558,8 +587,8 @@ local function runAutoFarmMacro(venyxGui, statusBtn)
 
             local cfgBox, impBtn = findConfigControls()
 
-            -- Nếu chưa ở tab Cấu Hình, tự động mở Tab thứ 6 trên Sidebar và bấm tab phụ "Cấu Hình"
-            if not cfgBox or not impBtn then
+            -- Nếu người chơi chưa mở tab Cấu Hình, chỉ chuyển trang khi CẢ HAI controls đều không tìm thấy
+            if not cfgBox and not impBtn then
                 local sysNavBtn = State.SidebarNavButtons and State.SidebarNavButtons[6]
                 if sysNavBtn then
                     fireExactNode(sysNavBtn)
@@ -609,28 +638,10 @@ local function runAutoFarmMacro(venyxGui, statusBtn)
                 task.wait(0.12)
             end
 
-            -- Bấm đúng nút "Nhập cấu hình" (Import)
+            -- Tự động bấm đúng nút "Nhập cấu hình" ở dưới
             if impBtn then
                 fireExactNode(impBtn)
                 successImport = true
-            else
-                -- Fallback: Tìm nút bấm nằm ngay dưới ô TextBox cfgBox
-                if cfgBox and cfgBox.Parent then
-                    local pRow = cfgBox.Parent
-                    local sc = cfgBox:FindFirstAncestorOfClass("ScrollingFrame")
-                    if sc then
-                        for _, bCandidate in ipairs(sc:GetDescendants()) do
-                            if (bCandidate:IsA("TextButton") or bCandidate:IsA("TextLabel")) and bCandidate.Visible and bCandidate.AbsolutePosition.Y > cfgBox.AbsolutePosition.Y and (bCandidate.AbsolutePosition.Y - cfgBox.AbsolutePosition.Y) < 65 then
-                                local cTxt = (bCandidate.Text or ""):lower()
-                                if cTxt:find("nhập") or cTxt:find("import") then
-                                    fireExactNode(bCandidate)
-                                    successImport = true
-                                    break
-                                end
-                            end
-                        end
-                    end
-                end
             end
         end)
 
@@ -806,7 +817,7 @@ local function setupIsland(statusLbl, venyxGui)
             exp.Size = u2(0, 210, 0, 32)
             exp.Visible = true
             pill.Visible = false
-            TweenService:Create(exp, TweenInfo.new(0.28, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = u2(0, 296, 0, 144) }):Play()
+            TweenService:Create(exp, TweenInfo.new(0.24, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Size = u2(0, 296, 0, 144) }):Play()
         else
             local tw = TweenService:Create(exp, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Size = u2(0, 210, 0, 32) })
             tw:Play()
@@ -970,7 +981,7 @@ local function setupCircleLogo(obj, win)
         top.InputEnded:Connect(function(inp)
             if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
                 State.CloseHideUntil = 0
-                TweenService:Create(disc, TweenInfo.new(0.22, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = u2(0, 68, 0, 68) }):Play()
+                TweenService:Create(disc, TweenInfo.new(0.20, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = u2(0, 68, 0, 68) }):Play()
                 task.defer(function()
                     task.wait(0.03)
                     if State.SyncWindowFn then pcall(State.SyncWindowFn) end
@@ -980,7 +991,7 @@ local function setupCircleLogo(obj, win)
     end
 end
 
--- KIẾN TRÚC MENU CHILLI HUB V7 SUPREME
+-- KIẾN TRÚC MENU CHILLI HUB V7 SUPREME (CYBER GLASS CHỐNG GIẬT LAG)
 local SIDEBAR_PALETTE = { c3(37, 99, 235), c3(239, 68, 68), c3(245, 158, 11), c3(168, 85, 247), c3(236, 72, 153), c3(16, 185, 129) }
 local function applySenaV7Architecture(win, titleLbl)
     if not win or not titleLbl then return end
@@ -1243,14 +1254,6 @@ local function applySenaV7Architecture(win, titleLbl)
         else
             ultraBadge.Position = u2(0, badgeStartX, 0.5, 0)
         end
-        if not titleLbl:GetAttribute("__BadgePosHooked") then
-            titleLbl:SetAttribute("__BadgePosHooked", true)
-            titleLbl:GetPropertyChangedSignal("TextBounds"):Connect(function()
-                if ultraBadge and ultraBadge.Parent then
-                    ultraBadge.Position = u2(0, calcBadgeX(), 0.5, 0)
-                end
-            end)
-        end
     end)
 
     local function syncWindowVisibilityInstant()
@@ -1486,7 +1489,6 @@ local function patchVenyxGui(gui, titleLbl)
             pcall(setupCircleLogo, tc, win)
         end
     end
-
     local queue = {}
     for _, d in ipairs(gui:GetDescendants()) do
         if d:IsA("TextLabel") or d:IsA("TextButton") or d:IsA("TextBox") then
