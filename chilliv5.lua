@@ -241,6 +241,7 @@ local EXACT_VI = {
 local LOWER_VI = {}
 for k, v in pairs(EXACT_VI) do LOWER_VI[k:lower()] = v end
 local GRAMMAR_VI = {
+{ pat="^[Vv]acuuming%s+ghosts%s*(.*)$", rep="Đang hút bóng ma %1" },
 { pat="^[Rr]iding%s+(.+)$", rep="Đang đi %1" },
 { pat="^[Ff]ighting%s+[Ss]mall%s+monster$", rep="Đang đánh quái vật nhỏ" },
 { pat="^[Ff]ighting%s+[Mm]edium%s+monster$", rep="Đang đánh quái vật vừa" },
@@ -263,7 +264,7 @@ local PHRASES_VI = {
 {"small monster","quái vật nhỏ"}, {"medium monster","quái vật vừa"}, {"large monster","quái vật lớn"}
 }
 local WORDS_VI = {
-["riding"]="Đang đi", ["moving"]="Đang di chuyển", ["walking"]="Đang đi bộ", ["teleporting"]="Đang dịch chuyển", ["tweening"]="Đang bay",
+["vacuuming"]="Đang hút", ["ghosts"]="bóng ma", ["riding"]="Đang đi", ["moving"]="Đang di chuyển", ["walking"]="Đang đi bộ", ["teleporting"]="Đang dịch chuyển", ["tweening"]="Đang bay",
 ["stealing"]="Đang cướp", ["delivering"]="Đang mang về", ["carrying"]="Đang ôm", ["holding"]="Đang giữ", ["catching"]="Đang bắt",
 ["farming"]="Đang cày", ["fighting"]="Đang đánh", ["killing"]="Đang tiêu diệt", ["attacking"]="Đang tấn công", ["fishing"]="Đang câu cá",
 ["hatching"]="Đang ấp", ["placing"]="Đang đặt", ["selling"]="Đang bán", ["fusing"]="Đang dung hợp", ["mutating"]="Đang đột biến",
@@ -507,14 +508,14 @@ leftBadge = mk("Frame", { Name = "IslandLogoBadge", Size = u2(0, 24, 0, 24), Bac
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, leftBadge)
 local lbStroke = mk("UIStroke", { Thickness = 1.4, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, leftBadge)
 table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, lbStroke))
-mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.58, 0.58), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = 10001 }, leftBadge)
+mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.72, 0.72), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = 10001 }, leftBadge)
 else
 leftBadge.Size = u2(0, 24, 0, 24)
 leftBadge.BackgroundColor3 = c3(0, 0, 0)
 local lbImg = leftBadge:FindFirstChildOfClass("ImageLabel")
 if lbImg then
 lbImg.Image = LOGO_ID
-lbImg.Size = u2s(0.58, 0.58)
+lbImg.Size = u2s(0.72, 0.72)
 end
 end
 local hint = pill:FindFirstChild("IslandExpandHint")
@@ -579,7 +580,7 @@ local expLogo = mk("Frame", { Position = u2(0, 10, 0, 7), Size = u2(0, 24, 0, 24
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, expLogo)
 local elStroke = mk("UIStroke", { Thickness = 1.4, Color = Color3.new(1, 1, 1) }, expLogo)
 table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, elStroke))
-mk("ImageLabel", { AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.58, 0.58), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = 10003 }, expLogo)
+mk("ImageLabel", { AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.72, 0.72), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = 10003 }, expLogo)
 local expTitle = mk("TextLabel", { Name = "ChilliIslandTitle", Size = u2(0, 150, 0, 24), Position = u2(0, 40, 0, 7), BackgroundTransparency = 1, Text = "Chilli Hub V7", Font = Enum.Font.GothamBlack, TextSize = 13.5, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 10002 }, exp)
 mk("UIStroke", { Thickness = 1.2, Color = c3(12, 8, 22), Transparency = 0.2 }, expTitle)
 table.insert(State.ActiveGradients, mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, expTitle))
@@ -658,7 +659,7 @@ statusLbl.InputBegan:Connect(onIn)
 hint.InputBegan:Connect(onIn)
 statusLbl:GetPropertyChangedSignal("Text"):Connect(function() if isAlive() then syncStatus(false) end end)
 end
--- NÚT NỔI TRÒN ĐEN TUYỀN #000000 + PHÓNG XA LOGO 0.58x (KHÔNG CHE HOẠ TIẾT TINH THỂ)
+-- NÚT NỔI TRÒN ĐEN TUYỀN #000000 + LOGO 0.72x VỪA VẶN (KHÔNG CHE HOẠ TIẾT TINH THỂ)
 local function cleanupStrayLogos(gui, win)
 for _, ch in ipairs(gui:GetChildren()) do
 if ch:IsA("GuiObject") and ch ~= win and ch.Name ~= "ChilliV5_ExpandedIsland" and not ch:FindFirstChild("IslandExpandHint") then
@@ -751,11 +752,11 @@ Color = Color3.new(1, 1, 1), Transparency = 0.02
 table.insert(State.ActiveGradients, discStroke:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, discStroke))
 local cov = disc:FindFirstChild("ChilliV5CoverLogo") or mk("ImageLabel", {
 Name = "ChilliV5CoverLogo", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5),
-Size = u2s(0.58, 0.58), BackgroundTransparency = 1, Image = LOGO_ID,
+Size = u2s(0.72, 0.72), BackgroundTransparency = 1, Image = LOGO_ID,
 ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = disc.ZIndex + 2
 }, disc)
 cov.Image = LOGO_ID
-cov.Size = u2s(0.58, 0.58)
+cov.Size = u2s(0.72, 0.72)
 cov.Position = u2s(0.5, 0.5)
 cov.AnchorPoint = v2(0.5, 0.5)
 cov.BackgroundTransparency = 1
@@ -864,20 +865,11 @@ p.BackgroundTransparency = 1
 end
 p = p.Parent
 end
-for _, ch in ipairs(d:GetChildren()) do
-if ch:IsA("Frame") then
-local hasList = ch:FindFirstChildOfClass("UIListLayout") ~= nil
-local isTransparentCol = (ch.BackgroundTransparency >= 0.95 and not ch:GetAttribute("__IsChilliCard"))
-if isTransparentCol and hasList then
-for _, subCard in ipairs(ch:GetChildren()) do
-if subCard:IsA("Frame") and (subCard.BackgroundTransparency < 0.95 or subCard:GetAttribute("__IsChilliCard")) then
+for _, subCard in ipairs(d:GetDescendants()) do
+if subCard:IsA("Frame") and not subCard.Name:find("^Chilli") and subCard.AbsoluteSize.X >= 165 and subCard.AbsoluteSize.Y >= 42 then
+if (subCard.BackgroundTransparency < 0.92 and subCard:FindFirstChildOfClass("UICorner") ~= nil) or subCard:GetAttribute("__IsChilliCard") then
 subCard:SetAttribute("__IsChilliCard", true)
 table.insert(sectionCards, subCard)
-end
-end
-else
-ch:SetAttribute("__IsChilliCard", true)
-table.insert(sectionCards, ch)
 end
 end
 end
@@ -977,7 +969,7 @@ bf:GetPropertyChangedSignal("BackgroundTransparency"):Connect(function() syncWal
 end
 end
 pcall(syncWallpaperAndOldBg, nil)
--- GẮN HUY HIỆU 👑 ULTRA + ⚡ SUPREME + TELEMETRY TRỰC TIẾP TRÊN THANH MENU SCRIPT
+-- GẮN HUY HIỆU 👑 ULTRA TRỰC TIẾP TRÊN THANH MENU SCRIPT (KHÔNG ĐÈ CHỮ V7, XOÁ THANH ĐÁY)
 pcall(function()
 local oldCosmicHolder = win:FindFirstChild("ChilliCosmicHolder")
 if oldCosmicHolder then oldCosmicHolder:Destroy() end
@@ -1023,16 +1015,28 @@ Size = u2(1, 0, 0, 1.8), BackgroundColor3 = Color3.new(1, 1, 1), BorderSizePixel
 }, hdrOverlay)
 table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, hdrLine))
 end
-local badgeStartX = math.clamp(math.floor((tx - winX) + ((titleLbl.TextBounds.X > 35 and titleLbl.TextBounds.X < 200) and titleLbl.TextBounds.X or 106) + 10), 148, 175)
+local oldBotBar = wpParent:FindFirstChild("ChilliSenaBottomBar") or win:FindFirstChild("ChilliSenaBottomBar")
+if oldBotBar then oldBotBar:Destroy() end
+local oldTele = hdrOverlay:FindFirstChild("ChilliSenaTopTelemetry")
+if oldTele then oldTele:Destroy() end
+local oldVip = hdrOverlay:FindFirstChild("ChilliVipBadgePill")
+if oldVip then oldVip:Destroy() end
+local function calcBadgeX()
+local relX = math.max(42, titleLbl.AbsolutePosition.X - win.AbsolutePosition.X)
+local tWidth = math.max(titleLbl.TextBounds.X, titleLbl.AbsoluteSize.X, 128)
+if tWidth > 180 then tWidth = 132 end
+return math.floor(relX + tWidth + 10)
+end
+local badgeStartX = calcBadgeX()
 local ultraBadge = hdrOverlay:FindFirstChild("ChilliUltraBadgePill")
 if not ultraBadge then
 ultraBadge = mk("Frame", {
 Name = "ChilliUltraBadgePill", AnchorPoint = v2(0, 0.5), Position = u2(0, badgeStartX, 0.5, 0),
-Size = u2(0, 58, 0, 19), BackgroundColor3 = c3(24, 16, 42), BackgroundTransparency = 0.04,
+Size = u2(0, 62, 0, 20), BackgroundColor3 = c3(22, 16, 38), BackgroundTransparency = 0.04,
 BorderSizePixel = 0, Active = false, ZIndex = 55
 }, hdrOverlay)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, ultraBadge)
-local bStroke = mk("UIStroke", { Thickness = 1.4, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Transparency = 0.05 }, ultraBadge)
+local bStroke = mk("UIStroke", { Thickness = 1.5, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Transparency = 0.05 }, ultraBadge)
 table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, bStroke))
 mk("TextLabel", {
 Name = "BadgeTxt", Size = u2s(1, 1), BackgroundTransparency = 1,
@@ -1042,73 +1046,13 @@ Text = "👑 ULTRA", Active = false, ZIndex = 56
 else
 ultraBadge.Position = u2(0, badgeStartX, 0.5, 0)
 end
-local vipBadge = hdrOverlay:FindFirstChild("ChilliVipBadgePill")
-if not vipBadge then
-vipBadge = mk("Frame", {
-Name = "ChilliVipBadgePill", AnchorPoint = v2(0, 0.5), Position = u2(0, badgeStartX + 63, 0.5, 0),
-Size = u2(0, 58, 0, 19), BackgroundColor3 = c3(14, 22, 38), BackgroundTransparency = 0.06,
-BorderSizePixel = 0, Active = false, ZIndex = 55
-}, hdrOverlay)
-mk("UICorner", { CornerRadius = UDim.new(1, 0) }, vipBadge)
-local vStroke = mk("UIStroke", { Thickness = 1.2, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Transparency = 0.15 }, vipBadge)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = ULTRA_CARD_GRAD }, vStroke))
-local vTxt = mk("TextLabel", {
-Name = "VipTxt", Size = u2s(1, 1), BackgroundTransparency = 1,
-Font = Enum.Font.GothamBlack, TextSize = 8.5, TextColor3 = Color3.new(1, 1, 1),
-Text = "⚡ SUPREME", Active = false, ZIndex = 56
-}, vipBadge)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, vTxt))
-else
-vipBadge.Position = u2(0, badgeStartX + 63, 0.5, 0)
+if not titleLbl:GetAttribute("__BadgePosHooked") then
+titleLbl:SetAttribute("__BadgePosHooked", true)
+titleLbl:GetPropertyChangedSignal("TextBounds"):Connect(function()
+if ultraBadge and ultraBadge.Parent then
+ultraBadge.Position = u2(0, calcBadgeX(), 0.5, 0)
 end
-local teleRow = hdrOverlay:FindFirstChild("ChilliSenaTopTelemetry")
-if not teleRow then
-teleRow = mk("Frame", {
-Name = "ChilliSenaTopTelemetry", AnchorPoint = v2(0, 0.5), Position = u2(0, badgeStartX + 126, 0.5, 0),
-Size = u2(0, 185, 0, 20), BackgroundTransparency = 1, Active = false, ZIndex = 55
-}, hdrOverlay)
-mk("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, HorizontalAlignment = Enum.HorizontalAlignment.Left, VerticalAlignment = Enum.VerticalAlignment.Center, Padding = UDim.new(0, 4) }, teleRow)
-local function makePill(name, defaultTxt, textColor)
-local pFrame = mk("Frame", { Name = name, Size = u2(0, 0, 0, 18), AutomaticSize = Enum.AutomaticSize.X, BackgroundColor3 = c3(18, 20, 34), BackgroundTransparency = 0.12, BorderSizePixel = 0, Active = false, ZIndex = 55 }, teleRow)
-mk("UICorner", { CornerRadius = UDim.new(1, 0) }, pFrame)
-local pSt = mk("UIStroke", { Thickness = 1, Color = Color3.new(1, 1, 1), Transparency = 0.35 }, pFrame)
-mk("UIGradient", { Color = ULTRA_CARD_GRAD }, pSt)
-mk("UIPadding", { PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6) }, pFrame)
-return mk("TextLabel", { Name = "Val", Size = u2(0, 0, 1, 0), AutomaticSize = Enum.AutomaticSize.X, BackgroundTransparency = 1, Text = defaultTxt, Font = Enum.Font.GothamBold, TextSize = 8.5, TextColor3 = textColor or c3(235, 240, 255), Active = false, ZIndex = 56 }, pFrame)
-end
-local lblTime = makePill("PillTime", "⏱️ 0:00:00", c3(220, 235, 255))
-local lblPing = makePill("PillPing", "📶 60 ms", c3(110, 255, 175))
-local lblTopFps = makePill("PillFps", "⚡ 110 FPS", c3(255, 220, 105))
-local botBar = wpParent:FindFirstChild("ChilliSenaBottomBar") or win:FindFirstChild("ChilliSenaBottomBar")
-local lblBotFps = nil
-if not botBar then
-botBar = mk("Frame", { Name = "ChilliSenaBottomBar", AnchorPoint = v2(0, 1), Position = u2(0, 50, 1, 0), Size = u2(1, -50, 0, 22), BackgroundColor3 = c3(10, 12, 20), BackgroundTransparency = 0.08, BorderSizePixel = 0, Active = false, ZIndex = 55 }, wpParent)
-local topDivider = mk("Frame", { Size = u2(1, 0, 0, 1.5), BackgroundColor3 = Color3.new(1, 1, 1), BorderSizePixel = 0, Active = false, ZIndex = 56 }, botBar)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, topDivider))
-local dName = (LocalPlayer and LocalPlayer.Name) or "Player"
-local wLbl = mk("TextLabel", { Name = "WelcomeLbl", Position = u2(0, 10, 0, 0), Size = u2(0, 260, 1, 0), BackgroundTransparency = 1, Text = "🌶️ Chào mừng, " .. dName:sub(1, 14) .. "  •  CHILLI HUB V7 SUPREME", Font = Enum.Font.GothamBlack, TextSize = 9, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left, Active = false, ZIndex = 56 }, botBar)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, wLbl))
-lblBotFps = mk("TextLabel", { Name = "BotFpsLbl", AnchorPoint = v2(1, 0.5), Position = u2(1, -84, 0.5, 0), Size = u2(0, 75, 0, 18), BackgroundTransparency = 1, Text = "⚡ 108 FPS", Font = Enum.Font.GothamBold, TextSize = 9.5, TextColor3 = c3(110, 255, 165), TextXAlignment = Enum.TextXAlignment.Right, Active = false, ZIndex = 56 }, botBar)
-local donBadge = mk("Frame", { AnchorPoint = v2(1, 0.5), Position = u2(1, -8, 0.5, 0), Size = u2(0, 68, 0, 16), BackgroundColor3 = c3(28, 20, 44), BorderSizePixel = 0, Active = false, ZIndex = 56 }, botBar)
-mk("UICorner", { CornerRadius = UDim.new(1, 0) }, donBadge)
-local dbStroke = mk("UIStroke", { Thickness = 1, Color = c3(245, 190, 45), Transparency = 0.15 }, donBadge)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, dbStroke))
-mk("TextLabel", { Size = u2s(1, 1), BackgroundTransparency = 1, Text = "👑 VIP V7", Font = Enum.Font.GothamBlack, TextSize = 8.5, TextColor3 = c3(255, 220, 80), Active = false, ZIndex = 57 }, donBadge)
-else
-lblBotFps = botBar:FindFirstChild("BotFpsLbl")
-end
-State.TelemetryUpdateFn = function(curFps)
-if not win or not win.Visible then return end
-local elapsed = math.floor(os.clock() - (State.StartClock or os.clock()))
-lblTime.Text = string.format("⏱️ %d:%02d:%02d", math.floor(elapsed / 3600), math.floor((elapsed % 3600) / 60), elapsed % 60)
-local pingMs = 62
-pcall(function() pingMs = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue()) end)
-if pingMs <= 0 then pingMs = math.random(48, 85) end
-lblPing.Text = string.format("📶 %d ms", pingMs)
-local fpsVal = curFps or getFakeFps()
-lblTopFps.Text = string.format("⚡ %d FPS", fpsVal)
-if lblBotFps then lblBotFps.Text = string.format("⚡ %d FPS", fpsVal) end
-end
+end)
 end
 end)
 local function syncWindowVisibilityInstant()
@@ -1292,14 +1236,14 @@ hBadge = mk("Frame", { Name = "ChilliHeaderLogo", AnchorPoint = v2(0.5, 0.5), Po
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, hBadge)
 local hStroke = mk("UIStroke", { Thickness = 1.5, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, hBadge)
 table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, hStroke))
-mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.58, 0.58), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = 61 }, hBadge)
+mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.72, 0.72), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = 61 }, hBadge)
 else
 hBadge.Size = u2(0, 28, 0, 28)
 hBadge.BackgroundColor3 = c3(0, 0, 0)
 local hImg = hBadge:FindFirstChildOfClass("ImageLabel")
 if hImg then
 hImg.Image = LOGO_ID
-hImg.Size = u2s(0.58, 0.58)
+hImg.Size = u2s(0.72, 0.72)
 end
 end
 end
@@ -1339,21 +1283,45 @@ if tc:IsA("GuiObject") and tc ~= win and tc.Name ~= "ChilliV5_ExpandedIsland" an
 pcall(setupCircleLogo, tc, win)
 end
 end
+pcall(function()
+for _, ch in ipairs(gui:GetChildren()) do
+if ch:FindFirstChild("IslandLogoBadge") and ch:FindFirstChildOfClass("TextBox") then
+local tb = ch:FindFirstChildOfClass("TextBox")
+tb:SetAttribute("__IslandDone", nil)
+tb:SetAttribute("__IslandSession", nil)
+tb.Text = ""
+for _, sub in ipairs(ch:GetChildren()) do
+if sub.Name == "IslandLogoBadge" or sub.Name == "IslandExpandHint" or sub.Name == "IslandStroke" then
+sub:Destroy()
+end
+end
+local hdrBar = titleLbl.Parent
+if hdrBar and hdrBar:IsA("GuiObject") then
+ch.Parent = hdrBar
+ch.AnchorPoint = v2(1, 0.5)
+ch.Position = u2(1, -42, 0.5, 0)
+ch.Size = u2(0, 115, 0, 24)
+ch.AutomaticSize = Enum.AutomaticSize.None
+end
+gui:SetAttribute("__IslandLocked", nil)
+end
+end
+end)
 local queue = {}
 for _, d in ipairs(gui:GetDescendants()) do
 if d:IsA("TextLabel") or d:IsA("TextButton") or d:IsA("TextBox") then
 local txt = d.Text or ""
 local hasDot = false
-if d.Parent and d.Parent:IsA("GuiObject") and d.Parent.AbsoluteSize.X < 320 then
+if d:IsA("TextLabel") and d.Parent and d.Parent:IsA("GuiObject") and d.Parent.AbsoluteSize.X < 320 and not d.Parent:FindFirstChildOfClass("TextBox") then
 for _, sb in ipairs(d.Parent:GetChildren()) do
-if sb:IsA("GuiObject") and sb ~= d and sb.AbsoluteSize.X <= 16 and sb.AbsoluteSize.Y <= 16 then
+if sb:IsA("Frame") and sb.AbsoluteSize.X <= 14 and sb.AbsoluteSize.Y <= 14 then
 hasDot = true
 break
 end
 end
 end
-local isStatus = (not gui:GetAttribute("__IslandLocked")) and (not d:FindFirstAncestorOfClass("ScrollingFrame")) and d.Parent and (not titleLbl:IsDescendantOf(d.Parent)) and math.abs(d.AbsolutePosition.Y - hy) < 35 and d.AbsolutePosition.X > titleLbl.AbsolutePosition.X + 60 and (hasDot or txt:lower():find("idle", 1, true) or txt == "Đang rảnh") and not txt:find("v1.", 1, true)
-if isStatus or d:GetAttribute("__IslandDone") then
+local isStatus = d:IsA("TextLabel") and (not gui:GetAttribute("__IslandLocked")) and (not d:FindFirstAncestorOfClass("ScrollingFrame")) and d.Parent and (not d.Parent:FindFirstChildOfClass("TextBox")) and (not titleLbl:IsDescendantOf(d.Parent)) and math.abs(d.AbsolutePosition.Y - hy) < 35 and d.AbsolutePosition.X > titleLbl.AbsolutePosition.X + 60 and (hasDot or txt:lower():find("idle", 1, true) or txt == "Đang rảnh") and not txt:find("v1.", 1, true)
+if isStatus or (d:IsA("TextLabel") and d:GetAttribute("__IslandDone")) then
 gui:SetAttribute("__IslandLocked", true)
 pcall(setupIsland, d, gui)
 elseif isFpsTxt(txt) then
