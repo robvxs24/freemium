@@ -226,7 +226,7 @@ local EXACT_VI = {
 ["Egg carrier"]="Người đang ôm trứng", ["Chase speed"]="Tốc độ đuổi", ["HIT AURA"]="VÒNG ĐÁNH QUANH NGƯỜI", ["Hit aura"]="Đánh tự động quanh người", ["Skip friends"]="Bỏ qua bạn bè", ["WEAPONS"]="VŨ KHÍ",
 ["Hold each"]="Thời gian cầm mỗi món", ["FIELD EGGS"]="TRỨNG NGOÀI BÃI", ["Egg ESP"]="Định vị Trứng ngoài bãi", ["Show"]="Hiển thị thông tin", ["Fixed size"]="Kích cỡ cố định", ["OTHERS"]="ĐỊNH VỊ KHÁC",
 ["Player ESP"]="Định vị Người chơi", ["Guard ESP"]="Định vị Vệ sĩ", ["Hide sleeping guards"]="Ẩn vệ sĩ đang ngủ", ["Pen egg ESP"]="Định vị Trứng trong chuồng", ["Other pens ESP"]="Định vị Chuồng người khác",
-["ESP size"]="Kích cỡ chữ ESP", ["Optimizer"]="Tối Ưu Giảm Lag", ["Interface"]="Giao Diện", ["Server"]="Máy Chủ", ["Config"]="Cấu Hình", ["Webhook"]="Báo Discord", ["BASES"]="TỐI UƯ CĂN CỨ",
+["ESP size"]="Kích cỡ chữ ESP", ["Optimizer"]="Tối Ưu Giảm Lag", ["Interface"]="Giao Diện", ["Server"]="Máy Chủ", ["Config"]="Cấu Hình", ["Webhook"]="Báo Discord", ["BASES"]="TỐI ƯU CĂN CỨ",
 ["Hide my pets and eggs"]="Ẩn Pet và Trứng của tôi", ["Hide other players' pets and eggs"]="Ẩn Pet và Trứng người khác", ["GRAPHICS"]="ĐỒ HỌA & MÀN HÌNH", ["Low graphics"]="Đồ họa thấp (Siêu mượt)",
 ["Hide game UI"]="Ẩn giao diện gốc của Game", ["Disable 3D Render"]="Tắt dựng hình 3D (Treo máy)", ["Background color"]="Màu nền khi tắt 3D", ["Black"]="Màu Đen", ["White"]="Màu Trắng",
 ["FRAME RATE"]="TỐC ĐỘ KHUNG HÌNH (FPS)", ["Show FPS and ping"]="Hiện thanh FPS và Ping", ["FPS cap"]="Giới hạn FPS tối đa", ["GAME HUD"]="TRÊN MÀN HÌNH GAME",
@@ -241,6 +241,7 @@ local EXACT_VI = {
 local LOWER_VI = {}
 for k, v in pairs(EXACT_VI) do LOWER_VI[k:lower()] = v end
 local GRAMMAR_VI = {
+{ pat="^[Vv]acuuming%s+ghosts%s*(.*)$", rep="Đang hút bóng ma %1" },
 { pat="^[Rr]iding%s+(.+)$", rep="Đang đi %1" },
 { pat="^[Ff]ighting%s+[Ss]mall%s+monster$", rep="Đang đánh quái vật nhỏ" },
 { pat="^[Ff]ighting%s+[Mm]edium%s+monster$", rep="Đang đánh quái vật vừa" },
@@ -786,6 +787,15 @@ local oldCovCorner = cov:FindFirstChildOfClass("UICorner")
 if oldCovCorner then oldCovCorner:Destroy() end
 if not top:GetAttribute("__SyncClickHooked") then
 top:SetAttribute("__SyncClickHooked", true)
+pcall(function()
+local gs = game:GetService("GuiService")
+gs.MenuOpened:Connect(function()
+if isAlive() and top and top.Parent then top.Visible = false end
+end)
+gs.MenuClosed:Connect(function()
+if isAlive() and top and top.Parent then top.Visible = true end
+end)
+end)
 local function triggerSync()
 State.CloseHideUntil = 0
 TweenService:Create(disc, TweenInfo.new(0.09, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = u2(0, 56, 0, 56) }):Play()
@@ -871,19 +881,38 @@ pageWallpapers = { wp }
 local wpTrans = math.clamp(0.12 + curBaseOpacity * 0.75, 0.12, 0.90)
 local bgTrans = math.clamp(0.10 + curBaseOpacity * 0.75, 0.08, 0.88)
 local cardT = math.clamp(0.34 + curBaseOpacity * 0.50, 0.30, 0.86)
+for _, oldObj in ipairs(win:GetDescendants()) do
+if oldObj.Name == "ChilliPageWallpaper" then
+local pp = oldObj.Parent
+if not pp or pp:FindFirstAncestorOfClass("ScrollingFrame") or pp:FindFirstChildOfClass("UIListLayout") or pp:FindFirstChildOfClass("UIGridLayout") then
+pcall(oldObj.Destroy, oldObj)
+end
+elseif oldObj.Name == "ChilliCardTopGlow" then
+pcall(oldObj.Destroy, oldObj)
+end
+end
 for _, d in ipairs(win:GetDescendants()) do
-if d:IsA("ScrollingFrame") and (d.AbsolutePosition.X - winX) > 35 then
+local isMainPageScroll = d:IsA("ScrollingFrame")
+and (not d:FindFirstAncestorOfClass("ScrollingFrame"))
+and (d.AbsolutePosition.X - winX) > 35
+and (d.AbsoluteSize.X >= win.AbsoluteSize.X * 0.55)
+and (d.AbsoluteSize.Y >= win.AbsoluteSize.Y * 0.45)
+if isMainPageScroll then
 d.BackgroundTransparency = 1
+d.ScrollingEnabled = true
 if d.ZIndex < 3 then d.ZIndex = 3 end
 local pageParent = d.Parent
-if pageParent and pageParent:IsA("GuiObject") then
+while pageParent and pageParent ~= win and pageParent ~= mainBg and (pageParent:FindFirstChildOfClass("UIListLayout") or pageParent:FindFirstChildOfClass("UIGridLayout") or pageParent.AutomaticSize ~= Enum.AutomaticSize.None) do
+pageParent = pageParent.Parent
+end
+if pageParent and pageParent:IsA("GuiObject") and not pageParent:FindFirstAncestorOfClass("ScrollingFrame") and not pageParent:FindFirstChildOfClass("UIListLayout") and not pageParent:FindFirstChildOfClass("UIGridLayout") then
 local pWp = pageParent:FindFirstChild("ChilliPageWallpaper")
 if not pWp then
 pWp = mk("ImageLabel", {
 Name = "ChilliPageWallpaper", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5),
 Size = u2s(1, 1), BackgroundColor3 = c3(8, 10, 18), BackgroundTransparency = bgTrans,
 Image = WALLPAPER_IMAGE_ID, ImageTransparency = wpTrans, ScaleType = Enum.ScaleType.Crop,
-Active = false, ZIndex = 1
+Active = false, Selectable = false, ZIndex = 1
 }, pageParent)
 mk("UICorner", { CornerRadius = UDim.new(0, 8) }, pWp)
 else
@@ -891,6 +920,8 @@ pWp.Image = WALLPAPER_IMAGE_ID
 pWp.BackgroundColor3 = c3(8, 10, 18)
 pWp.BackgroundTransparency = bgTrans
 pWp.ImageTransparency = wpTrans
+pWp.Active = false
+pWp.Selectable = false
 pWp.ZIndex = 1
 end
 table.insert(pageWallpapers, pWp)
@@ -903,7 +934,7 @@ end
 p = p.Parent
 end
 for _, subCard in ipairs(d:GetDescendants()) do
-if subCard:IsA("Frame") and not subCard.Name:find("^Chilli") and subCard.AbsoluteSize.X >= 165 and subCard.AbsoluteSize.Y >= 42 then
+if subCard:IsA("Frame") and not subCard.Name:find("^Chilli") and subCard:FindFirstAncestorOfClass("ScrollingFrame") == d and subCard.AbsoluteSize.X >= 165 and subCard.AbsoluteSize.Y >= 42 then
 if (subCard.BackgroundTransparency < 0.92 and subCard:FindFirstChildOfClass("UICorner") ~= nil) or subCard:GetAttribute("__IsChilliCard") then
 subCard:SetAttribute("__IsChilliCard", true)
 table.insert(sectionCards, subCard)
@@ -922,11 +953,6 @@ cStroke.Transparency = 0.14
 cStroke.Enabled = true
 if not cStroke:FindFirstChild("ChilliCardGrad") then
 table.insert(State.ActiveGradients, mk("UIGradient", { Name = "ChilliCardGrad", Color = ULTRA_CARD_GRAD }, cStroke))
-end
-if not card:FindFirstChild("ChilliCardTopGlow") then
-local topGlow = mk("Frame", { Name = "ChilliCardTopGlow", AnchorPoint = v2(0.5, 0), Position = u2(0.5, 0, 0, 0), Size = u2(0.92, 0, 0, 2), BackgroundColor3 = Color3.new(1, 1, 1), BorderSizePixel = 0, Active = false, ZIndex = card.ZIndex + 2 }, card)
-mk("UICorner", { CornerRadius = UDim.new(1, 0) }, topGlow)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, topGlow))
 end
 end
 for _, d in ipairs(win:GetDescendants()) do
@@ -1017,10 +1043,19 @@ pcall(syncWallpaperAndOldBg, nil)
 pcall(function()
 local oldCosmicHolder = win:FindFirstChild("ChilliCosmicHolder")
 if oldCosmicHolder then oldCosmicHolder:Destroy() end
-local pWalk = titleLbl
-while pWalk and pWalk ~= win do
-if pWalk:IsA("GuiObject") then pWalk.Visible = true end
-pWalk = pWalk.Parent
+if not win:GetAttribute("__InteriorDescHooked") then
+win:SetAttribute("__InteriorDescHooked", true)
+local interiorPending = false
+win.DescendantAdded:Connect(function(nd)
+if not isAlive() or interiorPending or nd.Name:find("^Chilli") then return end
+interiorPending = true
+task.delay(0.12, function()
+interiorPending = false
+if isAlive() and win and win.Parent and win.Visible then
+pcall(styleMenuInterior)
+end
+end)
+end)
 end
 for _, desc in ipairs(win:GetDescendants()) do
 if (desc:IsA("TextLabel") or desc:IsA("TextButton")) and desc ~= titleLbl and not desc:IsDescendantOf(titleLbl) then
@@ -1318,9 +1353,11 @@ end
 end
 local hy = titleLbl.AbsolutePosition.Y
 if win then
-pcall(function() win.Visible = true end)
 pcall(cleanupStrayLogos, gui, win)
+if win:GetAttribute("__ChilliV7ArchSession") ~= SID then
+win:SetAttribute("__ChilliV7ArchSession", SID)
 pcall(applySenaV7Architecture, win, titleLbl)
+end
 end
 for _, tc in ipairs(gui:GetChildren()) do
 if tc:IsA("GuiObject") and tc ~= win and tc.Name ~= "ChilliV5_ExpandedIsland" and not tc:FindFirstChild("IslandExpandHint") then
@@ -1400,8 +1437,11 @@ end)
 end
 end)
 end
-local function scanOnce()
+local function scanOnce(forcePass)
 if not isAlive() then return false end
+if not forcePass and venyxGuiLocked and venyxGuiLocked.Parent and venyxGuiLocked:GetAttribute("__ChilliV7Patched") == SID then
+return true
+end
 for _, root in ipairs(getScanRoots()) do
 local guis = {}
 for _, ch in ipairs(root:GetChildren()) do
@@ -1415,7 +1455,6 @@ end
 end
 for _, gui in ipairs(guis) do
 if not IGNORED_GUIS[gui.Name] then
-bindGuiEvents(gui)
 local titleLbl = nil
 for _, d in ipairs(gui:GetDescendants()) do
 if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Name ~= "ChilliUltraTitleBadge" and d.Name ~= "ChilliIslandTitle" and not d:FindFirstAncestor("ChilliV5_ExpandedIsland") and not d:FindFirstAncestor("ChilliHeaderOverlay") then
@@ -1429,7 +1468,9 @@ end
 end
 if titleLbl then
 venyxGuiLocked = gui
+bindGuiEvents(gui)
 patchVenyxGui(gui, titleLbl)
+gui:SetAttribute("__ChilliV7Patched", SID)
 end
 end
 end
@@ -1439,7 +1480,7 @@ end
 for _, root in ipairs(getScanRoots()) do
 root.DescendantAdded:Connect(function(ch)
 if isAlive() and ch:IsA("ScreenGui") and not IGNORED_GUIS[ch.Name] then
-bindGuiEvents(ch)
+if venyxGuiLocked and venyxGuiLocked.Parent then return end
 task.wait(0.15)
 pcall(scanOnce)
 end
@@ -1456,6 +1497,6 @@ pcall(scanOnce)
 end
 if isAlive() then
 task.wait(1.0)
-pcall(scanOnce)
+pcall(scanOnce, true)
 end
 end)
