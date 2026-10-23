@@ -58,7 +58,10 @@ local pg = LocalPlayer and LocalPlayer:FindFirstChildOfClass("PlayerGui")
 if pg then table.insert(r, pg) end
 return r
 end
-local IGNORED_GUIS = { RobloxGui=true, TopBarApp=true, TouchGui=true, Chat=true, BubbleChat=true, Freecam=true, BackpackGui=true, PlayerList=true, PurchasePrompt=true, ChilliV5_NoticeGui=true }
+local IGNORED_GUIS = {
+RobloxGui=true, TopBarApp=true, TouchGui=true, Chat=true, BubbleChat=true,
+Freecam=true, BackpackGui=true, PlayerList=true, PurchasePrompt=true, ChilliV5_NoticeGui=true
+}
 local function isVenyxUiPresent()
 for _, root in ipairs(getScanRoots()) do
 for _, d in ipairs(root:GetDescendants()) do
@@ -114,9 +117,24 @@ for k, v in pairs(props) do inst[k] = v end
 if parent then inst.Parent = parent end
 return inst
 end
-local RAINBOW = ColorSequence.new({ csk(0.00, c3(255, 45, 85)), csk(0.17, c3(255, 155, 35)), csk(0.33, c3(255, 235, 45)), csk(0.50, c3(45, 255, 145)), csk(0.67, c3(45, 195, 255)), csk(0.83, c3(185, 85, 255)), csk(1.00, c3(255, 45, 85)) })
-local ULTRA_TEXT_GRAD = ColorSequence.new({ csk(0.00, c3(255, 255, 255)), csk(0.20, c3(125, 225, 255)), csk(0.45, c3(255, 95, 215)), csk(0.72, c3(175, 115, 255)), csk(1.00, c3(255, 215, 85)) })
-local ULTRA_CARD_GRAD = ColorSequence.new({ csk(0.00, c3(70, 210, 255)), csk(0.50, c3(170, 95, 255)), csk(1.00, c3(255, 75, 195)) })
+local function addGrad(g)
+if g and not g:GetAttribute("__GradTracked") then
+g:SetAttribute("__GradTracked", true)
+table.insert(State.ActiveGradients, g)
+end
+return g
+end
+local RAINBOW = ColorSequence.new({
+csk(0.00, c3(255, 45, 85)), csk(0.17, c3(255, 155, 35)), csk(0.33, c3(255, 235, 45)),
+csk(0.50, c3(45, 255, 145)), csk(0.67, c3(45, 195, 255)), csk(0.83, c3(185, 85, 255)), csk(1.00, c3(255, 45, 85))
+})
+local ULTRA_TEXT_GRAD = ColorSequence.new({
+csk(0.00, c3(255, 255, 255)), csk(0.20, c3(125, 225, 255)), csk(0.45, c3(255, 95, 215)),
+csk(0.72, c3(175, 115, 255)), csk(1.00, c3(255, 215, 85))
+})
+local ULTRA_CARD_GRAD = ColorSequence.new({
+csk(0.00, c3(70, 210, 255)), csk(0.50, c3(170, 95, 255)), csk(1.00, c3(255, 75, 195))
+})
 local fakeFps, lastFpsT = math.random(98, 114), 0
 local function getFakeFps()
 local now = os.clock()
@@ -174,69 +192,155 @@ task.wait(0.033)
 end
 end)
 local FastCache = {}
-local function hasVi(s) return type(s) == "string" and s:find("[\195\196\197\198\225]") ~= nil end
+local function hasVi(s)
+return type(s) == "string" and s ~= "" and s:find("[\194-\244][\128-\191]") ~= nil and not s:find("^[%w%s%p·•●🌶️🇻🇳🌐⚡⏳✅⚠️🚀✨▲▼▾👑🏠🥚🌾👤⚙️]+$")
+end
 local EXACT_VI = {
 ["Riding the Phantom Express"]="Đang đi Tàu Bóng Ma", ["Fighting Small monster"]="Đang đánh quái vật nhỏ", ["Fighting Medium monster"]="Đang đánh quái vật vừa", ["Fighting Large monster"]="Đang đánh quái vật lớn",
 ["UI scale"]="Kích cỡ Menu", ["Show / hide UI"]="Phím ẩn / hiện Menu", ["Opacity"]="Độ trong suốt", ["Tone"]="Tông màu", ["Dim the game"]="Làm tối nền game",
 ["QUICK BARS"]="THANH PHÍM TẮT NHANH", ["Quick bars"]="Thanh phím tắt nhanh", ["Show quick bars"]="Hiện thanh phím tắt nhanh", ["Keybinds"]="Phím tắt", ["Bar size"]="Kích cỡ thanh nhanh",
 ["PINS AND KEYBINDS"]="GHIM & PHÍM TẮT", ["Find option"]="Tìm tùy chọn", ["All"]="Tất cả", ["Pinned"]="Đã ghim", ["Clear all quick bars"]="Xóa hết thanh nhanh", ["Clear all keybinds"]="Xóa hết phím tắt",
 ["DEFAULTS"]="MẶC ĐỊNH", ["Reset to defaults"]="Khôi phục mặc định", ["Reset"]="Đặt lại", ["Turn off all toggles"]="Tắt toàn bộ công tắc", ["Turn off"]="Tắt hết",
-["Steal An Egg"]="Cướp Trứng", ["CANDY CORN"]="KẸO NGÔ", ["Candy Corn"]="Kẹo Ngô", ["Calculate mutations"]="Tính thử đột biến", ["Delivery speed"]="Tốc độ mang trứng về",
-["Change if steal fails"]="Hãy chỉnh giảm xuống nếu cướp trứng bị lỗi", ["Auto farm monsters"]="Tự động cày quái vật", ["Instant steal"]="Cướp tức thì", ["Admin treadmill"]="Máy tập Admin",
-["CURSED ISLAND WARS"]="ĐẠI CHIẾN ĐẢO NGUYỀN RỦA", ["Cursed Island Wars"]="Đại Chiến Đảo Nguyền Rủa", ["Auto play Cursed Island Wars"]="Tự động chơi Đại Chiến Đảo Nguyền Rủa",
-["Island Wars target"]="Mục tiêu Đảo Nguyền Rủa", ["Enemies and base"]="Kẻ địch và Căn cứ", ["Most tokens"]="Nhiều kẹo/xu nhất", ["Idle"]="Đang rảnh", ["Waiting"]="Đang chờ", ["Nothing"]="Không có gì",
-["None"]="Không có", ["Off"]="Tắt", ["On"]="Bật", ["Search"]="Tìm kiếm", ["Home"]="Bảng Điều Khiển", ["Dashboard"]="Bảng Điều Khiển", ["Steal"]="Cướp Trứng", ["Farm"]="Cày Cuốc", ["Event"]="Sự Kiện", ["Player"]="Người Chơi", ["System"]="Hệ Thống",
-["Welcome back"]="Chào mừng trở lại", ["Updated"]="Cập nhật", ["Copy link"]="Chép Link Mới", ["Rejoin"]="Vào lại", ["Server hop"]="Đổi server", ["Copy Job ID"]="Chép Job ID", ["Unload"]="Tắt Hub",
-["SESSION"]="PHIÊN CHƠI", ["WHAT'S NEW"]="CÓ GÌ MỚI", ["NEW"]="MỚI", ["LAST EGG"]="TRỨNG CUỐI", ["PLACED"]="ĐÃ ĐẶT", ["CASH / S"]="TIỀN / GIÂY", ["NEXT NIGHT"]="ĐÊM SAU", ["TIME"]="THỜI GIAN",
-["BEST STEAL"]="CƯỚP TỐT NHẤT", ["EGG BAG"]="TÚI TRỨNG", ["PET BAG"]="TÚI PET", ["OPEN"]="MỞ", ["Auto Steal"]="Tự Động Cướp", ["Egg Predictor"]="Dự Đoán Trứng", ["AUTO STEAL"]="TỰ ĐỘNG CƯỚP",
-["Auto steal"]="Tự động cướp", ["Go to egg"]="Di chuyển tới trứng", ["Teleport to egg"]="Dịch chuyển tới trứng", ["Walk to egg"]="Đi bộ tới trứng", ["Tween to egg"]="Bay mượt tới trứng",
-["Teleport zones"]="Khu vực dịch chuyển", ["Delivery method"]="Kiểu mang trứng về", ["Instant steps"]="Tức thì từng bước", ["Instant"]="Tức thì", ["Tween"]="Bay mượt", ["Teleport"]="Dịch chuyển",
-["Tween speed"]="Tốc độ bay", ["Steal missing index eggs"]="Cướp trứng thiếu trong Chỉ mục", ["Steal from other players"]="Cướp từ người chơi khác", ["Anti guard"]="Chống vệ sĩ",
-["Drop eggs at safe zone"]="Thả trứng ở vùng an toàn", ["FILTER"]="BỘ LỌC", ["Zones"]="Khu vực", ["Steal first"]="Ưu tiên cướp", ["Best value"]="Giá trị cao nhất", ["Lowest value"]="Giá trị thấp nhất",
-["Rarest"]="Hiếm nhất", ["Nearest"]="Gần nhất", ["Mutations"]="Đột biến", ["Rarities"]="Độ hiếm", ["Only these eggs"]="Chỉ những trứng này", ["Min value /s"]="Giá trị tối thiểu /s",
-["Sell cheapest egg when bag is full"]="Bán trứng rẻ nhất khi đầy túi", ["Only below /s"]="Chỉ dưới mức /s", ["AUTO HOP SERVER"]="TỰ ĐỔI MÁY CHỦ", ["Auto hop"]="Tự động đổi server", ["Hop now"]="Đổi server ngay",
-["First hop after"]="Đổi lần đầu sau", ["Hop when"]="Đổi khi", ["After stealing a match"]="Sau khi cướp đủ trứng lọc", ["No matching egg"]="Không có trứng phù hợp", ["Rare from"]="Độ hiếm từ",
-["EGG SHOWCASE"]="TRƯNG BÀY TRỨNG", ["Sort eggs"]="Sắp xếp trứng", ["Value"]="Giá trị", ["Rarity"]="Độ hiếm", ["Preview card"]="Thẻ xem trước", ["Pen"]="Chuồng Trứng", ["Treadmill"]="Máy Tập Chạy",
-["Sell"]="Bán Đồ", ["Mutate"]="Đột Biến", ["Fuse"]="Dung Hợp", ["Priority"]="Thứ Tự Ưu Tiên", ["AUTO HATCH"]="TỰ ĐỘNG ẤP TRỨNG", ["Auto hatch"]="Tự động ấp trứng", ["Equip best pets"]="Trang bị Pet mạnh nhất",
-["AUTO PLACE"]="TỰ ĐỘNG ĐẶT TRỨNG", ["Auto place"]="Tự động đặt trứng", ["Place first"]="Ưu tiên đặt", ["Place when"]="Đặt khi", ["Always"]="Luôn luôn", ["KEEP EGGS"]="GIỮ LẠI TRỨNG", ["Eggs to keep"]="Trứng cần giữ",
-["TREADMILL"]="MÁY TẬP CHẠY", ["Auto treadmill"]="Tự động chạy máy tập", ["Auto upgrade treadmill"]="Tự nâng cấp máy tập", ["PROGRESS"]="TIẾN ĐỘ & NHẬN THƯỞNG", ["Auto upgrade base"]="Tự nâng cấp căn cứ",
-["Auto claim offline cash"]="Tự nhận tiền Offline", ["Auto buy trails"]="Tự mua vệt sáng", ["Auto claim index rewards"]="Tự nhận thưởng Chỉ mục", ["EGGS"]="TRỨNG", ["Auto sell eggs"]="Tự động bán trứng",
-["Sell all eggs now"]="Bán hết trứng ngay", ["Keep mutated"]="Giữ lại đồ Đột biến", ["Sell rarities"]="Bán các độ hiếm", ["Only mutations"]="Chỉ bán đột biến", ["Never sell"]="Không bao giờ bán",
-["PETS"]="THÚ CƯNG (PET)", ["Auto sell pets"]="Tự động bán Pet", ["Sell all pets now"]="Bán hết Pet ngay", ["FAVORITE"]="YÊU THÍCH (KHÓA ĐỒ)", ["Auto favorite"]="Tự động khóa Yêu thích",
-["Favorite matching now"]="Khóa đồ khớp lọc ngay", ["Unfavorite pets not matching"]="Bỏ thích Pet không khớp", ["Favorite equipped"]="Khóa Pet đang trang bị", ["Match"]="Điều kiện khớp",
-["All picked rules"]="Khớp tất cả điều kiện", ["Any picked rule"]="Khớp bất kỳ điều kiện nào", ["Always favorite"]="Luôn khóa Yêu thích", ["AUTO MUTATE"]="TỰ ĐỘNG ĐỘT BIẾN", ["Auto mutate"]="Tự động đột biến",
-["Mutate first"]="Ưu tiên đột biến", ["Use items"]="Dùng vật phẩm", ["MUTATE FILTER"]="BỘ LỌC ĐỘT BIẾN", ["Skip eggs with"]="Bỏ qua trứng đã có", ["FUSE MACHINE"]="MÁY DUNG HỢP", ["Auto fuse"]="Tự động dung hợp",
-["Fuse first"]="Ưu tiên dung hợp", ["Lowest rarity"]="Độ hiếm thấp nhất", ["Highest rarity"]="Độ hiếm cao nhất", ["Use pets"]="Dùng Pet", ["Lowest value first"]="Giá trị thấp trước",
-["Highest value first"]="Giá trị cao trước", ["Skip mutated"]="Bỏ qua đồ Đột biến", ["Eject odd pets"]="Đẩy Pet lẻ ra", ["FUSE FILTER"]="BỘ LỌC DUNG HỢP", ["Only these pets"]="Chỉ những Pet này",
-["Never fuse"]="Không bao giờ dung hợp", ["TASK ORDER"]="THỨ TỰ ƯU TIÊN NHIỆM VỤ", ["Task order"]="Thứ tự ưu tiên", ["Reset order"]="Đặt lại thứ tự", ["Halloween"]="Sự Kiện Halloween",
-["Butterfly"]="Sự Kiện Bướm", ["Star"]="Sao Băng", ["Race"]="Đua Tốc Độ", ["AA"]="Admin & Sự Kiện", ["HALLOWEEN DIMENSION"]="CHIỀU KHÔNG GIAN HALLOWEEN", ["Auto Pumpkin Moon"]="Tự động cày Trăng Bí Ngô",
-["Auto steal Halloween eggs"]="Tự cướp trứng Halloween", ["Instant steal Halloween eggs"]="Cướp tức thì trứng Halloween", ["Halloween rarities"]="Độ hiếm Halloween", ["Halloween eggs"]="Trứng Halloween",
-["Auto buy Halloween Dimension Egg"]="Tự mua trứng Không Gian Halloween", ["Walk speed"]="Tốc độ đi bộ", ["Steal speed"]="Tốc độ cướp", ["MONSTERS"]="QUÁI VẬT HALLOWEEN", ["Monsters"]="Quái vật",
-["Monster order"]="Thứ tự đánh quái", ["Use weapons"]="Dùng vũ khí", ["GHOST DOG AND FISHING"]="CHÓ MA & CÂU CÁ", ["Auto Ghost Dog quest"]="Tự làm nhiệm vụ Chó Ma", ["Auto fishing"]="Tự động câu cá",
-["Cast luck"]="Độ may mắn quăng cần", ["PHANTOM EXPRESS"]="CHUYẾN TÀU BÓNG MA", ["Auto Phantom Express"]="Tự động đi Tàu Bóng Ma", ["Auto vacuum Ghouler boss"]="Tự hút trùm Ghouler",
-["Ghost target"]="Mục tiêu bắt Ma", ["Rarest first"]="Hiếm nhất trước", ["Auto trade souls"]="Tự động đổi Linh hồn", ["BUTTERFLY BLOOM"]="MÙA BƯỚM NỞ", ["Auto butterfly bloom"]="Tự động bắt Bướm",
-["Catch"]="Loại bướm bắt", ["Catch priority"]="Ưu tiên bắt", ["Catch mode"]="Chế độ bắt", ["Chase"]="Đuổi theo", ["Catch speed"]="Tốc độ bắt", ["BUTTERFLY MACHINE"]="MÁY ÉP BƯỚM",
-["Smart trade for essence"]="Đổi thông minh lấy Tinh chất", ["Auto trade up"]="Tự động đổi bậc cao", ["Trade"]="Loại bướm đem đổi", ["Auto craft essence"]="Tự chế tạo Tinh chất",
-["WISP COMPANION"]="TINH LINH ĐỒNG HÀNH", ["Auto wisp quest"]="Tự làm nhiệm vụ Tinh linh", ["Auto banjo cricket"]="Tự đánh Dế trả nhiệm vụ", ["SHOOTING STAR"]="SAO BĂNG",
-["Auto catch shooting star"]="Tự động bắt Sao băng", ["RACING EVENT"]="SỰ KIỆN ĐUA", ["Auto race"]="Tự động đua", ["CAPTURE THE EGG"]="ĐOẠT TRỨNG SỰ KIỆN", ["Auto capture event egg"]="Tự động đoạt trứng sự kiện",
-["Take it from the holder"]="Cướp lại từ người đang giữ", ["Hold height"]="Độ cao giữ trứng", ["Keep away"]="Khoảng cách né người", ["MINIGAME EGGS"]="TRỨNG MINIGAME", ["Auto steal minigame egg"]="Tự cướp trứng Minigame",
-["ADMIN ABUSE"]="LẠM DỤNG QUYỀN ADMIN", ["Move"]="Di Chuyển", ["Combat"]="Chiến Đấu", ["ESP"]="Định Vị ESP", ["MOVEMENT"]="DI CHUYỂN", ["Speed boost"]="Tăng tốc chạy", ["Boost speed"]="Tốc độ chạy",
-["Infinite jump"]="Nhảy vô hạn", ["God mode"]="Bất tử (God Mode)", ["PROTECTION"]="BẢO VỆ NHÂN VẬT", ["Anti ragdoll"]="Chống văng ngã", ["Ignore traps"]="Bỏ qua bẫy", ["Anti AFK"]="Chống văng game (Anti AFK)",
-["Instant prompts"]="Nhấn nút tức thì", ["Invisible"]="Tàng hình", ["AUTO HIT"]="TỰ ĐỘNG ĐÁNH", ["Auto hit"]="Tự động đánh người", ["Hit who"]="Mục tiêu đánh", ["Nearest player"]="Người chơi gần nhất",
-["Egg carrier"]="Người đang ôm trứng", ["Chase speed"]="Tốc độ đuổi", ["HIT AURA"]="VÒNG ĐÁNH QUANH NGƯỜI", ["Hit aura"]="Đánh tự động quanh người", ["Skip friends"]="Bỏ qua bạn bè", ["WEAPONS"]="VŨ KHÍ",
-["Hold each"]="Thời gian cầm mỗi món", ["FIELD EGGS"]="TRỨNG NGOÀI BÃI", ["Egg ESP"]="Định vị Trứng ngoài bãi", ["Show"]="Hiển thị thông tin", ["Fixed size"]="Kích cỡ cố định", ["OTHERS"]="ĐỊNH VỊ KHÁC",
-["Player ESP"]="Định vị Người chơi", ["Guard ESP"]="Định vị Vệ sĩ", ["Hide sleeping guards"]="Ẩn vệ sĩ đang ngủ", ["Pen egg ESP"]="Định vị Trứng trong chuồng", ["Other pens ESP"]="Định vị Chuồng người khác",
-["ESP size"]="Kích cỡ chữ ESP", ["Optimizer"]="Tối Ưu Giảm Lag", ["Interface"]="Giao Diện", ["Server"]="Máy Chủ", ["Config"]="Cấu Hình", ["Webhook"]="Báo Discord", ["BASES"]="TỐI ƯU CĂN CỨ",
-["Hide my pets and eggs"]="Ẩn Pet và Trứng của tôi", ["Hide other players' pets and eggs"]="Ẩn Pet và Trứng người khác", ["GRAPHICS"]="ĐỒ HỌA & MÀN HÌNH", ["Low graphics"]="Đồ họa thấp (Siêu mượt)",
-["Hide game UI"]="Ẩn giao diện gốc của Game", ["Disable 3D Render"]="Tắt dựng hình 3D (Treo máy)", ["Background color"]="Màu nền khi tắt 3D", ["Black"]="Màu Đen", ["White"]="Màu Trắng",
-["FRAME RATE"]="TỐC ĐỘ KHUNG HÌNH (FPS)", ["Show FPS and ping"]="Hiện thanh FPS và Ping", ["FPS cap"]="Giới hạn FPS tối đa", ["GAME HUD"]="TRÊN MÀN HÌNH GAME",
-["Steal panel button on game HUD"]="Hiện nút Bảng Cướp trên màn hình", ["INTERFACE"]="TÙY CHỈNH GIAO DIỆN", ["SERVER"]="MÁY CHỦ (SERVER)", ["Hop to"]="Đổi sang server",
-["Least players"]="Ít người chơi nhất", ["Most players"]="Đông người nhất", ["Random"]="Ngẫu nhiên", ["JOIN AND STAY"]="TỰ VÀO LẠI & TỰ CHẠY", ["Rejoin on kick"]="Tự vào lại khi bị văng",
-["Auto load script"]="Tự chạy lại Script khi qua Server", ["CONFIGS"]="QUẢN LÝ CẤU HÌNH", ["Configs"]="Danh sách cấu hình", ["Config name"]="Tên cấu hình", ["Create"]="Tạo mới", ["Save"]="Lưu đè",
-["Load"]="Nạp cấu hình", ["Delete"]="Xóa bỏ", ["Auto load"]="Tự động nạp khi vào game", ["IMPORT / EXPORT"]="NHẬP / XUẤT MÃ CẤU HÌNH", ["Export to clipboard"]="Chép mã cấu hình",
-["Config data"]="Dữ liệu cấu hình (JSON)", ["Paste config JSON here"]="Dán mã JSON cấu hình vào đây", ["Import"]="Nhập cấu hình", ["Apply now"]="Áp dụng ngay",
-["Common"]="Thường", ["Uncommon"]="Không Phổ Biến", ["Rare"]="Hiếm", ["Epic"]="Sử Thi", ["Legendary"]="Huyền Thoại", ["Mythic"]="Thần Thoại", ["Cosmic"]="Vũ Trụ", ["Secret"]="Bí Mật",
-["Eternal"]="Vĩnh Cửu", ["Divine"]="Thánh Thần", ["Radiant"]="Rực Rỡ", ["Amethyst"]="Thạch Anh Tím", ["Sapphire"]="Lam Ngọc", ["Emerald"]="Ngọc Lục Bảo"
+["Steal An Egg"]="Cướp Trứng", ["CANDY CORN"]="KẸO NGÔ", ["Candy Corn"]="Kẹo Ngô", ["Calculate mutations"]="Tính thử đột biến",
+["Cards show the value with these mutations added"]="Thẻ trứng sẽ hiển thị giá trị sau khi cộng thêm các đột biến này",
+["Delivery speed"]="Tốc độ mang trứng về", ["Change if steal fails"]="Hãy chỉnh giảm xuống nếu cướp trứng bị lỗi",
+["Auto farm monsters"]="Tự động cày quái vật", ["Auto kill monsters"]="Tự động đánh quái vật", ["Bat"]="Gậy Dơi (Bat)",
+["Instant steal"]="Cướp tức thì", ["Admin treadmill"]="Máy tập Admin", ["CURSED ISLAND WARS"]="ĐẠI CHIẾN ĐẢO NGUYỀN RỦA",
+["Cursed Island Wars"]="Đại Chiến Đảo Nguyền Rủa", ["Waiting for Cursed Island Wars"]="Đang chờ Đại Chiến Đảo Nguyền Rủa",
+["Auto play Cursed Island Wars"]="Tự động chơi Đại Chiến Đảo Nguyền Rủa", ["Island Wars target"]="Mục tiêu Đảo Nguyền Rủa",
+["Enemies and base"]="Kẻ địch và Căn cứ", ["Walls and crystal"]="Tường chắn và Pha lê", ["Catching a pumpkin"]="Đang nhặt bí ngô",
+["Carrying a pumpkin to the altar"]="Đang mang bí ngô tới bệ thờ", ["Delivering a pumpkin to the altar"]="Đang giao bí ngô tới bệ thờ",
+["FIX"]="SỬA LỖI", ["Most tokens"]="Nhiều kẹo/xu nhất",
+["Admin abuse works like Chilli: admin treadmill, Capture the egg, minigame eggs and Instant steal"]="Lạm dụng Admin hoạt động chuẩn: Máy tập Admin, Cướp trứng sự kiện, trứng Minigame và Cướp tức thì",
+["Fixed lag back with the Tween delivery method"]="Đã sửa lỗi giật lùi (lag back) khi mang trứng về bằng chế độ Bay (Tween)",
+["Welcome to Venyx 1.0.4! Join our Discord for updates and support"]="Chào mừng tới Chilli Hub V7! Tham gia Discord để cập nhật và nhận hỗ trợ",
+["v1.1.0: Halloween tasks follow Task order, Walk speed for monsters, pumpkins and ghosts, Use weapons picks every weapon, Lab and Race shop removed"]="v1.1.0: Nhiệm vụ Halloween tuân theo Thứ tự tác vụ, thêm Tốc độ chạy khi săn quái, bí ngô và ma, Sử dụng vũ khí tự chọn mọi loại vũ khí, đã gỡ bỏ Phòng Lab và Shop Đua Xe",
+["Halloween: Dimension eggs, monsters, Ghost Dog quest, fishing, Phantom Express and Cursed Island Wars"]="Sự kiện Halloween: Trứng Không gian Halloween, đánh quái, nhiệm vụ Chó Ma, câu cá, Tàu Ma Phantom Express và Đại Chiến Đảo Nguyền Rủa",
+["Idle"]="Đang rảnh", ["Waiting"]="Đang chờ", ["Nothing"]="Không có gì", ["None"]="Không có", ["Off"]="Tắt", ["OFF"]="TẮT", ["On"]="Bật", ["ON"]="BẬT",
+["No egg matches your targets"]="Không có trứng nào khớp mục tiêu", ["No eggs match your targets"]="Không có trứng nào khớp mục tiêu",
+["No egg matches filter"]="Không có trứng khớp bộ lọc", ["No eggs match filter"]="Không có trứng khớp bộ lọc",
+["No target egg found"]="Không tìm thấy trứng mục tiêu", ["No matching eggs"]="Không có trứng nào khớp", ["No valid targets"]="Không có mục tiêu hợp lệ",
+["Bag is full"]="Túi đã đầy", ["Egg bag is full"]="Túi trứng đã đầy", ["Pet bag is full"]="Túi pet đã đầy", ["Pen is full"]="Chuồng ấp đã đầy",
+["Field is closed"]="Sân trứng đang đóng", ["Waiting for field to open"]="Đang chờ sân trứng mở", ["Waiting for eggs to spawn"]="Đang chờ trứng xuất hiện",
+["Waiting in safe zone"]="Đợi ở vùng an toàn", ["Returning to safe zone"]="Đang về vùng an toàn", ["Returning home"]="Đang quay về nhà",
+["Delivering egg"]="Đang giao trứng về chuồng", ["Dropping egg"]="Đang thả trứng", ["Selling eggs"]="Đang bán trứng", ["Selling pets"]="Đang bán pet",
+["Hatching eggs"]="Đang ấp trứng", ["Placing eggs"]="Đang đặt trứng", ["Mutating eggs"]="Đang đột biến trứng", ["Fusing pets"]="Đang dung hợp pet",
+["Hopping server"]="Đang đổi máy chủ", ["Rejoining"]="Đang vào lại phòng", ["Avoiding guard"]="Đang né vệ sĩ",
+["Using treadmill"]="Đang chạy máy tập", ["Upgrading treadmill"]="Đang nâng cấp máy tập", ["Upgrading base"]="Đang nâng cấp căn cứ",
+["Claiming rewards"]="Đang nhận thưởng", ["Claiming offline cash"]="Đang nhận tiền ngoại tuyến", ["Joining race"]="Đang vào đường đua", ["Racing"]="Đang đua xe",
+["Home"]="Bảng Điều Khiển", ["Dashboard"]="Bảng Điều Khiển", ["Welcome back"]="Chào mừng trở lại", ["Venyx Discord"]="Chilli Hub Discord",
+["Updates, keys, support"]="Cập nhật, nhận key, hỗ trợ", ["Copy Invite"]="Chép Link Mời", ["Copy invite"]="Chép Link Mời", ["Copy link"]="Chép Link Mời", ["Discord"]="Chilli Hub", ["MONEY /S"]="TIỀN /GIÂY", ["CASH / S"]="TIỀN / GIÂY",
+["OPEN"]="MỞ", ["Open"]="Mở", ["Close"]="Đóng", ["Welcome to Venyx 1.0.0! Join our Discord for updates and support"]="Chào mừng tới Chilli Hub V7! Tham gia Discord để cập nhật và nhận hỗ trợ",
+["Beta version"]="Phiên bản Beta", ["This is a test build. Features may change and bugs can happen."]="Đây là bản thử nghiệm. Tính năng có thể thay đổi và phát sinh lỗi.",
+["Rejoin"]="Vào lại", ["Server hop"]="Đổi server", ["Copy Job ID"]="Chép Job ID", ["Unload hub"]="Tắt Hub", ["Unload"]="Tắt Hub", ["Save config"]="Lưu cấu hình", ["Hide UI"]="Ẩn Menu",
+["SESSION"]="PHIÊN CHƠI", ["STOLEN"]="ĐÃ CƯỚP", ["LAST EGG"]="TRỨNG CUỐI", ["PLACED"]="ĐÃ ĐẶT", ["HATCHED"]="ĐÃ ẤP", ["NIGHT IN"]="ĐÊM SAU", ["NEXT NIGHT"]="ĐÊM SAU",
+["SESSION TIME"]="THỜI GIAN", ["TIME"]="THỜI GIAN", ["BEST STEAL"]="CƯỚP TỐT NHẤT", ["EGG BAG"]="TÚI TRỨNG", ["PET BAG"]="TÚI PET", ["WHAT'S NEW"]="CÓ GÌ MỚI", ["NEW"]="MỚI",
+["Event"]="Sự Kiện", ["Search"]="Tìm kiếm", ["Filter"]="Lọc tìm", ["Steal"]="Cướp Trứng", ["Auto Steal"]="Tự Động Cướp", ["AUTO STEAL"]="TỰ ĐỘNG CƯỚP",
+["Auto steal"]="Tự động cướp", ["Egg Predictor"]="Dự Đoán Trứng", ["Go to egg"]="Di chuyển tới trứng", ["Teleport to egg"]="Dịch chuyển tới trứng",
+["Walk to egg"]="Đi bộ tới trứng", ["Tween to egg"]="Bay mượt tới trứng",
+["Teleport zones"]="Khu vực dịch chuyển", ["Tween"]="Bay (Tween)", ["Walk"]="Đi bộ", ["Delivery method"]="Cách mang về", ["Instant steps"]="Tức thì từng bước", ["Instant"]="Tức thì", ["Teleport"]="Dịch chuyển",
+["Fast tween speed"]="Tốc độ bay nhanh", ["Tween speed"]="Tốc độ bay", ["Steal missing index eggs"]="Cướp trứng thiếu trong Chỉ mục", ["Steal back from players"]="Cướp lại từ người chơi",
+["Steal from other players"]="Cướp từ người chơi khác", ["Anti guard"]="Chống vệ sĩ", ["Drop eggs at safe zone"]="Thả trứng ở vùng an toàn", ["FILTER"]="BỘ LỌC",
+["Zones"]="Khu vực", ["Steal first"]="Ưu tiên cướp", ["Best value"]="Giá trị cao nhất", ["Lowest value"]="Giá trị thấp nhất", ["Best rarity"]="Độ hiếm cao nhất",
+["Best mutation"]="Đột biến tốt nhất", ["Biggest"]="Kích thước to nhất", ["Closest"]="Khoảng cách gần nhất", ["Nearest"]="Gần nhất", ["Mutations"]="Đột biến", ["Rarities"]="Độ hiếm",
+["Only these eggs"]="Chỉ những trứng này", ["Min value /s"]="Giá trị tối thiểu /s", ["Max value /s"]="Giá trị tối đa /s",
+["Sell cheapest egg when bag is full"]="Bán trứng rẻ nhất khi đầy túi", ["Keep lab eggs"]="Giữ lại trứng Lab", ["AUTO HOP SERVER"]="TỰ ĐỔI MÁY CHỦ",
+["Auto hop server"]="Tự đổi máy chủ", ["Auto hop"]="Tự động đổi server", ["Hop now"]="Đổi server ngay", ["First hop after"]="Đổi lần đầu sau", ["Hop when"]="Đổi khi",
+["After stealing a match"]="Sau khi cướp đủ trứng lọc", ["No matching egg"]="Không có trứng phù hợp", ["Rare from"]="Độ hiếm từ",
+["Hop delay"]="Độ trễ đổi server", ["Only sell eggs below /s"]="Chỉ bán trứng dưới mức /s",
+["EGG SHOWCASE"]="TRƯNG BÀY TRỨNG", ["Sort eggs"]="Sắp xếp trứng", ["Preview card"]="Thẻ xem trước", ["Pick one"]="Chọn một mục", ["Pick any"]="Chọn bất kỳ",
+["Value"]="Giá trị", ["Rarity"]="Độ hiếm", ["Time left"]="Thời gian còn lại", ["Default"]="Mặc định", ["Clear"]="Xóa chọn", ["Select all"]="Chọn tất cả",
+["SIZE"]="KÍCH CỠ", ["WEIGHT"]="CÂN NẶNG", ["READY"]="SẴN SÀNG", ["IN BAG"]="TRONG TÚI", ["GROWING"]="ĐANG LỚN", ["Hatch now"]="Ấp ngay", ["Hold egg"]="Cầm trứng",
+["Fly to egg"]="Bay tới trứng", ["Steal egg"]="Cướp trứng", ["Enchanted Forest"]="Rừng Phù Phép", ["Light Dark"]="Sáng Tối", ["Titan Temple"]="Đền Titan",
+["Cherry Blossom"]="Hoa Anh Đào", ["Prehistoric"]="Tiền Sử", ["Abyss Ocean"]="Đáy Đại Dương", ["Volcano"]="Núi Lửa", ["Snow"]="Tuyết", ["Jungle"]="Rừng Rậm",
+["Desert"]="Sa Mạc", ["Lake"]="Hồ Nước", ["Forest"]="Khu Rừng", ["Silver"]="Bạc", ["Rainbow"]="Cầu Vồng", ["Golden"]="Vàng", ["Fractured"]="Rạn Nứt",
+["Scrambled"]="Hỗn Loạn", ["Enchanted"]="Phù Phép", ["Nitro"]="Nitro", ["SCRAMBLED"]="HỖN LOẠN", ["NITRO"]="NITRO", ["FRACTURED"]="RẠN NỨT", ["ENCHANTED"]="PHÙ PHÉP",
+["Farm"]="Cày Cuốc", ["Pen"]="Chuồng Ấp", ["PEN"]="CHUỒNG ẤP", ["Treadmill"]="Máy Tập", ["TREADMILL"]="MÁY TẬP CHẠY", ["Mutate"]="Đột Biến",
+["Sell"]="Bán", ["SELL"]="BÁN TỰ ĐỘNG", ["Fuse"]="Dung Hợp", ["FUSE"]="DUNG HỢP", ["Priority"]="Ưu Tiên", ["PRIORITY"]="THỨ TỰ ƯU TIÊN",
+["AUTO PLACE"]="TỰ ĐỘNG ĐẶT TRỨNG", ["Auto place"]="Tự động đặt trứng", ["Place when"]="Đặt khi", ["Always"]="Luôn luôn", ["Place first"]="Ưu tiên đặt",
+["KEEP EGGS"]="GIỮ LẠI TRỨNG", ["Eggs to keep"]="Trứng cần giữ",
+["AUTO HATCH"]="TỰ ĐỘNG ẤP TRỨNG", ["Auto hatch"]="Tự động ấp trứng", ["Equip best pets"]="Trang bị pet mạnh nhất", ["READY NOW"]="SẴN SÀNG ẤP",
+["Auto treadmill"]="Tự chạy máy tập", ["Auto upgrade treadmill"]="Tự nâng cấp máy tập", ["PROGRESS"]="TIẾN TRÌNH", ["Auto upgrade base"]="Tự nâng cấp căn cứ",
+["Auto buy trails"]="Tự mua vệt sáng", ["Auto claim offline cash"]="Tự nhận tiền ngoại tuyến", ["Auto claim index rewards"]="Tự nhận thưởng Chỉ mục",
+["AUTO MUTATE"]="TỰ ĐỘNG ĐỘT BIẾN", ["Auto mutate"]="Tự động đột biến", ["MUTATE FILTER"]="BỘ LỌC ĐỘT BIẾN", ["Use items"]="Dùng vật phẩm",
+["Mutate first"]="Ưu tiên đột biến", ["Skip eggs with"]="Bỏ qua trứng đã có", ["Auto buy Nitro"]="Tự mua Nitro", ["PETS"]="THÚ CƯNG (PETS)", ["EGGS"]="TRỨNG (EGGS)", ["Auto sell pets"]="Tự động bán pet",
+["Auto sell eggs"]="Tự động bán trứng", ["Sell all eggs now"]="Bán hết trứng ngay", ["Sell all pets now"]="Bán hết Pet ngay",
+["Sell rarities"]="Độ hiếm bán", ["Never sell"]="Không bao giờ bán", ["Only mutations"]="Chỉ bán đột biến",
+["Only below /s"]="Chỉ dưới mức /s", ["Keep mutated"]="Giữ lại đồ đột biến", ["LAB EGGS"]="TRỨNG PHÒNG LAB", ["FAVORITE"]="YÊU THÍCH (KHÓA)",
+["Auto favorite"]="Tự động khóa bảo vệ", ["Favorite matching now"]="Khóa đồ khớp lọc ngay", ["Unfavorite pets not matching"]="Bỏ thích Pet không khớp", ["Always favorite"]="Luôn khóa Yêu thích",
+["Auto sell lab eggs"]="Tự động bán trứng Lab", ["Match"]="Điều kiện khớp", ["All picked rules"]="Khớp tất cả quy tắc",
+["Any picked rule"]="Khớp bất kỳ quy tắc", ["Favorite equipped"]="Khóa pet đang trang bị", ["FUSE MACHINE"]="MÁY DUNG HỢP",
+["No 3 matching pets"]="Chưa đủ 3 pet cùng loại", ["Auto fuse"]="Tự động dung hợp", ["Fuse first"]="Ưu tiên dung hợp", ["Lowest rarity"]="Độ hiếm thấp nhất",
+["Highest rarity"]="Độ hiếm cao nhất", ["Use pets"]="Sử dụng pet", ["Lowest value first"]="Giá trị thấp nhất trước", ["Highest value first"]="Giá trị cao nhất trước",
+["Skip mutated"]="Bỏ qua pet đột biến", ["Eject odd pets"]="Đẩy pet lẻ ra ngoài", ["FUSE FILTER"]="BỘ LỌC DUNG HỢP", ["Only these pets"]="Chỉ những pet này",
+["Never fuse"]="Không bao giờ dung hợp", ["FUSE PREDICTOR"]="DỰ ĐOÁN DUNG HỢP", ["SLOTS"]="Ô CHỨA", ["STATUS"]="TRẠNG THÁI", ["LIKELY SIZE"]="KÍCH CỠ DỰ KIẾN",
+["CHANCE"]="TỶ LỆ", ["VALUE"]="GIÁ TRỊ", ["BEST CASE"]="TỐT NHẤT CÓ THỂ", ["TASK ORDER"]="THỨ TỰ TÁC VỤ", ["Task order"]="Thứ tự tác vụ", ["Reset order"]="Đặt lại thứ tự", ["DOING"]="ĐANG LÀM", ["WAITING"]="ĐANG CHỜ",
+["Steal filter eggs"]="Cướp trứng theo bộ lọc", ["Shooting Star"]="Bắt Sao Băng", ["Racing Event"]="Sự Kiện Đua Xe", ["Butterfly"]="Bắt Bướm",
+["Steal wisp eggs"]="Cướp trứng Wisp", ["Wisp"]="Nhặt Wisp", ["Steal missing index"]="Cướp trứng thiếu trong Chỉ mục", ["Steal lab eggs"]="Cướp trứng phòng Lab",
+["Place"]="Đặt trứng vào chuồng", ["Butterfly machine"]="Máy đổi Bướm", ["Race"]="Đua Xe", ["RACE"]="ĐUA XE", ["Star"]="Sao Băng", ["STAR"]="SAO BĂNG",
+["BUTTERFLY"]="BẮT BƯỚM", ["Lab"]="Phòng Lab", ["LAB"]="PHÒNG LAB", ["AA"]="Admin (AA)", ["Halloween"]="Halloween", ["HALLOWEEN"]="HALLOWEEN",
+["HALLOWEEN DIMENSION"]="KHÔNG GIAN HALLOWEEN", ["Auto steal Halloween eggs"]="Tự động cướp trứng Halloween", ["Instant steal Halloween eggs"]="Cướp tức thì trứng Halloween",
+["Steal speed"]="Tốc độ cướp", ["Halloween eggs"]="Trứng Halloween", ["Halloween rarities"]="Độ hiếm Halloween", ["Auto Pumpkin Moon"]="Tự làm sự kiện Trăng Bí Ngô",
+["Auto buy Halloween Dimension Egg"]="Tự mua trứng Không gian Halloween", ["Walk speed"]="Tốc độ chạy bộ", ["GHOST DOG AND FISHING"]="CHÓ MA VÀ CÂU CÁ",
+["QUEST"]="NHIỆM VỤ", ["Done"]="Đã xong", ["FISH CAUGHT"]="CÁ ĐÃ CÂU", ["Auto Ghost Dog quest"]="Tự làm nhiệm vụ Chó Ma", ["Auto fishing"]="Tự động câu cá",
+["Cast luck"]="Tỷ lệ câu may mắn", ["Perfect"]="Hoàn hảo (Perfect)", ["MONSTERS"]="QUÁI VẬT", ["Monsters"]="Tên quái vật", ["Monster order"]="Thứ tự đánh quái",
+["Rarest first"]="Hiếm nhất trước", ["PHANTOM EXPRESS"]="TÀU MA PHANTOM EXPRESS", ["TRAIN"]="CHUYẾN TÀU", ["Not here"]="Chưa đến", ["SOULS"]="LINH HỒN",
+["Auto Phantom Express"]="Tự động cướp Tàu Ma", ["Auto vacuum Ghouler boss"]="Tự hút linh hồn Boss Ghouler", ["Ghost target"]="Mục tiêu ma",
+["Auto trade souls"]="Tự động đổi linh hồn", ["RACING EVENT"]="SỰ KIỆN ĐUA XE", ["NEXT RACE"]="ĐUA TIẾP THEO", ["WINS"]="THẮNG", ["TROPHIES"]="CÚP",
+["Auto race"]="Tự động đua xe", ["Race speed"]="Tốc độ đua", ["Use power-ups"]="Tự dùng vật phẩm tăng tốc", ["REWARDS"]="PHẦN THƯỞNG",
+["Auto claim rewards"]="Tự nhận phần thưởng", ["Auto equip racer"]="Tự trang bị xe đua", ["Racer"]="Xe đua", ["Best owned"]="Tốt nhất đang có",
+["Auto buy shop"]="Tự mua vật phẩm Shop", ["Shop items"]="Vật phẩm Shop", ["SHOOTING STAR"]="SAO BĂNG RƠI", ["LANDS IN"]="RƠI SAU", ["CATCH"]="BẮT SAO BĂNG",
+["CAUGHT"]="ĐÃ BẮT", ["EXPIRES IN"]="BIẾN MẤT SAU", ["SLIPPED"]="TUỘT MẤT", ["TRIES"]="SỐ LẦN THỬ", ["DISTANCE"]="KHOẢNG CÁCH",
+["Auto catch shooting star"]="Tự động bắt sao băng", ["BUTTERFLY BLOOM"]="MÙA BƯỚM NỞ", ["Auto butterfly bloom"]="Tự động bắt bướm", ["EMERALD"]="LỤC BẢO",
+["SAPPHIRE"]="LAM NGỌC", ["AMETHYST"]="THẠCH ANH TÍM", ["RADIANT"]="RỰC RỠ", ["ESSENCE"]="TINH CHẤT", ["Catch mode"]="Chế độ bắt", ["Stand"]="Đứng yên",
+["Chase"]="Đuổi theo", ["BUTTERFLY MACHINE"]="MÁY ĐỔI BƯỚM", ["Auto trade up"]="Tự nâng cấp bậc bướm", ["Trade"]="Giao dịch đổi",
+["Smart trade for essence"]="Đổi bướm lấy tinh chất thông minh", ["Auto craft essence"]="Tự chế tạo tinh chất", ["WISP COMPANION"]="ĐỒNG HÀNH WISP",
+["Catch priority"]="Ưu tiên bắt", ["Rarest"]="Hiếm nhất", ["Catch"]="Loại bướm bắt", ["Catch speed"]="Tốc độ bắt", ["Auto wisp quest"]="Tự làm nhiệm vụ Wisp",
+["Auto banjo cricket"]="Tự bắt dế Banjo", ["STAGE"]="GIAI ĐOẠN", ["LAB ODDS"]="TỶ LỆ PHÒNG LAB", ["BANNER"]="BĂNG RÔN", ["ENDS IN"]="KẾT THÚC SAU",
+["BANNER CHANCE"]="TỶ LỆ BĂNG RÔN", ["NEXT"]="TIẾP THEO", ["Experimental Pets"]="Pet Thí Nghiệm", ["Biohazard Pets"]="Pet Sinh Học",
+["Lab banners"]="Băng rôn phòng Lab", ["Auto trade in"]="Tự động đổi trứng Lab", ["Auto reroll recipe"]="Tự đổi lại công thức",
+["Place lab reward eggs"]="Đặt trứng thưởng từ Lab", ["ADMIN ABUSE"]="LẠM DỤNG ADMIN (ABUSE)", ["No admin boost right now"]="Hiện không có buff Admin nào",
+["Instant steal (Admin Treadmill)"]="Cướp tức thì (Máy tập Admin)", ["Use admin treadmill"]="Tự dùng máy tập Admin", ["CAPTURE THE EGG"]="CƯỚP TRỨNG SỰ KIỆN",
+["Auto capture event egg"]="Tự bắt trứng sự kiện", ["Take it from the holder"]="Giật trứng từ người đang cầm", ["Hold height"]="Độ cao giữ trứng",
+["Keep away"]="Khoảng cách né tránh", ["MINIGAME EGGS"]="TRỨNG MINIGAME", ["Auto steal minigame egg"]="Tự cướp trứng Minigame", ["Player"]="Người Chơi",
+["ESP"]="Định Vị (ESP)", ["Move"]="Di Chuyển", ["MOVE"]="DI CHUYỂN", ["Combat"]="Chiến Đấu", ["COMBAT"]="CHIẾN ĐẤU", ["FIELD EGGS"]="TRỨNG NGOÀI SÂN",
+["Egg ESP"]="ESP Trứng", ["Show"]="Hiển thị", ["Name"]="Tên", ["Fixed size"]="Cố định kích cỡ", ["OTHERS"]="MỤC KHÁC", ["Pen egg ESP"]="ESP trứng trong chuồng",
+["Other pens ESP"]="ESP chuồng người khác", ["Guard ESP"]="ESP Vệ sĩ", ["Hide sleeping guards"]="Ẩn vệ sĩ đang ngủ", ["Player ESP"]="ESP Người chơi", ["ESP size"]="Kích cỡ ESP",
+["MOVEMENT"]="TỐC ĐỘ & DI CHUYỂN", ["Speed boost"]="Tăng tốc chạy", ["Boost speed"]="Tốc độ tăng thêm", ["Infinite jump"]="Nhảy vô hạn",
+["God mode"]="Bất tử (God mode)", ["PROTECTION"]="BẢO VỆ NHÂN VẬT", ["Anti ragdoll"]="Chống ngã (Anti Ragdoll)", ["Ignore traps"]="Bỏ qua bẫy",
+["Instant prompts"]="Tương tác nhấn giữ tức thì", ["Anti AFK"]="Chống treo máy (Anti AFK)", ["Invisible"]="Tàng hình", ["AUTO HIT"]="TỰ ĐỘNG ĐÁNH",
+["Auto hit"]="Tự động đánh", ["Hit who"]="Mục tiêu đánh", ["Nearest player"]="Người chơi gần nhất", ["Chosen player"]="Người chơi chỉ định", ["Egg carrier"]="Người đang ôm trứng",
+["Chase speed"]="Tốc độ đuổi theo", ["HIT AURA"]="VÒNG ĐÁNH TỰ ĐỘNG", ["Hit aura"]="Vòng đánh tự động (Hit Aura)", ["Skip friends"]="Bỏ qua bạn bè",
+["WEAPONS"]="VŨ KHÍ", ["Use weapons"]="Sử dụng vũ khí", ["Hold each"]="Thời gian cầm mỗi món", ["System"]="Hệ Thống", ["Server"]="Máy Chủ", ["SERVER"]="MÁY CHỦ",
+["Webhook"]="Webhook", ["WEBHOOK"]="WEBHOOK", ["Optimizer"]="Tối Ưu Hóa", ["OPTIMIZER"]="TỐI ƯU HÓA", ["Interface"]="Giao Diện", ["INTERFACE"]="GIAO DIỆN",
+["GAME HUD"]="TRÊN MÀN HÌNH GAME", ["Steal panel button on game HUD"]="Hiện nút Bảng Cướp trên màn hình",
+["Config"]="Cấu Hình", ["CONFIG"]="CẤU HÌNH", ["CONFIGS"]="QUẢN LÝ CẤU HÌNH", ["Configs"]="Danh sách cấu hình", ["ACTIVE"]="ĐANG DÙNG", ["SAVED CONFIGS"]="ĐÃ LƯU",
+["Set as active config"]="Đặt làm cấu hình chính", ["Set active"]="Kích hoạt", ["Save changes"]="Lưu thay đổi", ["Save"]="Lưu", ["Overwrite"]="Lưu đè",
+["PROFILES"]="HỒ SƠ CẤU HÌNH", ["New config name"]="Tên cấu hình mới", ["Config name"]="Tên cấu hình", ["Auto if empty"]="Tự đặt nếu trống",
+["Create config"]="Tạo cấu hình mới", ["Create"]="Tạo mới", ["Pick to delete"]="Chọn mục cần xóa",
+["Delete picked"]="Xóa mục đã chọn", ["Delete"]="Xóa", ["Restore deleted"]="Khôi phục mục đã xóa", ["Export config"]="Xuất mã cấu hình", ["Export to clipboard"]="Chép mã cấu hình",
+["Import text"]="Dán mã cấu hình", ["Paste config text"]="Dán mã JSON vào đây", ["Paste config JSON here"]="Dán mã JSON vào đây",
+["Import config"]="Nhập cấu hình", ["Import"]="Nhập",
+["Config imported"]="Đã nhập cấu hình", ["Config loaded"]="Đã nạp cấu hình", ["Later"]="Để sau", ["Apply now"]="Áp dụng ngay", ["Hop to"]="Chuyển tới server",
+["Least players"]="Ít người chơi nhất", ["Most players"]="Đông người chơi nhất", ["Random"]="Ngẫu nhiên", ["Hop server"]="Đổi máy chủ", ["Hop"]="Đổi ngay",
+["Rejoin this server"]="Vào lại máy chủ này", ["Copy"]="Sao chép", ["JOIN AND STAY"]="VÀO PHÒNG & DUY TRÌ", ["Job ID"]="Mã phòng (Job ID)",
+["Paste a Job ID"]="Dán mã Job ID vào đây", ["Join that server"]="Vào máy chủ đó", ["Join"]="Vào ngay", ["Rejoin on kick"]="Tự vào lại khi bị văng/kick",
+["Auto load script"]="Tự chạy lại script khi chuyển server", ["DISCORD WEBHOOK"]="WEBHOOK DISCORD", ["Webhook URL"]="Đường dẫn Webhook",
+["Ping role ID"]="ID Vai trò (Role ID)", ["Ping user ID"]="ID Người dùng (User ID)",
+["Ping everyone"]="Tag @everyone", ["WHAT TO POST"]="NỘI DUNG GỬI BÁO CÁO", ["Post stolen eggs"]="Báo cáo trứng cướp được",
+["Post fused eggs"]="Báo cáo trứng dung hợp", ["POSTED"]="ĐÃ GỬI", ["Send a test post"]="Gửi tin nhắn thử nghiệm", ["Test"]="Thử nghiệm",
+["Post when bag is full"]="Gửi thông báo khi đầy túi", ["GRAPHICS"]="ĐỒ HỌA", ["Low graphics"]="Đồ họa thấp (Tăng FPS)",
+["Disable 3D Render"]="Tắt kết xuất 3D (Treo máy)", ["Background color"]="Màu nền màn hình", ["Black"]="Màu Đen", ["White"]="Màu Trắng",
+["Hide game UI"]="Ẩn giao diện gốc của Game", ["FRAME RATE"]="TỐC ĐỘ KHUNG HÌNH (FPS)", ["FPS cap"]="Giới hạn FPS", ["FPS position"]="Vị trí thanh FPS",
+["Show FPS and ping"]="Hiện chỉ số FPS và Ping", ["BASES"]="CĂN CỨ (BASES)", ["Hide other players' pets and eggs"]="Ẩn pet và trứng của người chơi khác",
+["Hide my pets and eggs"]="Ẩn pet và trứng của bản thân", ["Theme"]="Chủ đề màu", ["Toggle key"]="Phím đóng/mở Menu", ["Quick bar"]="Thanh phím tắt nhanh",
+["QUICK BAR"]="THANH PHÍM TẮT NHANH", ["Auto save"]="Tự động lưu cấu hình", ["Auto load"]="Tự động nạp cấu hình", ["Auto load on join"]="Tự động nạp khi vào game",
+["Load config"]="Nạp cấu hình", ["Load"]="Nạp cấu hình",
+["Reset config"]="Đặt lại mặc định", ["Delete config"]="Xóa cấu hình", ["Common"]="Phổ Thông", ["Uncommon"]="Thường", ["Rare"]="Hiếm", ["Epic"]="Sử Thi",
+["Legendary"]="Huyền Thoại", ["Mythic"]="Thần Thoại", ["Cosmic"]="Vũ Trụ", ["Secret"]="Bí Ẩn", ["Divine"]="Thánh Thần", ["Eternal"]="Vĩnh Cửu",
+["COMMON"]="PHỔ THÔNG", ["UNCOMMON"]="THƯỜNG", ["RARE"]="HIẾM", ["EPIC"]="SỬ THI", ["LEGENDARY"]="HUYỀN THOẠI", ["MYTHIC"]="THẦN THOẠI",
+["COSMIC"]="VŨ TRỤ", ["SECRET"]="BÍ ẨN", ["DIVINE"]="THÁNH THẦN", ["ETERNAL"]="VĨNH CỬU",
+["Radiant"]="Rực Rỡ", ["Amethyst"]="Thạch Anh Tím", ["Sapphire"]="Lam Ngọc", ["Emerald"]="Ngọc Lục Bảo"
 }
 local LOWER_VI = {}
 for k, v in pairs(EXACT_VI) do LOWER_VI[k:lower()] = v end
@@ -246,42 +350,127 @@ local GRAMMAR_VI = {
 { pat="^[Ff]ighting%s+[Ss]mall%s+monster$", rep="Đang đánh quái vật nhỏ" },
 { pat="^[Ff]ighting%s+[Mm]edium%s+monster$", rep="Đang đánh quái vật vừa" },
 { pat="^[Ff]ighting%s+[Ll]arge%s+monster$", rep="Đang đánh quái vật lớn" },
-{ pat="^[Cc]atching%s+(.+)%s+butterfly$", rep="Đang bắt bướm %1" },
-{ pat="^[Mm]oving%s+to%s+(.+)$", rep="Đang di chuyển tới %1" },
-{ pat="^[Tt]eleporting%s+to%s+(.+)$", rep="Đang dịch chuyển tới %1" },
-{ pat="^[Ww]alking%s+to%s+(.+)$", rep="Đang đi bộ tới %1" },
-{ pat="^[Tt]weening%s+to%s+(.+)$", rep="Đang bay tới %1" },
-{ pat="^[Ss]tealing%s+(.+)$", rep="Đang cướp %1" },
-{ pat="^[Dd]elivering%s+(.+)$", rep="Đang mang %1 về căn cứ" },
-{ pat="^[Ff]ighting%s+(.+)$", rep="Đang giao chiến với %1" },
-{ pat="^[Ww]aiting%s+for%s+(.+)$", rep="Đang chờ %1" },
-{ pat="^[Ss]earching%s+for%s+(.+)$", rep="Đang tìm kiếm %1" }
+{ pat="^[Aa]uto play (.+)$", rep="Tự động chơi %1" }, { pat="^[Aa]uto farm (.+)$", rep="Tự động cày %1" },
+{ pat="^[Aa]uto kill (.+)$", rep="Tự động tiêu diệt %1" }, { pat="^[Aa]uto catch (.+)$", rep="Tự động bắt %1" },
+{ pat="^[Aa]uto collect (.+)$", rep="Tự động thu thập %1" }, { pat="^[Aa]uto buy (.+)$", rep="Tự động mua %1" },
+{ pat="^[Aa]uto sell (.+)$", rep="Tự động bán %1" }, { pat="^[Aa]uto claim (.+)$", rep="Tự động nhận %1" },
+{ pat="^[Aa]uto upgrade (.+)$", rep="Tự động nâng cấp %1" }, { pat="^[Aa]uto craft (.+)$", rep="Tự động chế tạo %1" },
+{ pat="^[Aa]uto trade (.+)$", rep="Tự động trao đổi %1" }, { pat="^[Aa]uto equip (.+)$", rep="Tự động trang bị %1" },
+{ pat="^[Aa]uto steal (.+)$", rep="Tự động cướp %1" }, { pat="^[Ii]nstant steal (.+)$", rep="Cướp tức thì %1" },
+{ pat="^[Aa]uto (.+) quest$", rep="Tự làm nhiệm vụ %1" }, { pat="^[Aa]uto (.+)$", rep="Tự động %1" },
+{ pat="^[Cc]alculate (.+)$", rep="Tính thử %1" }, { pat="^[Cc]hange if (.+) fails$", rep="Chỉnh lại nếu %1 bị lỗi" },
+{ pat="^(.+) speed$", rep="Tốc độ %1" }, { pat="^(.+) target$", rep="Mục tiêu %1" },
+{ pat="^(.+) order$", rep="Thứ tự %1" }, { pat="^(.+) priority$", rep="Ưu tiên %1" },
+{ pat="^(.+) mode$", rep="Chế độ %1" }, { pat="^(.+) filter$", rep="Bộ lọc %1" },
+{ pat="^[Hh]alloween: carrying (.+) to safety$", rep="Halloween: đang mang %1 đến nơi an toàn" },
+{ pat="^[Hh]alloween: (.+)$", rep="Halloween: %1" },
+{ pat="^[Nn]o eggs? match%w* your (.+)$", rep="Không có trứng nào khớp %1" },
+{ pat="^[Nn]o eggs? match%w* (.+)$", rep="Không có trứng nào khớp %1" },
+{ pat="^[Nn]o pets? match%w* (.+)$", rep="Không có pet nào khớp %1" },
+{ pat="^[Nn]o (.+) found(.*)$", rep="Không tìm thấy %1%2" },
+{ pat="^[Cc]arrying (.+) to safe zone(.*)$", rep="Đang mang %1 về vùng an toàn%2" },
+{ pat="^[Cc]arrying (.+) to base(.*)$", rep="Đang mang %1 về căn cứ%2" },
+{ pat="^[Cc]arrying (.+) to pen(.*)$", rep="Đang mang %1 về chuồng%2" },
+{ pat="^[Cc]arrying (.+) to (.+)$", rep="Đang mang %1 tới %2" },
+{ pat="^[Cc]arrying (.+) home(.*)$", rep="Đang mang %1 về nhà%2" },
+{ pat="^[Cc]arrying (.+)$", rep="Đang mang %1" },
+{ pat="^[Dd]elivering (.+) to (.+)$", rep="Đang giao %1 tới %2" },
+{ pat="^[Dd]elivering (.+) home(.*)$", rep="Đang giao %1 về nhà%2" },
+{ pat="^[Dd]elivering (.+)$", rep="Đang giao %1" },
+{ pat="^[Bb]ringing (.+) to (.+)$", rep="Đang đem %1 tới %2" },
+{ pat="^[Tt]aking (.+) from (.+)$", rep="Đang giật %1 từ %2" },
+{ pat="^[Ss]tealing (.+) from (.+)$", rep="Đang cướp %1 từ %2" },
+{ pat="^[Ss]tealing (.+)$", rep="Đang cướp %1" },
+{ pat="^[Gg]rabbing (.+)$", rep="Đang nhặt %1" }, { pat="^[Pp]icking up (.+)$", rep="Đang nhặt %1" },
+{ pat="^[Cc]ollecting (.+)$", rep="Đang thu thập %1" }, { pat="^[Dd]ropping (.+) at (.+)$", rep="Đang thả %1 tại %2" },
+{ pat="^[Tt]weening to (.+)$", rep="Đang bay tới %1" }, { pat="^[Tt]eleporting to (.+)$", rep="Đang dịch chuyển tới %1" },
+{ pat="^[Gg]oing to (.+)$", rep="Đang đi tới %1" }, { pat="^[Mm]oving to (.+)$", rep="Đang di chuyển tới %1" },
+{ pat="^[Ww]alking to (.+)$", rep="Đang chạy tới %1" }, { pat="^[Rr]unning to (.+)$", rep="Đang chạy tới %1" },
+{ pat="^[Ff]lying to (.+)$", rep="Đang bay tới %1" }, { pat="^[Rr]eturning to (.+)$", rep="Đang quay về %1" },
+{ pat="^[Pp]lacing (.+)$", rep="Đang đặt %1" }, { pat="^[Hh]atching (.+)$", rep="Đang ấp %1" },
+{ pat="^[Mm]utating (.+)$", rep="Đang đột biến %1" }, { pat="^[Ss]elling (.+)$", rep="Đang bán %1" },
+{ pat="^[Ff]using (.+)$", rep="Đang dung hợp %1" }, { pat="^[Uu]pgrading (.+)$", rep="Đang nâng cấp %1" },
+{ pat="^[Bb]uying (.+)$", rep="Đang mua %1" }, { pat="^[Cc]laiming (.+)$", rep="Đang nhận %1" },
+{ pat="^[Ee]quipping (.+)$", rep="Đang trang bị %1" }, { pat="^[Cc]atching (.+)$", rep="Đang bắt %1" },
+{ pat="^[Cc]hasing (.+)$", rep="Đang đuổi theo %1" }, { pat="^[Aa]ttacking (.+)$", rep="Đang tấn công %1" },
+{ pat="^[Hh]itting (.+)$", rep="Đang đánh %1" }, { pat="^[Kk]illing (.+)$", rep="Đang tiêu diệt %1" },
+{ pat="^[Tt]rading in (.+)$", rep="Đang đổi %1" }, { pat="^[Cc]rafting (.+)$", rep="Đang chế tạo %1" },
+{ pat="^[Aa]voiding (.+)$", rep="Đang né %1" }, { pat="^[Ww]aiting for (.+)$", rep="Đang chờ %1" },
+{ pat="^[Ww]aiting in (.+)$", rep="Đang đợi ở %1" }, { pat="^[Ww]aiting %((.+)%)$", rep="Đang chờ (%1)" },
+{ pat="^[Ss]earching for (.+)$", rep="Đang tìm %1" }, { pat="^[Ff]arming (.+)$", rep="Đang cày %1" },
+{ pat="^[Uu]sing (.+)$", rep="Đang dùng %1" }, { pat="^[Jj]oining (.+)$", rep="Đang tham gia %1" },
+{ pat="^[Hh]opping (.+)$", rep="Đang đổi %1" }
 }
 local PHRASES_VI = {
-{"dark zone","vùng tối"}, {"safe zone","vùng an toàn"}, {"shooting star","sao băng"},
-{"ghost dog","chó ma"}, {"pumpkin moon","trăng bí ngô"}, {"phantom express","tàu bóng ma"},
-{"cursed island wars","đại chiến đảo nguyền rủa"}, {"candy corn","kẹo ngô"}, {"event egg","trứng sự kiện"},
-{"small monster","quái vật nhỏ"}, {"medium monster","quái vật vừa"}, {"large monster","quái vật lớn"}
+{"cursed island wars","Đại Chiến Đảo Nguyền Rủa"}, {"island wars","Đảo Nguyền Rủa"}, {"phantom express","Tàu Ma Phantom Express"},
+{"pumpkin moon","Trăng Bí Ngô"}, {"halloween dimension","Không gian Halloween"}, {"ghost dog","Chó Ma"},
+{"enemies and base","Kẻ địch và Căn cứ"}, {"walls and crystal","Tường chắn và Pha lê"}, {"candy corn","Kẹo Ngô"},
+{"admin treadmill","máy tập Admin"}, {"instant steal","cướp tức thì"}, {"capture the egg","Cướp trứng sự kiện"},
+{"no egg matches your targets","Không có trứng nào khớp mục tiêu"}, {"no eggs match filter","Không có trứng khớp bộ lọc"},
+{"waiting for field to open","Đang chờ sân trứng mở"}, {"waiting for eggs to spawn","Đang chờ trứng xuất hiện"},
+{"waiting in safe zone","Đợi ở vùng an toàn"}, {"returning to safe zone","Đang về vùng an toàn"},
+{"to the altar","tới bệ thờ"}, {"to altar","tới bệ thờ"}, {"the altar","bệ thờ"}, {"a pumpkin","bí ngô"},
+{"egg bag is full","Túi trứng đã đầy"}, {"pet bag is full","Túi pet đã đầy"}, {"bag is full","Túi đã đầy"},
+{"pen is full","Chuồng đã đầy"}, {"field is closed","Sân trứng đang đóng"}, {"safe zone","vùng an toàn"},
+{"other players","người chơi khác"}, {"missing index","thiếu trong Chỉ mục"}, {"shooting star","sao băng"},
+{"butterfly bloom","mùa bướm nở"}, {"racing event","sự kiện đua xe"}, {"offline cash","tiền ngoại tuyến"},
+{"index rewards","thưởng Chỉ mục"}, {"lab eggs","trứng Lab"}, {"event egg","trứng sự kiện"},
+{"minigame eggs","trứng Minigame"}, {"minigame egg","trứng Minigame"}, {"wisp eggs","trứng Wisp"},
+{"to safe zone","về vùng an toàn"}, {"to safety","đến nơi an toàn"}, {"to base","về căn cứ"}, {"to pen","vào chuồng"},
+{"was added to your configs","đã được thêm vào danh sách cấu hình"}
 }
 local WORDS_VI = {
-["vacuuming"]="Đang hút", ["ghosts"]="bóng ma", ["riding"]="Đang đi", ["moving"]="Đang di chuyển", ["walking"]="Đang đi bộ", ["teleporting"]="Đang dịch chuyển", ["tweening"]="Đang bay",
-["stealing"]="Đang cướp", ["delivering"]="Đang mang về", ["carrying"]="Đang ôm", ["holding"]="Đang giữ", ["catching"]="Đang bắt",
-["farming"]="Đang cày", ["fighting"]="Đang đánh", ["killing"]="Đang tiêu diệt", ["attacking"]="Đang tấn công", ["fishing"]="Đang câu cá",
-["hatching"]="Đang ấp", ["placing"]="Đang đặt", ["selling"]="Đang bán", ["fusing"]="Đang dung hợp", ["mutating"]="Đang đột biến",
-["claiming"]="Đang nhận", ["upgrading"]="Đang nâng cấp", ["buying"]="Đang mua", ["searching"]="Đang tìm", ["waiting"]="Đang chờ",
-["hopping"]="Đang đổi server", ["idle"]="Đang rảnh", ["egg"]="trứng", ["eggs"]="trứng", ["pet"]="thú cưng", ["pets"]="thú cưng",
-["butterfly"]="bướm", ["monster"]="quái vật", ["monsters"]="quái vật", ["boss"]="trùm", ["ghost"]="bóng ma", ["soul"]="linh hồn",
-["pumpkin"]="bí ngô", ["star"]="ngôi sao", ["base"]="căn cứ", ["pen"]="chuồng", ["zone"]="khu vực", ["server"]="máy chủ",
-["player"]="người chơi", ["guard"]="vệ sĩ", ["small"]="nhỏ", ["medium"]="vừa", ["large"]="lớn", ["divine"]="Thánh Thần",
-["eternal"]="Vĩnh Cửu", ["secret"]="Bí Mật", ["cosmic"]="Vũ Trụ", ["mythic"]="Thần Thoại", ["legendary"]="Huyền Thoại",
-["epic"]="Sử Thi", ["rare"]="Hiếm", ["uncommon"]="Không Phổ Biến", ["common"]="Thường"
+vacuuming="Đang hút", riding="Đang đi",
+idle="Đang rảnh", carrying="Đang mang", delivering="Đang giao", stealing="Đang cướp", grabbing="Đang nhặt",
+picking="Đang nhặt", collecting="Đang thu thập", holding="Đang giữ", capturing="Đang bắt giữ", dropping="Đang thả",
+tweening="Đang bay", teleporting="Đang dịch chuyển", going="Đang đi", moving="Đang di chuyển", walking="Đang đi bộ",
+running="Đang chạy", flying="Đang bay", returning="Đang quay về", placing="Đang đặt", hatching="Đang ấp",
+mutating="Đang đột biến", selling="Đang bán", fusing="Đang dung hợp", upgrading="Đang nâng cấp", buying="Đang mua",
+claiming="Đang nhận", equipping="Đang trang bị", catching="Đang nhặt", chasing="Đang đuổi theo", attacking="Đang tấn công",
+hitting="Đang đánh", killing="Đang tiêu diệt", trading="Đang đổi", crafting="Đang chế tạo", avoiding="Đang né",
+waiting="Đang chờ", searching="Đang tìm", scanning="Đang quét", farming="Đang cày", using="Đang dùng",
+joining="Đang vào", hopping="Đang đổi", rejoining="Đang vào lại", finding="Đang tìm", racing="Đang đua",
+ready="Sẵn sàng", nothing="Không có gì", none="Không có", no="Không có", pumpkin="bí ngô", pumpkins="bí ngô",
+altar="bệ thờ", monster="quái vật", monsters="quái vật", ghost="ma", ghosts="ma", soul="linh hồn", souls="linh hồn",
+train="chuyến tàu", boss="Boss", cursed="nguyền rủa", island="đảo", wars="đại chiến", enemies="kẻ địch",
+walls="tường chắn", crystal="pha lê", candy="kẹo", corn="ngô", fishing="câu cá", fish="cá", quest="nhiệm vụ",
+dimension="không gian", delivery="mang về", calculate="tính thử", mutation="đột biến", mutations="đột biến",
+weapon="vũ khí", weapons="vũ khí", removed="đã gỡ bỏ", added="đã thêm", fixed="đã sửa", egg="trứng", eggs="trứng",
+pet="pet", pets="pet", matches="khớp", match="khớp", matching="khớp", your="của bạn", target="mục tiêu",
+targets="mục tiêu", filter="bộ lọc", home="về nhà", base="căn cứ", pen="chuồng", pens="chuồng", field="sân trứng",
+zone="khu vực", zones="khu vực", bag="túi", full="đầy", empty="trống", closed="đóng", open="mở", guard="vệ sĩ",
+guards="vệ sĩ", player="người chơi", players="người chơi", server="máy chủ", treadmill="máy tập", race="đua xe",
+star="sao băng", butterfly="bướm", portal="cổng", rewards="thưởng", reward="thưởng", cash="tiền", found="tìm thấy",
+speed="tốc độ", instant="tức thì", steal="cướp", auto="tự động", to="tới", from="từ", ["in"]="trong", at="tại",
+["for"]="cho", with="với", ["and"]="và", ["or"]="hoặc"
 }
 local DYN_VI = {
+{ pat="^QUICK BAR (%d+)$", rep="THANH NHANH %1" },
+{ pat="^(.+) was added to your configs%. Apply it now%??$", rep="Đã thêm '%1' vào danh sách cấu hình. Áp dụng ngay?" },
+{ pat="^(.+) was added to your configs$", rep="Đã thêm '%1' vào danh sách cấu hình" },
+{ pat="Welcome to Venyx ([%d%.]+)! Join our Discord for updates and support", rep="Chào mừng tới Chilli Hub V7 (%1)! Tham gia Discord để cập nhật và nhận hỗ trợ" },
+{ pat="Venyx(.-)(%d+) hours? ago", rep="Chilli Hub%1%2 giờ trước" },
+{ pat="Venyx(.-)(%d+) minutes? ago", rep="Chilli Hub%1%2 phút trước" },
+{ pat="Venyx(.-)(%d+) days? ago", rep="Chilli Hub%1%2 ngày trước" },
+{ pat="^ALL (%d+)$", rep="TẤT CẢ %1" }, { pat="^READY (%d+)$", rep="SẴN SÀNG %1" },
+{ pat="^GROWING (%d+)$", rep="ĐANG LỚN %1" }, { pat="^IN BAG (%d+)$", rep="TRONG TÚI %1" },
+{ pat="Pen (%d+/%d+) · (%d+) egg%(s%) ready to place", rep="Chuồng %1 · %2 trứng sẵn sàng đặt" },
+{ pat="(%d+) egg%(s%) can be mutated", rep="%1 trứng có thể đột biến" },
+{ pat="(%d+) pet%(s%) match", rep="%1 pet khớp bộ lọc" }, { pat="(%d+) egg%(s%) match", rep="%1 trứng khớp bộ lọc" },
+{ pat="(%d+) lab egg%(s%) match", rep="%1 trứng Lab khớp bộ lọc" }, { pat="^(%d+) pets$", rep="%1 thú cưng" },
+{ pat="(%d+ / %d+) players · (.+)", rep="%1 người chơi · %2" },
+{ pat="Experimental Pets · needs (.-) · pity (%d+/%d+) · rerolls (%d+) · (.+)", rep="Pet Thí Nghiệm · cần %1 · bảo hiểm %2 · lượt đổi %3 · %4" },
+{ pat="Biohazard Pets · needs (.-) · pity (%d+/%d+) · rerolls (%d+) · (.+)", rep="Pet Sinh Học · cần %1 · bảo hiểm %2 · lượt đổi %3 · %4" },
+{ pat="Unstable DNA · needs (.-) · pity (%d+/%d+) · rerolls (%d+) · (.+)", rep="DNA Bất Ổn · cần %1 · bảo hiểm %2 · lượt đổi %3 · %4" },
+{ pat="^Mythic · 1 in ([%d%.]+)$", rep="Thần Thoại · 1 trên %1" },
+{ pat="^Cosmic · 1 in ([%d%.]+)$", rep="Vũ Trụ · 1 trên %1" },
+{ pat="^Secret · 1 in ([%d%.]+)$", rep="Bí Ẩn · 1 trên %1" },
+{ pat="^Divine · 1 in ([%d%.]+)$", rep="Thánh Thần · 1 trên %1" },
+{ pat="^Eternal · 1 in ([%d%.]+)$", rep="Vĩnh Cửu · 1 trên %1" },
 { pat="^First hop after (%d+)s$", rep="Đổi lần đầu sau %1 giây" },
 { pat="^Hold each ([%d%.]+)s$", rep="Cầm mỗi món %1 giây" },
 { pat="^(%d+) selected$", rep="Đã chọn %1 mục" },
-{ pat="^(%d+)%s*/%s*(%d+) selected$", rep="Đã chọn %1/%2" },
-{ pat="^([%d%.]+)s$", rep="%1 giây" }
+{ pat="^(%d+)%s*/%s*(%d+) selected$", rep="Đã chọn %1/%2" }
 }
 local function stripArt(s)
 return ((" " .. s .. " "):gsub("%s+[Aa]%s+", " "):gsub("%s+[Aa]n%s+", " "):gsub("%s+[Tt]he%s+", " "):match("^%s*(.-)%s*$") or s)
@@ -296,10 +485,8 @@ end
 return out
 end
 local function applyWords(s)
-return (s:gsub("([\128-\255%a\']+)", function(w)
-if w:find("[\128-\255]") then return w end
+return (stripArt(s):gsub("([%a']+)", function(w)
 local l = w:lower()
-if (l == "an" or l == "to" or l == "in" or l == "at" or l == "or" or l == "no") and hasVi(s) then return w end
 return WORDS_VI[l] or LOWER_VI[l] or w
 end))
 end
@@ -330,8 +517,11 @@ local function translateText(raw)
 if not raw or raw == "" then return raw end
 local ck = State.Language .. "|" .. raw
 if FastCache[ck] then return FastCache[ck] end
-if raw:find("Venyx SAE", 1, true) then raw = raw:gsub("Venyx SAE", "Chilli SAE")
-elseif raw == "VENYX" or raw == "Chilli Hub V5" or raw == "Chilli V5 |" then raw = NEW_TITLE end
+if raw:find("Venyx SAE", 1, true) then
+raw = raw:gsub("Venyx SAE", "Chilli SAE")
+elseif raw == "VENYX" or raw == "Chilli Hub V5" or raw == "Chilli V5 |" then
+raw = NEW_TITLE
+end
 if State.Language == "EN" then
 FastCache[ck] = raw
 return raw
@@ -355,139 +545,265 @@ FastCache[ck] = m .. "..."
 return FastCache[ck]
 end
 end
+local pfx, wp = norm:match("^([^%w%s]+%s*)(.+)$")
+if pfx and wp and (EXACT_VI[wp] or LOWER_VI[wp:lower()]) then
+FastCache[ck] = pfx .. (EXACT_VI[wp] or LOWER_VI[wp:lower()])
+return FastCache[ck]
+end
 for i = 1, #DYN_VI do
 if norm:find(DYN_VI[i].pat) then
 FastCache[ck] = norm:gsub(DYN_VI[i].pat, DYN_VI[i].rep)
 return FastCache[ck]
 end
 end
-local res = applyWords(applyPhrases(norm))
-if res ~= norm then
-if norm:upper() == norm and norm:find("%a") ~= nil then res = res:upper() end
-FastCache[ck] = res
-return res
+local res, hit = norm, false
+local caps = (norm:upper() == norm and norm:find("%a") ~= nil)
+for i = 1, #GRAMMAR_VI do
+if res:find(GRAMMAR_VI[i].pat) then
+res = res:gsub(GRAMMAR_VI[i].pat, GRAMMAR_VI[i].rep)
+hit = true
+break
+end
+end
+local phr = applyPhrases(res)
+if hit or phr ~= res or res:find("%s") then
+local fin = applyWords(phr):gsub("Venyx", "Chilli Hub"):gsub("%s+", " "):match("^%s*(.-)%s*$") or res
+if caps and fin ~= norm then fin = fin:upper() end
+FastCache[ck] = fin
+return fin
 end
 FastCache[ck] = raw
 return raw
 end
 local function applyTrans(inst)
-if not inst or not inst.Parent or inst:GetAttribute("__IsTranslating") then return end
-if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__FpsHookSession") or inst:GetAttribute("__HiddenVxLogo") or inst.Name == "IslandExpandHint" or inst.Name == "ChilliUltraTitleBadge" or inst.Name == "ChilliIslandTitle" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliHeaderOverlay") or inst:FindFirstAncestor("ChilliSenaBottomBar") then return end
-inst:SetAttribute("__IsTranslating", true)
+if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
+if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__FpsHookSession") or inst:GetAttribute("__HiddenVxLogo")
+or inst.Name == "IslandExpandHint" or inst.Name == "ChilliUltraTitleBadge" or inst.Name == "ChilliIslandTitle" or inst.Name == "BadgeTxt"
+or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliHeaderOverlay") or inst:FindFirstAncestor("ChilliSenaBottomBar")
+or inst:GetAttribute("__IsTranslating") then return end
 if inst:IsA("TextBox") then
-local ph = inst.PlaceholderText
-if ph and ph ~= "" then
-if not inst:GetAttribute("OrigPh") then inst:SetAttribute("OrigPh", ph) end
-local op = inst:GetAttribute("OrigPh") or ph
-local np = State.Language == "VI" and translateText(op) or op
-if inst.PlaceholderText ~= np then inst.PlaceholderText = np end
+local ph = inst:GetAttribute("OrigPlaceholder") or inst:GetAttribute("OrigPh")
+if not ph and inst.PlaceholderText ~= "" and not hasVi(inst.PlaceholderText) then
+ph = inst.PlaceholderText
+inst:SetAttribute("OrigPlaceholder", ph)
+inst:SetAttribute("OrigPh", ph)
 end
-else
-local cur = inst.Text
-if cur and cur ~= "" then
-local orig = inst:GetAttribute("OrigRawText")
-if not orig or (cur ~= inst:GetAttribute("__LastTranslated") and cur ~= orig and not hasVi(cur)) then
-orig = cur
-inst:SetAttribute("OrigRawText", orig)
-end
-local nxt = State.Language == "VI" and translateText(orig) or (orig == "VENYX" and NEW_TITLE or orig:gsub("Venyx SAE", "Chilli SAE"))
-if inst.Text ~= nxt then
-inst:SetAttribute("__LastTranslated", nxt)
-inst.Text = nxt
-end
-end
-end
+if ph then inst.PlaceholderText = translateText(ph) end
+if not inst:IsFocused() then
+local bt = inst.Text
+if bt == "Off" or bt == "Tắt" or bt == "None" or bt == "Không có" then
+local ob = inst:GetAttribute("OrigBoxText") or ((bt == "Tắt") and "Off" or ((bt == "Không có") and "None" or bt))
+inst:SetAttribute("OrigBoxText", ob)
+local mb = translateText(ob)
+if inst.Text ~= mb then
+inst:SetAttribute("__IsTranslating", true)
+pcall(function() inst.Text = mb end)
 inst:SetAttribute("__IsTranslating", false)
+end
+end
+end
+return
+end
+local rt = inst.Text
+if isFpsTxt(rt) then
+hookFps(inst)
+return
+end
+local orig = inst:GetAttribute("OrigRawText")
+if not orig then
+if not hasVi(rt) then
+orig = rt
+inst:SetAttribute("OrigRawText", orig)
+else
+return
+end
+end
+local mapped = translateText(orig)
+inst:SetAttribute("__LastTranslated", mapped)
+if inst.Text ~= mapped then
+inst:SetAttribute("__IsTranslating", true)
+pcall(function() inst.Text = mapped end)
+inst:SetAttribute("__IsTranslating", false)
+end
 end
 local function hookTrans(inst)
 if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
-if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__HiddenVxLogo") or inst.Name == "IslandExpandHint" or inst.Name == "ChilliUltraTitleBadge" or inst.Name == "ChilliIslandTitle" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliHeaderOverlay") or inst:FindFirstAncestor("ChilliSenaBottomBar") then return end
-if not inst:IsA("TextBox") and isFpsTxt(inst.Text) then hookFps(inst) return end
+if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__HiddenVxLogo") or inst.Name == "IslandExpandHint"
+or inst.Name == "ChilliUltraTitleBadge" or inst.Name == "ChilliIslandTitle" or inst.Name == "BadgeTxt"
+or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliHeaderOverlay") or inst:FindFirstAncestor("ChilliSenaBottomBar") then return end
+if not inst:IsA("TextBox") and isFpsTxt(inst.Text) then
+hookFps(inst)
+return
+end
+applyTrans(inst)
 if inst:GetAttribute("__TransHookSession") == SID then return end
 inst:SetAttribute("__TransHookSession", SID)
 table.insert(State.TrackedTexts, inst)
+inst:GetPropertyChangedSignal("Text"):Connect(function()
+if not isAlive() or inst:GetAttribute("__IsTranslating") or inst:GetAttribute("__IslandDone") or inst:GetAttribute("__HiddenVxLogo") then return end
+if not inst:IsA("TextBox") and isFpsTxt(inst.Text) then
+hookFps(inst)
+return
+end
+if inst:IsA("TextBox") then
 applyTrans(inst)
-inst:GetPropertyChangedSignal(inst:IsA("TextBox") and "PlaceholderText" or "Text"):Connect(function()
-if isAlive() and not inst:GetAttribute("__IsTranslating") then
-if not inst:IsA("TextBox") and isFpsTxt(inst.Text) then hookFps(inst) else applyTrans(inst) end
+return
+end
+local cur = inst.Text
+if cur ~= inst:GetAttribute("__LastTranslated") and not hasVi(cur) then
+inst:SetAttribute("OrigRawText", cur)
+applyTrans(inst)
 end
 end)
 end
 local function refreshAllTexts()
+task.spawn(function()
 table.clear(FastCache)
-for i = #State.TrackedTexts, 1, -1 do
-local ins = State.TrackedTexts[i]
-if ins and ins.Parent then applyTrans(ins) else table.remove(State.TrackedTexts, i) end
-end
 if State.RefreshIslandCallback then pcall(State.RefreshIslandCallback) end
+local list = State.TrackedTexts
+for i = #list, 1, -1 do
+if not isAlive() then return end
+local el = list[i]
+if el and el.Parent then applyTrans(el) else table.remove(list, i) end
+if i % 80 == 0 then task.wait() end
 end
-local function fireBtn(b)
-if not b then return end
+end)
+end
+-- 5. NẠP CONFIG CHUẨN V5 (DÁN JSON VÀ BẤM NÚT NHẬP / IMPORT CHÍNH XÁC 100%)
+local function fireBtn(btn)
+if not btn then return false end
+local fired = false
+local clickable = (btn:IsA("TextButton") or btn:IsA("ImageButton")) and btn
+or btn:FindFirstAncestorWhichIsA("TextButton") or btn:FindFirstAncestorWhichIsA("ImageButton")
+or (btn.Parent and (btn.Parent:FindFirstChildWhichIsA("TextButton") or btn.Parent:FindFirstChildWhichIsA("ImageButton")))
+or btn
 if getconnections then
-for _, sig in ipairs({ b.MouseButton1Click, b.Activated, b.MouseButton1Down, b.MouseButton1Up }) do
+for _, sigName in ipairs({"MouseButton1Click", "Activated", "MouseButton1Down", "MouseButton1Up"}) do
+pcall(function()
+local sig = clickable[sigName]
 if sig then
-for _, c in ipairs(getconnections(sig)) do
-if c.Function then task.spawn(pcall, c.Function) end
+for _, conn in ipairs(getconnections(sig)) do
+if conn.Function then
+task.spawn(conn.Function)
+fired = true
 end
 end
+end
+end)
 end
 end
 if firesignal then
-pcall(firesignal, b.MouseButton1Click)
-pcall(firesignal, b.Activated)
-end
-end
-local function runAutoFarmMacro(venyxGui, statusBtn)
-if State.MacroRunning then return end
-State.MacroRunning = true
-local origTxt = statusBtn.Text
-statusBtn.Text = "⏳ ĐANG NẠP CONFIG..."
-task.spawn(function()
 pcall(function()
-if setclipboard then pcall(setclipboard, PRESET_JSON) end
-local cfgTab, cfgBox, impBtn = nil, nil, nil
+firesignal(clickable.MouseButton1Click)
+fired = true
+end)
+pcall(function()
+firesignal(clickable.Activated)
+fired = true
+end)
+end
+if not fired and getconnections then
+for _, targetObj in ipairs({ clickable, btn, btn.Parent }) do
+if targetObj and targetObj:IsA("GuiObject") then
+pcall(function()
+local pos3 = Vector3.new(targetObj.AbsolutePosition.X + targetObj.AbsoluteSize.X * 0.5, targetObj.AbsolutePosition.Y + targetObj.AbsoluteSize.Y * 0.5, 0)
+for _, uType in ipairs({ Enum.UserInputType.MouseButton1, Enum.UserInputType.Touch }) do
+local fakeBegin = { UserInputType = uType, UserInputState = Enum.UserInputState.Begin, Position = pos3, Delta = Vector3.zero, KeyCode = Enum.KeyCode.Unknown }
+local fakeEnd = { UserInputType = uType, UserInputState = Enum.UserInputState.End, Position = pos3, Delta = Vector3.zero, KeyCode = Enum.KeyCode.Unknown }
+for _, conn in ipairs(getconnections(targetObj.InputBegan)) do
+if conn.Function then
+task.spawn(conn.Function, fakeBegin, false)
+fired = true
+end
+end
+for _, conn in ipairs(getconnections(targetObj.InputEnded)) do
+if conn.Function then
+task.spawn(conn.Function, fakeEnd, false)
+fired = true
+end
+end
+end
+end)
+end
+end
+end
+return fired
+end
+local function runAutoFarmMacro(venyxGui, btnLbl)
+task.spawn(function()
+if btnLbl then btnLbl.Text = "⏳ ĐANG NẠP CONFIG..." end
+local function findImportControls()
+local box, btn
 for _, d in ipairs(venyxGui:GetDescendants()) do
-if d:IsA("TextLabel") or d:IsA("TextButton") then
-local t = (d:GetAttribute("OrigRawText") or d.Text or ""):lower()
-if t == "config" or t == "cấu hình" then cfgTab = d:IsA("TextButton") and d or d.Parent end
-end
-end
-if cfgTab then
-fireBtn(cfgTab)
-task.wait(0.2)
-end
-for _, d in ipairs(venyxGui:GetDescendants()) do
+if not d:FindFirstAncestor("ChilliV5_ExpandedIsland") and not d:FindFirstAncestor("ChilliHeaderOverlay") then
 if d:IsA("TextBox") then
-local ph = (d:GetAttribute("OrigPh") or d.PlaceholderText or ""):lower()
-if ph:find("json", 1, true) or ph:find("config", 1, true) or ph:find("dán", 1, true) then
-cfgBox = d
+local ph = (d:GetAttribute("OrigPlaceholder") or d:GetAttribute("OrigPh") or d.PlaceholderText or ""):lower()
+if ph:find("paste config", 1, true) or ph:find("dán mã", 1, true) then
+box = d
+end
+elseif d:IsA("TextButton") or d:IsA("TextLabel") then
+local ot = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
+if ot == "Import" or d.Text == "Nhập" then
+btn = d
+end
+end
+end
+end
+return box, btn
+end
+local importBox, importBtn = findImportControls()
+if not importBox or not importBtn then
+if State.SystemTabBtn then
+fireBtn(State.SystemTabBtn)
+task.wait(0.18)
+end
+for _, d in ipairs(venyxGui:GetDescendants()) do
+if d:IsA("TextButton") or d:IsA("TextLabel") then
+local ot = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
+if ot == "Config" or d.Text == "Cấu Hình" then
+fireBtn(d)
 break
 end
 end
 end
-if cfgBox then
-pcall(function() cfgBox:CaptureFocus() end)
-cfgBox.Text = PRESET_JSON
-task.wait(0.1)
-pcall(function() cfgBox:ReleaseFocus(true) end)
+task.wait(0.25)
+importBox, importBtn = findImportControls()
 end
-for _, d in ipairs(venyxGui:GetDescendants()) do
-if d:IsA("TextButton") or d:IsA("TextLabel") then
-local raw = (d:GetAttribute("OrigRawText") or d.Text or ""):lower():match("^%s*(.-)%s*$")
-if raw == "import" or raw == "nhập cấu hình" then
-impBtn = d:IsA("TextButton") and d or (d.Parent and d.Parent:IsA("TextButton") and d.Parent) or d.Parent
+if not importBox then
+if btnLbl then
+btnLbl.Text = "⚠️ MỞ MỤC CẤU HÌNH TRƯỚC!"
+task.wait(2)
+btnLbl.Text = "⚡ CONFIG SETTING AUTO FARM"
 end
+return
 end
+importBox:SetAttribute("__IsTranslating", true)
+pcall(function() importBox.ClearTextOnFocus = false end)
+pcall(function() importBox:CaptureFocus() end)
+task.wait(0.04)
+importBox.Text = PRESET_JSON
+pcall(function() importBox:ReleaseFocus(true) end)
+if firesignal then
+pcall(function() firesignal(importBox.FocusLost, true) end)
 end
-if impBtn then fireBtn(impBtn) end
+if getconnections then
+pcall(function()
+for _, conn in ipairs(getconnections(importBox.FocusLost)) do
+if conn.Function then task.spawn(conn.Function, true) end
+end
 end)
-statusBtn.Text = "✅ ĐÃ NẠP CONFIG (BẤM ÁP DỤNG NGAY)!"
+end
+importBox:SetAttribute("__IsTranslating", false)
+task.wait(0.12)
+if importBtn then fireBtn(importBtn) end
+if btnLbl then
+btnLbl.Text = "✅ ĐÃ NHẬP CONFIG!"
 task.wait(2.0)
-if statusBtn and statusBtn.Parent then statusBtn.Text = origTxt end
-State.MacroRunning = false
+btnLbl.Text = "⚡ CONFIG SETTING AUTO FARM"
+end
 end)
 end
--- DYNAMIC ISLAND V7 (KHÔNG GẮN HUY HIỆU Ở DYNAMIC ISLAND, CHỈ DÙNG NÚT MŨI TÊN GỌN GÀNG "▼")
+-- DYNAMIC ISLAND V7 (KHÔNG GẮN HUY HIỆU Ở DYNAMIC ISLAND, CHỈ DÙNG NÚT MŨI TÊN GỌN GÀNG "▾")
 local function setupIsland(statusLbl, venyxGui)
 local pill = statusLbl.Parent
 if not (pill and pill:IsA("GuiObject")) then return end
@@ -527,15 +843,18 @@ if not leftBadge then
 leftBadge = mk("Frame", { Name = "IslandLogoBadge", Size = u2(0, 28, 0, 28), BackgroundColor3 = c3(0, 0, 0), BorderSizePixel = 0, ClipsDescendants = true, LayoutOrder = -10, Active = false, ZIndex = 10000 }, pill)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, leftBadge)
 local lbStroke = mk("UIStroke", { Thickness = 1.5, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, leftBadge)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, lbStroke))
-mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.84, 0.84), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = 10001 }, leftBadge)
+addGrad(mk("UIGradient", { Color = RAINBOW }, lbStroke))
+local lbImg = mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.70, 0.70), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = 10001 }, leftBadge)
+mk("UICorner", { CornerRadius = UDim.new(1, 0) }, lbImg)
 else
 leftBadge.Size = u2(0, 28, 0, 28)
 leftBadge.BackgroundColor3 = c3(0, 0, 0)
 local lbImg = leftBadge:FindFirstChildOfClass("ImageLabel")
 if lbImg then
 lbImg.Image = LOGO_ID
-lbImg.Size = u2s(0.84, 0.84)
+lbImg.Size = u2s(0.70, 0.70)
+lbImg.ScaleType = Enum.ScaleType.Fit
+if not lbImg:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, lbImg) end
 end
 end
 local hint = pill:FindFirstChild("IslandExpandHint")
@@ -551,7 +870,7 @@ hint.TextColor3 = c3(255, 225, 85)
 end
 if not hint:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, hint) end
 local hStroke = hint:FindFirstChildOfClass("UIStroke") or mk("UIStroke", { Thickness = 1.2, Color = Color3.new(1, 1, 1), Transparency = 0.15 }, hint)
-table.insert(State.ActiveGradients, hStroke:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, hStroke))
+addGrad(hStroke:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, hStroke))
 local expTaskLbl = nil
 local function syncStatus(fromSaved)
 if statusLbl:GetAttribute("__Updating") then return end
@@ -577,7 +896,7 @@ syncStatus(false)
 if not statusLbl:FindFirstChildOfClass("UIStroke") then mk("UIStroke", { Thickness = 1.2, Color = c3(12, 8, 22), Transparency = 0.2 }, statusLbl) end
 local tg = statusLbl:FindFirstChild("TextRainbow") or mk("UIGradient", { Name = "TextRainbow", Color = ULTRA_TEXT_GRAD }, statusLbl)
 tg.Color = ULTRA_TEXT_GRAD
-table.insert(State.ActiveGradients, tg)
+addGrad(tg)
 local exp = venyxGui:FindFirstChild("ChilliV5_ExpandedIsland")
 if statusLbl:GetAttribute("__IslandSession") == SID and exp then return end
 statusLbl:SetAttribute("__IslandSession", SID)
@@ -590,28 +909,29 @@ hint.Active = true
 if pill.Position.Y.Offset < 4 or pill.Position.Y.Offset > 600 then pill.Position = u2(0.5, 0, 0, 8) end
 if not pill:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, pill) end
 local ps = pill:FindFirstChild("IslandStroke") or mk("UIStroke", { Name = "IslandStroke", Thickness = 2.0, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Color3.new(1, 1, 1) }, pill)
-table.insert(State.ActiveGradients, ps:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, ps))
+addGrad(ps:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, ps))
 if exp then exp:Destroy() end
 exp = mk("Frame", { Name = "ChilliV5_ExpandedIsland", AnchorPoint = v2(0.5, 0), Position = pill.Position, Size = u2(0, 296, 0, 144), BackgroundColor3 = c3(10, 12, 20), BorderSizePixel = 0, Visible = false, Active = true, ClipsDescendants = true, ZIndex = 10000 }, venyxGui)
 mk("UICorner", { CornerRadius = UDim.new(0, 18) }, exp)
 local es = mk("UIStroke", { Thickness = 2.0, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, exp)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, es))
+addGrad(mk("UIGradient", { Color = RAINBOW }, es))
 mk("ImageLabel", { Name = "IslandCosmicBg", Position = u2(0, 0, 0, 0), Size = u2(1, 0, 0, 42), BackgroundTransparency = 1, Image = HEADER_BAR_IMG_ID, ImageRectOffset = v2(15, 60), ImageRectSize = v2(650, 170), ScaleType = Enum.ScaleType.Stretch, ImageTransparency = 0.22, Active = false, ZIndex = 10000 }, exp)
 local expLogo = mk("Frame", { Position = u2(0, 10, 0, 7), Size = u2(0, 24, 0, 24), BackgroundColor3 = c3(0, 0, 0), BorderSizePixel = 0, ClipsDescendants = true, Active = false, ZIndex = 10002 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, expLogo)
 local elStroke = mk("UIStroke", { Thickness = 1.4, Color = Color3.new(1, 1, 1) }, expLogo)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, elStroke))
-mk("ImageLabel", { AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.84, 0.84), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = 10003 }, expLogo)
+addGrad(mk("UIGradient", { Color = RAINBOW }, elStroke))
+local expLogoImg = mk("ImageLabel", { AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.70, 0.70), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = 10003 }, expLogo)
+mk("UICorner", { CornerRadius = UDim.new(1, 0) }, expLogoImg)
 local expTitle = mk("TextLabel", { Name = "ChilliIslandTitle", Size = u2(0, 150, 0, 24), Position = u2(0, 40, 0, 7), BackgroundTransparency = 1, Text = "Chilli Hub V7", Font = Enum.Font.GothamBlack, TextSize = 13.5, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 10002 }, exp)
 mk("UIStroke", { Thickness = 1.2, Color = c3(12, 8, 22), Transparency = 0.2 }, expTitle)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, expTitle))
+addGrad(mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, expTitle))
 local colBtn = mk("TextButton", { Size = u2(0, 26, 0, 22), Position = u2(1, -34, 0, 8), BackgroundColor3 = c3(22, 24, 36), BorderSizePixel = 0, Text = "▲", Font = Enum.Font.GothamBold, TextSize = 10, TextColor3 = c3(160, 205, 255), ZIndex = 10003 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, colBtn)
 local taskBox = mk("Frame", { Size = u2(1, -20, 0, 24), Position = u2(0, 10, 0, 36), BackgroundColor3 = c3(16, 18, 28), BackgroundTransparency = 0.15, BorderSizePixel = 0, ZIndex = 10001 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, taskBox)
 mk("UIStroke", { Thickness = 1, Color = c3(45, 52, 78), Transparency = 0.35 }, taskBox)
 expTaskLbl = mk("TextLabel", { Size = u2(1, -16, 1, 0), Position = u2(0, 8, 0, 0), BackgroundTransparency = 1, Text = "⚡ " .. (statusLbl.Text or "Đang rảnh"), Font = Enum.Font.GothamBold, TextSize = 10.5, TextColor3 = Color3.new(1, 1, 1), TextTruncate = Enum.TextTruncate.AtEnd, ZIndex = 10002 }, taskBox)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, expTaskLbl))
+addGrad(mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, expTaskLbl))
 local cap = mk("Frame", { Size = u2(1, -20, 0, 32), Position = u2(0, 10, 0, 65), BackgroundColor3 = c3(18, 20, 30), BorderSizePixel = 0, ZIndex = 10001 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cap)
 local sld = mk("Frame", { Size = u2(0.5, -4, 1, -4), Position = (State.Language == "VI" and u2(0, 2, 0, 2) or u2(0.5, 2, 0, 2)), BackgroundColor3 = c3(95, 110, 235), BorderSizePixel = 0, ZIndex = 10002 }, cap)
@@ -620,9 +940,9 @@ local bVI = mk("TextButton", { Size = u2(0.5, 0, 1, 0), BackgroundTransparency =
 local bEN = mk("TextButton", { Size = u2(0.5, 0, 1, 0), Position = u2(0.5, 0, 0, 0), BackgroundTransparency = 1, Text = "🌐 ENGLISH", Font = Enum.Font.GothamBold, TextSize = 10.5, TextColor3 = (State.Language == "EN" and Color3.new(1, 1, 1) or c3(150, 165, 190)), ZIndex = 10003 }, cap)
 local cfgBtn = mk("TextButton", { Name = "AutoFarmConfigBtn", Size = u2(1, -20, 0, 34), Position = u2(0, 10, 0, 102), BackgroundColor3 = c3(22, 25, 40), BorderSizePixel = 0, Text = "⚡ CONFIG SETTING AUTO FARM", Font = Enum.Font.GothamBlack, TextSize = 10.5, TextColor3 = Color3.new(1, 1, 1), ZIndex = 10003 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cfgBtn)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, cfgBtn))
+addGrad(mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, cfgBtn))
 local cs = mk("UIStroke", { Thickness = 1.4, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, cfgBtn)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, cs))
+addGrad(mk("UIGradient", { Color = RAINBOW }, cs))
 cfgBtn.MouseButton1Click:Connect(function() runAutoFarmMacro(venyxGui, cfgBtn) end)
 local function setLang(l)
 if State.Language == l then return end
@@ -680,7 +1000,7 @@ statusLbl.InputBegan:Connect(onIn)
 hint.InputBegan:Connect(onIn)
 statusLbl:GetPropertyChangedSignal("Text"):Connect(function() if isAlive() then syncStatus(false) end end)
 end
--- NÚT NỔI TRÒN ĐEN TUYỀN #000000 + LOGO CÂN ĐỐI 0.84x
+-- NÚT NỔI TRÒN ĐEN TUYỀN #000000 + PHÓNG XA LOGO 0.58x (KHÔNG CHE HOẠ TIẾT TINH THỂ)
 local function cleanupStrayLogos(gui, win)
 for _, ch in ipairs(gui:GetChildren()) do
 if ch:IsA("GuiObject") and ch ~= win and ch.Name ~= "ChilliV5_ExpandedIsland" and not ch:FindFirstChild("IslandExpandHint") then
@@ -770,21 +1090,21 @@ local discStroke = disc:FindFirstChild("RainbowBorder") or mk("UIStroke", {
 Name = "RainbowBorder", Thickness = 2.0, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 Color = Color3.new(1, 1, 1), Transparency = 0.02
 }, disc)
-table.insert(State.ActiveGradients, discStroke:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, discStroke))
+addGrad(discStroke:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, discStroke))
 local cov = disc:FindFirstChild("ChilliV5CoverLogo") or mk("ImageLabel", {
 Name = "ChilliV5CoverLogo", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5),
-Size = u2s(0.84, 0.84), BackgroundTransparency = 1, Image = LOGO_ID,
+Size = u2s(0.70, 0.70), BackgroundTransparency = 1, Image = LOGO_ID,
 ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = disc.ZIndex + 2
 }, disc)
 cov.Image = LOGO_ID
-cov.Size = u2s(0.84, 0.84)
+cov.Size = u2s(0.70, 0.70)
 cov.Position = u2s(0.5, 0.5)
 cov.AnchorPoint = v2(0.5, 0.5)
 cov.BackgroundTransparency = 1
 cov.ScaleType = Enum.ScaleType.Fit
 cov.ZIndex = disc.ZIndex + 2
-local oldCovCorner = cov:FindFirstChildOfClass("UICorner")
-if oldCovCorner then oldCovCorner:Destroy() end
+local covCorner = cov:FindFirstChildOfClass("UICorner") or mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cov)
+covCorner.CornerRadius = UDim.new(1, 0)
 if not top:GetAttribute("__SyncClickHooked") then
 top:SetAttribute("__SyncClickHooked", true)
 pcall(function()
@@ -796,24 +1116,19 @@ gs.MenuClosed:Connect(function()
 if isAlive() and top and top.Parent then top.Visible = true end
 end)
 end)
-local function triggerSync()
-State.CloseHideUntil = 0
-TweenService:Create(disc, TweenInfo.new(0.09, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = u2(0, 56, 0, 56) }):Play()
-task.delay(0.09, function()
-TweenService:Create(disc, TweenInfo.new(0.18, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = u2(0, 68, 0, 68) }):Play()
-end)
-task.defer(function()
-task.wait(0.04)
-if State.SyncWindowFn then pcall(State.SyncWindowFn) end
-end)
-end
-if top:IsA("GuiButton") then
-top.Activated:Connect(triggerSync)
-top.MouseButton1Click:Connect(triggerSync)
-end
 top.InputBegan:Connect(function(inp)
 if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
-triggerSync()
+TweenService:Create(disc, TweenInfo.new(0.08, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Size = u2(0, 58, 0, 58) }):Play()
+end
+end)
+top.InputEnded:Connect(function(inp)
+if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+State.CloseHideUntil = 0
+TweenService:Create(disc, TweenInfo.new(0.22, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = u2(0, 68, 0, 68) }):Play()
+task.defer(function()
+task.wait(0.03)
+if State.SyncWindowFn then pcall(State.SyncWindowFn) end
+end)
 end
 end)
 end
@@ -854,7 +1169,7 @@ local strokeTarget = mainBg or win
 local winStroke = strokeTarget:FindFirstChild("ChilliProWindowStroke") or win:FindFirstChild("ChilliProWindowStroke")
 if not winStroke then
 winStroke = mk("UIStroke", { Name = "ChilliProWindowStroke", Thickness = 2.4, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Color3.new(1, 1, 1), Transparency = 0.02 }, strokeTarget)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, winStroke))
+addGrad(mk("UIGradient", { Color = RAINBOW }, winStroke))
 end
 local wpParent = mainBg or win
 local wp = wpParent:FindFirstChild("ChilliSenaWallpaper") or win:FindFirstChild("ChilliSenaWallpaper")
@@ -881,7 +1196,8 @@ pageWallpapers = { wp }
 local wpTrans = math.clamp(0.12 + curBaseOpacity * 0.75, 0.12, 0.90)
 local bgTrans = math.clamp(0.10 + curBaseOpacity * 0.75, 0.08, 0.88)
 local cardT = math.clamp(0.34 + curBaseOpacity * 0.50, 0.30, 0.86)
-for _, oldObj in ipairs(win:GetDescendants()) do
+local allDesc = win:GetDescendants()
+for _, oldObj in ipairs(allDesc) do
 if oldObj.Name == "ChilliPageWallpaper" then
 local pp = oldObj.Parent
 if not pp or pp:FindFirstAncestorOfClass("ScrollingFrame") or pp:FindFirstChildOfClass("UIListLayout") or pp:FindFirstChildOfClass("UIGridLayout") then
@@ -891,7 +1207,7 @@ elseif oldObj.Name == "ChilliCardTopGlow" then
 pcall(oldObj.Destroy, oldObj)
 end
 end
-for _, d in ipairs(win:GetDescendants()) do
+for _, d in ipairs(allDesc) do
 local isMainPageScroll = d:IsA("ScrollingFrame")
 and (not d:FindFirstAncestorOfClass("ScrollingFrame"))
 and (d.AbsolutePosition.X - winX) > 35
@@ -952,10 +1268,10 @@ cStroke.Thickness = 1.4
 cStroke.Transparency = 0.14
 cStroke.Enabled = true
 if not cStroke:FindFirstChild("ChilliCardGrad") then
-table.insert(State.ActiveGradients, mk("UIGradient", { Name = "ChilliCardGrad", Color = ULTRA_CARD_GRAD }, cStroke))
+addGrad(mk("UIGradient", { Name = "ChilliCardGrad", Color = ULTRA_CARD_GRAD }, cStroke))
 end
 end
-for _, d in ipairs(win:GetDescendants()) do
+for _, d in ipairs(allDesc) do
 if (d:IsA("TextLabel") or d:IsA("TextButton")) and not d.Name:find("^Chilli") and d ~= titleLbl and not d:IsDescendantOf(titleLbl) then
 local txt = d.Text or ""
 local isBigPageTitle = (d.TextSize >= 15 and d.AbsolutePosition.Y > hy + 8 and d.AbsolutePosition.Y < hy + 95 and (d.AbsolutePosition.X - winX) < 240)
@@ -964,7 +1280,7 @@ local isSubTabActive = (d.AbsolutePosition.Y > hy + 10 and d.AbsolutePosition.Y 
 if isBigPageTitle or isSectionHeader or isSubTabActive then
 d.TextColor3 = Color3.new(1, 1, 1)
 if not d:FindFirstChild("ChilliInnerUltraGrad") then
-table.insert(State.ActiveGradients, mk("UIGradient", { Name = "ChilliInnerUltraGrad", Color = ULTRA_TEXT_GRAD }, d))
+addGrad(mk("UIGradient", { Name = "ChilliInnerUltraGrad", Color = ULTRA_TEXT_GRAD }, d))
 end
 end
 elseif (d:IsA("Frame") or d:IsA("TextButton") or d:IsA("TextBox")) and not d.Name:find("^Chilli") and not d:GetAttribute("__IsChilliCard") and not d:IsDescendantOf(titleLbl) then
@@ -991,7 +1307,7 @@ local topStroke = d:FindFirstChild("ChilliTopPillStroke") or d:FindFirstChildOfC
 topStroke.Color = Color3.new(1, 1, 1)
 topStroke.Transparency = 0.25
 if not topStroke:FindFirstChild("ChilliTopPillGrad") then
-table.insert(State.ActiveGradients, mk("UIGradient", { Name = "ChilliTopPillGrad", Color = ULTRA_CARD_GRAD }, topStroke))
+addGrad(mk("UIGradient", { Name = "ChilliTopPillGrad", Color = ULTRA_CARD_GRAD }, topStroke))
 end
 end
 end
@@ -1039,7 +1355,7 @@ bf:GetPropertyChangedSignal("BackgroundTransparency"):Connect(function() syncWal
 end
 end
 pcall(syncWallpaperAndOldBg, nil)
--- GẮN HUY HIỆU 👑 ULTRA TRỰC TIẾP TRÊN THANH MENU SCRIPT (CÁCH XA CHỮ CHILLI HUB V7)
+-- GẮN HUY HIỆU 👑 ULTRA + ⚡ SUPREME + TELEMETRY TRỰC TIẾP TRÊN THANH MENU SCRIPT
 pcall(function()
 local oldCosmicHolder = win:FindFirstChild("ChilliCosmicHolder")
 if oldCosmicHolder then oldCosmicHolder:Destroy() end
@@ -1077,7 +1393,7 @@ titleLbl.TextTransparency = 0
 titleLbl.TextColor3 = Color3.new(1, 1, 1)
 titleLbl.Font = Enum.Font.GothamBlack
 if not titleLbl:FindFirstChild("TitleUltraGrad") then
-table.insert(State.ActiveGradients, mk("UIGradient", { Name = "TitleUltraGrad", Color = ULTRA_TEXT_GRAD }, titleLbl))
+addGrad(mk("UIGradient", { Name = "TitleUltraGrad", Color = ULTRA_TEXT_GRAD }, titleLbl))
 end
 if not titleLbl:FindFirstChildOfClass("UIStroke") then
 mk("UIStroke", { Thickness = 1.3, Color = c3(10, 8, 20), Transparency = 0.2 }, titleLbl)
@@ -1092,7 +1408,7 @@ local hdrLine = mk("Frame", {
 Name = "ChilliHeaderRainbowLine", AnchorPoint = v2(0.5, 1), Position = u2(0.5, 0, 1, 0),
 Size = u2(1, 0, 0, 1.8), BackgroundColor3 = Color3.new(1, 1, 1), BorderSizePixel = 0, Active = false, ZIndex = 51
 }, hdrOverlay)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, hdrLine))
+addGrad(mk("UIGradient", { Color = RAINBOW }, hdrLine))
 end
 local oldBotBar = wpParent:FindFirstChild("ChilliSenaBottomBar") or win:FindFirstChild("ChilliSenaBottomBar")
 if oldBotBar then oldBotBar:Destroy() end
@@ -1100,38 +1416,47 @@ local oldTele = hdrOverlay:FindFirstChild("ChilliSenaTopTelemetry")
 if oldTele then oldTele:Destroy() end
 local oldVip = hdrOverlay:FindFirstChild("ChilliVipBadgePill")
 if oldVip then oldVip:Destroy() end
-local function calcBadgeX()
-local relX = math.max(46, titleLbl.AbsolutePosition.X - win.AbsolutePosition.X)
-local tbW = titleLbl.TextBounds.X
-local tWidth = (tbW and tbW > 80 and tbW < 210) and math.ceil(tbW / 0.90) or 136
-return math.max(192, math.floor(relX + tWidth + 16))
+local function calcBadgeScaleX()
+local hW = hdrOverlay.AbsoluteSize.X
+local relScale = 0.252
+if hW > 200 then
+local rightPx = (titleLbl.AbsolutePosition.X - hdrOverlay.AbsolutePosition.X) + math.max(titleLbl.AbsoluteSize.X, titleLbl.TextBounds.X)
+local calc = (rightPx / hW) + 0.018
+if calc >= 0.248 and calc <= 0.42 then
+relScale = calc
 end
-local badgeStartX = calcBadgeX()
+end
+return relScale
+end
+local badgeScaleX = calcBadgeScaleX()
 local ultraBadge = hdrOverlay:FindFirstChild("ChilliUltraBadgePill")
 if not ultraBadge then
 ultraBadge = mk("Frame", {
-Name = "ChilliUltraBadgePill", AnchorPoint = v2(0, 0.5), Position = u2(0, badgeStartX, 0.5, 0),
+Name = "ChilliUltraBadgePill", AnchorPoint = v2(0, 0.5), Position = u2(badgeScaleX, 0, 0.5, 0),
 Size = u2(0, 62, 0, 20), BackgroundColor3 = c3(22, 16, 38), BackgroundTransparency = 0.04,
 BorderSizePixel = 0, Active = false, ZIndex = 55
 }, hdrOverlay)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, ultraBadge)
 local bStroke = mk("UIStroke", { Thickness = 1.5, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Transparency = 0.05 }, ultraBadge)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, bStroke))
+addGrad(mk("UIGradient", { Color = RAINBOW }, bStroke))
 mk("TextLabel", {
 Name = "BadgeTxt", Size = u2s(1, 1), BackgroundTransparency = 1,
 Font = Enum.Font.GothamBlack, TextSize = 9.5, TextColor3 = c3(255, 225, 85),
 Text = "👑 ULTRA", Active = false, ZIndex = 56
 }, ultraBadge)
 else
-ultraBadge.Position = u2(0, badgeStartX, 0.5, 0)
+ultraBadge.Position = u2(badgeScaleX, 0, 0.5, 0)
 end
 if not titleLbl:GetAttribute("__BadgePosHooked") then
 titleLbl:SetAttribute("__BadgePosHooked", true)
-titleLbl:GetPropertyChangedSignal("TextBounds"):Connect(function()
+local function syncBadgePos()
 if ultraBadge and ultraBadge.Parent then
-ultraBadge.Position = u2(0, calcBadgeX(), 0.5, 0)
+ultraBadge.Position = u2(calcBadgeScaleX(), 0, 0.5, 0)
 end
-end)
+end
+titleLbl:GetPropertyChangedSignal("TextBounds"):Connect(syncBadgePos)
+titleLbl:GetPropertyChangedSignal("AbsoluteSize"):Connect(syncBadgePos)
+task.delay(0.15, syncBadgePos)
 end
 end)
 local function syncWindowVisibilityInstant()
@@ -1203,6 +1528,7 @@ end
 end
 if #navButtons >= 2 then
 table.sort(navButtons, function(a, b) return a.AbsolutePosition.Y < b.AbsolutePosition.Y end)
+State.SystemTabBtn = navButtons[6] or navButtons[#navButtons]
 local TAB_NAMES = {
 [1] = { title = "BẢNG ĐIỀU KHIỂN", icon = "🏠", sub = "HOME DASHBOARD" },
 [2] = { title = "CƯỚP TRỨNG", icon = "🥚", sub = "AUTO STEAL & SNIPER" },
@@ -1218,9 +1544,9 @@ if oldToast then oldToast:Destroy() end
 local toast = mk("Frame", { Name = "ChilliTabToast", AnchorPoint = v2(0.5, 0), Position = u2(0.5, 20, 0, -32), Size = u2(0, 256, 0, 30), BackgroundColor3 = c3(14, 16, 28), BackgroundTransparency = 0.08, BorderSizePixel = 0, ClipsDescendants = true, Active = false, ZIndex = 1005 }, win)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, toast)
 local tStroke = mk("UIStroke", { Thickness = 1.5, Color = badgeColor, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, toast)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, tStroke))
+addGrad(mk("UIGradient", { Color = RAINBOW }, tStroke))
 local tLbl = mk("TextLabel", { Size = u2(1, 0, 1, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamBlack, TextSize = 11, TextColor3 = Color3.new(1, 1, 1), Text = tabInfo.icon .. "  " .. tabInfo.title .. "  •  " .. tabInfo.sub, Active = false, ZIndex = 1006 }, toast)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, tLbl))
+addGrad(mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, tLbl))
 TweenService:Create(toast, TweenInfo.new(0.24, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Position = u2(0.5, 20, 0, 8) }):Play()
 task.delay(1.3, function()
 if toast and toast.Parent then
@@ -1270,21 +1596,19 @@ stealIcon.Size = u2s(0.84, 0.84)
 end
 if not btn:GetAttribute("__TabEffectHooked") then
 btn:SetAttribute("__TabEffectHooked", true)
+local lastTabTrigger = 0
 local function onTabTriggered()
-TweenService:Create(squircle, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = u2(0, 24, 0, 24) }):Play()
-task.delay(0.08, function()
-TweenService:Create(squircle, TweenInfo.new(0.18, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = u2(0, 33, 0, 33) }):Play()
-pcall(styleMenuInterior)
+local now = os.clock()
+if now - lastTabTrigger < 0.15 then return end
+lastTabTrigger = now
+TweenService:Create(squircle, TweenInfo.new(0.07, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Size = u2(0, 25, 0, 25) }):Play()
+task.delay(0.07, function()
+TweenService:Create(squircle, TweenInfo.new(0.20, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = u2(0, 31, 0, 31) }):Play()
 end)
-task.delay(0.26, function()
-TweenService:Create(squircle, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = u2(0, 30, 0, 30) }):Play()
-pcall(styleMenuInterior)
+task.delay(0.14, function()
+if isAlive() and win and win.Visible then pcall(styleMenuInterior) end
 end)
 showTabToast(idx, badgeColor)
-end
-if btn:IsA("GuiButton") then
-btn.Activated:Connect(onTabTriggered)
-btn.MouseButton1Click:Connect(onTabTriggered)
 end
 btn.InputBegan:Connect(function(inp)
 if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
@@ -1314,15 +1638,18 @@ if not hBadge then
 hBadge = mk("Frame", { Name = "ChilliHeaderLogo", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2(0, 28, 0, 28), BackgroundColor3 = c3(0, 0, 0), BorderSizePixel = 0, ClipsDescendants = true, Active = false, ZIndex = 60 }, holder)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, hBadge)
 local hStroke = mk("UIStroke", { Thickness = 1.5, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, hBadge)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, hStroke))
-mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.84, 0.84), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = 61 }, hBadge)
+addGrad(mk("UIGradient", { Color = RAINBOW }, hStroke))
+local hImg = mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.70, 0.70), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = 61 }, hBadge)
+mk("UICorner", { CornerRadius = UDim.new(1, 0) }, hImg)
 else
 hBadge.Size = u2(0, 28, 0, 28)
 hBadge.BackgroundColor3 = c3(0, 0, 0)
 local hImg = hBadge:FindFirstChildOfClass("ImageLabel")
 if hImg then
 hImg.Image = LOGO_ID
-hImg.Size = u2s(0.84, 0.84)
+hImg.Size = u2s(0.70, 0.70)
+hImg.ScaleType = Enum.ScaleType.Fit
+if not hImg:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, hImg) end
 end
 end
 end
