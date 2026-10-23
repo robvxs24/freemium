@@ -1,4 +1,4 @@
--- Chilli Hub V7 Supreme | Exact Import Button Fix + Smooth UI Performance Edition
+-- Chilli Hub V7 Supreme | Fixed Exact Right-Side Import Button Click + Zero Lag
 local NEW_TITLE = "Chilli Hub V7"
 local LOGO_ID = "rbxassetid://74441610995894"
 local HEADER_BAR_IMG_ID = "rbxassetid://83726521558450"
@@ -470,53 +470,395 @@ local function refreshAllTexts()
     if State.RefreshIslandCallback then pcall(State.RefreshIslandCallback) end
 end
 
--- 4. BẢNG THÔNG BÁO UPDATE
-local function showNotice()
-    if State.NoticeShown then return end
-    State.NoticeShown = true
-    local parentTarget = (gethui and pcall(gethui) and gethui()) or CoreGui
-    local nGui = mk("ScreenGui", { Name="ChilliV5_NoticeGui", DisplayOrder=2147483647, ZIndexBehavior=Enum.ZIndexBehavior.Sibling }, parentTarget)
-    local ov = mk("Frame", { Size=UDim2.new(1,0,1,0), BackgroundColor3=BLACK_BG, BackgroundTransparency=0.5, Active=true }, nGui)
-    local md = mk("Frame", { Size=UDim2.new(0,360,0,220), Position=UDim2.new(0.5,0,0.5,0), AnchorPoint=Vector2.new(0.5,0.5), BackgroundColor3=Color3.fromRGB(12,13,20), BorderSizePixel=0, ClipsDescendants=true }, ov)
-    mk("UICorner", { CornerRadius=UDim.new(0,12) }, md)
-    local st = mk("UIStroke", { Thickness=2, Color=Color3.new(1,1,1), ApplyStrokeMode=Enum.ApplyStrokeMode.Border }, md)
-    table.insert(State.ActiveGradients, mk("UIGradient", { Color=RAINBOW }, st))
-    local tLbl = mk("TextLabel", { Size=UDim2.new(1,0,0,40), BackgroundTransparency=1, Font=Enum.Font.GothamBlack, TextSize=16, TextColor3=Color3.new(1,1,1) }, md)
-    local bLbl = mk("TextLabel", { Size=UDim2.new(1,-30,0,115), Position=UDim2.new(0,15,0,42), BackgroundTransparency=1, TextWrapped=true, Font=Enum.Font.GothamMedium, TextSize=12.5, TextColor3=Color3.fromRGB(220,230,255), TextXAlignment=Enum.TextXAlignment.Left, TextYAlignment=Enum.TextYAlignment.Top }, md)
-    local cBtn = mk("TextButton", { Size=UDim2.new(0,120,0,32), Position=UDim2.new(0.5,0,1,-42), AnchorPoint=Vector2.new(0.5,0), BackgroundColor3=Color3.fromRGB(235,60,60), Font=Enum.Font.GothamBold, TextSize=13, TextColor3=Color3.new(1,1,1) }, md)
-    mk("UICorner", { CornerRadius=UDim.new(0,6) }, cBtn)
-
-    local function syncNotice()
-        if State.Language == "VI" then
-            tLbl.Text = "🚀 CHILLI HUB V7 - UPDATE"
-            bLbl.Text = "✨ Tính năng Auto Config: Tự động nhập cấu hình Auto Farm chuẩn, tối ưu 100% cho mọi tài khoản (mới chơi/ít tốc độ) và thiết bị (kể cả máy yếu/lag). Cấu hình đã được test kỹ càng để mang lại hiệu quả cao nhất!\n\n✨ TUY NHIÊN SETTING KHÔNG THỂ ĐÚNG HOÀN TOÀN YÊU CẦU CỦA MỖI TÀI KHOẢN THIẾT BỊ. BẠN CÓ THỂ CHỈNH LẠI NHỮNG THỨ CHƯA ĐÚNG YÊU CẦU CỦA BẠN."
-            cBtn.Text = "ĐÓNG"
-        else
-            tLbl.Text = "🚀 CHILLI HUB V7 - UPDATE"
-            bLbl.Text = "✨ Auto Config Feature: 100% optimized Auto Farm preset for all accounts (even beginners/low speed) and devices (even laggy ones). Strictly tested for the best and most suitable results!\n\n✨ New Interface: Completely redesigned for a more beautiful and professional look."
-            cBtn.Text = "CLOSE"
+-- HÀM KÍCH HOẠT NÚT NGUYÊN BẢN (KHÔNG BỊ PHÁT HIỆN BỞI BAC-4511)
+local function fireExactNode(b)
+    if not b then return end
+    local targets = { b }
+    if b:IsA("TextLabel") and b.Parent and (b.Parent:IsA("TextButton") or b.Parent:IsA("ImageButton") or b.Parent:IsA("Frame")) then
+        table.insert(targets, b.Parent)
+    end
+    for _, obj in ipairs(targets) do
+        if getconnections then
+            for _, sigName in ipairs({ "MouseButton1Click", "Activated", "MouseButton1Down", "MouseButton1Up" }) do
+                local okS, sig = pcall(function() return obj[sigName] end)
+                if okS and sig then
+                    for _, c in ipairs(getconnections(sig)) do
+                        if c.Function then task.spawn(pcall, c.Function) end
+                    end
+                end
+            end
+            local cx = obj.AbsolutePosition.X + obj.AbsoluteSize.X * 0.5
+            local cy = obj.AbsolutePosition.Y + obj.AbsoluteSize.Y * 0.5
+            local pos3 = Vector3.new(cx, cy, 0)
+            for _, uType in ipairs({ Enum.UserInputType.MouseButton1, Enum.UserInputType.Touch }) do
+                local fakeBegin = { UserInputType = uType, UserInputState = Enum.UserInputState.Begin, Position = pos3, Delta = Vector3.zero, KeyCode = Enum.KeyCode.Unknown }
+                local fakeEnd = { UserInputType = uType, UserInputState = Enum.UserInputState.End, Position = pos3, Delta = Vector3.zero, KeyCode = Enum.KeyCode.Unknown }
+                local okB, sigB = pcall(function() return obj.InputBegan end)
+                if okB and sigB then
+                    for _, c in ipairs(getconnections(sigB)) do
+                        if c.Function then task.spawn(pcall, c.Function, fakeBegin, false) end
+                    end
+                end
+                local okE, sigE = pcall(function() return obj.InputEnded end)
+                if okE and sigE then
+                    for _, c in ipairs(getconnections(sigE)) do
+                        if c.Function then task.spawn(pcall, c.Function, fakeEnd, false) end
+                    end
+                end
+            end
+        end
+        if firesignal then
+            pcall(function() firesignal(obj.MouseButton1Click) end)
+            pcall(function() firesignal(obj.Activated) end)
         end
     end
-    syncNotice()
-    State.RefreshNoticeCallback = syncNotice
-    cBtn.MouseButton1Click:Connect(function() State.RefreshNoticeCallback = nil; nGui:Destroy() end)
 end
 
-local function refreshAll()
+-- MACRO TỰ ĐỘNG NẠP CONFIG VÀ BẤM CHÍNH XÁC NÚT "NHẬP CẤU HÌNH" PHÍA BÊN PHẢI (HÌNH VIÊN THUỐC)
+local function runAutoFarmMacro(venyxGui, statusBtn)
+    if State.MacroRunning then return end
+    State.MacroRunning = true
+    local origTxt = statusBtn.Text
+    statusBtn.Text = "⏳ ĐANG NẠP CONFIG..."
     task.spawn(function()
-        if State.RefreshIslandCallback then State.RefreshIslandCallback() end
-        if State.RefreshNoticeCallback then State.RefreshNoticeCallback() end
-        local list = State.TrackedTexts
-        for i = #list, 1, -1 do
-            if not isAlive() then return end
-            local el = list[i]
-            if el and el.Parent then applyTrans(el) else table.remove(list, i) end
-            if i % 80 == 0 then task.wait() end
+        local successImport = false
+        pcall(function()
+            if setclipboard then pcall(setclipboard, PRESET_JSON) end
+
+            local function findConfigControls()
+                local box, iBtn
+                -- 1. Tìm ô TextBox dán mã cấu hình
+                for _, d in ipairs(venyxGui:GetDescendants()) do
+                    if d:IsA("TextBox") and d.Visible then
+                        local ph = (d:GetAttribute("OrigPh") or d.PlaceholderText or ""):lower()
+                        if ph:find("json", 1, true) or ph:find("paste", 1, true) or ph:find("config", 1, true) or ph:find("dán", 1, true) then
+                            box = d
+                            break
+                        end
+                    end
+                end
+
+                -- 2. Tìm chính xác nút hình viên thuốc "Nhập cấu hình" nằm ở CỘT BÊN PHẢI của hàng
+                for _, d in ipairs(venyxGui:GetDescendants()) do
+                    if (d:IsA("TextButton") or d:IsA("TextLabel")) and d.Visible then
+                        local cur = (d.Text or ""):lower():match("^%s*(.-)%s*$")
+                        local raw = (d:GetAttribute("OrigRawText") or d.Text or ""):lower():match("^%s*(.-)%s*$")
+                        local isImp = (cur == "nhập cấu hình" or cur == "import" or raw == "import config" or cur == "nhập từ mã json")
+                        if isImp then
+                            local row = d.Parent
+                            if row and row:IsA("GuiObject") then
+                                -- Nếu d nằm ở nửa bên phải của hàng (hoặc d là một nút có nền bo tròn)
+                                if d.AbsolutePosition.X > (row.AbsolutePosition.X + row.AbsoluteSize.X * 0.40) or d:FindFirstChildOfClass("UICorner") then
+                                    iBtn = (d:IsA("TextButton") and d) or d
+                                    break
+                                else
+                                    -- Nếu d là nhãn chữ bên trái, tìm nút con nằm ở bên phải của chính hàng đó
+                                    for _, sibling in ipairs(row:GetDescendants()) do
+                                        if (sibling:IsA("TextButton") or sibling:IsA("ImageButton") or (sibling:IsA("Frame") and sibling:FindFirstChildOfClass("UICorner"))) and sibling ~= d then
+                                            if sibling.AbsolutePosition.X > (row.AbsolutePosition.X + row.AbsoluteSize.X * 0.40) then
+                                                iBtn = sibling
+                                                break
+                                            end
+                                        end
+                                    end
+                                    if iBtn then break end
+                                end
+                            end
+                        end
+                    end
+                end
+                return box, iBtn
+            end
+
+            local cfgBox, impBtn = findConfigControls()
+
+            -- Nếu chưa mở đúng tab Cấu Hình, tự động bấm Tab số 6 (Hệ Thống) trên Sidebar và tab phụ "Cấu Hình"
+            if not cfgBox or not impBtn then
+                local sysNavBtn = State.SidebarNavButtons and State.SidebarNavButtons[6]
+                if sysNavBtn then
+                    fireExactNode(sysNavBtn)
+                    task.wait(0.18)
+                end
+                for _, d in ipairs(venyxGui:GetDescendants()) do
+                    if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Visible and d.AbsolutePosition.Y < 190 then
+                        local raw = (d:GetAttribute("OrigRawText") or d.Text or ""):lower():match("^%s*(.-)%s*$")
+                        local cur = (d.Text or ""):lower():match("^%s*(.-)%s*$")
+                        if raw == "config" or cur == "cấu hình" then
+                            fireExactNode(d)
+                            break
+                        end
+                    end
+                end
+                task.wait(0.25)
+                cfgBox, impBtn = findConfigControls()
+            end
+
+            -- Điền JSON vào TextBox
+            if cfgBox then
+                local sc = cfgBox:FindFirstAncestorOfClass("ScrollingFrame")
+                if sc and (cfgBox.AbsolutePosition.Y > sc.AbsolutePosition.Y + sc.AbsoluteSize.Y - 50 or cfgBox.AbsolutePosition.Y < sc.AbsolutePosition.Y + 10) then
+                    pcall(function()
+                        sc.CanvasPosition = v2(0, math.max(0, sc.CanvasPosition.Y + (cfgBox.AbsolutePosition.Y - sc.AbsolutePosition.Y) - 90))
+                    end)
+                    task.wait(0.06)
+                end
+
+                cfgBox:SetAttribute("__IsTranslating", true)
+                pcall(function() cfgBox:CaptureFocus() end)
+                task.wait(0.04)
+                cfgBox.Text = PRESET_JSON
+                task.wait(0.04)
+                pcall(function() cfgBox:ReleaseFocus(true) end)
+                if getconnections then
+                    local fakeEnter = { UserInputType = Enum.UserInputType.Keyboard, KeyCode = Enum.KeyCode.Return }
+                    local okFl, flSig = pcall(function() return cfgBox.FocusLost end)
+                    if okFl and flSig then
+                        for _, c in ipairs(getconnections(flSig)) do
+                            if c.Function then task.spawn(pcall, c.Function, true, fakeEnter) end
+                        end
+                    end
+                end
+                if firesignal then pcall(function() firesignal(cfgBox.FocusLost, true) end) end
+                cfgBox:SetAttribute("__IsTranslating", false)
+                task.wait(0.14)
+            end
+
+            -- Kích hoạt nút Nhập cấu hình
+            if impBtn then
+                fireExactNode(impBtn)
+                successImport = true
+            else
+                -- Fallback an toàn: Quét đối tượng có thể bấm nằm trực tiếp dưới ô TextBox
+                if cfgBox then
+                    local sc = cfgBox:FindFirstAncestorOfClass("ScrollingFrame")
+                    if sc then
+                        for _, candidate in ipairs(sc:GetDescendants()) do
+                            if (candidate:IsA("TextButton") or candidate:IsA("ImageButton") or (candidate:IsA("TextLabel") and candidate.Parent:IsA("Frame"))) and candidate.Visible then
+                                local dy = candidate.AbsolutePosition.Y - cfgBox.AbsolutePosition.Y
+                                if dy > 15 and dy < 60 and candidate.AbsolutePosition.X > cfgBox.AbsolutePosition.X then
+                                    fireExactNode(candidate)
+                                    successImport = true
+                                    break
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end)
+
+        if successImport then
+            statusBtn.Text = "✅ ĐÃ BẤM NHẬP (BẤM APPLY NOW)!"
+        else
+            statusBtn.Text = "⚠️ ĐÃ COPY JSON (DÁN VÀO CẤU HÌNH)!"
         end
+        task.wait(1.6)
+        if statusBtn and statusBtn.Parent then statusBtn.Text = origTxt end
+        State.MacroRunning = false
     end)
 end
 
--- 5. NÚT NỔI TRÒN ĐEN TUYỀN
+-- DYNAMIC ISLAND V7
+local function setupIsland(statusLbl, venyxGui)
+    local pill = statusLbl.Parent
+    if not (pill and pill:IsA("GuiObject")) then return end
+    statusLbl:SetAttribute("__IslandDone", true)
+    for _, ch in ipairs(pill:GetChildren()) do
+        if ch:IsA("UIGradient") or ch.Name == "IslandClickHitbox" then ch:Destroy() end
+    end
+    pill.BackgroundColor3 = c3(10, 12, 20)
+    pill.BackgroundTransparency = 0.04
+    pill.Size = u2(0, 0, 0, 38)
+    pill.AutomaticSize = Enum.AutomaticSize.X
+    if pill:GetAttribute("__LockedIslandBg") ~= SID then
+        pill:SetAttribute("__LockedIslandBg", SID)
+        pill:GetPropertyChangedSignal("BackgroundColor3"):Connect(function()
+            if isAlive() and pill.BackgroundColor3 ~= c3(10, 12, 20) then pill.BackgroundColor3 = c3(10, 12, 20) end
+        end)
+        pill:GetPropertyChangedSignal("BackgroundTransparency"):Connect(function()
+            if isAlive() and pill.BackgroundTransparency > 0.08 then pill.BackgroundTransparency = 0.04 end
+        end)
+        pill:GetPropertyChangedSignal("Size"):Connect(function()
+            if isAlive() and pill.Size.Y.Offset < 36 then pill.Size = u2(0, 0, 0, 38) end
+        end)
+    end
+    local pad = pill:FindFirstChildOfClass("UIPadding") or mk("UIPadding", {}, pill)
+    pad.PaddingLeft = UDim.new(0, 12)
+    pad.PaddingRight = UDim.new(0, 12)
+    pad.PaddingTop = UDim.new(0, 2)
+    pad.PaddingBottom = UDim.new(0, 2)
+    local leftBadge = pill:FindFirstChild("IslandLogoBadge")
+    if not leftBadge then
+        leftBadge = mk("Frame", { Name = "IslandLogoBadge", Size = u2(0, 28, 0, 28), BackgroundColor3 = c3(0, 0, 0), BorderSizePixel = 0, ClipsDescendants = true, LayoutOrder = -10, Active = false, ZIndex = 10000 }, pill)
+        mk("UICorner", { CornerRadius = UDim.new(1, 0) }, leftBadge)
+        local lbStroke = mk("UIStroke", { Thickness = 1.5, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, leftBadge)
+        addGrad(mk("UIGradient", { Color = RAINBOW }, lbStroke))
+        local lbImg = mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.86, 0.86), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Crop, Active = false, ZIndex = 10001 }, leftBadge)
+        mk("UICorner", { CornerRadius = UDim.new(1, 0) }, lbImg)
+    else
+        leftBadge.Size = u2(0, 28, 0, 28)
+        leftBadge.BackgroundColor3 = c3(0, 0, 0)
+        local lbImg = leftBadge:FindFirstChildOfClass("ImageLabel")
+        if lbImg then
+            lbImg.Image = LOGO_ID
+            lbImg.Size = u2s(0.86, 0.86)
+            lbImg.ScaleType = Enum.ScaleType.Crop
+            if not lbImg:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, lbImg) end
+        end
+    end
+    local hint = pill:FindFirstChild("IslandExpandHint")
+    if not hint then
+        hint = mk("TextLabel", { Name = "IslandExpandHint", Size = u2(0, 26, 0, 24), BackgroundColor3 = c3(24, 20, 42), BorderSizePixel = 0, Text = "▼", Font = Enum.Font.GothamBlack, TextSize = 11, TextColor3 = c3(255, 225, 85), LayoutOrder = 99, Active = true, ZIndex = 10000 }, pill)
+    else
+        hint.Size = u2(0, 26, 0, 24)
+        hint.BackgroundColor3 = c3(24, 20, 42)
+        hint.Text = "▼"
+        hint.Font = Enum.Font.GothamBlack
+        hint.TextSize = 11
+        hint.TextColor3 = c3(255, 225, 85)
+    end
+    if not hint:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, hint) end
+    local hStroke = hint:FindFirstChildOfClass("UIStroke") or mk("UIStroke", { Thickness = 1.2, Color = Color3.new(1, 1, 1), Transparency = 0.15 }, hint)
+    addGrad(hStroke:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, hStroke))
+
+    local expTaskLbl = nil
+    local function syncStatus(fromSaved)
+        if statusLbl:GetAttribute("__Updating") then return end
+        statusLbl:SetAttribute("__Updating", true)
+        local cur = statusLbl.Text:gsub("●",""):gsub("•",""):gsub("✨%s*rainbow",""):match("^%s*(.-)%s*$") or ""
+        local en = statusLbl:GetAttribute("OrigStatusEn") or statusLbl:GetAttribute("OrigRawText")
+        if not fromSaved and cur ~= "" and cur ~= statusLbl:GetAttribute("__LastTranslatedStatus") and not hasVi(cur) then
+            en = cur
+            statusLbl:SetAttribute("OrigStatusEn", en)
+        end
+        local out = translateStatus(en or cur)
+        statusLbl:SetAttribute("__LastTranslatedStatus", out)
+        statusLbl.RichText = false
+        statusLbl.Font = Enum.Font.GothamBlack
+        statusLbl.TextSize = 13
+        statusLbl.TextColor3 = Color3.new(1, 1, 1)
+        statusLbl.Text = out
+        if expTaskLbl and expTaskLbl.Parent then expTaskLbl.Text = "⚡ " .. out end
+        statusLbl:SetAttribute("__Updating", false)
+    end
+    State.RefreshIslandCallback = function() syncStatus(true) end
+    syncStatus(false)
+
+    if not statusLbl:FindFirstChildOfClass("UIStroke") then mk("UIStroke", { Thickness = 1.2, Color = c3(12, 8, 22), Transparency = 0.2 }, statusLbl) end
+    local tg = statusLbl:FindFirstChild("TextRainbow") or mk("UIGradient", { Name = "TextRainbow", Color = ULTRA_TEXT_GRAD }, statusLbl)
+    tg.Color = ULTRA_TEXT_GRAD
+    addGrad(tg)
+
+    local exp = venyxGui:FindFirstChild("ChilliV5_ExpandedIsland")
+    if statusLbl:GetAttribute("__IslandSession") == SID and exp then return end
+    statusLbl:SetAttribute("__IslandSession", SID)
+
+    pill.Parent = venyxGui
+    pill.AnchorPoint = v2(0.5, 0)
+    pill.ZIndex = 9999
+    pill.Active = true
+    statusLbl.Active = true
+    hint.Active = true
+    if pill.Position.Y.Offset < 4 or pill.Position.Y.Offset > 600 then pill.Position = u2(0.5, 0, 0, 8) end
+    if not pill:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, pill) end
+    local ps = pill:FindFirstChild("IslandStroke") or mk("UIStroke", { Name = "IslandStroke", Thickness = 2.0, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Color3.new(1, 1, 1) }, pill)
+    addGrad(ps:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, ps))
+
+    if exp then exp:Destroy() end
+    exp = mk("Frame", { Name = "ChilliV5_ExpandedIsland", AnchorPoint = v2(0.5, 0), Position = pill.Position, Size = u2(0, 296, 0, 144), BackgroundColor3 = c3(10, 12, 20), BorderSizePixel = 0, Visible = false, Active = true, ClipsDescendants = true, ZIndex = 10000 }, venyxGui)
+    mk("UICorner", { CornerRadius = UDim.new(0, 18) }, exp)
+    local es = mk("UIStroke", { Thickness = 2.0, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, exp)
+    addGrad(mk("UIGradient", { Color = RAINBOW }, es))
+    mk("ImageLabel", { Name = "IslandCosmicBg", Position = u2(0, 0, 0, 0), Size = u2(1, 0, 0, 42), BackgroundTransparency = 1, Image = HEADER_BAR_IMG_ID, ImageRectOffset = v2(15, 60), ImageRectSize = v2(650, 170), ScaleType = Enum.ScaleType.Stretch, ImageTransparency = 0.22, Active = false, ZIndex = 10000 }, exp)
+    local expLogo = mk("Frame", { Position = u2(0, 10, 0, 7), Size = u2(0, 24, 0, 24), BackgroundColor3 = c3(0, 0, 0), BorderSizePixel = 0, ClipsDescendants = true, Active = false, ZIndex = 10002 }, exp)
+    mk("UICorner", { CornerRadius = UDim.new(1, 0) }, expLogo)
+    local elStroke = mk("UIStroke", { Thickness = 1.4, Color = Color3.new(1, 1, 1) }, expLogo)
+    addGrad(mk("UIGradient", { Color = RAINBOW }, elStroke))
+    local expLogoImg = mk("ImageLabel", { AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.86, 0.86), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Crop, Active = false, ZIndex = 10003 }, expLogo)
+    mk("UICorner", { CornerRadius = UDim.new(1, 0) }, expLogoImg)
+    local expTitle = mk("TextLabel", { Name = "ChilliIslandTitle", Size = u2(0, 150, 0, 24), Position = u2(0, 40, 0, 7), BackgroundTransparency = 1, Text = "Chilli Hub V7", Font = Enum.Font.GothamBlack, TextSize = 13.5, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 10002 }, exp)
+    mk("UIStroke", { Thickness = 1.2, Color = c3(12, 8, 22), Transparency = 0.2 }, expTitle)
+    addGrad(mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, expTitle))
+    local colBtn = mk("TextButton", { Size = u2(0, 26, 0, 22), Position = u2(1, -34, 0, 8), BackgroundColor3 = c3(22, 24, 36), BorderSizePixel = 0, Text = "▲", Font = Enum.Font.GothamBold, TextSize = 10, TextColor3 = c3(160, 205, 255), ZIndex = 10003 }, exp)
+    mk("UICorner", { CornerRadius = UDim.new(1, 0) }, colBtn)
+    local taskBox = mk("Frame", { Size = u2(1, -20, 0, 24), Position = u2(0, 10, 0, 36), BackgroundColor3 = c3(16, 18, 28), BackgroundTransparency = 0.15, BorderSizePixel = 0, ZIndex = 10001 }, exp)
+    mk("UICorner", { CornerRadius = UDim.new(1, 0) }, taskBox)
+    mk("UIStroke", { Thickness = 1, Color = c3(45, 52, 78), Transparency = 0.35 }, taskBox)
+    expTaskLbl = mk("TextLabel", { Size = u2(1, -16, 1, 0), Position = u2(0, 8, 0, 0), BackgroundTransparency = 1, Text = "⚡ " .. (statusLbl.Text or "Đang rảnh"), Font = Enum.Font.GothamBold, TextSize = 10.5, TextColor3 = Color3.new(1, 1, 1), TextTruncate = Enum.TextTruncate.AtEnd, ZIndex = 10002 }, taskBox)
+    addGrad(mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, expTaskLbl))
+    local cap = mk("Frame", { Size = u2(1, -20, 0, 32), Position = u2(0, 10, 0, 65), BackgroundColor3 = c3(18, 20, 30), BorderSizePixel = 0, ZIndex = 10001 }, exp)
+    mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cap)
+    local sld = mk("Frame", { Size = u2(0.5, -4, 1, -4), Position = (State.Language == "VI" and u2(0, 2, 0, 2) or u2(0.5, 2, 0, 2)), BackgroundColor3 = c3(95, 110, 235), BorderSizePixel = 0, ZIndex = 10002 }, cap)
+    mk("UICorner", { CornerRadius = UDim.new(1, 0) }, sld)
+    local bVI = mk("TextButton", { Size = u2(0.5, 0, 1, 0), BackgroundTransparency = 1, Text = "🇻🇳 TIẾNG VIỆT", Font = Enum.Font.GothamBold, TextSize = 10.5, TextColor3 = (State.Language == "VI" and Color3.new(1, 1, 1) or c3(150, 165, 190)), ZIndex = 10003 }, cap)
+    local bEN = mk("TextButton", { Size = u2(0.5, 0, 1, 0), Position = u2(0.5, 0, 0, 0), BackgroundTransparency = 1, Text = "🌐 ENGLISH", Font = Enum.Font.GothamBold, TextSize = 10.5, TextColor3 = (State.Language == "EN" and Color3.new(1, 1, 1) or c3(150, 165, 190)), ZIndex = 10003 }, cap)
+    local cfgBtn = mk("TextButton", { Name = "AutoFarmConfigBtn", Size = u2(1, -20, 0, 34), Position = u2(0, 10, 0, 102), BackgroundColor3 = c3(22, 25, 40), BorderSizePixel = 0, Text = "⚡ CONFIG SETTING AUTO FARM", Font = Enum.Font.GothamBlack, TextSize = 10.5, TextColor3 = Color3.new(1, 1, 1), ZIndex = 10003 }, exp)
+    mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cfgBtn)
+    addGrad(mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, cfgBtn))
+    local cs = mk("UIStroke", { Thickness = 1.4, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, cfgBtn)
+    addGrad(mk("UIGradient", { Color = RAINBOW }, cs))
+    cfgBtn.MouseButton1Click:Connect(function() runAutoFarmMacro(venyxGui, cfgBtn) end)
+
+    local function setLang(l)
+        if State.Language == l then return end
+        State.Language = l
+        if writefile then pcall(writefile, LANG_FILE, l) end
+        TweenService:Create(sld, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Position = (l == "VI" and u2(0, 2, 0, 2) or u2(0.5, 2, 0, 2)) }):Play()
+        bVI.TextColor3 = l == "VI" and Color3.new(1, 1, 1) or c3(150, 165, 190)
+        bEN.TextColor3 = l == "EN" and Color3.new(1, 1, 1) or c3(150, 165, 190)
+        refreshAllTexts()
+    end
+    bVI.MouseButton1Click:Connect(function() setLang("VI") end)
+    bEN.MouseButton1Click:Connect(function() setLang("EN") end)
+
+    local open = false
+    local function toggle()
+        open = not open
+        if open then
+            exp.Position = pill.Position
+            exp.Size = u2(0, 210, 0, 32)
+            exp.Visible = true
+            pill.Visible = false
+            TweenService:Create(exp, TweenInfo.new(0.28, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = u2(0, 296, 0, 144) }):Play()
+        else
+            local tw = TweenService:Create(exp, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Size = u2(0, 210, 0, 32) })
+            tw:Play()
+            tw.Completed:Connect(function()
+                if not open then
+                    exp.Visible = false
+                    pill.Visible = true
+                end
+            end)
+        end
+    end
+    colBtn.MouseButton1Click:Connect(toggle)
+
+    local dStart, dMoved = nil, false
+    local function onIn(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+            dStart, dMoved = i.Position, false
+            local c1, c2
+            c1 = i.Changed:Connect(function()
+                if i.UserInputState == Enum.UserInputState.End then
+                    if c1 then c1:Disconnect() end
+                    if c2 then c2:Disconnect() end
+                    if not dMoved then toggle() end
+                end
+            end)
+            c2 = pill.InputChanged:Connect(function(m)
+                if (m.UserInputType == Enum.UserInputType.MouseMovement or m.UserInputType == Enum.UserInputType.Touch) and dStart and (m.Position - dStart).Magnitude > 8 then
+                    dMoved = true
+                end
+            end)
+        end
+    end
+    pill.InputBegan:Connect(onIn)
+    statusLbl.InputBegan:Connect(onIn)
+    hint.InputBegan:Connect(onIn)
+    statusLbl:GetPropertyChangedSignal("Text"):Connect(function() if isAlive() then syncStatus(false) end end)
+end
+
+-- NÚT NỔI TRÒN ĐEN TUYỀN
 local function cleanupStrayLogos(gui, win)
     for _, ch in ipairs(gui:GetChildren()) do
         if ch:IsA("GuiObject") and ch ~= win and ch.Name ~= "ChilliV5_ExpandedIsland" and not ch:FindFirstChild("IslandExpandHint") then
@@ -834,8 +1176,6 @@ local function applySenaV7Architecture(win, titleLbl)
     pcall(syncWallpaperAndOldBg, nil)
 
     pcall(function()
-        local oldCosmicHolder = win:FindFirstChild("ChilliCosmicHolder")
-        if oldCosmicHolder then oldCosmicHolder:Destroy() end
         if not win:GetAttribute("__InteriorDescHooked") then
             win:SetAttribute("__InteriorDescHooked", true)
             local interiorPending = false
@@ -913,14 +1253,6 @@ local function applySenaV7Architecture(win, titleLbl)
             }, ultraBadge)
         else
             ultraBadge.Position = u2(0, badgeStartX, 0.5, 0)
-        end
-        if not titleLbl:GetAttribute("__BadgePosHooked") then
-            titleLbl:SetAttribute("__BadgePosHooked", true)
-            titleLbl:GetPropertyChangedSignal("TextBounds"):Connect(function()
-                if ultraBadge and ultraBadge.Parent then
-                    ultraBadge.Position = u2(0, calcBadgeX(), 0.5, 0)
-                end
-            end)
         end
     end)
 
@@ -1106,6 +1438,16 @@ local function applySenaV7Architecture(win, titleLbl)
                             addGrad(mk("UIGradient", { Color = RAINBOW }, hStroke))
                             local hImg = mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.86, 0.86), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Crop, Active = false, ZIndex = 61 }, hBadge)
                             mk("UICorner", { CornerRadius = UDim.new(1, 0) }, hImg)
+                        else
+                            hBadge.Size = u2(0, 28, 0, 28)
+                            hBadge.BackgroundColor3 = c3(0, 0, 0)
+                            local hImg = hBadge:FindFirstChildOfClass("ImageLabel")
+                            if hImg then
+                                hImg.Image = LOGO_ID
+                                hImg.Size = u2s(0.86, 0.86)
+                                hImg.ScaleType = Enum.ScaleType.Crop
+                                if not hImg:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, hImg) end
+                            end
                         end
                     end
                     break
@@ -1147,6 +1489,7 @@ local function patchVenyxGui(gui, titleLbl)
             pcall(setupCircleLogo, tc, win)
         end
     end
+
     local queue = {}
     for _, d in ipairs(gui:GetDescendants()) do
         if d:IsA("TextLabel") or d:IsA("TextButton") or d:IsA("TextBox") then
