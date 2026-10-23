@@ -58,7 +58,10 @@ local pg = LocalPlayer and LocalPlayer:FindFirstChildOfClass("PlayerGui")
 if pg then table.insert(r, pg) end
 return r
 end
-local IGNORED_GUIS = { RobloxGui=true, TopBarApp=true, TouchGui=true, Chat=true, BubbleChat=true, Freecam=true, BackpackGui=true, PlayerList=true, PurchasePrompt=true, ChilliV5_NoticeGui=true }
+local IGNORED_GUIS = {
+RobloxGui=true, TopBarApp=true, TouchGui=true, Chat=true, BubbleChat=true,
+Freecam=true, BackpackGui=true, PlayerList=true, PurchasePrompt=true, ChilliV5_NoticeGui=true
+}
 local function isVenyxUiPresent()
 for _, root in ipairs(getScanRoots()) do
 for _, d in ipairs(root:GetDescendants()) do
@@ -114,9 +117,24 @@ for k, v in pairs(props) do inst[k] = v end
 if parent then inst.Parent = parent end
 return inst
 end
-local RAINBOW = ColorSequence.new({ csk(0.00, c3(255, 45, 85)), csk(0.17, c3(255, 155, 35)), csk(0.33, c3(255, 235, 45)), csk(0.50, c3(45, 255, 145)), csk(0.67, c3(45, 195, 255)), csk(0.83, c3(185, 85, 255)), csk(1.00, c3(255, 45, 85)) })
-local ULTRA_TEXT_GRAD = ColorSequence.new({ csk(0.00, c3(255, 255, 255)), csk(0.20, c3(125, 225, 255)), csk(0.45, c3(255, 95, 215)), csk(0.72, c3(175, 115, 255)), csk(1.00, c3(255, 215, 85)) })
-local ULTRA_CARD_GRAD = ColorSequence.new({ csk(0.00, c3(70, 210, 255)), csk(0.50, c3(170, 95, 255)), csk(1.00, c3(255, 75, 195)) })
+local function addGrad(g)
+if g and not g:GetAttribute("__GradTracked") then
+g:SetAttribute("__GradTracked", true)
+table.insert(State.ActiveGradients, g)
+end
+return g
+end
+local RAINBOW = ColorSequence.new({
+csk(0.00, c3(255, 45, 85)), csk(0.17, c3(255, 155, 35)), csk(0.33, c3(255, 235, 45)),
+csk(0.50, c3(45, 255, 145)), csk(0.67, c3(45, 195, 255)), csk(0.83, c3(185, 85, 255)), csk(1.00, c3(255, 45, 85))
+})
+local ULTRA_TEXT_GRAD = ColorSequence.new({
+csk(0.00, c3(255, 255, 255)), csk(0.20, c3(125, 225, 255)), csk(0.45, c3(255, 95, 215)),
+csk(0.72, c3(175, 115, 255)), csk(1.00, c3(255, 215, 85))
+})
+local ULTRA_CARD_GRAD = ColorSequence.new({
+csk(0.00, c3(70, 210, 255)), csk(0.50, c3(170, 95, 255)), csk(1.00, c3(255, 75, 195))
+})
 local fakeFps, lastFpsT = math.random(98, 114), 0
 local function getFakeFps()
 local now = os.clock()
@@ -234,7 +252,7 @@ local EXACT_VI = {
 ["Least players"]="Ít người chơi nhất", ["Most players"]="Đông người nhất", ["Random"]="Ngẫu nhiên", ["JOIN AND STAY"]="TỰ VÀO LẠI & TỰ CHẠY", ["Rejoin on kick"]="Tự vào lại khi bị văng",
 ["Auto load script"]="Tự chạy lại Script khi qua Server", ["CONFIGS"]="QUẢN LÝ CẤU HÌNH", ["Configs"]="Danh sách cấu hình", ["Config name"]="Tên cấu hình", ["Create"]="Tạo mới", ["Save"]="Lưu đè",
 ["Load"]="Nạp cấu hình", ["Delete"]="Xóa bỏ", ["Auto load"]="Tự động nạp khi vào game", ["IMPORT / EXPORT"]="NHẬP / XUẤT MÃ CẤU HÌNH", ["Export to clipboard"]="Chép mã cấu hình",
-["Config data"]="Dữ liệu cấu hình (JSON)", ["Paste config JSON here"]="Dán mã JSON cấu hình vào đây", ["Import"]="Nhập cấu hình", ["Apply now"]="Áp dụng ngay",
+["Config data"]="Dữ liệu cấu hình (JSON)", ["Paste config JSON here"]="Dán mã JSON cấu hình vào đây", ["Import"]="Nhập cấu hình", ["Import config"]="Nhập từ mã JSON", ["Import text"]="Ô dán mã JSON", ["Export config"]="Xuất cấu hình", ["Restore deleted"]="Khôi phục đã xóa", ["Delete picked"]="Xóa mục đã chọn", ["Pick to delete"]="Chọn mục cần xóa", ["Create config"]="Tạo cấu hình", ["New config name"]="Tên cấu hình mới", ["Auto if empty"]="Tự đặt nếu trống", ["PROFILES"]="HỒ SƠ CẤU HÌNH", ["SAVED CONFIGS"]="ĐÃ LƯU", ["ACTIVE"]="ĐANG DÙNG", ["Set as active config"]="Đặt làm cấu hình chính", ["Set active"]="Kích hoạt", ["Save changes"]="Lưu thay đổi", ["Overwrite"]="Lưu đè", ["Auto load on join"]="Tự động nạp khi vào game", ["Auto save"]="Tự động lưu", ["Apply now"]="Áp dụng ngay",
 ["Common"]="Thường", ["Uncommon"]="Không Phổ Biến", ["Rare"]="Hiếm", ["Epic"]="Sử Thi", ["Legendary"]="Huyền Thoại", ["Mythic"]="Thần Thoại", ["Cosmic"]="Vũ Trụ", ["Secret"]="Bí Mật",
 ["Eternal"]="Vĩnh Cửu", ["Divine"]="Thánh Thần", ["Radiant"]="Rực Rỡ", ["Amethyst"]="Thạch Anh Tím", ["Sapphire"]="Lam Ngọc", ["Emerald"]="Ngọc Lục Bảo"
 }
@@ -421,20 +439,71 @@ if ins and ins.Parent then applyTrans(ins) else table.remove(State.TrackedTexts,
 end
 if State.RefreshIslandCallback then pcall(State.RefreshIslandCallback) end
 end
-local function fireBtn(b)
+local function fireBtn(b, useVim)
 if not b then return end
+local targets = { b }
+if b.Parent and b.Parent:IsA("GuiObject") and not b.Parent:IsA("ScrollingFrame") then
+table.insert(targets, b.Parent)
+if b.Parent.Parent and b.Parent.Parent:IsA("GuiObject") and b.Parent.Parent.AbsoluteSize.X < 180 and b.Parent.Parent.AbsoluteSize.Y < 55 then
+table.insert(targets, b.Parent.Parent)
+end
+end
+for _, ch in ipairs(b:GetDescendants()) do
+if ch:IsA("GuiButton") then table.insert(targets, ch) end
+end
+if b.Parent and b.Parent:IsA("GuiObject") and b.Parent.AbsoluteSize.X < 220 and b.Parent.AbsoluteSize.Y < 60 then
+for _, ch in ipairs(b.Parent:GetDescendants()) do
+if ch:IsA("GuiButton") then table.insert(targets, ch) end
+end
+end
+for _, obj in ipairs(targets) do
 if getconnections then
-for _, sig in ipairs({ b.MouseButton1Click, b.Activated, b.MouseButton1Down, b.MouseButton1Up }) do
-if sig then
+for _, sigName in ipairs({ "MouseButton1Click", "Activated", "MouseButton1Down", "MouseButton1Up" }) do
+local okS, sig = pcall(function() return obj[sigName] end)
+if okS and sig then
 for _, c in ipairs(getconnections(sig)) do
 if c.Function then task.spawn(pcall, c.Function) end
+pcall(function() c:Fire() end)
+end
+end
+end
+local cx = obj.AbsolutePosition.X + obj.AbsoluteSize.X * 0.5
+local cy = obj.AbsolutePosition.Y + obj.AbsoluteSize.Y * 0.5
+local pos3 = Vector3.new(cx, cy, 0)
+for _, uType in ipairs({ Enum.UserInputType.MouseButton1, Enum.UserInputType.Touch }) do
+local fakeBegin = { UserInputType = uType, UserInputState = Enum.UserInputState.Begin, Position = pos3, Delta = Vector3.zero, KeyCode = Enum.KeyCode.Unknown }
+local fakeEnd = { UserInputType = uType, UserInputState = Enum.UserInputState.End, Position = pos3, Delta = Vector3.zero, KeyCode = Enum.KeyCode.Unknown }
+local okB, sigB = pcall(function() return obj.InputBegan end)
+if okB and sigB then
+for _, c in ipairs(getconnections(sigB)) do
+if c.Function then task.spawn(pcall, c.Function, fakeBegin, false) end
+end
+end
+local okE, sigE = pcall(function() return obj.InputEnded end)
+if okE and sigE then
+for _, c in ipairs(getconnections(sigE)) do
+if c.Function then task.spawn(pcall, c.Function, fakeEnd, false) end
 end
 end
 end
 end
 if firesignal then
-pcall(firesignal, b.MouseButton1Click)
-pcall(firesignal, b.Activated)
+pcall(function() firesignal(obj.MouseButton1Down) end)
+pcall(function() firesignal(obj.MouseButton1Up) end)
+pcall(function() firesignal(obj.MouseButton1Click) end)
+pcall(function() firesignal(obj.Activated) end)
+end
+end
+if useVim and b.AbsoluteSize.X > 5 and b.AbsolutePosition.X > 0 and b.AbsolutePosition.Y > 0 then
+pcall(function()
+local vim = game:GetService("VirtualInputManager")
+local inset = game:GetService("GuiService"):GetGuiInset()
+local cx = math.floor(b.AbsolutePosition.X + b.AbsoluteSize.X * 0.5)
+local cy = math.floor(b.AbsolutePosition.Y + b.AbsoluteSize.Y * 0.5 + inset.Y)
+vim:SendMouseButtonEvent(cx, cy, 0, true, game, 1)
+task.wait(0.04)
+vim:SendMouseButtonEvent(cx, cy, 0, false, game, 1)
+end)
 end
 end
 local function runAutoFarmMacro(venyxGui, statusBtn)
@@ -445,44 +514,93 @@ statusBtn.Text = "⏳ ĐANG NẠP CONFIG..."
 task.spawn(function()
 pcall(function()
 if setclipboard then pcall(setclipboard, PRESET_JSON) end
-local cfgTab, cfgBox, impBtn = nil, nil, nil
+local sysTab, cfgTab, cfgBox, impBtn, setActBtn = nil, nil, nil, nil, nil
 for _, d in ipairs(venyxGui:GetDescendants()) do
 if d:IsA("TextLabel") or d:IsA("TextButton") then
-local t = (d:GetAttribute("OrigRawText") or d.Text or ""):lower()
-if t == "config" or t == "cấu hình" then cfgTab = d:IsA("TextButton") and d or d.Parent end
+local t = (d:GetAttribute("OrigRawText") or d.Text or ""):lower():match("^%s*(.-)%s*$")
+if t == "system" or t == "hệ thống" then
+sysTab = d:IsA("TextButton") and d or d.Parent
+elseif (t == "config" or t == "cấu hình") and d.AbsolutePosition.Y < 160 then
+cfgTab = d:IsA("TextButton") and d or d.Parent
 end
+end
+end
+if sysTab and sysTab.AbsolutePosition.X < 300 then
+fireBtn(sysTab, false)
+task.wait(0.12)
 end
 if cfgTab then
-fireBtn(cfgTab)
-task.wait(0.2)
+fireBtn(cfgTab, false)
+task.wait(0.15)
 end
 for _, d in ipairs(venyxGui:GetDescendants()) do
 if d:IsA("TextBox") then
 local ph = (d:GetAttribute("OrigPh") or d.PlaceholderText or ""):lower()
-if ph:find("json", 1, true) or ph:find("config", 1, true) or ph:find("dán", 1, true) then
+if ph:find("json", 1, true) or ph:find("paste", 1, true) or ph:find("config", 1, true) or ph:find("dán", 1, true) then
 cfgBox = d
 break
 end
 end
 end
+if not cfgBox then
+for _, d in ipairs(venyxGui:GetDescendants()) do
+if (d:IsA("TextLabel") or d:IsA("TextButton")) then
+local raw = (d:GetAttribute("OrigRawText") or d.Text or ""):lower()
+if raw:find("import text", 1, true) or raw:find("nhập cấu hình text", 1, true) or raw:find("ô dán mã json", 1, true) then
+local row = d.Parent
+if row then
+local tb = row:FindFirstChildOfClass("TextBox") or (row.Parent and row.Parent:FindFirstChildOfClass("TextBox"))
+if tb then cfgBox = tb break end
+end
+end
+end
+end
+end
 if cfgBox then
+local sc = cfgBox:FindFirstAncestorOfClass("ScrollingFrame")
+if sc and (cfgBox.AbsolutePosition.Y > sc.AbsolutePosition.Y + sc.AbsoluteSize.Y - 55 or cfgBox.AbsolutePosition.Y < sc.AbsolutePosition.Y + 10) then
+pcall(function()
+sc.CanvasPosition = v2(0, math.max(0, sc.CanvasPosition.Y + (cfgBox.AbsolutePosition.Y - sc.AbsolutePosition.Y) - 110))
+end)
+task.wait(0.08)
+end
 pcall(function() cfgBox:CaptureFocus() end)
 cfgBox.Text = PRESET_JSON
-task.wait(0.1)
+task.wait(0.06)
 pcall(function() cfgBox:ReleaseFocus(true) end)
+if getconnections then
+local fakeEnter = { UserInputType = Enum.UserInputType.Keyboard, KeyCode = Enum.KeyCode.Return }
+local okFl, flSig = pcall(function() return cfgBox.FocusLost end)
+if okFl and flSig then
+for _, c in ipairs(getconnections(flSig)) do
+if c.Function then task.spawn(pcall, c.Function, true, fakeEnter) end
+end
+end
+end
+if firesignal then pcall(function() firesignal(cfgBox.FocusLost, true) end) end
+task.wait(0.08)
 end
 for _, d in ipairs(venyxGui:GetDescendants()) do
 if d:IsA("TextButton") or d:IsA("TextLabel") then
 local raw = (d:GetAttribute("OrigRawText") or d.Text or ""):lower():match("^%s*(.-)%s*$")
-if raw == "import" or raw == "nhập cấu hình" then
-impBtn = d:IsA("TextButton") and d or (d.Parent and d.Parent:IsA("TextButton") and d.Parent) or d.Parent
+local cur = (d.Text or ""):lower():match("^%s*(.-)%s*$")
+if (raw == "import" or cur == "nhập cấu hình" or cur == "import") and d.AbsoluteSize.X < 150 then
+impBtn = (d:IsA("TextButton") and d) or (d.Parent and d.Parent:IsA("GuiObject") and d.Parent) or d
+elseif (raw == "set active" or cur == "set active" or cur == "kích hoạt") and d.AbsoluteSize.X < 150 then
+setActBtn = (d:IsA("TextButton") and d) or (d.Parent and d.Parent:IsA("GuiObject") and d.Parent) or d
 end
 end
 end
-if impBtn then fireBtn(impBtn) end
+if impBtn then
+fireBtn(impBtn, true)
+task.wait(0.18)
+end
+if setActBtn then
+fireBtn(setActBtn, false)
+end
 end)
-statusBtn.Text = "✅ ĐÃ NẠP CONFIG (BẤM ÁP DỤNG NGAY)!"
-task.wait(2.0)
+statusBtn.Text = "✅ ĐÃ NẠP & KÍCH HOẠT CONFIG!"
+task.wait(1.4)
 if statusBtn and statusBtn.Parent then statusBtn.Text = origTxt end
 State.MacroRunning = false
 end)
@@ -527,15 +645,18 @@ if not leftBadge then
 leftBadge = mk("Frame", { Name = "IslandLogoBadge", Size = u2(0, 28, 0, 28), BackgroundColor3 = c3(0, 0, 0), BorderSizePixel = 0, ClipsDescendants = true, LayoutOrder = -10, Active = false, ZIndex = 10000 }, pill)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, leftBadge)
 local lbStroke = mk("UIStroke", { Thickness = 1.5, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, leftBadge)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, lbStroke))
-mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.84, 0.84), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = 10001 }, leftBadge)
+addGrad(mk("UIGradient", { Color = RAINBOW }, lbStroke))
+local lbImg = mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.86, 0.86), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Crop, Active = false, ZIndex = 10001 }, leftBadge)
+mk("UICorner", { CornerRadius = UDim.new(1, 0) }, lbImg)
 else
 leftBadge.Size = u2(0, 28, 0, 28)
 leftBadge.BackgroundColor3 = c3(0, 0, 0)
 local lbImg = leftBadge:FindFirstChildOfClass("ImageLabel")
 if lbImg then
 lbImg.Image = LOGO_ID
-lbImg.Size = u2s(0.84, 0.84)
+lbImg.Size = u2s(0.86, 0.86)
+lbImg.ScaleType = Enum.ScaleType.Crop
+if not lbImg:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, lbImg) end
 end
 end
 local hint = pill:FindFirstChild("IslandExpandHint")
@@ -551,7 +672,7 @@ hint.TextColor3 = c3(255, 225, 85)
 end
 if not hint:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, hint) end
 local hStroke = hint:FindFirstChildOfClass("UIStroke") or mk("UIStroke", { Thickness = 1.2, Color = Color3.new(1, 1, 1), Transparency = 0.15 }, hint)
-table.insert(State.ActiveGradients, hStroke:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, hStroke))
+addGrad(hStroke:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, hStroke))
 local expTaskLbl = nil
 local function syncStatus(fromSaved)
 if statusLbl:GetAttribute("__Updating") then return end
@@ -577,7 +698,7 @@ syncStatus(false)
 if not statusLbl:FindFirstChildOfClass("UIStroke") then mk("UIStroke", { Thickness = 1.2, Color = c3(12, 8, 22), Transparency = 0.2 }, statusLbl) end
 local tg = statusLbl:FindFirstChild("TextRainbow") or mk("UIGradient", { Name = "TextRainbow", Color = ULTRA_TEXT_GRAD }, statusLbl)
 tg.Color = ULTRA_TEXT_GRAD
-table.insert(State.ActiveGradients, tg)
+addGrad(tg)
 local exp = venyxGui:FindFirstChild("ChilliV5_ExpandedIsland")
 if statusLbl:GetAttribute("__IslandSession") == SID and exp then return end
 statusLbl:SetAttribute("__IslandSession", SID)
@@ -590,28 +711,29 @@ hint.Active = true
 if pill.Position.Y.Offset < 4 or pill.Position.Y.Offset > 600 then pill.Position = u2(0.5, 0, 0, 8) end
 if not pill:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, pill) end
 local ps = pill:FindFirstChild("IslandStroke") or mk("UIStroke", { Name = "IslandStroke", Thickness = 2.0, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Color3.new(1, 1, 1) }, pill)
-table.insert(State.ActiveGradients, ps:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, ps))
+addGrad(ps:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, ps))
 if exp then exp:Destroy() end
 exp = mk("Frame", { Name = "ChilliV5_ExpandedIsland", AnchorPoint = v2(0.5, 0), Position = pill.Position, Size = u2(0, 296, 0, 144), BackgroundColor3 = c3(10, 12, 20), BorderSizePixel = 0, Visible = false, Active = true, ClipsDescendants = true, ZIndex = 10000 }, venyxGui)
 mk("UICorner", { CornerRadius = UDim.new(0, 18) }, exp)
 local es = mk("UIStroke", { Thickness = 2.0, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, exp)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, es))
+addGrad(mk("UIGradient", { Color = RAINBOW }, es))
 mk("ImageLabel", { Name = "IslandCosmicBg", Position = u2(0, 0, 0, 0), Size = u2(1, 0, 0, 42), BackgroundTransparency = 1, Image = HEADER_BAR_IMG_ID, ImageRectOffset = v2(15, 60), ImageRectSize = v2(650, 170), ScaleType = Enum.ScaleType.Stretch, ImageTransparency = 0.22, Active = false, ZIndex = 10000 }, exp)
 local expLogo = mk("Frame", { Position = u2(0, 10, 0, 7), Size = u2(0, 24, 0, 24), BackgroundColor3 = c3(0, 0, 0), BorderSizePixel = 0, ClipsDescendants = true, Active = false, ZIndex = 10002 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, expLogo)
 local elStroke = mk("UIStroke", { Thickness = 1.4, Color = Color3.new(1, 1, 1) }, expLogo)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, elStroke))
-mk("ImageLabel", { AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.84, 0.84), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = 10003 }, expLogo)
+addGrad(mk("UIGradient", { Color = RAINBOW }, elStroke))
+local expLogoImg = mk("ImageLabel", { AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.86, 0.86), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Crop, Active = false, ZIndex = 10003 }, expLogo)
+mk("UICorner", { CornerRadius = UDim.new(1, 0) }, expLogoImg)
 local expTitle = mk("TextLabel", { Name = "ChilliIslandTitle", Size = u2(0, 150, 0, 24), Position = u2(0, 40, 0, 7), BackgroundTransparency = 1, Text = "Chilli Hub V7", Font = Enum.Font.GothamBlack, TextSize = 13.5, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 10002 }, exp)
 mk("UIStroke", { Thickness = 1.2, Color = c3(12, 8, 22), Transparency = 0.2 }, expTitle)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, expTitle))
+addGrad(mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, expTitle))
 local colBtn = mk("TextButton", { Size = u2(0, 26, 0, 22), Position = u2(1, -34, 0, 8), BackgroundColor3 = c3(22, 24, 36), BorderSizePixel = 0, Text = "▲", Font = Enum.Font.GothamBold, TextSize = 10, TextColor3 = c3(160, 205, 255), ZIndex = 10003 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, colBtn)
 local taskBox = mk("Frame", { Size = u2(1, -20, 0, 24), Position = u2(0, 10, 0, 36), BackgroundColor3 = c3(16, 18, 28), BackgroundTransparency = 0.15, BorderSizePixel = 0, ZIndex = 10001 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, taskBox)
 mk("UIStroke", { Thickness = 1, Color = c3(45, 52, 78), Transparency = 0.35 }, taskBox)
 expTaskLbl = mk("TextLabel", { Size = u2(1, -16, 1, 0), Position = u2(0, 8, 0, 0), BackgroundTransparency = 1, Text = "⚡ " .. (statusLbl.Text or "Đang rảnh"), Font = Enum.Font.GothamBold, TextSize = 10.5, TextColor3 = Color3.new(1, 1, 1), TextTruncate = Enum.TextTruncate.AtEnd, ZIndex = 10002 }, taskBox)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, expTaskLbl))
+addGrad(mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, expTaskLbl))
 local cap = mk("Frame", { Size = u2(1, -20, 0, 32), Position = u2(0, 10, 0, 65), BackgroundColor3 = c3(18, 20, 30), BorderSizePixel = 0, ZIndex = 10001 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cap)
 local sld = mk("Frame", { Size = u2(0.5, -4, 1, -4), Position = (State.Language == "VI" and u2(0, 2, 0, 2) or u2(0.5, 2, 0, 2)), BackgroundColor3 = c3(95, 110, 235), BorderSizePixel = 0, ZIndex = 10002 }, cap)
@@ -620,9 +742,9 @@ local bVI = mk("TextButton", { Size = u2(0.5, 0, 1, 0), BackgroundTransparency =
 local bEN = mk("TextButton", { Size = u2(0.5, 0, 1, 0), Position = u2(0.5, 0, 0, 0), BackgroundTransparency = 1, Text = "🌐 ENGLISH", Font = Enum.Font.GothamBold, TextSize = 10.5, TextColor3 = (State.Language == "EN" and Color3.new(1, 1, 1) or c3(150, 165, 190)), ZIndex = 10003 }, cap)
 local cfgBtn = mk("TextButton", { Name = "AutoFarmConfigBtn", Size = u2(1, -20, 0, 34), Position = u2(0, 10, 0, 102), BackgroundColor3 = c3(22, 25, 40), BorderSizePixel = 0, Text = "⚡ CONFIG SETTING AUTO FARM", Font = Enum.Font.GothamBlack, TextSize = 10.5, TextColor3 = Color3.new(1, 1, 1), ZIndex = 10003 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cfgBtn)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, cfgBtn))
+addGrad(mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, cfgBtn))
 local cs = mk("UIStroke", { Thickness = 1.4, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, cfgBtn)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, cs))
+addGrad(mk("UIGradient", { Color = RAINBOW }, cs))
 cfgBtn.MouseButton1Click:Connect(function() runAutoFarmMacro(venyxGui, cfgBtn) end)
 local function setLang(l)
 if State.Language == l then return end
@@ -680,7 +802,7 @@ statusLbl.InputBegan:Connect(onIn)
 hint.InputBegan:Connect(onIn)
 statusLbl:GetPropertyChangedSignal("Text"):Connect(function() if isAlive() then syncStatus(false) end end)
 end
--- NÚT NỔI TRÒN ĐEN TUYỀN #000000 + LOGO CÂN ĐỐI 0.84x
+-- NÚT NỔI TRÒN ĐEN TUYỀN #000000 + BO TRÒN TRỰC TIẾP LOGO (KHÔNG BỊ THỪA GÓC ĐEN)
 local function cleanupStrayLogos(gui, win)
 for _, ch in ipairs(gui:GetChildren()) do
 if ch:IsA("GuiObject") and ch ~= win and ch.Name ~= "ChilliV5_ExpandedIsland" and not ch:FindFirstChild("IslandExpandHint") then
@@ -770,21 +892,21 @@ local discStroke = disc:FindFirstChild("RainbowBorder") or mk("UIStroke", {
 Name = "RainbowBorder", Thickness = 2.0, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 Color = Color3.new(1, 1, 1), Transparency = 0.02
 }, disc)
-table.insert(State.ActiveGradients, discStroke:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, discStroke))
+addGrad(discStroke:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, discStroke))
 local cov = disc:FindFirstChild("ChilliV5CoverLogo") or mk("ImageLabel", {
 Name = "ChilliV5CoverLogo", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5),
-Size = u2s(0.84, 0.84), BackgroundTransparency = 1, Image = LOGO_ID,
-ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = disc.ZIndex + 2
+Size = u2s(0.88, 0.88), BackgroundTransparency = 1, Image = LOGO_ID,
+ScaleType = Enum.ScaleType.Crop, Active = false, ZIndex = disc.ZIndex + 2
 }, disc)
 cov.Image = LOGO_ID
-cov.Size = u2s(0.84, 0.84)
+cov.Size = u2s(0.88, 0.88)
 cov.Position = u2s(0.5, 0.5)
 cov.AnchorPoint = v2(0.5, 0.5)
 cov.BackgroundTransparency = 1
-cov.ScaleType = Enum.ScaleType.Fit
+cov.ScaleType = Enum.ScaleType.Crop
 cov.ZIndex = disc.ZIndex + 2
-local oldCovCorner = cov:FindFirstChildOfClass("UICorner")
-if oldCovCorner then oldCovCorner:Destroy() end
+local covCorner = cov:FindFirstChildOfClass("UICorner") or mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cov)
+covCorner.CornerRadius = UDim.new(1, 0)
 if not top:GetAttribute("__SyncClickHooked") then
 top:SetAttribute("__SyncClickHooked", true)
 pcall(function()
@@ -796,24 +918,19 @@ gs.MenuClosed:Connect(function()
 if isAlive() and top and top.Parent then top.Visible = true end
 end)
 end)
-local function triggerSync()
-State.CloseHideUntil = 0
-TweenService:Create(disc, TweenInfo.new(0.09, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = u2(0, 56, 0, 56) }):Play()
-task.delay(0.09, function()
-TweenService:Create(disc, TweenInfo.new(0.18, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = u2(0, 68, 0, 68) }):Play()
-end)
-task.defer(function()
-task.wait(0.04)
-if State.SyncWindowFn then pcall(State.SyncWindowFn) end
-end)
-end
-if top:IsA("GuiButton") then
-top.Activated:Connect(triggerSync)
-top.MouseButton1Click:Connect(triggerSync)
-end
 top.InputBegan:Connect(function(inp)
 if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
-triggerSync()
+TweenService:Create(disc, TweenInfo.new(0.08, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Size = u2(0, 58, 0, 58) }):Play()
+end
+end)
+top.InputEnded:Connect(function(inp)
+if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+State.CloseHideUntil = 0
+TweenService:Create(disc, TweenInfo.new(0.22, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = u2(0, 68, 0, 68) }):Play()
+task.defer(function()
+task.wait(0.03)
+if State.SyncWindowFn then pcall(State.SyncWindowFn) end
+end)
 end
 end)
 end
@@ -854,7 +971,7 @@ local strokeTarget = mainBg or win
 local winStroke = strokeTarget:FindFirstChild("ChilliProWindowStroke") or win:FindFirstChild("ChilliProWindowStroke")
 if not winStroke then
 winStroke = mk("UIStroke", { Name = "ChilliProWindowStroke", Thickness = 2.4, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Color3.new(1, 1, 1), Transparency = 0.02 }, strokeTarget)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, winStroke))
+addGrad(mk("UIGradient", { Color = RAINBOW }, winStroke))
 end
 local wpParent = mainBg or win
 local wp = wpParent:FindFirstChild("ChilliSenaWallpaper") or win:FindFirstChild("ChilliSenaWallpaper")
@@ -881,7 +998,8 @@ pageWallpapers = { wp }
 local wpTrans = math.clamp(0.12 + curBaseOpacity * 0.75, 0.12, 0.90)
 local bgTrans = math.clamp(0.10 + curBaseOpacity * 0.75, 0.08, 0.88)
 local cardT = math.clamp(0.34 + curBaseOpacity * 0.50, 0.30, 0.86)
-for _, oldObj in ipairs(win:GetDescendants()) do
+local allDesc = win:GetDescendants()
+for _, oldObj in ipairs(allDesc) do
 if oldObj.Name == "ChilliPageWallpaper" then
 local pp = oldObj.Parent
 if not pp or pp:FindFirstAncestorOfClass("ScrollingFrame") or pp:FindFirstChildOfClass("UIListLayout") or pp:FindFirstChildOfClass("UIGridLayout") then
@@ -891,7 +1009,7 @@ elseif oldObj.Name == "ChilliCardTopGlow" then
 pcall(oldObj.Destroy, oldObj)
 end
 end
-for _, d in ipairs(win:GetDescendants()) do
+for _, d in ipairs(allDesc) do
 local isMainPageScroll = d:IsA("ScrollingFrame")
 and (not d:FindFirstAncestorOfClass("ScrollingFrame"))
 and (d.AbsolutePosition.X - winX) > 35
@@ -952,10 +1070,10 @@ cStroke.Thickness = 1.4
 cStroke.Transparency = 0.14
 cStroke.Enabled = true
 if not cStroke:FindFirstChild("ChilliCardGrad") then
-table.insert(State.ActiveGradients, mk("UIGradient", { Name = "ChilliCardGrad", Color = ULTRA_CARD_GRAD }, cStroke))
+addGrad(mk("UIGradient", { Name = "ChilliCardGrad", Color = ULTRA_CARD_GRAD }, cStroke))
 end
 end
-for _, d in ipairs(win:GetDescendants()) do
+for _, d in ipairs(allDesc) do
 if (d:IsA("TextLabel") or d:IsA("TextButton")) and not d.Name:find("^Chilli") and d ~= titleLbl and not d:IsDescendantOf(titleLbl) then
 local txt = d.Text or ""
 local isBigPageTitle = (d.TextSize >= 15 and d.AbsolutePosition.Y > hy + 8 and d.AbsolutePosition.Y < hy + 95 and (d.AbsolutePosition.X - winX) < 240)
@@ -964,7 +1082,7 @@ local isSubTabActive = (d.AbsolutePosition.Y > hy + 10 and d.AbsolutePosition.Y 
 if isBigPageTitle or isSectionHeader or isSubTabActive then
 d.TextColor3 = Color3.new(1, 1, 1)
 if not d:FindFirstChild("ChilliInnerUltraGrad") then
-table.insert(State.ActiveGradients, mk("UIGradient", { Name = "ChilliInnerUltraGrad", Color = ULTRA_TEXT_GRAD }, d))
+addGrad(mk("UIGradient", { Name = "ChilliInnerUltraGrad", Color = ULTRA_TEXT_GRAD }, d))
 end
 end
 elseif (d:IsA("Frame") or d:IsA("TextButton") or d:IsA("TextBox")) and not d.Name:find("^Chilli") and not d:GetAttribute("__IsChilliCard") and not d:IsDescendantOf(titleLbl) then
@@ -991,7 +1109,7 @@ local topStroke = d:FindFirstChild("ChilliTopPillStroke") or d:FindFirstChildOfC
 topStroke.Color = Color3.new(1, 1, 1)
 topStroke.Transparency = 0.25
 if not topStroke:FindFirstChild("ChilliTopPillGrad") then
-table.insert(State.ActiveGradients, mk("UIGradient", { Name = "ChilliTopPillGrad", Color = ULTRA_CARD_GRAD }, topStroke))
+addGrad(mk("UIGradient", { Name = "ChilliTopPillGrad", Color = ULTRA_CARD_GRAD }, topStroke))
 end
 end
 end
@@ -1039,7 +1157,7 @@ bf:GetPropertyChangedSignal("BackgroundTransparency"):Connect(function() syncWal
 end
 end
 pcall(syncWallpaperAndOldBg, nil)
--- GẮN HUY HIỆU 👑 ULTRA TRỰC TIẾP TRÊN THANH MENU SCRIPT (CÁCH XA CHỮ CHILLI HUB V7)
+-- GẮN HUY HIỆU 👑 ULTRA TRỰC TIẾP TRÊN THANH MENU SCRIPT (TÁCH RỜI HOÀN TOÀN KHỎI CHỮ CHILLI HUB V7)
 pcall(function()
 local oldCosmicHolder = win:FindFirstChild("ChilliCosmicHolder")
 if oldCosmicHolder then oldCosmicHolder:Destroy() end
@@ -1077,7 +1195,7 @@ titleLbl.TextTransparency = 0
 titleLbl.TextColor3 = Color3.new(1, 1, 1)
 titleLbl.Font = Enum.Font.GothamBlack
 if not titleLbl:FindFirstChild("TitleUltraGrad") then
-table.insert(State.ActiveGradients, mk("UIGradient", { Name = "TitleUltraGrad", Color = ULTRA_TEXT_GRAD }, titleLbl))
+addGrad(mk("UIGradient", { Name = "TitleUltraGrad", Color = ULTRA_TEXT_GRAD }, titleLbl))
 end
 if not titleLbl:FindFirstChildOfClass("UIStroke") then
 mk("UIStroke", { Thickness = 1.3, Color = c3(10, 8, 20), Transparency = 0.2 }, titleLbl)
@@ -1092,7 +1210,7 @@ local hdrLine = mk("Frame", {
 Name = "ChilliHeaderRainbowLine", AnchorPoint = v2(0.5, 1), Position = u2(0.5, 0, 1, 0),
 Size = u2(1, 0, 0, 1.8), BackgroundColor3 = Color3.new(1, 1, 1), BorderSizePixel = 0, Active = false, ZIndex = 51
 }, hdrOverlay)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, hdrLine))
+addGrad(mk("UIGradient", { Color = RAINBOW }, hdrLine))
 end
 local oldBotBar = wpParent:FindFirstChild("ChilliSenaBottomBar") or win:FindFirstChild("ChilliSenaBottomBar")
 if oldBotBar then oldBotBar:Destroy() end
@@ -1101,10 +1219,12 @@ if oldTele then oldTele:Destroy() end
 local oldVip = hdrOverlay:FindFirstChild("ChilliVipBadgePill")
 if oldVip then oldVip:Destroy() end
 local function calcBadgeX()
-local relX = math.max(46, titleLbl.AbsolutePosition.X - win.AbsolutePosition.X)
-local tbW = titleLbl.TextBounds.X
-local tWidth = (tbW and tbW > 80 and tbW < 210) and math.ceil(tbW / 0.90) or 136
-return math.max(192, math.floor(relX + tWidth + 16))
+local scale = (hdrOverlay.AbsoluteSize.X > 100 and win.Size.X.Offset > 100) and (hdrOverlay.AbsoluteSize.X / win.Size.X.Offset) or 1
+if scale <= 0.1 then scale = 1 end
+local rightScreenX = (titleLbl.AbsolutePosition.X - win.AbsolutePosition.X) + math.max(titleLbl.TextBounds.X, titleLbl.AbsoluteSize.X)
+local rightLocalX = math.floor(rightScreenX / scale)
+if rightLocalX > 320 or rightLocalX < 180 then rightLocalX = 214 end
+return math.max(228, rightLocalX + 14)
 end
 local badgeStartX = calcBadgeX()
 local ultraBadge = hdrOverlay:FindFirstChild("ChilliUltraBadgePill")
@@ -1116,7 +1236,7 @@ BorderSizePixel = 0, Active = false, ZIndex = 55
 }, hdrOverlay)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, ultraBadge)
 local bStroke = mk("UIStroke", { Thickness = 1.5, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Transparency = 0.05 }, ultraBadge)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, bStroke))
+addGrad(mk("UIGradient", { Color = RAINBOW }, bStroke))
 mk("TextLabel", {
 Name = "BadgeTxt", Size = u2s(1, 1), BackgroundTransparency = 1,
 Font = Enum.Font.GothamBlack, TextSize = 9.5, TextColor3 = c3(255, 225, 85),
@@ -1218,9 +1338,9 @@ if oldToast then oldToast:Destroy() end
 local toast = mk("Frame", { Name = "ChilliTabToast", AnchorPoint = v2(0.5, 0), Position = u2(0.5, 20, 0, -32), Size = u2(0, 256, 0, 30), BackgroundColor3 = c3(14, 16, 28), BackgroundTransparency = 0.08, BorderSizePixel = 0, ClipsDescendants = true, Active = false, ZIndex = 1005 }, win)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, toast)
 local tStroke = mk("UIStroke", { Thickness = 1.5, Color = badgeColor, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, toast)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, tStroke))
+addGrad(mk("UIGradient", { Color = RAINBOW }, tStroke))
 local tLbl = mk("TextLabel", { Size = u2(1, 0, 1, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamBlack, TextSize = 11, TextColor3 = Color3.new(1, 1, 1), Text = tabInfo.icon .. "  " .. tabInfo.title .. "  •  " .. tabInfo.sub, Active = false, ZIndex = 1006 }, toast)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, tLbl))
+addGrad(mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, tLbl))
 TweenService:Create(toast, TweenInfo.new(0.24, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Position = u2(0.5, 20, 0, 8) }):Play()
 task.delay(1.3, function()
 if toast and toast.Parent then
@@ -1270,21 +1390,19 @@ stealIcon.Size = u2s(0.84, 0.84)
 end
 if not btn:GetAttribute("__TabEffectHooked") then
 btn:SetAttribute("__TabEffectHooked", true)
+local lastTabTrigger = 0
 local function onTabTriggered()
-TweenService:Create(squircle, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = u2(0, 24, 0, 24) }):Play()
-task.delay(0.08, function()
-TweenService:Create(squircle, TweenInfo.new(0.18, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = u2(0, 33, 0, 33) }):Play()
-pcall(styleMenuInterior)
+local now = os.clock()
+if now - lastTabTrigger < 0.15 then return end
+lastTabTrigger = now
+TweenService:Create(squircle, TweenInfo.new(0.07, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Size = u2(0, 25, 0, 25) }):Play()
+task.delay(0.07, function()
+TweenService:Create(squircle, TweenInfo.new(0.20, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = u2(0, 31, 0, 31) }):Play()
 end)
-task.delay(0.26, function()
-TweenService:Create(squircle, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = u2(0, 30, 0, 30) }):Play()
-pcall(styleMenuInterior)
+task.delay(0.14, function()
+if isAlive() and win and win.Visible then pcall(styleMenuInterior) end
 end)
 showTabToast(idx, badgeColor)
-end
-if btn:IsA("GuiButton") then
-btn.Activated:Connect(onTabTriggered)
-btn.MouseButton1Click:Connect(onTabTriggered)
 end
 btn.InputBegan:Connect(function(inp)
 if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
@@ -1314,15 +1432,18 @@ if not hBadge then
 hBadge = mk("Frame", { Name = "ChilliHeaderLogo", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2(0, 28, 0, 28), BackgroundColor3 = c3(0, 0, 0), BorderSizePixel = 0, ClipsDescendants = true, Active = false, ZIndex = 60 }, holder)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, hBadge)
 local hStroke = mk("UIStroke", { Thickness = 1.5, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, hBadge)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, hStroke))
-mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.84, 0.84), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = 61 }, hBadge)
+addGrad(mk("UIGradient", { Color = RAINBOW }, hStroke))
+local hImg = mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.86, 0.86), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Crop, Active = false, ZIndex = 61 }, hBadge)
+mk("UICorner", { CornerRadius = UDim.new(1, 0) }, hImg)
 else
 hBadge.Size = u2(0, 28, 0, 28)
 hBadge.BackgroundColor3 = c3(0, 0, 0)
 local hImg = hBadge:FindFirstChildOfClass("ImageLabel")
 if hImg then
 hImg.Image = LOGO_ID
-hImg.Size = u2s(0.84, 0.84)
+hImg.Size = u2s(0.86, 0.86)
+hImg.ScaleType = Enum.ScaleType.Crop
+if not hImg:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, hImg) end
 end
 end
 end
