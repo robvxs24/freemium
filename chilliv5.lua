@@ -1,4 +1,4 @@
--- Chilli Hub V7 Supreme | Precision Import Lock (Under Box) + Silky Smooth Performance Edition
+-- Chilli Hub V7 Supreme | Exact Import Button Fix + Smooth UI Performance Edition
 local NEW_TITLE = "Chilli Hub V7"
 local LOGO_ID = "rbxassetid://74441610995894"
 local HEADER_BAR_IMG_ID = "rbxassetid://83726521558450"
@@ -10,7 +10,6 @@ local MY_URL = "https://raw.githubusercontent.com/ronnei/hihi/refs/heads/main/ch
 local VENYX_URL = "https://raw.githubusercontent.com/tienkhanh1/Venyx/main/VenyxHub"
 local AUTO_FILE, LANG_FILE = "ChilliHubV5_AutoRun.lua", "ChilliV5_Lang.txt"
 
--- PRESET CONFIG AUTO FARM AN TOÀN TUYỆT ĐỐI (KHÔNG BỊ KICK BAC-4511)
 local PRESET_JSON = [=[{"venyx":1,"name":"hihi 2","data":{"System / Interface/Quick bars/Show quick bars":true,"Farm / Sell/Favorite/Auto favorite":false,"System / Interface/Quick bars/Quick bar layout":"{\"pins\":{\"Event / Butterfly/Butterfly bloom/Auto butterfly bloom\":2,\"Player / Combat/Hit aura/Hit aura\":1,\"Player / Combat/Auto hit/Chase speed\":1,\"Steal / Auto Steal/Auto hop server/Auto hop\":1,\"Player / Move/Movement/Boost speed\":1,\"Player / Combat/Auto hit/Auto hit\":1,\"Steal / Auto Steal/Auto steal/Auto steal\":1,\"Event / Race/Racing Event/Auto race\":2,\"Farm / Treadmill/Treadmill/Auto treadmill\":1,\"Player / Move/Movement/Speed boost\":1},\"keys\":[],\"at\":{\"1\":[766.9053955078125,21.74544906616211],\"2\":[624.3492431640625,21.080074310302736]},\"fold\":{\"1\":true,\"2\":true}}","System / Optimizer/Graphics/Disable 3D Render":false,"Farm / Pen/Auto place/Place first":"Best value","Steal / Auto Steal/Filter/Only below /s":0,"Farm / Pen/Auto hatch/Equip best pets":false,"Event / AA/Capture the egg/Auto capture event egg":true,"Farm / Mutate/Mutate filter/Only these eggs":[],"Farm / Treadmill/Treadmill/Auto upgrade treadmill":false,"Steal / Auto Steal/Auto steal/Drop eggs at safe zone":false,"Steal / Auto Steal/Auto hop server/Auto hop":false,"System / Interface/Interface/Dim the game":0,"Player / Combat/Hit aura/Skip friends":true,"Player / ESP/Others/Pen egg ESP":true,"System / Optimizer/Frame rate/FPS position":"0.5000,-550,0.0000,49","Event / Butterfly/Butterfly bloom/Auto butterfly bloom":true,"Farm / Pen/Auto hatch/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Steal / Auto Steal/Filter/Min value /s":2000000000,"Player / Combat/Hit aura/Hit aura":true,"Event / Star/Shooting Star/Auto catch shooting star":true,"Steal / Egg Predictor/Egg showcase/Calculate mutations":[],"Steal / Egg Predictor/Egg showcase/Sort eggs":"Value","Event / Halloween/Ghost Dog and fishing/Auto fishing":true,"System / Optimizer/Bases/Hide other players' pets and eggs":true,"Player / Combat/Auto hit/Auto hit":false,"Event / Halloween/Ghost Dog and fishing/Auto Ghost Dog quest":false,"Event / Butterfly/Butterfly bloom/Catch mode":"Chase","Event / Butterfly/Butterfly machine/Trade":[],"Event / Halloween/Halloween Dimension/Halloween eggs":["Bone Emperor","Voidseer Pumpkin","Zombified Bone Emperor","Ghost Reaper","Gorillastein","Phantom Dragon","Shelltide Voyager","Zombified Grave Cerberus","Zombified Phantom Dragon","BloodBloom","Grave Cerberus","Graveyard Brute","Werewolf","Zombified Night Fang","Zombified Pumpkin Fiend","Zombified Tombstone Bear"],"Farm / Pen/Auto place/Auto place":false,"Steal / Auto Steal/Filter/Rarities":["Divine","Eternal","Secret"],"System / Webhook/What to post/Post fused eggs":false,"Event / Halloween/Halloween Dimension/Auto Pumpkin Moon":true,"Farm / Sell/Pets/Sell rarities":["Rare","Uncommon","Common"],"Player / Move/Protection/Ignore traps":true,"Farm / Fuse/Fuse filter/Rarities":["Mythic","Legendary","Epic","Rare","Uncommon","Common"],"System / Webhook/Discord webhook/Ping role ID":"","Player / ESP/Others/Hide sleeping guards":true,"Event / Halloween/Halloween Dimension/Min value /s":1000000000,"System / Optimizer/Frame rate/Show FPS and ping":true,"Farm / Treadmill/Progress/Auto claim index rewards":false,"System / Interface/Quick bars/Keybinds":true,"Steal / Auto Steal/Auto steal/Instant steps":1,"Farm / Fuse/Fuse filter/Never fuse":[],"Farm / Pen/Auto hatch/Mutations":[],"System / Optimizer/Bases/Hide my pets and eggs":true,"Event / Halloween/Monsters/Monster order":"Most tokens","Steal / Auto Steal/Filter/Zones":["Enchanted Forest","Light Dark","Titan Temple","Cherry Blossom"],"Event / Butterfly/Butterfly machine/Auto craft essence":true,"Farm / Mutate/Auto mutate/Auto mutate":false,"Player / ESP/Others/Other pens ESP":true,"Player / ESP/Field eggs/Egg ESP":false,"Farm / Pen/Keep eggs/Min value /s":0,"Steal / Auto Steal/Auto steal/Delivery method":"Instant steps","Farm / Treadmill/Progress/Auto buy trails":false,"Farm / Sell/Eggs/Sell rarities":["Rare","Uncommon","Common"],"System / Interface/Interface/Tone":100,"Event / AA/Admin abuse/Admin treadmill":false,"System / Webhook/What to post/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Farm / Pen/Auto place/Place when":"Always","Event / Halloween/Monsters/Monsters":["Candy Corn","Hollow Bat","Scarecrow","Chest Mimic","Pumpkin Golem","Soul Phantom"],"Event / Butterfly/Wisp companion/Auto banjo cricket":false,"Event / Halloween/Halloween Dimension/Auto buy Halloween Dimension Egg":false,"Event / Halloween/Halloween Dimension/Walk speed":300,"Steal / Auto Steal/Auto steal/Delivery speed":3500,"Farm / Mutate/Auto mutate/Use items":["Fractured","Scrambled","Enchanted","Nitro","Spectral"],"Farm / Fuse/Fuse machine/Fuse first":"Lowest rarity","Steal / Auto Steal/Auto hop server/Rare from":"Cosmic","Player / Move/Movement/Boost speed":220,"System / Interface/Interface/Opacity":50,"Player / ESP/Others/Guard ESP":true,"Farm / Sell/Favorite/Always favorite":[],"Event / Halloween/Halloween Dimension/Steal speed":60,"Farm / Sell/Eggs/Auto sell eggs":false,"System / Webhook/What to post/Post stolen eggs":false,"Player / ESP/Others/ESP size":60,"Steal / Auto Steal/Filter/Steal first":"Best value","Farm / Sell/Pets/Only below /s":0,"Player / Move/Protection/Anti ragdoll":true,"Player / ESP/Field eggs/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic"],"Player / Move/Protection/Invisible":false,"Steal / Auto Steal/Auto hop server/Hop when":"After stealing a match","Event / AA/Cursed Island Wars/Auto play Cursed Island Wars":true,"Event / Butterfly/Butterfly bloom/Catch":["Radiant","Amethyst","Sapphire","Emerald"],"Farm / Treadmill/Treadmill/Auto treadmill":false,"System / Interface/Game HUD/Steal panel button on game HUD":true,"System / Server/Server/Hop to":"Least players","Farm / Mutate/Mutate filter/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Player / Move/Protection/Instant prompts":true,"System / Server/Join and stay/Rejoin on kick":true,"Farm / Sell/Favorite/Favorite equipped":false,"Event / Halloween/Phantom Express/Auto Phantom Express":true,"System / Optimizer/Frame rate/FPS cap":360,"Steal / Auto Steal/Auto steal/Steal missing index eggs":false,"Steal / Auto Steal/Filter/Only these eggs":["ArchAngel","Kitsune","Nightflame","Royal Skywhale","Unicorn","World Burner","Celestial Sunlion","Gorilla King","Pegasus","Skeleton Horse","Strawberry Elephant","67","Amethyst Runebear","Starry Fox"],"Farm / Sell/Favorite/Min value /s":0,"System / Server/Join and stay/Auto load script":true,"Farm / Mutate/Mutate filter/Skip eggs with":[],"System / Optimizer/Graphics/Low graphics":true,"Event / Halloween/Monsters/Walk speed":300,"Event / AA/Minigame eggs/Auto steal minigame egg":true,"Farm / Pen/Auto place/Only these eggs":[],"Player / Combat/Auto hit/Hit who":"Nearest player","Farm / Sell/Eggs/Never sell":[],"Farm / Pen/Keep eggs/Eggs to keep":[],"Farm / Fuse/Fuse filter/Only below /s":0,"Event / Halloween/Monsters/Use weapons":["Enchanted Hammer","Racing Bat","Cricket's Banjo","Flyswatter"],"Farm / Fuse/Fuse machine/Skip mutated":true,"Farm / Sell/Pets/Never sell":[],"Farm / Sell/Favorite/Match":"All picked rules","Event / Halloween/Ghost Dog and fishing/Cast luck":"x1.5 Perfect","System / Optimizer/Graphics/Background color":"Black","Player / Move/Movement/God mode":true,"Farm / Pen/Auto place/Mutations":[],"Steal / Auto Steal/Auto steal/Anti guard":true,"Farm / Sell/Favorite/Unfavorite pets not matching":false,"System / Webhook/What to post/Min value /s":0,"Farm / Pen/Auto hatch/Auto hatch":false,"Farm / Sell/Pets/Only mutations":[],"Farm / Fuse/Fuse machine/Eject odd pets":true,"Event / Butterfly/Butterfly machine/Auto trade up":false,"Event / AA/Admin abuse/Instant steal":false,"System / Webhook/What to post/Post when bag is full":false,"Farm / Fuse/Fuse machine/Auto fuse":false,"Farm / Pen/Auto hatch/Only these eggs":[],"Event / Butterfly/Butterfly machine/Smart trade for essence":true,"Event / Halloween/Halloween Dimension/Auto steal Halloween eggs":true,"System / Interface/Quick bars/Bar size":85,"Player / Combat/Weapons/Use weapons":[],"Player / ESP/Others/Player ESP":true,"System / Webhook/Discord webhook/Ping everyone":false,"Farm / Fuse/Fuse machine/Use pets":"Lowest value first","Event / Halloween/Monsters/Auto farm monsters":true,"Farm / Mutate/Auto mutate/Mutate first":"Best value","Player / ESP/Field eggs/Min value /s":0,"Event / AA/Cursed Island Wars/Island Wars target":"Enemies and base","Player / Move/Movement/Infinite jump":true,"Farm / Pen/Auto place/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Player / ESP/Field eggs/Mutations":[],"Event / Halloween/Phantom Express/Auto vacuum Ghouler boss":true,"Farm / Treadmill/Progress/Auto upgrade base":false,"Steal / Auto Steal/Auto steal/Auto steal":true,"Player / Combat/Auto hit/Chase speed":300,"Player / ESP/Field eggs/Fixed size":false,"Event / Halloween/Halloween Dimension/Instant steal Halloween eggs":true,"Event / Halloween/Phantom Express/Walk speed":300,"Event / Halloween/Phantom Express/Ghost target":"Rarest first","Farm / Sell/Eggs/Only below /s":0,"Farm / Sell/Favorite/Rarities":[],"Steal / Auto Steal/Auto hop server/First hop after":5,"Steal / Auto Steal/Auto steal/Tween speed":110,"Farm / Sell/Pets/Auto sell pets":false,"Event / Halloween/Phantom Express/Auto trade souls":true,"Farm / Sell/Pets/Keep mutated":true,"Steal / Auto Steal/Filter/Sell cheapest egg when bag is full":false,"Player / ESP/Field eggs/Show":[],"Steal / Auto Steal/Auto steal/Go to egg":"Teleport to egg","Player / Combat/Weapons/Hold each":0.2,"Event / AA/Capture the egg/Hold height":120,"Steal / Auto Steal/Filter/Mutations":[],"Event / AA/Capture the egg/Keep away":150,"Farm / Mutate/Mutate filter/Min value /s":0,"Steal / Auto Steal/Auto steal/Teleport zones":["Enchanted Forest","Light Dark","Titan Temple","Cherry Blossom"],"Farm / Pen/Auto hatch/Min value /s":0,"Player / Move/Movement/Speed boost":false,"System / Interface/Interface/UI scale":90,"Farm / Fuse/Fuse filter/Only these pets":[],"Steal / Egg Predictor/Egg showcase/Preview card":false,"Event / Butterfly/Butterfly bloom/Catch speed":300,"Player / Move/Protection/Anti AFK":true,"Event / Halloween/Halloween Dimension/Halloween rarities":[],"System / Interface/Interface/Show / hide UI":{"k":"LeftControl"},"Steal / Auto Steal/Auto steal/Steal from other players":true,"Farm / Pen/Auto place/Min value /s":0,"Event / Butterfly/Butterfly bloom/Catch priority":"Rarest","System / Webhook/Discord webhook/Ping user ID":"","Farm / Sell/Eggs/Only mutations":[],"Farm / Treadmill/Progress/Auto claim offline cash":false,"Farm / Sell/Favorite/Mutations":[],"Event / AA/Capture the egg/Take it from the holder":true,"System / Webhook/Discord webhook/Webhook URL":"","Farm / Priority/Task order/Task order":["Steal filter eggs","Shooting Star","Phantom Express","Pumpkin Moon","Butterfly","Steal wisp eggs","Wisp","Steal missing index","Place","Mutate","Butterfly machine","Ghost Dog quest","Halloween monsters","Halloween fishing","Treadmill"],"Farm / Sell/Eggs/Keep mutated":true,"Event / Butterfly/Wisp companion/Auto wisp quest":false,"System / Optimizer/Graphics/Hide game UI":false}}]=]
 
 if writefile then
@@ -181,18 +180,17 @@ local function hookFps(lbl)
     end
 end
 
--- VÒNG LẶP RENDER MƯỢT MÀ (25 FPS, GIẢM TẢI CPU TỐI ĐA TRÊN MOBILE)
 task.spawn(function()
     local rot, tickCount = 0, 0
     while isAlive() do
-        rot = (rot + 3.5) % 360
+        rot = (rot + 3) % 360
         tickCount = tickCount + 1
         local g = State.ActiveGradients
         for i = #g, 1, -1 do
             local item = g[i]
             if item and item.Parent then item.Rotation = rot else table.remove(g, i) end
         end
-        if tickCount % 20 == 0 then
+        if tickCount % 22 == 0 then
             local f = getFakeFps()
             local fl = State.TrackedFpsLabels
             for i = #fl, 1, -1 do
@@ -205,7 +203,7 @@ task.spawn(function()
             end
         end
         if tickCount % 8 == 0 and State.SyncWindowFn then pcall(State.SyncWindowFn) end
-        task.wait(0.04)
+        task.wait(0.033)
     end
 end)
 
@@ -472,391 +470,53 @@ local function refreshAllTexts()
     if State.RefreshIslandCallback then pcall(State.RefreshIslandCallback) end
 end
 
--- HÀM KÍCH HOẠT NÚT CHÍNH XÁC TUYỆT ĐỐI (KHÔNG DÙNG VIM ĐỂ TRÁNH KICK BAC-4511 VÀ KHÔNG CLICK XUYÊN THẤU)
-local function fireExactNode(b)
-    if not b then return end
-    local targets = { b }
-    if b:IsA("TextLabel") and b.Parent and (b.Parent:IsA("TextButton") or b.Parent:IsA("ImageButton") or b.Parent:IsA("Frame")) then
-        table.insert(targets, b.Parent)
-    end
-    for _, ch in ipairs(b:GetDescendants()) do
-        if ch:IsA("GuiButton") then table.insert(targets, ch) end
-    end
-    for _, obj in ipairs(targets) do
-        if getconnections then
-            for _, sigName in ipairs({ "MouseButton1Click", "Activated", "MouseButton1Down", "MouseButton1Up" }) do
-                local okS, sig = pcall(function() return obj[sigName] end)
-                if okS and sig then
-                    for _, c in ipairs(getconnections(sig)) do
-                        if c.Function then task.spawn(pcall, c.Function) end
-                    end
-                end
-            end
-            local cx = obj.AbsolutePosition.X + obj.AbsoluteSize.X * 0.5
-            local cy = obj.AbsolutePosition.Y + obj.AbsoluteSize.Y * 0.5
-            local pos3 = Vector3.new(cx, cy, 0)
-            for _, uType in ipairs({ Enum.UserInputType.MouseButton1, Enum.UserInputType.Touch }) do
-                local fakeBegin = { UserInputType = uType, UserInputState = Enum.UserInputState.Begin, Position = pos3, Delta = Vector3.zero, KeyCode = Enum.KeyCode.Unknown }
-                local fakeEnd = { UserInputType = uType, UserInputState = Enum.UserInputState.End, Position = pos3, Delta = Vector3.zero, KeyCode = Enum.KeyCode.Unknown }
-                local okB, sigB = pcall(function() return obj.InputBegan end)
-                if okB and sigB then
-                    for _, c in ipairs(getconnections(sigB)) do
-                        if c.Function then task.spawn(pcall, c.Function, fakeBegin, false) end
-                    end
-                end
-                local okE, sigE = pcall(function() return obj.InputEnded end)
-                if okE and sigE then
-                    for _, c in ipairs(getconnections(sigE)) do
-                        if c.Function then task.spawn(pcall, c.Function, fakeEnd, false) end
-                    end
-                end
-            end
-        end
-        if firesignal then
-            pcall(function() firesignal(obj.MouseButton1Click) end)
-            pcall(function() firesignal(obj.Activated) end)
+-- 4. BẢNG THÔNG BÁO UPDATE
+local function showNotice()
+    if State.NoticeShown then return end
+    State.NoticeShown = true
+    local parentTarget = (gethui and pcall(gethui) and gethui()) or CoreGui
+    local nGui = mk("ScreenGui", { Name="ChilliV5_NoticeGui", DisplayOrder=2147483647, ZIndexBehavior=Enum.ZIndexBehavior.Sibling }, parentTarget)
+    local ov = mk("Frame", { Size=UDim2.new(1,0,1,0), BackgroundColor3=BLACK_BG, BackgroundTransparency=0.5, Active=true }, nGui)
+    local md = mk("Frame", { Size=UDim2.new(0,360,0,220), Position=UDim2.new(0.5,0,0.5,0), AnchorPoint=Vector2.new(0.5,0.5), BackgroundColor3=Color3.fromRGB(12,13,20), BorderSizePixel=0, ClipsDescendants=true }, ov)
+    mk("UICorner", { CornerRadius=UDim.new(0,12) }, md)
+    local st = mk("UIStroke", { Thickness=2, Color=Color3.new(1,1,1), ApplyStrokeMode=Enum.ApplyStrokeMode.Border }, md)
+    table.insert(State.ActiveGradients, mk("UIGradient", { Color=RAINBOW }, st))
+    local tLbl = mk("TextLabel", { Size=UDim2.new(1,0,0,40), BackgroundTransparency=1, Font=Enum.Font.GothamBlack, TextSize=16, TextColor3=Color3.new(1,1,1) }, md)
+    local bLbl = mk("TextLabel", { Size=UDim2.new(1,-30,0,115), Position=UDim2.new(0,15,0,42), BackgroundTransparency=1, TextWrapped=true, Font=Enum.Font.GothamMedium, TextSize=12.5, TextColor3=Color3.fromRGB(220,230,255), TextXAlignment=Enum.TextXAlignment.Left, TextYAlignment=Enum.TextYAlignment.Top }, md)
+    local cBtn = mk("TextButton", { Size=UDim2.new(0,120,0,32), Position=UDim2.new(0.5,0,1,-42), AnchorPoint=Vector2.new(0.5,0), BackgroundColor3=Color3.fromRGB(235,60,60), Font=Enum.Font.GothamBold, TextSize=13, TextColor3=Color3.new(1,1,1) }, md)
+    mk("UICorner", { CornerRadius=UDim.new(0,6) }, cBtn)
+
+    local function syncNotice()
+        if State.Language == "VI" then
+            tLbl.Text = "🚀 CHILLI HUB V7 - UPDATE"
+            bLbl.Text = "✨ Tính năng Auto Config: Tự động nhập cấu hình Auto Farm chuẩn, tối ưu 100% cho mọi tài khoản (mới chơi/ít tốc độ) và thiết bị (kể cả máy yếu/lag). Cấu hình đã được test kỹ càng để mang lại hiệu quả cao nhất!\n\n✨ TUY NHIÊN SETTING KHÔNG THỂ ĐÚNG HOÀN TOÀN YÊU CẦU CỦA MỖI TÀI KHOẢN THIẾT BỊ. BẠN CÓ THỂ CHỈNH LẠI NHỮNG THỨ CHƯA ĐÚNG YÊU CẦU CỦA BẠN."
+            cBtn.Text = "ĐÓNG"
+        else
+            tLbl.Text = "🚀 CHILLI HUB V7 - UPDATE"
+            bLbl.Text = "✨ Auto Config Feature: 100% optimized Auto Farm preset for all accounts (even beginners/low speed) and devices (even laggy ones). Strictly tested for the best and most suitable results!\n\n✨ New Interface: Completely redesigned for a more beautiful and professional look."
+            cBtn.Text = "CLOSE"
         end
     end
+    syncNotice()
+    State.RefreshNoticeCallback = syncNotice
+    cBtn.MouseButton1Click:Connect(function() State.RefreshNoticeCallback = nil; nGui:Destroy() end)
 end
 
--- SỬA DỨT ĐIỂM: ĐỊNH VỊ CHÍNH XÁC Ô DÁN JSON VÀ BẤM ĐÚNG VÀO NÚT "NHẬP CẤU HÌNH" PHÍA DƯỚI
-local function runAutoFarmMacro(venyxGui, statusBtn)
-    if State.MacroRunning then return end
-    State.MacroRunning = true
-    local origTxt = statusBtn.Text
-    statusBtn.Text = "⏳ ĐANG NẠP CONFIG..."
+local function refreshAll()
     task.spawn(function()
-        local successImport = false
-        pcall(function()
-            if setclipboard then pcall(setclipboard, PRESET_JSON) end
-
-            local function findConfigControls()
-                local box, iBtn
-                -- 1. Tìm TextBox dán mã cấu hình
-                for _, d in ipairs(venyxGui:GetDescendants()) do
-                    if d:IsA("TextBox") and d.Visible and d.AbsoluteSize.X > 50 then
-                        local ph = (d:GetAttribute("OrigPh") or d.PlaceholderText or ""):lower()
-                        local curText = (d.Text or ""):lower()
-                        if ph:find("dán", 1, true) or ph:find("json", 1, true) or ph:find("paste", 1, true) or ph:find("config", 1, true) or curText:find("venyx", 1, true) then
-                            box = d
-                            break
-                        end
-                    end
-                end
-
-                -- 2. Tìm nút "Nhập cấu hình" nằm ngay bên dưới ô TextBox
-                if box then
-                    local sc = box:FindFirstAncestorOfClass("ScrollingFrame") or venyxGui
-                    for _, d in ipairs(sc:GetDescendants()) do
-                        if (d:IsA("TextButton") or d:IsA("ImageButton")) and d.Visible and d.AbsoluteSize.X > 20 and d.AbsoluteSize.Y > 15 then
-                            local txt = (d:IsA("TextButton") and d.Text or "")
-                            for _, lbl in ipairs(d:GetDescendants()) do
-                                if lbl:IsA("TextLabel") and lbl.Text ~= "" then
-                                    txt = txt .. " " .. lbl.Text
-                                end
-                            end
-                            txt = txt:lower()
-                            if (txt:find("nhập", 1, true) or txt:find("import", 1, true))
-                               and d.AbsolutePosition.Y >= box.AbsolutePosition.Y - 10
-                               and (d.AbsolutePosition.Y - box.AbsolutePosition.Y) < 90 then
-                                iBtn = d
-                                break
-                            end
-                        end
-                    end
-                end
-
-                -- Fallback quét rộng nếu chưa bắt được
-                if not iBtn then
-                    for _, d in ipairs(venyxGui:GetDescendants()) do
-                        if (d:IsA("TextButton") or d:IsA("ImageButton")) and d.Visible and d.AbsoluteSize.X < 200 and d.AbsoluteSize.Y < 50 then
-                            local txt = (d:IsA("TextButton") and d.Text or "")
-                            for _, lbl in ipairs(d:GetDescendants()) do
-                                if lbl:IsA("TextLabel") and lbl.Text ~= "" then txt = txt .. " " .. lbl.Text end
-                            end
-                            txt = txt:lower()
-                            if txt:find("nhập cấu hình", 1, true) or txt:find("import config", 1, true) or (txt:find("nhập", 1, true) and not txt:find("mã", 1, true)) then
-                                iBtn = d
-                                break
-                            end
-                        end
-                    end
-                end
-                return box, iBtn
-            end
-
-            local cfgBox, impBtn = findConfigControls()
-
-            -- Nếu người chơi chưa mở tab Cấu Hình, chỉ chuyển trang khi CẢ HAI controls đều không tìm thấy
-            if not cfgBox and not impBtn then
-                local sysNavBtn = State.SidebarNavButtons and State.SidebarNavButtons[6]
-                if sysNavBtn then
-                    fireExactNode(sysNavBtn)
-                    task.wait(0.18)
-                end
-                for _, d in ipairs(venyxGui:GetDescendants()) do
-                    if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Visible and d.AbsolutePosition.Y < 190 then
-                        local raw = (d:GetAttribute("OrigRawText") or d.Text or ""):lower():match("^%s*(.-)%s*$")
-                        local cur = (d.Text or ""):lower():match("^%s*(.-)%s*$")
-                        if raw == "config" or cur == "cấu hình" then
-                            fireExactNode(d)
-                            break
-                        end
-                    end
-                end
-                task.wait(0.25)
-                cfgBox, impBtn = findConfigControls()
-            end
-
-            -- Điền nội dung JSON vào ô nhập
-            if cfgBox then
-                local sc = cfgBox:FindFirstAncestorOfClass("ScrollingFrame")
-                if sc and (cfgBox.AbsolutePosition.Y > sc.AbsolutePosition.Y + sc.AbsoluteSize.Y - 50 or cfgBox.AbsolutePosition.Y < sc.AbsolutePosition.Y + 10) then
-                    pcall(function()
-                        sc.CanvasPosition = v2(0, math.max(0, sc.CanvasPosition.Y + (cfgBox.AbsolutePosition.Y - sc.AbsolutePosition.Y) - 90))
-                    end)
-                    task.wait(0.06)
-                end
-
-                cfgBox:SetAttribute("__IsTranslating", true)
-                pcall(function() cfgBox:CaptureFocus() end)
-                task.wait(0.04)
-                cfgBox.Text = PRESET_JSON
-                task.wait(0.04)
-                pcall(function() cfgBox:ReleaseFocus(true) end)
-                if getconnections then
-                    local fakeEnter = { UserInputType = Enum.UserInputType.Keyboard, KeyCode = Enum.KeyCode.Return }
-                    local okFl, flSig = pcall(function() return cfgBox.FocusLost end)
-                    if okFl and flSig then
-                        for _, c in ipairs(getconnections(flSig)) do
-                            if c.Function then task.spawn(pcall, c.Function, true, fakeEnter) end
-                        end
-                    end
-                end
-                if firesignal then pcall(function() firesignal(cfgBox.FocusLost, true) end) end
-                cfgBox:SetAttribute("__IsTranslating", false)
-                task.wait(0.12)
-            end
-
-            -- Tự động bấm đúng nút "Nhập cấu hình" ở dưới
-            if impBtn then
-                fireExactNode(impBtn)
-                successImport = true
-            end
-        end)
-
-        if successImport then
-            statusBtn.Text = "✅ ĐÃ BẤM NHẬP (BẤM APPLY NOW)!"
-        else
-            statusBtn.Text = "⚠️ ĐÃ COPY JSON (DÁN VÀO CẤU HÌNH)!"
+        if State.RefreshIslandCallback then State.RefreshIslandCallback() end
+        if State.RefreshNoticeCallback then State.RefreshNoticeCallback() end
+        local list = State.TrackedTexts
+        for i = #list, 1, -1 do
+            if not isAlive() then return end
+            local el = list[i]
+            if el and el.Parent then applyTrans(el) else table.remove(list, i) end
+            if i % 80 == 0 then task.wait() end
         end
-        task.wait(1.6)
-        if statusBtn and statusBtn.Parent then statusBtn.Text = origTxt end
-        State.MacroRunning = false
     end)
 end
 
--- DYNAMIC ISLAND V7
-local function setupIsland(statusLbl, venyxGui)
-    local pill = statusLbl.Parent
-    if not (pill and pill:IsA("GuiObject")) then return end
-    statusLbl:SetAttribute("__IslandDone", true)
-    for _, ch in ipairs(pill:GetChildren()) do
-        if ch:IsA("UIGradient") or ch.Name == "IslandClickHitbox" then ch:Destroy() end
-    end
-    pill.BackgroundColor3 = c3(10, 12, 20)
-    pill.BackgroundTransparency = 0.04
-    pill.Size = u2(0, 0, 0, 38)
-    pill.AutomaticSize = Enum.AutomaticSize.X
-    if pill:GetAttribute("__LockedIslandBg") ~= SID then
-        pill:SetAttribute("__LockedIslandBg", SID)
-        pill:GetPropertyChangedSignal("BackgroundColor3"):Connect(function()
-            if isAlive() and pill.BackgroundColor3 ~= c3(10, 12, 20) then pill.BackgroundColor3 = c3(10, 12, 20) end
-        end)
-        pill:GetPropertyChangedSignal("BackgroundTransparency"):Connect(function()
-            if isAlive() and pill.BackgroundTransparency > 0.08 then pill.BackgroundTransparency = 0.04 end
-        end)
-        pill:GetPropertyChangedSignal("Size"):Connect(function()
-            if isAlive() and pill.Size.Y.Offset < 36 then pill.Size = u2(0, 0, 0, 38) end
-        end)
-    end
-    local pad = pill:FindFirstChildOfClass("UIPadding") or mk("UIPadding", {}, pill)
-    pad.PaddingLeft = UDim.new(0, 12)
-    pad.PaddingRight = UDim.new(0, 12)
-    pad.PaddingTop = UDim.new(0, 2)
-    pad.PaddingBottom = UDim.new(0, 2)
-    local leftBadge = pill:FindFirstChild("IslandLogoBadge")
-    if not leftBadge then
-        leftBadge = mk("Frame", { Name = "IslandLogoBadge", Size = u2(0, 28, 0, 28), BackgroundColor3 = c3(0, 0, 0), BorderSizePixel = 0, ClipsDescendants = true, LayoutOrder = -10, Active = false, ZIndex = 10000 }, pill)
-        mk("UICorner", { CornerRadius = UDim.new(1, 0) }, leftBadge)
-        local lbStroke = mk("UIStroke", { Thickness = 1.5, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, leftBadge)
-        addGrad(mk("UIGradient", { Color = RAINBOW }, lbStroke))
-        local lbImg = mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.86, 0.86), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Crop, Active = false, ZIndex = 10001 }, leftBadge)
-        mk("UICorner", { CornerRadius = UDim.new(1, 0) }, lbImg)
-    else
-        leftBadge.Size = u2(0, 28, 0, 28)
-        leftBadge.BackgroundColor3 = c3(0, 0, 0)
-        local lbImg = leftBadge:FindFirstChildOfClass("ImageLabel")
-        if lbImg then
-            lbImg.Image = LOGO_ID
-            lbImg.Size = u2s(0.86, 0.86)
-            lbImg.ScaleType = Enum.ScaleType.Crop
-            if not lbImg:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, lbImg) end
-        end
-    end
-    local hint = pill:FindFirstChild("IslandExpandHint")
-    if not hint then
-        hint = mk("TextLabel", { Name = "IslandExpandHint", Size = u2(0, 26, 0, 24), BackgroundColor3 = c3(24, 20, 42), BorderSizePixel = 0, Text = "▼", Font = Enum.Font.GothamBlack, TextSize = 11, TextColor3 = c3(255, 225, 85), LayoutOrder = 99, Active = true, ZIndex = 10000 }, pill)
-    else
-        hint.Size = u2(0, 26, 0, 24)
-        hint.BackgroundColor3 = c3(24, 20, 42)
-        hint.Text = "▼"
-        hint.Font = Enum.Font.GothamBlack
-        hint.TextSize = 11
-        hint.TextColor3 = c3(255, 225, 85)
-    end
-    if not hint:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, hint) end
-    local hStroke = hint:FindFirstChildOfClass("UIStroke") or mk("UIStroke", { Thickness = 1.2, Color = Color3.new(1, 1, 1), Transparency = 0.15 }, hint)
-    addGrad(hStroke:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, hStroke))
-
-    local expTaskLbl = nil
-    local function syncStatus(fromSaved)
-        if statusLbl:GetAttribute("__Updating") then return end
-        statusLbl:SetAttribute("__Updating", true)
-        local cur = statusLbl.Text:gsub("●",""):gsub("•",""):gsub("✨%s*rainbow",""):match("^%s*(.-)%s*$") or ""
-        local en = statusLbl:GetAttribute("OrigStatusEn") or statusLbl:GetAttribute("OrigRawText")
-        if not fromSaved and cur ~= "" and cur ~= statusLbl:GetAttribute("__LastTranslatedStatus") and not hasVi(cur) then
-            en = cur
-            statusLbl:SetAttribute("OrigStatusEn", en)
-        end
-        local out = translateStatus(en or cur)
-        statusLbl:SetAttribute("__LastTranslatedStatus", out)
-        statusLbl.RichText = false
-        statusLbl.Font = Enum.Font.GothamBlack
-        statusLbl.TextSize = 13
-        statusLbl.TextColor3 = Color3.new(1, 1, 1)
-        statusLbl.Text = out
-        if expTaskLbl and expTaskLbl.Parent then expTaskLbl.Text = "⚡ " .. out end
-        statusLbl:SetAttribute("__Updating", false)
-    end
-    State.RefreshIslandCallback = function() syncStatus(true) end
-    syncStatus(false)
-
-    if not statusLbl:FindFirstChildOfClass("UIStroke") then mk("UIStroke", { Thickness = 1.2, Color = c3(12, 8, 22), Transparency = 0.2 }, statusLbl) end
-    local tg = statusLbl:FindFirstChild("TextRainbow") or mk("UIGradient", { Name = "TextRainbow", Color = ULTRA_TEXT_GRAD }, statusLbl)
-    tg.Color = ULTRA_TEXT_GRAD
-    addGrad(tg)
-
-    local exp = venyxGui:FindFirstChild("ChilliV5_ExpandedIsland")
-    if statusLbl:GetAttribute("__IslandSession") == SID and exp then return end
-    statusLbl:SetAttribute("__IslandSession", SID)
-
-    pill.Parent = venyxGui
-    pill.AnchorPoint = v2(0.5, 0)
-    pill.ZIndex = 9999
-    pill.Active = true
-    statusLbl.Active = true
-    hint.Active = true
-    if pill.Position.Y.Offset < 4 or pill.Position.Y.Offset > 600 then pill.Position = u2(0.5, 0, 0, 8) end
-    if not pill:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, pill) end
-    local ps = pill:FindFirstChild("IslandStroke") or mk("UIStroke", { Name = "IslandStroke", Thickness = 2.0, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Color3.new(1, 1, 1) }, pill)
-    addGrad(ps:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, ps))
-
-    if exp then exp:Destroy() end
-    exp = mk("Frame", { Name = "ChilliV5_ExpandedIsland", AnchorPoint = v2(0.5, 0), Position = pill.Position, Size = u2(0, 296, 0, 144), BackgroundColor3 = c3(10, 12, 20), BorderSizePixel = 0, Visible = false, Active = true, ClipsDescendants = true, ZIndex = 10000 }, venyxGui)
-    mk("UICorner", { CornerRadius = UDim.new(0, 18) }, exp)
-    local es = mk("UIStroke", { Thickness = 2.0, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, exp)
-    addGrad(mk("UIGradient", { Color = RAINBOW }, es))
-    mk("ImageLabel", { Name = "IslandCosmicBg", Position = u2(0, 0, 0, 0), Size = u2(1, 0, 0, 42), BackgroundTransparency = 1, Image = HEADER_BAR_IMG_ID, ImageRectOffset = v2(15, 60), ImageRectSize = v2(650, 170), ScaleType = Enum.ScaleType.Stretch, ImageTransparency = 0.22, Active = false, ZIndex = 10000 }, exp)
-    local expLogo = mk("Frame", { Position = u2(0, 10, 0, 7), Size = u2(0, 24, 0, 24), BackgroundColor3 = c3(0, 0, 0), BorderSizePixel = 0, ClipsDescendants = true, Active = false, ZIndex = 10002 }, exp)
-    mk("UICorner", { CornerRadius = UDim.new(1, 0) }, expLogo)
-    local elStroke = mk("UIStroke", { Thickness = 1.4, Color = Color3.new(1, 1, 1) }, expLogo)
-    addGrad(mk("UIGradient", { Color = RAINBOW }, elStroke))
-    local expLogoImg = mk("ImageLabel", { AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.86, 0.86), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Crop, Active = false, ZIndex = 10003 }, expLogo)
-    mk("UICorner", { CornerRadius = UDim.new(1, 0) }, expLogoImg)
-    local expTitle = mk("TextLabel", { Name = "ChilliIslandTitle", Size = u2(0, 150, 0, 24), Position = u2(0, 40, 0, 7), BackgroundTransparency = 1, Text = "Chilli Hub V7", Font = Enum.Font.GothamBlack, TextSize = 13.5, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 10002 }, exp)
-    mk("UIStroke", { Thickness = 1.2, Color = c3(12, 8, 22), Transparency = 0.2 }, expTitle)
-    addGrad(mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, expTitle))
-    local colBtn = mk("TextButton", { Size = u2(0, 26, 0, 22), Position = u2(1, -34, 0, 8), BackgroundColor3 = c3(22, 24, 36), BorderSizePixel = 0, Text = "▲", Font = Enum.Font.GothamBold, TextSize = 10, TextColor3 = c3(160, 205, 255), ZIndex = 10003 }, exp)
-    mk("UICorner", { CornerRadius = UDim.new(1, 0) }, colBtn)
-    local taskBox = mk("Frame", { Size = u2(1, -20, 0, 24), Position = u2(0, 10, 0, 36), BackgroundColor3 = c3(16, 18, 28), BackgroundTransparency = 0.15, BorderSizePixel = 0, ZIndex = 10001 }, exp)
-    mk("UICorner", { CornerRadius = UDim.new(1, 0) }, taskBox)
-    mk("UIStroke", { Thickness = 1, Color = c3(45, 52, 78), Transparency = 0.35 }, taskBox)
-    expTaskLbl = mk("TextLabel", { Size = u2(1, -16, 1, 0), Position = u2(0, 8, 0, 0), BackgroundTransparency = 1, Text = "⚡ " .. (statusLbl.Text or "Đang rảnh"), Font = Enum.Font.GothamBold, TextSize = 10.5, TextColor3 = Color3.new(1, 1, 1), TextTruncate = Enum.TextTruncate.AtEnd, ZIndex = 10002 }, taskBox)
-    addGrad(mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, expTaskLbl))
-    local cap = mk("Frame", { Size = u2(1, -20, 0, 32), Position = u2(0, 10, 0, 65), BackgroundColor3 = c3(18, 20, 30), BorderSizePixel = 0, ZIndex = 10001 }, exp)
-    mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cap)
-    local sld = mk("Frame", { Size = u2(0.5, -4, 1, -4), Position = (State.Language == "VI" and u2(0, 2, 0, 2) or u2(0.5, 2, 0, 2)), BackgroundColor3 = c3(95, 110, 235), BorderSizePixel = 0, ZIndex = 10002 }, cap)
-    mk("UICorner", { CornerRadius = UDim.new(1, 0) }, sld)
-    local bVI = mk("TextButton", { Size = u2(0.5, 0, 1, 0), BackgroundTransparency = 1, Text = "🇻🇳 TIẾNG VIỆT", Font = Enum.Font.GothamBold, TextSize = 10.5, TextColor3 = (State.Language == "VI" and Color3.new(1, 1, 1) or c3(150, 165, 190)), ZIndex = 10003 }, cap)
-    local bEN = mk("TextButton", { Size = u2(0.5, 0, 1, 0), Position = u2(0.5, 0, 0, 0), BackgroundTransparency = 1, Text = "🌐 ENGLISH", Font = Enum.Font.GothamBold, TextSize = 10.5, TextColor3 = (State.Language == "EN" and Color3.new(1, 1, 1) or c3(150, 165, 190)), ZIndex = 10003 }, cap)
-    local cfgBtn = mk("TextButton", { Name = "AutoFarmConfigBtn", Size = u2(1, -20, 0, 34), Position = u2(0, 10, 0, 102), BackgroundColor3 = c3(22, 25, 40), BorderSizePixel = 0, Text = "⚡ CONFIG SETTING AUTO FARM", Font = Enum.Font.GothamBlack, TextSize = 10.5, TextColor3 = Color3.new(1, 1, 1), ZIndex = 10003 }, exp)
-    mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cfgBtn)
-    addGrad(mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, cfgBtn))
-    local cs = mk("UIStroke", { Thickness = 1.4, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, cfgBtn)
-    addGrad(mk("UIGradient", { Color = RAINBOW }, cs))
-    cfgBtn.MouseButton1Click:Connect(function() runAutoFarmMacro(venyxGui, cfgBtn) end)
-
-    local function setLang(l)
-        if State.Language == l then return end
-        State.Language = l
-        if writefile then pcall(writefile, LANG_FILE, l) end
-        TweenService:Create(sld, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Position = (l == "VI" and u2(0, 2, 0, 2) or u2(0.5, 2, 0, 2)) }):Play()
-        bVI.TextColor3 = l == "VI" and Color3.new(1, 1, 1) or c3(150, 165, 190)
-        bEN.TextColor3 = l == "EN" and Color3.new(1, 1, 1) or c3(150, 165, 190)
-        refreshAllTexts()
-    end
-    bVI.MouseButton1Click:Connect(function() setLang("VI") end)
-    bEN.MouseButton1Click:Connect(function() setLang("EN") end)
-
-    local open = false
-    local function toggle()
-        open = not open
-        if open then
-            exp.Position = pill.Position
-            exp.Size = u2(0, 210, 0, 32)
-            exp.Visible = true
-            pill.Visible = false
-            TweenService:Create(exp, TweenInfo.new(0.24, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Size = u2(0, 296, 0, 144) }):Play()
-        else
-            local tw = TweenService:Create(exp, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Size = u2(0, 210, 0, 32) })
-            tw:Play()
-            tw.Completed:Connect(function()
-                if not open then
-                    exp.Visible = false
-                    pill.Visible = true
-                end
-            end)
-        end
-    end
-    colBtn.MouseButton1Click:Connect(toggle)
-
-    local dStart, dMoved = nil, false
-    local function onIn(i)
-        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
-            dStart, dMoved = i.Position, false
-            local c1, c2
-            c1 = i.Changed:Connect(function()
-                if i.UserInputState == Enum.UserInputState.End then
-                    if c1 then c1:Disconnect() end
-                    if c2 then c2:Disconnect() end
-                    if not dMoved then toggle() end
-                end
-            end)
-            c2 = pill.InputChanged:Connect(function(m)
-                if (m.UserInputType == Enum.UserInputType.MouseMovement or m.UserInputType == Enum.UserInputType.Touch) and dStart and (m.Position - dStart).Magnitude > 8 then
-                    dMoved = true
-                end
-            end)
-        end
-    end
-    pill.InputBegan:Connect(onIn)
-    statusLbl.InputBegan:Connect(onIn)
-    hint.InputBegan:Connect(onIn)
-    statusLbl:GetPropertyChangedSignal("Text"):Connect(function() if isAlive() then syncStatus(false) end end)
-end
-
--- NÚT NỔI TRÒN ĐEN TUYỀN
+-- 5. NÚT NỔI TRÒN ĐEN TUYỀN
 local function cleanupStrayLogos(gui, win)
     for _, ch in ipairs(gui:GetChildren()) do
         if ch:IsA("GuiObject") and ch ~= win and ch.Name ~= "ChilliV5_ExpandedIsland" and not ch:FindFirstChild("IslandExpandHint") then
@@ -981,7 +641,7 @@ local function setupCircleLogo(obj, win)
         top.InputEnded:Connect(function(inp)
             if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
                 State.CloseHideUntil = 0
-                TweenService:Create(disc, TweenInfo.new(0.20, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = u2(0, 68, 0, 68) }):Play()
+                TweenService:Create(disc, TweenInfo.new(0.22, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = u2(0, 68, 0, 68) }):Play()
                 task.defer(function()
                     task.wait(0.03)
                     if State.SyncWindowFn then pcall(State.SyncWindowFn) end
@@ -991,7 +651,7 @@ local function setupCircleLogo(obj, win)
     end
 end
 
--- KIẾN TRÚC MENU CHILLI HUB V7 SUPREME (CYBER GLASS CHỐNG GIẬT LAG)
+-- KIẾN TRÚC MENU CHILLI HUB V7 SUPREME
 local SIDEBAR_PALETTE = { c3(37, 99, 235), c3(239, 68, 68), c3(245, 158, 11), c3(168, 85, 247), c3(236, 72, 153), c3(16, 185, 129) }
 local function applySenaV7Architecture(win, titleLbl)
     if not win or not titleLbl then return end
@@ -1254,6 +914,14 @@ local function applySenaV7Architecture(win, titleLbl)
         else
             ultraBadge.Position = u2(0, badgeStartX, 0.5, 0)
         end
+        if not titleLbl:GetAttribute("__BadgePosHooked") then
+            titleLbl:SetAttribute("__BadgePosHooked", true)
+            titleLbl:GetPropertyChangedSignal("TextBounds"):Connect(function()
+                if ultraBadge and ultraBadge.Parent then
+                    ultraBadge.Position = u2(0, calcBadgeX(), 0.5, 0)
+                end
+            end)
+        end
     end)
 
     local function syncWindowVisibilityInstant()
@@ -1438,16 +1106,6 @@ local function applySenaV7Architecture(win, titleLbl)
                             addGrad(mk("UIGradient", { Color = RAINBOW }, hStroke))
                             local hImg = mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.86, 0.86), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Crop, Active = false, ZIndex = 61 }, hBadge)
                             mk("UICorner", { CornerRadius = UDim.new(1, 0) }, hImg)
-                        else
-                            hBadge.Size = u2(0, 28, 0, 28)
-                            hBadge.BackgroundColor3 = c3(0, 0, 0)
-                            local hImg = hBadge:FindFirstChildOfClass("ImageLabel")
-                            if hImg then
-                                hImg.Image = LOGO_ID
-                                hImg.Size = u2s(0.86, 0.86)
-                                hImg.ScaleType = Enum.ScaleType.Crop
-                                if not hImg:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, hImg) end
-                            end
                         end
                     end
                     break
