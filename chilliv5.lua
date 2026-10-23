@@ -1,4 +1,86 @@
--- Chilli Hub Ultra | Zero-Delay Border Sync + Neon Ultra Title + Sena V7 OLED Glass Edition
+-- CẤU HÌNH LOGO PHÓNG XA 0.58x + NỀN MENU 90615151648668 + HUY HIỆU TRÊN THANH MENU SCRIPT
+local NEW_TITLE = "Chilli Hub V7"
+local LOGO_ID = "rbxassetid://74441610995894"
+local HEADER_BAR_IMG_ID = "rbxassetid://83726521558450"
+local STEAL_TAB_ICON_ID = "rbxassetid://91536384271341"
+local WALLPAPER_IMAGE_ID = "rbxassetid://90615151648668"
+
+-- 1. PHÓNG XA LOGO TRÒN (0.58x) & XOÁ SẠCH LỚP LOGO CŨ BỊ CHE HOẠ TIẾT
+local function setupCircleLogo(obj, win)
+    local top = obj
+    while top.Parent and top.Parent:IsA("GuiObject") and not top.Parent:IsA("ScreenGui") do top = top.Parent end
+    if not top or (win and (top == win or top:IsDescendantOf(win))) then return end
+    if top.Name == "ChilliV5_ExpandedIsland" or top:FindFirstChild("IslandExpandHint") then return end
+
+    local sz, pos = top.AbsoluteSize, top.AbsolutePosition
+    if sz.X > 105 or sz.Y > 105 or sz.X < 24 or math.abs(sz.X - sz.Y) > 25 or pos.X > 260 then return end
+
+    -- Dọn sạch lớp logo 0.94x cũ và viền vuông mờ trên nút gốc
+    for _, ch in ipairs(top:GetChildren()) do
+        if ch.Name == "ChilliV5CoverLogo" or ch.Name == "RainbowBorder" or ch.Name == "ChilliInnerRing" or ch.Name == "ChilliCosmicAura" or ch:IsA("UIStroke") then
+            pcall(ch.Destroy, ch)
+        elseif ch:IsA("UICorner") then
+            ch.CornerRadius = UDim.new(1, 0)
+        end
+    end
+
+    top.Size = u2(0, 70, 0, 70)
+    top.BackgroundTransparency = 1
+    top.BorderSizePixel = 0
+    top.ClipsDescendants = false
+
+    local disc = top:FindFirstChild("ChilliCircleDisc") or mk("Frame", {
+        Name = "ChilliCircleDisc", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5),
+        Size = u2(0, 68, 0, 68), BackgroundColor3 = c3(0, 0, 0), BackgroundTransparency = 0,
+        BorderSizePixel = 0, Active = false, ClipsDescendants = true, ZIndex = top.ZIndex + 8
+    }, top)
+    disc.BackgroundColor3 = c3(0, 0, 0)
+    disc.BackgroundTransparency = 0
+    disc.Size = u2(0, 68, 0, 68)
+    disc.ZIndex = top.ZIndex + 8
+
+    local discCorner = disc:FindFirstChildOfClass("UICorner") or mk("UICorner", { CornerRadius = UDim.new(1, 0) }, disc)
+    discCorner.CornerRadius = UDim.new(1, 0)
+
+    local discStroke = disc:FindFirstChild("RainbowBorder") or mk("UIStroke", {
+        Name = "RainbowBorder", Thickness = 2.3, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+        Color = Color3.new(1, 1, 1), Transparency = 0.02
+    }, disc)
+    table.insert(State.ActiveGradients, discStroke:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, discStroke))
+
+    -- Phóng xa logo xuống 0.58x để lộ trọn vẹn vòng tinh thể tím & ngôi sao 4 góc
+    local cov = disc:FindFirstChild("ChilliV5CoverLogo") or mk("ImageLabel", {
+        Name = "ChilliV5CoverLogo", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5),
+        Size = u2s(0.58, 0.58), BackgroundTransparency = 1, Image = LOGO_ID,
+        ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = disc.ZIndex + 2
+    }, disc)
+    cov.Image = LOGO_ID
+    cov.Size = u2s(0.58, 0.58)
+    cov.ScaleType = Enum.ScaleType.Fit
+    local oldCovCorner = cov:FindFirstChildOfClass("UICorner")
+    if oldCovCorner then oldCovCorner:Destroy() end
+end
+
+-- 2. GẮN HUY HIỆU 👑 ULTRA + ⚡ SUPREME + TELEMETRY TRỰC TIẾP VÀO THANH MENU SCRIPT (CẠNH CHILLI HUB V7)
+titleLbl.TextTransparency = 0
+titleLbl.TextColor3 = Color3.new(1, 1, 1)
+titleLbl.Font = Enum.Font.GothamBlack
+titleLbl.ClipsDescendants = false
+if titleLbl.ZIndex < 15 then titleLbl.ZIndex = 15 end
+
+local ultraBadge = titleLbl:FindFirstChild("ChilliUltraBadgePill") or mk("Frame", {
+    Name = "ChilliUltraBadgePill", AnchorPoint = v2(0, 0.5), Position = u2(0, tw + 10, 0.5, 0),
+    Size = u2(0, 58, 0, 19), BackgroundColor3 = c3(24, 16, 42), BackgroundTransparency = 0.05,
+    BorderSizePixel = 0, Active = false, ZIndex = titleLbl.ZIndex + 5
+}, titleLbl)
+mk("UICorner", { CornerRadius = UDim.new(1, 0) }, ultraBadge)
+local bStroke = mk("UIStroke", { Thickness = 1.4, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Transparency = 0.05 }, ultraBadge)
+table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, bStroke))
+mk("TextLabel", {
+    Name = "BadgeTxt", Size = u2s(1, 1), BackgroundTransparency = 1,
+    Font = Enum.Font.GothamBlack, TextSize = 9.5, TextColor3 = c3(255, 225, 85),
+    Text = "👑 ULTRA", Active = false, ZIndex = ultraBadge.ZIndex + 1
+}, ultraBadge)
 local NEW_TITLE = "Chilli Hub V7"
 local LOGO_ID = "rbxassetid://74441610995894"
 local HEADER_BAR_IMG_ID = "rbxassetid://83726521558450"
@@ -737,27 +819,38 @@ pad.PaddingLeft = UDim.new(0, 8)
 pad.PaddingRight = UDim.new(0, 8)
 local leftBadge = pill:FindFirstChild("IslandLogoBadge")
 if not leftBadge then
-leftBadge = mk("Frame", { Name = "IslandLogoBadge", Size = u2(0, 22, 0, 22), BackgroundColor3 = LOGO_BG, BorderSizePixel = 0, LayoutOrder = -10, Active = false, ZIndex = 10000 }, pill)
+leftBadge = mk("Frame", { Name = "IslandLogoBadge", Size = u2(0, 24, 0, 24), BackgroundColor3 = c3(0, 0, 0), BorderSizePixel = 0, ClipsDescendants = true, LayoutOrder = -10, Active = false, ZIndex = 10000 }, pill)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, leftBadge)
 local lbStroke = mk("UIStroke", { Thickness = 1.4, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, leftBadge)
 table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, lbStroke))
+mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.58, 0.58), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = 10001 }, leftBadge)
+else
+leftBadge.Size = u2(0, 24, 0, 24)
 leftBadge.BackgroundColor3 = c3(0, 0, 0)
-local lbImg = mk("ImageLabel", { AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.72, 0.72), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = 10001 }, leftBadge)
+leftBadge.ClipsDescendants = true
+local lbImg = leftBadge:FindFirstChildOfClass("ImageLabel")
+if lbImg then
+lbImg.Image = LOGO_ID
+lbImg.Size = u2s(0.58, 0.58)
+lbImg.ScaleType = Enum.ScaleType.Fit
+local oldC = lbImg:FindFirstChildOfClass("UICorner")
+if oldC then oldC:Destroy() end
+end
 end
 local hint = pill:FindFirstChild("IslandExpandHint")
 if not hint then
-hint = mk("TextLabel", { Name = "IslandExpandHint", Size = u2(0, 50, 0, 20), BackgroundColor3 = c3(24, 18, 38), BorderSizePixel = 0, Text = "ULTRA ▼", Font = Enum.Font.GothamBlack, TextSize = 9, TextColor3 = c3(255, 225, 90), LayoutOrder = 99, Active = true, ZIndex = 10000 }, pill)
+hint = mk("TextLabel", { Name = "IslandExpandHint", Size = u2(0, 22, 0, 20), BackgroundColor3 = c3(20, 24, 38), BorderSizePixel = 0, Text = "▾", Font = Enum.Font.GothamBold, TextSize = 11, TextColor3 = c3(165, 215, 255), LayoutOrder = 99, Active = true, ZIndex = 10000 }, pill)
 else
-hint.Size = u2(0, 50, 0, 20)
-hint.BackgroundColor3 = c3(24, 18, 38)
-hint.Text = "ULTRA ▼"
-hint.Font = Enum.Font.GothamBlack
-hint.TextSize = 9
-hint.TextColor3 = c3(255, 225, 90)
+hint.Size = u2(0, 22, 0, 20)
+hint.BackgroundColor3 = c3(20, 24, 38)
+hint.Text = "▾"
+hint.Font = Enum.Font.GothamBold
+hint.TextSize = 11
+hint.TextColor3 = c3(165, 215, 255)
 end
 if not hint:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, hint) end
-local hStroke = hint:FindFirstChildOfClass("UIStroke") or mk("UIStroke", { Thickness = 1, Color = c3(255, 200, 75), Transparency = 0.2 }, hint)
-table.insert(State.ActiveGradients, hStroke:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, hStroke))
+local hStroke = hint:FindFirstChildOfClass("UIStroke")
+if hStroke then hStroke:Destroy() end
 local expTaskLbl = nil
 local function syncStatus(fromSaved)
 if statusLbl:GetAttribute("__Updating") then return end
@@ -806,7 +899,9 @@ local expLogo = mk("Frame", { Position = u2(0, 10, 0, 7), Size = u2(0, 24, 0, 24
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, expLogo)
 local elStroke = mk("UIStroke", { Thickness = 1.4, Color = Color3.new(1, 1, 1) }, expLogo)
 table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, elStroke))
-local elImg = mk("ImageLabel", { AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.72, 0.72), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = 10003 }, expLogo)
+expLogo.BackgroundColor3 = c3(0, 0, 0)
+expLogo.ClipsDescendants = true
+local elImg = mk("ImageLabel", { AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.58, 0.58), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = 10003 }, expLogo)
 local expTitle = mk("TextLabel", { Name = "ChilliIslandTitle", Size = u2(0, 110, 0, 24), Position = u2(0, 40, 0, 7), BackgroundTransparency = 1, Text = "Chilli Hub V7", Font = Enum.Font.GothamBlack, TextSize = 13.5, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 10002 }, exp)
 mk("UIStroke", { Thickness = 1.2, Color = c3(12, 8, 22), Transparency = 0.2 }, expTitle)
 table.insert(State.ActiveGradients, mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, expTitle))
@@ -913,20 +1008,38 @@ end
 end
 local sz, pos = top.AbsoluteSize, top.AbsolutePosition
 if sz.X > 105 or sz.Y > 105 or sz.X < 24 or math.abs(sz.X - sz.Y) > 25 or pos.X > 260 then return end
+for _, ch in ipairs(top:GetChildren()) do
+if ch.Name == "ChilliV5CoverLogo" or ch.Name == "RainbowBorder" or ch.Name == "ChilliInnerRing" or ch.Name == "ChilliCosmicAura" or ch:IsA("UIStroke") then
+pcall(ch.Destroy, ch)
+elseif ch:IsA("UICorner") then
+ch.CornerRadius = UDim.new(1, 0)
+end
+end
 for _, ch in ipairs(top:GetDescendants()) do
+if not ch:IsDescendantOf(top:FindFirstChild("ChilliCircleDisc") or top) or ch.Parent == top then
 if (ch:IsA("UIPadding") or ch:IsA("UIAspectRatioConstraint") or ch:IsA("UISizeConstraint")) and ch.Name ~= "PerfectCircleAspect" then
 pcall(ch.Destroy, ch)
 end
-if (ch:IsA("ImageLabel") or ch:IsA("ImageButton")) and ch.Name ~= "ChilliV5CoverLogo" and ch.Name ~= "ChilliCircleDisc" then
+end
+if ch.Name ~= "ChilliCircleDisc" and not (top:FindFirstChild("ChilliCircleDisc") and ch:IsDescendantOf(top.ChilliCircleDisc)) then
+if ch:IsA("UIStroke") then
+ch.Transparency = 1
+ch.Enabled = false
+elseif ch:IsA("ImageLabel") or ch:IsA("ImageButton") then
 ch.ImageTransparency, ch.BackgroundTransparency = 1, 1
 elseif ch:IsA("TextLabel") or ch:IsA("TextButton") then
 ch:SetAttribute("__HiddenVxLogo", true)
 ch.TextTransparency, ch.BackgroundTransparency = 1, 1
+elseif ch:IsA("Frame") and ch.Name ~= "ChilliCircleDisc" then
+ch.BackgroundTransparency = 1
+end
 end
 end
 if top:IsA("ImageLabel") or top:IsA("ImageButton") then top.ImageTransparency = 1
-elseif top:IsA("TextLabel") or top:IsA("TextButton") then top:SetAttribute("__HiddenVxLogo", true)
-top.TextTransparency = 1 end
+elseif top:IsA("TextLabel") or top:IsA("TextButton") then
+top:SetAttribute("__HiddenVxLogo", true)
+top.TextTransparency = 1
+end
 top.Size = u2(0, 70, 0, 70)
 if not top:GetAttribute("__SafePosAdjusted") then
 top:SetAttribute("__SafePosAdjusted", true)
@@ -946,18 +1059,24 @@ top:GetPropertyChangedSignal("Size"):Connect(function()
 if top.Size ~= u2(0, 70, 0, 70) then top.Size = u2(0, 70, 0, 70) end
 end)
 end
-local disc = top:FindFirstChild("ChilliCircleDisc") or mk("Frame", { Name = "ChilliCircleDisc", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2(0, 68, 0, 68), BackgroundColor3 = c3(0, 0, 0), BackgroundTransparency = 0, BorderSizePixel = 0, Active = false, ClipsDescendants = true, ZIndex = top.ZIndex + 2 }, top)
+local disc = top:FindFirstChild("ChilliCircleDisc") or mk("Frame", { Name = "ChilliCircleDisc", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2(0, 68, 0, 68), BackgroundColor3 = c3(0, 0, 0), BackgroundTransparency = 0, BorderSizePixel = 0, Active = false, ClipsDescendants = true, ZIndex = top.ZIndex + 8 }, top)
 disc.BackgroundColor3 = c3(0, 0, 0)
 disc.BackgroundTransparency = 0
 disc.Size = u2(0, 68, 0, 68)
+disc.ClipsDescendants = true
+disc.ZIndex = top.ZIndex + 8
 local discCorner = disc:FindFirstChildOfClass("UICorner") or mk("UICorner", { CornerRadius = UDim.new(1, 0) }, disc)
 discCorner.CornerRadius = UDim.new(1, 0)
-local discStroke = disc:FindFirstChild("RainbowBorder") or mk("UIStroke", { Name = "RainbowBorder", Thickness = 2.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Color3.new(1, 1, 1), Transparency = 0.05 }, disc)
+local discStroke = disc:FindFirstChild("RainbowBorder") or mk("UIStroke", { Name = "RainbowBorder", Thickness = 2.3, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Color3.new(1, 1, 1), Transparency = 0.02 }, disc)
 table.insert(State.ActiveGradients, discStroke:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, discStroke))
-local cov = disc:FindFirstChild("ChilliV5CoverLogo") or mk("ImageLabel", { Name = "ChilliV5CoverLogo", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.68, 0.68), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = disc.ZIndex + 2 }, disc)
+local cov = disc:FindFirstChild("ChilliV5CoverLogo") or mk("ImageLabel", { Name = "ChilliV5CoverLogo", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.58, 0.58), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = disc.ZIndex + 2 }, disc)
 cov.Image = LOGO_ID
-cov.Size = u2s(0.68, 0.68)
+cov.Size = u2s(0.58, 0.58)
+cov.Position = u2s(0.5, 0.5)
+cov.AnchorPoint = v2(0.5, 0.5)
+cov.BackgroundTransparency = 1
 cov.ScaleType = Enum.ScaleType.Fit
+cov.ZIndex = disc.ZIndex + 2
 local oldCovCorner = cov:FindFirstChildOfClass("UICorner")
 if oldCovCorner then oldCovCorner:Destroy() end
 if not top:GetAttribute("__SyncClickHooked") then
@@ -984,7 +1103,7 @@ end
 end)
 end
 end
--- 8. CHILLI HUB ULTRA ARCHITECTURE (KHÔI PHỤC TÊN MÀU ULTRA + TẮT MỞ VIỀN & GIAO DIỆN TỨC THÌ 0MS DELAY)
+-- 8. CHILLI HUB V7 SUPREME ARCHITECTURE (HUY HIỆU TRÊN THANH MENU SCRIPT + NỀN 90615151648668 ĐA TẦNG + CYBER NEON CARDS)
 local SIDEBAR_PALETTE = { c3(37, 99, 235), c3(239, 68, 68), c3(245, 158, 11), c3(168, 85, 247), c3(236, 72, 153), c3(16, 185, 129) }
 local function applySenaV7Architecture(win, titleLbl)
 if not win or not titleLbl then return end
@@ -996,7 +1115,7 @@ table.insert(bgFrames, win)
 end
 for _, d in ipairs(win:GetDescendants()) do
 if d:IsA("GuiObject") and not d.Name:find("^Chilli") and not d:FindFirstAncestorOfClass("ScrollingFrame") then
-if d.AbsoluteSize.X >= win.AbsoluteSize.X * 0.60 and d.AbsoluteSize.Y >= win.AbsoluteSize.Y * 0.60 then
+if d.AbsoluteSize.X >= win.AbsoluteSize.X * 0.55 and d.AbsoluteSize.Y >= win.AbsoluteSize.Y * 0.55 then
 if d.BackgroundTransparency < 0.98 then
 table.insert(bgFrames, d)
 end
@@ -1017,8 +1136,12 @@ end
 end
 local mainBg = bgFrames[1] or win
 pcall(function()
-for _, bf in ipairs(bgFrames) do
-bf.BackgroundColor3 = c3(9, 10, 16)
+mainBg.BackgroundColor3 = c3(8, 10, 18)
+for i = 2, #bgFrames do
+local bf = bgFrames[i]
+if bf and bf ~= mainBg then
+bf.BackgroundColor3 = c3(8, 10, 18)
+end
 end
 win.ClipsDescendants = true
 end)
@@ -1029,32 +1152,43 @@ winStroke = mk("UIStroke", { Name = "ChilliProWindowStroke", Thickness = 2.4, Ap
 table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, winStroke))
 end
 local wpParent = mainBg or win
-local wpZ = math.max(1, wpParent.ZIndex)
-for _, ch in ipairs(wpParent:GetChildren()) do
-if ch:IsA("GuiObject") and not ch.Name:find("^Chilli") and ch.ZIndex <= wpZ then
-ch.ZIndex = wpZ + 1
-end
-end
 local wp = wpParent:FindFirstChild("ChilliSenaWallpaper") or win:FindFirstChild("ChilliSenaWallpaper")
 if not wp then
-wp = mk("ImageLabel", { Name = "ChilliSenaWallpaper", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(1, 1), BackgroundTransparency = 1, Image = WALLPAPER_IMAGE_ID, ImageTransparency = 0.35, ScaleType = Enum.ScaleType.Crop, Active = false, ZIndex = wpZ }, wpParent)
+wp = mk("ImageLabel", { Name = "ChilliSenaWallpaper", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(1, 1), BackgroundTransparency = 1, Image = WALLPAPER_IMAGE_ID, ImageTransparency = 0.28, ScaleType = Enum.ScaleType.Crop, Active = false, ZIndex = 0 }, wpParent)
 mk("UICorner", { CornerRadius = UDim.new(0, 10) }, wp)
 else
 wp.Image = WALLPAPER_IMAGE_ID
-wp.ZIndex = wpZ
+wp.ZIndex = 0
 end
+local pageWallpapers = { wp }
 local sectionCards = {}
-local curBaseOpacity = 0.35
+local curBaseOpacity = (mainBg.BackgroundTransparency < 0.95) and mainBg.BackgroundTransparency or 0.30
 local function styleMenuInterior()
 if not win or not win.Parent then return end
 sectionCards = {}
-local cardT = math.clamp(0.24 + curBaseOpacity * 0.60, 0.22, 0.88)
+pageWallpapers = { wp }
+local wpTrans = math.clamp(0.14 + curBaseOpacity * 0.78, 0.14, 0.94)
+local cardT = math.clamp(0.34 + curBaseOpacity * 0.52, 0.30, 0.88)
 for _, d in ipairs(win:GetDescendants()) do
 if d:IsA("ScrollingFrame") then
 d.BackgroundTransparency = 1
+if d.ZIndex < 2 then d.ZIndex = 2 end
+local pageParent = d.Parent
+if pageParent and pageParent:IsA("GuiObject") then
+local pWp = pageParent:FindFirstChild("ChilliPageWallpaper")
+if not pWp then
+pWp = mk("ImageLabel", { Name = "ChilliPageWallpaper", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(1, 1), BackgroundTransparency = 1, Image = WALLPAPER_IMAGE_ID, ImageTransparency = wpTrans, ScaleType = Enum.ScaleType.Crop, Active = false, ZIndex = math.max(0, d.ZIndex - 1) }, pageParent)
+mk("UICorner", { CornerRadius = UDim.new(0, 8) }, pWp)
+else
+pWp.Image = WALLPAPER_IMAGE_ID
+pWp.ImageTransparency = wpTrans
+pWp.ZIndex = math.max(0, d.ZIndex - 1)
+end
+table.insert(pageWallpapers, pWp)
+end
 local p = d.Parent
 while p and p ~= win and p ~= mainBg do
-if p:IsA("Frame") and p.AbsoluteSize.X >= win.AbsoluteSize.X * 0.55 then
+if p:IsA("GuiObject") and p.AbsoluteSize.X >= win.AbsoluteSize.X * 0.45 then
 p.BackgroundTransparency = 1
 end
 p = p.Parent
@@ -1079,20 +1213,25 @@ end
 end
 end
 for _, card in ipairs(sectionCards) do
-card.BackgroundColor3 = c3(12, 14, 24)
+card.BackgroundColor3 = c3(12, 14, 26)
 card.BackgroundTransparency = cardT
-local cStroke = card:FindFirstChildOfClass("UIStroke") or mk("UIStroke", { Thickness = 1.3, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, card)
+local cStroke = card:FindFirstChildOfClass("UIStroke") or mk("UIStroke", { Thickness = 1.4, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, card)
 cStroke.Color = Color3.new(1, 1, 1)
-cStroke.Thickness = 1.3
-cStroke.Transparency = 0.20
+cStroke.Thickness = 1.4
+cStroke.Transparency = 0.14
 cStroke.Enabled = true
 if not cStroke:FindFirstChild("ChilliCardGrad") then
 local cg = mk("UIGradient", { Name = "ChilliCardGrad", Color = ULTRA_CARD_GRAD }, cStroke)
 table.insert(State.ActiveGradients, cg)
 end
+if not card:FindFirstChild("ChilliCardTopGlow") then
+local topGlow = mk("Frame", { Name = "ChilliCardTopGlow", AnchorPoint = v2(0.5, 0), Position = u2(0.5, 0, 0, 0), Size = u2(0.92, 0, 0, 2), BackgroundColor3 = Color3.new(1, 1, 1), BorderSizePixel = 0, Active = false, ZIndex = card.ZIndex + 2 }, card)
+mk("UICorner", { CornerRadius = UDim.new(1, 0) }, topGlow)
+table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, topGlow))
+end
 end
 for _, d in ipairs(win:GetDescendants()) do
-if (d:IsA("TextLabel") or d:IsA("TextButton")) and not d.Name:find("^Chilli") then
+if (d:IsA("TextLabel") or d:IsA("TextButton")) and not d.Name:find("^Chilli") and d ~= titleLbl and not d:IsDescendantOf(titleLbl) then
 local txt = d.Text or ""
 local isBigPageTitle = (d.TextSize >= 15 and d.AbsolutePosition.Y > hy + 8 and d.AbsolutePosition.Y < hy + 95 and (d.AbsolutePosition.X - winX) < 240)
 local isSectionHeader = (txt:upper() == txt and #txt >= 3 and d.TextSize <= 14 and d:FindFirstAncestorOfClass("ScrollingFrame") ~= nil)
@@ -1104,7 +1243,7 @@ local ig = mk("UIGradient", { Name = "ChilliInnerUltraGrad", Color = ULTRA_TEXT_
 table.insert(State.ActiveGradients, ig)
 end
 end
-elseif (d:IsA("Frame") or d:IsA("TextButton")) and not d.Name:find("^Chilli") and not d:GetAttribute("__IsChilliCard") then
+elseif (d:IsA("Frame") or d:IsA("TextButton") or d:IsA("TextBox")) and not d.Name:find("^Chilli") and not d:GetAttribute("__IsChilliCard") and not d:IsDescendantOf(titleLbl) then
 local inScroll = d:FindFirstAncestorOfClass("ScrollingFrame") ~= nil
 local sz = d.AbsoluteSize
 local col = d.BackgroundColor3
@@ -1115,13 +1254,20 @@ d.BackgroundColor3 = Color3.new(1, 1, 1)
 mk("UIGradient", { Name = "ChilliControlNeonGrad", Color = ULTRA_CARD_GRAD }, d)
 end
 elseif sz.Y >= 16 and sz.Y <= 28 and sz.X >= 34 and sz.X <= 195 and d:FindFirstChildOfClass("UICorner") then
-d.BackgroundColor3 = c3(16, 19, 32)
-local dStroke = d:FindFirstChild("ChilliDropStroke") or d:FindFirstChildOfClass("UIStroke") or mk("UIStroke", { Name = "ChilliDropStroke", Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, d)
+d.BackgroundColor3 = c3(15, 18, 32)
+local dStroke = d:FindFirstChild("ChilliDropStroke") or d:FindFirstChildOfClass("UIStroke") or mk("UIStroke", { Name = "ChilliDropStroke", Thickness = 1.1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, d)
 dStroke.Color = Color3.new(1, 1, 1)
-dStroke.Transparency = 0.45
+dStroke.Transparency = 0.32
 if not dStroke:FindFirstChild("ChilliDropGrad") then
 mk("UIGradient", { Name = "ChilliDropGrad", Color = ULTRA_CARD_GRAD }, dStroke)
 end
+end
+elseif not inScroll and d.AbsolutePosition.Y >= winY and d.AbsolutePosition.Y < hy + 80 and sz.Y >= 18 and sz.Y <= 36 and sz.X >= 60 and sz.X <= 260 and d:FindFirstChildOfClass("UICorner") then
+local topStroke = d:FindFirstChild("ChilliTopPillStroke") or d:FindFirstChildOfClass("UIStroke") or mk("UIStroke", { Name = "ChilliTopPillStroke", Thickness = 1.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, d)
+topStroke.Color = Color3.new(1, 1, 1)
+topStroke.Transparency = 0.25
+if not topStroke:FindFirstChild("ChilliTopPillGrad") then
+table.insert(State.ActiveGradients, mk("UIGradient", { Name = "ChilliTopPillGrad", Color = ULTRA_CARD_GRAD }, topStroke))
 end
 end
 end
@@ -1129,27 +1275,31 @@ end
 end
 local syncingOpacity = false
 local function syncWallpaperAndOldBg(changedFrame)
-if syncingOpacity or not wp or not wp.Parent then return end
+if syncingOpacity then return end
 syncingOpacity = true
 local curT = curBaseOpacity
-if changedFrame and changedFrame.Parent and changedFrame.BackgroundTransparency < 0.99 then
+if changedFrame and changedFrame.Parent and changedFrame.BackgroundTransparency < 0.98 then
 curT = changedFrame.BackgroundTransparency
-else
-for _, bf in ipairs(bgFrames) do
-if bf and bf.Parent and bf.BackgroundTransparency < 0.99 then
-curT = bf.BackgroundTransparency
-break
-end
-end
+elseif mainBg and mainBg.Parent and mainBg.BackgroundTransparency < 0.98 then
+curT = mainBg.BackgroundTransparency
 end
 curBaseOpacity = curT
-for _, bf in ipairs(bgFrames) do
-if bf and bf.Parent and bf ~= changedFrame and bf.BackgroundTransparency < 0.99 then
-bf.BackgroundTransparency = curT
+if mainBg and mainBg.Parent and mainBg.BackgroundTransparency < 0.98 then
+mainBg.BackgroundTransparency = curT
+end
+for i = 2, #bgFrames do
+local bf = bgFrames[i]
+if bf and bf.Parent and bf ~= mainBg then
+bf.BackgroundTransparency = math.clamp(curT + 0.65, 0.88, 0.98)
 end
 end
-wp.ImageTransparency = math.clamp(0.14 + curT * 0.80, 0.14, 0.94)
-local cardT = math.clamp(0.24 + curT * 0.60, 0.22, 0.88)
+local wpT = math.clamp(0.14 + curT * 0.78, 0.14, 0.94)
+for _, pw in ipairs(pageWallpapers) do
+if pw and pw.Parent then
+pw.ImageTransparency = wpT
+end
+end
+local cardT = math.clamp(0.34 + curT * 0.52, 0.30, 0.88)
 for _, card in ipairs(sectionCards) do
 if card and card.Parent then
 card.BackgroundTransparency = cardT
@@ -1167,31 +1317,19 @@ end)
 end
 end
 syncWallpaperAndOldBg(nil)
-local headerBar = nil
-local curr = titleLbl
-while curr and curr ~= win do
-if curr:IsA("GuiObject") and curr.AbsoluteSize.X >= (win.AbsoluteSize.X * 0.65) and curr.AbsoluteSize.Y >= 14 and curr.AbsoluteSize.Y <= 78 and not curr:FindFirstChildOfClass("UIListLayout") then
-headerBar = curr
-break
-end
-curr = curr.Parent
-end
-local headerTarget = headerBar or win
-local hdrHeight = (headerBar and headerBar.AbsoluteSize.Y >= 16) and headerBar.AbsoluteSize.Y or math.clamp(math.floor((hy - winY) * 2 + titleLbl.AbsoluteSize.Y), 32, 46)
+-- GẮN HUY HIỆU 👑 ULTRA + ⚡ SUPREME + TELEMETRY TRỰC TIẾP VÀO THANH MENU SCRIPT (CẠNH CHILLI HUB V7)
+local oldCosmicHolder = win:FindFirstChild("ChilliCosmicHolder")
+if oldCosmicHolder then oldCosmicHolder:Destroy() end
 local pWalk = titleLbl
 while pWalk and pWalk ~= win do
-if pWalk:IsA("GuiObject") then pWalk.Visible = true end
+if pWalk:IsA("GuiObject") then
+pWalk.Visible = true
+pWalk.ClipsDescendants = false
+end
 pWalk = pWalk.Parent
 end
-do
-local baseZ = math.max(4, headerTarget.ZIndex + 2)
-local scanHdr = headerBar or win
-for _, desc in ipairs(scanHdr:GetDescendants()) do
-if math.abs(desc.AbsolutePosition.Y - hy) < 28 then
-if desc:IsA("GuiObject") and not desc.Name:find("^ChilliCosmic") and not desc.Name:find("^ChilliSena") then
-if desc.ZIndex < baseZ + 6 then desc.ZIndex = baseZ + 6 end
-end
-if (desc:IsA("TextLabel") or desc:IsA("TextButton")) and desc ~= titleLbl and desc.Name ~= "ChilliUltraTitleBadge" and desc.Name ~= "Val" then
+for _, desc in ipairs(win:GetDescendants()) do
+if math.abs(desc.AbsolutePosition.Y - hy) < 28 and (desc:IsA("TextLabel") or desc:IsA("TextButton")) and desc ~= titleLbl and not desc:IsDescendantOf(titleLbl) then
 local dt = desc.Text or ""
 if dt:match("^v%d+%.%d+") or dt == "/" or dt:lower():find("steal an egg", 1, true) or dt:lower():find("cướp trứng", 1, true) then
 desc.TextTransparency = 1
@@ -1199,72 +1337,86 @@ desc.BackgroundTransparency = 1
 end
 end
 end
-end
+titleLbl.TextTransparency = 0
 titleLbl.TextColor3 = Color3.new(1, 1, 1)
 titleLbl.Font = Enum.Font.GothamBlack
+titleLbl.ClipsDescendants = false
+if titleLbl.ZIndex < 15 then titleLbl.ZIndex = 15 end
 if not titleLbl:FindFirstChild("TitleUltraGrad") then
 local origGrad = mk("UIGradient", { Name = "TitleUltraGrad", Color = ULTRA_TEXT_GRAD }, titleLbl)
 table.insert(State.ActiveGradients, origGrad)
 end
-titleLbl.TextTransparency = 1
-local bannerHolder = win:FindFirstChild("ChilliCosmicHolder") or (headerBar and headerBar:FindFirstChild("ChilliCosmicHolder"))
-if bannerHolder and bannerHolder.Parent ~= win then
-bannerHolder:Destroy()
-bannerHolder = nil
+if not titleLbl:FindFirstChildOfClass("UIStroke") then
+mk("UIStroke", { Thickness = 1.3, Color = c3(10, 8, 20), Transparency = 0.2 }, titleLbl)
 end
-if not bannerHolder then
-bannerHolder = mk("Frame", { Name = "ChilliCosmicHolder", Size = u2(1, 0, 0, hdrHeight), Position = u2(0, 0, 0, 0), BackgroundColor3 = c3(12, 13, 22), BackgroundTransparency = 0.10, BorderSizePixel = 0, ClipsDescendants = true, Active = false, ZIndex = baseZ + 1 }, win)
-mk("UICorner", { CornerRadius = UDim.new(0, 10) }, bannerHolder)
-mk("ImageLabel", { Name = "ChilliCosmicRightStretch", AnchorPoint = v2(0, 0.5), Position = u2(0, 80, 0.5, 0), Size = u2(1, -80, 1.25, 0), BackgroundTransparency = 1, Image = HEADER_BAR_IMG_ID, ImageRectOffset = v2(230, 80), ImageRectSize = v2(300, 130), ScaleType = Enum.ScaleType.Stretch, ImageTransparency = 0.35, Active = false, ZIndex = baseZ + 2 }, bannerHolder)
-mk("ImageLabel", { Name = "ChilliCosmicTitleFrame", AnchorPoint = v2(0, 0.5), Position = u2(0, 0, 0.5, 0), Size = u2(0, 226, 1.38, 0), BackgroundTransparency = 1, Image = HEADER_BAR_IMG_ID, ImageRectOffset = v2(15, 60), ImageRectSize = v2(650, 170), ScaleType = Enum.ScaleType.Stretch, ImageTransparency = 0.04, Active = false, ZIndex = baseZ + 3 }, bannerHolder)
-local bottomLine = mk("Frame", { Name = "ChilliCosmicBottomGlow", AnchorPoint = v2(0.5, 1), Position = u2s(0.5, 1), Size = u2(1, 0, 0, 1.8), BackgroundColor3 = Color3.new(1, 1, 1), BorderSizePixel = 0, Active = false, ZIndex = baseZ + 4 }, bannerHolder)
-table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, bottomLine))
+local function getTitleTextWidth()
+local tb = titleLbl.TextBounds.X
+if tb and tb > 35 and tb < 220 then return tb end
+return 108
 end
-local ultraTitle = bannerHolder:FindFirstChild("ChilliUltraTitleBadge")
-if not ultraTitle then
-ultraTitle = mk("TextLabel", { Name = "ChilliUltraTitleBadge", AnchorPoint = v2(0, 0.5), Position = u2(0, 38, 0.5, 0), Size = u2(0, 116, 0, 26), BackgroundTransparency = 1, RichText = false, Text = "Chilli Hub V7", Font = Enum.Font.GothamBlack, TextSize = 15, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left, Active = false, ZIndex = baseZ + 12 }, bannerHolder)
-mk("UIStroke", { Thickness = 1.4, Color = c3(12, 8, 22), Transparency = 0.18 }, ultraTitle)
-local uGrad = mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, ultraTitle)
-table.insert(State.ActiveGradients, uGrad)
+local tw = getTitleTextWidth()
+local hdrCosmic = titleLbl:FindFirstChild("ChilliHeaderCosmicBg")
+if not hdrCosmic then
+hdrCosmic = mk("ImageLabel", { Name = "ChilliHeaderCosmicBg", AnchorPoint = v2(0, 0.5), Position = u2(0, -38, 0.5, 0), Size = u2(0, 250, 0, 34), BackgroundTransparency = 1, Image = HEADER_BAR_IMG_ID, ImageRectOffset = v2(15, 60), ImageRectSize = v2(650, 170), ScaleType = Enum.ScaleType.Stretch, ImageTransparency = 0.22, Active = false, ZIndex = math.max(1, titleLbl.ZIndex - 1) }, titleLbl)
 end
-local ultraBadge = bannerHolder:FindFirstChild("ChilliUltraBadgePill")
+local hdrLine = titleLbl:FindFirstChild("ChilliHeaderRainbowLine")
+if not hdrLine then
+hdrLine = mk("Frame", { Name = "ChilliHeaderRainbowLine", AnchorPoint = v2(0, 0.5), Position = u2(0, -40, 0.5, 17), Size = u2(0, math.max(520, win.AbsoluteSize.X - 8), 0, 1.8), BackgroundColor3 = Color3.new(1, 1, 1), BorderSizePixel = 0, Active = false, ZIndex = titleLbl.ZIndex + 2 }, titleLbl)
+table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, hdrLine))
+else
+hdrLine.Size = u2(0, math.max(520, win.AbsoluteSize.X - 8), 0, 1.8)
+end
+local ultraBadge = titleLbl:FindFirstChild("ChilliUltraBadgePill")
 if not ultraBadge then
-ultraBadge = mk("Frame", { Name = "ChilliUltraBadgePill", AnchorPoint = v2(0, 0.5), Position = u2(0, 154, 0.5, 0), Size = u2(0, 54, 0, 18), BackgroundColor3 = c3(24, 18, 38), BackgroundTransparency = 0.1, BorderSizePixel = 0, Active = false, ZIndex = baseZ + 12 }, bannerHolder)
+ultraBadge = mk("Frame", { Name = "ChilliUltraBadgePill", AnchorPoint = v2(0, 0.5), Position = u2(0, tw + 10, 0.5, 0), Size = u2(0, 58, 0, 19), BackgroundColor3 = c3(24, 16, 42), BackgroundTransparency = 0.05, BorderSizePixel = 0, Active = false, ZIndex = titleLbl.ZIndex + 5 }, titleLbl)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, ultraBadge)
-local bStroke = mk("UIStroke", { Thickness = 1.1, Color = c3(255, 200, 75), Transparency = 0.15 }, ultraBadge)
+local bStroke = mk("UIStroke", { Thickness = 1.4, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Transparency = 0.05 }, ultraBadge)
 table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, bStroke))
-mk("TextLabel", { Size = u2s(1, 1), BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextSize = 9, TextColor3 = c3(255, 225, 90), Text = "👑 ULTRA", Active = false, ZIndex = ultraBadge.ZIndex + 1 }, ultraBadge)
+mk("TextLabel", { Name = "BadgeTxt", Size = u2s(1, 1), BackgroundTransparency = 1, Font = Enum.Font.GothamBlack, TextSize = 9.5, TextColor3 = c3(255, 225, 85), Text = "👑 ULTRA", Active = false, ZIndex = ultraBadge.ZIndex + 1 }, ultraBadge)
+else
+ultraBadge.Position = u2(0, tw + 10, 0.5, 0)
 end
-local teleRow = bannerHolder:FindFirstChild("ChilliSenaTopTelemetry")
+local vipBadge = titleLbl:FindFirstChild("ChilliVipBadgePill")
+if not vipBadge then
+vipBadge = mk("Frame", { Name = "ChilliVipBadgePill", AnchorPoint = v2(0, 0.5), Position = u2(0, tw + 73, 0.5, 0), Size = u2(0, 56, 0, 19), BackgroundColor3 = c3(14, 22, 38), BackgroundTransparency = 0.08, BorderSizePixel = 0, Active = false, ZIndex = titleLbl.ZIndex + 5 }, titleLbl)
+mk("UICorner", { CornerRadius = UDim.new(1, 0) }, vipBadge)
+local vStroke = mk("UIStroke", { Thickness = 1.2, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Transparency = 0.15 }, vipBadge)
+table.insert(State.ActiveGradients, mk("UIGradient", { Color = ULTRA_CARD_GRAD }, vStroke))
+local vTxt = mk("TextLabel", { Name = "VipTxt", Size = u2s(1, 1), BackgroundTransparency = 1, Font = Enum.Font.GothamBlack, TextSize = 8.5, TextColor3 = Color3.new(1, 1, 1), Text = "⚡ SUPREME", Active = false, ZIndex = vipBadge.ZIndex + 1 }, vipBadge)
+table.insert(State.ActiveGradients, mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, vTxt))
+else
+vipBadge.Position = u2(0, tw + 73, 0.5, 0)
+end
+local teleRow = titleLbl:FindFirstChild("ChilliSenaTopTelemetry")
 if not teleRow then
-teleRow = mk("Frame", { Name = "ChilliSenaTopTelemetry", AnchorPoint = v2(0, 0.5), Position = u2(0, 214, 0.5, 0), Size = u2(1, -355, 0, 22), BackgroundTransparency = 1, Active = false, ZIndex = baseZ + 10 }, bannerHolder)
+teleRow = mk("Frame", { Name = "ChilliSenaTopTelemetry", AnchorPoint = v2(0, 0.5), Position = u2(0, tw + 134, 0.5, 0), Size = u2(0, 190, 0, 20), BackgroundTransparency = 1, Active = false, ZIndex = titleLbl.ZIndex + 5 }, titleLbl)
 mk("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, HorizontalAlignment = Enum.HorizontalAlignment.Left, VerticalAlignment = Enum.VerticalAlignment.Center, Padding = UDim.new(0, 4) }, teleRow)
 local function makePill(name, defaultTxt, textColor)
-local pFrame = mk("Frame", { Name = name, Size = u2(0, 0, 0, 19), AutomaticSize = Enum.AutomaticSize.X, BackgroundColor3 = c3(20, 22, 34), BackgroundTransparency = 0.12, BorderSizePixel = 0, Active = false, ZIndex = baseZ + 10 }, teleRow)
+local pFrame = mk("Frame", { Name = name, Size = u2(0, 0, 0, 18), AutomaticSize = Enum.AutomaticSize.X, BackgroundColor3 = c3(18, 20, 34), BackgroundTransparency = 0.12, BorderSizePixel = 0, Active = false, ZIndex = titleLbl.ZIndex + 5 }, teleRow)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, pFrame)
-mk("UIStroke", { Thickness = 1, Color = c3(58, 64, 92), Transparency = 0.25 }, pFrame)
+local pSt = mk("UIStroke", { Thickness = 1, Color = Color3.new(1, 1, 1), Transparency = 0.35 }, pFrame)
+mk("UIGradient", { Color = ULTRA_CARD_GRAD }, pSt)
 mk("UIPadding", { PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6) }, pFrame)
-return mk("TextLabel", { Name = "Val", Size = u2(0, 0, 1, 0), AutomaticSize = Enum.AutomaticSize.X, BackgroundTransparency = 1, Text = defaultTxt, Font = Enum.Font.GothamBold, TextSize = 9, TextColor3 = textColor or c3(235, 240, 255), Active = false, ZIndex = baseZ + 11 }, pFrame)
+return mk("TextLabel", { Name = "Val", Size = u2(0, 0, 1, 0), AutomaticSize = Enum.AutomaticSize.X, BackgroundTransparency = 1, Text = defaultTxt, Font = Enum.Font.GothamBold, TextSize = 8.5, TextColor3 = textColor or c3(235, 240, 255), Active = false, ZIndex = titleLbl.ZIndex + 6 }, pFrame)
 end
-local lblTime = makePill("PillTime", "⏱️ 0:00:00", c3(220, 230, 255))
-local lblStolen = makePill("PillStolen", "🥚 0 đã cướp", c3(255, 190, 210))
-local lblCandy = makePill("PillCandy", "🍬 0", c3(255, 215, 110))
-local lblPing = makePill("PillPing", "📶 65 ms", c3(110, 255, 165))
-local botBar = win:FindFirstChild("ChilliSenaBottomBar")
+local lblTime = makePill("PillTime", "⏱️ 0:00:00", c3(220, 235, 255))
+local lblPing = makePill("PillPing", "📶 60 ms", c3(110, 255, 175))
+local lblTopFps = makePill("PillFps", "⚡ 110 FPS", c3(255, 220, 105))
+local botBar = wpParent:FindFirstChild("ChilliSenaBottomBar") or win:FindFirstChild("ChilliSenaBottomBar")
 local lblBotFps = nil
 if not botBar then
-botBar = mk("Frame", { Name = "ChilliSenaBottomBar", AnchorPoint = v2(0, 1), Position = u2(0, 50, 1, 0), Size = u2(1, -50, 0, 25), BackgroundColor3 = c3(11, 12, 19), BackgroundTransparency = 0.04, BorderSizePixel = 0, Active = false, ZIndex = baseZ + 10 }, win)
-local topDivider = mk("Frame", { Size = u2(1, 0, 0, 1.4), BackgroundColor3 = Color3.new(1, 1, 1), BorderSizePixel = 0, Active = false, ZIndex = baseZ + 11 }, botBar)
+botBar = mk("Frame", { Name = "ChilliSenaBottomBar", AnchorPoint = v2(0, 1), Position = u2(0, 50, 1, 0), Size = u2(1, -50, 0, 22), BackgroundColor3 = c3(10, 12, 20), BackgroundTransparency = 0.08, BorderSizePixel = 0, Active = false, ZIndex = 999 }, wpParent)
+local topDivider = mk("Frame", { Size = u2(1, 0, 0, 1.5), BackgroundColor3 = Color3.new(1, 1, 1), BorderSizePixel = 0, Active = false, ZIndex = 1000 }, botBar)
 table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, topDivider))
 local dName = (LocalPlayer and LocalPlayer.Name) or "Player"
-local wLbl = mk("TextLabel", { Name = "WelcomeLbl", Position = u2(0, 10, 0, 0), Size = u2(0, 230, 1, 0), BackgroundTransparency = 1, Text = "🌶️ Chào mừng, " .. dName:sub(1, 14) .. "  •  CHILLI V7 ULTRA VIP", Font = Enum.Font.GothamBlack, TextSize = 9.5, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left, Active = false, ZIndex = baseZ + 11 }, botBar)
+local wLbl = mk("TextLabel", { Name = "WelcomeLbl", Position = u2(0, 10, 0, 0), Size = u2(0, 260, 1, 0), BackgroundTransparency = 1, Text = "🌶️ Chào mừng, " .. dName:sub(1, 14) .. "  •  CHILLI HUB V7 SUPREME", Font = Enum.Font.GothamBlack, TextSize = 9, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left, Active = false, ZIndex = 1000 }, botBar)
 table.insert(State.ActiveGradients, mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, wLbl))
-lblBotFps = mk("TextLabel", { Name = "BotFpsLbl", AnchorPoint = v2(1, 0.5), Position = u2(1, -86, 0.5, 0), Size = u2(0, 75, 0, 20), BackgroundTransparency = 1, Text = "⚡ 108 FPS", Font = Enum.Font.GothamBold, TextSize = 10, TextColor3 = c3(110, 255, 165), TextXAlignment = Enum.TextXAlignment.Right, Active = false, ZIndex = baseZ + 11 }, botBar)
-local donBadge = mk("Frame", { AnchorPoint = v2(1, 0.5), Position = u2(1, -8, 0.5, 0), Size = u2(0, 70, 0, 18), BackgroundColor3 = c3(32, 24, 48), BorderSizePixel = 0, Active = false, ZIndex = baseZ + 11 }, botBar)
+lblBotFps = mk("TextLabel", { Name = "BotFpsLbl", AnchorPoint = v2(1, 0.5), Position = u2(1, -84, 0.5, 0), Size = u2(0, 75, 0, 18), BackgroundTransparency = 1, Text = "⚡ 108 FPS", Font = Enum.Font.GothamBold, TextSize = 9.5, TextColor3 = c3(110, 255, 165), TextXAlignment = Enum.TextXAlignment.Right, Active = false, ZIndex = 1000 }, botBar)
+local donBadge = mk("Frame", { AnchorPoint = v2(1, 0.5), Position = u2(1, -8, 0.5, 0), Size = u2(0, 68, 0, 16), BackgroundColor3 = c3(28, 20, 44), BorderSizePixel = 0, Active = false, ZIndex = 1000 }, botBar)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, donBadge)
-local dbStroke = mk("UIStroke", { Thickness = 1, Color = c3(245, 190, 45), Transparency = 0.2 }, donBadge)
+local dbStroke = mk("UIStroke", { Thickness = 1, Color = c3(245, 190, 45), Transparency = 0.15 }, donBadge)
 table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, dbStroke))
-mk("TextLabel", { Size = u2s(1, 1), BackgroundTransparency = 1, Text = "👑 ULTRA", Font = Enum.Font.GothamBold, TextSize = 9.5, TextColor3 = c3(255, 215, 75), Active = false, ZIndex = baseZ + 12 }, donBadge)
+mk("TextLabel", { Size = u2s(1, 1), BackgroundTransparency = 1, Text = "👑 VIP V7", Font = Enum.Font.GothamBlack, TextSize = 8.5, TextColor3 = c3(255, 220, 80), Active = false, ZIndex = 1001 }, donBadge)
 else
 lblBotFps = botBar:FindFirstChild("BotFpsLbl")
 end
@@ -1276,28 +1428,40 @@ local pingMs = 62
 pcall(function() pingMs = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue()) end)
 if pingMs <= 0 then pingMs = math.random(48, 85) end
 lblPing.Text = string.format("📶 %d ms", pingMs)
-if lblBotFps then lblBotFps.Text = string.format("⚡ %d FPS", curFps or getFakeFps()) end
+local fpsVal = curFps or getFakeFps()
+lblTopFps.Text = string.format("⚡ %d FPS", fpsVal)
+if lblBotFps then lblBotFps.Text = string.format("⚡ %d FPS", fpsVal) end
 end
+else
+teleRow.Position = u2(0, tw + 134, 0.5, 0)
+end
+if not titleLbl:GetAttribute("__BoundsSyncHooked") then
+titleLbl:SetAttribute("__BoundsSyncHooked", true)
+titleLbl:GetPropertyChangedSignal("TextBounds"):Connect(function()
+local newTw = getTitleTextWidth()
+if ultraBadge and ultraBadge.Parent then ultraBadge.Position = u2(0, newTw + 10, 0.5, 0) end
+if vipBadge and vipBadge.Parent then vipBadge.Position = u2(0, newTw + 73, 0.5, 0) end
+if teleRow and teleRow.Parent then teleRow.Position = u2(0, newTw + 134, 0.5, 0) end
+end)
 end
 local function syncWindowVisibilityInstant()
 if not win or not win.Parent then return end
 local isOffscreen = (win.AbsolutePosition.X < -500 or win.AbsolutePosition.Y < -500)
 local isSizeZero = (win.AbsoluteSize.X < 80 or win.AbsoluteSize.Y < 60)
-local isHdrHidden = (headerBar ~= nil) and (not headerBar.Visible)
 local isForceClosing = (State.CloseHideUntil ~= nil) and (os.clock() < State.CloseHideUntil)
-local isClosed = (not win.Visible) or isOffscreen or isSizeZero or isHdrHidden or isForceClosing
+local isClosed = (not win.Visible) or isOffscreen or isSizeZero or isForceClosing
 local isOpen = not isClosed
 if winStroke then
 winStroke.Enabled = isOpen
 winStroke.Transparency = isOpen and 0.02 or 1
 end
-local cHolder = win:FindFirstChild("ChilliCosmicHolder")
-if cHolder then cHolder.Visible = isOpen end
-local bBar = win:FindFirstChild("ChilliSenaBottomBar")
+local bBar = wpParent:FindFirstChild("ChilliSenaBottomBar") or win:FindFirstChild("ChilliSenaBottomBar")
 if bBar then bBar.Visible = isOpen end
-if wp then wp.Visible = isOpen end
+for _, pw in ipairs(pageWallpapers) do
+if pw and pw.Parent then pw.Visible = isOpen end
+end
 if titleLbl and titleLbl.Parent then
-titleLbl.TextTransparency = (isOpen and cHolder and cHolder.Visible) and 1 or 0
+titleLbl.TextTransparency = 0
 end
 end
 State.SyncWindowFn = syncWindowVisibilityInstant
@@ -1315,13 +1479,12 @@ btn:SetAttribute("__CloseSyncHooked", true)
 btn.MouseButton1Down:Connect(function()
 State.CloseHideUntil = os.clock() + 0.42
 if winStroke then winStroke.Enabled = false end
-local bBar = win:FindFirstChild("ChilliSenaBottomBar")
+local bBar = wpParent:FindFirstChild("ChilliSenaBottomBar") or win:FindFirstChild("ChilliSenaBottomBar")
 if bBar then bBar.Visible = false end
-if wp then wp.Visible = false end
-local cHolder = win:FindFirstChild("ChilliCosmicHolder")
-if cHolder then cHolder.Visible = false end
-end)
+for _, pw in ipairs(pageWallpapers) do
+if pw and pw.Parent then pw.Visible = false end
 end
+end)
 end
 end
 end
@@ -1345,14 +1508,14 @@ if #navButtons >= 2 then
 table.sort(navButtons, function(a, b) return a.AbsolutePosition.Y < b.AbsolutePosition.Y end)
 local TAB_NAMES = { [1] = { title = "BẢNG ĐIỀU KHIỂN", icon = "🏠", sub = "HOME DASHBOARD" }, [2] = { title = "CƯỚP TRỨNG", icon = "🥚", sub = "AUTO STEAL & SNIPER" }, [3] = { title = "CÀY CUỐC & PET", icon = "🌾", sub = "AUTO FARM & PETS" }, [4] = { title = "SỰ KIỆN", icon = "✨", sub = "HALLOWEEN & EVENTS" }, [5] = { title = "NGƯỜI CHƠI", icon = "👤", sub = "PLAYER & ESP" }, [6] = { title = "HỆ THỐNG", icon = "⚙️", sub = "SYSTEM & CONFIG" } }
 local function showTabToast(idx, badgeColor)
-local tabInfo = TAB_NAMES[idx] or { title = "TAB " .. tostring(idx), icon = "⚡", sub = "CHILLI HUB ULTRA" }
+local tabInfo = TAB_NAMES[idx] or { title = "TAB " .. tostring(idx), icon = "⚡", sub = "CHILLI HUB V7" }
 local oldToast = win:FindFirstChild("ChilliTabToast")
 if oldToast then oldToast:Destroy() end
-local toast = mk("Frame", { Name = "ChilliTabToast", AnchorPoint = v2(0.5, 0), Position = u2(0.5, 20, 0, -32), Size = u2(0, 248, 0, 30), BackgroundColor3 = c3(15, 17, 26), BackgroundTransparency = 0.12, BorderSizePixel = 0, ClipsDescendants = true, Active = false, ZIndex = (win.ZIndex or 2) + 20 }, win)
+local toast = mk("Frame", { Name = "ChilliTabToast", AnchorPoint = v2(0.5, 0), Position = u2(0.5, 20, 0, -32), Size = u2(0, 256, 0, 30), BackgroundColor3 = c3(14, 16, 28), BackgroundTransparency = 0.08, BorderSizePixel = 0, ClipsDescendants = true, Active = false, ZIndex = 1005 }, win)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, toast)
-local tStroke = mk("UIStroke", { Thickness = 1.4, Color = badgeColor, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, toast)
+local tStroke = mk("UIStroke", { Thickness = 1.5, Color = badgeColor, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, toast)
 table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, tStroke))
-local tLbl = mk("TextLabel", { Size = u2(1, 0, 1, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamBlack, TextSize = 11, TextColor3 = Color3.new(1, 1, 1), Text = tabInfo.icon .. "  " .. tabInfo.title .. "  •  " .. tabInfo.sub, Active = false, ZIndex = toast.ZIndex + 1 }, toast)
+local tLbl = mk("TextLabel", { Size = u2(1, 0, 1, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamBlack, TextSize = 11, TextColor3 = Color3.new(1, 1, 1), Text = tabInfo.icon .. "  " .. tabInfo.title .. "  •  " .. tabInfo.sub, Active = false, ZIndex = 1006 }, toast)
 local tGrad = mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, tLbl)
 table.insert(State.ActiveGradients, tGrad)
 TweenService:Create(toast, TweenInfo.new(0.24, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Position = u2(0.5, 20, 0, 8) }):Play()
@@ -1372,7 +1535,7 @@ local squircle = btn:FindFirstChild("ChilliSenaSquircle")
 if not squircle then
 squircle = mk("Frame", { Name = "ChilliSenaSquircle", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2(0, 30, 0, 30), BackgroundColor3 = badgeColor, BackgroundTransparency = 0.12, BorderSizePixel = 0, Active = false, ZIndex = btn.ZIndex + 1 }, btn)
 mk("UICorner", { CornerRadius = UDim.new(0, 8) }, squircle)
-mk("UIStroke", { Thickness = 1, Color = Color3.new(1, 1, 1), Transparency = 0.65 }, squircle)
+mk("UIStroke", { Thickness = 1, Color = Color3.new(1, 1, 1), Transparency = 0.55 }, squircle)
 for _, ch in ipairs(btn:GetDescendants()) do
 if ch ~= squircle and ch.Name ~= "ChilliStealTabIcon" then
 if ch:IsA("ImageLabel") or ch:IsA("ImageButton") then
@@ -1389,7 +1552,8 @@ if idx == 2 then
 for _, desc in ipairs(btn:GetDescendants()) do
 if desc ~= squircle and desc.Name ~= "ChilliStealTabIcon" and not desc:IsA("UICorner") and not desc:IsA("UIStroke") then
 if desc:IsA("ImageLabel") or desc:IsA("ImageButton") then desc.ImageTransparency = 1
-elseif desc:IsA("TextLabel") or desc:IsA("TextButton") then desc:SetAttribute("__HiddenVxLogo", true)
+elseif desc:IsA("TextLabel") or desc:IsA("TextButton") then
+desc:SetAttribute("__HiddenVxLogo", true)
 desc.TextTransparency = 1
 elseif desc:IsA("Frame") then
 desc.BackgroundTransparency = 1
@@ -1440,9 +1604,8 @@ end)
 end
 end
 end
-local searchScope = headerBar or win
-for _, it in ipairs(searchScope:GetDescendants()) do
-if it ~= titleLbl and it:IsA("GuiObject") and not it.Name:find("^ChilliCosmic") and not it.Name:find("^ChilliSena") and it.Name ~= "ChilliUltraTitleBadge" and it.Name ~= "ChilliStealTabIcon" and it.Name ~= "ChilliHeaderLogo" and not it:IsDescendantOf(titleLbl) then
+for _, it in ipairs(win:GetDescendants()) do
+if it ~= titleLbl and it:IsA("GuiObject") and not it.Name:find("^Chilli") and not it:IsDescendantOf(titleLbl) then
 local p, s = it.AbsolutePosition, it.AbsoluteSize
 if math.abs(p.Y - hy) < 28 and p.X < tx and (tx - p.X) < 55 and s.X >= 12 and s.X <= 42 and s.Y >= 12 and s.Y <= 42 then
 local holder = (it:IsA("ImageLabel") or it:IsA("ImageButton")) and it or it.Parent
@@ -1452,13 +1615,28 @@ it.TextTransparency = 1
 elseif it:IsA("ImageLabel") or it:IsA("ImageButton") then
 it.ImageTransparency = 1
 end
-if holder and holder:IsA("GuiObject") and not holder:FindFirstChild("ChilliHeaderLogo") then
+if holder and holder:IsA("GuiObject") then
 holder.BackgroundTransparency = 1
-local hBadge = mk("Frame", { Name = "ChilliHeaderLogo", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2(0, 26, 0, 26), BackgroundColor3 = c3(0, 0, 0), BorderSizePixel = 0, ClipsDescendants = true, Active = false, ZIndex = (headerBar and headerBar.ZIndex or 2) + 14 }, holder)
+local hBadge = holder:FindFirstChild("ChilliHeaderLogo")
+if not hBadge then
+hBadge = mk("Frame", { Name = "ChilliHeaderLogo", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2(0, 28, 0, 28), BackgroundColor3 = c3(0, 0, 0), BorderSizePixel = 0, ClipsDescendants = true, Active = false, ZIndex = titleLbl.ZIndex + 4 }, holder)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, hBadge)
 local hStroke = mk("UIStroke", { Thickness = 1.5, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, hBadge)
 table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, hStroke))
-local hImg = mk("ImageLabel", { AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.72, 0.72), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = hBadge.ZIndex + 1 }, hBadge)
+mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.58, 0.58), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = hBadge.ZIndex + 1 }, hBadge)
+else
+hBadge.Size = u2(0, 28, 0, 28)
+hBadge.BackgroundColor3 = c3(0, 0, 0)
+hBadge.ClipsDescendants = true
+local hImg = hBadge:FindFirstChildOfClass("ImageLabel")
+if hImg then
+hImg.Image = LOGO_ID
+hImg.Size = u2s(0.58, 0.58)
+hImg.ScaleType = Enum.ScaleType.Fit
+local oldC = hImg:FindFirstChildOfClass("UICorner")
+if oldC then oldC:Destroy() end
+end
+end
 end
 break
 end
