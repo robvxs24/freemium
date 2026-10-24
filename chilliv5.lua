@@ -9,11 +9,18 @@ local LOGO_BG, BLACK_BG = c3(12, 12, 18), c3(8, 8, 12)
 local MY_URL = "https://raw.githubusercontent.com/kairobloc/stealanegg/refs/heads/main/chillihubv7.lua"
 local VENYX_URL = "https://raw.githubusercontent.com/tienkhanh1/Venyx/main/VenyxHub"
 local AUTO_FILE, LANG_FILE = "ChilliHubV5_AutoRun.lua", "ChilliV5_Lang.txt"
-local PRESET_JSON = [=[{"venyx":1,"name":"hihi 2","data":{"System / Interface/Quick bars/Show quick bars":true,"Farm / Sell/Favorite/Auto favorite":false,"System / Interface/Quick bars/Quick bar layout":"{\"pins\":{\"Event / Butterfly/Butterfly bloom/Auto butterfly bloom\":2,\"Player / Combat/Hit aura/Hit aura\":1,\"Player / Combat/Auto hit/Chase speed\":1,\"Steal / Auto Steal/Auto hop server/Auto hop\":1,\"Player / Move/Movement/Boost speed\":1,\"Player / Combat/Auto hit/Auto hit\":1,\"Steal / Auto Steal/Auto steal/Auto steal\":1,\"Event / Race/Racing Event/Auto race\":2,\"Farm / Treadmill/Treadmill/Auto treadmill\":1,\"Player / Move/Movement/Speed boost\":1},\"keys\":[],\"at\":{\"1\":[766.9053955078125,21.74544906616211],\"2\":[624.3492431640625,21.080074310302736]},\"fold\":{\"1\":true,\"2\":true}}","System / Optimizer/Graphics/Disable 3D Render":false,"Farm / Pen/Auto place/Place first":"Best value","Steal / Auto Steal/Filter/Only below /s":0,"Farm / Pen/Auto hatch/Equip best pets":false,"Event / AA/Capture the egg/Auto capture event egg":true,"Farm / Mutate/Mutate filter/Only these eggs":[],"Farm / Treadmill/Treadmill/Auto upgrade treadmill":false,"Steal / Auto Steal/Auto steal/Drop eggs at safe zone":false,"Steal / Auto Steal/Auto hop server/Auto hop":false,"System / Interface/Interface/Dim the game":0,"Player / Combat/Hit aura/Skip friends":true,"Player / ESP/Others/Pen egg ESP":true,"System / Optimizer/Frame rate/FPS position":"0.5000,-550,0.0000,49","Event / Butterfly/Butterfly bloom/Auto butterfly bloom":true,"Farm / Pen/Auto hatch/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Steal / Auto Steal/Filter/Min value /s":2000000000,"Player / Combat/Hit aura/Hit aura":true,"Event / Star/Shooting Star/Auto catch shooting star":true,"Steal / Egg Predictor/Egg showcase/Calculate mutations":[],"Steal / Egg Predictor/Egg showcase/Sort eggs":"Value","Event / Halloween/Ghost Dog and fishing/Auto fishing":true,"System / Optimizer/Bases/Hide other players' pets and eggs":true,"Player / Combat/Auto hit/Auto hit":false,"Event / Halloween/Ghost Dog and fishing/Auto Ghost Dog quest":false,"Event / Butterfly/Butterfly bloom/Catch mode":"Chase","Event / Butterfly/Butterfly machine/Trade":[],"Event / Halloween/Halloween Dimension/Halloween eggs":["Bone Emperor","Voidseer Pumpkin","Zombified Bone Emperor","Ghost Reaper","Gorillastein","Phantom Dragon","Shelltide Voyager","Zombified Grave Cerberus","Zombified Phantom Dragon","BloodBloom","Grave Cerberus","Graveyard Brute","Werewolf","Zombified Night Fang","Zombified Pumpkin Fiend","Zombified Tombstone Bear"],"Farm / Pen/Auto place/Auto place":false,"Steal / Auto Steal/Filter/Rarities":["Divine","Eternal","Secret"],"System / Webhook/What to post/Post fused eggs":false,"Event / Halloween/Halloween Dimension/Auto Pumpkin Moon":true,"Farm / Sell/Pets/Sell rarities":["Rare","Uncommon","Common"],"Player / Move/Protection/Ignore traps":true,"Farm / Fuse/Fuse filter/Rarities":["Mythic","Legendary","Epic","Rare","Uncommon","Common"],"System / Webhook/Discord webhook/Ping role ID":"","Player / ESP/Others/Hide sleeping guards":true,"Event / Halloween/Halloween Dimension/Min value /s":1000000000,"System / Optimizer/Frame rate/Show FPS and ping":false,"Farm / Treadmill/Progress/Auto claim index rewards":false,"System / Interface/Quick bars/Keybinds":true,"Steal / Auto Steal/Auto steal/Instant steps":2,"Farm / Fuse/Fuse filter/Never fuse":[],"Farm / Pen/Auto hatch/Mutations":[],"System / Optimizer/Bases/Hide my pets and eggs":true,"Event / Halloween/Monsters/Monster order":"Most tokens","Steal / Auto Steal/Filter/Zones":["Enchanted Forest","Light Dark","Titan Temple","Cherry Blossom"],"Event / Butterfly/Butterfly machine/Auto craft essence":true,"Farm / Mutate/Auto mutate/Auto mutate":false,"Player / ESP/Others/Other pens ESP":true,"Player / ESP/Field eggs/Egg ESP":false,"Farm / Pen/Keep eggs/Min value /s":0,"Steal / Auto Steal/Auto steal/Delivery method":"Instant steps","Farm / Treadmill/Progress/Auto buy trails":false,"Farm / Sell/Eggs/Sell rarities":["Rare","Uncommon","Common"],"System / Interface/Interface/Tone":100,"Event / AA/Admin abuse/Admin treadmill":false,"System / Webhook/What to post/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Farm / Pen/Auto place/Place when":"Always","Event / Halloween/Monsters/Monsters":["Candy Corn","Hollow Bat","Scarecrow","Chest Mimic","Pumpkin Golem","Soul Phantom"],"Event / Butterfly/Wisp companion/Auto banjo cricket":false,"Event / Halloween/Halloween Dimension/Auto buy Halloween Dimension Egg":false,"Event / Halloween/Halloween Dimension/Walk speed":1000,"Steal / Auto Steal/Auto steal/Delivery speed":4500,"Farm / Mutate/Auto mutate/Use items":["Fractured","Scrambled","Enchanted","Nitro","Spectral"],"Farm / Fuse/Fuse machine/Fuse first":"Lowest rarity","Steal / Auto Steal/Auto hop server/Rare from":"Cosmic","Player / Move/Movement/Boost speed":720,"System / Interface/Interface/Opacity":50,"Player / ESP/Others/Guard ESP":true,"Farm / Sell/Favorite/Always favorite":[],"Event / Halloween/Halloween Dimension/Steal speed":100,"Farm / Sell/Eggs/Auto sell eggs":false,"System / Webhook/What to post/Post stolen eggs":false,"Player / ESP/Others/ESP size":60,"Steal / Auto Steal/Filter/Steal first":"Best value","Farm / Sell/Pets/Only below /s":0,"Player / Move/Protection/Anti ragdoll":true,"Player / ESP/Field eggs/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic"],"Player / Move/Protection/Invisible":false,"Steal / Auto Steal/Auto hop server/Hop when":"After stealing a match","Event / AA/Cursed Island Wars/Auto play Cursed Island Wars":true,"Event / Butterfly/Butterfly bloom/Catch":["Radiant","Amethyst","Sapphire","Emerald"],"Farm / Treadmill/Treadmill/Auto treadmill":false,"System / Interface/Game HUD/Steal panel button on game HUD":true,"System / Server/Server/Hop to":"Least players","Farm / Mutate/Mutate filter/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Player / Move/Protection/Instant prompts":true,"System / Server/Join and stay/Rejoin on kick":true,"Farm / Sell/Favorite/Favorite equipped":false,"Event / Halloween/Phantom Express/Auto Phantom Express":true,"System / Optimizer/Frame rate/FPS cap":360,"Steal / Auto Steal/Auto steal/Steal missing index eggs":false,"Steal / Auto Steal/Filter/Only these eggs":["ArchAngel","Kitsune","Nightflame","Royal Skywhale","Unicorn","World Burner","Celestial Sunlion","Gorilla King","Pegasus","Skeleton Horse","Strawberry Elephant","67","Amethyst Runebear","Starry Fox"],"Farm / Sell/Favorite/Min value /s":0,"System / Server/Join and stay/Auto load script":true,"Farm / Mutate/Mutate filter/Skip eggs with":[],"System / Optimizer/Graphics/Low graphics":true,"Event / Halloween/Monsters/Walk speed":1000,"Event / AA/Minigame eggs/Auto steal minigame egg":true,"Farm / Pen/Auto place/Only these eggs":[],"Player / Combat/Auto hit/Hit who":"Nearest player","Farm / Sell/Eggs/Never sell":[],"Farm / Pen/Keep eggs/Eggs to keep":[],"Farm / Fuse/Fuse filter/Only below /s":0,"Event / Halloween/Monsters/Use weapons":["Enchanted Hammer","Racing Bat","Cricket's Banjo","Flyswatter"],"Farm / Fuse/Fuse machine/Skip mutated":true,"Farm / Sell/Pets/Never sell":[],"Farm / Sell/Favorite/Match":"All picked rules","Event / Halloween/Ghost Dog and fishing/Cast luck":"x1.5 Perfect","System / Optimizer/Graphics/Background color":"Black","Player / Move/Movement/God mode":true,"Farm / Pen/Auto place/Mutations":[],"Steal / Auto Steal/Auto steal/Anti guard":true,"Farm / Sell/Favorite/Unfavorite pets not matching":false,"System / Webhook/What to post/Min value /s":0,"Farm / Pen/Auto hatch/Auto hatch":false,"Farm / Sell/Pets/Only mutations":[],"Farm / Fuse/Fuse machine/Eject odd pets":true,"Event / Butterfly/Butterfly machine/Auto trade up":false,"Event / AA/Admin abuse/Instant steal":false,"System / Webhook/What to post/Post when bag is full":false,"Farm / Fuse/Fuse machine/Auto fuse":false,"Farm / Pen/Auto hatch/Only these eggs":[],"Event / Butterfly/Butterfly machine/Smart trade for essence":true,"Event / Halloween/Halloween Dimension/Auto steal Halloween eggs":true,"System / Interface/Quick bars/Bar size":85,"Player / Combat/Weapons/Use weapons":[],"Player / ESP/Others/Player ESP":true,"System / Webhook/Discord webhook/Ping everyone":false,"Farm / Fuse/Fuse machine/Use pets":"Lowest value first","Event / Halloween/Monsters/Auto farm monsters":true,"Farm / Mutate/Auto mutate/Mutate first":"Best value","Player / ESP/Field eggs/Min value /s":0,"Event / AA/Cursed Island Wars/Island Wars target":"Enemies and base","Player / Move/Movement/Infinite jump":true,"Farm / Pen/Auto place/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Player / ESP/Field eggs/Mutations":[],"Event / Halloween/Phantom Express/Auto vacuum Ghouler boss":true,"Farm / Treadmill/Progress/Auto upgrade base":false,"Steal / Auto Steal/Auto steal/Auto steal":true,"Player / Combat/Auto hit/Chase speed":1000,"Player / ESP/Field eggs/Fixed size":false,"Event / Halloween/Halloween Dimension/Instant steal Halloween eggs":true,"Event / Halloween/Phantom Express/Walk speed":1000,"Event / Halloween/Phantom Express/Ghost target":"Rarest first","Farm / Sell/Eggs/Only below /s":0,"Farm / Sell/Favorite/Rarities":[],"Steal / Auto Steal/Auto hop server/First hop after":5,"Steal / Auto Steal/Auto steal/Tween speed":110,"Farm / Sell/Pets/Auto sell pets":false,"Event / Halloween/Phantom Express/Auto trade souls":true,"Farm / Sell/Pets/Keep mutated":true,"Steal / Auto Steal/Filter/Sell cheapest egg when bag is full":false,"Player / ESP/Field eggs/Show":[],"Steal / Auto Steal/Auto steal/Go to egg":"Teleport to egg","Player / Combat/Weapons/Hold each":0.2,"Event / AA/Capture the egg/Hold height":120,"Steal / Auto Steal/Filter/Mutations":[],"Event / AA/Capture the egg/Keep away":150,"Farm / Mutate/Mutate filter/Min value /s":0,"Steal / Auto Steal/Auto steal/Teleport zones":["Enchanted Forest","Light Dark","Titan Temple","Cherry Blossom"],"Farm / Pen/Auto hatch/Min value /s":0,"Player / Move/Movement/Speed boost":false,"System / Interface/Interface/UI scale":90,"Farm / Fuse/Fuse filter/Only these pets":[],"Steal / Egg Predictor/Egg showcase/Preview card":false,"Event / Butterfly/Butterfly bloom/Catch speed":600,"Player / Move/Protection/Anti AFK":true,"Event / Halloween/Halloween Dimension/Halloween rarities":[],"System / Interface/Interface/Show / hide UI":{"k":"LeftControl"},"Steal / Auto Steal/Auto steal/Steal from other players":true,"Farm / Pen/Auto place/Min value /s":0,"Event / Butterfly/Butterfly bloom/Catch priority":"Rarest","System / Webhook/Discord webhook/Ping user ID":"","Farm / Sell/Eggs/Only mutations":[],"Farm / Treadmill/Progress/Auto claim offline cash":false,"Farm / Sell/Favorite/Mutations":[],"Event / AA/Capture the egg/Take it from the holder":true,"System / Webhook/Discord webhook/Webhook URL":"","Farm / Priority/Task order/Task order":["Steal filter eggs","Shooting Star","Phantom Express","Pumpkin Moon","Butterfly","Steal wisp eggs","Wisp","Steal missing index","Place","Mutate","Butterfly machine","Ghost Dog quest","Halloween monsters","Halloween fishing","Treadmill"],"Farm / Sell/Eggs/Keep mutated":true,"Event / Butterfly/Wisp companion/Auto wisp quest":false,"System / Optimizer/Graphics/Hide game UI":false}}]=]
+local PRESET_JSON = [=[{"venyx":1,"name":"hihi 2","data":{"System / Interface/Quick bars/Show quick bars":true,"Farm / Sell/Favorite/Auto favorite":false,"System / Interface/Quick bars/Quick bar layout":"{\"pins\":{\"Event / Butterfly/Butterfly bloom/Auto butterfly bloom\":2,\"Player / Combat/Hit aura/Hit aura\":1,\"Player / Combat/Auto hit/Chase speed\":1,\"Steal / Auto Steal/Auto hop server/Auto hop\":1,\"Player / Move/Movement/Boost speed\":1,\"Player / Combat/Auto hit/Auto hit\":1,\"Steal / Auto Steal/Auto steal/Auto steal\":1,\"Event / Race/Racing Event/Auto race\":2,\"Farm / Treadmill/Treadmill/Auto treadmill\":1,\"Player / Move/Movement/Speed boost\":1},\"keys\":[],\"at\":{\"1\":[766.9053955078125,21.74544906616211],\"2\":[624.3492431640625,21.080074310302736]},\"fold\":{\"1\":true,\"2\":true}}","System / Optimizer/Graphics/Disable 3D Render":false,"Farm / Pen/Auto place/Place first":"Best value","Steal / Auto Steal/Filter/Only below /s":0,"Farm / Pen/Auto hatch/Equip best pets":false,"Event / AA/Capture the egg/Auto capture event egg":true,"Farm / Mutate/Mutate filter/Only these eggs":[],"Farm / Treadmill/Treadmill/Auto upgrade treadmill":false,"Steal / Auto Steal/Auto steal/Drop eggs at safe zone":false,"Steal / Auto Steal/Auto hop server/Auto hop":false,"System / Interface/Interface/Dim the game":0,"Player / Combat/Hit aura/Skip friends":true,"Player / ESP/Others/Pen egg ESP":true,"System / Optimizer/Frame rate/FPS position":"0.5000,-550,0.0000,49","Event / Butterfly/Butterfly bloom/Auto butterfly bloom":true,"Farm / Pen/Auto hatch/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Steal / Auto Steal/Filter/Min value /s":2000000000,"Player / Combat/Hit aura/Hit aura":true,"Event / Star/Shooting Star/Auto catch shooting star":true,"Steal / Egg Predictor/Egg showcase/Calculate mutations":[],"Steal / Egg Predictor/Egg showcase/Sort eggs":"Value","Event / Halloween/Ghost Dog and fishing/Auto fishing":true,"System / Optimizer/Bases/Hide other players' pets and eggs":true,"Player / Combat/Auto hit/Auto hit":false,"Event / Halloween/Ghost Dog and fishing/Auto Ghost Dog quest":false,"Event / Butterfly/Butterfly bloom/Catch mode":"Chase","Event / Butterfly/Butterfly machine/Trade":[],"Event / Halloween/Halloween Dimension/Halloween eggs":["Bone Emperor","Voidseer Pumpkin","Zombified Bone Emperor","Ghost Reaper","Gorillastein","Phantom Dragon","Shelltide Voyager","Zombified Grave Cerberus","Zombified Phantom Dragon","BloodBloom","Grave Cerberus","Graveyard Brute","Werewolf","Zombified Night Fang","Zombified Pumpkin Fiend","Zombified Tombstone Bear"],"Farm / Pen/Auto place/Auto place":false,"Steal / Auto Steal/Filter/Rarities":["Divine","Eternal","Secret"],"System / Webhook/What to post/Post fused eggs":false,"Event / Halloween/Halloween Dimension/Auto Pumpkin Moon":true,"Farm / Sell/Pets/Sell rarities":["Rare","Uncommon","Common"],"Player / Move/Protection/Ignore traps":true,"Farm / Fuse/Fuse filter/Rarities":["Mythic","Legendary","Epic","Rare","Uncommon","Common"],"System / Webhook/Discord webhook/Ping role ID":"","Player / ESP/Others/Hide sleeping guards":true,"Event / Halloween/Halloween Dimension/Min value /s":1000000000,"System / Optimizer/Frame rate/Show FPS and ping":true,"Farm / Treadmill/Progress/Auto claim index rewards":false,"System / Interface/Quick bars/Keybinds":true,"Steal / Auto Steal/Auto steal/Instant steps":2,"Farm / Fuse/Fuse filter/Never fuse":[],"Farm / Pen/Auto hatch/Mutations":[],"System / Optimizer/Bases/Hide my pets and eggs":true,"Event / Halloween/Monsters/Monster order":"Most tokens","Steal / Auto Steal/Filter/Zones":["Enchanted Forest","Light Dark","Titan Temple","Cherry Blossom"],"Event / Butterfly/Butterfly machine/Auto craft essence":true,"Farm / Mutate/Auto mutate/Auto mutate":false,"Player / ESP/Others/Other pens ESP":true,"Player / ESP/Field eggs/Egg ESP":false,"Farm / Pen/Keep eggs/Min value /s":0,"Steal / Auto Steal/Auto steal/Delivery method":"Instant steps","Farm / Treadmill/Progress/Auto buy trails":false,"Farm / Sell/Eggs/Sell rarities":["Rare","Uncommon","Common"],"System / Interface/Interface/Tone":100,"Event / AA/Admin abuse/Admin treadmill":false,"System / Webhook/What to post/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Farm / Pen/Auto place/Place when":"Always","Event / Halloween/Monsters/Monsters":["Candy Corn","Hollow Bat","Scarecrow","Chest Mimic","Pumpkin Golem","Soul Phantom"],"Event / Butterfly/Wisp companion/Auto banjo cricket":false,"Event / Halloween/Halloween Dimension/Auto buy Halloween Dimension Egg":false,"Event / Halloween/Halloween Dimension/Walk speed":1000,"Steal / Auto Steal/Auto steal/Delivery speed":4500,"Farm / Mutate/Auto mutate/Use items":["Fractured","Scrambled","Enchanted","Nitro","Spectral"],"Farm / Fuse/Fuse machine/Fuse first":"Lowest rarity","Steal / Auto Steal/Auto hop server/Rare from":"Cosmic","Player / Move/Movement/Boost speed":720,"System / Interface/Interface/Opacity":50,"Player / ESP/Others/Guard ESP":true,"Farm / Sell/Favorite/Always favorite":[],"Event / Halloween/Halloween Dimension/Steal speed":100,"Farm / Sell/Eggs/Auto sell eggs":false,"System / Webhook/What to post/Post stolen eggs":false,"Player / ESP/Others/ESP size":60,"Steal / Auto Steal/Filter/Steal first":"Best value","Farm / Sell/Pets/Only below /s":0,"Player / Move/Protection/Anti ragdoll":true,"Player / ESP/Field eggs/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic"],"Player / Move/Protection/Invisible":false,"Steal / Auto Steal/Auto hop server/Hop when":"After stealing a match","Event / AA/Cursed Island Wars/Auto play Cursed Island Wars":true,"Event / Butterfly/Butterfly bloom/Catch":["Radiant","Amethyst","Sapphire","Emerald"],"Farm / Treadmill/Treadmill/Auto treadmill":false,"System / Interface/Game HUD/Steal panel button on game HUD":true,"System / Server/Server/Hop to":"Least players","Farm / Mutate/Mutate filter/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Player / Move/Protection/Instant prompts":true,"System / Server/Join and stay/Rejoin on kick":true,"Farm / Sell/Favorite/Favorite equipped":false,"Event / Halloween/Phantom Express/Auto Phantom Express":true,"System / Optimizer/Frame rate/FPS cap":360,"Steal / Auto Steal/Auto steal/Steal missing index eggs":false,"Steal / Auto Steal/Filter/Only these eggs":["ArchAngel","Kitsune","Nightflame","Royal Skywhale","Unicorn","World Burner","Celestial Sunlion","Gorilla King","Pegasus","Skeleton Horse","Strawberry Elephant","67","Amethyst Runebear","Starry Fox"],"Farm / Sell/Favorite/Min value /s":0,"System / Server/Join and stay/Auto load script":false,"Farm / Mutate/Mutate filter/Skip eggs with":[],"System / Optimizer/Graphics/Low graphics":true,"Event / Halloween/Monsters/Walk speed":1000,"Event / AA/Minigame eggs/Auto steal minigame egg":true,"Farm / Pen/Auto place/Only these eggs":[],"Player / Combat/Auto hit/Hit who":"Nearest player","Farm / Sell/Eggs/Never sell":[],"Farm / Pen/Keep eggs/Eggs to keep":[],"Farm / Fuse/Fuse filter/Only below /s":0,"Event / Halloween/Monsters/Use weapons":["Enchanted Hammer","Racing Bat","Cricket's Banjo","Flyswatter"],"Farm / Fuse/Fuse machine/Skip mutated":true,"Farm / Sell/Pets/Never sell":[],"Farm / Sell/Favorite/Match":"All picked rules","Event / Halloween/Ghost Dog and fishing/Cast luck":"x1.5 Perfect","System / Optimizer/Graphics/Background color":"Black","Player / Move/Movement/God mode":true,"Farm / Pen/Auto place/Mutations":[],"Steal / Auto Steal/Auto steal/Anti guard":true,"Farm / Sell/Favorite/Unfavorite pets not matching":false,"System / Webhook/What to post/Min value /s":0,"Farm / Pen/Auto hatch/Auto hatch":false,"Farm / Sell/Pets/Only mutations":[],"Farm / Fuse/Fuse machine/Eject odd pets":true,"Event / Butterfly/Butterfly machine/Auto trade up":false,"Event / AA/Admin abuse/Instant steal":false,"System / Webhook/What to post/Post when bag is full":false,"Farm / Fuse/Fuse machine/Auto fuse":false,"Farm / Pen/Auto hatch/Only these eggs":[],"Event / Butterfly/Butterfly machine/Smart trade for essence":true,"Event / Halloween/Halloween Dimension/Auto steal Halloween eggs":true,"System / Interface/Quick bars/Bar size":85,"Player / Combat/Weapons/Use weapons":[],"Player / ESP/Others/Player ESP":true,"System / Webhook/Discord webhook/Ping everyone":false,"Farm / Fuse/Fuse machine/Use pets":"Lowest value first","Event / Halloween/Monsters/Auto farm monsters":true,"Farm / Mutate/Auto mutate/Mutate first":"Best value","Player / ESP/Field eggs/Min value /s":0,"Event / AA/Cursed Island Wars/Island Wars target":"Enemies and base","Player / Move/Movement/Infinite jump":true,"Farm / Pen/Auto place/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Player / ESP/Field eggs/Mutations":[],"Event / Halloween/Phantom Express/Auto vacuum Ghouler boss":true,"Farm / Treadmill/Progress/Auto upgrade base":false,"Steal / Auto Steal/Auto steal/Auto steal":true,"Player / Combat/Auto hit/Chase speed":1000,"Player / ESP/Field eggs/Fixed size":false,"Event / Halloween/Halloween Dimension/Instant steal Halloween eggs":true,"Event / Halloween/Phantom Express/Walk speed":1000,"Event / Halloween/Phantom Express/Ghost target":"Rarest first","Farm / Sell/Eggs/Only below /s":0,"Farm / Sell/Favorite/Rarities":[],"Steal / Auto Steal/Auto hop server/First hop after":5,"Steal / Auto Steal/Auto steal/Tween speed":110,"Farm / Sell/Pets/Auto sell pets":false,"Event / Halloween/Phantom Express/Auto trade souls":true,"Farm / Sell/Pets/Keep mutated":true,"Steal / Auto Steal/Filter/Sell cheapest egg when bag is full":false,"Player / ESP/Field eggs/Show":[],"Steal / Auto Steal/Auto steal/Go to egg":"Teleport to egg","Player / Combat/Weapons/Hold each":0.2,"Event / AA/Capture the egg/Hold height":120,"Steal / Auto Steal/Filter/Mutations":[],"Event / AA/Capture the egg/Keep away":150,"Farm / Mutate/Mutate filter/Min value /s":0,"Steal / Auto Steal/Auto steal/Teleport zones":["Enchanted Forest","Light Dark","Titan Temple","Cherry Blossom"],"Farm / Pen/Auto hatch/Min value /s":0,"Player / Move/Movement/Speed boost":false,"System / Interface/Interface/UI scale":90,"Farm / Fuse/Fuse filter/Only these pets":[],"Steal / Egg Predictor/Egg showcase/Preview card":false,"Event / Butterfly/Butterfly bloom/Catch speed":600,"Player / Move/Protection/Anti AFK":true,"Event / Halloween/Halloween Dimension/Halloween rarities":[],"System / Interface/Interface/Show / hide UI":{"k":"LeftControl"},"Steal / Auto Steal/Auto steal/Steal from other players":true,"Farm / Pen/Auto place/Min value /s":0,"Event / Butterfly/Butterfly bloom/Catch priority":"Rarest","System / Webhook/Discord webhook/Ping user ID":"","Farm / Sell/Eggs/Only mutations":[],"Farm / Treadmill/Progress/Auto claim offline cash":false,"Farm / Sell/Favorite/Mutations":[],"Event / AA/Capture the egg/Take it from the holder":true,"System / Webhook/Discord webhook/Webhook URL":"","Farm / Priority/Task order/Task order":["Steal filter eggs","Shooting Star","Phantom Express","Pumpkin Moon","Butterfly","Steal wisp eggs","Wisp","Steal missing index","Place","Mutate","Butterfly machine","Ghost Dog quest","Halloween monsters","Halloween fishing","Treadmill"],"Farm / Sell/Eggs/Keep mutated":true,"Event / Butterfly/Wisp companion/Auto wisp quest":false,"System / Optimizer/Graphics/Hide game UI":false}}]=]
 if writefile then
 pcall(writefile, AUTO_FILE, ('pcall(function() loadstring(game:HttpGet("%s"))() end)'):format(MY_URL))
 end
 task.spawn(function()
+pcall(function()
+if setfpscap then pcall(setfpscap, 120) end
+local lgt = game:GetService("Lighting")
+lgt.GlobalShadows = false
+lgt.FogEnd = 9e9
+settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+end)
 pcall(function()
 local cp = game:GetService("ContentProvider")
 local pre = {}
@@ -27,8 +34,10 @@ for _, im in ipairs(pre) do im:Destroy() end
 end)
 end)
 local function safeHttpGet(url)
-local ok, res = pcall(function() return game:HttpGet(url, true) end)
-if ok and type(res) == "string" and #res > 10 then return res end
+local ok1, res1 = pcall(function() return game:HttpGet(url) end)
+if ok1 and type(res1) == "string" and #res1 > 10 then return res1 end
+local ok2, res2 = pcall(function() return game:HttpGet(url, true) end)
+if ok2 and type(res2) == "string" and #res2 > 10 then return res2 end
 local req = (syn and syn.request) or (http and http.request) or http_request or request or (fluxus and fluxus.request)
 if req then
 local rOk, rRes = pcall(req, { Url = url, Method = "GET" })
@@ -86,7 +95,13 @@ local sg = d:FindFirstAncestorOfClass("ScreenGui")
 if sg and not IGNORED_GUIS[sg.Name] and sg.Enabled ~= false then
 local t = d.Text
 if (t == "VENYX" or t == NEW_TITLE or t == "Chilli Hub Ultra" or t == "Chilli Hub V5" or t == "Chilli V5 |") and not d:FindFirstAncestorOfClass("ScrollingFrame") then
+local top = d
+while top.Parent and top.Parent ~= sg do top = top.Parent end
+if top and (top:GetAttribute("__SizeLockedV5Pro") or top:FindFirstChild("ChilliCircleDisc")) then
+pcall(function() sg:Destroy() end)
+else
 return true
+end
 end
 end
 end
@@ -98,93 +113,56 @@ local function setupSafeTeleportHook()
 local rq = env.__ChilliOrigQueue or env.queue_on_teleport or env.queueonteleport or queue_on_teleport or queueonteleport or (syn and syn.queue_on_teleport) or (fluxus and fluxus.queue_on_teleport) or (delta and delta.queue_on_teleport)
 if not rq then return end
 env.__ChilliOrigQueue = rq
-local boot = ('--[[CHILLI_V7_AUTHORIZED_TELEPORT]] local E=(getgenv and getgenv()) or _G E.__ChilliAllowVenyxFetch=false task.spawn(function() if not game:IsLoaded() then game.Loaded:Wait() end local P=game:GetService("Players") while not P.LocalPlayer do task.wait(0.05) end pcall(function() loadstring(game:HttpGet("%s"))() end) end)'):format(MY_URL)
 local clearQ = env.clearteleportqueue or env.clear_teleport_queue or clearteleportqueue or clear_teleport_queue or (syn and syn.clear_teleport_queue) or (fluxus and fluxus.clear_teleport_queue) or (delta and delta.clear_teleport_queue)
-local function queueOurBootOnly()
-if clearQ then pcall(clearQ) end
-if env.__ChilliBootQueuedSession ~= SID then
-env.__ChilliBootQueuedSession = SID
-pcall(rq, boot)
-end
-end
-local rawLock = function(c)
-local s = tostring(c or "")
-if s:find("CHILLI_V7_AUTHORIZED_TELEPORT", 1, true) then
-return rq(c)
-end
-if clearQ then pcall(clearQ) end
-if env.__ChilliBootQueuedSession ~= SID then
-env.__ChilliBootQueuedSession = SID
-return rq(boot)
-end
-return nil
-end
-local safeLock = newcclosure and newcclosure(rawLock) or rawLock
+local boot = ('--[[CHILLI_V7_AUTHORIZED_TELEPORT]] task.spawn(function() if not game:IsLoaded() then game.Loaded:Wait() end local P=game:GetService("Players") while not P.LocalPlayer do task.wait(0.1) end task.wait(0.4) pcall(function() loadstring(game:HttpGet("%s"))() end) end)'):format(MY_URL)
+local safeLock = function(c)
 pcall(function()
-if setreadonly then
-if syn and type(syn) == "table" then pcall(setreadonly, syn, false) end
-if fluxus and type(fluxus) == "table" then pcall(setreadonly, fluxus, false) end
-if delta and type(delta) == "table" then pcall(setreadonly, delta, false) end
+if tostring(c or ""):find("CHILLI_V7_AUTHORIZED_TELEPORT", 1, true) then
+rq(c)
+else
+if clearQ then pcall(clearQ) end
+if env.__ChilliBootQueuedSession ~= SID then
+env.__ChilliBootQueuedSession = SID
+rq(boot)
 end
+end
+end)
+end
+pcall(function()
+if clearQ then pcall(clearQ) end
 env.queue_on_teleport = safeLock
 env.queueonteleport = safeLock
 _G.queue_on_teleport = safeLock
 _G.queueonteleport = safeLock
-if syn and type(syn) == "table" then pcall(function() syn.queue_on_teleport = safeLock end) end
-if fluxus and type(fluxus) == "table" then pcall(function() fluxus.queue_on_teleport = safeLock end) end
-if delta and type(delta) == "table" then pcall(function() delta.queue_on_teleport = safeLock end) end
-end)
-queueOurBootOnly()
-if not env.__ChilliOnTpConnected and LocalPlayer then
-env.__ChilliOnTpConnected = true
-pcall(function()
+if env.__ChilliBootQueuedSession ~= SID then
+env.__ChilliBootQueuedSession = SID
+pcall(rq, boot)
+end
+if not env.__ChilliOnTpHooked and LocalPlayer then
+env.__ChilliOnTpHooked = true
 LocalPlayer.OnTeleport:Connect(function()
-env.__ChilliBootQueuedSession = nil
-queueOurBootOnly()
+pcall(function()
+if clearQ then pcall(clearQ) end
+pcall(rq, boot)
 end)
 end)
 end
+end)
 end
-pcall(setupSafeTeleportHook)
 local function launchVenyxBase()
 if isVenyxUiPresent() then return end
-if env.__VenyxLaunchClock and (os.clock() - env.__VenyxLaunchClock < 30) then return end
+if env.__VenyxLaunchingNow and (os.clock() - (env.__VenyxLaunchClock or 0) < 6) then return end
 env.__VenyxLaunchingNow = true
 env.__VenyxLaunchClock = os.clock()
 task.spawn(function()
 if not game:IsLoaded() then game.Loaded:Wait() end
-pcall(setupSafeTeleportHook)
-if isVenyxUiPresent() then
-env.__VenyxLaunchingNow = false
-return
-end
-env.__ChilliAllowVenyxFetch = true
 local rawCode = safeHttpGet(VENYX_URL)
-if rawCode and not isVenyxUiPresent() then
-rawCode = rawCode:gsub("queue_on_teleport", "__ChilliBlockedVenyxQueue"):gsub("queueonteleport", "__ChilliBlockedVenyxQueue")
-env.__ChilliBlockedVenyxQueue = function() end
-_G.__ChilliBlockedVenyxQueue = function() end
+if rawCode then
 local fn = loadstring(rawCode)
-if type(fn) == "function" then
-if setfenv and getfenv then
-pcall(function()
-local origEnv = getfenv(fn)
-local proxyEnv
-proxyEnv = setmetatable({
-queue_on_teleport = function() end,
-queueonteleport = function() end,
-clearteleportqueue = function() end,
-clear_teleport_queue = function() end,
-getgenv = function() return proxyEnv end
-}, { __index = origEnv, __newindex = origEnv })
-setfenv(fn, proxyEnv)
-end)
-end
-pcall(fn)
-end
-pcall(setupSafeTeleportHook)
+if type(fn) == "function" then pcall(fn) end
 end
 env.__VenyxLaunchingNow = false
+pcall(setupSafeTeleportHook)
 end)
 end
 launchVenyxBase()
@@ -226,68 +204,84 @@ NumberSequenceKeypoint.new(0.22, 0.28),
 NumberSequenceKeypoint.new(0.78, 0.26),
 NumberSequenceKeypoint.new(1.00, 0.20)
 })
-local fakeFps, lastFpsT = math.random(98, 114), 0
+local fakeFps, lastFpsT = math.random(96, 138), 0
 local function getFakeFps()
 local now = os.clock()
-if now - lastFpsT > 0.7 then
+if now - lastFpsT > 1.1 then
 lastFpsT = now
-fakeFps = math.clamp(fakeFps + math.random(-5, 6), 95, 120)
+fakeFps = math.clamp(fakeFps + math.random(-9, 11), 80, 150)
 end
 return fakeFps
 end
-local function isFpsTxt(t) return type(t) == "string" and t:find("FPS") ~= nil and t:find("ms") ~= nil and #t < 38 end
-local function fmtFps(t, f) return type(t) == "string" and t:gsub("%d+%s*FPS", f .. " FPS") or t end
+local function getLivePing()
+local ping = 48
+pcall(function()
+ping = math.clamp(math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue()), 12, 999)
+end)
+return ping
+end
+local function isFpsTxt(t) return type(t) == "string" and t:find("FPS", 1, true) ~= nil and t:find("ms", 1, true) ~= nil and #t < 42 end
 local function hookFps(lbl)
-if not lbl or lbl:GetAttribute("__FpsHookSession") == SID then return end
+if not lbl or lbl.Name == "ChilliFakeFpsOverlay" or lbl:GetAttribute("__FpsHookSession") == SID then return end
 lbl:SetAttribute("__FpsHookSession", SID)
-table.insert(State.TrackedFpsLabels, lbl)
 pcall(function()
 local p = lbl.Parent
-if p and p:IsA("GuiObject") and not p:FindFirstChild("IslandLogoBadge") and not p:FindFirstAncestor("ChilliHeaderOverlay") and p.AbsoluteSize.Y < 60 then
-p.Visible = false
-p:GetPropertyChangedSignal("Visible"):Connect(function()
-if isAlive() and p.Visible then p.Visible = false end
-end)
+if p and p:IsA("GuiObject") then
+p.Visible = true
+lbl.TextTransparency = 1
+local ov = p:FindFirstChild("ChilliFakeFpsOverlay")
+if not ov then
+ov = mk("TextLabel", {
+Name = "ChilliFakeFpsOverlay",
+Size = u2s(1, 1),
+Position = u2s(0, 0),
+BackgroundTransparency = 1,
+Font = lbl.Font,
+TextSize = lbl.TextSize,
+TextColor3 = lbl.TextColor3,
+TextXAlignment = lbl.TextXAlignment,
+TextYAlignment = lbl.TextYAlignment,
+ZIndex = lbl.ZIndex + 2,
+Active = false,
+Text = string.format("%d FPS  -  %d ms", getFakeFps(), getLivePing())
+}, p)
+end
+table.insert(State.TrackedFpsLabels, ov)
 end
 end)
-local b = false
-lbl:GetPropertyChangedSignal("Text"):Connect(function()
-if not b and isAlive() and isFpsTxt(lbl.Text) then
-b = true
-lbl.Text = fmtFps(lbl.Text, getFakeFps())
-b = false
-end
-end)
-if isFpsTxt(lbl.Text) then
-b = true
-lbl.Text = fmtFps(lbl.Text, getFakeFps())
-b = false
-end
 end
 task.spawn(function()
 local rot, tickCount = 0, 0
 while isAlive() do
-rot = (rot + 3) % 360
+rot = (rot + 8) % 360
 tickCount = tickCount + 1
+local winVis = (State.ActiveMainWin == nil) or (State.ActiveMainWin.Parent ~= nil and State.ActiveMainWin.Visible)
 local g = State.ActiveGradients
 for i = #g, 1, -1 do
 local item = g[i]
-if item and item.Parent then item.Rotation = rot else table.remove(g, i) end
+if item and item.Parent then
+if winVis or not (State.ActiveMainWin and item:IsDescendantOf(State.ActiveMainWin)) then
+item.Rotation = rot
 end
-if tickCount % 22 == 0 then
+else
+table.remove(g, i)
+end
+end
+if tickCount % 12 == 0 then
 local f = getFakeFps()
+local pMs = getLivePing()
 local fl = State.TrackedFpsLabels
 for i = #fl, 1, -1 do
 local l = fl[i]
 if l and l.Parent then
-if isFpsTxt(l.Text) then l.Text = fmtFps(l.Text, f) end
+l.Text = string.format("%d FPS  -  %d ms", f, pMs)
 else
 table.remove(fl, i)
 end
 end
-if State.TelemetryUpdateFn then pcall(State.TelemetryUpdateFn, f) end
+if winVis and State.TelemetryUpdateFn then pcall(State.TelemetryUpdateFn, f) end
 end
-if tickCount % 8 == 0 then
+if tickCount % 5 == 0 then
 if State.SyncWindowFn then pcall(State.SyncWindowFn) end
 if State.ActiveStatusLbl and State.ActiveStatusLbl.Parent then
 if State.ActiveStatusLbl.TextColor3 ~= Color3.new(1, 1, 1) then
@@ -298,7 +292,7 @@ State.ActiveStatusLbl.TextTransparency = 0
 end
 end
 end
-task.wait(0.033)
+task.wait(0.10)
 end
 end)
 local FastCache = {}
@@ -760,7 +754,7 @@ end
 end
 local function hookTrans(inst)
 if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
-if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__HiddenVxLogo") or inst.Name == "IslandExpandHint"
+if inst.Name == "ChilliFakeFpsOverlay" or inst:GetAttribute("__IslandDone") or inst:GetAttribute("__HiddenVxLogo") or inst.Name == "IslandExpandHint"
 or inst.Name == "ChilliUltraTitleBadge" or inst.Name == "ChilliIslandTitle" or inst.Name == "BadgeTxt"
 or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliHeaderOverlay") or inst:FindFirstAncestor("ChilliSenaBottomBar") then return end
 if not inst:IsA("TextBox") and isFpsTxt(inst.Text) then
@@ -771,18 +765,24 @@ applyTrans(inst)
 if inst:GetAttribute("__TransHookSession") == SID then return end
 inst:SetAttribute("__TransHookSession", SID)
 table.insert(State.TrackedTexts, inst)
+local inScroll = inst:FindFirstAncestorOfClass("ScrollingFrame") ~= nil
+if inScroll and inst:IsA("TextLabel") and inst.Text ~= "" and not inst.Text:find("%d") then
+return
+end
 inst:GetPropertyChangedSignal("Text"):Connect(function()
 if not isAlive() or inst:GetAttribute("__IsTranslating") or inst:GetAttribute("__IslandDone") or inst:GetAttribute("__HiddenVxLogo") then return end
-if not inst:IsA("TextBox") and isFpsTxt(inst.Text) then
+local cur = inst.Text
+if cur == "" or cur == inst:GetAttribute("__LastTranslated") then return end
+if not inst:IsA("TextBox") and isFpsTxt(cur) then
 hookFps(inst)
 return
 end
+if cur:match("^[%$%+%-%d%.%,%/%%sxhm%s:]+$") then return end
 if inst:IsA("TextBox") then
 applyTrans(inst)
 return
 end
-local cur = inst.Text
-if cur ~= inst:GetAttribute("__LastTranslated") and not hasVi(cur) then
+if not hasVi(cur) then
 inst:SetAttribute("OrigRawText", cur)
 applyTrans(inst)
 end
@@ -809,10 +809,19 @@ local clickable = (btn:IsA("TextButton") or btn:IsA("ImageButton")) and btn
 or btn:FindFirstAncestorWhichIsA("TextButton") or btn:FindFirstAncestorWhichIsA("ImageButton")
 or (btn.Parent and (btn.Parent:FindFirstChildWhichIsA("TextButton") or btn.Parent:FindFirstChildWhichIsA("ImageButton")))
 or btn
+local targets = {}
+local seenT = {}
+for _, tObj in ipairs({ clickable, btn, btn.Parent, btn.Parent and btn.Parent.Parent }) do
+if tObj and tObj:IsA("GuiObject") and not seenT[tObj] then
+seenT[tObj] = true
+table.insert(targets, tObj)
+end
+end
 if getconnections then
+for _, targetObj in ipairs(targets) do
 for _, sigName in ipairs({"MouseButton1Click", "Activated", "MouseButton1Down", "MouseButton1Up"}) do
 pcall(function()
-local sig = clickable[sigName]
+local sig = targetObj[sigName]
 if sig then
 for _, conn in ipairs(getconnections(sig)) do
 if conn.Function then
@@ -823,20 +832,6 @@ end
 end
 end)
 end
-end
-if firesignal then
-pcall(function()
-firesignal(clickable.MouseButton1Click)
-fired = true
-end)
-pcall(function()
-firesignal(clickable.Activated)
-fired = true
-end)
-end
-if not fired and getconnections then
-for _, targetObj in ipairs({ clickable, btn, btn.Parent }) do
-if targetObj and targetObj:IsA("GuiObject") then
 pcall(function()
 local pos3 = Vector3.new(targetObj.AbsolutePosition.X + targetObj.AbsoluteSize.X * 0.5, targetObj.AbsolutePosition.Y + targetObj.AbsoluteSize.Y * 0.5, 0)
 for _, uType in ipairs({ Enum.UserInputType.MouseButton1, Enum.UserInputType.Touch }) do
@@ -855,6 +850,19 @@ fired = true
 end
 end
 end
+end)
+end
+end
+if firesignal then
+for _, targetObj in ipairs(targets) do
+if targetObj:IsA("TextButton") or targetObj:IsA("ImageButton") then
+pcall(function()
+firesignal(targetObj.MouseButton1Click)
+fired = true
+end)
+pcall(function()
+firesignal(targetObj.Activated)
+fired = true
 end)
 end
 end
@@ -989,10 +997,9 @@ end
 importBox:SetAttribute("__IsTranslating", true)
 pcall(function() importBox.ClearTextOnFocus = false end)
 importBox.Text = ""
-task.wait(0.03)
-pcall(function() importBox:CaptureFocus() end)
-task.wait(0.04)
+task.wait(0.08)
 importBox.Text = payloadJson
+task.wait(0.10)
 if getconnections then
 pcall(function()
 for _, conn in ipairs(getconnections(importBox:GetPropertyChangedSignal("Text"))) do
@@ -1000,7 +1007,6 @@ if conn.Function then task.spawn(conn.Function) end
 end
 end)
 end
-pcall(function() importBox:ReleaseFocus(true) end)
 if firesignal then
 pcall(function() firesignal(importBox.FocusLost, true) end)
 end
@@ -1012,9 +1018,27 @@ end
 end)
 end
 importBox:SetAttribute("__IsTranslating", false)
-task.wait(0.12)
+if btnLbl then btnLbl.Text = "⏳ ĐANG BẤM NHẬP CONFIG..." end
+task.wait(0.45)
+local _, freshImportBtn = findImportControls(true)
+importBtn = freshImportBtn or importBtn
 if importBtn then fireBtn(importBtn) end
-task.wait(0.24)
+task.wait(0.38)
+local hasApplyPrompt = false
+for _, d in ipairs(venyxGui:GetDescendants()) do
+if (d:IsA("TextButton") or d:IsA("TextLabel")) and not d:FindFirstAncestor("ChilliV5_ExpandedIsland") then
+local ot = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
+local cur = (d.Text or ""):match("^%s*(.-)%s*$")
+if (ot == "Apply now" or cur == "Áp dụng ngay" or ot == "Overwrite" or cur == "Lưu đè") and isControlVisibleOnTab(d, venyxGui) then
+hasApplyPrompt = true
+break
+end
+end
+end
+if not hasApplyPrompt and importBtn then
+fireBtn(importBtn)
+task.wait(0.35)
+end
 for pass = 1, 2 do
 for _, d in ipairs(venyxGui:GetDescendants()) do
 if (d:IsA("TextButton") or d:IsA("TextLabel")) and not d:FindFirstAncestor("ChilliV5_ExpandedIsland") then
@@ -1254,12 +1278,17 @@ local lgt = game:GetService("Lighting")
 lgt.GlobalShadows = false
 lgt.FogEnd = 9e9
 settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
-for _, v in ipairs(workspace:GetDescendants()) do
+local desc = workspace:GetDescendants()
+for idx = 1, #desc do
+local v = desc[idx]
+if v and v.Parent then
 if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Beam") or v:IsA("Sparkles") or v:IsA("Smoke") or v:IsA("Fire") then
 v.Enabled = false
 elseif v:IsA("Decal") or v:IsA("Texture") then
 v.Transparency = 1
 end
+end
+if idx % 250 == 0 then task.wait() end
 end
 end)
 btnFps.Text = "✅ FPS CỰC ĐẠI!"
@@ -1406,14 +1435,15 @@ end
 local function setupCircleLogo(obj, win)
 local top = obj
 while top.Parent and top.Parent:IsA("GuiObject") and not top.Parent:IsA("ScreenGui") do top = top.Parent end
-if not top or (win and (top == win or top:IsDescendantOf(win))) then return end
+if not top or not win or top == win or top:IsDescendantOf(win) then return end
 if top.Name == "ChilliV5_ExpandedIsland" or top:FindFirstChild("IslandExpandHint") then return end
-local hasVxMark = false
-for _, ch in ipairs(top:GetDescendants()) do
+if top.Size.X.Offset > 105 or top.Size.Y.Offset > 105 or top.Size.X.Scale > 0.25 or top.Size.Y.Scale > 0.25 then return end
+local descList = top:GetDescendants()
+if #descList > 18 then return end
+for _, ch in ipairs(descList) do
 if ch:IsA("TextLabel") or ch:IsA("TextButton") then
 local t = (ch.Text or ""):match("^%s*(.-)%s*$")
 if t == "V" or t == "x" or t == "Vx" or t == "VX" or ch:GetAttribute("__HiddenVxLogo") then
-hasVxMark = true
 ch:SetAttribute("__HiddenVxLogo", true)
 ch.TextTransparency = 1
 elseif t ~= "" then
@@ -1421,22 +1451,8 @@ return
 end
 end
 end
-if top:IsA("TextLabel") or top:IsA("TextButton") then
-local tt = (top.Text or ""):match("^%s*(.-)%s*$")
-if tt == "V" or tt == "x" or tt == "Vx" or tt == "VX" or top:GetAttribute("__HiddenVxLogo") then
-hasVxMark = true
-top:SetAttribute("__HiddenVxLogo", true)
-top.TextTransparency = 1
-elseif tt ~= "" then
-return
-end
-end
 local sz, pos = top.AbsoluteSize, top.AbsolutePosition
-local ox, oy = top.Size.X.Offset, top.Size.Y.Offset
-local validZeroFrame = (sz.X < 24 and (hasVxMark or (ox >= 24 and ox <= 105 and oy >= 24 and oy <= 105 and top.Size.X.Scale == 0)))
-if not validZeroFrame then
 if sz.X > 105 or sz.Y > 105 or sz.X < 24 or math.abs(sz.X - sz.Y) > 25 or pos.X > 260 then return end
-end
 for _, ch in ipairs(top:GetChildren()) do
 if ch.Name == "ChilliV5CoverLogo" or ch.Name == "RainbowBorder" or ch.Name == "ChilliInnerRing" or ch.Name == "ChilliCosmicAura" or ch:IsA("UIStroke") then
 pcall(ch.Destroy, ch)
@@ -1590,145 +1606,51 @@ local wp = wpParent:FindFirstChild("ChilliSenaWallpaper") or win:FindFirstChild(
 if not wp then
 wp = mk("ImageLabel", {
 Name = "ChilliSenaWallpaper", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5),
-Size = u2s(1, 1), BackgroundColor3 = c3(8, 10, 18), BackgroundTransparency = 0.18,
-Image = WALLPAPER_IMAGE_ID, ImageTransparency = 0.22, ScaleType = Enum.ScaleType.Crop,
-Active = false, ZIndex = 0
+Size = u2s(1, 1), BackgroundColor3 = c3(6, 8, 14), BackgroundTransparency = 0.06,
+Image = WALLPAPER_IMAGE_ID, ImageColor3 = Color3.new(1, 1, 1), ImageTransparency = 0.03,
+ResampleMode = Enum.ResamplerMode.Default, ScaleType = Enum.ScaleType.Crop,
+Active = false, Selectable = false, ZIndex = 0
 }, wpParent)
 mk("UICorner", { CornerRadius = UDim.new(0, 10) }, wp)
 else
 wp.Image = WALLPAPER_IMAGE_ID
-wp.BackgroundColor3 = c3(8, 10, 18)
+wp.ImageColor3 = Color3.new(1, 1, 1)
+wp.ImageTransparency = 0.03
+wp.BackgroundColor3 = c3(6, 8, 14)
+wp.BackgroundTransparency = 0.06
 wp.ZIndex = 0
 end
 local pageWallpapers = { wp }
 local sectionCards = {}
-local curBaseOpacity = (mainBg.BackgroundTransparency < 0.95) and mainBg.BackgroundTransparency or 0.25
+local curBaseOpacity = (mainBg.BackgroundTransparency < 0.95) and mainBg.BackgroundTransparency or 0.15
 local function styleMenuInterior()
 if not win or not win.Parent then return end
-sectionCards = {}
-pageWallpapers = { wp }
-local wpTrans = math.clamp(0.12 + curBaseOpacity * 0.75, 0.12, 0.90)
-local bgTrans = math.clamp(0.10 + curBaseOpacity * 0.75, 0.08, 0.88)
-local cardT = math.clamp(0.34 + curBaseOpacity * 0.50, 0.30, 0.86)
-local allDesc = win:GetDescendants()
-for _, oldObj in ipairs(allDesc) do
-if oldObj.Name == "ChilliPageWallpaper" then
-local pp = oldObj.Parent
-if not pp or pp:FindFirstAncestorOfClass("ScrollingFrame") or pp:FindFirstChildOfClass("UIListLayout") or pp:FindFirstChildOfClass("UIGridLayout") then
-pcall(oldObj.Destroy, oldObj)
-end
-elseif oldObj.Name == "ChilliCardTopGlow" then
-pcall(oldObj.Destroy, oldObj)
-end
-end
-for _, d in ipairs(allDesc) do
-local isMainPageScroll = d:IsA("ScrollingFrame")
-and (not d:FindFirstAncestorOfClass("ScrollingFrame"))
-and (d.AbsolutePosition.X - winX) > 35
-and (d.AbsoluteSize.X >= win.AbsoluteSize.X * 0.55)
-and (d.AbsoluteSize.Y >= win.AbsoluteSize.Y * 0.45)
-if isMainPageScroll then
+local cardT = 0.58
+for _, d in ipairs(win:GetDescendants()) do
+if not d:GetAttribute("__ChilliElemStyled") then
+if d:IsA("ScrollingFrame") and (not d:FindFirstAncestorOfClass("ScrollingFrame")) and (d.AbsolutePosition.X - winX) > 35 and (d.AbsoluteSize.X >= win.AbsoluteSize.X * 0.50) and (d.AbsoluteSize.Y >= win.AbsoluteSize.Y * 0.40) then
+d:SetAttribute("__ChilliElemStyled", true)
 d.BackgroundTransparency = 1
 d.ScrollingEnabled = true
 if d.ZIndex < 3 then d.ZIndex = 3 end
-local pageParent = d.Parent
-while pageParent and pageParent ~= win and pageParent ~= mainBg and (pageParent:FindFirstChildOfClass("UIListLayout") or pageParent:FindFirstChildOfClass("UIGridLayout") or pageParent.AutomaticSize ~= Enum.AutomaticSize.None) do
-pageParent = pageParent.Parent
-end
-if pageParent and pageParent:IsA("GuiObject") and not pageParent:FindFirstAncestorOfClass("ScrollingFrame") and not pageParent:FindFirstChildOfClass("UIListLayout") and not pageParent:FindFirstChildOfClass("UIGridLayout") then
-local pWp = pageParent:FindFirstChild("ChilliPageWallpaper")
-if not pWp then
-pWp = mk("ImageLabel", {
-Name = "ChilliPageWallpaper", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5),
-Size = u2s(1, 1), BackgroundColor3 = c3(8, 10, 18), BackgroundTransparency = bgTrans,
-Image = WALLPAPER_IMAGE_ID, ImageTransparency = wpTrans, ScaleType = Enum.ScaleType.Crop,
-Active = false, Selectable = false, ZIndex = 1
-}, pageParent)
-mk("UICorner", { CornerRadius = UDim.new(0, 8) }, pWp)
-else
-pWp.Image = WALLPAPER_IMAGE_ID
-pWp.BackgroundColor3 = c3(8, 10, 18)
-pWp.BackgroundTransparency = bgTrans
-pWp.ImageTransparency = wpTrans
-pWp.Active = false
-pWp.Selectable = false
-pWp.ZIndex = 1
-end
-table.insert(pageWallpapers, pWp)
-end
 local p = d.Parent
 while p and p ~= win and p ~= mainBg do
-if p:IsA("GuiObject") and p.AbsoluteSize.X >= win.AbsoluteSize.X * 0.45 and (p.AbsolutePosition.X - winX) > 30 then
+if p:IsA("GuiObject") and p.AbsoluteSize.X >= win.AbsoluteSize.X * 0.42 and (p.AbsolutePosition.X - winX) > 28 then
 p.BackgroundTransparency = 1
 end
 p = p.Parent
 end
-for _, subCard in ipairs(d:GetDescendants()) do
-if subCard:IsA("Frame") and not subCard.Name:find("^Chilli") and subCard:FindFirstAncestorOfClass("ScrollingFrame") == d and subCard.AbsoluteSize.X >= 165 and subCard.AbsoluteSize.Y >= 42 then
-if (subCard.BackgroundTransparency < 0.92 and subCard:FindFirstChildOfClass("UICorner") ~= nil) or subCard:GetAttribute("__IsChilliCard") then
-subCard:SetAttribute("__IsChilliCard", true)
-table.insert(sectionCards, subCard)
-end
-end
-end
-end
-end
-for _, card in ipairs(sectionCards) do
-card.BackgroundColor3 = c3(12, 14, 26)
-card.BackgroundTransparency = cardT
-if not card:GetAttribute("__ChilliCardStyled") then
-card:SetAttribute("__ChilliCardStyled", true)
-local cStroke = card:FindFirstChildOfClass("UIStroke") or mk("UIStroke", { Thickness = 1.4, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, card)
-cStroke.Color = Color3.new(1, 1, 1)
-cStroke.Thickness = 1.4
-cStroke.Transparency = 0.14
-cStroke.Enabled = true
-if not cStroke:FindFirstChild("ChilliCardGrad") then
-addGrad(mk("UIGradient", { Name = "ChilliCardGrad", Color = ULTRA_CARD_GRAD }, cStroke))
-end
-end
-end
-for _, d in ipairs(allDesc) do
-if not d:GetAttribute("__ChilliElemStyled") then
-if (d:IsA("TextLabel") or d:IsA("TextButton")) and not d.Name:find("^Chilli") and d ~= titleLbl and not d:IsDescendantOf(titleLbl) then
-local txt = d.Text or ""
-local isBigPageTitle = (d.TextSize >= 15 and d.AbsolutePosition.Y > hy + 8 and d.AbsolutePosition.Y < hy + 95 and (d.AbsolutePosition.X - winX) < 240)
-local isSectionHeader = (txt:upper() == txt and #txt >= 3 and d.TextSize <= 14 and d:FindFirstAncestorOfClass("ScrollingFrame") ~= nil)
-local isSubTabActive = (d.AbsolutePosition.Y > hy + 10 and d.AbsolutePosition.Y < hy + 75 and (d.AbsolutePosition.X - winX) >= 200)
-if isBigPageTitle or isSectionHeader or isSubTabActive then
-d.TextColor3 = Color3.new(1, 1, 1)
-if not d:FindFirstChild("ChilliInnerUltraGrad") then
-addGrad(mk("UIGradient", { Name = "ChilliInnerUltraGrad", Color = ULTRA_TEXT_GRAD }, d))
-end
-end
-elseif (d:IsA("Frame") or d:IsA("TextButton") or d:IsA("TextBox")) and not d.Name:find("^Chilli") and not d:GetAttribute("__IsChilliCard") and not d:IsDescendantOf(titleLbl) then
-local inScroll = d:FindFirstAncestorOfClass("ScrollingFrame") ~= nil
-local sz = d.AbsoluteSize
-local col = d.BackgroundColor3
-if inScroll and (d.AbsolutePosition.X - winX) > 40 and sz.Y >= 3 and sz.Y <= 28 and sz.X >= 8 and sz.X <= 290 and d.BackgroundTransparency < 0.65 then
-if (col.B > 0.50 and (col.R > 0.30 or col.G > 0.30)) and not (col.R < 0.22 and col.G < 0.22 and col.B < 0.28) then
-if not d:FindFirstChild("ChilliControlNeonGrad") then
-d.BackgroundColor3 = Color3.new(1, 1, 1)
-mk("UIGradient", { Name = "ChilliControlNeonGrad", Color = ULTRA_CARD_GRAD }, d)
-end
-elseif sz.Y >= 16 and sz.Y <= 28 and sz.X >= 34 and sz.X <= 195 and d:FindFirstChildOfClass("UICorner") then
-d.BackgroundColor3 = c3(15, 18, 32)
-local dStroke = d:FindFirstChild("ChilliDropStroke") or d:FindFirstChildOfClass("UIStroke") or mk("UIStroke", { Name = "ChilliDropStroke", Thickness = 1.1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, d)
-dStroke.Color = Color3.new(1, 1, 1)
-dStroke.Transparency = 0.32
-if not dStroke:FindFirstChild("ChilliDropGrad") then
-mk("UIGradient", { Name = "ChilliDropGrad", Color = ULTRA_CARD_GRAD }, dStroke)
-end
-end
-elseif not inScroll and d.AbsolutePosition.Y >= winY and d.AbsolutePosition.Y < hy + 80 and (d.AbsolutePosition.X - winX) > 180 and sz.Y >= 18 and sz.Y <= 36 and sz.X >= 60 and sz.X <= 260 and d:FindFirstChildOfClass("UICorner") then
-local topStroke = d:FindFirstChild("ChilliTopPillStroke") or d:FindFirstChildOfClass("UIStroke") or mk("UIStroke", { Name = "ChilliTopPillStroke", Thickness = 1.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, d)
-topStroke.Color = Color3.new(1, 1, 1)
-topStroke.Transparency = 0.25
-if not topStroke:FindFirstChild("ChilliTopPillGrad") then
-addGrad(mk("UIGradient", { Name = "ChilliTopPillGrad", Color = ULTRA_CARD_GRAD }, topStroke))
-end
-end
+elseif d:IsA("Frame") and not d.Name:find("^Chilli") and not d:FindFirstAncestorOfClass("ScrollingFrame") and d ~= win and d ~= mainBg then
+if d.AbsoluteSize.X >= win.AbsoluteSize.X * 0.48 and d.AbsoluteSize.Y >= win.AbsoluteSize.Y * 0.38 and (d.AbsolutePosition.X - winX) > 28 then
 d:SetAttribute("__ChilliElemStyled", true)
+d.BackgroundTransparency = 1
+end
+elseif d:IsA("Frame") and not d.Name:find("^Chilli") and d:FindFirstAncestorOfClass("ScrollingFrame") ~= nil and d.AbsoluteSize.X >= 145 and d.AbsoluteSize.Y >= 38 and d.BackgroundTransparency < 0.94 and d:FindFirstChildOfClass("UICorner") ~= nil then
+d:SetAttribute("__IsChilliCard", true)
+d:SetAttribute("__ChilliElemStyled", true)
+d.BackgroundColor3 = c3(10, 12, 22)
+d.BackgroundTransparency = cardT
+table.insert(sectionCards, d)
 end
 end
 end
@@ -1745,25 +1667,24 @@ curT = mainBg.BackgroundTransparency
 end
 curBaseOpacity = curT
 if mainBg and mainBg.Parent and mainBg.BackgroundTransparency < 0.98 then
-mainBg.BackgroundTransparency = curT
+mainBg.BackgroundTransparency = math.clamp(curT + 0.72, 0.88, 0.98)
 end
 for i = 2, #bgFrames do
 local bf = bgFrames[i]
 if bf and bf.Parent and bf ~= mainBg then
-bf.BackgroundTransparency = math.clamp(curT + 0.62, 0.86, 0.98)
+bf.BackgroundTransparency = 1
 end
 end
-local wpT = math.clamp(0.12 + curT * 0.75, 0.12, 0.90)
-local bgT = math.clamp(0.10 + curT * 0.75, 0.08, 0.88)
-for _, pw in ipairs(pageWallpapers) do
-if pw and pw.Parent then
-pw.ImageTransparency = wpT
-pw.BackgroundTransparency = bgT
+wp.ImageTransparency = math.clamp(0.03 + curT * 0.35, 0.02, 0.65)
+wp.BackgroundTransparency = math.clamp(0.05 + curT * 0.40, 0.04, 0.70)
+local cardT = math.clamp(0.54 + curT * 0.30, 0.50, 0.85)
+for i = #sectionCards, 1, -1 do
+local card = sectionCards[i]
+if card and card.Parent then
+card.BackgroundTransparency = cardT
+else
+table.remove(sectionCards, i)
 end
-end
-local cardT = math.clamp(0.34 + curT * 0.50, 0.30, 0.86)
-for _, card in ipairs(sectionCards) do
-if card and card.Parent then card.BackgroundTransparency = cardT end
 end
 syncingOpacity = false
 end
@@ -1785,7 +1706,7 @@ local interiorPending = false
 win.DescendantAdded:Connect(function(nd)
 if not isAlive() or interiorPending or nd.Name:find("^Chilli") then return end
 interiorPending = true
-task.delay(0.12, function()
+task.delay(0.35, function()
 interiorPending = false
 if isAlive() and win and win.Parent and win.Visible then
 pcall(styleMenuInterior)
@@ -2140,14 +2061,14 @@ State.ActiveVenyxGui = gui
 if win then
 State.ActiveMainWin = win
 pcall(cleanupStrayLogos, gui, win)
-if win:GetAttribute("__ChilliV7ArchSession") ~= SID then
+if win:GetAttribute("__ChilliV7ArchSession") ~= SID or not State.SystemTabBtn then
 win:SetAttribute("__ChilliV7ArchSession", SID)
 pcall(applySenaV7Architecture, win, titleLbl)
-end
 end
 for _, tc in ipairs(gui:GetChildren()) do
 if tc:IsA("GuiObject") and tc ~= win and tc.Name ~= "ChilliV5_ExpandedIsland" and not tc:FindFirstChild("IslandExpandHint") then
 pcall(setupCircleLogo, tc, win)
+end
 end
 end
 pcall(function()
@@ -2209,50 +2130,34 @@ end
 gui:SetAttribute("__BatchTranslating", false)
 end)
 end
+return (win ~= nil and gui:GetAttribute("__IslandLocked") == true and State.SystemTabBtn ~= nil)
 end
-local scanOnce
-local function instantInterceptNode(nd)
-if not isAlive() or not nd or not nd.Parent then return end
-local sg = nd:FindFirstAncestorOfClass("ScreenGui")
-if sg and IGNORED_GUIS[sg.Name] then return end
+local function bindGuiEvents(gui)
+if not gui:IsA("ScreenGui") or IGNORED_GUIS[gui.Name] or gui:GetAttribute("__ListenerSession") == SID then return end
+gui:SetAttribute("__ListenerSession", SID)
+gui.DescendantAdded:Connect(function(nd)
+if not isAlive() then return end
 if nd:IsA("TextLabel") or nd:IsA("TextButton") or nd:IsA("TextBox") then
-local rawT = (nd.Text or ""):match("^%s*(.-)%s*$")
 if not nd:IsA("TextBox") then
-if rawT == "Vx" or rawT == "VX" or rawT == "V" then
+local rawT = (nd.Text or ""):match("^%s*(.-)%s*$")
+if rawT == "Vx" or rawT == "VX" then
 nd:SetAttribute("__HiddenVxLogo", true)
 nd.TextTransparency = 1
-nd.BackgroundTransparency = 1
-pcall(setupCircleLogo, nd, State.ActiveMainWin)
-task.defer(function()
-if isAlive() then pcall(setupCircleLogo, nd, State.ActiveMainWin) end
-end)
 return
 elseif rawT == "VENYX" and not nd:FindFirstAncestorOfClass("ScrollingFrame") then
 nd:SetAttribute("__IsTranslating", true)
 nd.Text = NEW_TITLE
 nd:SetAttribute("__IsTranslating", false)
+end
+end
 task.defer(function()
-if isAlive() and scanOnce then pcall(scanOnce, true) end
+if not isAlive() or not nd or not nd.Parent then return end
+if not nd:IsA("TextBox") and isFpsTxt(nd.Text) then pcall(hookFps, nd) else pcall(hookTrans, nd) end
 end)
 end
-end
-if not nd:IsA("TextBox") and isFpsTxt(nd.Text) then
-pcall(hookFps, nd)
-else
-pcall(hookTrans, nd)
-end
-elseif nd:IsA("GuiObject") and sg and nd.Parent == sg and nd ~= State.ActiveMainWin and nd.Name ~= "ChilliV5_ExpandedIsland" then
-task.defer(function()
-if isAlive() then pcall(setupCircleLogo, nd, State.ActiveMainWin) end
 end)
 end
-end
-local function bindGuiEvents(gui)
-if not gui:IsA("ScreenGui") or IGNORED_GUIS[gui.Name] or gui:GetAttribute("__ListenerSession") == SID then return end
-gui:SetAttribute("__ListenerSession", SID)
-gui.DescendantAdded:Connect(instantInterceptNode)
-end
-scanOnce = function(forcePass)
+local function scanOnce(forcePass)
 if not isAlive() then return false end
 if not forcePass and venyxGuiLocked and venyxGuiLocked.Parent and venyxGuiLocked:GetAttribute("__ChilliV7Patched") == SID then
 return true
@@ -2277,7 +2182,6 @@ local t = (d.Text or ""):match("^%s*(.-)%s*$")
 if t == "Vx" or t == "VX" then
 d:SetAttribute("__HiddenVxLogo", true)
 d.TextTransparency = 1
-pcall(setupCircleLogo, d, State.ActiveMainWin)
 elseif isFpsTxt(t) then
 pcall(hookFps, d)
 elseif (t == "VENYX" or t == NEW_TITLE or t == "Chilli Hub Ultra" or t == "Chilli Hub V5" or t == "Chilli V5 |") and not d:FindFirstAncestorOfClass("ScrollingFrame") then
@@ -2286,33 +2190,26 @@ end
 end
 end
 if titleLbl then
-if venyxGuiLocked and venyxGuiLocked.Parent and venyxGuiLocked ~= gui then
-pcall(gui.Destroy, gui)
-else
-venyxGuiLocked = gui
 bindGuiEvents(gui)
-patchVenyxGui(gui, titleLbl)
+local okDone, fullyPatched = pcall(patchVenyxGui, gui, titleLbl)
+if okDone and fullyPatched then
+venyxGuiLocked = gui
 gui:SetAttribute("__ChilliV7Patched", SID)
 end
+break
 end
 end
 end
+if venyxGuiLocked then break end
 end
 return venyxGuiLocked ~= nil
 end
 for _, root in ipairs(getScanRoots()) do
 root.DescendantAdded:Connect(function(ch)
-if not isAlive() then return end
-if ch:IsA("ScreenGui") and not IGNORED_GUIS[ch.Name] then
+if isAlive() and ch:IsA("ScreenGui") and not IGNORED_GUIS[ch.Name] then
 bindGuiEvents(ch)
-task.defer(function()
+task.wait(0.15)
 if isAlive() then pcall(scanOnce, true) end
-end)
-task.delay(0.06, function()
-if isAlive() then pcall(scanOnce, true) end
-end)
-else
-instantInterceptNode(ch)
 end
 end)
 end
@@ -2320,15 +2217,14 @@ pcall(scanOnce)
 task.spawn(function()
 local t = 0
 while isAlive() and not venyxGuiLocked and t < 60 do
-task.wait(0.04)
-t = t + 0.04
-if t > 22 and not venyxGuiLocked and not isVenyxUiPresent() then launchVenyxBase() end
-pcall(scanOnce)
+task.wait(0.18)
+t = t + 0.18
+pcall(scanOnce, true)
 end
 if isAlive() then
-task.wait(0.12)
-pcall(scanOnce, true)
 task.wait(0.50)
+pcall(scanOnce, true)
+task.wait(1.00)
 pcall(scanOnce, true)
 end
 end)
