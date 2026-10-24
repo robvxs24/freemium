@@ -1,4 +1,4 @@
--- Chilli Hub V7 Supreme | Fixed Island Clone + Anti-Overlap + Multi-Run Auto Farm Config
+-- Chilli Hub V7 Supreme | Zero-Misfire Config Macro + Smooth Client Optimization
 local NEW_TITLE = "Chilli Hub V7"
 local LOGO_ID = "rbxassetid://74441610995894"
 local HEADER_BAR_IMG_ID = "rbxassetid://83726521558450"
@@ -149,20 +149,6 @@ local ULTRA_TEXT_GRAD = ColorSequence.new({
 local ULTRA_CARD_GRAD = ColorSequence.new({
     csk(0.00, c3(70, 210, 255)), csk(0.50, c3(170, 95, 255)), csk(1.00, c3(255, 75, 195))
 })
-local LIQUID_TEXT_GRAD = ColorSequence.new({
-    csk(0.00, c3(244, 248, 255)), csk(0.35, c3(200, 232, 255)),
-    csk(0.70, c3(225, 238, 255)), csk(1.00, c3(244, 248, 255))
-})
-local LIQUID_GLASS_COLOR = ColorSequence.new({
-    csk(0.00, c3(155, 195, 235)), csk(0.22, c3(28, 38, 58)),
-    csk(0.75, c3(14, 18, 30)), csk(1.00, c3(55, 90, 140))
-})
-local LIQUID_GLASS_TRANS = NumberSequence.new({
-    NumberSequenceKeypoint.new(0.00, 0.26),
-    NumberSequenceKeypoint.new(0.22, 0.38),
-    NumberSequenceKeypoint.new(0.78, 0.35),
-    NumberSequenceKeypoint.new(1.00, 0.28)
-})
 
 local fakeFps, lastFpsT = math.random(98, 114), 0
 local function getFakeFps()
@@ -297,16 +283,56 @@ local GRAMMAR_VI = {
     { pat="^[Ff]ighting%s+[Ss]mall%s+monster$", rep="Đang đánh quái vật nhỏ" },
     { pat="^[Ff]ighting%s+[Mm]edium%s+monster$", rep="Đang đánh quái vật vừa" },
     { pat="^[Ff]ighting%s+[Ll]arge%s+monster$", rep="Đang đánh quái vật lớn" },
-    { pat="^[Cc]atching%s+(.+)%s+butterfly$", rep="Đang bắt bướm %1" },
-    { pat="^[Mm]oving%s+to%s+(.+)$", rep="Đang di chuyển tới %1" },
-    { pat="^[Tt]eleporting%s+to%s+(.+)$", rep="Đang dịch chuyển tới %1" },
-    { pat="^[Ww]alking%s+to%s+(.+)$", rep="Đang đi bộ tới %1" },
-    { pat="^[Tt]weening%s+to%s+(.+)$", rep="Đang bay tới %1" },
-    { pat="^[Ss]tealing%s+(.+)$", rep="Đang cướp %1" },
-    { pat="^[Dd]elivering%s+(.+)$", rep="Đang mang %1 về căn cứ" },
-    { pat="^[Ff]ighting%s+(.+)$", rep="Đang giao chiến với %1" },
-    { pat="^[Ww]aiting%s+for%s+(.+)$", rep="Đang chờ %1" },
-    { pat="^[Ss]earching%s+for%s+(.+)$", rep="Đang tìm kiếm %1" }
+    { pat="^[Aa]uto play (.+)$", rep="Tự động chơi %1" }, { pat="^[Aa]uto farm (.+)$", rep="Tự động cày %1" },
+    { pat="^[Aa]uto kill (.+)$", rep="Tự động tiêu diệt %1" }, { pat="^[Aa]uto catch (.+)$", rep="Tự động bắt %1" },
+    { pat="^[Aa]uto collect (.+)$", rep="Tự động thu thập %1" }, { pat="^[Aa]uto buy (.+)$", rep="Tự động mua %1" },
+    { pat="^[Aa]uto sell (.+)$", rep="Tự động bán %1" }, { pat="^[Aa]uto claim (.+)$", rep="Tự động nhận %1" },
+    { pat="^[Aa]uto upgrade (.+)$", rep="Tự động nâng cấp %1" }, { pat="^[Aa]uto craft (.+)$", rep="Tự động chế tạo %1" },
+    { pat="^[Aa]uto trade (.+)$", rep="Tự động trao đổi %1" }, { pat="^[Aa]uto equip (.+)$", rep="Tự động trang bị %1" },
+    { pat="^[Aa]uto steal (.+)$", rep="Tự động cướp %1" }, { pat="^[Ii]nstant steal (.+)$", rep="Cướp tức thì %1" },
+    { pat="^[Aa]uto (.+) quest$", rep="Tự làm nhiệm vụ %1" }, { pat="^[Aa]uto (.+)$", rep="Tự động %1" },
+    { pat="^[Cc]alculate (.+)$", rep="Tính thử %1" }, { pat="^[Cc]hange if (.+) fails$", rep="Chỉnh lại nếu %1 bị lỗi" },
+    { pat="^(.+) speed$", rep="Tốc độ %1" }, { pat="^(.+) target$", rep="Mục tiêu %1" },
+    { pat="^(.+) order$", rep="Thứ tự %1" }, { pat="^(.+) priority$", rep="Ưu tiên %1" },
+    { pat="^(.+) mode$", rep="Chế độ %1" }, { pat="^(.+) filter$", rep="Bộ lọc %1" },
+    { pat="^[Hh]alloween: carrying (.+) to safety$", rep="Halloween: đang mang %1 đến nơi an toàn" },
+    { pat="^[Hh]alloween: (.+)$", rep="Halloween: %1" },
+    { pat="^[Nn]o eggs? match%w* your (.+)$", rep="Không có trứng nào khớp %1" },
+    { pat="^[Nn]o eggs? match%w* (.+)$", rep="Không có trứng nào khớp %1" },
+    { pat="^[Nn]o pets? match%w* (.+)$", rep="Không có pet nào khớp %1" },
+    { pat="^[Nn]o (.+) found(.*)$", rep="Không tìm thấy %1%2" },
+    { pat="^[Cc]arrying (.+) to safe zone(.*)$", rep="Đang mang %1 về vùng an toàn%2" },
+    { pat="^[Cc]arrying (.+) to base(.*)$", rep="Đang mang %1 về căn cứ%2" },
+    { pat="^[Cc]arrying (.+) to pen(.*)$", rep="Đang mang %1 về chuồng%2" },
+    { pat="^[Cc]arrying (.+) to (.+)$", rep="Đang mang %1 tới %2" },
+    { pat="^[Cc]arrying (.+) home(.*)$", rep="Đang mang %1 về nhà%2" },
+    { pat="^[Cc]arrying (.+)$", rep="Đang mang %1" },
+    { pat="^[Dd]elivering (.+) to (.+)$", rep="Đang giao %1 tới %2" },
+    { pat="^[Dd]elivering (.+) home(.*)$", rep="Đang giao %1 về nhà%2" },
+    { pat="^[Dd]elivering (.+)$", rep="Đang giao %1" },
+    { pat="^[Bb]ringing (.+) to (.+)$", rep="Đang đem %1 tới %2" },
+    { pat="^[Tt]aking (.+) from (.+)$", rep="Đang giật %1 từ %2" },
+    { pat="^[Ss]tealing (.+) from (.+)$", rep="Đang cướp %1 từ %2" },
+    { pat="^[Ss]tealing (.+)$", rep="Đang cướp %1" },
+    { pat="^[Gg]rabbing (.+)$", rep="Đang nhặt %1" }, { pat="^[Pp]icking up (.+)$", rep="Đang nhặt %1" },
+    { pat="^[Cc]ollecting (.+)$", rep="Đang thu thập %1" }, { pat="^[Dd]ropping (.+) at (.+)$", rep="Đang thả %1 tại %2" },
+    { pat="^[Tt]weening to (.+)$", rep="Đang bay tới %1" }, { pat="^[Tt]eleporting to (.+)$", rep="Đang dịch chuyển tới %1" },
+    { pat="^[Gg]oing to (.+)$", rep="Đang đi tới %1" }, { pat="^[Mm]oving to (.+)$", rep="Đang di chuyển tới %1" },
+    { pat="^[Ww]alking to (.+)$", rep="Đang chạy tới %1" }, { pat="^[Rr]unning to (.+)$", rep="Đang chạy tới %1" },
+    { pat="^[Ff]lying to (.+)$", rep="Đang bay tới %1" }, { pat="^[Rr]eturning to (.+)$", rep="Đang quay về %1" },
+    { pat="^[Pp]lacing (.+)$", rep="Đang đặt %1" }, { pat="^[Hh]atching (.+)$", rep="Đang ấp %1" },
+    { pat="^[Mm]utating (.+)$", rep="Đang đột biến %1" }, { pat="^[Ss]elling (.+)$", rep="Đang bán %1" },
+    { pat="^[Ff]using (.+)$", rep="Đang dung hợp %1" }, { pat="^[Uu]pgrading (.+)$", rep="Đang nâng cấp %1" },
+    { pat="^[Bb]uying (.+)$", rep="Đang mua %1" }, { pat="^[Cc]laiming (.+)$", rep="Đang nhận %1" },
+    { pat="^[Ee]quipping (.+)$", rep="Đang trang bị %1" }, { pat="^[Cc]atching (.+)$", rep="Đang bắt %1" },
+    { pat="^[Cc]hasing (.+)$", rep="Đang đuổi theo %1" }, { pat="^[Aa]ttacking (.+)$", rep="Đang tấn công %1" },
+    { pat="^[Hh]itting (.+)$", rep="Đang đánh %1" }, { pat="^[Kk]illing (.+)$", rep="Đang tiêu diệt %1" },
+    { pat="^[Tt]rading in (.+)$", rep="Đang đổi %1" }, { pat="^[Cc]rafting (.+)$", rep="Đang chế tạo %1" },
+    { pat="^[Aa]voiding (.+)$", rep="Đang né %1" }, { pat="^[Ww]aiting for (.+)$", rep="Đang chờ %1" },
+    { pat="^[Ww]aiting in (.+)$", rep="Đang đợi ở %1" }, { pat="^[Ww]aiting %((.+)%)$", rep="Đang chờ (%1)" },
+    { pat="^[Ss]earching for (.+)$", rep="Đang tìm %1" }, { pat="^[Ff]arming (.+)$", rep="Đang cày %1" },
+    { pat="^[Uu]sing (.+)$", rep="Đang dùng %1" }, { pat="^[Jj]oining (.+)$", rep="Đang tham gia %1" },
+    { pat="^[Hh]opping (.+)$", rep="Đang đổi %1" }
 }
 
 local PHRASES_VI = {
@@ -390,7 +416,7 @@ local function translateText(raw)
     local ck = State.Language .. "|" .. raw
     if FastCache[ck] then return FastCache[ck] end
     if raw:find("Venyx SAE", 1, true) then raw = raw:gsub("Venyx SAE", "Chilli SAE")
-    elseif raw == "VENYX" or raw == "Chilli Hub V5" or raw == "Chilli V5 |" then raw = NEW_TITLE end
+    elseif raw == "VENYX" or raw == "Chilli Hub Ultra" or raw == "Chilli Hub V5" or raw == "Chilli V5 |" then raw = NEW_TITLE end
     if State.Language == "EN" then
         FastCache[ck] = raw
         return raw
@@ -432,15 +458,26 @@ end
 
 local function applyTrans(inst)
     if not inst or not inst.Parent or inst:GetAttribute("__IsTranslating") then return end
-    if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__FpsHookSession") or inst:GetAttribute("__HiddenVxLogo") or inst.Name == "IslandExpandHint" or inst.Name == "ChilliUltraTitleBadge" or inst.Name == "ChilliIslandTitle" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliHeaderOverlay") or inst:FindFirstAncestor("ChilliSenaBottomBar") then return end
+    if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__FpsHookSession") or inst:GetAttribute("__HiddenVxLogo") or inst.Name == "IslandExpandHint" or inst.Name == "ChilliUltraTitleBadge" or inst.Name == "ChilliIslandTitle" or inst.Name == "BadgeTxt" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliHeaderOverlay") or inst:FindFirstAncestor("ChilliSenaBottomBar") then return end
     inst:SetAttribute("__IsTranslating", true)
     if inst:IsA("TextBox") then
-        local ph = inst.PlaceholderText
-        if ph and ph ~= "" then
-            if not inst:GetAttribute("OrigPh") then inst:SetAttribute("OrigPh", ph) end
-            local op = inst:GetAttribute("OrigPh") or ph
-            local np = State.Language == "VI" and translateText(op) or op
-            if inst.PlaceholderText ~= np then inst.PlaceholderText = np end
+        local ph = inst:GetAttribute("OrigPlaceholder") or inst:GetAttribute("OrigPh")
+        if not ph and inst.PlaceholderText ~= "" and not hasVi(inst.PlaceholderText) then
+            ph = inst.PlaceholderText
+            inst:SetAttribute("OrigPlaceholder", ph)
+            inst:SetAttribute("OrigPh", ph)
+        end
+        if ph then inst.PlaceholderText = translateText(ph) end
+        if not inst:IsFocused() then
+            local bt = inst.Text
+            if bt == "Off" or bt == "Tắt" or bt == "None" or bt == "Không có" then
+                local ob = inst:GetAttribute("OrigBoxText") or ((bt == "Tắt") and "Off" or ((bt == "Không có") and "None" or bt))
+                inst:SetAttribute("OrigBoxText", ob)
+                local mb = translateText(ob)
+                if inst.Text ~= mb then
+                    pcall(function() inst.Text = mb end)
+                end
+            end
         end
     else
         local cur = inst.Text
@@ -462,7 +499,7 @@ end
 
 local function hookTrans(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
-    if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__HiddenVxLogo") or inst.Name == "IslandExpandHint" or inst.Name == "ChilliUltraTitleBadge" or inst.Name == "ChilliIslandTitle" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliHeaderOverlay") or inst:FindFirstAncestor("ChilliSenaBottomBar") then return end
+    if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__HiddenVxLogo") or inst.Name == "IslandExpandHint" or inst.Name == "ChilliUltraTitleBadge" or inst.Name == "ChilliIslandTitle" or inst.Name == "BadgeTxt" or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliHeaderOverlay") or inst:FindFirstAncestor("ChilliSenaBottomBar") then return end
     if not inst:IsA("TextBox") and isFpsTxt(inst.Text) then hookFps(inst) return end
     if inst:GetAttribute("__TransHookSession") == SID then return end
     inst:SetAttribute("__TransHookSession", SID)
@@ -476,19 +513,28 @@ local function hookTrans(inst)
 end
 
 local function refreshAllTexts()
-    table.clear(FastCache)
-    for i = #State.TrackedTexts, 1, -1 do
-        local ins = State.TrackedTexts[i]
-        if ins and ins.Parent then applyTrans(ins) else table.remove(State.TrackedTexts, i) end
-    end
-    if State.RefreshIslandCallback then pcall(State.RefreshIslandCallback) end
+    task.spawn(function()
+        table.clear(FastCache)
+        if State.RefreshIslandCallback then pcall(State.RefreshIslandCallback) end
+        local list = State.TrackedTexts
+        for i = #list, 1, -1 do
+            if not isAlive() then return end
+            local el = list[i]
+            if el and el.Parent then applyTrans(el) else table.remove(list, i) end
+            if i % 80 == 0 then task.wait() end
+        end
+    end)
 end
 
+-- HÀM KÍCH HOẠT NÚT NGUYÊN BẢN ƯU TIÊN GETCONNECTIONS
 local function fireExactNode(b)
     if not b then return end
     local targets = { b }
-    if b:IsA("TextLabel") and b.Parent and (b.Parent:IsA("TextButton") or b.Parent:IsA("ImageButton") or b.Parent:IsA("Frame")) then
+    if b:IsA("TextLabel") and b.Parent and (b.Parent:IsA("TextButton") or b.Parent:IsA("ImageButton") or (b.Parent:IsA("Frame") and b.Parent.AbsoluteSize.X < 180 and b.Parent.AbsoluteSize.Y < 50)) then
         table.insert(targets, b.Parent)
+    end
+    for _, ch in ipairs(b:GetDescendants()) do
+        if ch:IsA("GuiButton") then table.insert(targets, ch) end
     end
     for _, obj in ipairs(targets) do
         if getconnections then
@@ -497,6 +543,7 @@ local function fireExactNode(b)
                 if okS and sig then
                     for _, c in ipairs(getconnections(sig)) do
                         if c.Function then task.spawn(pcall, c.Function) end
+                        pcall(function() c:Fire() end)
                     end
                 end
             end
@@ -521,13 +568,27 @@ local function fireExactNode(b)
             end
         end
         if firesignal then
+            pcall(function() firesignal(obj.MouseButton1Down) end)
+            pcall(function() firesignal(obj.MouseButton1Up) end)
             pcall(function() firesignal(obj.MouseButton1Click) end)
             pcall(function() firesignal(obj.Activated) end)
+        end
+        -- Dùng VIM nếu cửa sổ đang hiển thị trên màn hình
+        if obj.AbsoluteSize.X > 5 and obj.AbsolutePosition.X > 0 and obj.AbsolutePosition.Y > 0 and obj.AbsolutePosition.X < 3000 then
+            pcall(function()
+                local vim = game:GetService("VirtualInputManager")
+                local inset = game:GetService("GuiService"):GetGuiInset()
+                local cx = math.floor(obj.AbsolutePosition.X + obj.AbsoluteSize.X * 0.5)
+                local cy = math.floor(obj.AbsolutePosition.Y + obj.AbsoluteSize.Y * 0.5 + inset.Y)
+                vim:SendMouseButtonEvent(cx, cy, 0, true, game, 1)
+                task.wait(0.04)
+                vim:SendMouseButtonEvent(cx, cy, 0, false, game, 1)
+            end)
         end
     end
 end
 
--- SỬA LỖI MULTI-RUN AUTO FARM: GIẢI PHÓNG CỜ MACRO + TÌM CHÍNH XÁC NÚT BÊN PHẢI VÀ TỰ ĐỘNG BẤM "APPLY NOW"
+-- MACRO TỰ ĐỘNG NẠP CONFIG CẢI TIẾN TRÁNH VIM LỖI Ở BẢN TRƯỚC
 local function runAutoFarmMacro(venyxGui, statusBtn)
     if State.MacroRunning then
         if os.clock() - (State.MacroStartClock or 0) > 3.0 then
@@ -549,36 +610,40 @@ local function runAutoFarmMacro(venyxGui, statusBtn)
             local function findConfigControls()
                 local box, iBtn
                 for _, d in ipairs(venyxGui:GetDescendants()) do
-                    if d:IsA("TextBox") and d.Visible then
-                        local ph = (d:GetAttribute("OrigPh") or d.PlaceholderText or ""):lower()
-                        if ph:find("json", 1, true) or ph:find("paste", 1, true) or ph:find("config", 1, true) or ph:find("dán", 1, true) then
-                            box = d
-                            break
+                    if not d:FindFirstAncestor("ChilliV5_ExpandedIsland") and not d:FindFirstAncestor("ChilliHeaderOverlay") then
+                        if d:IsA("TextBox") then
+                            local ph = (d:GetAttribute("OrigPh") or d.PlaceholderText or ""):lower()
+                            if ph:find("json", 1, true) or ph:find("paste", 1, true) or ph:find("config", 1, true) or ph:find("dán", 1, true) then
+                                box = d
+                                break
+                            end
                         end
                     end
                 end
-
                 for _, d in ipairs(venyxGui:GetDescendants()) do
-                    if (d:IsA("TextButton") or d:IsA("TextLabel")) and d.Visible and d.AbsolutePosition.Y > 160 then
-                        local cur = (d.Text or ""):lower():match("^%s*(.-)%s*$")
-                        local raw = (d:GetAttribute("OrigRawText") or d.Text or ""):lower():match("^%s*(.-)%s*$")
-                        local isImp = (cur == "nhập cấu hình" or cur == "import" or raw == "import config" or cur == "nhập từ mã json")
-                        if isImp then
-                            local row = d.Parent
-                            if row and row:IsA("GuiObject") then
-                                if d.AbsolutePosition.X > (row.AbsolutePosition.X + row.AbsoluteSize.X * 0.40) or d:FindFirstChildOfClass("UICorner") then
-                                    iBtn = (d:IsA("TextButton") and d) or d
-                                    break
-                                else
-                                    for _, sibling in ipairs(row:GetDescendants()) do
-                                        if (sibling:IsA("TextButton") or sibling:IsA("ImageButton") or (sibling:IsA("Frame") and sibling:FindFirstChildOfClass("UICorner"))) and sibling ~= d then
-                                            if sibling.AbsolutePosition.X > (row.AbsolutePosition.X + row.AbsoluteSize.X * 0.40) then
-                                                iBtn = sibling
-                                                break
+                    if not d:FindFirstAncestor("ChilliV5_ExpandedIsland") and not d:FindFirstAncestor("ChilliHeaderOverlay") then
+                        if d:IsA("TextButton") or d:IsA("TextLabel") then
+                            local cur = (d.Text or ""):lower():match("^%s*(.-)%s*$")
+                            local raw = (d:GetAttribute("OrigRawText") or d.Text or ""):lower():match("^%s*(.-)%s*$")
+                            -- Điều kiện nới lỏng để không bao giờ xịt: chỉ cần có chữ import hoặc nhập
+                            local isImp = (raw:find("import", 1, true) or cur:find("nhập", 1, true)) and not raw:find("text") and not cur:find("json")
+                            if isImp then
+                                local row = d.Parent
+                                if row and row:IsA("GuiObject") then
+                                    if d.AbsolutePosition.X > (row.AbsolutePosition.X + row.AbsoluteSize.X * 0.40) or d:FindFirstChildOfClass("UICorner") then
+                                        iBtn = (d:IsA("TextButton") and d) or d
+                                        break
+                                    else
+                                        for _, sibling in ipairs(row:GetDescendants()) do
+                                            if (sibling:IsA("TextButton") or sibling:IsA("ImageButton") or (sibling:IsA("Frame") and sibling:FindFirstChildOfClass("UICorner"))) and sibling ~= d then
+                                                if sibling.AbsolutePosition.X > (row.AbsolutePosition.X + row.AbsoluteSize.X * 0.40) then
+                                                    iBtn = sibling
+                                                    break
+                                                end
                                             end
                                         end
+                                        if iBtn then break end
                                     end
-                                    if iBtn then break end
                                 end
                             end
                         end
@@ -588,7 +653,6 @@ local function runAutoFarmMacro(venyxGui, statusBtn)
             end
 
             local cfgBox, impBtn = findConfigControls()
-
             if not cfgBox or not impBtn then
                 local sysNavBtn = State.SidebarNavButtons and State.SidebarNavButtons[6]
                 if sysNavBtn then
@@ -596,7 +660,7 @@ local function runAutoFarmMacro(venyxGui, statusBtn)
                     task.wait(0.18)
                 end
                 for _, d in ipairs(venyxGui:GetDescendants()) do
-                    if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Visible and d.AbsolutePosition.Y < 190 then
+                    if not d:FindFirstAncestor("ChilliV5_ExpandedIsland") and (d:IsA("TextLabel") or d:IsA("TextButton")) and d.AbsolutePosition.Y < 190 then
                         local raw = (d:GetAttribute("OrigRawText") or d.Text or ""):lower():match("^%s*(.-)%s*$")
                         local cur = (d.Text or ""):lower():match("^%s*(.-)%s*$")
                         if raw == "config" or cur == "cấu hình" then
@@ -619,6 +683,7 @@ local function runAutoFarmMacro(venyxGui, statusBtn)
                 end
 
                 cfgBox:SetAttribute("__IsTranslating", true)
+                pcall(function() cfgBox.ClearTextOnFocus = false end)
                 pcall(function() cfgBox:CaptureFocus() end)
                 task.wait(0.04)
                 cfgBox.Text = PRESET_JSON
@@ -646,9 +711,9 @@ local function runAutoFarmMacro(venyxGui, statusBtn)
                     local sc = cfgBox:FindFirstAncestorOfClass("ScrollingFrame")
                     if sc then
                         for _, candidate in ipairs(sc:GetDescendants()) do
-                            if (candidate:IsA("TextButton") or candidate:IsA("ImageButton") or (candidate:IsA("TextLabel") and candidate.Parent:IsA("Frame"))) and candidate.Visible then
+                            if not candidate:FindFirstAncestor("ChilliV5_ExpandedIsland") and (candidate:IsA("TextButton") or candidate:IsA("ImageButton") or (candidate:IsA("TextLabel") and candidate.Parent:IsA("Frame"))) and candidate.Visible then
                                 local dy = candidate.AbsolutePosition.Y - cfgBox.AbsolutePosition.Y
-                                if dy > 15 and dy < 60 and candidate.AbsolutePosition.X > cfgBox.AbsolutePosition.X then
+                                if dy > 15 and dy < 65 and candidate.AbsolutePosition.X > cfgBox.AbsolutePosition.X - 100 then
                                     fireExactNode(candidate)
                                     successImport = true
                                     break
@@ -659,12 +724,11 @@ local function runAutoFarmMacro(venyxGui, statusBtn)
                 end
             end
 
-            -- Tự động kích hoạt nút "Áp dụng ngay" / "Apply now" trên bảng thông báo Popup sau khi nhập
             task.wait(0.22)
             for _ = 1, 15 do
                 local foundApply = false
                 for _, d in ipairs(venyxGui:GetDescendants()) do
-                    if (d:IsA("TextButton") or d:IsA("TextLabel")) and d.Visible and not d:FindFirstAncestor("ChilliV5_ExpandedIsland") then
+                    if not d:FindFirstAncestor("ChilliV5_ExpandedIsland") and (d:IsA("TextButton") or d:IsA("TextLabel")) then
                         local ot = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
                         local cur = (d.Text or ""):match("^%s*(.-)%s*$")
                         if ot == "Apply now" or cur == "Áp dụng ngay" then
@@ -684,41 +748,26 @@ local function runAutoFarmMacro(venyxGui, statusBtn)
         else
             statusBtn.Text = "⚠️ ĐÃ COPY JSON (DÁN VÀO CẤU HÌNH)!"
         end
-        task.wait(1.5)
+        task.wait(1.6)
         if statusBtn and statusBtn.Parent then statusBtn.Text = origTxt end
         State.MacroRunning = false
     end)
 end
 
--- DYNAMIC ISLAND V7 (SỬA LỖI PHÂN THÂN BẰNG CÁCH DỌN SẠCH TẬN GỐC VÀ HẠ Y=36 ĐỂ TRÁNH ĐÈ PING/FPS)
+-- DYNAMIC ISLAND V7
 local function setupIsland(statusLbl, venyxGui)
     local pill = statusLbl.Parent
     if not (pill and pill:IsA("GuiObject")) then return end
     statusLbl:SetAttribute("__IslandDone", true)
-
-    -- Dọn sạch toàn bộ các frame mở rộng cũ bị nhân bản
-    for _, ch in ipairs(venyxGui:GetChildren()) do
-        if ch.Name == "ChilliV5_ExpandedIsland" then
-            ch:Destroy()
-        end
-    end
-
     for _, ch in ipairs(pill:GetChildren()) do
-        if (ch:IsA("UIGradient") and ch.Name ~= "LiquidGlassSheen") or ch.Name == "IslandClickHitbox" then
-            ch:Destroy()
-        end
+        if (ch:IsA("UIGradient") and ch.Name ~= "LiquidGlassSheen") or ch.Name == "IslandClickHitbox" then ch:Destroy() end
     end
-
     pill.BackgroundColor3 = Color3.new(1, 1, 1)
     pill.BackgroundTransparency = 0
-    pill.Size = u2(0, 0, 0, 36)
+    pill.Size = u2(0, 0, 0, 38)
     pill.AutomaticSize = Enum.AutomaticSize.X
-
     local glassGrad = pill:FindFirstChild("LiquidGlassSheen") or mk("UIGradient", {
-        Name = "LiquidGlassSheen",
-        Rotation = 90,
-        Color = LIQUID_GLASS_COLOR,
-        Transparency = LIQUID_GLASS_TRANS
+        Name = "LiquidGlassSheen", Rotation = 90, Color = LIQUID_GLASS_COLOR, Transparency = LIQUID_GLASS_TRANS
     }, pill)
     glassGrad.Rotation = 90
     glassGrad.Color = LIQUID_GLASS_COLOR
@@ -727,22 +776,15 @@ local function setupIsland(statusLbl, venyxGui)
     if pill:GetAttribute("__LockedIslandBg") ~= SID then
         pill:SetAttribute("__LockedIslandBg", SID)
         pill:GetPropertyChangedSignal("BackgroundColor3"):Connect(function()
-            if isAlive() and pill.BackgroundColor3 ~= Color3.new(1, 1, 1) then
-                pill.BackgroundColor3 = Color3.new(1, 1, 1)
-            end
+            if isAlive() and pill.BackgroundColor3 ~= Color3.new(1, 1, 1) then pill.BackgroundColor3 = Color3.new(1, 1, 1) end
         end)
         pill:GetPropertyChangedSignal("BackgroundTransparency"):Connect(function()
-            if isAlive() and pill.BackgroundTransparency ~= 0 then
-                pill.BackgroundTransparency = 0
-            end
+            if isAlive() and pill.BackgroundTransparency ~= 0 then pill.BackgroundTransparency = 0 end
         end)
         pill:GetPropertyChangedSignal("Size"):Connect(function()
-            if isAlive() and pill.Size.Y.Offset < 34 then
-                pill.Size = u2(0, 0, 0, 36)
-            end
+            if isAlive() and pill.Size.Y.Offset < 36 then pill.Size = u2(0, 0, 0, 38) end
         end)
     end
-
     local pad = pill:FindFirstChildOfClass("UIPadding") or mk("UIPadding", {}, pill)
     pad.PaddingLeft = UDim.new(0, 10)
     pad.PaddingRight = UDim.new(0, 10)
@@ -751,14 +793,14 @@ local function setupIsland(statusLbl, venyxGui)
 
     local leftBadge = pill:FindFirstChild("IslandLogoBadge")
     if not leftBadge then
-        leftBadge = mk("Frame", { Name = "IslandLogoBadge", Size = u2(0, 26, 0, 26), BackgroundColor3 = c3(0, 0, 0), BorderSizePixel = 0, ClipsDescendants = false, LayoutOrder = -10, Active = false, ZIndex = 10000 }, pill)
+        leftBadge = mk("Frame", { Name = "IslandLogoBadge", Size = u2(0, 28, 0, 28), BackgroundColor3 = c3(0, 0, 0), BorderSizePixel = 0, ClipsDescendants = false, LayoutOrder = -10, Active = false, ZIndex = 10000 }, pill)
         mk("UICorner", { CornerRadius = UDim.new(1, 0) }, leftBadge)
         local lbImg = mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(1, 1), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Crop, Active = false, ZIndex = 10001 }, leftBadge)
         mk("UICorner", { CornerRadius = UDim.new(1, 0) }, lbImg)
-        local lbStroke = mk("UIStroke", { Thickness = 1.4, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, lbImg)
+        local lbStroke = mk("UIStroke", { Thickness = 1.5, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, lbImg)
         addGrad(mk("UIGradient", { Color = RAINBOW }, lbStroke))
     else
-        leftBadge.Size = u2(0, 26, 0, 26)
+        leftBadge.Size = u2(0, 28, 0, 28)
         leftBadge.BackgroundColor3 = c3(0, 0, 0)
         local lbImg = leftBadge:FindFirstChildOfClass("ImageLabel")
         if lbImg then
@@ -768,12 +810,11 @@ local function setupIsland(statusLbl, venyxGui)
             if not lbImg:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, lbImg) end
         end
     end
-
     local hint = pill:FindFirstChild("IslandExpandHint")
     if not hint then
-        hint = mk("TextLabel", { Name = "IslandExpandHint", Size = u2(0, 22, 0, 20), BackgroundColor3 = c3(22, 30, 48), BackgroundTransparency = 0.28, BorderSizePixel = 0, Text = "▼", Font = Enum.Font.GothamBlack, TextSize = 10, TextColor3 = c3(205, 235, 255), LayoutOrder = 99, Active = true, ZIndex = 10000 }, pill)
+        hint = mk("TextLabel", { Name = "IslandExpandHint", Size = u2(0, 24, 0, 22), BackgroundColor3 = c3(22, 30, 48), BackgroundTransparency = 0.28, BorderSizePixel = 0, Text = "▼", Font = Enum.Font.GothamBlack, TextSize = 10, TextColor3 = c3(205, 235, 255), LayoutOrder = 99, Active = true, ZIndex = 10000 }, pill)
     else
-        hint.Size = u2(0, 22, 0, 20)
+        hint.Size = u2(0, 24, 0, 22)
         hint.BackgroundColor3 = c3(22, 30, 48)
         hint.BackgroundTransparency = 0.28
         hint.Text = "▼"
@@ -800,7 +841,7 @@ local function setupIsland(statusLbl, venyxGui)
         statusLbl:SetAttribute("__LastTranslatedStatus", out)
         statusLbl.RichText = false
         statusLbl.Font = Enum.Font.GothamBold
-        statusLbl.TextSize = 12.5
+        statusLbl.TextSize = 13
         statusLbl.TextColor3 = c3(244, 248, 255)
         statusLbl.Text = out
         if expTaskLbl and expTaskLbl.Parent then expTaskLbl.Text = "⚡ " .. out end
@@ -824,7 +865,6 @@ local function setupIsland(statusLbl, venyxGui)
     statusLbl.Active = true
     hint.Active = true
 
-    -- ĐẶT TỌA ĐỘ Y=36 ĐỂ TRÁNH CHE KHUẤT THANH ĐO PING/FPS MẶC ĐỊNH CỦA GAME (FIX ẢNH 7032.JPG)
     if pill.Position.Y.Offset < 28 or pill.Position.Y.Offset > 600 then
         pill.Position = u2(0.5, 0, 0, 36)
     end
@@ -833,7 +873,9 @@ local function setupIsland(statusLbl, venyxGui)
     local ps = pill:FindFirstChild("IslandStroke") or mk("UIStroke", { Name = "IslandStroke", Thickness = 1.6, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Color3.new(1, 1, 1), Transparency = 0.14 }, pill)
     addGrad(ps:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, ps))
 
-    -- KHUNG MỞ RỘNG (CHỈ TẠO 1 DUY NHẤT, GỌN GÀNG ĐÚNG CHUẨN)
+    for _, ch in ipairs(venyxGui:GetChildren()) do
+        if ch.Name == "ChilliV5_ExpandedIsland" then ch:Destroy() end
+    end
     local exp = mk("Frame", { Name = "ChilliV5_ExpandedIsland", AnchorPoint = v2(0.5, 0), Position = pill.Position, Size = u2(0, 308, 0, 180), BackgroundColor3 = c3(10, 12, 20), BorderSizePixel = 0, Visible = false, Active = true, ClipsDescendants = true, ZIndex = 10000 }, venyxGui)
     mk("UICorner", { CornerRadius = UDim.new(0, 18) }, exp)
     local es = mk("UIStroke", { Thickness = 2.0, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, exp)
@@ -915,7 +957,7 @@ local function setupIsland(statusLbl, venyxGui)
         task.spawn(function()
             local hopped = false
             for _, d in ipairs(venyxGui:GetDescendants()) do
-                if d:IsA("TextButton") or d:IsA("TextLabel") then
+                if not d:FindFirstAncestor("ChilliV5_ExpandedIsland") and (d:IsA("TextButton") or d:IsA("TextLabel")) then
                     local ot = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
                     if ot == "Hop" or ot == "Server hop" or d.Text == "Đổi ngay" or d.Text == "Đổi server" then
                         hopped = fireExactNode(d)
@@ -1098,12 +1140,12 @@ local function setupCircleLogo(obj, win)
     end
     local disc = top:FindFirstChild("ChilliCircleDisc") or mk("Frame", {
         Name = "ChilliCircleDisc", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5),
-        Size = u2(0, 66, 0, 66), BackgroundColor3 = c3(0, 0, 0), BackgroundTransparency = 0,
+        Size = u2(0, 68, 0, 68), BackgroundColor3 = c3(0, 0, 0), BackgroundTransparency = 0,
         BorderSizePixel = 0, Active = false, ClipsDescendants = false, ZIndex = top.ZIndex + 8
     }, top)
     disc.BackgroundColor3 = c3(0, 0, 0)
     disc.BackgroundTransparency = 0
-    disc.Size = u2(0, 66, 0, 66)
+    disc.Size = u2(0, 68, 0, 68)
     disc.ClipsDescendants = false
     disc.ZIndex = top.ZIndex + 8
     local discCorner = disc:FindFirstChildOfClass("UICorner") or mk("UICorner", { CornerRadius = UDim.new(1, 0) }, disc)
@@ -1343,7 +1385,6 @@ local function applySenaV7Architecture(win, titleLbl)
             end
         end
     end
-
     local syncingOpacity = false
     local function syncWallpaperAndOldBg(changedFrame)
         if syncingOpacity or not wp or not wp.Parent then return end
@@ -1442,23 +1483,19 @@ local function applySenaV7Architecture(win, titleLbl)
             addGrad(mk("UIGradient", { Color = RAINBOW }, hdrLine))
         end
 
-        local function calcBadgeScaleX()
-            local hW = hdrOverlay.AbsoluteSize.X
-            local relScale = 0.252
-            if hW > 200 then
-                local rightPx = (titleLbl.AbsolutePosition.X - hdrOverlay.AbsolutePosition.X) + math.max(titleLbl.AbsoluteSize.X, titleLbl.TextBounds.X)
-                local calc = (rightPx / hW) + 0.018
-                if calc >= 0.248 and calc <= 0.42 then
-                    relScale = calc
-                end
-            end
-            return relScale
+        local function calcBadgeX()
+            local scale = (hdrOverlay.AbsoluteSize.X > 100 and win.Size.X.Offset > 100) and (hdrOverlay.AbsoluteSize.X / win.Size.X.Offset) or 1
+            if scale <= 0.1 then scale = 1 end
+            local rightScreenX = (titleLbl.AbsolutePosition.X - win.AbsolutePosition.X) + math.max(titleLbl.TextBounds.X, titleLbl.AbsoluteSize.X)
+            local rightLocalX = math.floor(rightScreenX / scale)
+            if rightLocalX > 320 or rightLocalX < 180 then rightLocalX = 214 end
+            return math.max(228, rightLocalX + 14)
         end
-        local badgeScaleX = calcBadgeScaleX()
+        local badgeStartX = calcBadgeX()
         local ultraBadge = hdrOverlay:FindFirstChild("ChilliUltraBadgePill")
         if not ultraBadge then
             ultraBadge = mk("Frame", {
-                Name = "ChilliUltraBadgePill", AnchorPoint = v2(0, 0.5), Position = u2(badgeScaleX, 0, 0.5, 0),
+                Name = "ChilliUltraBadgePill", AnchorPoint = v2(0, 0.5), Position = u2(0, badgeStartX, 0.5, 0),
                 Size = u2(0, 62, 0, 20), BackgroundColor3 = c3(22, 16, 38), BackgroundTransparency = 0.04,
                 BorderSizePixel = 0, Active = false, ZIndex = 55
             }, hdrOverlay)
@@ -1471,57 +1508,15 @@ local function applySenaV7Architecture(win, titleLbl)
                 Text = "👑 ULTRA", Active = false, ZIndex = 56
             }, ultraBadge)
         else
-            ultraBadge.Position = u2(badgeScaleX, 0, 0.5, 0)
+            ultraBadge.Position = u2(0, badgeStartX, 0.5, 0)
         end
-        local telePill = hdrOverlay:FindFirstChild("ChilliCyberTelemetry")
-        if not telePill then
-            telePill = mk("Frame", {
-                Name = "ChilliCyberTelemetry", AnchorPoint = v2(0, 0.5), Position = u2(badgeScaleX + 0.105, 0, 0.5, 0),
-                Size = u2(0, 148, 0, 20), BackgroundColor3 = c3(14, 18, 32), BackgroundTransparency = 0.08,
-                BorderSizePixel = 0, Active = false, ZIndex = 55
-            }, hdrOverlay)
-            mk("UICorner", { CornerRadius = UDim.new(1, 0) }, telePill)
-            local tpStroke = mk("UIStroke", { Thickness = 1.2, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Transparency = 0.18 }, telePill)
-            addGrad(mk("UIGradient", { Color = ULTRA_CARD_GRAD }, tpStroke))
-            local teleLbl = mk("TextLabel", {
-                Name = "TeleTxt", Size = u2s(1, 1), BackgroundTransparency = 1,
-                Font = Enum.Font.GothamBold, TextSize = 9.0, TextColor3 = Color3.new(1, 1, 1),
-                Text = "⚡ 112 FPS • 📶 45ms • ⏱️ 00:00", Active = false, ZIndex = 56
-            }, telePill)
-            addGrad(mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, teleLbl))
-        end
-
-        State.TelemetryUpdateFn = function(fpsVal)
-            if telePill and telePill.Parent then
-                local tLbl = telePill:FindFirstChild("TeleTxt")
-                if tLbl then
-                    local ping = 42
-                    pcall(function()
-                        ping = math.clamp(math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue()), 12, 999)
-                    end)
-                    local el = math.max(0, math.floor(os.clock() - (State.StartClock or os.clock())))
-                    local mm = math.floor(el / 60)
-                    local ss = el % 60
-                    tLbl.Text = string.format("⚡ %d FPS • 📶 %dms • ⏱️ %02d:%02d", fpsVal or getFakeFps(), ping, mm, ss)
-                end
-            end
-        end
-        pcall(State.TelemetryUpdateFn, getFakeFps())
-
         if not titleLbl:GetAttribute("__BadgePosHooked") then
             titleLbl:SetAttribute("__BadgePosHooked", true)
-            local function syncBadgePos()
-                local sx = calcBadgeScaleX()
+            titleLbl:GetPropertyChangedSignal("TextBounds"):Connect(function()
                 if ultraBadge and ultraBadge.Parent then
-                    ultraBadge.Position = u2(sx, 0, 0.5, 0)
+                    ultraBadge.Position = u2(0, calcBadgeX(), 0.5, 0)
                 end
-                if telePill and telePill.Parent then
-                    telePill.Position = u2(sx + 0.105, 0, 0.5, 0)
-                end
-            end
-            titleLbl:GetPropertyChangedSignal("TextBounds"):Connect(syncBadgePos)
-            titleLbl:GetPropertyChangedSignal("AbsoluteSize"):Connect(syncBadgePos)
-            task.delay(0.15, syncBadgePos)
+            end)
         end
     end)
 
@@ -1593,7 +1588,6 @@ local function applySenaV7Architecture(win, titleLbl)
         if #navButtons >= 2 then
             table.sort(navButtons, function(a, b) return a.AbsolutePosition.Y < b.AbsolutePosition.Y end)
             State.SidebarNavButtons = navButtons
-
             local TAB_NAMES = {
                 [1] = { title = "BẢNG ĐIỀU KHIỂN", icon = "🏠", sub = "HOME DASHBOARD" },
                 [2] = { title = "CƯỚP TRỨNG", icon = "🥚", sub = "AUTO STEAL & SNIPER" },
@@ -1705,7 +1699,7 @@ local function applySenaV7Architecture(win, titleLbl)
                             mk("UICorner", { CornerRadius = UDim.new(1, 0) }, hBadge)
                             local hStroke = mk("UIStroke", { Thickness = 1.5, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, hBadge)
                             addGrad(mk("UIGradient", { Color = RAINBOW }, hStroke))
-                            local hImg = mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(1, 1), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Crop, Active = false, ZIndex = 61 }, hBadge)
+                            local hImg = mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.86, 0.86), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Crop, Active = false, ZIndex = 61 }, hBadge)
                             mk("UICorner", { CornerRadius = UDim.new(1, 0) }, hImg)
                         else
                             hBadge.Size = u2(0, 28, 0, 28)
@@ -1713,7 +1707,7 @@ local function applySenaV7Architecture(win, titleLbl)
                             local hImg = hBadge:FindFirstChildOfClass("ImageLabel")
                             if hImg then
                                 hImg.Image = LOGO_ID
-                                hImg.Size = u2s(1, 1)
+                                hImg.Size = u2s(0.86, 0.86)
                                 hImg.ScaleType = Enum.ScaleType.Crop
                                 if not hImg:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, hImg) end
                             end
@@ -1789,7 +1783,7 @@ local function patchVenyxGui(gui, titleLbl)
             for i = 1, #queue do
                 if not isAlive() then break end
                 if queue[i] and queue[i].Parent then pcall(hookTrans, queue[i]) end
-                if i % 80 == 0 then task.wait() end
+                if i % 40 == 0 then task.wait() end
             end
             gui:SetAttribute("__BatchTranslating", false)
         end)
