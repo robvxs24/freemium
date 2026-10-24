@@ -25,6 +25,17 @@ end
 cp:PreloadAsync(pre)
 for _, im in ipairs(pre) do im:Destroy() end
 end)
+pcall(function()
+local lgt = game:GetService("Lighting")
+lgt.GlobalShadows = false
+lgt.FogEnd = 9e9
+settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+for _, v in ipairs(workspace:GetDescendants()) do
+if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Beam") or v:IsA("Sparkles") or v:IsA("Smoke") or v:IsA("Fire") then
+v.Enabled = false
+end
+end
+end)
 end)
 local function safeHttpGet(url)
 local ok1, res1 = pcall(function() return game:HttpGet(url) end)
@@ -238,14 +249,21 @@ end
 task.spawn(function()
 local rot, tickCount = 0, 0
 while isAlive() do
-rot = (rot + 3) % 360
+rot = (rot + 6) % 360
 tickCount = tickCount + 1
+local winVis = (State.ActiveMainWin == nil) or (State.ActiveMainWin.Parent ~= nil and State.ActiveMainWin.Visible)
 local g = State.ActiveGradients
 for i = #g, 1, -1 do
 local item = g[i]
-if item and item.Parent then item.Rotation = rot else table.remove(g, i) end
+if item and item.Parent then
+if winVis or not (State.ActiveMainWin and item:IsDescendantOf(State.ActiveMainWin)) then
+item.Rotation = rot
 end
-if tickCount % 22 == 0 then
+else
+table.remove(g, i)
+end
+end
+if tickCount % 10 == 0 then
 local f = getFakeFps()
 local fl = State.TrackedFpsLabels
 for i = #fl, 1, -1 do
@@ -256,9 +274,9 @@ else
 table.remove(fl, i)
 end
 end
-if State.TelemetryUpdateFn then pcall(State.TelemetryUpdateFn, f) end
+if winVis and State.TelemetryUpdateFn then pcall(State.TelemetryUpdateFn, f) end
 end
-if tickCount % 8 == 0 then
+if tickCount % 4 == 0 then
 if State.SyncWindowFn then pcall(State.SyncWindowFn) end
 if State.ActiveStatusLbl and State.ActiveStatusLbl.Parent then
 if State.ActiveStatusLbl.TextColor3 ~= Color3.new(1, 1, 1) then
@@ -269,7 +287,7 @@ State.ActiveStatusLbl.TextTransparency = 0
 end
 end
 end
-task.wait(0.033)
+task.wait(0.08)
 end
 end)
 local FastCache = {}
@@ -404,7 +422,7 @@ local EXACT_VI = {
 ["WEAPONS"]="VŨ KHÍ", ["Use weapons"]="Sử dụng vũ khí", ["Hold each"]="Thời gian cầm mỗi món", ["System"]="Hệ Thống", ["Server"]="Máy Chủ", ["SERVER"]="MÁY CHỦ",
 ["Webhook"]="Webhook", ["WEBHOOK"]="WEBHOOK", ["Optimizer"]="Tối Ưu Hóa", ["OPTIMIZER"]="TỐI ƯU HÓA", ["Interface"]="Giao Diện", ["INTERFACE"]="GIAO DIỆN",
 ["GAME HUD"]="TRÊN MÀN HÌNH GAME", ["Steal panel button on game HUD"]="Hiện nút Bảng Cướp trên màn hình",
-["Config"]="Cấu Hình", ["CONFIG"]="CẤU HÌNH", ["CONFIGS"]="QUẢN LÝ CẤU HÌNH", ["Configs"]="Danh sách cấu hình", ["ACTIVE"]="ĐANG DÙNG", ["SAVED CONFIGS"]="ĐÃ LƯU",
+["Config"]="Cấu Hình", ["CONFIG"]="CẤU HÌNH", ["CONFIGS"]="QUẢNĹÝ CẤU HÌNH", ["Configs"]="Danh sách cấu hình", ["ACTIVE"]="ĐANG DÙNG", ["SAVED CONFIGS"]="ĐÃ LƯU",
 ["Set as active config"]="Đặt làm cấu hình chính", ["Set active"]="Kích hoạt", ["Save changes"]="Lưu thay đổi", ["Save"]="Lưu", ["Overwrite"]="Lưu đè",
 ["PROFILES"]="HỒ SƠ CẤU HÌNH", ["New config name"]="Tên cấu hình mới", ["Config name"]="Tên cấu hình", ["Auto if empty"]="Tự đặt nếu trống",
 ["Create config"]="Tạo cấu hình mới", ["Create"]="Tạo mới", ["Pick to delete"]="Chọn mục cần xóa",
@@ -744,7 +762,10 @@ inst:SetAttribute("__TransHookSession", SID)
 table.insert(State.TrackedTexts, inst)
 inst:GetPropertyChangedSignal("Text"):Connect(function()
 if not isAlive() or inst:GetAttribute("__IsTranslating") or inst:GetAttribute("__IslandDone") or inst:GetAttribute("__HiddenVxLogo") then return end
-if not inst:IsA("TextBox") and isFpsTxt(inst.Text) then
+local cur = inst.Text
+if cur == "" or cur == inst:GetAttribute("__LastTranslated") then return end
+if cur:match("^[%$%+%-%d%.%,%/%%sxhm%s:]+$") then return end
+if not inst:IsA("TextBox") and isFpsTxt(cur) then
 hookFps(inst)
 return
 end
@@ -752,8 +773,7 @@ if inst:IsA("TextBox") then
 applyTrans(inst)
 return
 end
-local cur = inst.Text
-if cur ~= inst:GetAttribute("__LastTranslated") and not hasVi(cur) then
+if not hasVi(cur) then
 inst:SetAttribute("OrigRawText", cur)
 applyTrans(inst)
 end
@@ -1548,107 +1568,62 @@ local wp = wpParent:FindFirstChild("ChilliSenaWallpaper") or win:FindFirstChild(
 if not wp then
 wp = mk("ImageLabel", {
 Name = "ChilliSenaWallpaper", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5),
-Size = u2s(1, 1), BackgroundColor3 = c3(8, 10, 18), BackgroundTransparency = 0.18,
-Image = WALLPAPER_IMAGE_ID, ImageTransparency = 0.22, ScaleType = Enum.ScaleType.Crop,
-Active = false, ZIndex = 0
+Size = u2s(1, 1), BackgroundColor3 = c3(6, 8, 14), BackgroundTransparency = 0.06,
+Image = WALLPAPER_IMAGE_ID, ImageColor3 = Color3.new(1, 1, 1), ImageTransparency = 0.03,
+ResampleMode = Enum.ResamplerMode.Default, ScaleType = Enum.ScaleType.Crop,
+Active = false, Selectable = false, ZIndex = 0
 }, wpParent)
 mk("UICorner", { CornerRadius = UDim.new(0, 10) }, wp)
 else
 wp.Image = WALLPAPER_IMAGE_ID
-wp.BackgroundColor3 = c3(8, 10, 18)
+wp.ImageColor3 = Color3.new(1, 1, 1)
+wp.ImageTransparency = 0.03
+wp.BackgroundColor3 = c3(6, 8, 14)
+wp.BackgroundTransparency = 0.06
 wp.ZIndex = 0
 end
 local pageWallpapers = { wp }
 local sectionCards = {}
-local curBaseOpacity = (mainBg.BackgroundTransparency < 0.95) and mainBg.BackgroundTransparency or 0.25
+local curBaseOpacity = (mainBg.BackgroundTransparency < 0.95) and mainBg.BackgroundTransparency or 0.15
 local function styleMenuInterior()
 if not win or not win.Parent then return end
-sectionCards = {}
-pageWallpapers = { wp }
-local wpTrans = math.clamp(0.12 + curBaseOpacity * 0.75, 0.12, 0.90)
-local bgTrans = math.clamp(0.10 + curBaseOpacity * 0.75, 0.08, 0.88)
-local cardT = math.clamp(0.34 + curBaseOpacity * 0.50, 0.30, 0.86)
+local cardT = 0.58
 local allDesc = win:GetDescendants()
-for _, oldObj in ipairs(allDesc) do
-if oldObj.Name == "ChilliPageWallpaper" then
-local pp = oldObj.Parent
-if not pp or pp:FindFirstAncestorOfClass("ScrollingFrame") or pp:FindFirstChildOfClass("UIListLayout") or pp:FindFirstChildOfClass("UIGridLayout") then
-pcall(oldObj.Destroy, oldObj)
-end
-elseif oldObj.Name == "ChilliCardTopGlow" then
-pcall(oldObj.Destroy, oldObj)
-end
-end
 for _, d in ipairs(allDesc) do
-local isMainPageScroll = d:IsA("ScrollingFrame")
-and (not d:FindFirstAncestorOfClass("ScrollingFrame"))
-and (d.AbsolutePosition.X - winX) > 35
-and (d.AbsoluteSize.X >= win.AbsoluteSize.X * 0.55)
-and (d.AbsoluteSize.Y >= win.AbsoluteSize.Y * 0.45)
-if isMainPageScroll then
+if d.Name == "ChilliPageWallpaper" or d.Name == "ChilliCardTopGlow" then
+pcall(d.Destroy, d)
+elseif d:IsA("ScrollingFrame") and (not d:FindFirstAncestorOfClass("ScrollingFrame")) and (d.AbsolutePosition.X - winX) > 35 and (d.AbsoluteSize.X >= win.AbsoluteSize.X * 0.50) and (d.AbsoluteSize.Y >= win.AbsoluteSize.Y * 0.40) then
 d.BackgroundTransparency = 1
 d.ScrollingEnabled = true
 if d.ZIndex < 3 then d.ZIndex = 3 end
-local pageParent = d.Parent
-while pageParent and pageParent ~= win and pageParent ~= mainBg and (pageParent:FindFirstChildOfClass("UIListLayout") or pageParent:FindFirstChildOfClass("UIGridLayout") or pageParent.AutomaticSize ~= Enum.AutomaticSize.None) do
-pageParent = pageParent.Parent
-end
-if pageParent and pageParent:IsA("GuiObject") and not pageParent:FindFirstAncestorOfClass("ScrollingFrame") and not pageParent:FindFirstChildOfClass("UIListLayout") and not pageParent:FindFirstChildOfClass("UIGridLayout") then
-local pWp = pageParent:FindFirstChild("ChilliPageWallpaper")
-if not pWp then
-pWp = mk("ImageLabel", {
-Name = "ChilliPageWallpaper", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5),
-Size = u2s(1, 1), BackgroundColor3 = c3(8, 10, 18), BackgroundTransparency = bgTrans,
-Image = WALLPAPER_IMAGE_ID, ImageTransparency = wpTrans, ScaleType = Enum.ScaleType.Crop,
-Active = false, Selectable = false, ZIndex = 1
-}, pageParent)
-mk("UICorner", { CornerRadius = UDim.new(0, 8) }, pWp)
-else
-pWp.Image = WALLPAPER_IMAGE_ID
-pWp.BackgroundColor3 = c3(8, 10, 18)
-pWp.BackgroundTransparency = bgTrans
-pWp.ImageTransparency = wpTrans
-pWp.Active = false
-pWp.Selectable = false
-pWp.ZIndex = 1
-end
-table.insert(pageWallpapers, pWp)
-end
 local p = d.Parent
 while p and p ~= win and p ~= mainBg do
-if p:IsA("GuiObject") and p.AbsoluteSize.X >= win.AbsoluteSize.X * 0.45 and (p.AbsolutePosition.X - winX) > 30 then
+if p:IsA("GuiObject") and p.AbsoluteSize.X >= win.AbsoluteSize.X * 0.42 and (p.AbsolutePosition.X - winX) > 28 then
 p.BackgroundTransparency = 1
 end
 p = p.Parent
 end
-for _, subCard in ipairs(d:GetDescendants()) do
-if subCard:IsA("Frame") and not subCard.Name:find("^Chilli") and subCard:FindFirstAncestorOfClass("ScrollingFrame") == d and subCard.AbsoluteSize.X >= 165 and subCard.AbsoluteSize.Y >= 42 then
-if (subCard.BackgroundTransparency < 0.92 and subCard:FindFirstChildOfClass("UICorner") ~= nil) or subCard:GetAttribute("__IsChilliCard") then
-subCard:SetAttribute("__IsChilliCard", true)
-table.insert(sectionCards, subCard)
+elseif d:IsA("Frame") and not d.Name:find("^Chilli") and not d:FindFirstAncestorOfClass("ScrollingFrame") and d ~= win and d ~= mainBg then
+if d.AbsoluteSize.X >= win.AbsoluteSize.X * 0.48 and d.AbsoluteSize.Y >= win.AbsoluteSize.Y * 0.38 and (d.AbsolutePosition.X - winX) > 28 then
+d.BackgroundTransparency = 1
 end
 end
-end
-end
-end
-for _, card in ipairs(sectionCards) do
-card.BackgroundColor3 = c3(12, 14, 26)
-card.BackgroundTransparency = cardT
-if not card:GetAttribute("__ChilliCardStyled") then
-card:SetAttribute("__ChilliCardStyled", true)
-local cStroke = card:FindFirstChildOfClass("UIStroke") or mk("UIStroke", { Thickness = 1.4, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, card)
+if not d:GetAttribute("__ChilliElemStyled") then
+if d:IsA("Frame") and not d.Name:find("^Chilli") and d:FindFirstAncestorOfClass("ScrollingFrame") ~= nil and d.AbsoluteSize.X >= 145 and d.AbsoluteSize.Y >= 38 and d.BackgroundTransparency < 0.94 and d:FindFirstChildOfClass("UICorner") ~= nil then
+d:SetAttribute("__IsChilliCard", true)
+d:SetAttribute("__ChilliElemStyled", true)
+d.BackgroundColor3 = c3(10, 12, 22)
+d.BackgroundTransparency = cardT
+table.insert(sectionCards, d)
+local cStroke = d:FindFirstChildOfClass("UIStroke") or mk("UIStroke", { Thickness = 1.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, d)
 cStroke.Color = Color3.new(1, 1, 1)
-cStroke.Thickness = 1.4
-cStroke.Transparency = 0.14
+cStroke.Thickness = 1.2
+cStroke.Transparency = 0.22
 cStroke.Enabled = true
 if not cStroke:FindFirstChild("ChilliCardGrad") then
-addGrad(mk("UIGradient", { Name = "ChilliCardGrad", Color = ULTRA_CARD_GRAD }, cStroke))
+mk("UIGradient", { Name = "ChilliCardGrad", Rotation = 18, Color = ULTRA_CARD_GRAD }, cStroke)
 end
-end
-end
-for _, d in ipairs(allDesc) do
-if not d:GetAttribute("__ChilliElemStyled") then
-if (d:IsA("TextLabel") or d:IsA("TextButton")) and not d.Name:find("^Chilli") and d ~= titleLbl and not d:IsDescendantOf(titleLbl) then
+elseif (d:IsA("TextLabel") or d:IsA("TextButton")) and not d.Name:find("^Chilli") and d ~= titleLbl and not d:IsDescendantOf(titleLbl) then
 local txt = d.Text or ""
 local isBigPageTitle = (d.TextSize >= 15 and d.AbsolutePosition.Y > hy + 8 and d.AbsolutePosition.Y < hy + 95 and (d.AbsolutePosition.X - winX) < 240)
 local isSectionHeader = (txt:upper() == txt and #txt >= 3 and d.TextSize <= 14 and d:FindFirstAncestorOfClass("ScrollingFrame") ~= nil)
@@ -1656,8 +1631,9 @@ local isSubTabActive = (d.AbsolutePosition.Y > hy + 10 and d.AbsolutePosition.Y 
 if isBigPageTitle or isSectionHeader or isSubTabActive then
 d.TextColor3 = Color3.new(1, 1, 1)
 if not d:FindFirstChild("ChilliInnerUltraGrad") then
-addGrad(mk("UIGradient", { Name = "ChilliInnerUltraGrad", Color = ULTRA_TEXT_GRAD }, d))
+mk("UIGradient", { Name = "ChilliInnerUltraGrad", Color = ULTRA_TEXT_GRAD }, d)
 end
+d:SetAttribute("__ChilliElemStyled", true)
 end
 elseif (d:IsA("Frame") or d:IsA("TextButton") or d:IsA("TextBox")) and not d.Name:find("^Chilli") and not d:GetAttribute("__IsChilliCard") and not d:IsDescendantOf(titleLbl) then
 local inScroll = d:FindFirstAncestorOfClass("ScrollingFrame") ~= nil
@@ -1670,7 +1646,7 @@ d.BackgroundColor3 = Color3.new(1, 1, 1)
 mk("UIGradient", { Name = "ChilliControlNeonGrad", Color = ULTRA_CARD_GRAD }, d)
 end
 elseif sz.Y >= 16 and sz.Y <= 28 and sz.X >= 34 and sz.X <= 195 and d:FindFirstChildOfClass("UICorner") then
-d.BackgroundColor3 = c3(15, 18, 32)
+d.BackgroundColor3 = c3(14, 17, 30)
 local dStroke = d:FindFirstChild("ChilliDropStroke") or d:FindFirstChildOfClass("UIStroke") or mk("UIStroke", { Name = "ChilliDropStroke", Thickness = 1.1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, d)
 dStroke.Color = Color3.new(1, 1, 1)
 dStroke.Transparency = 0.32
@@ -1683,7 +1659,7 @@ local topStroke = d:FindFirstChild("ChilliTopPillStroke") or d:FindFirstChildOfC
 topStroke.Color = Color3.new(1, 1, 1)
 topStroke.Transparency = 0.25
 if not topStroke:FindFirstChild("ChilliTopPillGrad") then
-addGrad(mk("UIGradient", { Name = "ChilliTopPillGrad", Color = ULTRA_CARD_GRAD }, topStroke))
+mk("UIGradient", { Name = "ChilliTopPillGrad", Color = ULTRA_CARD_GRAD }, topStroke)
 end
 end
 d:SetAttribute("__ChilliElemStyled", true)
@@ -1703,25 +1679,24 @@ curT = mainBg.BackgroundTransparency
 end
 curBaseOpacity = curT
 if mainBg and mainBg.Parent and mainBg.BackgroundTransparency < 0.98 then
-mainBg.BackgroundTransparency = curT
+mainBg.BackgroundTransparency = math.clamp(curT + 0.72, 0.88, 0.98)
 end
 for i = 2, #bgFrames do
 local bf = bgFrames[i]
 if bf and bf.Parent and bf ~= mainBg then
-bf.BackgroundTransparency = math.clamp(curT + 0.62, 0.86, 0.98)
+bf.BackgroundTransparency = 1
 end
 end
-local wpT = math.clamp(0.12 + curT * 0.75, 0.12, 0.90)
-local bgT = math.clamp(0.10 + curT * 0.75, 0.08, 0.88)
-for _, pw in ipairs(pageWallpapers) do
-if pw and pw.Parent then
-pw.ImageTransparency = wpT
-pw.BackgroundTransparency = bgT
+wp.ImageTransparency = math.clamp(0.03 + curT * 0.35, 0.02, 0.65)
+wp.BackgroundTransparency = math.clamp(0.05 + curT * 0.40, 0.04, 0.70)
+local cardT = math.clamp(0.54 + curT * 0.30, 0.50, 0.85)
+for i = #sectionCards, 1, -1 do
+local card = sectionCards[i]
+if card and card.Parent then
+card.BackgroundTransparency = cardT
+else
+table.remove(sectionCards, i)
 end
-end
-local cardT = math.clamp(0.34 + curT * 0.50, 0.30, 0.86)
-for _, card in ipairs(sectionCards) do
-if card and card.Parent then card.BackgroundTransparency = cardT end
 end
 syncingOpacity = false
 end
@@ -1743,7 +1718,7 @@ local interiorPending = false
 win.DescendantAdded:Connect(function(nd)
 if not isAlive() or interiorPending or nd.Name:find("^Chilli") then return end
 interiorPending = true
-task.delay(0.12, function()
+task.delay(0.35, function()
 interiorPending = false
 if isAlive() and win and win.Parent and win.Visible then
 pcall(styleMenuInterior)
