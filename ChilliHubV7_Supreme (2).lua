@@ -928,7 +928,9 @@ end
 elseif d:IsA("TextButton") or d:IsA("TextLabel") then
 local ot = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
 local ct = (d.Text or ""):match("^%s*(.-)%s*$")
-if ot == "Import" or ct == "Nhập" then
+local otNorm = ot:lower():gsub("%s+", " ")
+local ctNorm = ct:lower():gsub("%s+", " ")
+if otNorm == "import" or otNorm == "import config" or ctNorm == "nhập" or ctNorm == "nhập cấu hình" then
 if not requireVisible or isControlVisibleOnTab(d, venyxGui) then
 btn = d
 end
@@ -1024,21 +1026,6 @@ local _, freshImportBtn = findImportControls(true)
 importBtn = freshImportBtn or importBtn
 if importBtn then fireBtn(importBtn) end
 task.wait(0.38)
-local hasApplyPrompt = false
-for _, d in ipairs(venyxGui:GetDescendants()) do
-if (d:IsA("TextButton") or d:IsA("TextLabel")) and not d:FindFirstAncestor("ChilliV5_ExpandedIsland") then
-local ot = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
-local cur = (d.Text or ""):match("^%s*(.-)%s*$")
-if (ot == "Apply now" or cur == "Áp dụng ngay" or ot == "Overwrite" or cur == "Lưu đè") and isControlVisibleOnTab(d, venyxGui) then
-hasApplyPrompt = true
-break
-end
-end
-end
-if not hasApplyPrompt and importBtn then
-fireBtn(importBtn)
-task.wait(0.35)
-end
 for pass = 1, 2 do
 for _, d in ipairs(venyxGui:GetDescendants()) do
 if (d:IsA("TextButton") or d:IsA("TextLabel")) and not d:FindFirstAncestor("ChilliV5_ExpandedIsland") then
