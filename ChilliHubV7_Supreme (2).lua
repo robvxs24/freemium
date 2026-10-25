@@ -1,4 +1,4 @@
--- Chilli Hub V7 Supreme | Import button event fix v4 | 2026-10-25
+-- Chilli Hub V7 Supreme | Real GUI import click + confirmation v5 | 2026-10-25
 local NEW_TITLE = "Chilli Hub V7"
 local LOGO_ID = "rbxassetid://74441610995894"
 local HEADER_BAR_IMG_ID = "rbxassetid://83726521558450"
@@ -941,33 +941,37 @@ end
 return box, btn
 end
 local function activateImportButton(btn)
-if not btn then return false end
+if not (btn and btn.Parent) then return false end
 local clickable = (btn:IsA("TextButton") or btn:IsA("ImageButton")) and btn
 or btn:FindFirstAncestorWhichIsA("TextButton") or btn:FindFirstAncestorWhichIsA("ImageButton")
-or (btn.Parent and (btn.Parent:FindFirstChildWhichIsA("TextButton") or btn.Parent:FindFirstChildWhichIsA("ImageButton")))
-if clickable and getconnections then
-for _, sigName in ipairs({"MouseButton1Click", "Activated"}) do
-local signalOk, signal = pcall(function() return clickable[sigName] end)
-if signalOk and signal then
-local connectionsOk, connections = pcall(getconnections, signal)
-if connectionsOk and type(connections) == "table" and #connections > 0 then
-local invoked = false
-for _, conn in ipairs(connections) do
-if conn.Function then
-task.spawn(conn.Function)
-invoked = true
+if not clickable then return false end
+if not isControlVisibleOnTab(clickable, venyxGui) then return false end
+local x = clickable.AbsolutePosition.X + clickable.AbsoluteSize.X * 0.5
+local y = clickable.AbsolutePosition.Y + clickable.AbsoluteSize.Y * 0.5
+local inputOk, vim = pcall(function() return game:GetService("VirtualInputManager") end)
+if inputOk and vim then
+local downOk = pcall(function() vim:SendMouseButtonEvent(x, y, 0, true, game, 0) end)
+if downOk then
+task.wait(0.08)
+pcall(function() vim:SendMouseButtonEvent(x, y, 0, false, game, 0) end)
+return true
 end
 end
-if invoked then return true end
+local activateOk = pcall(function() clickable:Activate() end)
+return activateOk
+end
+local function importConfirmed(expectedName)
+for _, d in ipairs(venyxGui:GetDescendants()) do
+if (d:IsA("TextLabel") or d:IsA("TextButton") or d:IsA("TextBox")) and not d:FindFirstAncestor("ChilliV5_ExpandedIsland") then
+local raw = (d:GetAttribute("OrigRawText") or ""):lower()
+local shown = (d.Text or ""):lower()
+local joined = raw .. " " .. shown
+if joined:find(expectedName:lower(), 1, true) and (joined:find("was added to your configs", 1, true) or joined:find("config imported", 1, true) or joined:find("config loaded", 1, true) or joined:find("đã thêm", 1, true) or joined:find("đã nhập cấu hình", 1, true)) then
+return true
 end
 end
 end
-end
-if clickable then
-local ok = pcall(function() clickable:Activate() end)
-if ok then return true end
-end
-return fireBtn(btn)
+return false
 end
 local importBox, importBtn = findImportControls(true)
 if not importBox or not importBtn then
@@ -1021,8 +1025,10 @@ end
 end
 State.ImportRunCount = (State.ImportRunCount or 0) + 1
 local payloadJson = PRESET_JSON
+local expectedImportName = "hihi 2"
 if hasHihi2 then
 local freshName = "hihi 2 #" .. tostring(math.random(10, 99))
+expectedImportName = freshName
 payloadJson = PRESET_JSON:gsub('"name":"hihi 2"', '"name":"' .. freshName .. '"', 1)
 end
 importBox:SetAttribute("__IsTranslating", true)
@@ -1062,8 +1068,22 @@ btnLbl.Text = "⚡ CONFIG SETTING AUTO FARM"
 end
 return
 end
-if btnLbl then btnLbl.Text = "✅ ĐÃ BẤM IMPORT" end
-task.wait(0.38)
+if btnLbl then btnLbl.Text = "⏳ ĐANG XÁC MINH IMPORT..." end
+local confirmed = false
+for _ = 1, 12 do
+if importConfirmed(expectedImportName) then confirmed = true break end
+task.wait(0.15)
+end
+if not confirmed then
+if btnLbl then
+btnLbl.Text = "⚠️ CHƯA XÁC NHẬN IMPORT"
+task.wait(2)
+btnLbl.Text = "⚡ CONFIG SETTING AUTO FARM"
+end
+return
+end
+if btnLbl then btnLbl.Text = "✅ ĐÃ NHẬP CONFIG" end
+task.wait(0.25)
 for pass = 1, 2 do
 for _, d in ipairs(venyxGui:GetDescendants()) do
 if (d:IsA("TextButton") or d:IsA("TextLabel")) and not d:FindFirstAncestor("ChilliV5_ExpandedIsland") then
@@ -1071,7 +1091,7 @@ local ot = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
 local cur = (d.Text or ""):match("^%s*(.-)%s*$")
 if ot == "Apply now" or cur == "Áp dụng ngay" or ot == "Overwrite" or cur == "Lưu đè" then
 if isControlVisibleOnTab(d, venyxGui) then
-fireBtn(d)
+activateImportButton(d)
 end
 end
 end
@@ -1084,7 +1104,7 @@ local ot = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
 local cur = (d.Text or ""):match("^%s*(.-)%s*$")
 if ot == "Set active" or cur == "Kích hoạt" then
 if isControlVisibleOnTab(d, venyxGui) then
-fireBtn(d)
+activateImportButton(d)
 break
 end
 end
@@ -2255,3 +2275,7 @@ task.wait(1.00)
 pcall(scanOnce, true)
 end
 end)
+
+
+
+
