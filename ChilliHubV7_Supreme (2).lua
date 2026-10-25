@@ -1526,14 +1526,16 @@ cov.Position = u2s(0.5, 0.5)
 cov.AnchorPoint = v2(0.5, 0.5)
 cov.BackgroundColor3 = c3(0, 0, 0)
 cov.BackgroundTransparency = 0
-cov.ScaleType = Enum.ScaleType.Crop
+cov.ScaleType = Enum.ScaleType.Fit
 cov.ZIndex = disc.ZIndex + 2
 local covCorner = cov:FindFirstChildOfClass("UICorner") or mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cov)
 covCorner.CornerRadius = UDim.new(1, 0)
-local covStroke = cov:FindFirstChild("RainbowBorder") or mk("UIStroke", {
+local oldCovStroke = cov:FindFirstChild("RainbowBorder")
+if oldCovStroke then oldCovStroke:Destroy() end
+local covStroke = disc:FindFirstChild("RainbowBorder") or mk("UIStroke", {
 Name = "RainbowBorder", Thickness = 2.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 Color = Color3.new(1, 1, 1), Transparency = 0.02
-}, cov)
+}, disc)
 addGrad(covStroke:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, covStroke))
 if not top:GetAttribute("__SyncClickHooked") then
 top:SetAttribute("__SyncClickHooked", true)
