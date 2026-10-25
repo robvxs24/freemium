@@ -1,4 +1,4 @@
--- Chilli Hub V7 Supreme | Clean Multi-Line Edition (100% Luau Compatible, Zero Semicolons)
+-- Chilli Hub V7 Supreme | Import click diagnostic v3 | 2026-10-25
 local NEW_TITLE = "Chilli Hub V7"
 local LOGO_ID = "rbxassetid://74441610995894"
 local HEADER_BAR_IMG_ID = "rbxassetid://83726521558450"
@@ -1035,8 +1035,16 @@ if btnLbl then btnLbl.Text = "⏳ ĐANG BẤM NHẬP CONFIG..." end
 task.wait(0.45)
 local _, freshImportBtn = findImportControls(true)
 importBtn = freshImportBtn or importBtn
-if importBtn then fireBtn(importBtn) end
-if importBtn then activateImportButton(importBtn) end
+local importInvoked = importBtn and activateImportButton(importBtn) or false
+if not importInvoked then
+if btnLbl then
+btnLbl.Text = "⚠️ KHÔNG TÌM THẤY NÚT IMPORT"
+task.wait(1.8)
+btnLbl.Text = "⚡ CONFIG SETTING AUTO FARM"
+end
+return
+end
+if btnLbl then btnLbl.Text = "✅ ĐÃ BẤM IMPORT" end
 task.wait(0.38)
 for pass = 1, 2 do
 for _, d in ipairs(venyxGui:GetDescendants()) do
@@ -1066,7 +1074,7 @@ end
 end
 if State.RefreshIslandCallback then pcall(State.RefreshIslandCallback) end
 if btnLbl then
-btnLbl.Text = "✅ ĐÃ NẠP & ÁP DỤNG CONFIG!"
+btnLbl.Text = "✅ ĐÃ GỬI LỆNH IMPORT"
 task.wait(1.8)
 btnLbl.Text = "⚡ CONFIG SETTING AUTO FARM"
 end
