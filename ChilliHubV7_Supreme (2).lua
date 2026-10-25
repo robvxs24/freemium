@@ -1,4 +1,4 @@
--- Chilli Hub V7 Supreme | Bottom Import button targeting fix v6 | 2026-10-25
+-- Chilli Hub V7 Supreme | Clean Multi-Line Edition (100% Luau Compatible, Zero Semicolons)
 local NEW_TITLE = "Chilli Hub V7"
 local LOGO_ID = "rbxassetid://74441610995894"
 local HEADER_BAR_IMG_ID = "rbxassetid://83726521558450"
@@ -802,24 +802,36 @@ end
 end)
 end
 -- 5. NẠP CONFIG CHUẨN V5 (DÁN JSON VÀ BẤM NÚT NHẬP / IMPORT CHÍNH XÁC 100%)
-local function fireBtn(btn)
+local function fireBtn(btn, useVimClick)
 if not btn then return false end
 local fired = false
-local clickable = (btn:IsA("TextButton") or btn:IsA("ImageButton")) and btn
-or btn:FindFirstAncestorWhichIsA("TextButton") or btn:FindFirstAncestorWhichIsA("ImageButton")
-or (btn.Parent and (btn.Parent:FindFirstChildWhichIsA("TextButton") or btn.Parent:FindFirstChildWhichIsA("ImageButton")))
-or btn
 local targets = {}
 local seenT = {}
-for _, tObj in ipairs({ clickable, btn, btn.Parent, btn.Parent and btn.Parent.Parent }) do
-if tObj and tObj:IsA("GuiObject") and not seenT[tObj] then
-seenT[tObj] = true
-table.insert(targets, tObj)
+local function addTarget(obj)
+if obj and obj:IsA("GuiObject") and not seenT[obj] then
+seenT[obj] = true
+table.insert(targets, obj)
+end
+end
+local clickable = (btn:IsA("TextButton") or btn:IsA("ImageButton")) and btn
+or btn:FindFirstAncestorWhichIsA("TextButton") or btn:FindFirstAncestorWhichIsA("ImageButton")
+or (btn.Parent and (btn.Parent:FindFirstChildWhichIsA("TextButton", true) or btn.Parent:FindFirstChildWhichIsA("ImageButton", true)))
+or (btn.Parent and btn.Parent.Parent and (btn.Parent.Parent:FindFirstChildWhichIsA("TextButton", true) or btn.Parent.Parent:FindFirstChildWhichIsA("ImageButton", true)))
+or btn
+addTarget(clickable)
+addTarget(btn)
+addTarget(btn.Parent)
+if btn.Parent then
+addTarget(btn.Parent.Parent)
+for _, ch in ipairs(btn.Parent:GetDescendants()) do
+if ch:IsA("TextButton") or ch:IsA("ImageButton") or ch:IsA("Frame") then
+addTarget(ch)
+end
 end
 end
 if getconnections then
 for _, targetObj in ipairs(targets) do
-for _, sigName in ipairs({"MouseButton1Click", "Activated", "MouseButton1Down", "MouseButton1Up"}) do
+for _, sigName in ipairs({"MouseButton1Click", "Activated", "MouseButton1Down", "MouseButton1Up", "TouchTap"}) do
 pcall(function()
 local sig = targetObj[sigName]
 if sig then
@@ -864,8 +876,39 @@ pcall(function()
 firesignal(targetObj.Activated)
 fired = true
 end)
+pcall(function()
+firesignal(targetObj.MouseButton1Down, 0, 0)
+firesignal(targetObj.MouseButton1Up, 0, 0)
+fired = true
+end)
 end
 end
+end
+if useVimClick then
+pcall(function()
+local vim = game:GetService("VirtualInputManager")
+local gs = game:GetService("GuiService")
+local insetY = 0
+pcall(function()
+local ins = gs:GetGuiInset()
+insetY = ins.Y
+end)
+local hitObj = (btn.Parent and btn.Parent:IsA("GuiObject") and btn.Parent.AbsoluteSize.X >= 30 and btn.Parent.AbsoluteSize.X <= 160) and btn.Parent or btn
+local cx = math.floor(hitObj.AbsolutePosition.X + hitObj.AbsoluteSize.X * 0.5)
+local cy = math.floor(hitObj.AbsolutePosition.Y + hitObj.AbsoluteSize.Y * 0.5)
+if cx > 10 and cy > 10 then
+vim:SendMouseButtonEvent(cx, cy + insetY, 0, true, game, 1)
+task.wait(0.04)
+vim:SendMouseButtonEvent(cx, cy + insetY, 0, false, game, 1)
+if insetY > 0 then
+task.wait(0.03)
+vim:SendMouseButtonEvent(cx, cy, 0, true, game, 1)
+task.wait(0.04)
+vim:SendMouseButtonEvent(cx, cy, 0, false, game, 1)
+end
+fired = true
+end
+end)
 end
 return fired
 end
@@ -882,7 +925,6 @@ local function findSystemTabBtn(gui)
 if State.SystemTabBtn and State.SystemTabBtn.Parent and State.SystemTabBtn:IsDescendantOf(gui) then
 return State.SystemTabBtn
 end
-local candidates = {}
 for _, d in ipairs(gui:GetDescendants()) do
 if d:IsA("GuiObject") and not d:FindFirstAncestor("ChilliV5_ExpandedIsland") and not d:FindFirstAncestorOfClass("ScrollingFrame") then
 local children = {}
@@ -900,6 +942,48 @@ end
 end
 return State.SystemTabBtn
 end
+local function findImportBoxAndButtons(venyxGui, requireVisible)
+local box = nil
+local btnList = {}
+for _, d in ipairs(venyxGui:GetDescendants()) do
+if d:IsA("TextBox") and not d:FindFirstAncestor("ChilliV5_ExpandedIsland") and not d:FindFirstAncestor("ChilliHeaderOverlay") then
+local ph = (d:GetAttribute("OrigPlaceholder") or d:GetAttribute("OrigPh") or d.PlaceholderText or ""):lower()
+if ph:find("paste", 1, true) or ph:find("dán", 1, true) or ph:find("json", 1, true) or ph:find("config", 1, true) or ph:find("cấu hình", 1, true) then
+if not ph:find("job id", 1, true) and not ph:find("webhook", 1, true) and not ph:find("empty", 1, true) and not ph:find("trống", 1, true) then
+if not requireVisible or isControlVisibleOnTab(d, venyxGui) then
+box = d
+end
+end
+end
+end
+end
+if box then
+local bx, by = box.AbsolutePosition.X, box.AbsolutePosition.Y
+local seenBtn = {}
+for _, d in ipairs(venyxGui:GetDescendants()) do
+if (d:IsA("TextButton") or d:IsA("TextLabel") or d:IsA("Frame")) and d ~= box and not d:IsDescendantOf(box) and not d:FindFirstAncestor("ChilliV5_ExpandedIsland") and not d:FindFirstAncestor("ChilliHeaderOverlay") then
+if not requireVisible or isControlVisibleOnTab(d, venyxGui) then
+local dx = d.AbsolutePosition.X - bx
+local dy = d.AbsolutePosition.Y - by
+local inRightBelowSpot = (by > 10 and dy >= 14 and dy <= 92 and dx >= -25 and d.AbsoluteSize.X >= 28 and d.AbsoluteSize.X <= 170 and d.AbsoluteSize.Y >= 14 and d.AbsoluteSize.Y <= 48)
+local isImportText = false
+if d:IsA("TextButton") or d:IsA("TextLabel") then
+local ot = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$"):lower()
+local ct = (d.Text or ""):match("^%s*(.-)%s*$"):lower()
+if (ot == "import" or ot == "import config" or ct == "nhập" or ct == "nhập cấu hình") and (by <= 10 or dx >= -25) then
+isImportText = true
+end
+end
+if (inRightBelowSpot or isImportText) and not seenBtn[d] then
+seenBtn[d] = true
+table.insert(btnList, d)
+end
+end
+end
+end
+end
+return box, btnList
+end
 local function runAutoFarmMacro(venyxGui, btnLbl)
 if State.MacroBusy then return end
 State.MacroBusy = true
@@ -908,118 +992,40 @@ local okMacro, _ = pcall(function()
 if State.ActiveVenyxGui and State.ActiveVenyxGui.Parent then
 venyxGui = State.ActiveVenyxGui
 end
-if btnLbl then btnLbl.Text = "⏳ ĐANG NẠP CONFIG..." end
+if btnLbl then btnLbl.Text = "⏳ ĐANG MỞ CẤU HÌNH..." end
+local expPanel = venyxGui and venyxGui:FindFirstChild("ChilliV5_ExpandedIsland")
+if expPanel and expPanel.Visible then
+expPanel.Visible = false
+if State.ActiveStatusLbl and State.ActiveStatusLbl.Parent and State.ActiveStatusLbl.Parent:IsA("GuiObject") then
+State.ActiveStatusLbl.Parent.Visible = true
+end
+end
 if State.ActiveMainWin and State.ActiveMainWin.Parent and not State.ActiveMainWin.Visible then
 State.ActiveMainWin.Visible = true
 if State.SyncWindowFn then pcall(State.SyncWindowFn) end
-task.wait(0.10)
+task.wait(0.15)
 end
-local function findImportControls(requireVisible)
-local boxes, buttons, seenButtons = {}, {}, {}
-for _, d in ipairs(venyxGui:GetDescendants()) do
-if not d:FindFirstAncestor("ChilliV5_ExpandedIsland") and not d:FindFirstAncestor("ChilliHeaderOverlay") then
-if d:IsA("TextBox") then
-local ph = (d:GetAttribute("OrigPlaceholder") or d:GetAttribute("OrigPh") or d.PlaceholderText or ""):lower()
-if ph:find("paste config", 1, true) or ph:find("dán mã", 1, true) then
-if not requireVisible or isControlVisibleOnTab(d, venyxGui) then table.insert(boxes, d) end
-end
-elseif d:IsA("TextButton") or d:IsA("ImageButton") or d:IsA("TextLabel") then
-local raw = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$"):lower():gsub("%s+", " ")
-local shown = (d.Text or ""):match("^%s*(.-)%s*$"):lower():gsub("%s+", " ")
-if raw == "import" or raw == "import config" or shown == "nhập" or shown == "nhập cấu hình" then
-local button = (d:IsA("TextButton") or d:IsA("ImageButton")) and d or d:FindFirstAncestorWhichIsA("TextButton") or d:FindFirstAncestorWhichIsA("ImageButton")
-if button and not seenButtons[button] and (not requireVisible or isControlVisibleOnTab(button, venyxGui)) then
-seenButtons[button] = true
-table.insert(buttons, button)
-end
-end
-end
-end
-end
-local box, btn, bestScore
-for _, candidateBox in ipairs(boxes) do
-for _, candidateBtn in ipairs(buttons) do
-local boxScroll = candidateBox:FindFirstAncestorOfClass("ScrollingFrame")
-local btnScroll = candidateBtn:FindFirstAncestorOfClass("ScrollingFrame")
-if boxScroll == btnScroll then
-local boxY = candidateBox.AbsolutePosition.Y + candidateBox.AbsoluteSize.Y * 0.5
-local btnY = candidateBtn.AbsolutePosition.Y + candidateBtn.AbsoluteSize.Y * 0.5
-if btnY >= boxY - 8 then
-local boxX = candidateBox.AbsolutePosition.X + candidateBox.AbsoluteSize.X * 0.5
-local btnX = candidateBtn.AbsolutePosition.X + candidateBtn.AbsoluteSize.X * 0.5
-local score = math.abs(btnY - boxY) + math.abs(btnX - boxX) * 0.25
-if not bestScore or score < bestScore then
-box, btn, bestScore = candidateBox, candidateBtn, score
-end
-end
-end
-end
-end
-if not box or not btn then return nil, nil end
-return box, btn
-end
-local function activateImportButton(btn)
-if not (btn and btn.Parent) then return false end
-local clickable = (btn:IsA("TextButton") or btn:IsA("ImageButton")) and btn
-or btn:FindFirstAncestorWhichIsA("TextButton") or btn:FindFirstAncestorWhichIsA("ImageButton")
-if not clickable then return false end
-if not isControlVisibleOnTab(clickable, venyxGui) then return false end
-local x = clickable.AbsolutePosition.X + clickable.AbsoluteSize.X * 0.5
-local y = clickable.AbsolutePosition.Y + clickable.AbsoluteSize.Y * 0.5
-local screenGui = clickable:FindFirstAncestorOfClass("ScreenGui")
-if screenGui and not screenGui.IgnoreGuiInset then
-pcall(function()
-local topInset = game:GetService("GuiService"):GetGuiInset()
-x = x + topInset.X
-y = y + topInset.Y
-end)
-end
-local inputOk, vim = pcall(function() return game:GetService("VirtualInputManager") end)
-if inputOk and vim then
-local downOk = pcall(function() vim:SendMouseButtonEvent(x, y, 0, true, game, 0) end)
-if downOk then
-task.wait(0.08)
-pcall(function() vim:SendMouseButtonEvent(x, y, 0, false, game, 0) end)
-return true
-end
-end
-local activateOk = pcall(function() clickable:Activate() end)
-return activateOk
-end
-local function importConfirmed(expectedName)
-for _, d in ipairs(venyxGui:GetDescendants()) do
-if (d:IsA("TextLabel") or d:IsA("TextButton") or d:IsA("TextBox")) and not d:FindFirstAncestor("ChilliV5_ExpandedIsland") then
-local raw = (d:GetAttribute("OrigRawText") or ""):lower()
-local shown = (d.Text or ""):lower()
-local joined = raw .. " " .. shown
-if joined:find(expectedName:lower(), 1, true) and (joined:find("was added to your configs", 1, true) or joined:find("config imported", 1, true) or joined:find("config loaded", 1, true) or joined:find("đã thêm", 1, true) or joined:find("đã nhập cấu hình", 1, true)) then
-return true
-end
-end
-end
-return false
-end
-local importBox, importBtn = findImportControls(true)
-if not importBox or not importBtn then
+local importBox, importBtns = findImportBoxAndButtons(venyxGui, true)
+if not importBox or #importBtns == 0 then
 local sysBtn = findSystemTabBtn(venyxGui)
 if sysBtn then
-fireBtn(sysBtn)
-task.wait(0.20)
+fireBtn(sysBtn, false)
+task.wait(0.25)
 end
 for _, d in ipairs(venyxGui:GetDescendants()) do
 if (d:IsA("TextButton") or d:IsA("TextLabel")) and not d:FindFirstAncestorOfClass("ScrollingFrame") and not d:FindFirstAncestor("ChilliV5_ExpandedIsland") then
 local ot = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
 local ct = (d.Text or ""):match("^%s*(.-)%s*$")
 if ot == "Config" or ct == "Cấu Hình" then
-fireBtn(d)
+fireBtn(d, false)
 break
 end
 end
 end
-task.wait(0.26)
-importBox, importBtn = findImportControls(true)
-if not importBox or not importBtn then
-importBox, importBtn = findImportControls(false)
+task.wait(0.32)
+importBox, importBtns = findImportBoxAndButtons(venyxGui, true)
+if not importBox then
+importBox, importBtns = findImportBoxAndButtons(venyxGui, false)
 end
 end
 if not importBox then
@@ -1033,9 +1039,9 @@ end
 local sf = importBox:FindFirstAncestorOfClass("ScrollingFrame")
 if sf then
 pcall(function()
-sf.CanvasPosition = v2(0, math.max(320, sf.AbsoluteCanvasSize.Y))
+sf.CanvasPosition = v2(0, math.max(340, sf.AbsoluteCanvasSize.Y))
 end)
-task.wait(0.06)
+task.wait(0.12)
 end
 local hasHihi2 = (State.ImportRunCount or 0) > 0
 if not hasHihi2 then
@@ -1051,24 +1057,33 @@ end
 end
 State.ImportRunCount = (State.ImportRunCount or 0) + 1
 local payloadJson = PRESET_JSON
-local expectedImportName = "hihi 2"
 if hasHihi2 then
 local freshName = "hihi 2 #" .. tostring(math.random(10, 99))
-expectedImportName = freshName
 payloadJson = PRESET_JSON:gsub('"name":"hihi 2"', '"name":"' .. freshName .. '"', 1)
 end
+if btnLbl then btnLbl.Text = "⏳ ĐANG DÁN MÃ JSON..." end
 importBox:SetAttribute("__IsTranslating", true)
 pcall(function() importBox.ClearTextOnFocus = false end)
-importBox.Text = ""
-task.wait(0.08)
+pcall(function() importBox:CaptureFocus() end)
+task.wait(0.14)
+pcall(function() importBox.ClearTextOnFocus = false end)
 importBox.Text = payloadJson
-task.wait(0.10)
+task.wait(0.16)
+if importBox.Text ~= payloadJson then
+importBox.Text = payloadJson
+task.wait(0.08)
+end
 if getconnections then
 pcall(function()
 for _, conn in ipairs(getconnections(importBox:GetPropertyChangedSignal("Text"))) do
 if conn.Function then task.spawn(conn.Function) end
 end
 end)
+end
+pcall(function() importBox:ReleaseFocus(true) end)
+task.wait(0.08)
+if importBox.Text ~= payloadJson then
+importBox.Text = payloadJson
 end
 if firesignal then
 pcall(function() firesignal(importBox.FocusLost, true) end)
@@ -1081,35 +1096,41 @@ end
 end)
 end
 importBox:SetAttribute("__IsTranslating", false)
-if btnLbl then btnLbl.Text = "⏳ ĐANG BẤM NHẬP CONFIG..." end
-task.wait(0.45)
-local _, freshImportBtn = findImportControls(true)
-importBtn = freshImportBtn or importBtn
-local importInvoked = importBtn and activateImportButton(importBtn) or false
-if not importInvoked then
-if btnLbl then
-btnLbl.Text = "⚠️ KHÔNG TÌM THẤY NÚT IMPORT"
-task.wait(1.8)
-btnLbl.Text = "⚡ CONFIG SETTING AUTO FARM"
+if btnLbl then btnLbl.Text = "⏳ ĐANG BẤM NÚT NHẬP..." end
+task.wait(0.38)
+local _, freshBtns = findImportBoxAndButtons(venyxGui, true)
+if #freshBtns > 0 then importBtns = freshBtns end
+for _, bObj in ipairs(importBtns) do
+fireBtn(bObj, false)
 end
-return
+if #importBtns > 0 then
+fireBtn(importBtns[1], true)
 end
-if btnLbl then btnLbl.Text = "⏳ ĐANG XÁC MINH IMPORT..." end
-local confirmed = false
-for _ = 1, 12 do
-if importConfirmed(expectedImportName) then confirmed = true break end
-task.wait(0.15)
+task.wait(0.42)
+local hasApplyPrompt = false
+for _, d in ipairs(venyxGui:GetDescendants()) do
+if (d:IsA("TextButton") or d:IsA("TextLabel")) and not d:FindFirstAncestor("ChilliV5_ExpandedIsland") then
+local ot = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
+local cur = (d.Text or ""):match("^%s*(.-)%s*$")
+if (ot == "Apply now" or cur == "Áp dụng ngay" or ot == "Overwrite" or cur == "Lưu đè") and isControlVisibleOnTab(d, venyxGui) then
+hasApplyPrompt = true
+break
 end
-if not confirmed then
-if btnLbl then
-btnLbl.Text = "⚠️ CHƯA XÁC NHẬN IMPORT"
-task.wait(2)
-btnLbl.Text = "⚡ CONFIG SETTING AUTO FARM"
 end
-return
 end
-if btnLbl then btnLbl.Text = "✅ ĐÃ NHẬP CONFIG" end
-task.wait(0.25)
+if not hasApplyPrompt then
+if importBox.Text ~= payloadJson then
+importBox:SetAttribute("__IsTranslating", true)
+importBox.Text = payloadJson
+pcall(function() importBox:ReleaseFocus(true) end)
+importBox:SetAttribute("__IsTranslating", false)
+task.wait(0.20)
+end
+for _, bObj in ipairs(importBtns) do
+fireBtn(bObj, true)
+end
+task.wait(0.38)
+end
 for pass = 1, 2 do
 for _, d in ipairs(venyxGui:GetDescendants()) do
 if (d:IsA("TextButton") or d:IsA("TextLabel")) and not d:FindFirstAncestor("ChilliV5_ExpandedIsland") then
@@ -1117,12 +1138,12 @@ local ot = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
 local cur = (d.Text or ""):match("^%s*(.-)%s*$")
 if ot == "Apply now" or cur == "Áp dụng ngay" or ot == "Overwrite" or cur == "Lưu đè" then
 if isControlVisibleOnTab(d, venyxGui) then
-activateImportButton(d)
+fireBtn(d, true)
 end
 end
 end
 end
-task.wait(0.14)
+task.wait(0.18)
 end
 for _, d in ipairs(venyxGui:GetDescendants()) do
 if (d:IsA("TextButton") or d:IsA("TextLabel")) and not d:FindFirstAncestor("ChilliV5_ExpandedIsland") then
@@ -1130,7 +1151,7 @@ local ot = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
 local cur = (d.Text or ""):match("^%s*(.-)%s*$")
 if ot == "Set active" or cur == "Kích hoạt" then
 if isControlVisibleOnTab(d, venyxGui) then
-activateImportButton(d)
+fireBtn(d, false)
 break
 end
 end
@@ -1138,7 +1159,7 @@ end
 end
 if State.RefreshIslandCallback then pcall(State.RefreshIslandCallback) end
 if btnLbl then
-btnLbl.Text = "✅ ĐÃ GỬI LỆNH IMPORT"
+btnLbl.Text = "✅ ĐÃ NẠP & ÁP DỤNG CONFIG!"
 task.wait(1.8)
 btnLbl.Text = "⚡ CONFIG SETTING AUTO FARM"
 end
@@ -1597,16 +1618,14 @@ cov.Position = u2s(0.5, 0.5)
 cov.AnchorPoint = v2(0.5, 0.5)
 cov.BackgroundColor3 = c3(0, 0, 0)
 cov.BackgroundTransparency = 0
-cov.ScaleType = Enum.ScaleType.Fit
+cov.ScaleType = Enum.ScaleType.Crop
 cov.ZIndex = disc.ZIndex + 2
 local covCorner = cov:FindFirstChildOfClass("UICorner") or mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cov)
 covCorner.CornerRadius = UDim.new(1, 0)
-local oldCovStroke = cov:FindFirstChild("RainbowBorder")
-if oldCovStroke then oldCovStroke:Destroy() end
-local covStroke = disc:FindFirstChild("RainbowBorder") or mk("UIStroke", {
+local covStroke = cov:FindFirstChild("RainbowBorder") or mk("UIStroke", {
 Name = "RainbowBorder", Thickness = 2.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 Color = Color3.new(1, 1, 1), Transparency = 0.02
-}, disc)
+}, cov)
 addGrad(covStroke:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, covStroke))
 if not top:GetAttribute("__SyncClickHooked") then
 top:SetAttribute("__SyncClickHooked", true)
@@ -2301,9 +2320,3 @@ task.wait(1.00)
 pcall(scanOnce, true)
 end
 end)
-
-
-
-
-
-
