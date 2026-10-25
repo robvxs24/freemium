@@ -1,4 +1,4 @@
--- Chilli Hub V7 Supreme | Import click diagnostic v3 | 2026-10-25
+-- Chilli Hub V7 Supreme | Import button event fix v4 | 2026-10-25
 local NEW_TITLE = "Chilli Hub V7"
 local LOGO_ID = "rbxassetid://74441610995894"
 local HEADER_BAR_IMG_ID = "rbxassetid://83726521558450"
@@ -945,6 +945,24 @@ if not btn then return false end
 local clickable = (btn:IsA("TextButton") or btn:IsA("ImageButton")) and btn
 or btn:FindFirstAncestorWhichIsA("TextButton") or btn:FindFirstAncestorWhichIsA("ImageButton")
 or (btn.Parent and (btn.Parent:FindFirstChildWhichIsA("TextButton") or btn.Parent:FindFirstChildWhichIsA("ImageButton")))
+if clickable and getconnections then
+for _, sigName in ipairs({"MouseButton1Click", "Activated"}) do
+local signalOk, signal = pcall(function() return clickable[sigName] end)
+if signalOk and signal then
+local connectionsOk, connections = pcall(getconnections, signal)
+if connectionsOk and type(connections) == "table" and #connections > 0 then
+local invoked = false
+for _, conn in ipairs(connections) do
+if conn.Function then
+task.spawn(conn.Function)
+invoked = true
+end
+end
+if invoked then return true end
+end
+end
+end
+end
 if clickable then
 local ok = pcall(function() clickable:Activate() end)
 if ok then return true end
