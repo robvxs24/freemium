@@ -940,6 +940,17 @@ end
 end
 return box, btn
 end
+local function activateImportButton(btn)
+if not btn then return false end
+local clickable = (btn:IsA("TextButton") or btn:IsA("ImageButton")) and btn
+or btn:FindFirstAncestorWhichIsA("TextButton") or btn:FindFirstAncestorWhichIsA("ImageButton")
+or (btn.Parent and (btn.Parent:FindFirstChildWhichIsA("TextButton") or btn.Parent:FindFirstChildWhichIsA("ImageButton")))
+if clickable then
+local ok = pcall(function() clickable:Activate() end)
+if ok then return true end
+end
+return fireBtn(btn)
+end
 local importBox, importBtn = findImportControls(true)
 if not importBox or not importBtn then
 local sysBtn = findSystemTabBtn(venyxGui)
@@ -1025,6 +1036,7 @@ task.wait(0.45)
 local _, freshImportBtn = findImportControls(true)
 importBtn = freshImportBtn or importBtn
 if importBtn then fireBtn(importBtn) end
+if importBtn then activateImportButton(importBtn) end
 task.wait(0.38)
 for pass = 1, 2 do
 for _, d in ipairs(venyxGui:GetDescendants()) do
