@@ -1,4 +1,4 @@
--- Chilli Hub V7 Supreme | Real GUI import click + confirmation v5 | 2026-10-25
+-- Chilli Hub V7 Supreme | Bottom Import button targeting fix v6 | 2026-10-25
 local NEW_TITLE = "Chilli Hub V7"
 local LOGO_ID = "rbxassetid://74441610995894"
 local HEADER_BAR_IMG_ID = "rbxassetid://83726521558450"
@@ -915,29 +915,47 @@ if State.SyncWindowFn then pcall(State.SyncWindowFn) end
 task.wait(0.10)
 end
 local function findImportControls(requireVisible)
-local box, btn
+local boxes, buttons, seenButtons = {}, {}, {}
 for _, d in ipairs(venyxGui:GetDescendants()) do
 if not d:FindFirstAncestor("ChilliV5_ExpandedIsland") and not d:FindFirstAncestor("ChilliHeaderOverlay") then
 if d:IsA("TextBox") then
 local ph = (d:GetAttribute("OrigPlaceholder") or d:GetAttribute("OrigPh") or d.PlaceholderText or ""):lower()
 if ph:find("paste config", 1, true) or ph:find("dán mã", 1, true) then
-if not requireVisible or isControlVisibleOnTab(d, venyxGui) then
-box = d
+if not requireVisible or isControlVisibleOnTab(d, venyxGui) then table.insert(boxes, d) end
 end
-end
-elseif d:IsA("TextButton") or d:IsA("TextLabel") then
-local ot = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
-local ct = (d.Text or ""):match("^%s*(.-)%s*$")
-local otNorm = ot:lower():gsub("%s+", " ")
-local ctNorm = ct:lower():gsub("%s+", " ")
-if otNorm == "import" or otNorm == "import config" or ctNorm == "nhập" or ctNorm == "nhập cấu hình" then
-if not requireVisible or isControlVisibleOnTab(d, venyxGui) then
-btn = d
+elseif d:IsA("TextButton") or d:IsA("ImageButton") or d:IsA("TextLabel") then
+local raw = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$"):lower():gsub("%s+", " ")
+local shown = (d.Text or ""):match("^%s*(.-)%s*$"):lower():gsub("%s+", " ")
+if raw == "import" or raw == "import config" or shown == "nhập" or shown == "nhập cấu hình" then
+local button = (d:IsA("TextButton") or d:IsA("ImageButton")) and d or d:FindFirstAncestorWhichIsA("TextButton") or d:FindFirstAncestorWhichIsA("ImageButton")
+if button and not seenButtons[button] and (not requireVisible or isControlVisibleOnTab(button, venyxGui)) then
+seenButtons[button] = true
+table.insert(buttons, button)
 end
 end
 end
 end
 end
+local box, btn, bestScore
+for _, candidateBox in ipairs(boxes) do
+for _, candidateBtn in ipairs(buttons) do
+local boxScroll = candidateBox:FindFirstAncestorOfClass("ScrollingFrame")
+local btnScroll = candidateBtn:FindFirstAncestorOfClass("ScrollingFrame")
+if boxScroll == btnScroll then
+local boxY = candidateBox.AbsolutePosition.Y + candidateBox.AbsoluteSize.Y * 0.5
+local btnY = candidateBtn.AbsolutePosition.Y + candidateBtn.AbsoluteSize.Y * 0.5
+if btnY >= boxY - 8 then
+local boxX = candidateBox.AbsolutePosition.X + candidateBox.AbsoluteSize.X * 0.5
+local btnX = candidateBtn.AbsolutePosition.X + candidateBtn.AbsoluteSize.X * 0.5
+local score = math.abs(btnY - boxY) + math.abs(btnX - boxX) * 0.25
+if not bestScore or score < bestScore then
+box, btn, bestScore = candidateBox, candidateBtn, score
+end
+end
+end
+end
+end
+if not box or not btn then return nil, nil end
 return box, btn
 end
 local function activateImportButton(btn)
@@ -948,6 +966,14 @@ if not clickable then return false end
 if not isControlVisibleOnTab(clickable, venyxGui) then return false end
 local x = clickable.AbsolutePosition.X + clickable.AbsoluteSize.X * 0.5
 local y = clickable.AbsolutePosition.Y + clickable.AbsoluteSize.Y * 0.5
+local screenGui = clickable:FindFirstAncestorOfClass("ScreenGui")
+if screenGui and not screenGui.IgnoreGuiInset then
+pcall(function()
+local topInset = game:GetService("GuiService"):GetGuiInset()
+x = x + topInset.X
+y = y + topInset.Y
+end)
+end
 local inputOk, vim = pcall(function() return game:GetService("VirtualInputManager") end)
 if inputOk and vim then
 local downOk = pcall(function() vim:SendMouseButtonEvent(x, y, 0, true, game, 0) end)
@@ -2275,6 +2301,8 @@ task.wait(1.00)
 pcall(scanOnce, true)
 end
 end)
+
+
 
 
 
