@@ -1,19 +1,17 @@
--- Codium Hub (Steal an Egg) | Universal Vietnamese Translation Daemon (Optimized)
-local CODIUM_LOADER = 'loadstring(game:HttpGet("https://getcodium.xyz/loader.luau"))()'
-local IS_TRANSLATING = true
+-- ==========================================
+-- Codium Hub - Bộ Dịch Tiếng Việt (Translation Daemon)
+-- ==========================================
 
--- Khởi chạy Codium Hub gốc trong luồng riêng
+-- 1. Khởi chạy Codium Hub gốc
 task.spawn(function()
-    pcall(function() loadstring(game:HttpGet("https://getcodium.xyz/loader.luau"))() end)
+    pcall(function()
+        loadstring(game:HttpGet("https://getcodium.xyz/loader.luau"))()
+    end)
 end)
 
-local FastCache = {}
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
-
--- TỪ ĐIỂN DỊCH THUẬT MỞ RỘNG (Dựa trên hình ảnh cung cấp và các cụm từ phổ biến trong Steal an Egg)
-local EXACT_VI = {
-    -- Codium Sidebar & Header
+-- 2. Bộ từ điển dịch thuật (Dựa trên UI của Codium Hub)
+local DICTIONARY = {
+    -- Menu chính / Sidebar[cite: 30, 32, 40]
     ["Media"] = "Mạng Xã Hội",
     ["Chat"] = "Trò Chuyện",
     ["Home"] = "Trang Chủ",
@@ -25,174 +23,141 @@ local EXACT_VI = {
     ["Barn"] = "Chuồng Trại",
     ["Others"] = "Khác",
     ["Config"] = "Cấu Hình",
-    ["Search..."] = "Tìm kiếm...",
     ["Keyless"] = "Không cần Key",
     ["Default"] = "Mặc định",
     ["Anime"] = "Chế độ Anime",
-    
-    -- Home Tab (Stats & Inventory)
-    ["Player Stats"] = "Thống Kê Người Chơi",
-    ["Money"] = "Tiền",
-    ["Gems"] = "Đá Quý",
-    ["Pets"] = "Thú Cưng",
-    ["Equipped"] = "Đã Trang Bị",
-    ["Eggs"] = "Trứng",
-    ["Placed"] = "Đã Đặt",
-    ["Value"] = "Giá Trị",
-    ["Gain"] = "Thu Nhập",
-    ["Inventory"] = "Túi Đồ",
-    ["Map"] = "Bản Đồ",
-    ["Rarity"] = "Độ Hiếm",
-    ["World"] = "Thế Giới",
-    
-    -- Egg Tab (Cướp Trứng & Bộ Lọc)
+    ["Search..."] = "Tìm kiếm...",
+    ["Search"] = "Tìm kiếm",
+
+    -- Tab Egg: Lọc & Cướp[cite: 30, 31]
     ["Steal Egg"] = "Cướp Trứng",
-    ["Filtering"] = "Bộ Lọc (Filtering)",
+    ["Filtering"] = "Bộ Lọc",
     ["Strict Filter"] = "Lọc Nghiêm Ngặt",
-    ["Only target eggs that match every filter you set."] = "Chỉ nhắm mục tiêu trứng khớp với mọi bộ lọc bạn đã cài.",
+    ["Only target eggs that match every filter you set."] = "Chỉ cướp trứng khớp với mọi bộ lọc bạn đã cài.",
     ["Steal Priority"] = "Ưu Tiên Cướp",
     ["Select Area"] = "Chọn Khu Vực",
     ["Select Rarity"] = "Chọn Độ Hiếm",
     ["Select Pet"] = "Chọn Thú Cưng",
     ["Select Mutation"] = "Chọn Đột Biến",
     ["Min Value"] = "Giá Trị Tối Thiểu",
-    ["Target eggs earning at least this much per second, mutations included (e.g. 500k, 1.5m). 0 or empty to disable."] = "Nhắm mục tiêu trứng kiếm được ít nhất mức này mỗi giây (bao gồm cả đột biến). Nhập 0 hoặc để trống để tắt.",
-    ["e.g. 500k, 1.5m"] = "VD: 500k, 1.5m",
-    ["None"] = "Không có",
+    ["Target eggs earning at least this much per second, mutations included (e.g. 500k, 1.5m). 0 or empty to disable."] = "Chỉ cướp trứng kiếm được ít nhất mức này mỗi giây (VD: 500k, 1.5m). Nhập 0 để tắt.",
     
-    -- Indexing & Steal Settings
     ["Indexing"] = "Chỉ Mục (Index)",
     ["Auto Claim Index"] = "Tự Nhận Thưởng Chỉ Mục",
-    ["Redeems unlocked index rewards."] = "Nhận các phần thưởng chỉ mục đã mở khóa.",
-    ["Auto Indexing"] = "Tự Động Điền Chỉ Mục",
-    ["Auto Steal only targets eggs you haven't indexed or owned yet. Other filters are ignored."] = "Tự Động Cướp chỉ nhắm vào trứng bạn chưa có trong chỉ mục. Các bộ lọc khác sẽ bị bỏ qua.",
+    ["Redeems unlocked index rewards."] = "Tự động nhận phần thưởng từ danh mục đã mở khóa.",
+    ["Auto Indexing"] = "Tự Động Thu Thập Chỉ Mục",
+    ["Auto Steal only targets eggs you haven't indexed or owned yet. Other filters are ignored."] = "Chỉ cướp các trứng bạn chưa có trong chỉ mục. Các bộ lọc khác sẽ bị bỏ qua.",
+    
     ["Steal Settings"] = "Cài Đặt Cướp",
     ["Steal Mode"] = "Chế Độ Cướp",
-    ["Normal flies to the egg. Instant Steal works in every area."] = "Bình thường sẽ bay tới trứng. Cướp Tức Thì hoạt động ở mọi khu vực.",
-    ["Delivery Mode"] = "Chế Độ Mang Trứng Về",
-    ["Recommended Delivery Mode: Speed Match or Steady"] = "Chế độ khuyên dùng: Tốc Độ Khớp (Speed Match) hoặc Ổn Định (Steady)",
+    ["Normal flies to the egg, Instant Steal works in every area."] = "Bình thường sẽ bay tới trứng. Cướp Tức Thì hoạt động ở mọi khu vực.",
+    ["Instant Steal"] = "Cướp Tức Thì",
+    ["Normal"] = "Bình Thường",
+    ["Delivery Mode"] = "Chế Độ Giao Trứng",
+    ["Recommended Delivery Mode: Speed Match or Steady"] = "Khuyên dùng: Tốc độ khớp hoặc Ổn định",
+    ["Steady"] = "Ổn định",
     ["Steal From Player"] = "Cướp Từ Người Chơi",
-    ["Steals eggs from other players."] = "Cướp trứng từ người chơi khác.",
-    ["Server Hop (No Target)"] = "Đổi Server (Không Có Mục Tiêu)",
-    ["Hops server when no target is found."] = "Tự động đổi máy chủ khi không tìm thấy mục tiêu.",
-    ["Drop for Friend"] = "Thả Trứng Cho Bạn Bè",
-    ["Drops the egg at the drop point and leaves it for a friend to pick up, then looks for another egg."] = "Thả trứng tại điểm tập kết cho bạn bè nhặt, sau đó đi tìm trứng khác.",
-    ["Tự động cướp"] = "Tự Động Cướp",
-    ["Flies to field eggs, grabs them and brings them home."] = "Bay tới trứng ngoài bãi, nhặt và mang về nhà.",
-    ["Steal Other Script"] = "Cướp Từ Script Khác",
-    ["Grabs eggs other players drop near safezone."] = "Nhặt trứng mà người chơi khác (dùng script) làm rớt gần vùng an toàn.",
+    ["Steals eggs from other players."] = "Cướp trứng từ tay người chơi khác.",
+    ["Server Hop (No Target)"] = "Đổi Server (Khi Hết Mục Tiêu)",
+    ["Hops server when no target is found."] = "Tự động đổi máy chủ khi không tìm thấy trứng mục tiêu.",
+    ["Drop for Friend"] = "Nhặt Hộ Bạn Bè",
+    ["Drops the egg at the drop point and leaves it for a friend to pick up, then looks for another egg."] = "Mang trứng đến điểm hẹn, thả xuống cho bạn bè nhặt và đi tìm trứng khác.",
     
-    -- Extra Steal Features
+    ["Tự động cướp"] = "Tự Động Cướp", -- Từ bản mod cũ có thể còn sót lại
+    ["Flies to field eggs, grabs them and brings them home."] = "Bay tới bãi, nhặt trứng và mang về nhà.",
+    ["Steal Other Script"] = "Cướp Của Script Khác",
+    ["Grabs eggs other players drop near safezone."] = "Nhặt trứng mà các người chơi dùng script khác làm rớt gần vùng an toàn.",
+    
     ["Steal Status"] = "Trạng Thái Cướp",
-    ["Shows the Auto Steal status panel."] = "Hiển thị bảng trạng thái Tự Động Cướp.",
-    ["Open Steal Panel"] = "Mở Bảng Cướp",
+    ["Shows the Auto Steal status panel."] = "Hiển thị bảng trạng thái tự động cướp.",
+    ["Open Steal Panel"] = "Mở Bảng Cướp Trứng",
     ["Find and steal World and Halloween eggs by hand."] = "Tìm và cướp trứng Thế Giới / Halloween bằng tay.",
     ["Open Steal History"] = "Mở Lịch Sử Cướp",
-    ["Open the last 10 steal results in a separate window."] = "Mở lịch sử 10 lần cướp gần nhất ở một cửa sổ riêng.",
+    ["Open the last 10 steal results in a separate window."] = "Mở 10 kết quả cướp gần nhất ở cửa sổ riêng.",
+
+    -- Tab Egg: Tiện ích & Đặt trứng[cite: 32, 33, 34]
     ["Egg Utilities"] = "Tiện Ích Trứng",
     ["Open Egg Predictor"] = "Mở Dự Đoán Trứng",
-    ["Open standalone egg cycle predictor window."] = "Mở cửa sổ dự đoán chu kỳ ấp trứng độc lập.",
+    ["Open standalone egg cycle predictor window."] = "Mở cửa sổ dự đoán chu kỳ trứng riêng biệt.",
     ["Egg Inventory Value"] = "Giá Trị Trứng Trong Túi",
-    ["Show generation rate (/s) and sell price on backpack egg slots."] = "Hiển thị tốc độ tạo tiền (/s) và giá bán trên các ô trứng trong ba lô.",
-    ["Place Egg"] = "Đặt Trứng",
+    ["Show generation rate (/s) and sell price on backpack egg slots."] = "Hiển thị tốc độ sinh tiền (/s) và giá bán trên từng ô trứng trong ba lô.",
+    ["Place Egg"] = "Đặt Trứng Vào Chuồng",
     ["Hatch Egg"] = "Ấp Trứng",
-    
-    -- Sell Egg Tab
-    ["Sell Egg"] = "Bán Trứng",
-    ["Whitelist"] = "Danh Sách Trắng (Giữ Lại)",
-    ["Whitelist Rarity"] = "Giữ Lại Theo Độ Hiếm",
-    ["Sell eggs matching selected rarities."] = "Bán các trứng KHÔNG khớp với độ hiếm này (chỉ giữ lại độ hiếm đã chọn).",
-    ["Whitelist Pet"] = "Giữ Lại Theo Thú Cưng",
-    ["Sell eggs that will match selected pets."] = "Bán các trứng KHÔNG nở ra thú cưng này (chỉ giữ lại thú cưng đã chọn).",
-    ["Whitelist Mutation"] = "Giữ Lại Theo Đột Biến",
-    ["Sell eggs matching selected mutations."] = "Bán các trứng KHÔNG có đột biến này (chỉ giữ lại đột biến đã chọn).",
-    ["Blacklist"] = "Danh Sách Đen (Bán Hết)",
-    ["Blacklist Rarity"] = "Bán Theo Độ Hiếm",
-    ["Prevent selling eggs with selected rarities."] = "Ngăn không cho bán các trứng có độ hiếm này.",
-    ["Blacklist Pet"] = "Bán Theo Thú Cưng",
-    ["Prevent selling eggs that will match selected pets."] = "Ngăn không cho bán các trứng sẽ nở ra thú cưng này.",
-    ["Blacklist Mutation"] = "Bán Theo Đột Biến",
-    ["Prevent selling eggs with selected mutations."] = "Ngăn không cho bán các trứng có đột biến này.",
-    ["Keep Above"] = "Giữ Lại Trên Mức",
-    ["Never sell eggs earning at least this much per second (e.g. 100m). 0 or empty to disable."] = "Không bao giờ bán trứng kiếm được trên mức này mỗi giây (VD: 100m). Nhập 0 hoặc để trống để tắt.",
-    ["e.g. 100m"] = "VD: 100m",
-    ["Auto Sell Eggs"] = "Tự Động Bán Trứng",
-    ["Sells eggs that pass your filters. Placed eggs are never sold."] = "Tự động bán trứng lọt qua bộ lọc. Trứng đã đặt trong chuồng không bao giờ bị bán.",
-    ["Sell On Inventory Full"] = "Chỉ Bán Khi Đầy Túi",
-    ["Only sell when your egg backpack is full."] = "Chỉ thực hiện bán khi ba lô đựng trứng của bạn đã đầy.",
-    
-    -- Place/Hatch Egg Details
     ["Stop At Rarity"] = "Dừng Lại Ở Độ Hiếm",
-    ["Eggs of this rarity or higher won't be placed."] = "Trứng có độ hiếm này hoặc cao hơn sẽ KHÔNG được đặt vào chuồng.",
-    ["Eggs of this rarity or higher won't be hatched."] = "Trứng có độ hiếm này hoặc cao hơn sẽ KHÔNG được ấp.",
+    ["Eggs of this rarity or higher won't be placed."] = "Trứng đạt độ hiếm này hoặc cao hơn sẽ không bị mang đi đặt.",
+    ["Eggs of this rarity or higher won't be hatched."] = "Trứng đạt độ hiếm này hoặc cao hơn sẽ không bị mang đi ấp.",
+    
+    ["Whitelist"] = "Danh Sách Trắng (Ưu Tiên)",
+    ["Blacklist"] = "Danh Sách Đen (Bỏ Qua)",
+    ["Whitelist Rarity"] = "Ưu Tiên Độ Hiếm",
+    ["Whitelist Pet"] = "Ưu Tiên Thú Cưng",
+    ["Whitelist Mutation"] = "Ưu Tiên Đột Biến",
+    ["Blacklist Rarity"] = "Bỏ Qua Độ Hiếm",
+    ["Blacklist Pet"] = "Bỏ Qua Thú Cưng",
+    ["Blacklist Mutation"] = "Bỏ Qua Đột Biến",
+    
     ["Auto Place Egg"] = "Tự Động Đặt Trứng",
-    ["Places matching eggs from your bag into the pen. Whitelist picks which eggs, blacklist always blocks."] = "Đặt trứng phù hợp từ túi vào chuồng. Danh sách trắng ưu tiên chọn, danh sách đen luôn luôn chặn.",
-    ["Auto Place Indexing"] = "Tự Động Đặt Theo Chỉ Mục",
-    ["Auto Place Egg only places eggs you haven't indexed yet. Whitelist and blacklist are ignored."] = "Chỉ tự động đặt những trứng bạn chưa có trong chỉ mục. Bỏ qua Danh sách trắng/đen.",
-    ["Tự động ấp"] = "Tự Động Ấp",
-    ["Automatically hatch ready eggs matching the selected filters."] = "Tự động ấp các trứng đã sẵn sàng khớp với bộ lọc.",
-    ["Auto Hatch Indexing"] = "Tự Động Ấp Theo Chỉ Mục",
-    ["Auto Hatch only hatches eggs you haven't indexed yet. Whitelist is ignored, blacklist still applies."] = "Chỉ tự động ấp những trứng bạn chưa có trong chỉ mục. Bỏ qua Danh sách trắng, Danh sách đen vẫn áp dụng.",
-    
-    -- Webhook Tab
-    ["Webhook"] = "Webhook (Thông Báo Discord)",
-    ["Webhook URL"] = "Đường Dẫn Webhook",
-    ["Discord webhook URL for sending notifications."] = "Đường dẫn Webhook của Discord để gửi thông báo.",
-    ["Ping @everyone"] = "Thông báo @everyone",
-    ["Mention @everyone in Discord when a new egg is claimed."] = "Tag @everyone trên Discord khi nhặt được trứng mới.",
-    ["Egg Webhook"] = "Thông Báo Trứng",
-    ["Select Egg Rarity"] = "Chọn Độ Hiếm Trứng",
+    ["Places matching eggs from your bag into the pen. Whitelist picks which eggs, blacklist always blocks."] = "Đặt trứng phù hợp từ túi vào chuồng. Ưu tiên các mục trong Whitelist, luôn chặn mục trong Blacklist.",
+    ["Auto Place Indexing"] = "Tự Động Đặt Lấy Chỉ Mục",
+    ["Auto Place Egg only places eggs you haven't indexed yet. Whitelist and blacklist are ignored."] = "Chỉ tự động đặt các trứng bạn chưa có trong danh mục. Bỏ qua Whitelist và Blacklist.",
+    ["Auto Hatch"] = "Tự Động Ấp",
+    ["Automatically hatch ready eggs matching the selected filters."] = "Tự động ấp các trứng đã sẵn sàng và khớp với bộ lọc.",
+    ["Auto Hatch Indexing"] = "Tự Động Ấp Lấy Chỉ Mục",
+    ["Auto Hatch only hatches eggs you haven't indexed yet. Whitelist is ignored, blacklist still applies."] = "Chỉ ấp các trứng bạn chưa có trong danh mục. Bỏ qua Whitelist, vẫn áp dụng Blacklist.",
+
+    -- Tab Egg: Bán[cite: 37]
+    ["Sell Egg"] = "Bán Trứng",
+    ["Keep Above"] = "Giữ Lại Trên Mức",
+    ["Never sell eggs earning at least this much per second (e.g. 100m). 0 or empty to disable."] = "Không bao giờ bán trứng kiếm được trên mức này mỗi giây (VD: 100m). Nhập 0 để tắt.",
+    ["Auto Sell Eggs"] = "Tự Động Bán Trứng",
+    ["Sells eggs that pass your filters. Placed eggs are never sold."] = "Bán trứng lọt qua bộ lọc. Trứng đã đặt trong chuồng sẽ không bao giờ bị bán.",
+    ["Sell On Inventory Full"] = "Chỉ Bán Khi Đầy Túi",
+    ["Only sell when your egg backpack is full."] = "Chỉ kích hoạt bán khi ba lô chứa trứng đã đầy.",
+
+    -- Thống kê & Bản đồ (Tab Trang Chủ)[cite: 35]
+    ["Player Stats"] = "Thống Kê Người Chơi",
+    ["Money"] = "Tiền",
+    ["Gems"] = "Đá Quý",
+    ["Pets"] = "Thú Cưng",
+    ["Equipped"] = "Đang Tranh Bị",
+    ["Eggs"] = "Trứng",
+    ["Placed"] = "Đã Đặt",
+    ["Value"] = "Giá Trị",
+    ["Gain"] = "Tăng Tốc Độ",
+    ["Inventory"] = "Túi Đồ",
+    ["Map"] = "Bản Đồ",
+    ["Rarity"] = "Độ Hiếm",
+    ["World"] = "Thế Giới",
+
+    -- Webhook[cite: 36]
+    ["Webhook URL"] = "Link Webhook",
+    ["Discord webhook URL for sending notifications."] = "Đường dẫn Webhook Discord để gửi thông báo.",
+    ["Ping @everyone"] = "Tag @everyone",
+    ["Mention @everyone in Discord when a new egg is claimed."] = "Gắn thẻ @everyone trên Discord khi nhận được trứng mới.",
+    ["Egg Webhook"] = "Webhook Trứng",
+    ["Select Egg Rarity"] = "Chọn Độ Hiếm Của Trứng",
     ["Enable New Egg Claimed"] = "Bật Thông Báo Trứng Mới",
-    ["Send webhook notification when stealing/claiming a new egg."] = "Gửi thông báo qua Webhook khi cướp/nhận được trứng mới.",
-    ["Player Webhook"] = "Thông Báo Người Chơi",
-    ["Stats Interval (Min)"] = "Chu Kỳ Cập Nhật (Phút)",
-    ["Enable Player Stats"] = "Bật Thống Kê Người Chơi",
-    ["Periodically send player stats to Discord."] = "Định kỳ gửi thống kê tài khoản của bạn qua Discord.",
+    ["Send webhook notification when stealing/claiming a new egg."] = "Gửi thông báo Webhook khi cướp/nhận được trứng mới.",
+    ["Player Webhook"] = "Webhook Người Chơi",
+    ["Stats Interval (Min)"] = "Khoảng Thời Gian Báo Thống Kê (Phút)",
+    ["Enable Player Stats"] = "Bật Thông Báo Thống Kê",
+    ["Periodically send player stats to Discord."] = "Định kỳ gửi thông số người chơi qua Discord.",
     ["Test Webhook"] = "Thử Nghiệm Webhook",
-    ["Send Stats Now"] = "Gửi Thống Kê Ngay",
-    ["Immediately send stats to Discord."] = "Gửi ngay lập tức thống kê hiện tại qua Discord.",
-    ["Test Egg Webhook"] = "Thử Thông Báo Trứng",
-    ["Simulate claiming an egg."] = "Mô phỏng việc nhặt được một quả trứng để kiểm tra.",
-    
-    -- Event Tab
-    ["Admin Abuse Boost (BETA)"] = "Buff Lạm Dụng Admin (BETA)",
+    ["Send Stats Now"] = "Gửi Thống Kê Ngay Lúc Này",
+    ["Immediately send stats to Discord."] = "Gửi ngay thông số người chơi vào Discord.",
+    ["Test Egg Webhook"] = "Gửi Thử Webhook Trứng",
+    ["Simulate claiming an egg."] = "Mô phỏng thao tác nhận trứng để kiểm tra.",
+
+    -- Sự kiện[cite: 40]
+    ["Admin Abuse Boost (BETA)"] = "Nhận Buff Quyền Admin (BETA)",
+    ["Halloween Dimension"] = "Không Gian Halloween",
     ["Ghost Dog Quest"] = "Nhiệm Vụ Chó Ma",
-    ["Abandoned Manor"] = "Dinh Thự Bị Bỏ Hoang",
+    ["Abandoned Manor"] = "Dinh Thự Bỏ Hoang",
     ["Pumpkin King"] = "Vua Bí Ngô",
-    ["The Hollow"] = "Khu Rừng Trống Rỗng (The Hollow)",
-    
-    -- Priority & Filters
-    ["Highest Value"] = "Giá trị cao nhất",
-    ["Lowest Value"] = "Giá trị thấp nhất",
-    ["Closest"] = "Gần nhất",
-    ["Nearest"] = "Gần nhất",
-    ["Rarest"] = "Hiếm nhất",
-    ["Largest"] = "To nhất",
-    ["Smallest"] = "Nhỏ nhất",
-    ["All"] = "Tất cả",
-    
-    -- Actions & General
-    ["Enable"] = "Bật",
-    ["Disable"] = "Tắt",
-    ["Auto Steal"] = "Tự động cướp",
-    ["Auto Farm"] = "Tự động cày",
-    ["Auto Hatch"] = "Tự động ấp",
-    ["Auto Place"] = "Tự động đặt",
-    ["Auto Mutate"] = "Tự động đột biến",
-    ["Auto Fuse"] = "Tự động dung hợp",
-    ["Auto Sell"] = "Tự động bán",
-    ["Auto Equip"] = "Tự động trang bị",
-    ["Auto Treadmill"] = "Tự chạy máy tập",
-    ["Teleport"] = "Dịch chuyển",
-    ["Walk"] = "Đi bộ",
-    ["Tween"] = "Bay (Tween)",
-    ["Hit Aura"] = "Vòng đánh tự động",
-    ["Anti AFK"] = "Chống văng game",
-    ["God Mode"] = "Bất tử",
-    ["Infinite Jump"] = "Nhảy vô hạn",
-    ["Walk Speed"] = "Tốc độ chạy",
-    
-    -- Rarities
+    ["The Hollow"] = "Vực Hollow",
+
+    -- Tên cấp độ/độ hiếm
+    ["None"] = "Không có",
     ["Common"] = "Phổ Thông",
     ["Uncommon"] = "Thường",
     ["Rare"] = "Hiếm",
@@ -203,188 +168,136 @@ local EXACT_VI = {
     ["Secret"] = "Bí Ẩn",
     ["Eternal"] = "Vĩnh Cửu",
     ["Divine"] = "Thánh Thần",
-    ["Spectral"] = "Tâm Linh (Spectral)",
-    ["Golden"] = "Vàng (Golden)",
-    
-    -- Locations
-    ["Abyss Ocean"] = "Đại Dương Sâu Thẳm",
-    ["Prehistoric"] = "Thời Tiền Sử",
-    ["Cherry Blossom"] = "Rừng Hoa Anh Đào",
-    ["Light Dark"] = "Sáng Tối",
 }
 
--- Chuẩn bị từ điển tra cứu nhanh (Case-insensitive)
-local LOWER_VI = {}
-for k, v in pairs(EXACT_VI) do
-    LOWER_VI[k:lower()] = v
+-- Chuẩn bị từ điển dạng chữ thường để so sánh cho chính xác
+local CACHE = {}
+local LOWER_DICT = {}
+for k, v in pairs(DICTIONARY) do
+    LOWER_DICT[k:lower()] = v
 end
 
--- Xử lý cụm từ động (Ví dụ: "Version v4.1", "FPS: 60", Giá trị tiền)
+-- Xử lý cụm từ động chứa số (Ví dụ tiền tệ, chỉ số)
 local DYNAMIC_PATTERNS = {
-    { pat = "^[Vv](%d+%.%d+)$", rep = "Phiên bản %1" },
-    { pat = "^Phiên bản (%d+%.%d+)$", rep = "Phiên bản %1" }, -- Tránh dịch lặp
+    { pat = "^e%.g%. (.+)$", rep = "VD: %1" },
     { pat = "^([%d%.]+)k$", rep = "%1k" },
-    { pat = "^([%d%.]+)m$", rep = "%1m" },
-    { pat = "^([%d%.]+)b$", rep = "%1B" },
-    { pat = "^([%d%.]+)t$", rep = "%1T" },
-    { pat = "^([%d%.]+)qa$", rep = "%1Qa" }
+    { pat = "^([%d%.]+)m$", rep = "%1m" }
 }
 
-local function translateText(raw)
-    if not raw or raw == "" then return raw end
-    local cacheKey = raw
-    if FastCache[cacheKey] then return FastCache[cacheKey] end
-
-    -- Bỏ qua số thuần túy hoặc URL, giữ nguyên các thông số Stats ($3.9Qa, v.v.)
-    if raw:match("^[%d%.%,%-%+]+$") or raw:find("discord.gg") or raw:find("https://") then
-        FastCache[cacheKey] = raw
-        return raw
-    end
-
-    local norm = (raw:match("^%s*(.-)%s*$") or raw):gsub("%s+", " ")
+-- Hàm dịch thuật cốt lõi
+local function translateStr(rawStr)
+    if not rawStr or rawStr == "" or type(rawStr) ~= "string" then return rawStr end
     
-    -- Khớp chính xác (Có phân biệt hoa thường)
-    if EXACT_VI[norm] then
-        FastCache[cacheKey] = EXACT_VI[norm]
-        return EXACT_VI[norm]
+    if CACHE[rawStr] then return CACHE[rawStr] end
+    
+    -- Bỏ qua các chuỗi chỉ có số hoặc ký tự đặc biệt
+    if rawStr:match("^[%d%.%,%-%+%s]+$") or rawStr:find("discord.gg") then
+        CACHE[rawStr] = rawStr
+        return rawStr
     end
     
-    -- Khớp không phân biệt hoa thường
-    local normLower = norm:lower()
-    if LOWER_VI[normLower] then
-        -- Giữ nguyên định dạng in hoa nếu từ gốc viết hoa toàn bộ
-        if norm:upper() == norm and norm:match("%a") then
-            FastCache[cacheKey] = LOWER_VI[normLower]:upper()
-            return FastCache[cacheKey]
+    local cleanStr = (rawStr:match("^%s*(.-)%s*$") or rawStr):gsub("%s+", " ")
+    local lowerStr = cleanStr:lower()
+    
+    if LOWER_DICT[lowerStr] then
+        local result = LOWER_DICT[lowerStr]
+        -- Giữ nguyên định dạng IN HOA toàn bộ nếu bản gốc như vậy
+        if cleanStr:upper() == cleanStr and cleanStr:match("%a") then
+            result = result:upper()
         end
-        FastCache[cacheKey] = LOWER_VI[normLower]
-        return LOWER_VI[normLower]
+        CACHE[rawStr] = result
+        return result
     end
-
-    -- Khớp mẫu động
+    
     for _, dp in ipairs(DYNAMIC_PATTERNS) do
-        if normLower:find(dp.pat) then
-            local res = normLower:gsub(dp.pat, dp.rep)
-            -- Phục hồi case nếu cần
-            if norm:upper() == norm and norm:match("%a") then res = res:upper() end
-            FastCache[cacheKey] = res
-            return res
+        if lowerStr:find(dp.pat) then
+            local result = lowerStr:gsub(dp.pat, dp.rep)
+            CACHE[rawStr] = result
+            return result
         end
     end
-
-    -- Nếu không dịch được, lưu vào cache để tránh quét lại
-    FastCache[cacheKey] = raw
-    return raw
+    
+    CACHE[rawStr] = rawStr
+    return rawStr
 end
 
--- Hàm áp dụng dịch lên một thành phần UI
+-- Hàm áp dụng dịch vào đối tượng UI
 local function applyTranslation(inst)
-    if not IS_TRANSLATING then return end
-    if not inst or not inst.Parent then return end
+    if not inst or not inst.Parent or inst:GetAttribute("IsTranslating") then return end
     
-    -- Bỏ qua nếu đang trong quá trình dịch để tránh lặp vô hạn
-    if inst:GetAttribute("__Translating") then return end
-
     if inst:IsA("TextLabel") or inst:IsA("TextButton") then
-        local rawText = inst.Text
-        if not rawText or rawText == "" then return end
+        local currentText = inst.Text
+        if not currentText or currentText == "" then return end
         
-        local orig = inst:GetAttribute("OrigText")
-        if not orig then
-            -- Bỏ qua nếu text đã có ký tự Tiếng Việt (chứng tỏ đã dịch hoặc có sẵn)
-            if rawText:find("[\194-\244][\128-\191]") and not rawText:find("Phiên bản") then return end
-            orig = rawText
-            inst:SetAttribute("OrigText", orig)
-        end
+        -- Kiểm tra nếu chuỗi đã có ký tự có dấu (đã dịch) thì bỏ qua
+        if currentText:find("[\194-\244][\128-\191]") then return end
         
-        local translated = translateText(orig)
-        if translated and inst.Text ~= translated then
-            inst:SetAttribute("__Translating", true)
+        local translated = translateStr(currentText)
+        if translated and translated ~= currentText then
+            inst:SetAttribute("IsTranslating", true)
             pcall(function() inst.Text = translated end)
-            inst:SetAttribute("__Translating", false)
+            inst:SetAttribute("IsTranslating", false)
         end
-
+        
     elseif inst:IsA("TextBox") then
-        local rawPh = inst.PlaceholderText
-        if rawPh and rawPh ~= "" then
-            local origPh = inst:GetAttribute("OrigPhText")
-            if not origPh then
-                if rawPh:find("[\194-\244][\128-\191]") then return end
-                origPh = rawPh
-                inst:SetAttribute("OrigPhText", origPh)
-            end
-            
-            local translatedPh = translateText(origPh)
-            if translatedPh and inst.PlaceholderText ~= translatedPh then
-                inst:SetAttribute("__Translating", true)
+        local currentPh = inst.PlaceholderText
+        if currentPh and currentPh ~= "" and not currentPh:find("[\194-\244][\128-\191]") then
+            local translatedPh = translateStr(currentPh)
+            if translatedPh and translatedPh ~= currentPh then
+                inst:SetAttribute("IsTranslating", true)
                 pcall(function() inst.PlaceholderText = translatedPh end)
-                inst:SetAttribute("__Translating", false)
+                inst:SetAttribute("IsTranslating", false)
             end
         end
     end
 end
 
--- Bộ quét và hook sự kiện thay đổi Text
-local function hookUIElement(inst)
+-- Hàm bắt sự kiện UI thay đổi
+local function hookInstance(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
-    if inst:GetAttribute("__TransHooked") then return end
+    if inst:GetAttribute("HookedForTranslation") then return end
     
-    inst:SetAttribute("__TransHooked", true)
+    inst:SetAttribute("HookedForTranslation", true)
     applyTranslation(inst)
     
+    -- Bắt sự kiện khi Codium cập nhật nội dung Text
     inst:GetPropertyChangedSignal("Text"):Connect(function()
-        if inst:IsA("TextBox") then return end -- TextBox thường người dùng tự nhập
-        if not inst:GetAttribute("__Translating") then
-            -- Throttling để tránh lag khi text thay đổi quá nhanh (ví dụ: bộ đếm số lượng)
-            local now = os.clock()
-            local lastUpdate = inst:GetAttribute("__LastTextUpdate") or 0
-            if now - lastUpdate > 0.05 then
-                inst:SetAttribute("__LastTextUpdate", now)
-                local newText = inst.Text
-                if newText and not newText:find("[\194-\244][\128-\191]") then
-                    inst:SetAttribute("OrigText", newText)
-                    applyTranslation(inst)
-                end
-            end
-        end
+        applyTranslation(inst)
     end)
 end
 
--- Tối ưu hoá quá trình quét: Giảm số lần quét toàn bộ DOM, chỉ phụ thuộc vào DescendantAdded
-local function getScanRoots()
+-- Quét toàn bộ UI hiện tại và gắn hook
+local function scanAndHookUI()
     local roots = {}
     if gethui then pcall(function() table.insert(roots, gethui()) end) end
     table.insert(roots, game:GetService("CoreGui"))
-    local pg = LocalPlayer:FindFirstChildOfClass("PlayerGui")
+    local pg = game:GetService("Players").LocalPlayer:FindFirstChildOfClass("PlayerGui")
     if pg then table.insert(roots, pg) end
-    return roots
-end
-
--- Quét toàn bộ một lần lúc khởi động
-task.spawn(function()
-    task.wait(1.5) -- Đợi UI Codium khởi tạo xong cơ bản
-    for _, root in ipairs(getScanRoots()) do
+    
+    for _, root in ipairs(roots) do
         for _, gui in ipairs(root:GetChildren()) do
+            -- Lọc bỏ các UI cơ bản của Roblox
             if gui:IsA("ScreenGui") and gui.Name ~= "RobloxGui" and gui.Name ~= "TopBarApp" and gui.Name ~= "CoreScriptsRootProvider" then
-                -- Tránh đụng chạm vào Background Image để không gây lag
+                -- Lắng nghe các phần tử mới được sinh ra
+                if not gui:GetAttribute("DescendantHooked") then
+                    gui:SetAttribute("DescendantHooked", true)
+                    gui.DescendantAdded:Connect(function(desc)
+                        task.defer(hookInstance, desc)
+                    end)
+                end
+                
+                -- Quét các phần tử đã có sẵn
                 for _, desc in ipairs(gui:GetDescendants()) do
-                    if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
-                        hookUIElement(desc)
-                    end
+                    hookInstance(desc)
                 end
             end
         end
     end
-end)
-
--- Lắng nghe sự kiện thêm mới thay vì dùng while loop quét toàn bộ cây DOM liên tục
-for _, root in ipairs(getScanRoots()) do
-    root.DescendantAdded:Connect(function(desc)
-        -- Sử dụng task.defer để không cản trở quá trình render của game
-        task.defer(function()
-            if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
-                hookUIElement(desc)
-            end
-        end)
-    end)
 end
+
+-- Vòng lặp kiểm tra định kỳ (xử lý trường hợp UI của Hub render chậm)
+task.spawn(function()
+    while task.wait(1.5) do
+        pcall(scanAndHookUI)
+    end
+end)
