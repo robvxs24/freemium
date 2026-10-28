@@ -1,10 +1,12 @@
--- Codium Hub | Guaranteed Loader Fix + Discord Link Masker + Full Vietnamese Engine
+-- Codium Hub | Guaranteed Boot Fix + Discord Masker + 100% Vietnamese Translator
 local CODIUM_URL = "https://getcodium.xyz/loader.luau"
 local DISCORD_MASK_TEXT = "★ CODIUM VIỆT HÓA VIP ★"
 
 local env = (getgenv and getgenv()) or _G
+env.__CodiumLoadedOnce = nil
 env.__CodiumViSession = (env.__CodiumViSession or 0) + 1
 local SID = env.__CodiumViSession
+
 local function isAlive()
     return env.__CodiumViSession == SID
 end
@@ -27,13 +29,12 @@ local function getScanRoots()
     return roots
 end
 
--- Kiểm tra xem cửa sổ Codium đã thực sự hiện trên màn hình chưa
-local function isCodiumWindowOpen()
+-- Kiểm tra thực tế xem Menu Codium đã hiện trên màn hình chưa
+local function isCodiumMenuOpen()
     for _, root in ipairs(getScanRoots()) do
         for _, d in ipairs(root:GetDescendants()) do
-            if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Visible then
-                local t = d.Text or ""
-                if t == "CODIUM" or t:find("CODIUM |", 1, true) then
+            if (d:IsA("TextLabel") or d:IsA("TextButton")) and type(d.Text) == "string" then
+                if d.Text == "CODIUM" or d.Text:find("CODIUM |", 1, true) then
                     return true
                 end
             end
@@ -42,42 +43,30 @@ local function isCodiumWindowOpen()
     return false
 end
 
--- 1. KHỞI CHẠY CODIUM HUB TRỰC TIẾP (LUÔN CHẠY NẾU CHƯA CÓ MENU TRÊN MÀN HÌNH)
-if not isCodiumWindowOpen() then
+-- 1. KHỞI CHẠY CODIUM HUB TRỰC TIẾP (KHÔNG BỊ CHẶN BỞI BIẾN KHÓA CŨ)
+if not isCodiumMenuOpen() then
     task.spawn(function()
         local ok, src = pcall(function()
             return game:HttpGet(CODIUM_URL)
         end)
-        if not ok or type(src) ~= "string" or #src < 10 then
-            local req = (syn and syn.request) or (http and http.request) or http_request or request or (fluxus and fluxus.request)
-            if req then
-                local rOk, rRes = pcall(req, { Url = CODIUM_URL, Method = "GET" })
-                if rOk and rRes and type(rRes.Body) == "string" then
-                    src = rRes.Body
-                end
-            end
-        end
-        if type(src) == "string" and #src > 10 then
+        if ok and type(src) == "string" and #src > 10 then
             local fn = loadstring(src)
             if type(fn) == "function" then
-                pcall(fn)
+                fn()
             end
         end
     end)
 end
 
--- Bộ nhớ WeakTable nội bộ (Không dùng SetAttribute lên CoreGui/gethui để tránh lỗi Executor)
+-- 2. TỪ ĐIỂN VIỆT HÓA TOÀN DIỆN
 local FastCache = {}
-local HookedElements = setmetatable({}, { __mode = "k" })
-local BusyElements = setmetatable({}, { __mode = "k" })
-local OrigTextMap = setmetatable({}, { __mode = "k" })
-local LastViMap = setmetatable({}, { __mode = "k" })
-local HookedRoots = setmetatable({}, { __mode = "k" })
 
--- ============================================================================
--- 2. TỪ ĐIỂN CÂU & TIÊU ĐỀ CHUẨN XÁC 100%
--- ============================================================================
 local EXACT_VI = {
+    ["Steal an Egg"] = "Steal an Egg (Cướp Trứng)",
+    ["cướp an trứng"] = "Steal an Egg (Cướp Trứng)",
+    ["Slow Mode"] = "Chế độ chậm",
+    ["Slow chế độ"] = "Chế độ chậm",
+
     -- Sidebar & Cửa sổ chung
     ["Media"] = "Mạng Xã Hội",
     ["Chat"] = "Trò Chuyện",
@@ -97,10 +86,8 @@ local EXACT_VI = {
     ["Anime"] = "Chế độ Anime",
     ["None"] = "Không có",
     ["All"] = "Tất cả",
-    ["Slow Mode"] = "Chế độ chậm",
-    ["Slow chế độ"] = "Chế độ chậm",
 
-    -- Tab Sự Kiện: Tàu Bóng Ma (Phantom Express - Ảnh 7414.jpg)
+    -- Tab Sự Kiện: Tàu Bóng Ma (Phantom Express)
     ["Select Ghost"] = "Chọn Bóng Ma",
     ["Select Ghosts"] = "Chọn Bóng Ma",
     ["Chọn bóng ma"] = "Chọn Bóng Ma",
@@ -131,22 +118,8 @@ local EXACT_VI = {
     ["Abandoned Manor"] = "Dinh Thự Bỏ Hoang",
     ["Pumpkin King"] = "Vua Bí Ngô",
     ["The Hollow"] = "Vực Thẳm The Hollow",
-    ["Auto Enter Dimension"] = "Tự Vào Không Gian Halloween",
-    ["Automatically enters the Halloween Dimension when available."] = "Tự động dịch chuyển vào Không Gian Halloween khi mở cửa.",
-    ["Auto Steal Dimension Egg"] = "Tự Cướp Trứng Không Gian",
-    ["Auto Buy Dimension Egg"] = "Tự Mua Trứng Không Gian",
-    ["Auto Ghost Dog"] = "Tự Làm Nhiệm Vụ Chó Ma",
-    ["Auto Ghost Dog Quest"] = "Tự Làm Nhiệm Vụ Chó Ma",
-    ["Automatically completes the Ghost Dog quest."] = "Tự động hoàn thành nhiệm vụ Chó Ma.",
-    ["Auto Abandoned Manor"] = "Tự Cày Dinh Thự Bỏ Hoang",
-    ["Auto Pumpkin King"] = "Tự Đánh Vua Bí Ngô",
-    ["Auto Kill Pumpkin King"] = "Tự Đánh Vua Bí Ngô",
-    ["Auto The Hollow"] = "Tự Đua Sự Kiện The Hollow",
-    ["Auto Race Hollow"] = "Tự Đua Sự Kiện The Hollow",
-    ["Auto Pumpkin Moon"] = "Tự Cày Trăng Bí Ngô",
-    ["Auto Collect Candy Corn"] = "Tự Nhặt Kẹo Ngô",
-    ["Auto Farm Monsters"] = "Tự Động Đánh Quái Vật",
-    ["Auto Kill Monsters"] = "Tự Động Đánh Quái Vật",
+    ["Cursed Island Wars"] = "Đại Chiến Đảo Nguyền Rủa",
+    ["Pumpkin Moon"] = "Sự Kiện Trăng Bí Ngô",
 
     -- Tab Trang Chủ (Home / Inventory / Map)
     ["Player Stats"] = "Thống Kê Người Chơi",
@@ -157,6 +130,9 @@ local EXACT_VI = {
     ["World"] = "Thế Giới",
     ["Steal"] = "Cướp Ngay",
     ["Hatch"] = "Ấp Ngay",
+    ["Sell"] = "Bán",
+    ["Equip"] = "Trang Bị",
+    ["Unequip"] = "Tháo Ra",
 
     -- Tab Trứng (Egg)
     ["Steal Egg"] = "Cướp Trứng",
@@ -314,7 +290,7 @@ local NATURAL_SENTENCE_PATTERNS = {
     { pat = "^Pet%s+(%d+)$", rep = "Thú Cưng %1" },
     { pat = "^Egg%s+(%d+)$", rep = "Trứng %1" },
     { pat = "^Placed%s+(%d+)$", rep = "Đã Đặt %1" },
-    { pat = "^[PP]rioritize%s+(.+)$", rep = "Ưu Tiên %1" },
+    { pat = "^[Pp]rioritize%s+(.+)$", rep = "Ưu Tiên %1" },
     { pat = "^[Ss]elect%s+(.+)$", rep = "Chọn %1" },
     { pat = "^[Aa]uto%s+(.+)$", rep = "Tự Động %1" },
     { pat = "^[Oo]pen%s+(.+)$", rep = "Mở %1" },
@@ -323,7 +299,8 @@ local NATURAL_SENTENCE_PATTERNS = {
 }
 
 local PHRASES_VI = {
-    {"cướp an trứng", "Steal an Egg"},
+    {"steal an egg", "Steal an Egg (Cướp Trứng)"},
+    {"cướp an trứng", "Steal an Egg (Cướp Trứng)"},
     {"slow mode", "Chế độ chậm"},
     {"slow chế độ", "Chế độ chậm"},
     {"none selected", "Không chọn"},
@@ -372,7 +349,6 @@ local PHRASES_VI = {
     {"generation rate", "tốc độ sinh tiền"},
     {"sell price", "giá bán"},
     {"index rewards", "thưởng chỉ mục"},
-    {"haven't indexed", "chưa mở chỉ mục"},
     {"ready eggs", "trứng đã chín"},
     {"field eggs", "trứng ngoài bãi"},
     {"drop point", "điểm thả"},
@@ -465,7 +441,7 @@ local function applyPhrasesAndWords(str)
         end
     end
 
-    local wordReplaced = out:gsub("([%a']+)", function(w)
+    local wordReplaced = out:gsub("([%a]+)", function(w)
         local lw = w:lower()
         if STOP_WORDS_REMOVE[lw] then
             changed = true
@@ -496,11 +472,6 @@ local function translateSingleLine(line)
         return DISCORD_MASK_TEXT
     end
 
-    -- Giữ nguyên tên game "Steal an Egg" không dịch chữ "Steal" thành "cướp an trứng"
-    if lowerLine == "steal an egg" or lowerLine == "cướp an trứng" then
-        return "Steal an Egg"
-    end
-
     if line:find("Money:", 1, true) or line:find("Pets:", 1, true) or line:find("Eggs:", 1, true) or line:find("Value:", 1, true) then
         return (line
             :gsub("Money:", "Tiền:")
@@ -527,7 +498,10 @@ local function translateSingleLine(line)
     local clean = (line:match("^%s*(.-)%s*$") or line):gsub("%s+", " ")
     if clean == "" then return line end
 
-    if clean:match("^[%$%+%-%d%.%,%/%%skmbtqKMBTQsxhg%s]+$") or clean:find("https://", 1, true) or clean:find("CODIUM |", 1, true) then
+    if clean:match("^[%$%+%-%d%.%,%/%%skmbtqKMBTQsxhg%s]+$") or clean:find("https://", 1, true) then
+        return line
+    end
+    if clean:find("CODIUM |", 1, true) then
         return line
     end
 
@@ -608,38 +582,38 @@ end
 
 local function applyTranslationToInstance(inst)
     if not isAlive() or not inst or not inst.Parent then return end
-    if BusyElements[inst] then return end
+    if inst:GetAttribute("__ViBusy") then return end
 
     if inst:IsA("TextLabel") or inst:IsA("TextButton") then
         local cur = inst.Text
         if not cur or cur == "" then return end
 
-        local origSaved = OrigTextMap[inst]
+        local origSaved = inst:GetAttribute("__CodiumOrigText")
         if not origSaved then
             origSaved = cur
-            OrigTextMap[inst] = origSaved
-        elseif cur ~= LastViMap[inst] and not stillHasUntranslatedEnglish(cur) then
+            inst:SetAttribute("__CodiumOrigText", origSaved)
+        elseif cur ~= inst:GetAttribute("__CodiumLastVi") and not stillHasUntranslatedEnglish(cur) then
             origSaved = cur
-            OrigTextMap[inst] = origSaved
+            inst:SetAttribute("__CodiumOrigText", origSaved)
         end
 
         local sourceToTranslate = stillHasUntranslatedEnglish(cur) and cur or origSaved
         local translated = translateFullText(sourceToTranslate)
 
         if translated and translated ~= cur then
-            BusyElements[inst] = true
-            LastViMap[inst] = translated
+            inst:SetAttribute("__ViBusy", true)
+            inst:SetAttribute("__CodiumLastVi", translated)
             pcall(function() inst.Text = translated end)
-            BusyElements[inst] = nil
+            inst:SetAttribute("__ViBusy", false)
         end
     elseif inst:IsA("TextBox") then
         local ph = inst.PlaceholderText
         if ph and ph ~= "" then
             local translatedPh = translateFullText(ph)
             if translatedPh and translatedPh ~= ph then
-                BusyElements[inst] = true
+                inst:SetAttribute("__ViBusy", true)
                 pcall(function() inst.PlaceholderText = translatedPh end)
-                BusyElements[inst] = nil
+                inst:SetAttribute("__ViBusy", false)
             end
         end
     end
@@ -674,18 +648,18 @@ local function hookTextElement(inst)
     table.insert(pendingQueue, inst)
     processQueue()
 
-    if HookedElements[inst] == SID then return end
-    HookedElements[inst] = SID
+    if inst:GetAttribute("__CodiumViHooked") == SID then return end
+    inst:SetAttribute("__CodiumViHooked", SID)
 
     if inst:IsA("TextBox") then
         inst:GetPropertyChangedSignal("PlaceholderText"):Connect(function()
-            if isAlive() and not BusyElements[inst] then
+            if isAlive() and not inst:GetAttribute("__ViBusy") then
                 applyTranslationToInstance(inst)
             end
         end)
     else
         inst:GetPropertyChangedSignal("Text"):Connect(function()
-            if isAlive() and not BusyElements[inst] then
+            if isAlive() and not inst:GetAttribute("__ViBusy") then
                 applyTranslationToInstance(inst)
             end
         end)
@@ -714,36 +688,28 @@ local function hookContainerRoot(root)
         end
     end
 
-    if HookedRoots[root] == SID then return end
-    HookedRoots[root] = SID
+    if root:GetAttribute("__RootViHooked") == SID then return end
+    root:SetAttribute("__RootViHooked", SID)
 
     root.DescendantAdded:Connect(function(desc)
         if not isAlive() then return end
         if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
             local sg = desc:FindFirstAncestorOfClass("ScreenGui")
             if not (sg and IGNORED_GUIS[sg.Name]) then
-                -- Đợi 0.12s để Codium khởi tạo xong thuộc tính của nút rồi mới dịch
-                task.delay(0.12, function()
-                    if isAlive() and desc.Parent then
-                        hookTextElement(desc)
-                    end
-                end)
+                task.defer(hookTextElement, desc)
             end
         end
     end)
 end
 
--- Đợi Codium khởi tạo xong rồi gắn bộ dịch + quét bù trong 6 giây đầu
+-- Đợi 0.4s để Codium khởi tạo tự nhiên trước khi gắn Hook dịch thuật
 task.spawn(function()
-    task.wait(0.8)
+    task.wait(0.4)
     for _, root in ipairs(getScanRoots()) do
-        pcall(function() hookContainerRoot(root) end)
+        pcall(hookContainerRoot, root)
     end
-    for _ = 1, 4 do
-        task.wait(1.5)
-        if not isAlive() then break end
-        for _, root in ipairs(getScanRoots()) do
-            pcall(function() hookContainerRoot(root) end)
-        end
+    task.wait(1.5)
+    for _, root in ipairs(getScanRoots()) do
+        pcall(hookContainerRoot, root)
     end
 end)
