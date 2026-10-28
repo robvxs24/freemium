@@ -1,11 +1,20 @@
--- Codium Hub | Native Bootloader + Ghost Translation Daemon (Arceus X NEO Fix)
+-- Codium Hub | Arceus X NEO Fix (Zero-Connection Polling) + Ghost Translator
 local DISCORD_MASK_TEXT = "★ CODIUM VIỆT HÓA VIP ★"
 
--- 1. BỘ DỊCH CHẠY NGẦM (GHOST DAEMON) - CHẠY ĐỘC LẬP KHÔNG ẢNH HƯỞNG TỚI SCRIPT GỐC
-task.spawn(function()
-    -- Đợi 2 giây cho Codium dựng xong giao diện gốc để tránh bị Codium phát hiện UI thay đổi lúc boot
-    task.wait(2)
-    
+-- 1. NATIVE BOOTLOADER (Bọc Coroutine cực an toàn cho Arceus X NEO)
+coroutine.wrap(function()
+    local ok, res = pcall(function() return game:HttpGet("https://getcodium.xyz/loader.luau") end)
+    if ok and type(res) == "string" and #res > 10 then
+        local fn = loadstring(res)
+        if type(fn) == "function" then fn() end
+    end
+end)()
+
+-- 2. GHOST TRANSLATION DAEMON (Chạy ngầm tách biệt hoàn toàn khỏi luồng của Codium)
+coroutine.wrap(function()
+    -- Đợi 3 giây cho Codium dựng xong Menu, tránh đụng độ Anti-Tamper lúc khởi tạo
+    task.wait(3)
+
     local env = (getgenv and getgenv()) or _G
     env.__CodiumViSession = (env.__CodiumViSession or 0) + 1
     local SID = env.__CodiumViSession
@@ -13,13 +22,19 @@ task.spawn(function()
 
     local Players = game:GetService("Players")
     local CoreGui = game:GetService("CoreGui")
+    local RunService = game:GetService("RunService")
     local LocalPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
 
     local FastCache = {}
 
+    -- ============================================================================
+    -- TỪ ĐIỂN DỊCH THUẬT TOÀN DIỆN (ĐÃ CHE LINK DISCORD & FIX LỖI CÂU NỬA ANH NỬA VIỆT)
+    -- ============================================================================
     local EXACT_VI = {
         ["Steal an Egg"] = "Steal an Egg (Cướp Trứng)",
+        ["cướp an trứng"] = "Steal an Egg (Cướp Trứng)",
         ["Slow Mode"] = "Chế độ chậm",
+        ["Slow chế độ"] = "Chế độ chậm",
         ["Media"] = "Mạng Xã Hội",
         ["Chat"] = "Trò Chuyện",
         ["Home"] = "Trang Chủ",
@@ -40,19 +55,27 @@ task.spawn(function()
         ["All"] = "Tất cả",
         ["Select Ghost"] = "Chọn Bóng Ma",
         ["Select Ghosts"] = "Chọn Bóng Ma",
+        ["Chọn bóng ma"] = "Chọn Bóng Ma",
         ["Ghosts to vacuum. None selected = all, most Souls first."] = "Chọn loại ma cần hút. Không chọn = hút tất cả (ưu tiên nhiều Linh Hồn nhất trước).",
+        ["Ghosts to vacuum. Không có đã chọn = tất cả, most Souls first."] = "Chọn loại ma cần hút. Không chọn = hút tất cả (ưu tiên nhiều Linh Hồn nhất trước).",
         ["Auto Vacuum Ghost"] = "Tự Động Hút Bóng Ma",
         ["Auto Vacuum Ghosts"] = "Tự Động Hút Bóng Ma",
+        ["Tự động Vacuum bóng ma"] = "Tự Động Hút Bóng Ma",
         ["Boards the Phantom Express when it comes and vacuums ghosts in the Forgotten Town."] = "Tự động lên Tàu Bóng Ma khi tàu đến và hút ma tại Thị Trấn Lãng Quên.",
+        ["Boards the Tàu Bóng Ma khi it comes and vacuums ghosts in the Forgotten Town."] = "Tự động lên Tàu Bóng Ma khi tàu đến và hút ma tại Thị Trấn Lãng Quên.",
         ["Prioritize Ghouler"] = "Ưu Tiên Hút Trùm Ghouler",
         ["Ghouler first when he shows up."] = "Ưu tiên hút trùm Ghouler ngay khi hắn xuất hiện.",
         ["Vacuums Ghouler first when he shows up."] = "Ưu tiên hút trùm Ghouler ngay khi hắn xuất hiện.",
+        ["Ghouler first khi he hiển thị up."] = "Ưu tiên hút trùm Ghouler ngay khi hắn xuất hiện.",
         ["Trade"] = "Đổi Linh Hồn",
         ["Souls"] = "Linh Hồn (Souls)",
         ["Auto Trade Souls"] = "Tự Động Đổi Linh Hồn",
+        ["Tự động Trade Souls"] = "Tự Động Đổi Linh Hồn",
         ["Trades Souls for a Spectral mutation at the Soul Keeper whenever you have enough."] = "Tự động đổi Linh Hồn lấy Đột Biến Quang Phổ tại NPC Giữ Hồn mỗi khi đủ số lượng.",
+        ["Trades Souls for a Quang Phổ đột biến at the Soul Keeper whenever you have enough."] = "Tự động đổi Linh Hồn lấy Đột Biến Quang Phổ tại NPC Giữ Hồn mỗi khi đủ số lượng.",
         ["Admin Abuse Boost (BETA)"] = "Lạm Dụng Buff Admin (BETA)",
         ["Phantom Express"] = "Chuyến Tàu Bóng Ma",
+        ["Tàu Bóng Ma"] = "Chuyến Tàu Bóng Ma",
         ["Halloween Dimension"] = "Không Gian Halloween",
         ["Ghost Dog Quest"] = "Nhiệm Vụ Chó Ma",
         ["Abandoned Manor"] = "Dinh Thự Bỏ Hoang",
@@ -229,8 +252,11 @@ task.spawn(function()
 
     local PHRASES_VI = {
         {"steal an egg", "Steal an Egg (Cướp Trứng)"},
+        {"cướp an trứng", "Steal an Egg (Cướp Trứng)"},
         {"slow mode", "Chế độ chậm"},
+        {"slow chế độ", "Chế độ chậm"},
         {"none selected", "Không chọn"},
+        {"không có đã chọn", "Không chọn"},
         {"most souls first", "ưu tiên nhiều Linh Hồn nhất trước"},
         {"forgotten town", "Thị Trấn Lãng Quên"},
         {"soul keeper", "NPC Giữ Hồn"},
@@ -240,6 +266,7 @@ task.spawn(function()
         {"whenever you have enough", "mỗi khi bạn có đủ"},
         {"have enough", "đủ số lượng"},
         {"spectral mutation", "Đột Biến Quang Phổ"},
+        {"quang phổ đột biến", "Đột Biến Quang Phổ"},
         {"vacuum ghosts", "hút bóng ma"},
         {"vacuums ghosts", "hút bóng ma"},
         {"ghosts to vacuum", "bóng ma cần hút"},
@@ -382,20 +409,26 @@ task.spawn(function()
     local function translateSingleLine(line)
         if not line or line == "" then return line end
         local lowerLine = line:lower()
+        
         if lowerLine:find("discord%.gg") or lowerLine:find("discord%.com/invite") then
             return DISCORD_MASK_TEXT
         end
+
         if line:find("Money:", 1, true) or line:find("Pets:", 1, true) or line:find("Eggs:", 1, true) or line:find("Value:", 1, true) then
             return (line:gsub("Money:", "Tiền:"):gsub("Gems:", "Đá Quý:"):gsub("Pets:", "Thú Cưng:"):gsub("Equipped:", "Đang Đeo:"):gsub("Eggs:", "Trứng:"):gsub("Placed:", "Đã Đặt:"):gsub("Value:", "Giá Trị:"):gsub("Gain:", "Thu Nhập:"))
         end
+
         if line:find("Souls:", 1, true) or line:find("Price:", 1, true) or line:find("Session:", 1, true) or line:find("Spectral Mutation:", 1, true) then
             return (line:gsub("Session:", "Phiên này:"):gsub("Total:", "Tổng cộng:"):gsub("Souls:", "Linh Hồn:"):gsub("Price:", "Giá đổi:"):gsub("Success:", "Tỷ lệ:"):gsub("Spectral Mutation:", "Đột biến Quang Phổ:"))
         end
+
         local clean = (line:match("^%s*(.-)%s*$") or line):gsub("%s+", " ")
         if clean == "" then return line end
+
         if clean:match("^[%$%+%-%d%.%,%/%%skmbtqKMBTQsxhg%s]+$") or clean:find("https://", 1, true) or clean:find("CODIUM |", 1, true) then
             return line
         end
+
         if EXACT_VI[clean] then return EXACT_VI[clean] end
         local lowerClean = clean:lower()
         if LOWER_VI[lowerClean] then
@@ -403,8 +436,10 @@ task.spawn(function()
             if clean:upper() == clean and clean:find("%a") then return r:upper() end
             return r
         end
+
         if clean:find(",", 1, true) and not clean:find("%.") and #clean < 40 then
-            local parts, allMatched = {}, true
+            local parts = {}
+            local allMatched = true
             for part in clean:gmatch("([^,]+)") do
                 local pTrim = part:match("^%s*(.-)%s*$")
                 local pVi = EXACT_VI[pTrim] or LOWER_VI[pTrim:lower()]
@@ -412,7 +447,9 @@ task.spawn(function()
             end
             if allMatched and #parts > 1 then return table.concat(parts, ", ") end
         end
-        local working, grammarHit = clean, false
+
+        local working = clean
+        local grammarHit = false
         for i = 1, #NATURAL_SENTENCE_PATTERNS do
             local rule = NATURAL_SENTENCE_PATTERNS[i]
             if working:find(rule.pat) then
@@ -421,6 +458,7 @@ task.spawn(function()
                 break
             end
         end
+
         local finalStr, wordHit = applyPhrasesAndWords(working)
         if grammarHit or wordHit then return finalStr end
         return line
@@ -442,94 +480,95 @@ task.spawn(function()
         end
     end
 
-    local function applyTranslationToInstance(inst)
-        if not isAlive() or not inst or not inst.Parent or inst:GetAttribute("__ViBusy") then return end
-        if inst:IsA("TextLabel") or inst:IsA("TextButton") then
-            local cur = inst.Text
-            if not cur or cur == "" or cur:find("[\194-\244][\128-\191]") then return end
-            local translated = translateFullText(cur)
-            if translated and translated ~= cur then
-                inst:SetAttribute("__ViBusy", true)
-                pcall(function() inst.Text = translated end)
-                inst:SetAttribute("__ViBusy", false)
-            end
-        elseif inst:IsA("TextBox") then
-            local ph = inst.PlaceholderText
-            if ph and ph ~= "" and not ph:find("[\194-\244][\128-\191]") then
-                local translatedPh = translateFullText(ph)
-                if translatedPh and translatedPh ~= ph then
-                    inst:SetAttribute("__ViBusy", true)
-                    pcall(function() inst.PlaceholderText = translatedPh end)
-                    inst:SetAttribute("__ViBusy", false)
-                end
-            end
-        end
+    -- ============================================================================
+    -- 3. ZERO-CONNECTION EVENT POLLER (KHÔNG GÂY LỖI STACK OVERFLOW TRÊN ARCEUS)
+    -- ============================================================================
+    local activeLabels = {}
+    
+    local function stillHasUntranslatedEnglish(s)
+        local ls = s:lower()
+        if ls:find("discord%.gg") or ls:find("cướp an trứng") or ls:find("slow chế độ") then return true end
+        if ls:find("ghosts") or ls:find("vacuum") or ls:find("souls") or ls:find("boards") or ls:find("whenever") or ls:find("session:") or ls:find("price:") then return true end
+        return false
     end
 
-    local pendingQueue, queueRunning = {}, false
-    local function processQueue()
-        if queueRunning then return end
-        queueRunning = true
-        task.spawn(function()
-            while isAlive() and #pendingQueue > 0 do
-                local batchCount = 0
-                while #pendingQueue > 0 and batchCount < 50 do
-                    local inst = table.remove(pendingQueue)
-                    if inst and inst.Parent then applyTranslationToInstance(inst) end
-                    batchCount = batchCount + 1
-                end
-                if #pendingQueue > 0 then task.wait() end
+    local function trackInstance(inst)
+        if inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox") then
+            if not inst:GetAttribute("__ViTrk") then
+                inst:SetAttribute("__ViTrk", true)
+                table.insert(activeLabels, inst)
             end
-            queueRunning = false
-        end)
-    end
-
-    local function hookTextElement(inst)
-        if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
-        if inst:GetAttribute("__CodiumViHooked") == SID then return end
-        inst:SetAttribute("__CodiumViHooked", SID)
-        table.insert(pendingQueue, inst)
-        processQueue()
-        if inst:IsA("TextBox") then
-            inst:GetPropertyChangedSignal("PlaceholderText"):Connect(function()
-                if isAlive() and not inst:GetAttribute("__ViBusy") then applyTranslationToInstance(inst) end
-            end)
-        else
-            inst:GetPropertyChangedSignal("Text"):Connect(function()
-                if isAlive() and not inst:GetAttribute("__ViBusy") then applyTranslationToInstance(inst) end
-            end)
         end
     end
 
     local IGNORED_GUIS = { RobloxGui = true, TopBarApp = true, TouchGui = true, Chat = true, BubbleChat = true, CoreScriptsRootProvider = true }
-    local function hookContainerRoot(root)
-        if not root then return end
-        for _, gui in ipairs(root:GetChildren()) do
-            if not IGNORED_GUIS[gui.Name] then
-                for _, desc in ipairs(gui:GetDescendants()) do hookTextElement(desc) end
+    local function scanRootsForGuis()
+        local roots = { CoreGui }
+        if gethui then pcall(function() table.insert(roots, gethui()) end) end
+        local pg = LocalPlayer:FindFirstChildOfClass("PlayerGui")
+        if pg then table.insert(roots, pg) end
+
+        for _, root in ipairs(roots) do
+            for _, gui in ipairs(root:GetChildren()) do
+                if gui:IsA("ScreenGui") and not IGNORED_GUIS[gui.Name] then
+                    if not gui:GetAttribute("__ViHk") then
+                        gui:SetAttribute("__ViHk", true)
+                        for _, d in ipairs(gui:GetDescendants()) do trackInstance(d) end
+                        gui.DescendantAdded:Connect(trackInstance)
+                    end
+                end
             end
         end
-        if root:GetAttribute("__RootViHooked") == SID then return end
-        root:SetAttribute("__RootViHooked", SID)
-        root.DescendantAdded:Connect(function(desc)
-            if not isAlive() then return end
-            if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
-                local sg = desc:FindFirstAncestorOfClass("ScreenGui")
-                if not (sg and IGNORED_GUIS[sg.Name]) then task.defer(hookTextElement, desc) end
+    end
+
+    task.spawn(function()
+        while task.wait(1.5) do
+            if not isAlive() then break end
+            pcall(scanRootsForGuis)
+        end
+    end)
+
+    -- Heartbeat Micro-stepped Poller: Scan flat array without creating Connections (Fixes Arceus crash)
+    local idx = 1
+    RunService.Heartbeat:Connect(function()
+        if not isAlive() or #activeLabels == 0 then return end
+        local count = 0
+        local limit = 600 -- Xử lý tối đa 600 UI elements mỗi frame để không tụt FPS
+        
+        while idx <= #activeLabels and count < limit do
+            local inst = activeLabels[idx]
+            if not inst.Parent then
+                table.remove(activeLabels, idx)
+            else
+                if inst:IsA("TextBox") then
+                    local ph = inst.PlaceholderText
+                    if ph and ph ~= "" and ph ~= inst:GetAttribute("__LastPh") then
+                        local tr = translateFullText(ph)
+                        if tr and tr ~= ph then
+                            pcall(function() inst.PlaceholderText = tr end)
+                        end
+                        inst:SetAttribute("__LastPh", tr)
+                    end
+                else
+                    local txt = inst.Text
+                    if txt and txt ~= "" and txt ~= inst:GetAttribute("__LastTxt") then
+                        -- Bỏ qua nếu chữ có dấu tiếng việt và không còn tàn dư tiếng anh
+                        if txt:find("[\194-\244][\128-\191]") and not stillHasUntranslatedEnglish(txt) then
+                            inst:SetAttribute("__LastTxt", txt)
+                        else
+                            local tr = translateFullText(txt)
+                            if tr and tr ~= txt then
+                                pcall(function() inst.Text = tr end)
+                            end
+                            inst:SetAttribute("__LastTxt", tr)
+                        end
+                    end
+                end
+                idx = idx + 1
             end
-        end)
-    end
+            count = count + 1
+        end
+        if idx > #activeLabels then idx = 1 end
+    end)
 
-    -- Khởi tạo vòng lặp mồi cho UI
-    while task.wait(1.0) do
-        if gethui then pcall(function() hookContainerRoot(gethui()) end) end
-        pcall(function() hookContainerRoot(CoreGui) end)
-        pcall(function()
-            local pg = LocalPlayer:FindFirstChildOfClass("PlayerGui")
-            if pg then hookContainerRoot(pg) end
-        end)
-    end
-end)
-
--- 2. KHỞI CHẠY CODIUM HUB NATIVE TRÊN MAIN THREAD (100% LÊN MENU, KHÔNG BỊ ARCEUS CHẶN)
-loadstring(game:HttpGet("https://getcodium.xyz/loader.luau"))()
+end)()
