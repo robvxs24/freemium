@@ -1,5 +1,7 @@
--- Codium Hub | 5-Tier Hybrid Auto-Translator (100% Unseen Text Coverage + Zero-Lag Event Architecture)
+-- Codium Hub | Discord Link Hider + 100% Natural Vietnamese Sentence Engine (Zero-Lag)
 local CODIUM_URL = "https://getcodium.xyz/loader.luau"
+-- Chữ thay thế vào chỗ link Discord trên đầu menu (Đặt = "" nếu muốn ẩn trắng hoàn toàn):
+local DISCORD_MASK_TEXT = "★ CODIUM VIỆT HÓA VIP ★"
 
 local env = (getgenv and getgenv()) or _G
 env.__CodiumViSession = (env.__CodiumViSession or 0) + 1
@@ -8,7 +10,6 @@ local function isAlive()
     return env.__CodiumViSession == SID
 end
 
--- 1. KHỞI CHẠY CODIUM HUB GỐC (CHỐNG CHẠY TRÙNG KHI EXEC LẠI BỘ DỊCH)
 if not env.__CodiumLoadedOnce then
     env.__CodiumLoadedOnce = true
     task.spawn(function()
@@ -24,15 +25,16 @@ local LocalPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("Loc
 
 local FastCache = {}
 
--- Kiểm tra chuỗi đã có dấu tiếng Việt chưa
-local function hasVietnameseChars(s)
-    return type(s) == "string" and s:find("[\195\196\197\225]") ~= nil
-end
-
 -- ============================================================================
--- TẦNG 2: TỪ ĐIỂN KHỚP CHÍNH XÁC (BAO PHỦ CẢ CÁC TAB CHƯA CHỤP)
+-- 1. TỪ ĐIỂN CÂU & TIÊU ĐỀ CHUẨN XÁC 100% (BAO GỒM ẢNH 7414.JPG & CÁC TAB KHÁC)
 -- ============================================================================
 local EXACT_VI = {
+    -- Tiêu đề Game & Nút màn hình
+    ["Steal an Egg"] = "Steal an Egg (Cướp Trứng)",
+    ["cướp an trứng"] = "Steal an Egg (Cướp Trứng)",
+    ["Slow Mode"] = "Chế độ chậm",
+    ["Slow chế độ"] = "Chế độ chậm",
+
     -- Sidebar & Cửa sổ chung
     ["Media"] = "Mạng Xã Hội",
     ["Chat"] = "Trò Chuyện",
@@ -53,6 +55,54 @@ local EXACT_VI = {
     ["None"] = "Không có",
     ["All"] = "Tất cả",
 
+    -- Tab Sự Kiện: Tàu Bóng Ma (Phantom Express - Ảnh 7414.jpg)
+    ["Select Ghost"] = "Chọn Bóng Ma",
+    ["Select Ghosts"] = "Chọn Bóng Ma",
+    ["Chọn bóng ma"] = "Chọn Bóng Ma",
+    ["Ghosts to vacuum. None selected = all, most Souls first."] = "Chọn loại ma cần hút. Không chọn = hút tất cả (ưu tiên nhiều Linh Hồn nhất trước).",
+    ["Ghosts to vacuum. Không có đã chọn = tất cả, most Souls first."] = "Chọn loại ma cần hút. Không chọn = hút tất cả (ưu tiên nhiều Linh Hồn nhất trước).",
+    ["Auto Vacuum Ghost"] = "Tự Động Hút Bóng Ma",
+    ["Auto Vacuum Ghosts"] = "Tự Động Hút Bóng Ma",
+    ["Tự động Vacuum bóng ma"] = "Tự Động Hút Bóng Ma",
+    ["Boards the Phantom Express when it comes and vacuums ghosts in the Forgotten Town."] = "Tự động lên Tàu Bóng Ma khi tàu đến và hút ma tại Thị Trấn Lãng Quên.",
+    ["Boards the Tàu Bóng Ma khi it comes and vacuums ghosts in the Forgotten Town."] = "Tự động lên Tàu Bóng Ma khi tàu đến và hút ma tại Thị Trấn Lãng Quên.",
+    ["Prioritize Ghouler"] = "Ưu Tiên Hút Trùm Ghouler",
+    ["Ghouler first when he shows up."] = "Ưu tiên hút trùm Ghouler ngay khi hắn xuất hiện.",
+    ["Vacuums Ghouler first when he shows up."] = "Ưu tiên hút trùm Ghouler ngay khi hắn xuất hiện.",
+    ["Ghouler first khi he hiển thị up."] = "Ưu tiên hút trùm Ghouler ngay khi hắn xuất hiện.",
+    ["Trade"] = "Đổi Linh Hồn",
+    ["Souls"] = "Linh Hồn (Souls)",
+    ["Auto Trade Souls"] = "Tự Động Đổi Linh Hồn",
+    ["Tự động Trade Souls"] = "Tự Động Đổi Linh Hồn",
+    ["Trades Souls for a Spectral mutation at the Soul Keeper whenever you have enough."] = "Tự động đổi Linh Hồn lấy Đột Biến Quang Phổ tại NPC Giữ Hồn mỗi khi đủ số lượng.",
+    ["Trades Souls for a Quang Phổ đột biến at the Soul Keeper whenever you have enough."] = "Tự động đổi Linh Hồn lấy Đột Biến Quang Phổ tại NPC Giữ Hồn mỗi khi đủ số lượng.",
+
+    -- Các Sự Kiện Khác trong Tab Event (Halloween Dimension, Ghost Dog, Manor, Pumpkin King, Hollow, Admin)
+    ["Admin Abuse Boost (BETA)"] = "Lạm Dụng Buff Admin (BETA)",
+    ["Phantom Express"] = "Chuyến Tàu Bóng Ma",
+    ["Tàu Bóng Ma"] = "Chuyến Tàu Bóng Ma",
+    ["Halloween Dimension"] = "Không Gian Halloween",
+    ["Ghost Dog Quest"] = "Nhiệm Vụ Chó Ma",
+    ["Abandoned Manor"] = "Dinh Thự Bỏ Hoang",
+    ["Pumpkin King"] = "Vua Bí Ngô",
+    ["The Hollow"] = "Vực Thẳm The Hollow",
+    ["Auto Enter Dimension"] = "Tự Vào Không Gian Halloween",
+    ["Automatically enters the Halloween Dimension when available."] = "Tự động dịch chuyển vào Không Gian Halloween khi mở cửa.",
+    ["Auto Steal Dimension Egg"] = "Tự Cướp Trứng Không Gian",
+    ["Auto Buy Dimension Egg"] = "Tự Mua Trứng Không Gian",
+    ["Auto Ghost Dog"] = "Tự Làm Nhiệm Vụ Chó Ma",
+    ["Auto Ghost Dog Quest"] = "Tự Làm Nhiệm Vụ Chó Ma",
+    ["Automatically completes the Ghost Dog quest."] = "Tự động hoàn thành nhiệm vụ Chó Ma.",
+    ["Auto Abandoned Manor"] = "Tự Cày Dinh Thự Bỏ Hoang",
+    ["Auto Pumpkin King"] = "Tự Đánh Vua Bí Ngô",
+    ["Auto Kill Pumpkin King"] = "Tự Đánh Vua Bí Ngô",
+    ["Auto The Hollow"] = "Tự Đua Sự Kiện The Hollow",
+    ["Auto Race Hollow"] = "Tự Đua Sự Kiện The Hollow",
+    ["Auto Pumpkin Moon"] = "Tự Cày Trăng Bí Ngô",
+    ["Auto Collect Candy Corn"] = "Tự Nhặt Kẹo Ngô",
+    ["Auto Farm Monsters"] = "Tự Động Đánh Quái Vật",
+    ["Auto Kill Monsters"] = "Tự Động Đánh Quái Vật",
+
     -- Tab Trang Chủ (Home / Inventory / Map)
     ["Player Stats"] = "Thống Kê Người Chơi",
     ["Inventory"] = "Túi Đồ",
@@ -62,13 +112,8 @@ local EXACT_VI = {
     ["World"] = "Thế Giới",
     ["Steal"] = "Cướp Ngay",
     ["Hatch"] = "Ấp Ngay",
-    ["Sell"] = "Bán",
-    ["Equip"] = "Trang Bị",
-    ["Unequip"] = "Tháo Ra",
-    ["Lock"] = "Khóa",
-    ["Unlock"] = "Mở Khóa",
 
-    -- Tab Trứng (Egg: Steal, Place, Hatch, Sell, Webhook)
+    -- Tab Trứng (Egg)
     ["Steal Egg"] = "Cướp Trứng",
     ["Filtering"] = "Bộ Lọc",
     ["Strict Filter"] = "Lọc Nghiêm Ngặt",
@@ -182,69 +227,7 @@ local EXACT_VI = {
     ["Test Egg Webhook"] = "Thử Báo Cáo Trứng",
     ["Simulate claiming an egg."] = "Giả lập tin nhắn nhặt được trứng để thử Webhook.",
 
-    -- Tab Sự Kiện (Event)
-    ["Admin Abuse Boost (BETA)"] = "Lạm Dụng Buff Admin (BETA)",
-    ["Phantom Express"] = "Chuyến Tàu Bóng Ma",
-    ["Halloween Dimension"] = "Không Gian Halloween",
-    ["Ghost Dog Quest"] = "Nhiệm Vụ Chó Ma",
-    ["Abandoned Manor"] = "Dinh Thự Bỏ Hoang",
-    ["Pumpkin King"] = "Vua Bí Ngô",
-    ["The Hollow"] = "Vực Thẳm The Hollow",
-    ["Cursed Island Wars"] = "Đại Chiến Đảo Nguyền Rủa",
-    ["Pumpkin Moon"] = "Sự Kiện Trăng Bí Ngô",
-
-    -- Các Tab Chưa Chụp: Pet, Features, Activities, Barn, Others, Config
-    ["Auto Equip Best"] = "Tự Trang Bị Pet Mạnh Nhất",
-    ["Equip Best Pets"] = "Trang Bị Pet Mạnh Nhất",
-    ["Auto Sell Pets"] = "Tự Động Bán Thú Cưng",
-    ["Sell Pets"] = "Bán Thú Cưng",
-    ["Fuse Pets"] = "Dung Hợp Thú Cưng",
-    ["Auto Fuse"] = "Tự Động Dung Hợp",
-    ["Mutate Egg"] = "Đột Biến Trứng",
-    ["Auto Mutate"] = "Tự Động Đột Biến",
-    ["Auto Lock"] = "Tự Động Khóa Bảo Vệ",
-    ["Auto Favorite"] = "Tự Động Yêu Thích",
-    ["Pet Inventory Value"] = "Hiện Giá Trị Pet Trong Túi",
-    ["Walk Speed"] = "Tốc Độ Chạy Bộ",
-    ["Jump Power"] = "Lực Nhảy Cao",
-    ["Infinite Jump"] = "Nhảy Vô Hạn",
-    ["No Clip"] = "Đi Xuyên Tường (NoClip)",
-    ["Noclip"] = "Đi Xuyên Tường (NoClip)",
-    ["Anti AFK"] = "Chống Treo Máy (Anti-AFK)",
-    ["Anti Ragdoll"] = "Chống Văng Ngã",
-    ["Ignore Traps"] = "Vô Hiệu Hóa Bẫy",
-    ["God Mode"] = "Bất Tử (God Mode)",
-    ["Invisible"] = "Tàng Hình",
-    ["Instant Prompts"] = "Nhấn Giữ Tức Thì",
-    ["Hit Aura"] = "Vòng Đánh Tự Động (Hit Aura)",
-    ["Auto Hit"] = "Tự Động Đánh Người",
-    ["Skip Friends"] = "Bỏ Qua Bạn Bè",
-    ["Auto Fishing"] = "Tự Động Câu Cá",
-    ["Auto Treadmill"] = "Tự Chạy Máy Tập",
-    ["Auto Upgrade Treadmill"] = "Tự Nâng Cấp Máy Tập",
-    ["Auto Upgrade Base"] = "Tự Nâng Cấp Căn Cứ",
-    ["Auto Upgrade Barn"] = "Tự Nâng Cấp Chuồng Trại",
-    ["Auto Claim Offline Cash"] = "Tự Nhận Tiền Offline",
-    ["Auto Buy Trails"] = "Tự Mua Vệt Sáng",
-    ["Auto Catch Star"] = "Tự Bắt Sao Băng",
-    ["Auto Catch Butterfly"] = "Tự Bắt Bướm",
-    ["Auto Race"] = "Tự Động Đua Xe",
-    ["Low Graphics"] = "Đồ Họa Thấp (Tăng FPS)",
-    ["FPS Boost"] = "Tối Ưu Tăng FPS",
-    ["Disable 3D Render"] = "Tắt Dựng Hình 3D (Treo Máy)",
-    ["Hide Pets"] = "Ẩn Thú Cưng",
-    ["Hide Eggs"] = "Ẩn Trứng",
-    ["Server Hop"] = "Đổi Máy Chủ",
-    ["Rejoin"] = "Vào Lại Phòng",
-    ["Rejoin Server"] = "Vào Lại Máy Chủ",
-    ["Copy JobId"] = "Chép Mã Phòng (JobId)",
-    ["Save Config"] = "Lưu Cấu Hình",
-    ["Load Config"] = "Nạp Cấu Hình",
-    ["Delete Config"] = "Xóa Cấu Hình",
-    ["Create Config"] = "Tạo Cấu Hình",
-    ["Auto Load Config"] = "Tự Nạp Cấu Hình",
-
-    -- Độ hiếm & Đột biến & Khu vực
+    -- Độ hiếm & Đột biến
     ["Common"] = "Phổ Thông",
     ["Uncommon"] = "Thường",
     ["Rare"] = "Hiếm",
@@ -262,13 +245,7 @@ local EXACT_VI = {
     ["Nitro"] = "Nitro",
     ["Enchanted"] = "Phù Phép",
     ["Fractured"] = "Rạn Nứt",
-    ["Scrambled"] = "Hỗn Loạn",
-    ["Abyss Ocean"] = "Đáy Đại Dương",
-    ["Prehistoric"] = "Tiền Sử",
-    ["Cherry Blossom"] = "Hoa Anh Đào",
-    ["Light Dark"] = "Sáng Tối",
-    ["Titan Temple"] = "Đền Titan",
-    ["Enchanted Forest"] = "Rừng Phù Phép"
+    ["Scrambled"] = "Hỗn Loạn"
 }
 
 local LOWER_VI = {}
@@ -277,10 +254,18 @@ for k, v in pairs(EXACT_VI) do
 end
 
 -- ============================================================================
--- TẦNG 3 & 4: MẪU NGỮ PHÁP ĐỘNG (DỊCH CÁC CÂU CHƯA TỪNG THẤY THEO NGỮ PHÁP)
+-- 2. BỘ VIẾT LẠI CÂU TỰ NHIÊN (SỬA TRIỆT ĐỂ CÂU NỬA ANH NỬA VIỆT Ở MỌI TAB)
 -- ============================================================================
-local GRAMMAR_RULES = {
-    -- Các mẫu câu mô tả và tiêu đề động
+local NATURAL_SENTENCE_PATTERNS = {
+    -- Các mẫu câu mô tả thường gặp trong Codium Hub
+    { pat = "^[Gg]hosts to vacuum%..*$", rep = "Chọn loại ma cần hút. Không chọn = hút tất cả (ưu tiên nhiều Linh Hồn nhất trước)." },
+    { pat = "^[Bb]oards the .- when it comes and vacuums ghosts.*$", rep = "Tự động lên Tàu Bóng Ma khi tàu đến và hút ma tại Thị Trấn Lãng Quên." },
+    { pat = "^.*Ghouler first when he shows up.*$", rep = "Ưu tiên hút trùm Ghouler ngay khi hắn xuất hiện." },
+    { pat = "^[Tt]rades Souls for a .- at the Soul Keeper whenever you have enough.*$", rep = "Tự động đổi Linh Hồn lấy Đột Biến Quang Phổ tại NPC Giữ Hồn mỗi khi đủ số lượng." },
+    { pat = "^[Ss]ession:%s*(%d+)%s*|%s*[Tt]otal:%s*(%d+)$", rep = "Phiên này: %1 | Tổng cộng: %2" },
+    { pat = "^[Ss]ouls:%s*(%d+)%s*|%s*[Pp]rice:%s*(%d+)%s*|%s*[Ss]uccess:%s*([%d%%]+)$", rep = "Linh Hồn: %1 | Giá đổi: %2 | Tỷ lệ: %3" },
+    { pat = "^[Ss]pectral%s+[Mm]utation:%s*(%d+)$", rep = "Đột biến Quang Phổ: %1" },
+    { pat = "^Quang Phổ đột biến:%s*(%d+)$", rep = "Đột biến Quang Phổ: %1" },
     { pat = "^e%.g%.%s*(.+)$", rep = "VD: %1" },
     { pat = "^v(%d+%.%d+.*)$", rep = "Phiên bản %1" },
     { pat = "^World%s+(%d+)$", rep = "Thế Giới %1" },
@@ -288,28 +273,36 @@ local GRAMMAR_RULES = {
     { pat = "^Pet%s+(%d+)$", rep = "Thú Cưng %1" },
     { pat = "^Egg%s+(%d+)$", rep = "Trứng %1" },
     { pat = "^Placed%s+(%d+)$", rep = "Đã Đặt %1" },
+    { pat = "^[PP]rioritize%s+(.+)$", rep = "Ưu Tiên %1" },
     { pat = "^[Ss]elect%s+(.+)$", rep = "Chọn %1" },
-    { pat = "^[Aa]uto%s+(.+)$", rep = "Tự động %1" },
+    { pat = "^[Aa]uto%s+(.+)$", rep = "Tự Động %1" },
     { pat = "^[Oo]pen%s+(.+)$", rep = "Mở %1" },
     { pat = "^[Ee]nable%s+(.+)$", rep = "Bật %1" },
-    { pat = "^[Dd]isable%s+(.+)$", rep = "Tắt %1" },
-    { pat = "^[Ss]how%s+(.+)$", rep = "Hiển thị %1" },
-    { pat = "^[Hh]ide%s+(.+)$", rep = "Ẩn %1" },
-    { pat = "^[Cc]laim%s+(.+)$", rep = "Nhận %1" },
-    { pat = "^[Uu]pgrade%s+(.+)$", rep = "Nâng cấp %1" },
-    { pat = "^[Bb]uy%s+(.+)$", rep = "Mua %1" },
-    { pat = "^[Cc]raft%s+(.+)$", rep = "Chế tạo %1" },
-    { pat = "^[Tt]eleport%s+to%s+(.+)$", rep = "Dịch chuyển tới %1" },
-    { pat = "^[Ww]aiting%s+for%s+(.+)$", rep = "Đang chờ %1" },
-    { pat = "^[Nn]ever%s+(.+)$", rep = "Không bao giờ %1" },
-    { pat = "^[Oo]nly%s+(.+)$", rep = "Chỉ %1" },
-    { pat = "^[Pp]revent%s+(.+)$", rep = "Ngăn không %1" }
+    { pat = "^[Dd]isable%s+(.+)$", rep = "Tắt %1" }
 }
 
--- ============================================================================
--- TẦNG 5: CỤM TỪ & TỪ VỰNG FALLBACK (QUÉT DỊCH TỰ ĐỘNG 100% CÁC TAB CHƯA CHỤP)
--- ============================================================================
 local PHRASES_VI = {
+    {"steal an egg", "Steal an Egg (Cướp Trứng)"},
+    {"cướp an trứng", "Steal an Egg (Cướp Trứng)"},
+    {"slow mode", "Chế độ chậm"},
+    {"slow chế độ", "Chế độ chậm"},
+    {"none selected", "Không chọn"},
+    {"không có đã chọn", "Không chọn"},
+    {"most souls first", "ưu tiên nhiều Linh Hồn nhất trước"},
+    {"forgotten town", "Thị Trấn Lãng Quên"},
+    {"soul keeper", "NPC Giữ Hồn"},
+    {"when it comes", "khi tàu đến"},
+    {"when he shows up", "khi hắn xuất hiện"},
+    {"shows up", "xuất hiện"},
+    {"whenever you have enough", "mỗi khi bạn có đủ"},
+    {"have enough", "đủ số lượng"},
+    {"spectral mutation", "Đột Biến Quang Phổ"},
+    {"quang phổ đột biến", "Đột Biến Quang Phổ"},
+    {"vacuum ghosts", "hút bóng ma"},
+    {"vacuums ghosts", "hút bóng ma"},
+    {"ghosts to vacuum", "bóng ma cần hút"},
+    {"trade souls", "Đổi Linh Hồn"},
+    {"trades souls", "Đổi Linh Hồn"},
     {"admin abuse boost", "Buff Quyền Admin"},
     {"phantom express", "Tàu Bóng Ma"},
     {"halloween dimension", "Không Gian Halloween"},
@@ -355,7 +348,26 @@ local PHRASES_VI = {
     {"by hand", "thủ công"}
 }
 
+-- Bảng từ vựng đầy đủ (gồm cả giới từ, đại từ, liên từ để không còn sót từ tiếng Anh lẻ trong câu note)
 local WORDS_VI = {
+    -- Động từ & Danh từ sự kiện mới
+    vacuum = "hút", vacuums = "hút", vacuuming = "đang hút",
+    board = "lên", boards = "lên", boarding = "đang lên",
+    prioritize = "ưu tiên", prioritizes = "ưu tiên",
+    trade = "đổi", trades = "đổi", trading = "đang đổi",
+    soul = "Linh Hồn", souls = "Linh Hồn",
+    price = "giá", success = "tỷ lệ", session = "phiên này", total = "tổng cộng",
+    first = "trước", enough = "đủ", whenever = "mỗi khi",
+    when = "khi", while = "trong lúc", where = "nơi",
+    it = "nó", he = "hắn", they = "chúng", you = "bạn", your = "của bạn",
+    comes = "đến", come = "đến", goes = "đi", go = "đi",
+    up = "lên", down = "xuống", into = "vào", out = "ra",
+    for_word = "để", with = "với", without = "không có",
+    and_word = "và", or_word = "hoặc", not_word = "không",
+    most = "nhiều nhất", least = "ít nhất", more = "thêm", less = "ít hơn",
+    slow = "chậm", fast = "nhanh",
+
+    -- Từ vựng chung toàn game
     auto = "tự động", steal = "cướp", steals = "cướp", stealing = "cướp", stolen = "đã cướp",
     place = "đặt", places = "đặt", placed = "đã đặt", placing = "đặt",
     hatch = "ấp", hatches = "ấp", hatched = "đã ấp", hatching = "ấp",
@@ -385,12 +397,12 @@ local WORDS_VI = {
     event = "sự kiện", events = "sự kiện", activities = "hoạt động", features = "tính năng",
     others = "khác", media = "mạng xã hội", chat = "trò chuyện",
     fishing = "câu cá", fish = "cá", treadmill = "máy tập", trail = "vệt sáng", trails = "vệt sáng",
-    monster = "quái vật", monsters = "quái vật", boss = "trùm", ghost = "bóng ma", pumpkin = "bí ngô",
-    butterfly = "bướm", star = "sao băng", race = "đua", racing = "đua",
+    monster = "quái vật", monsters = "quái vật", boss = "trùm", ghost = "bóng ma", ghosts = "bóng ma",
+    pumpkin = "bí ngô", butterfly = "bướm", star = "sao băng", race = "đua", racing = "đua",
     send = "gửi", notification = "thông báo", notifications = "thông báo",
     interval = "chu kỳ", test = "thử", simulate = "giả lập", immediately = "ngay lập tức",
     periodically = "định kỳ", automatically = "tự động",
-    only = "chỉ", never = "không bao giờ", always = "luôn", when = "khi",
+    only = "chỉ", never = "không bao giờ", always = "luôn",
     every = "mọi", all = "tất cả", none = "không có", empty = "trống", full = "đầy",
     selected = "đã chọn", unlocked = "đã mở khóa", owned = "đã sở hữu",
     common = "Phổ Thông", uncommon = "Thường", rare = "Hiếm", epic = "Sử Thi",
@@ -399,12 +411,15 @@ local WORDS_VI = {
     silver = "Bạc", golden = "Vàng", rainbow = "Cầu Vồng", spectral = "Quang Phổ"
 }
 
+local STOP_WORDS_REMOVE = {
+    ["the"] = true, ["a"] = true, ["an"] = true
+}
+
 local function applyPhrasesAndWords(str)
     local out = str
     local lowerOut = out:lower()
     local changed = false
 
-    -- 1. Thay thế cụm từ dài trước
     for i = 1, #PHRASES_VI do
         local p = PHRASES_VI[i]
         local sIdx, eIdx = lowerOut:find(p[1], 1, true)
@@ -415,9 +430,17 @@ local function applyPhrasesAndWords(str)
         end
     end
 
-    -- 2. Thay thế từng từ đơn lẻ
     local wordReplaced = out:gsub("([%a']+)", function(w)
         local lw = w:lower()
+        if STOP_WORDS_REMOVE[lw] then
+            changed = true
+            return ""
+        end
+        if lw == "and" then changed = true; return "và" end
+        if lw == "or" then changed = true; return "hoặc" end
+        if lw == "for" then changed = true; return "đổi lấy" end
+        if lw == "to" then changed = true; return "để" end
+        if lw == "in" or lw == "at" then changed = true; return "tại" end
         local rep = WORDS_VI[lw] or LOWER_VI[lw]
         if rep then
             changed = true
@@ -426,14 +449,21 @@ local function applyPhrasesAndWords(str)
         return w
     end)
 
+    -- Dọn khoảng trắng thừa sau khi lược bỏ mạo từ (the, a, an)
+    wordReplaced = (wordReplaced:gsub("%s+", " "):match("^%s*(.-)%s*$") or wordReplaced)
     return wordReplaced, changed
 end
 
--- Hàm dịch 1 dòng đơn lẻ (Bảo toàn RichText nếu có)
 local function translateSingleLine(line)
     if not line or line == "" then return line end
 
-    -- Xử lý riêng dòng thống kê "Player Stats" (Money: $3.9Qa Gems: 0 ...)
+    -- 1. CHE LINK DISCORD TRÊN ĐẦU MENU HOẶC TRONG NÚT
+    local lowerLine = line:lower()
+    if lowerLine:find("discord%.gg") or lowerLine:find("discord%.com/invite") then
+        return DISCORD_MASK_TEXT
+    end
+
+    -- 2. Xử lý các dòng thống kê có dấu "|" hoặc ":" (Player Stats & Souls Stats)
     if line:find("Money:", 1, true) or line:find("Pets:", 1, true) or line:find("Eggs:", 1, true) or line:find("Value:", 1, true) then
         return (line
             :gsub("Money:", "Tiền:")
@@ -446,20 +476,29 @@ local function translateSingleLine(line)
             :gsub("Gain:", "Thu Nhập:"))
     end
 
+    if line:find("Souls:", 1, true) or line:find("Price:", 1, true) or line:find("Session:", 1, true) or line:find("Quang Phổ đột biến:", 1, true) or line:find("Spectral Mutation:", 1, true) then
+        return (line
+            :gsub("Session:", "Phiên này:")
+            :gsub("Total:", "Tổng cộng:")
+            :gsub("Souls:", "Linh Hồn:")
+            :gsub("Price:", "Giá đổi:")
+            :gsub("Success:", "Tỷ lệ:")
+            :gsub("Spectral Mutation:", "Đột biến Quang Phổ:")
+            :gsub("Quang Phổ đột biến:", "Đột biến Quang Phổ:"))
+    end
+
     local clean = (line:match("^%s*(.-)%s*$") or line):gsub("%s+", " ")
     if clean == "" then return line end
 
-    -- Bỏ qua chuỗi thuần số/đơn vị tiền tệ/cân nặng ("1,001 kg", "$2.5B/s", "discord.gg/...")
-    if clean:match("^[%$%+%-%d%.%,%/%%skmbtqKMBTQsxhg%s]+$") or clean:find("discord.gg", 1, true) or clean:find("https://", 1, true) then
+    -- Bỏ qua con số thuần túy hoặc link webhook
+    if clean:match("^[%$%+%-%d%.%,%/%%skmbtqKMBTQsxhg%s]+$") or clean:find("https://", 1, true) then
         return line
     end
-
-    -- Bỏ qua dòng FPS của Codium góc trái trên ("CODIUM | 28 fps | 99 ms | 22:49")
     if clean:find("CODIUM |", 1, true) then
         return line
     end
 
-    -- Khớp chính xác Tầng 2
+    -- 3. Khớp chính xác Tầng 1
     if EXACT_VI[clean] then return EXACT_VI[clean] end
     local lowerClean = clean:lower()
     if LOWER_VI[lowerClean] then
@@ -470,7 +509,7 @@ local function translateSingleLine(line)
         return r
     end
 
-    -- Xử lý danh sách đột biến cách nhau bởi dấu phẩy (VD: "Silver, Spectral")
+    -- 4. Khớp danh sách đột biến cách nhau bằng dấu phẩy ("Silver, Spectral")
     if clean:find(",", 1, true) and not clean:find("%.") and #clean < 40 then
         local parts = {}
         local allMatched = true
@@ -489,11 +528,11 @@ local function translateSingleLine(line)
         end
     end
 
-    -- Khớp mẫu ngữ pháp Tầng 3 & 4
+    -- 5. Khớp mẫu câu tự nhiên (Natural Sentence Rewriter)
     local working = clean
     local grammarHit = false
-    for i = 1, #GRAMMAR_RULES do
-        local rule = GRAMMAR_RULES[i]
+    for i = 1, #NATURAL_SENTENCE_PATTERNS do
+        local rule = NATURAL_SENTENCE_PATTERNS[i]
         if working:find(rule.pat) then
             working = working:gsub(rule.pat, rule.rep)
             grammarHit = true
@@ -501,7 +540,7 @@ local function translateSingleLine(line)
         end
     end
 
-    -- Quét cụm từ và từ vựng Tầng 5
+    -- 6. Dịch cụm từ & từng từ vựng còn sót lại
     local finalStr, wordHit = applyPhrasesAndWords(working)
     if grammarHit or wordHit then
         return finalStr
@@ -510,7 +549,6 @@ local function translateSingleLine(line)
     return line
 end
 
--- Hàm dịch tổng hợp (Hỗ trợ cả chuỗi nhiều dòng `\n` và Cache O(1))
 local function translateFullText(raw)
     if type(raw) ~= "string" or raw == "" then return raw end
     if FastCache[raw] then return FastCache[raw] end
@@ -530,9 +568,16 @@ local function translateFullText(raw)
     end
 end
 
--- ============================================================================
--- CƠ CHẾ GẮN HOOK SỰ KIỆN ZERO-LAG (KHÔNG DÙNG VÒNG LẶP QUÉT ĐỊNH KỲ)
--- ============================================================================
+-- Kiểm tra xem trong câu đã dịch còn sót từ tiếng Anh phổ biến nào chưa dịch không
+local function stillHasUntranslatedEnglish(s)
+    local ls = s:lower()
+    if ls:find("discord%.gg") or ls:find("cướp an trứng") or ls:find("slow chế độ") then return true end
+    if ls:find("ghosts") or ls:find("vacuum") or ls:find("souls") or ls:find("boards") or ls:find("whenever") or ls:find("session:") or ls:find("price:") then
+        return true
+    end
+    return false
+end
+
 local function applyTranslationToInstance(inst)
     if not isAlive() or not inst or not inst.Parent then return end
     if inst:GetAttribute("__ViBusy") then return end
@@ -541,19 +586,28 @@ local function applyTranslationToInstance(inst)
         local cur = inst.Text
         if not cur or cur == "" then return end
 
-        -- Nếu là bảng Player Stats nhiều dòng thì luôn dịch từng dòng kể cả khi đã có chữ Việt
-        local isMultiLineStats = cur:find("Money:", 1, true) or cur:find("Equipped:", 1, true) or cur:find("Gain:", 1, true)
-        if not isMultiLineStats and hasVietnameseChars(cur) then return end
+        -- Luôn cho phép dịch lại nếu phát hiện link Discord hoặc câu bị dịch dở từ phiên bản trước
+        local origSaved = inst:GetAttribute("__CodiumOrigText")
+        if not origSaved then
+            origSaved = cur
+            inst:SetAttribute("__CodiumOrigText", origSaved)
+        elseif cur ~= inst:GetAttribute("__CodiumLastVi") and not stillHasUntranslatedEnglish(cur) then
+            origSaved = cur
+            inst:SetAttribute("__CodiumOrigText", origSaved)
+        end
 
-        local translated = translateFullText(cur)
+        local sourceToTranslate = stillHasUntranslatedEnglish(cur) and cur or origSaved
+        local translated = translateFullText(sourceToTranslate)
+
         if translated and translated ~= cur then
             inst:SetAttribute("__ViBusy", true)
+            inst:SetAttribute("__CodiumLastVi", translated)
             pcall(function() inst.Text = translated end)
             inst:SetAttribute("__ViBusy", false)
         end
     elseif inst:IsA("TextBox") then
         local ph = inst.PlaceholderText
-        if ph and ph ~= "" and not hasVietnameseChars(ph) then
+        if ph and ph ~= "" then
             local translatedPh = translateFullText(ph)
             if translatedPh and translatedPh ~= ph then
                 inst:SetAttribute("__ViBusy", true)
@@ -564,7 +618,7 @@ local function applyTranslationToInstance(inst)
     end
 end
 
--- Hàng đợi xử lý chia nhỏ (Micro-Batch Queue) chống giật lag khi mở tab có nhiều Pet/Egg
+-- Hàng đợi Micro-Batch chống giật lag
 local pendingQueue = {}
 local queueRunning = false
 
@@ -591,11 +645,12 @@ end
 
 local function hookTextElement(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
-    if inst:GetAttribute("__CodiumViHooked") == SID then return end
-    inst:SetAttribute("__CodiumViHooked", SID)
-
+    -- Chạy lại ngay cả trên các nút đã hook ở phiên trước để sửa sạch các câu bị dịch lủng củng
     table.insert(pendingQueue, inst)
     processQueue()
+
+    if inst:GetAttribute("__CodiumViHooked") == SID then return end
+    inst:SetAttribute("__CodiumViHooked", SID)
 
     if inst:IsA("TextBox") then
         inst:GetPropertyChangedSignal("PlaceholderText"):Connect(function()
@@ -622,10 +677,8 @@ local IGNORED_GUIS = {
 }
 
 local function hookContainerRoot(root)
-    if not root or root:GetAttribute("__RootViHooked") == SID then return end
-    root:SetAttribute("__RootViHooked", SID)
+    if not root then return end
 
-    -- Quét 1 lần duy nhất các phần tử đang có sẵn qua hàng đợi chia nhỏ
     for _, gui in ipairs(root:GetChildren()) do
         if not IGNORED_GUIS[gui.Name] then
             for _, desc in ipairs(gui:GetDescendants()) do
@@ -636,7 +689,9 @@ local function hookContainerRoot(root)
         end
     end
 
-    -- Bắt sự kiện phần tử mới sinh ra (Zero-Lag, 0% CPU khi đứng yên)
+    if root:GetAttribute("__RootViHooked") == SID then return end
+    root:SetAttribute("__RootViHooked", SID)
+
     root.DescendantAdded:Connect(function(desc)
         if not isAlive() then return end
         if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
@@ -648,7 +703,6 @@ local function hookContainerRoot(root)
     end)
 end
 
--- Khởi tạo trên toàn bộ không gian chứa UI của Executor (gethui, CoreGui, PlayerGui)
 if gethui then
     pcall(function() hookContainerRoot(gethui()) end)
 end
