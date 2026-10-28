@@ -1,6 +1,5 @@
--- Codium Hub | Discord Link Hider + 100% Natural Vietnamese Sentence Engine (Zero-Lag)
+-- Codium Hub | Guaranteed Loader Fix + Discord Link Masker + Full Vietnamese Engine
 local CODIUM_URL = "https://getcodium.xyz/loader.luau"
--- Chữ thay thế vào chỗ link Discord trên đầu menu (Đặt = "" nếu muốn ẩn trắng hoàn toàn):
 local DISCORD_MASK_TEXT = "★ CODIUM VIỆT HÓA VIP ★"
 
 local env = (getgenv and getgenv()) or _G
@@ -10,31 +9,75 @@ local function isAlive()
     return env.__CodiumViSession == SID
 end
 
-if not env.__CodiumLoadedOnce then
-    env.__CodiumLoadedOnce = true
-    task.spawn(function()
-        pcall(function()
-            loadstring(game:HttpGet(CODIUM_URL))()
-        end)
-    end)
-end
-
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
 local LocalPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
 
+local function getScanRoots()
+    local roots = {}
+    if gethui then
+        pcall(function()
+            local h = gethui()
+            if h then table.insert(roots, h) end
+        end)
+    end
+    table.insert(roots, CoreGui)
+    local pg = LocalPlayer and LocalPlayer:FindFirstChildOfClass("PlayerGui")
+    if pg then table.insert(roots, pg) end
+    return roots
+end
+
+-- Kiểm tra xem cửa sổ Codium đã thực sự hiện trên màn hình chưa
+local function isCodiumWindowOpen()
+    for _, root in ipairs(getScanRoots()) do
+        for _, d in ipairs(root:GetDescendants()) do
+            if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Visible then
+                local t = d.Text or ""
+                if t == "CODIUM" or t:find("CODIUM |", 1, true) then
+                    return true
+                end
+            end
+        end
+    end
+    return false
+end
+
+-- 1. KHỞI CHẠY CODIUM HUB TRỰC TIẾP (LUÔN CHẠY NẾU CHƯA CÓ MENU TRÊN MÀN HÌNH)
+if not isCodiumWindowOpen() then
+    task.spawn(function()
+        local ok, src = pcall(function()
+            return game:HttpGet(CODIUM_URL)
+        end)
+        if not ok or type(src) ~= "string" or #src < 10 then
+            local req = (syn and syn.request) or (http and http.request) or http_request or request or (fluxus and fluxus.request)
+            if req then
+                local rOk, rRes = pcall(req, { Url = CODIUM_URL, Method = "GET" })
+                if rOk and rRes and type(rRes.Body) == "string" then
+                    src = rRes.Body
+                end
+            end
+        end
+        if type(src) == "string" and #src > 10 then
+            local fn = loadstring(src)
+            if type(fn) == "function" then
+                pcall(fn)
+            end
+        end
+    end)
+end
+
+-- Bộ nhớ WeakTable nội bộ (Không dùng SetAttribute lên CoreGui/gethui để tránh lỗi Executor)
 local FastCache = {}
+local HookedElements = setmetatable({}, { __mode = "k" })
+local BusyElements = setmetatable({}, { __mode = "k" })
+local OrigTextMap = setmetatable({}, { __mode = "k" })
+local LastViMap = setmetatable({}, { __mode = "k" })
+local HookedRoots = setmetatable({}, { __mode = "k" })
 
 -- ============================================================================
--- 1. TỪ ĐIỂN CÂU & TIÊU ĐỀ CHUẨN XÁC 100% (BAO GỒM ẢNH 7414.JPG & CÁC TAB KHÁC)
+-- 2. TỪ ĐIỂN CÂU & TIÊU ĐỀ CHUẨN XÁC 100%
 -- ============================================================================
 local EXACT_VI = {
-    -- Tiêu đề Game & Nút màn hình
-    ["Steal an Egg"] = "Steal an Egg (Cướp Trứng)",
-    ["cướp an trứng"] = "Steal an Egg (Cướp Trứng)",
-    ["Slow Mode"] = "Chế độ chậm",
-    ["Slow chế độ"] = "Chế độ chậm",
-
     -- Sidebar & Cửa sổ chung
     ["Media"] = "Mạng Xã Hội",
     ["Chat"] = "Trò Chuyện",
@@ -54,6 +97,8 @@ local EXACT_VI = {
     ["Anime"] = "Chế độ Anime",
     ["None"] = "Không có",
     ["All"] = "Tất cả",
+    ["Slow Mode"] = "Chế độ chậm",
+    ["Slow chế độ"] = "Chế độ chậm",
 
     -- Tab Sự Kiện: Tàu Bóng Ma (Phantom Express - Ảnh 7414.jpg)
     ["Select Ghost"] = "Chọn Bóng Ma",
@@ -77,7 +122,7 @@ local EXACT_VI = {
     ["Trades Souls for a Spectral mutation at the Soul Keeper whenever you have enough."] = "Tự động đổi Linh Hồn lấy Đột Biến Quang Phổ tại NPC Giữ Hồn mỗi khi đủ số lượng.",
     ["Trades Souls for a Quang Phổ đột biến at the Soul Keeper whenever you have enough."] = "Tự động đổi Linh Hồn lấy Đột Biến Quang Phổ tại NPC Giữ Hồn mỗi khi đủ số lượng.",
 
-    -- Các Sự Kiện Khác trong Tab Event (Halloween Dimension, Ghost Dog, Manor, Pumpkin King, Hollow, Admin)
+    -- Các Sự Kiện Khác trong Tab Event
     ["Admin Abuse Boost (BETA)"] = "Lạm Dụng Buff Admin (BETA)",
     ["Phantom Express"] = "Chuyến Tàu Bóng Ma",
     ["Tàu Bóng Ma"] = "Chuyến Tàu Bóng Ma",
@@ -253,11 +298,7 @@ for k, v in pairs(EXACT_VI) do
     LOWER_VI[k:lower()] = v
 end
 
--- ============================================================================
--- 2. BỘ VIẾT LẠI CÂU TỰ NHIÊN (SỬA TRIỆT ĐỂ CÂU NỬA ANH NỬA VIỆT Ở MỌI TAB)
--- ============================================================================
 local NATURAL_SENTENCE_PATTERNS = {
-    -- Các mẫu câu mô tả thường gặp trong Codium Hub
     { pat = "^[Gg]hosts to vacuum%..*$", rep = "Chọn loại ma cần hút. Không chọn = hút tất cả (ưu tiên nhiều Linh Hồn nhất trước)." },
     { pat = "^[Bb]oards the .- when it comes and vacuums ghosts.*$", rep = "Tự động lên Tàu Bóng Ma khi tàu đến và hút ma tại Thị Trấn Lãng Quên." },
     { pat = "^.*Ghouler first when he shows up.*$", rep = "Ưu tiên hút trùm Ghouler ngay khi hắn xuất hiện." },
@@ -282,8 +323,7 @@ local NATURAL_SENTENCE_PATTERNS = {
 }
 
 local PHRASES_VI = {
-    {"steal an egg", "Steal an Egg (Cướp Trứng)"},
-    {"cướp an trứng", "Steal an Egg (Cướp Trứng)"},
+    {"cướp an trứng", "Steal an Egg"},
     {"slow mode", "Chế độ chậm"},
     {"slow chế độ", "Chế độ chậm"},
     {"none selected", "Không chọn"},
@@ -348,9 +388,7 @@ local PHRASES_VI = {
     {"by hand", "thủ công"}
 }
 
--- Bảng từ vựng đầy đủ (gồm cả giới từ, đại từ, liên từ để không còn sót từ tiếng Anh lẻ trong câu note)
 local WORDS_VI = {
-    -- Động từ & Danh từ sự kiện mới
     vacuum = "hút", vacuums = "hút", vacuuming = "đang hút",
     board = "lên", boards = "lên", boarding = "đang lên",
     prioritize = "ưu tiên", prioritizes = "ưu tiên",
@@ -362,12 +400,9 @@ local WORDS_VI = {
     it = "nó", he = "hắn", they = "chúng", you = "bạn", your = "của bạn",
     comes = "đến", come = "đến", goes = "đi", go = "đi",
     up = "lên", down = "xuống", into = "vào", out = "ra",
-    for_word = "để", with = "với", without = "không có",
-    and_word = "và", or_word = "hoặc", not_word = "không",
+    with = "với", without = "không có",
     most = "nhiều nhất", least = "ít nhất", more = "thêm", less = "ít hơn",
     slow = "chậm", fast = "nhanh",
-
-    -- Từ vựng chung toàn game
     auto = "tự động", steal = "cướp", steals = "cướp", stealing = "cướp", stolen = "đã cướp",
     place = "đặt", places = "đặt", placed = "đã đặt", placing = "đặt",
     hatch = "ấp", hatches = "ấp", hatched = "đã ấp", hatching = "ấp",
@@ -449,7 +484,6 @@ local function applyPhrasesAndWords(str)
         return w
     end)
 
-    -- Dọn khoảng trắng thừa sau khi lược bỏ mạo từ (the, a, an)
     wordReplaced = (wordReplaced:gsub("%s+", " "):match("^%s*(.-)%s*$") or wordReplaced)
     return wordReplaced, changed
 end
@@ -457,13 +491,16 @@ end
 local function translateSingleLine(line)
     if not line or line == "" then return line end
 
-    -- 1. CHE LINK DISCORD TRÊN ĐẦU MENU HOẶC TRONG NÚT
     local lowerLine = line:lower()
     if lowerLine:find("discord%.gg") or lowerLine:find("discord%.com/invite") then
         return DISCORD_MASK_TEXT
     end
 
-    -- 2. Xử lý các dòng thống kê có dấu "|" hoặc ":" (Player Stats & Souls Stats)
+    -- Giữ nguyên tên game "Steal an Egg" không dịch chữ "Steal" thành "cướp an trứng"
+    if lowerLine == "steal an egg" or lowerLine == "cướp an trứng" then
+        return "Steal an Egg"
+    end
+
     if line:find("Money:", 1, true) or line:find("Pets:", 1, true) or line:find("Eggs:", 1, true) or line:find("Value:", 1, true) then
         return (line
             :gsub("Money:", "Tiền:")
@@ -490,15 +527,10 @@ local function translateSingleLine(line)
     local clean = (line:match("^%s*(.-)%s*$") or line):gsub("%s+", " ")
     if clean == "" then return line end
 
-    -- Bỏ qua con số thuần túy hoặc link webhook
-    if clean:match("^[%$%+%-%d%.%,%/%%skmbtqKMBTQsxhg%s]+$") or clean:find("https://", 1, true) then
-        return line
-    end
-    if clean:find("CODIUM |", 1, true) then
+    if clean:match("^[%$%+%-%d%.%,%/%%skmbtqKMBTQsxhg%s]+$") or clean:find("https://", 1, true) or clean:find("CODIUM |", 1, true) then
         return line
     end
 
-    -- 3. Khớp chính xác Tầng 1
     if EXACT_VI[clean] then return EXACT_VI[clean] end
     local lowerClean = clean:lower()
     if LOWER_VI[lowerClean] then
@@ -509,7 +541,6 @@ local function translateSingleLine(line)
         return r
     end
 
-    -- 4. Khớp danh sách đột biến cách nhau bằng dấu phẩy ("Silver, Spectral")
     if clean:find(",", 1, true) and not clean:find("%.") and #clean < 40 then
         local parts = {}
         local allMatched = true
@@ -528,7 +559,6 @@ local function translateSingleLine(line)
         end
     end
 
-    -- 5. Khớp mẫu câu tự nhiên (Natural Sentence Rewriter)
     local working = clean
     local grammarHit = false
     for i = 1, #NATURAL_SENTENCE_PATTERNS do
@@ -540,7 +570,6 @@ local function translateSingleLine(line)
         end
     end
 
-    -- 6. Dịch cụm từ & từng từ vựng còn sót lại
     local finalStr, wordHit = applyPhrasesAndWords(working)
     if grammarHit or wordHit then
         return finalStr
@@ -568,7 +597,6 @@ local function translateFullText(raw)
     end
 end
 
--- Kiểm tra xem trong câu đã dịch còn sót từ tiếng Anh phổ biến nào chưa dịch không
 local function stillHasUntranslatedEnglish(s)
     local ls = s:lower()
     if ls:find("discord%.gg") or ls:find("cướp an trứng") or ls:find("slow chế độ") then return true end
@@ -580,45 +608,43 @@ end
 
 local function applyTranslationToInstance(inst)
     if not isAlive() or not inst or not inst.Parent then return end
-    if inst:GetAttribute("__ViBusy") then return end
+    if BusyElements[inst] then return end
 
     if inst:IsA("TextLabel") or inst:IsA("TextButton") then
         local cur = inst.Text
         if not cur or cur == "" then return end
 
-        -- Luôn cho phép dịch lại nếu phát hiện link Discord hoặc câu bị dịch dở từ phiên bản trước
-        local origSaved = inst:GetAttribute("__CodiumOrigText")
+        local origSaved = OrigTextMap[inst]
         if not origSaved then
             origSaved = cur
-            inst:SetAttribute("__CodiumOrigText", origSaved)
-        elseif cur ~= inst:GetAttribute("__CodiumLastVi") and not stillHasUntranslatedEnglish(cur) then
+            OrigTextMap[inst] = origSaved
+        elseif cur ~= LastViMap[inst] and not stillHasUntranslatedEnglish(cur) then
             origSaved = cur
-            inst:SetAttribute("__CodiumOrigText", origSaved)
+            OrigTextMap[inst] = origSaved
         end
 
         local sourceToTranslate = stillHasUntranslatedEnglish(cur) and cur or origSaved
         local translated = translateFullText(sourceToTranslate)
 
         if translated and translated ~= cur then
-            inst:SetAttribute("__ViBusy", true)
-            inst:SetAttribute("__CodiumLastVi", translated)
+            BusyElements[inst] = true
+            LastViMap[inst] = translated
             pcall(function() inst.Text = translated end)
-            inst:SetAttribute("__ViBusy", false)
+            BusyElements[inst] = nil
         end
     elseif inst:IsA("TextBox") then
         local ph = inst.PlaceholderText
         if ph and ph ~= "" then
             local translatedPh = translateFullText(ph)
             if translatedPh and translatedPh ~= ph then
-                inst:SetAttribute("__ViBusy", true)
+                BusyElements[inst] = true
                 pcall(function() inst.PlaceholderText = translatedPh end)
-                inst:SetAttribute("__ViBusy", false)
+                BusyElements[inst] = nil
             end
         end
     end
 end
 
--- Hàng đợi Micro-Batch chống giật lag
 local pendingQueue = {}
 local queueRunning = false
 
@@ -645,22 +671,21 @@ end
 
 local function hookTextElement(inst)
     if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
-    -- Chạy lại ngay cả trên các nút đã hook ở phiên trước để sửa sạch các câu bị dịch lủng củng
     table.insert(pendingQueue, inst)
     processQueue()
 
-    if inst:GetAttribute("__CodiumViHooked") == SID then return end
-    inst:SetAttribute("__CodiumViHooked", SID)
+    if HookedElements[inst] == SID then return end
+    HookedElements[inst] = SID
 
     if inst:IsA("TextBox") then
         inst:GetPropertyChangedSignal("PlaceholderText"):Connect(function()
-            if isAlive() and not inst:GetAttribute("__ViBusy") then
+            if isAlive() and not BusyElements[inst] then
                 applyTranslationToInstance(inst)
             end
         end)
     else
         inst:GetPropertyChangedSignal("Text"):Connect(function()
-            if isAlive() and not inst:GetAttribute("__ViBusy") then
+            if isAlive() and not BusyElements[inst] then
                 applyTranslationToInstance(inst)
             end
         end)
@@ -689,25 +714,36 @@ local function hookContainerRoot(root)
         end
     end
 
-    if root:GetAttribute("__RootViHooked") == SID then return end
-    root:SetAttribute("__RootViHooked", SID)
+    if HookedRoots[root] == SID then return end
+    HookedRoots[root] = SID
 
     root.DescendantAdded:Connect(function(desc)
         if not isAlive() then return end
         if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
             local sg = desc:FindFirstAncestorOfClass("ScreenGui")
             if not (sg and IGNORED_GUIS[sg.Name]) then
-                task.defer(hookTextElement, desc)
+                -- Đợi 0.12s để Codium khởi tạo xong thuộc tính của nút rồi mới dịch
+                task.delay(0.12, function()
+                    if isAlive() and desc.Parent then
+                        hookTextElement(desc)
+                    end
+                end)
             end
         end
     end)
 end
 
-if gethui then
-    pcall(function() hookContainerRoot(gethui()) end)
-end
-pcall(function() hookContainerRoot(CoreGui) end)
-pcall(function()
-    local pg = LocalPlayer:FindFirstChildOfClass("PlayerGui")
-    if pg then hookContainerRoot(pg) end
+-- Đợi Codium khởi tạo xong rồi gắn bộ dịch + quét bù trong 6 giây đầu
+task.spawn(function()
+    task.wait(0.8)
+    for _, root in ipairs(getScanRoots()) do
+        pcall(function() hookContainerRoot(root) end)
+    end
+    for _ = 1, 4 do
+        task.wait(1.5)
+        if not isAlive() then break end
+        for _, root in ipairs(getScanRoots()) do
+            pcall(function() hookContainerRoot(root) end)
+        end
+    end
 end)
