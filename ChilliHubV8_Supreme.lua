@@ -1,5 +1,5 @@
 -- Chilli Hub V8 Supreme | Clean Multi-Line Edition (100% Luau Compatible, Zero Semicolons)
-local NEW_TITLE = "Chilli Hub V8 Supreme"
+local NEW_TITLE = "Chilli Hub V8"
 local LOGO_ID = "rbxassetid://74441610995894"
 local HEADER_BAR_IMG_ID = "rbxassetid://83726521558450"
 local STEAL_TAB_ICON_ID = "rbxassetid://91536384271341"
