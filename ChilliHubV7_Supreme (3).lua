@@ -1827,8 +1827,9 @@ local stStroke = statusLbl:FindFirstChildOfClass("UIStroke") or mk("UIStroke", {
 stStroke.Thickness = 1.15
 stStroke.Color = c3(8, 12, 22)
 stStroke.Transparency = 0.22
-local tg = statusLbl:FindFirstChild("TextRainbow") or mk("UIGradient", { Name = "TextRainbow", Color = RAINBOW }, statusLbl)
-tg.Color = RAINBOW
+local tg = statusLbl:FindFirstChild("TextRainbow")
+if tg then tg:Destroy() end
+statusLbl.TextColor3 = Color3.new(1, 1, 1)
 local exp = venyxGui:FindFirstChild("ChilliV5_ExpandedIsland")
 if statusLbl:GetAttribute("__IslandSession") == SID and exp then return end
 statusLbl:SetAttribute("__IslandSession", SID)
@@ -1848,9 +1849,9 @@ statusLbl.Active = true
 hint.Active = true
 pill.Position = State.IslandUserPos or u2(0.5, 0, 0, 6)
 if not pill:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, pill) end
-local ps = pill:FindFirstChild("IslandStroke") or mk("UIStroke", { Name = "IslandStroke", Thickness = 2.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Color3.new(1, 1, 1), Transparency = 0 }, pill)
-ps.Thickness = 2.5
-ps.Transparency = 0
+local ps = pill:FindFirstChild("IslandStroke") or mk("UIStroke", { Name = "IslandStroke", Thickness = 1.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = c3(55, 75, 125), Transparency = 0.2 }, pill)
+ps.Thickness = 1.2
+ps.Transparency = 0.2
 addGrad(ps:FindFirstChildOfClass("UIGradient") or mk("UIGradient", { Color = RAINBOW }, ps))
 exp = mk("Frame", { Name = "ChilliV5_ExpandedIsland", AnchorPoint = v2(0.5, 0), Position = pill.Position, Size = u2(0, 308, 0, 200), BackgroundColor3 = c3(10, 12, 20), BorderSizePixel = 0, Visible = false, Active = true, ClipsDescendants = true, ZIndex = 10000 }, venyxGui)
 if pill:GetAttribute("__LockedIslandVis") ~= SID then
@@ -2784,7 +2785,7 @@ end
 return (win ~= nil and gui:GetAttribute("__IslandLocked") == true)
 end
 
--- ĐỊNH VỊ CHÍNH XÁC NÚT JOIN MÀU VÀNG TRONG CHILL FINDER FREE + KHUNG & CHỮ CẦU VỒNG NỔI BẬT
+-- ĐỊNH VỊ CHÍNH XÁC NÚT JOIN MÀU VÀNG TRONG CHILL FINDER FREE (SIÊU GIẢM LAG, CHỮ BÌNH THƯỜNG, BỎ KHUNG CẦU VỒNG)
 local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 local GuiService = game:GetService("GuiService")
@@ -2793,16 +2794,12 @@ local function stripRichTags(s)
 if type(s) ~= "string" then return "" end
 return (s:gsub("<[^>]+>", ""):match("^%s*(.-)%s*$") or "")
 end
-local function styleChillFinderRainbowWindow(titleObj)
+local function cleanChillFinderAppearance(titleObj)
 if not titleObj or not titleObj.Parent then return end
 pcall(function()
+local oldGrad = titleObj:FindFirstChild("ChillFinderRainbowTxt")
+if oldGrad then oldGrad:Destroy() end
 titleObj.TextColor3 = Color3.new(1, 1, 1)
-local tGrad = titleObj:FindFirstChild("ChillFinderRainbowTxt") or mk("UIGradient", { Name = "ChillFinderRainbowTxt", Color = RAINBOW }, titleObj)
-tGrad.Color = RAINBOW
-addGrad(tGrad)
-local tStroke = titleObj:FindFirstChildOfClass("UIStroke") or mk("UIStroke", { Thickness = 1.6, Color = c3(8, 10, 18), Transparency = 0.05 }, titleObj)
-tStroke.Thickness = 1.6
-tStroke.Color = c3(8, 10, 18)
 local winFrame = nil
 local curr = titleObj.Parent
 for _ = 1, 6 do
@@ -2813,26 +2810,13 @@ end
 curr = curr.Parent
 end
 if winFrame then
+local oldRb = winFrame:FindFirstChild("ChillFinderRainbowBorder")
+if oldRb then oldRb:Destroy() end
 for _, st in ipairs(winFrame:GetChildren()) do
 if st:IsA("UIStroke") and st.Name ~= "ChillFinderRainbowBorder" then
-st.Transparency = 1
-st.Enabled = false
+st.Enabled = true
+st.Transparency = 0
 end
-end
-local rb = winFrame:FindFirstChild("ChillFinderRainbowBorder")
-if not rb then
-rb = mk("UIStroke", {
-Name = "ChillFinderRainbowBorder",
-Thickness = 3.0,
-Color = Color3.new(1, 1, 1),
-ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-Transparency = 0
-}, winFrame)
-addGrad(mk("UIGradient", { Color = RAINBOW }, rb))
-else
-rb.Thickness = 3.0
-rb.Transparency = 0
-rb.Enabled = true
 end
 end
 end)
@@ -2847,8 +2831,13 @@ if raw == "Chilli Finder" or raw == "Chill Finder Free" then
 d:SetAttribute("__ModifyingFinderText", true)
 d:SetAttribute("__IsTranslating", true)
 d:SetAttribute("OrigRawText", "Chill Finder Free")
-pcall(function() d.Text = "Chill Finder Free" end)
-styleChillFinderRainbowWindow(d)
+pcall(function()
+d.Text = "Chill Finder Free"
+d.TextColor3 = Color3.new(1, 1, 1)
+local g = d:FindFirstChild("ChillFinderRainbowTxt")
+if g then g:Destroy() end
+end)
+cleanChillFinderAppearance(d)
 d:SetAttribute("__IsTranslating", false)
 d:SetAttribute("__ModifyingFinderText", false)
 local sg = d:FindFirstAncestorOfClass("ScreenGui")
@@ -2894,9 +2883,9 @@ d:SetAttribute("__IsTranslating", true)
 d:SetAttribute("OrigRawText", "Top 5 recent eggs | Chill Finder Free")
 pcall(function()
 d.Text = "Top 5 recent eggs | Chill Finder Free"
-d.TextColor3 = Color3.new(1, 1, 1)
-local subGrad = d:FindFirstChild("ChillSubRainbow") or mk("UIGradient", { Name = "ChillSubRainbow", Color = ULTRA_TEXT_GRAD }, d)
-subGrad.Color = ULTRA_TEXT_GRAD
+d.TextColor3 = c3(225, 235, 250)
+local g = d:FindFirstChild("ChillSubRainbow")
+if g then g:Destroy() end
 end)
 d:SetAttribute("__IsTranslating", false)
 d:SetAttribute("__ModifyingFinderText", false)
@@ -3061,13 +3050,13 @@ local curr = obj
 for _ = 1, 4 do
 if not curr or not curr:IsA("GuiObject") then break end
 local c = curr.BackgroundColor3
-if curr.BackgroundTransparency < 0.92 and c.R > 0.65 and c.G > 0.42 and c.B < 0.45 then
+if curr.BackgroundTransparency < 0.92 and c.R > 0.65 and c.G > 0.40 and c.B < 0.45 then
 return true
 end
 for _, ch in ipairs(curr:GetChildren()) do
 if ch:IsA("UIGradient") then
 local kps = ch.Color.Keypoints
-if #kps > 0 and kps[1].Value.R > 0.65 and kps[1].Value.G > 0.40 and kps[1].Value.B < 0.45 then
+if #kps > 0 and kps[1].Value.R > 0.65 and kps[1].Value.G > 0.38 and kps[1].Value.B < 0.45 then
 return true
 end
 end
