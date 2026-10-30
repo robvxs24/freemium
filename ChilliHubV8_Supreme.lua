@@ -2162,6 +2162,8 @@ local sectionCards = {}
 local curBaseOpacity = (mainBg.BackgroundTransparency < 0.95) and mainBg.BackgroundTransparency or 0.15
 local function styleMenuInterior()
 if not win or not win.Parent then return end
+if State.MenuInteriorStyled then return end
+State.MenuInteriorStyled = true
 local cardT = 0.58
 for _, d in ipairs(win:GetDescendants()) do
 if not d:GetAttribute("__ChilliElemStyled") then
@@ -2754,26 +2756,29 @@ if win then
 State.ActiveMainWin = win
 pcall(cleanupStrayLogos, gui, win)
 
--- 1. NÂNG CẤP TIÊU ĐỀ: Tên Chilli Hub V8 to rõ ràng (17pt GothamBlack), cách xa nút menu và logo cũ
-local logo = win:FindFirstChild("ChilliHeaderLogoBadge")
+-- 1. NÂNG CẤP TIÊU ĐỀ: Tên Chilli Hub V8 to rõ (17pt GothamBlack), Logo Ớt đỏ chính thức và xóa sạch Vx cũ
+local hdrBar = titleLbl.Parent
+local targetHeader = (hdrBar and hdrBar:IsA("GuiObject") and hdrBar ~= win) and hdrBar or win
+
+local logo = targetHeader:FindFirstChild("ChilliHeaderLogoBadge")
 if not logo then
 logo = mk("ImageLabel", {
 Name = "ChilliHeaderLogoBadge",
 AnchorPoint = v2(0, 0.5),
-Position = u2(0, 36, 0, 16),
+Position = u2(0, 34, 0.5, 0),
 Size = u2(0, 22, 0, 22),
 BackgroundTransparency = 1,
 Image = "rbxassetid://135898822557579",
 ScaleType = Enum.ScaleType.Fit,
 ZIndex = 60
-}, win)
+}, targetHeader)
 end
-logo.Position = u2(0, 36, 0, 16)
+logo.Position = u2(0, 34, 0.5, 0)
 logo.Size = u2(0, 22, 0, 22)
 logo.Visible = true
 
 titleLbl.AnchorPoint = v2(0, 0.5)
-titleLbl.Position = u2(0, 64, 0, 16)
+titleLbl.Position = u2(0, 62, 0.5, 0)
 titleLbl.Font = Enum.Font.GothamBlack
 titleLbl.TextSize = 17
 titleLbl.TextColor3 = Color3.new(1, 1, 1)
@@ -2781,7 +2786,6 @@ titleLbl.AutomaticSize = Enum.AutomaticSize.X
 titleLbl.Text = NEW_TITLE
 titleLbl.ZIndex = 60
 
--- Gradient lửa rực rỡ sắc màu (Chilli Fiery Neon Gradient)
 local tGrad = titleLbl:FindFirstChild("ChilliTitleGrad") or mk("UIGradient", {
 Name = "ChilliTitleGrad",
 Rotation = 45,
@@ -2801,28 +2805,44 @@ Transparency = 0.15
 }, titleLbl)
 
 -- Xóa sổ triệt để logo gốc Vx / venyx và mọi phần tử thừa ở góc trên bên trái
-for _, d in ipairs(win:GetDescendants()) do
+for _, d in ipairs(targetHeader:GetChildren()) do
 if d ~= titleLbl and d ~= logo and not d:IsDescendantOf(logo) then
-local relY = d.AbsolutePosition.Y - win.AbsolutePosition.Y
 local relX = d.AbsolutePosition.X - win.AbsolutePosition.X
--- Mọi phần tử ở thanh tiêu đề bên trái (X < 190, Y < 36) không phải menu button
-if (relY <= 36 and relX >= 28 and relX < 190) then
+if relX >= 25 and relX < 192 then
+d.Visible = false
 if d:IsA("TextLabel") or d:IsA("TextButton") then
-local t = (d.Text or ""):lower():gsub("%s+", "")
-if t == "vx" or t == "venyx" then
 d.Text = ""
-d.Visible = false
 d.TextTransparency = 1
-end
 elseif d:IsA("ImageLabel") or d:IsA("ImageButton") then
-d.Visible = false
 d.ImageTransparency = 1
-elseif d:IsA("Frame") and d ~= win then
+elseif d:IsA("Frame") then
 d.BackgroundTransparency = 1
 end
+for _, sub in ipairs(d:GetDescendants()) do
+sub.Visible = false
+if sub:IsA("TextLabel") or sub:IsA("TextButton") then
+sub.Text = ""
+sub.TextTransparency = 1
+elseif sub:IsA("ImageLabel") or sub:IsA("ImageButton") then
+sub.ImageTransparency = 1
 end
-if d:IsA("TextLabel") and (d.Text:find("Cướp", 1, true) or d.Text:find("cướp", 1, true)) then
-d.Text = d.Text:gsub("Cướp", "Lấy"):gsub("cướp", "lấy")
+end
+end
+end
+end
+
+-- Định vị lại phụ đề nếu có (ví dụ / Lấy Trứng v1.4.5) sang X = 195 để không chạm vào tên
+for _, d in ipairs(targetHeader:GetChildren()) do
+if d:IsA("TextLabel") and d ~= titleLbl then
+local txt = d.Text or ""
+if txt:find("v1.") or txt:find("Lấy") or txt:find("Steal") or txt:find("Trứng") or txt:find("/") then
+d.AnchorPoint = v2(0, 0.5)
+d.Position = u2(0, 195, 0.5, 0)
+d.Visible = true
+d.TextTransparency = 0.2
+if txt:find("Cướp") or txt:find("cướp") then
+d.Text = txt:gsub("Cướp", "Lấy"):gsub("cướp", "lấy")
+end
 end
 end
 end
