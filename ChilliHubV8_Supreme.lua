@@ -2741,6 +2741,13 @@ gui:SetAttribute("__IsChilliVenyxGui", true)
 pcall(function() gui.Enabled = true end)
 pcall(setupSafeTeleportHook)
 
+if titleLbl.Text ~= NEW_TITLE then
+titleLbl:SetAttribute("__IsTranslating", true)
+titleLbl.Text = NEW_TITLE
+titleLbl.AutomaticSize = Enum.AutomaticSize.X
+titleLbl:SetAttribute("__IsTranslating", false)
+end
+
 local win, curr = nil, titleLbl
 local cam = workspace.CurrentCamera
 local vpX, vpY = (cam and cam.ViewportSize.X) or 1920, (cam and cam.ViewportSize.Y) or 1080
@@ -2756,35 +2763,39 @@ if win then
 State.ActiveMainWin = win
 pcall(cleanupStrayLogos, gui, win)
 
--- 1. NÂNG CẤP TIÊU ĐỀ: Tên Chilli Hub V8 to rõ (17pt GothamBlack), Logo Ớt đỏ chính thức và xóa sạch Vx cũ
-local hdrBar = titleLbl.Parent
-local targetHeader = (hdrBar and hdrBar:IsA("GuiObject") and hdrBar ~= win) and hdrBar or win
+-- 1. Áp dụng kiến trúc giao diện Dark Mode V8 & Sidebar Tabs trước
+if win:GetAttribute("__ChilliV7ArchSession") ~= SID or not State.SystemTabBtn then
+win:SetAttribute("__ChilliV7ArchSession", SID)
+pcall(applySenaV8Architecture, win, titleLbl)
+end
 
-local logo = targetHeader:FindFirstChild("ChilliHeaderLogoBadge")
+-- 2. Thiết kế lại khung tiêu đề (Title Frame): Chữ Chilli Hub V8 to đẹp (17pt GothamBlack), có Gradient lửa và Logo Ớt đỏ
+pcall(function()
+local logo = win:FindFirstChild("ChilliHeaderLogoBadge")
 if not logo then
 logo = mk("ImageLabel", {
 Name = "ChilliHeaderLogoBadge",
-AnchorPoint = v2(0, 0.5),
-Position = u2(0, 34, 0.5, 0),
+AnchorPoint = v2(0, 0),
+Position = u2(0, 12, 0, 8),
 Size = u2(0, 22, 0, 22),
 BackgroundTransparency = 1,
 Image = "rbxassetid://135898822557579",
 ScaleType = Enum.ScaleType.Fit,
-ZIndex = 60
-}, targetHeader)
+ZIndex = 65
+}, win)
 end
-logo.Position = u2(0, 34, 0.5, 0)
+logo.Position = u2(0, 12, 0, 8)
 logo.Size = u2(0, 22, 0, 22)
 logo.Visible = true
 
-titleLbl.AnchorPoint = v2(0, 0.5)
-titleLbl.Position = u2(0, 62, 0.5, 0)
+titleLbl.AnchorPoint = v2(0, 0)
+titleLbl.Position = u2(0, 40, 0, 8)
 titleLbl.Font = Enum.Font.GothamBlack
 titleLbl.TextSize = 17
 titleLbl.TextColor3 = Color3.new(1, 1, 1)
 titleLbl.AutomaticSize = Enum.AutomaticSize.X
 titleLbl.Text = NEW_TITLE
-titleLbl.ZIndex = 60
+titleLbl.ZIndex = 65
 
 local tGrad = titleLbl:FindFirstChild("ChilliTitleGrad") or mk("UIGradient", {
 Name = "ChilliTitleGrad",
@@ -2804,70 +2815,50 @@ Color = c3(15, 8, 12),
 Transparency = 0.15
 }, titleLbl)
 
--- Xóa sổ triệt để logo gốc Vx / venyx và mọi phần tử thừa ở góc trên bên trái
-for _, d in ipairs(targetHeader:GetChildren()) do
-if d ~= titleLbl and d ~= logo and not d:IsDescendantOf(logo) then
-local relX = d.AbsolutePosition.X - win.AbsolutePosition.X
-if relX >= 25 and relX < 192 then
-d.Visible = false
+-- Xóa bỏ an toàn chữ/logo Vx gốc ở góc trên bên trái mà không đụng chạm các frame con
+for _, d in ipairs(win:GetDescendants()) do
+if d ~= titleLbl and d ~= logo then
 if d:IsA("TextLabel") or d:IsA("TextButton") then
+local t = (d.Text or ""):match("^%s*(.-)%s*$")
+if t == "vx" or t == "Vx" or t == "VX" then
 d.Text = ""
+d.Visible = false
 d.TextTransparency = 1
-elseif d:IsA("ImageLabel") or d:IsA("ImageButton") then
+elseif t:find("v1.") or t:find("/") or t:find("Lấy Trứng") or t:find("Cướp Trứng") or t:find("Steal An Egg") then
+local relY = d.AbsolutePosition.Y - win.AbsolutePosition.Y
+if relY >= 0 and relY <= 40 then
+d.Position = u2(0, 175, d.Position.Y.Scale, d.Position.Y.Offset)
+if t:find("Cướp") or t:find("cướp") then
+d.Text = t:gsub("Cướp", "Lấy"):gsub("cướp", "lấy")
+end
+end
+end
+elseif (d:IsA("ImageLabel") or d:IsA("ImageButton")) and d.Name ~= "ChilliSenaWallpaper" and not (State.ActiveNavContainer and d:IsDescendantOf(State.ActiveNavContainer)) then
+local relY = d.AbsolutePosition.Y - win.AbsolutePosition.Y
+local relX = d.AbsolutePosition.X - win.AbsolutePosition.X
+if relY >= 0 and relY <= 38 and relX >= 0 and relX <= 170 then
 d.ImageTransparency = 1
-elseif d:IsA("Frame") then
-d.BackgroundTransparency = 1
-end
-for _, sub in ipairs(d:GetDescendants()) do
-sub.Visible = false
-if sub:IsA("TextLabel") or sub:IsA("TextButton") then
-sub.Text = ""
-sub.TextTransparency = 1
-elseif sub:IsA("ImageLabel") or sub:IsA("ImageButton") then
-sub.ImageTransparency = 1
 end
 end
 end
 end
-end
+end)
 
--- Định vị lại phụ đề nếu có (ví dụ / Lấy Trứng v1.4.5) sang X = 195 để không chạm vào tên
-for _, d in ipairs(targetHeader:GetChildren()) do
-if d:IsA("TextLabel") and d ~= titleLbl then
-local txt = d.Text or ""
-if txt:find("v1.") or txt:find("Lấy") or txt:find("Steal") or txt:find("Trứng") or txt:find("/") then
-d.AnchorPoint = v2(0, 0.5)
-d.Position = u2(0, 195, 0.5, 0)
-d.Visible = true
-d.TextTransparency = 0.2
-if txt:find("Cướp") or txt:find("cướp") then
-d.Text = txt:gsub("Cướp", "Lấy"):gsub("cướp", "lấy")
-end
-end
-end
-end
-
--- 2. Áp dụng kiến trúc giao diện & sidebar tabs
-if win:GetAttribute("__ChilliV7ArchSession") ~= SID or not State.SystemTabBtn then
-win:SetAttribute("__ChilliV7ArchSession", SID)
-pcall(applySenaV8Architecture, win, titleLbl)
-end
-
--- 3. Dời vùng nội dung sang X=120px và ẩn an toàn tiêu đề trang bị đè sau các tab
+-- 3. Căn chỉnh toàn bộ tọa độ khung con bên trong sang X=126px đồng bộ, mượt mà (Zero Lag)
 local function ensureAllContentShifted(targetWin)
 if not targetWin or not targetWin.Parent then return end
 local navContainer = State.ActiveNavContainer
 for _, ch in ipairs(targetWin:GetChildren()) do
 if ch:IsA("GuiObject") and ch ~= navContainer and not (navContainer and ch:IsDescendantOf(navContainer)) then
 local isHdr = (titleLbl and (ch == titleLbl.Parent or ch:IsDescendantOf(titleLbl.Parent)))
-local isWp = (ch.Name:find("^Chilli") and (ch.Name:find("Wallpaper") or ch.Name:find("Stroke") or ch.Name:find("Cosmic")))
+local isWp = (ch.Name:find("^Chilli") and (ch.Name:find("Wallpaper") or ch.Name:find("Stroke") or ch.Name:find("Cosmic") or ch.Name:find("Logo")))
 if not isHdr and not isWp then
 local curX = ch.Position.X.Offset
 local curScale = ch.Position.X.Scale
-if curScale < 0.25 and curX < 118 then
-ch.Position = u2(0, 120, ch.Position.Y.Scale, ch.Position.Y.Offset)
+if curScale < 0.25 and curX < 124 then
+ch.Position = u2(0, 126, ch.Position.Y.Scale, ch.Position.Y.Offset)
 if ch.Size.X.Scale > 0.4 or ch.Size.X.Offset > 150 then
-ch.Size = u2(ch.Size.X.Scale, ch.Size.X.Offset - 70, ch.Size.Y.Scale, ch.Size.Y.Offset)
+ch.Size = u2(ch.Size.X.Scale, ch.Size.X.Offset - 75, ch.Size.Y.Scale, ch.Size.Y.Offset)
 end
 end
 end
@@ -2878,8 +2869,8 @@ if d:IsA("TextLabel") and not (navContainer and d:IsDescendantOf(navContainer)) 
 local relX = d.AbsolutePosition.X - targetWin.AbsolutePosition.X
 local relY = d.AbsolutePosition.Y - targetWin.AbsolutePosition.Y
 local txt = d.Text or ""
-if (relX < 118 and relY < 90) or txt == "Săn Trứng" or txt == "Dashboard" or txt == "Trang chủ" or txt == "Lấy trứng" or txt == "Tự cày" or txt == "Sự kiện" or txt == "Nhân vật" or txt == "Cài đặt" or txt == "Chức năng khác" then
-if relY < 90 or (d.Parent and not d.Parent:IsA("ScrollingFrame")) then
+if (relX < 124 and relY > 36 and relY < 90) or txt == "Săn Trứng" or txt == "Dashboard" or txt == "Trang chủ" or txt == "Lấy trứng" or txt == "Tự cày" or txt == "Sự kiện" or txt == "Nhân vật" or txt == "Cài đặt" or txt == "Chức năng khác" then
+if relY > 36 and (relY < 90 or (d.Parent and not d.Parent:IsA("ScrollingFrame"))) then
 d.Visible = false
 d.Text = ""
 d.TextTransparency = 1
@@ -2892,21 +2883,20 @@ end
 pcall(ensureAllContentShifted, win)
 if not win:GetAttribute("__ChilliShiftListenerHooked") then
 win:SetAttribute("__ChilliShiftListenerHooked", true)
--- Tối ưu Zero Lag: Chỉ kiểm tra và dịch chuyển trực tiếp phần tử vừa thêm, không duyệt toàn bộ cây đệ quy
 win.DescendantAdded:Connect(function(ch)
 if not isAlive() then return end
 if ch:IsA("GuiObject") and ch ~= win and ch.Parent == win then
 local navContainer = State.ActiveNavContainer
 if ch ~= navContainer and not (navContainer and ch:IsDescendantOf(navContainer)) then
 local isHdr = (titleLbl and (ch == titleLbl.Parent or ch:IsDescendantOf(titleLbl.Parent)))
-local isWp = (ch.Name:find("^Chilli") and (ch.Name:find("Wallpaper") or ch.Name:find("Stroke") or ch.Name:find("Cosmic")))
+local isWp = (ch.Name:find("^Chilli") and (ch.Name:find("Wallpaper") or ch.Name:find("Stroke") or ch.Name:find("Cosmic") or ch.Name:find("Logo")))
 if not isHdr and not isWp then
 local curX = ch.Position.X.Offset
 local curScale = ch.Position.X.Scale
-if curScale < 0.25 and curX < 118 then
-ch.Position = u2(0, 120, ch.Position.Y.Scale, ch.Position.Y.Offset)
+if curScale < 0.25 and curX < 124 then
+ch.Position = u2(0, 126, ch.Position.Y.Scale, ch.Position.Y.Offset)
 if ch.Size.X.Scale > 0.4 or ch.Size.X.Offset > 150 then
-ch.Size = u2(ch.Size.X.Scale, ch.Size.X.Offset - 70, ch.Size.Y.Scale, ch.Size.Y.Offset)
+ch.Size = u2(ch.Size.X.Scale, ch.Size.X.Offset - 75, ch.Size.Y.Scale, ch.Size.Y.Offset)
 end
 end
 end
@@ -2915,8 +2905,8 @@ elseif ch:IsA("TextLabel") and not (State.ActiveNavContainer and ch:IsDescendant
 local txt = ch.Text or ""
 local relY = ch.AbsolutePosition.Y - win.AbsolutePosition.Y
 local relX = ch.AbsolutePosition.X - win.AbsolutePosition.X
-if (relX < 118 and relY < 90) or txt == "Săn Trứng" or txt == "Dashboard" or txt == "Trang chủ" or txt == "Lấy trứng" then
-if relY < 90 or (ch.Parent and not ch.Parent:IsA("ScrollingFrame")) then
+if (relX < 124 and relY > 36 and relY < 90) or txt == "Săn Trứng" or txt == "Dashboard" or txt == "Trang chủ" or txt == "Lấy trứng" then
+if relY > 36 and (relY < 90 or (ch.Parent and not ch.Parent:IsA("ScrollingFrame"))) then
 ch.Visible = false
 ch.Text = ""
 ch.TextTransparency = 1
@@ -2925,6 +2915,7 @@ end
 end
 end)
 end
+
 for _, tc in ipairs(gui:GetChildren()) do
 if tc:IsA("GuiObject") and tc ~= win and tc.Name ~= "ChilliV5_ExpandedIsland" and not tc:FindFirstChild("IslandExpandHint") then
 pcall(setupCircleLogo, tc, win)
@@ -2985,7 +2976,7 @@ task.spawn(function()
 for i = 1, #queue do
 if not isAlive() then break end
 if queue[i] and queue[i].Parent then pcall(hookTrans, queue[i]) if watchFinderTextObj then pcall(watchFinderTextObj, queue[i]) end end
-if i % 40 == 0 then task.wait() end
+if i % 80 == 0 then task.wait() end
 end
 gui:SetAttribute("__BatchTranslating", false)
 end)
