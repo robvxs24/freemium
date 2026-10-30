@@ -1,4 +1,7 @@
--- Chilli Hub V8 Supreme | Clean Multi-Line Edition (100% Luau Compatible, Zero Semicolons)
+-- ============================================================================
+-- CHILLI HUB V8 SUPREME | ZERO-LAG EDITION (100% LUAU STUDIO STANDARD)
+-- [PHẦN 1] KHỞI TẠO CẤU HÌNH, TỐI ƯU ĐỒ HỌA & QUẢN LÝ PHIÊN LÀM VIỆC (ZERO ERRORS)
+-- ============================================================================
 local NEW_TITLE = "Chilli Hub V8 Supreme"
 local LOGO_ID = "rbxassetid://74441610995894"
 local HEADER_BAR_IMG_ID = "rbxassetid://83726521558450"
@@ -94,10 +97,14 @@ ExperienceChat=true, SettingsClippingShield=true, InGameMenu=true, TeleportGui=t
 RobloxNetworkPauseNotification=true
 }
 local function isVenyxScreenGui(gui)
-if not gui or not gui:IsA("ScreenGui") then return false end
-if gui == State.ActiveVenyxGui or gui:GetAttribute("__IsChilliVenyxGui") or gui:GetAttribute("__ChilliV7Patched") then
+if not gui or not gui:IsA("ScreenGui") or IGNORED_GUIS[gui.Name] then return false end
+if gui == State.ActiveVenyxGui or gui:GetAttribute("__IsChilliVenyxGui") or gui:GetAttribute("__ChilliV8Patched") or gui:GetAttribute("__ChilliV7Patched") then
 return true
 end
+if gui:GetAttribute("__IsChilliFinderGui") then return false end
+local lastChk = gui:GetAttribute("__VenyxCheckClock")
+if lastChk and (os.clock() - lastChk < 2.0) then return false end
+gui:SetAttribute("__VenyxCheckClock", os.clock())
 for _, d in ipairs(gui:GetDescendants()) do
 if d.Name == "ChilliHeaderOverlay" or d.Name == "ChilliProWindowStroke" or d.Name == "ChilliCircleDisc" or d.Name == "ChilliUltraBadgePill" then
 gui:SetAttribute("__IsChilliVenyxGui", true)
@@ -113,20 +120,22 @@ end
 end
 return false
 end
+
 local function isVenyxUiPresent()
 for _, root in ipairs(getScanRoots()) do
-for _, d in ipairs(root:GetDescendants()) do
+for _, ch in ipairs(root:GetChildren()) do
+if ch:IsA("ScreenGui") and not IGNORED_GUIS[ch.Name] and ch.Enabled ~= false then
+for _, d in ipairs(ch:GetDescendants()) do
 if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Name ~= "ChilliUltraTitleBadge" and d.Name ~= "ChilliIslandTitle" and not d:FindFirstAncestor("ChilliV5_ExpandedIsland") then
-local sg = d:FindFirstAncestorOfClass("ScreenGui")
-if sg and not IGNORED_GUIS[sg.Name] and sg.Enabled ~= false then
 local t = d.Text
 if (t == "VENYX" or t == NEW_TITLE or t == "Chilli Hub Ultra" or t == "Chilli Hub V5" or t == "Chilli V5 |") and not d:FindFirstAncestorOfClass("ScrollingFrame") then
 local top = d
-while top.Parent and top.Parent ~= sg do top = top.Parent end
+while top.Parent and top.Parent ~= ch do top = top.Parent end
 if top and (top:GetAttribute("__SizeLockedV5Pro") or top:FindFirstChild("ChilliCircleDisc")) then
-pcall(function() sg:Destroy() end)
+pcall(function() ch:Destroy() end)
 else
 return true
+end
 end
 end
 end
@@ -302,6 +311,9 @@ local FastCache = {}
 local function hasVi(s)
 return type(s) == "string" and s ~= "" and (s:find("\225[\186\187][\128-\191]") ~= nil or s:find("\195[\128-\191]") ~= nil or s:find("\196[\130\131\144\145\168\169]") ~= nil or s:find("\197[\168\169\175\176]") ~= nil)
 end
+-- ============================================================================
+-- [PHẦN 2] BỘ TỪ ĐIỂN & ĐỘNG CƠ DỊCH THUẬT TIẾNG VIỆT THỜI GIAN THỰC
+-- ============================================================================
 local EXACT_VI = {
 ["Finder"] = "Tìm Trứng",
 ["FINDER"] = "TÌM TRỨNG",
@@ -1328,6 +1340,9 @@ State.MacroBusy = false
 end)
 end
 -- DYNAMIC ISLAND V7 (KHÔNG GẮN HUY HIỆU Ở DYNAMIC ISLAND, CHỈ DÙNG NÚT MŨI TÊN GỌN GÀNG "▾")
+-- ============================================================================
+-- [PHẦN 3] DYNAMIC ISLAND V8 SUPREME & HỆ THỐNG ÂM THANH TƯƠNG TÁC (0MS LATENCY)
+-- ============================================================================
 local SoundService = game:GetService("SoundService")
 local ISLAND_SFX_CFG = {
 open = { id = "rbxassetid://6895079853", vol = 0.75, spd = 1.06 },
@@ -1579,11 +1594,37 @@ task.wait(1.0)
 end
 end)
 
--- ROW 2: REAL-TIME TASK STATUS
-local taskBox = mk("Frame", { Size = u2(1, -20, 0, 24), Position = u2(0, 10, 0, 62), BackgroundColor3 = c3(15, 20, 34), BackgroundTransparency = 0.12, BorderSizePixel = 0, ZIndex = 10001 }, exp)
+-- ROW 2: REAL-TIME TASK STATUS (HỖ TRỢ BẤM ĐỂ CHUYỂN ĐỔI TRẠNG THÁI MƯỢT MÀ + ÂM THANH)
+local ISLAND_CYCLE_STATES = {
+{ text = "Đang rảnh", icon = "💤", stroke = c3(65, 135, 245), bg = c3(15, 20, 34) },
+{ text = "Đang săn trứng", icon = "🥚", stroke = c3(255, 195, 55), bg = c3(32, 26, 14) },
+{ text = "Đang đánh quái vật", icon = "⚔️", stroke = c3(245, 75, 95), bg = c3(34, 16, 22) },
+{ text = "Đang chạy máy chạy bộ", icon = "🏃", stroke = c3(55, 225, 145), bg = c3(14, 32, 24) },
+{ text = "Đang làm sự kiện", icon = "🎃", stroke = c3(185, 95, 255), bg = c3(26, 16, 36) }
+}
+local curIslandStateIdx = 1
+local taskBox = mk("TextButton", { Name = "IslandTaskCycleBtn", Size = u2(1, -20, 0, 24), Position = u2(0, 10, 0, 62), BackgroundColor3 = c3(15, 20, 34), BackgroundTransparency = 0.12, BorderSizePixel = 0, Text = "", AutoButtonColor = false, ZIndex = 10001 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(0, 8) }, taskBox)
-mk("UIStroke", { Thickness = 1, Color = c3(55, 85, 145), Transparency = 0.35 }, taskBox)
+local taskBoxStroke = mk("UIStroke", { Thickness = 1.1, Color = c3(55, 85, 145), Transparency = 0.30 }, taskBox)
 expTaskLbl = mk("TextLabel", { Size = u2(1, -16, 1, 0), Position = u2(0, 8, 0, 0), BackgroundTransparency = 1, Text = "⚡ " .. (statusLbl.Text or "Đang rảnh"), Font = Enum.Font.GothamBold, TextSize = 10.2, TextColor3 = Color3.new(1, 1, 1), TextTruncate = Enum.TextTruncate.AtEnd, ZIndex = 10002 }, taskBox)
+taskBox.MouseButton1Click:Connect(function()
+playIslandSfx("tap")
+curIslandStateIdx = (curIslandStateIdx % #ISLAND_CYCLE_STATES) + 1
+local st = ISLAND_CYCLE_STATES[curIslandStateIdx]
+if expTaskLbl and expTaskLbl.Parent then
+expTaskLbl.Text = st.icon .. " " .. st.text
+end
+if statusLbl and statusLbl.Parent then
+statusLbl:SetAttribute("__Updating", true)
+statusLbl.Text = st.text
+statusLbl:SetAttribute("__Updating", false)
+end
+TweenService:Create(taskBox, TweenInfo.new(0.22, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { BackgroundColor3 = st.bg }):Play()
+TweenService:Create(taskBoxStroke, TweenInfo.new(0.22, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Color = st.stroke }):Play()
+if ps and ps.Parent then
+TweenService:Create(ps, TweenInfo.new(0.22, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Color = st.stroke }):Play()
+end
+end)
 
 -- ROW 3: PROMINENT 1-CLICK AUTO FARM CONFIG BUTTON
 local cfgBtn = mk("TextButton", { Name = "AutoFarmConfigBtn", Size = u2(1, -20, 0, 30), Position = u2(0, 10, 0, 90), BackgroundColor3 = c3(24, 28, 44), BorderSizePixel = 0, Text = "⚡ CÀI ĐẶT AUTO FARM 24/7 (1 CHẠM)", Font = Enum.Font.GothamBlack, TextSize = 10.2, TextColor3 = c3(255, 225, 95), ZIndex = 10003 }, exp)
@@ -1853,6 +1894,9 @@ ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 addGrad(mk("UIGradient", { Color = RAINBOW }, covStroke))
 end
 end
+-- ============================================================================
+-- [PHẦN 4] KIẾN TRÚC GIAO DIỆN CHÍNH DARK MODE V8 SUPREME (SIÊU MƯỢT, ZERO LAG)
+-- ============================================================================
 local function applySenaV8Architecture(win, titleLbl)
 if not win or not titleLbl then return end
 local hy, tx = titleLbl.AbsolutePosition.Y, titleLbl.AbsolutePosition.X
@@ -2237,6 +2281,9 @@ end
 return (win ~= nil and gui:GetAttribute("__IslandLocked") == true)
 end
 
+-- ============================================================================
+-- [PHẦN 5] CHILL FINDER FREE, ĐỔI SERVER ÍT NGƯỜI & NÚT MENU FINDER ĐA TRẠNG THÁI
+-- ============================================================================
 -- ĐỊNH VỊ CHÍNH XÁC NÚT JOIN MÀU VÀNG TRONG CHILL FINDER FREE + GIAO DIỆN FINDER CẦU VỒNG ĐIÊU LUYỆN + SERVER HOP SIÊU CHUẨN
 local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
@@ -2980,6 +3027,42 @@ pcall(sanitizeChillFinderFreeObj, lbl)
 updateText()
 end
 end)
+if isHudFinderBtn and not inFinder then
+local clickTarget = (lbl:IsA("TextButton") or lbl:IsA("ImageButton")) and lbl or lbl:FindFirstAncestorWhichIsA("GuiButton") or lbl.Parent
+if clickTarget and clickTarget:IsA("GuiObject") and not clickTarget:GetAttribute("__FinderBtnCycleHooked") then
+clickTarget:SetAttribute("__FinderBtnCycleHooked", true)
+local FINDER_HUD_CYCLE = {
+{ text = "Tìm Trứng", color = c3(255, 185, 35) },
+{ text = "Đang săn trứng", color = c3(45, 215, 135) },
+{ text = "Đang quét...", color = c3(65, 165, 255) },
+{ text = "Đang rảnh", color = c3(185, 115, 255) }
+}
+local hudCycleIdx = 1
+local function onHudFinderClick()
+playIslandSfx("tap")
+hudCycleIdx = (hudCycleIdx % #FINDER_HUD_CYCLE) + 1
+local st = FINDER_HUD_CYCLE[hudCycleIdx]
+lbl:SetAttribute("__TranslatingFinderHud", true)
+lbl:SetAttribute("__IsTranslating", true)
+lbl:SetAttribute("__LastFinderTranslated", st.text)
+pcall(function() lbl.Text = st.text end)
+lbl:SetAttribute("__IsTranslating", false)
+lbl:SetAttribute("__TranslatingFinderHud", false)
+pcall(function()
+TweenService:Create(clickTarget, TweenInfo.new(0.22, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { BackgroundColor3 = st.color }):Play()
+end)
+end
+if clickTarget:IsA("GuiButton") then
+clickTarget.MouseButton1Click:Connect(onHudFinderClick)
+else
+clickTarget.InputBegan:Connect(function(inp)
+if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+onHudFinderClick()
+end
+end)
+end
+end
+end
 end
 end
 
