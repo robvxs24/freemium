@@ -2439,6 +2439,19 @@ local tabEnLabels = {}
 -- Hiệu ứng mặt kính chuyển màu mượt mà (Bấm nút nào hóa kính rực rỡ nút đó)
 local function setActiveTabVisual(activeIdx, playSnd)
 if playSnd then playIslandSfx("tap") end
+pcall(function()
+for _, d in ipairs(win:GetDescendants()) do
+if d:IsA("TextLabel") and d ~= titleLbl and not ( navContainer and d:IsDescendantOf(navContainer) ) and not d:FindFirstAncestorOfClass("ScrollingFrame") then
+local ry = d.AbsolutePosition.Y - win.AbsolutePosition.Y
+local rx = d.AbsolutePosition.X - win.AbsolutePosition.X
+if (ry > 32 and ry < 96 and rx < 210) or d.TextSize >= 17 then
+d:SetAttribute("__HiddenVxLogo", true)
+d.TextTransparency = 1
+d.Visible = false
+end
+end
+end
+end)
 for i = 1, #navButtons do
 local sq = tabSquircles[i]
 local st = tabStrokes[i]
@@ -2875,18 +2888,46 @@ end
 end
 end
 end
-for _, d in ipairs(targetWin:GetDescendants()) do
-if d:IsA("TextLabel") and not (navContainer and d:IsDescendantOf(navContainer)) and d ~= titleLbl then
+local PAGE_HEADER_TITLES = {
+["dashboard"] = true, ["home"] = true, ["trang chủ"] = true,
+["steal"] = true, ["săn trứng"] = true, ["lấy trứng"] = true, ["cướp trứng"] = true,
+["farm"] = true, ["tự cày"] = true, ["tự động cày"] = true,
+["events"] = true, ["event"] = true, ["sự kiện"] = true,
+["player"] = true, ["localplayer"] = true, ["nhân vật"] = true, ["người chơi"] = true,
+["misc"] = true, ["miscellaneous"] = true, ["chức năng khác"] = true, ["khác"] = true,
+["settings"] = true, ["setting"] = true, ["cài đặt"] = true, ["hệ thống"] = true, ["system"] = true
+}
+local function lockHidePageTitleLabel(d)
+if not d or not d:IsA("TextLabel") or d == titleLbl then return end
+if navContainer and d:IsDescendantOf(navContainer) then return end
+if d:FindFirstAncestorOfClass("ScrollingFrame") then return end
 local relX = d.AbsolutePosition.X - targetWin.AbsolutePosition.X
 local relY = d.AbsolutePosition.Y - targetWin.AbsolutePosition.Y
-local txt = d.Text or ""
-if (relX < 158 and relY > 36 and relY < 90) or txt == "Săn Trứng" or txt == "Dashboard" or txt == "Trang chủ" or txt == "Lấy trứng" or txt == "Tự cày" or txt == "Sự kiện" or txt == "Nhân vật" or txt == "Cài đặt" or txt == "Chức năng khác" then
-if relY > 36 and (relY < 90 or (d.Parent and not d.Parent:IsA("ScrollingFrame"))) then
-d.Visible = false
-d.Text = ""
+local rawT = (d:GetAttribute("OrigRawText") or d.Text or ""):lower():match("^%s*(.-)%s*$") or ""
+local curT = (d.Text or ""):lower():match("^%s*(.-)%s*$") or ""
+if (relY > 32 and relY < 96 and relX < 210) or PAGE_HEADER_TITLES[rawT] or PAGE_HEADER_TITLES[curT] or (d.TextSize >= 17 and relY > 32 and relY < 105) then
+d:SetAttribute("__HiddenVxLogo", true)
 d.TextTransparency = 1
+d.Visible = false
+d.Position = u2(0, -9999, 0, -9999)
+if not d:GetAttribute("__LockedPageHeaderHide") then
+d:SetAttribute("__LockedPageHeaderHide", true)
+d:GetPropertyChangedSignal("Text"):Connect(function()
+d.TextTransparency = 1
+d.Visible = false
+end)
+d:GetPropertyChangedSignal("TextTransparency"):Connect(function()
+if d.TextTransparency ~= 1 then d.TextTransparency = 1 end
+end)
+d:GetPropertyChangedSignal("Visible"):Connect(function()
+if d.Visible then d.Visible = false end
+end)
 end
 end
+end
+for _, d in ipairs(targetWin:GetDescendants()) do
+if d:IsA("TextLabel") then
+lockHidePageTitleLabel(d)
 end
 end
 end
