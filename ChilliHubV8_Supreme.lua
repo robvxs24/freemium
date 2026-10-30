@@ -1025,7 +1025,10 @@ applyTrans(inst)
 if inst:GetAttribute("__TransHookSession") == SID then return end
 inst:SetAttribute("__TransHookSession", SID)
 table.insert(State.TrackedTexts, inst)
-
+local inScroll = inst:FindFirstAncestorOfClass("ScrollingFrame") ~= nil
+if inScroll and inst:IsA("TextLabel") and #inst.Text > 16 and not inst.Text:find("%d") then
+return
+end
 inst:GetPropertyChangedSignal("Text"):Connect(function()
 if not isAlive() or inst:GetAttribute("__IsTranslating") or inst:GetAttribute("__IslandDone") or inst:GetAttribute("__HiddenVxLogo") then return end
 local cur = inst.Text
@@ -1039,7 +1042,7 @@ if inst:IsA("TextBox") then
 applyTrans(inst)
 return
 end
-if not hasVi(cur) or cur:lower():find("missing", 1, true) or cur:lower():find("hatch", 1, true) or cur:lower():find("mastery", 1, true) or cur:lower():find("pickup", 1, true) then
+if not hasVi(cur) then
 inst:SetAttribute("OrigRawText", cur)
 applyTrans(inst)
 end
@@ -2457,7 +2460,7 @@ return (win ~= nil and gui:GetAttribute("__IslandLocked") == true)
 end
 
 -- ============================================================================
--- [PHẦN 5] CHILLI FINDER FREE (VIỆT HÓA 100%, ĐỔI SERVER ÍT NGƯỜI & NÚT FINDER ĐA TRẠNG THÁI)
+-- [PHẦN 5] CHILLI FINDER FREE (VIỆT HÓA 100%, ĐỔI SERVER ÍT NGƯỜI & SIÊU MƯỢT 0 LAG)
 -- ============================================================================
 local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
@@ -2668,9 +2671,6 @@ if inst:GetAttribute("__IsFinderHudElement") then return true end
 if inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliHeaderOverlay") then
 return false
 end
-if State.ActiveMainWin and inst:IsDescendantOf(State.ActiveMainWin) then
-return false
-end
 if State.ActiveFinderWin and State.ActiveFinderWin.Parent and inst:IsDescendantOf(State.ActiveFinderWin) then
 return true
 end
@@ -2679,7 +2679,7 @@ if sg and sg:GetAttribute("__IsChilliFinderGui") and not isVenyxScreenGui(sg) an
 return true
 end
 local curr = inst.Parent
-for _ = 1, 6 do
+for _ = 1, 5 do
 if not curr or curr:IsA("ScreenGui") or curr == game then break end
 if curr:GetAttribute("__IsChilliFinderContainer") or curr.Name == "ChillFinderRainbowBorder" or curr.Name == "ChillFinderHeaderNeonLine" or curr:FindFirstChild("ChillFinderRainbowBorder") or curr:FindFirstChild("ChillFinderHeaderNeonLine") then
 curr:SetAttribute("__IsChilliFinderContainer", true)
@@ -2703,21 +2703,79 @@ end
 return false
 end
 
-local hideFinderSignInBox = nil
+local function hideFinderSignInBox(rootGui)
+if os.clock() - (State.LastHideSignInClock or 0) < 0.35 then return end
+State.LastHideSignInClock = os.clock()
+local root = (State.ActiveFinderWin and State.ActiveFinderWin.Parent and State.ActiveFinderWin) or rootGui
+if not root then return end
+pcall(function()
+for _, d in ipairs(root:GetDescendants()) do
+if d:IsA("TextBox") then
+local ph = (d.PlaceholderText or ""):lower()
+if ph:find("password", 1, true) or ph:find("user", 1, true) or isInsideChilliFinder(d) then
+local curr = d.Parent
+for _ = 1, 3 do
+if not curr or curr:IsA("ScreenGui") or curr == State.ActiveFinderWin then break end
+if curr:IsA("GuiObject") and curr.AbsoluteSize.Y <= 240 then
+curr.Visible = false
+if not curr:GetAttribute("__LockedHideSignIn") then
+curr:SetAttribute("__LockedHideSignIn", true)
+curr:GetPropertyChangedSignal("Visible"):Connect(function()
+if isAlive() and curr.Visible then
+pcall(function() curr.Visible = false end)
+end
+end)
+end
+break
+end
+curr = curr.Parent
+end
+end
+elseif d:IsA("TextLabel") or d:IsA("TextButton") then
+local t = stripRichTags(d.Text)
+local tl = t:lower()
+if t == "Hide" or t == "Ẩn" or tl == "sign trong" or t == "Sign In" or t == "No plan" then
+local accP = d.Parent
+if accP then
+for _, sib in ipairs(accP:GetChildren()) do
+local sibT = stripRichTags(sib.Text):upper()
+if (sib:IsA("TextLabel") or sib:IsA("TextButton")) and (sibT == "ACCOUNT" or sibT == "TÀI KHOẢN") then
+if d.Text ~= "Miễn phí" and d.Text ~= "Free" then
+d:SetAttribute("__IsTranslating", true)
+d:SetAttribute("__TranslatingFinderHud", true)
+pcall(function() d.Text = (State.Language == "EN") and "Free" or "Miễn phí" end)
+d:SetAttribute("__TranslatingFinderHud", false)
+d:SetAttribute("__IsTranslating", false)
+end
+end
+end
+end
+end
+end
+end
+end)
+end
+
 local function sanitizeChillFinderFreeObj(d)
 if not d or not d.Parent then return end
 if not (d:IsA("TextLabel") or d:IsA("TextButton")) then return end
 if d:GetAttribute("__ModifyingFinderText") then return end
 local raw = stripRichTags(d.Text)
+if raw == "" then return end
 local low = raw:lower()
 if raw == "Chilli Finder" or raw == "Chill Finder Free" or raw == "Chilli Finder Free" or raw == "⚡ Chill Finder Free" then
 d:SetAttribute("__ModifyingFinderText", true)
 d:SetAttribute("__IsTranslating", true)
 d:SetAttribute("OrigRawText", "Chilli Finder Free")
 d:SetAttribute("OrigFinderStateText", "Chilli Finder Free")
+if d.Text ~= "Chilli Finder Free" then
 pcall(function() d.Text = "Chilli Finder Free" end)
+end
+if d:GetAttribute("__FinderMasterStyled") ~= SID then
+d:SetAttribute("__FinderMasterStyled", SID)
 styleMasterChillFinderFree(d)
 task.defer(function() hideFinderSignInBox(State.ActiveFinderWin) end)
+end
 d:SetAttribute("__IsTranslating", false)
 d:SetAttribute("__ModifyingFinderText", false)
 local sg = d:FindFirstAncestorOfClass("ScreenGui")
@@ -2755,16 +2813,17 @@ d:SetAttribute("__IsTranslating", false)
 d:SetAttribute("__ModifyingFinderText", false)
 end
 elseif low:find("chillihub.pro", 1, true) or low:find("no active booking", 1, true) or low:find("sign in with your", 1, true) or low:find("top 5 recent eggs", 1, true) or raw == "Top 5 trứng mới nhất | Chilli Finder Free" or raw == "Top 5 trứng mới nhất | Chill Finder Free" then
+local wantSub = (State.Language == "EN") and "Top 5 recent eggs | Chilli Finder Free" or "Top 5 trứng mới nhất | Chilli Finder Free"
 d:SetAttribute("__ModifyingFinderText", true)
 d:SetAttribute("__IsTranslating", true)
 d:SetAttribute("OrigRawText", "Top 5 recent eggs | Chilli Finder Free")
 d:SetAttribute("OrigFinderStateText", "Top 5 recent eggs | Chilli Finder Free")
+if d.Text ~= wantSub then
 pcall(function()
-d.Text = (State.Language == "EN") and "Top 5 recent eggs | Chilli Finder Free" or "Top 5 trứng mới nhất | Chilli Finder Free"
+d.Text = wantSub
 d.TextColor3 = Color3.new(1, 1, 1)
-local oldSubGrad = d:FindFirstChild("ChillSubRainbow")
-if oldSubGrad then oldSubGrad:Destroy() end
 end)
+end
 d:SetAttribute("__IsTranslating", false)
 d:SetAttribute("__ModifyingFinderText", false)
 local winF = getFinderWindowFromObj(d)
@@ -2773,72 +2832,6 @@ winF:SetAttribute("__IsChilliFinderContainer", true)
 State.ActiveFinderWin = winF
 end
 end
-end
-
-hideFinderSignInBox = function(rootGui)
-local root = (State.ActiveFinderWin and State.ActiveFinderWin.Parent and State.ActiveFinderWin) or rootGui
-if not root then return end
-pcall(function()
-for _, d in ipairs(root:GetDescendants()) do
-if d:IsA("TextBox") then
-local curr = d.Parent
-for _ = 1, 4 do
-if not curr or curr:IsA("ScreenGui") or curr == State.ActiveFinderWin then break end
-if curr:IsA("GuiObject") and curr.AbsoluteSize.Y <= 250 then
-curr.Visible = false
-if not curr:GetAttribute("__LockedHideSignIn") then
-curr:SetAttribute("__LockedHideSignIn", true)
-curr:GetPropertyChangedSignal("Visible"):Connect(function()
-if isAlive() and curr.Visible then
-pcall(function() curr.Visible = false end)
-end
-end)
-end
-break
-end
-curr = curr.Parent
-end
-elseif d:IsA("TextLabel") or d:IsA("TextButton") then
-sanitizeChillFinderFreeObj(d)
-local t = stripRichTags(d.Text)
-local tl = t:lower()
-if t == "Sign Up" or t == "Đăng ký" or t == "Password" or tl == "sign trong" then
-local curr = d.Parent
-for _ = 1, 4 do
-if not curr or curr:IsA("ScreenGui") or curr == State.ActiveFinderWin then break end
-if curr:IsA("GuiObject") and curr.AbsoluteSize.Y >= 55 and curr.AbsoluteSize.Y <= 250 and curr:FindFirstChildWhichIsA("TextBox", true) then
-curr.Visible = false
-if not curr:GetAttribute("__LockedHideSignIn") then
-curr:SetAttribute("__LockedHideSignIn", true)
-curr:GetPropertyChangedSignal("Visible"):Connect(function()
-if isAlive() and curr.Visible then
-pcall(function() curr.Visible = false end)
-end
-end)
-end
-break
-end
-curr = curr.Parent
-end
-end
-if t == "Hide" or t == "Ẩn" or tl == "sign trong" or t == "Sign In" or t == "No plan" then
-local accP = d.Parent
-if accP then
-for _, sib in ipairs(accP:GetChildren()) do
-local sibT = stripRichTags(sib.Text):upper()
-if (sib:IsA("TextLabel") or sib:IsA("TextButton")) and (sibT == "ACCOUNT" or sibT == "TÀI KHOẢN") then
-d:SetAttribute("__IsTranslating", true)
-d:SetAttribute("__TranslatingFinderHud", true)
-pcall(function() d.Text = (State.Language == "EN") and "Free" or "Miễn phí" end)
-d:SetAttribute("__TranslatingFinderHud", false)
-d:SetAttribute("__IsTranslating", false)
-end
-end
-end
-end
-end
-end
-end)
 end
 
 State.TriedServerIds = State.TriedServerIds or {}
@@ -3254,24 +3247,15 @@ local scanChilliFinderButtons = nil
 watchFinderHudButton = function(lbl)
 if not lbl or not (lbl:IsA("TextLabel") or lbl:IsA("TextButton")) then return end
 if lbl.Name == "ChilliFinderJoinInterceptor" or lbl:FindFirstAncestor("ChilliV5_ExpandedIsland") or lbl:FindFirstAncestor("ChilliHeaderOverlay") then return end
-if State.ActiveMainWin and lbl:IsDescendantOf(State.ActiveMainWin) then return end
 local raw = stripRichTags(lbl:GetAttribute("OrigFinderStateText") or lbl.Text or "")
+if raw == "" or raw:find("⏳", 1, true) then return end
 local low = raw:lower()
-if raw:find("⏳", 1, true) then return end
+local isKnownFinderTxt = (FINDER_STATE_MAP[low] ~= nil or raw:find(" ago", 1, true) ~= nil or raw:find("trước", 1, true) ~= nil or low:find("finder", 1, true) ~= nil or low:find("chillihub.pro", 1, true) ~= nil)
+if not isKnownFinderTxt and not lbl:GetAttribute("__IsFinderHudElement") then
+return
+end
 local inFinder = lbl:GetAttribute("__IsFinderHudElement") or isInsideChilliFinder(lbl)
-local isHudFinderBtn = (low == "finder" or low == "tìm trứng" or low:find("finder", 1, true) or FINDER_STATE_MAP[low] ~= nil or raw:find(" ago", 1, true))
-if not inFinder and not isHudFinderBtn then
-local p = lbl.Parent
-for _ = 1, 3 do
-if not p or p:IsA("ScreenGui") or p == game then break end
-local pn = p.Name:lower()
-if pn:find("finder", 1, true) then
-isHudFinderBtn = true
-break
-end
-p = p.Parent
-end
-end
+local isHudFinderBtn = (low == "finder" or low == "tìm trứng" or low:find("finder", 1, true))
 if not inFinder and not isHudFinderBtn then return end
 lbl:SetAttribute("__IsFinderHudElement", true)
 local function updateText()
@@ -3329,8 +3313,7 @@ pcall(function()
 TweenService:Create(clickTarget, TweenInfo.new(0.22, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { BackgroundColor3 = st.color }):Play()
 end)
 if scanChilliFinderButtons then
-task.defer(scanChilliFinderButtons)
-task.delay(0.25, scanChilliFinderButtons)
+task.delay(0.20, scanChilliFinderButtons)
 end
 end
 if clickTarget:IsA("GuiButton") then
@@ -3350,7 +3333,6 @@ end
 local function watchFinderTextObj(d)
 if not d or not (d:IsA("TextButton") or d:IsA("TextLabel")) then return end
 if d.Name == "ChilliFinderJoinInterceptor" then return end
-if State.ActiveMainWin and d:IsDescendantOf(State.ActiveMainWin) then return end
 pcall(sanitizeChillFinderFreeObj, d)
 pcall(watchFinderHudButton, d)
 if isFinderJoinLabel(d) then
@@ -3370,9 +3352,10 @@ end
 end
 
 local SKIP_FINDER_CONTAINERS = {
-TouchGui=true, BackpackGui=true, PlayerList=true, Chat=true, BubbleChat=true,
+RobloxGui=true, TouchGui=true, BackpackGui=true, PlayerList=true, Chat=true, BubbleChat=true,
 ExperienceChat=true, InGameMenu=true, TopBarApp=true, PurchasePrompt=true,
-Freecam=true, TeleportGui=true, RobloxNetworkPauseNotification=true
+Freecam=true, TeleportGui=true, RobloxNetworkPauseNotification=true,
+CoreScriptsRootProvider=true, SettingsClippingShield=true
 }
 scanChilliFinderButtons = function()
 if State.ScanningFinderBusy then return end
@@ -3383,10 +3366,10 @@ for _, root in ipairs(getScanRoots()) do
 for _, ch in ipairs(root:GetChildren()) do
 if not SKIP_FINDER_CONTAINERS[ch.Name] then
 for _, d in ipairs(ch:GetDescendants()) do
-if d:IsA("TextButton") or d:IsA("TextLabel") then
+if (d:IsA("TextButton") or d:IsA("TextLabel")) and d:GetAttribute("__FinderTxtWatched") ~= SID then
 pcall(watchFinderTextObj, d)
 count = count + 1
-if count % 75 == 0 then task.wait() end
+if count % 60 == 0 then task.wait() end
 end
 end
 end
@@ -3436,19 +3419,15 @@ if not isAlive() then return false end
 for _, root in ipairs(getScanRoots()) do
 local guis = {}
 for _, ch in ipairs(root:GetChildren()) do
-if not SKIP_FINDER_CONTAINERS[ch.Name] then
-bindGuiEvents(ch)
-end
-if ch:IsA("ScreenGui") then
+if ch:IsA("ScreenGui") and not IGNORED_GUIS[ch.Name] then
 table.insert(guis, ch)
 elseif ch:IsA("Folder") or ch:IsA("Configuration") then
 for _, sub in ipairs(ch:GetChildren()) do
-if sub:IsA("ScreenGui") then table.insert(guis, sub) end
+if sub:IsA("ScreenGui") and not IGNORED_GUIS[sub.Name] then table.insert(guis, sub) end
 end
 end
 end
 for _, gui in ipairs(guis) do
-if not IGNORED_GUIS[gui.Name] then
 bindGuiEvents(gui)
 if gui:GetAttribute("__ChilliV8Patched") ~= SID or forcePass then
 local titleLbl = nil
@@ -3470,7 +3449,6 @@ local okDone, fullyPatched = pcall(patchVenyxGui, gui, titleLbl)
 if okDone and fullyPatched then
 venyxGuiLocked = gui
 gui:SetAttribute("__ChilliV8Patched", SID)
-end
 end
 end
 end
@@ -3504,17 +3482,19 @@ end)
 
 local function tryBootPass(attempt)
 if not isAlive() then return end
-pcall(scanChilliFinderButtons)
 if not venyxGuiLocked then
 pcall(scanOnce, false)
-if not venyxGuiLocked and attempt < 60 then
-task.delay(0.25, function()
+pcall(scanChilliFinderButtons)
+if not venyxGuiLocked and attempt < 50 then
+task.delay(0.30, function()
 tryBootPass(attempt + 1)
 end)
 end
-elseif attempt < 16 then
-task.delay(0.80, function()
-tryBootPass(attempt + 1)
+else
+task.delay(0.60, function()
+if isAlive() then
+pcall(scanChilliFinderButtons)
+end
 end)
 end
 end
