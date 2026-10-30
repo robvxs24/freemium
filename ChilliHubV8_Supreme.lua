@@ -2294,7 +2294,7 @@ end
 local SIDEBAR_PALETTE = {
 c3(37, 99, 235),   -- Tab 1: Trang chủ (Xanh biển)
 c3(239, 68, 68),   -- Tab 2: Lấy trứng (Đỏ rực)
-c3(245, 158, 11),  -- Tab 3: Tự cày (Cam hổ phách y hệt mẫu)
+c3(245, 158, 11),  -- Tab 3: Tự cày (Cam hổ phách)
 c3(168, 85, 247),  -- Tab 4: Sự kiện (Tím neon)
 c3(236, 72, 153),  -- Tab 5: Nhân vật (Hồng cánh sen)
 c3(16, 185, 129),  -- Tab 6: Chức năng khác (Xanh lục bảo)
@@ -2318,7 +2318,7 @@ for _, d in ipairs(win:GetDescendants()) do
 if d:IsA("GuiObject") and (d.AbsolutePosition.X - winX) < 165 and d.AbsolutePosition.Y > hy + 15 then
 local children = {}
 for _, ch in ipairs(d:GetChildren()) do
-if ch:IsA("GuiObject") and ch.AbsoluteSize.X >= 20 and ch.AbsoluteSize.X <= 165 and ch.AbsoluteSize.Y >= 20 and ch.AbsoluteSize.Y <= 90 then
+if ch:IsA("GuiObject") and ch.AbsoluteSize.X >= 20 and ch.AbsoluteSize.X <= 175 and ch.AbsoluteSize.Y >= 20 and ch.AbsoluteSize.Y <= 90 then
 ch.Visible = true
 table.insert(children, ch)
 end
@@ -2338,16 +2338,16 @@ end
 if #navButtons >= 2 then
 table.sort(navButtons, function(a, b) return a.AbsolutePosition.Y < b.AbsolutePosition.Y end)
 
--- Thu gọn nút Tab vừa vặn với khung Sidebar (106x38px) và dịch vùng nội dung sang X=126px (Zero Lag / Zero Errors)
-local EXTRA_SIDEBAR_W = 75
-local EXTRA_WIN_H = 36
-local CONTENT_START_X = 126
+-- Mở rộng chiều ngang và chiều cao nút Tab (138x46px) thoáng đãng, không bao giờ cắt chữ và dịch nội dung sang X=160px
+local EXTRA_SIDEBAR_W = 105
+local EXTRA_WIN_H = 52
+local CONTENT_START_X = 160
 
 pcall(function()
-if not win:GetAttribute("__ChilliIosSidebarExpandedV9") then
+if not win:GetAttribute("__ChilliIosSidebarExpandedV10") then
 local alreadyV1 = win:GetAttribute("__ChilliIosSidebarExpanded") == true
 win:SetAttribute("__ChilliIosSidebarExpanded", true)
-win:SetAttribute("__ChilliIosSidebarExpandedV9", true)
+win:SetAttribute("__ChilliIosSidebarExpandedV10", true)
 if not alreadyV1 then
 local wSz = win.Size
 if wSz.X.Offset > 200 then
@@ -2360,11 +2360,11 @@ end
 end
 end
 
--- Cố định vị trí Khung chứa Sidebar vừa khít gọn gàng: Position = UDim2.new(0, 8, 0, 48), Size = UDim2.new(0, 112, 1, -54)
+-- Cố định vị trí Khung chứa Sidebar cân đối bên lề trái: Position = UDim2.new(0, 10, 0, 48), Size = UDim2.new(0, 142, 1, -56)
 if navContainer then
 navContainer.Parent = win
-navContainer.Position = u2(0, 8, 0, 48)
-navContainer.Size = u2(0, 112, 1, -54)
+navContainer.Position = u2(0, 10, 0, 48)
+navContainer.Size = u2(0, 142, 1, -56)
 navContainer.ClipsDescendants = false
 navContainer.BackgroundTransparency = 1
 
@@ -2373,38 +2373,38 @@ if not listLayout then
 listLayout = mk("UIListLayout", {
 Parent = navContainer,
 FillDirection = Enum.FillDirection.Vertical,
-Padding = UDim.new(0, 6),
+Padding = UDim.new(0, 7),
 HorizontalAlignment = Enum.HorizontalAlignment.Center,
 SortOrder = Enum.SortOrder.LayoutOrder
 })
 else
 listLayout.FillDirection = Enum.FillDirection.Vertical
-listLayout.Padding = UDim.new(0, 6)
+listLayout.Padding = UDim.new(0, 7)
 listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 end
 end
 
--- Tự động dịch chuyển toàn bộ container trang/nội dung bên phải sang vị trí an toàn (bắt đầu từ X=126px)
+-- Dịch chuyển toàn bộ container trang/nội dung bên phải sang vị trí an toàn (bắt đầu từ X=160px)
 local function shiftContentTarget(sib)
 if not sib or not sib:IsA("GuiObject") or sib == win or sib == mainBg or sib == navContainer or sib:IsDescendantOf(navContainer) or navContainer:IsDescendantOf(sib) then return end
 local isHdr = (titleLbl and (sib == titleLbl.Parent or titleLbl:IsDescendantOf(sib)))
-local isWp = (sib.Name:find("^Chilli") and (sib.Name:find("Wallpaper") or sib.Name:find("Stroke") or sib.Name:find("Cosmic")))
+local isWp = (sib.Name:find("^Chilli") and (sib.Name:find("Wallpaper") or sib.Name:find("Stroke") or sib.Name:find("Cosmic") or sib.Name:find("Logo")))
 if isHdr or isWp then return end
 
-if not sib:GetAttribute("__ChilliShiftedRightV9") then
+if not sib:GetAttribute("__ChilliShiftedRightV10") then
 local sx = sib.Position.X.Offset
 local sy = sib.Position.Y.Offset
 local relY = sib.AbsolutePosition.Y - win.AbsolutePosition.Y
 local relX = sib.AbsolutePosition.X - win.AbsolutePosition.X
-if (sx >= 15 and sx <= 125) or (relX >= 15 and relX <= 125 and relY >= 20) then
+if (sx >= 15 and sx <= 155) or (relX >= 15 and relX <= 155 and relY >= 20) then
 local ancShifted = false
 local p = sib.Parent
 while p and p ~= win and p ~= mainBg do
-if p:GetAttribute("__ChilliShiftedRightV9") then ancShifted = true break end
+if p:GetAttribute("__ChilliShiftedRightV10") then ancShifted = true break end
 p = p.Parent
 end
 if not ancShifted then
-sib:SetAttribute("__ChilliShiftedRightV9", true)
+sib:SetAttribute("__ChilliShiftedRightV10", true)
 local targetX = math.max(sx + EXTRA_SIDEBAR_W, CONTENT_START_X)
 sib.Position = u2(sib.Position.X.Scale, targetX, sib.Position.Y.Scale, sy)
 if sib.Size.X.Scale > 0.4 or sib.Size.X.Offset > 180 then
@@ -2418,10 +2418,10 @@ end
 for _, sib in ipairs(win:GetDescendants()) do
 if sib:IsA("GuiObject") then
 shiftContentTarget(sib)
-elseif sib:IsA("UIPadding") and not sib:IsDescendantOf(navContainer) and not sib:GetAttribute("__ChilliPadShiftedV9") then
+elseif sib:IsA("UIPadding") and not sib:IsDescendantOf(navContainer) and not sib:GetAttribute("__ChilliPadShiftedV10") then
 local pl = sib.PaddingLeft.Offset
-if pl >= 15 and pl <= 125 then
-sib:SetAttribute("__ChilliPadShiftedV9", true)
+if pl >= 15 and pl <= 155 then
+sib:SetAttribute("__ChilliPadShiftedV10", true)
 sib.PaddingLeft = UDim.new(sib.PaddingLeft.Scale, pl + EXTRA_SIDEBAR_W)
 end
 end
@@ -2436,7 +2436,7 @@ local tabShines = {}
 local tabViLabels = {}
 local tabEnLabels = {}
 
--- Hiệu ứng kính màu chuyển động mượt mà khi bấm chọn từng tab (Bấm nút này hóa kính rực rỡ nút đấy)
+-- Hiệu ứng mặt kính chuyển màu mượt mà (Bấm nút nào hóa kính rực rỡ nút đó)
 local function setActiveTabVisual(activeIdx, playSnd)
 if playSnd then playIslandSfx("tap") end
 for i = 1, #navButtons do
@@ -2444,6 +2444,7 @@ local sq = tabSquircles[i]
 local st = tabStrokes[i]
 local bar = tabBars[i]
 local sh = tabShines[i]
+local viL = tabViLabels[i]
 local enL = tabEnLabels[i]
 local isAct = (i == activeIdx)
 local bColor = SIDEBAR_PALETTE[((i - 1) % #SIDEBAR_PALETTE) + 1]
@@ -2451,12 +2452,12 @@ if sq and sq.Parent then
 TweenService:Create(sq, TweenInfo.new(0.22, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 Size = u2s(1, 1),
 BackgroundColor3 = isAct and bColor or c3(16, 20, 32),
-BackgroundTransparency = isAct and 0.06 or 0.45
+BackgroundTransparency = isAct and 0.06 or 0.42
 }):Play()
 end
 if st and st.Parent then
 TweenService:Create(st, TweenInfo.new(0.22, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-Thickness = isAct and 1.6 or 1.0,
+Thickness = isAct and 1.6 or 1.1,
 Color = isAct and Color3.new(1, 1, 1) or bColor,
 Transparency = isAct and 0.05 or 0.45
 }):Play()
@@ -2464,14 +2465,17 @@ end
 if sh and sh.Parent then
 sh.Visible = true
 TweenService:Create(sh, TweenInfo.new(0.22, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-BackgroundTransparency = isAct and 0.45 or 0.88
+BackgroundTransparency = isAct and 0.62 or 0.90
 }):Play()
 end
 if bar and bar.Parent then
 bar.Visible = isAct
 end
+if viL and viL.Parent then
+viL.TextColor3 = Color3.new(1, 1, 1)
+end
 if enL and enL.Parent then
-enL.TextColor3 = isAct and Color3.new(1, 1, 1) or c3(165, 185, 215)
+enL.TextColor3 = isAct and c3(235, 240, 245) or c3(170, 170, 170)
 end
 end
 end
@@ -2492,12 +2496,12 @@ end
 end
 end
 
--- Cấu trúc nút Tab chuẩn theo ảnh mẫu: Kích thước 106x38px vừa khít khung, kính màu sáng rực rỡ khi Active
+-- Cấu trúc từng nút Tab: Rộng 138px, Cao 46px, ClipsDescendants = false (không cắt chữ), chữ Tiếng Việt chính 15pt in đậm nổi bật tuyệt đối
 for idx, btn in ipairs(navButtons) do
 pcall(function()
-btn.Size = u2(0, 106, 0, 38)
+btn.Size = u2(0, 138, 0, 46)
 btn.BackgroundTransparency = 1
-btn.ClipsDescendants = true
+btn.ClipsDescendants = false
 end)
 local badgeColor = SIDEBAR_PALETTE[((idx - 1) % #SIDEBAR_PALETTE) + 1]
 local tabInfo = SIDEBAR_TAB_BILINGUAL[idx] or { vi = "Mục " .. tostring(idx), en = "Tab " .. tostring(idx) }
@@ -2510,9 +2514,9 @@ AnchorPoint = v2(0.5, 0.5),
 Position = u2s(0.5, 0.5),
 Size = u2s(1, 1),
 BackgroundColor3 = (idx == 1) and badgeColor or c3(16, 20, 32),
-BackgroundTransparency = (idx == 1) and 0.06 or 0.45,
+BackgroundTransparency = (idx == 1) and 0.06 or 0.42,
 BorderSizePixel = 0,
-ClipsDescendants = true,
+ClipsDescendants = false,
 Active = false,
 ZIndex = btn.ZIndex + 1
 }, btn)
@@ -2521,8 +2525,8 @@ squircle.AnchorPoint = v2(0.5, 0.5)
 squircle.Position = u2s(0.5, 0.5)
 squircle.Size = u2s(1, 1)
 squircle.BackgroundColor3 = (idx == 1) and badgeColor or c3(16, 20, 32)
-squircle.BackgroundTransparency = (idx == 1) and 0.06 or 0.45
-squircle.ClipsDescendants = true
+squircle.BackgroundTransparency = (idx == 1) and 0.06 or 0.42
+squircle.ClipsDescendants = false
 end
 
 local sqCorner = squircle:FindFirstChildOfClass("UICorner") or mk("UICorner", { CornerRadius = UDim.new(0, 10) }, squircle)
@@ -2530,25 +2534,25 @@ sqCorner.CornerRadius = UDim.new(0, 10)
 
 local sqStroke = squircle:FindFirstChild("ChilliTabStroke") or mk("UIStroke", {
 Name = "ChilliTabStroke",
-Thickness = (idx == 1) and 1.6 or 1.0,
+Thickness = (idx == 1) and 1.6 or 1.1,
 Color = (idx == 1) and Color3.new(1, 1, 1) or badgeColor,
 Transparency = (idx == 1) and 0.05 or 0.45,
 ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 }, squircle)
-sqStroke.Thickness = (idx == 1) and 1.6 or 1.0
+sqStroke.Thickness = (idx == 1) and 1.6 or 1.1
 sqStroke.Color = (idx == 1) and Color3.new(1, 1, 1) or badgeColor
 sqStroke.Transparency = (idx == 1) and 0.05 or 0.45
 
--- Dải kính phản chiếu ở nửa trên của nút
+-- Dải kính phản chiếu mỏng ở mép trên (ZIndex thấp hơn chữ, không làm mờ chữ)
 local glassShine = squircle:FindFirstChild("ChilliTabGlassShine")
 if not glassShine then
 glassShine = mk("Frame", {
 Name = "ChilliTabGlassShine",
 AnchorPoint = v2(0.5, 0),
 Position = u2(0.5, 0, 0, 1),
-Size = u2(1, -4, 0.46, 0),
+Size = u2(1, -4, 0.38, 0),
 BackgroundColor3 = Color3.new(1, 1, 1),
-BackgroundTransparency = (idx == 1) and 0.45 or 0.88,
+BackgroundTransparency = (idx == 1) and 0.62 or 0.90,
 BorderSizePixel = 0,
 Active = false,
 ZIndex = squircle.ZIndex + 1
@@ -2557,21 +2561,21 @@ mk("UICorner", { CornerRadius = UDim.new(0, 8) }, glassShine)
 mk("UIGradient", {
 Rotation = 90,
 Transparency = NumberSequence.new({
-NumberSequenceKeypoint.new(0, 0.10),
-NumberSequenceKeypoint.new(0.65, 0.60),
+NumberSequenceKeypoint.new(0, 0.15),
+NumberSequenceKeypoint.new(0.70, 0.70),
 NumberSequenceKeypoint.new(1, 1.0)
 })
 }, glassShine)
 else
-glassShine.BackgroundTransparency = (idx == 1) and 0.45 or 0.88
+glassShine.BackgroundTransparency = (idx == 1) and 0.62 or 0.90
 end
 
--- Vạch chỉ thị màu trắng bo tròn ở mép trái (Indicator Pill Bar y hệt ảnh mẫu)
+-- Vạch chỉ thị trắng bo tròn ở mép trái
 local actBar = squircle:FindFirstChild("ChilliTabActiveBar") or mk("Frame", {
 Name = "ChilliTabActiveBar",
 AnchorPoint = v2(0, 0.5),
 Position = u2(0, 3, 0.5, 0),
-Size = u2(0, 3.5, 0, 18),
+Size = u2(0, 3.5, 0, 22),
 BackgroundColor3 = Color3.new(1, 1, 1),
 BorderSizePixel = 0,
 Visible = (idx == 1),
@@ -2579,71 +2583,78 @@ Active = false,
 ZIndex = squircle.ZIndex + 3
 }, squircle)
 actBar.Position = u2(0, 3, 0.5, 0)
-actBar.Size = u2(0, 3.5, 0, 18)
+actBar.Size = u2(0, 3.5, 0, 22)
 actBar.Visible = (idx == 1)
 if not actBar:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, actBar) end
 
--- Dòng Tiếng Việt (11pt GothamBold in đậm): Position = UDim2.new(0, 30, 0, 4), Size = UDim2.new(1, -33, 0, 16)
+-- Dòng Tiếng Việt chính: TO RÕ, IN ĐẬM, NỔI BẬT HOÀN TOÀN (TextSize = 15, GothamBold, màu trắng sáng)
 local viLbl = squircle:FindFirstChild("ChilliTabCaption") or mk("TextLabel", {
 Name = "ChilliTabCaption",
 AnchorPoint = v2(0, 0),
-Position = u2(0, 30, 0, 4),
-Size = u2(1, -33, 0, 16),
+Position = u2(0, 36, 0, 5),
+Size = u2(1, -38, 0, 20),
 BackgroundTransparency = 1,
 Font = Enum.Font.GothamBold,
-TextSize = 11,
+TextSize = 15,
 TextColor3 = Color3.new(1, 1, 1),
 TextXAlignment = Enum.TextXAlignment.Left,
 TextYAlignment = Enum.TextYAlignment.Center,
 Text = (State.Language == "EN") and tabInfo.en or tabInfo.vi,
-TextTruncate = Enum.TextTruncate.AtEnd,
+TextTruncate = Enum.TextTruncate.None,
 Active = false,
-ZIndex = squircle.ZIndex + 4
+ZIndex = squircle.ZIndex + 6
 }, squircle)
 viLbl:SetAttribute("__HiddenVxLogo", true)
 viLbl.AnchorPoint = v2(0, 0)
-viLbl.Position = u2(0, 30, 0, 4)
-viLbl.Size = u2(1, -33, 0, 16)
+viLbl.Position = u2(0, 36, 0, 5)
+viLbl.Size = u2(1, -38, 0, 20)
 viLbl.Font = Enum.Font.GothamBold
-viLbl.TextSize = 11
+viLbl.TextSize = 15
 viLbl.TextColor3 = Color3.new(1, 1, 1)
 viLbl.TextXAlignment = Enum.TextXAlignment.Left
 viLbl.TextYAlignment = Enum.TextYAlignment.Center
+viLbl.TextTruncate = Enum.TextTruncate.None
 viLbl.TextTransparency = 0
 viLbl.Visible = true
+viLbl.ZIndex = squircle.ZIndex + 6
 viLbl.Text = (State.Language == "EN") and tabInfo.en or tabInfo.vi
-if not viLbl:FindFirstChildOfClass("UIStroke") then mk("UIStroke", { Thickness = 1.0, Color = c3(10, 8, 14), Transparency = 0.15 }, viLbl) end
+local viSt = viLbl:FindFirstChildOfClass("UIStroke") or mk("UIStroke", { Thickness = 1.2, Color = c3(8, 10, 18), Transparency = 0.12 }, viLbl)
+viSt.Thickness = 1.2
+viSt.Color = c3(8, 10, 18)
+viSt.Transparency = 0.12
 
--- Dòng Tiếng Anh (9pt Gotham): Position = UDim2.new(0, 30, 0, 19), Size = UDim2.new(1, -33, 0, 14)
+-- Dòng Tiếng Anh phụ: Đặt ngay bên dưới, nhỏ gọn (TextSize = 10, màu xám mờ Color3.fromRGB(170, 170, 170))
 local enLbl = squircle:FindFirstChild("ChilliTabCaptionEn") or mk("TextLabel", {
 Name = "ChilliTabCaptionEn",
 AnchorPoint = v2(0, 0),
-Position = u2(0, 30, 0, 19),
-Size = u2(1, -33, 0, 14),
+Position = u2(0, 36, 0, 25),
+Size = u2(1, -38, 0, 15),
 BackgroundTransparency = 1,
 Font = Enum.Font.Gotham,
-TextSize = 9,
-TextColor3 = (idx == 1) and Color3.new(1, 1, 1) or c3(165, 185, 215),
+TextSize = 10,
+TextColor3 = (idx == 1) and c3(235, 240, 245) or c3(170, 170, 170),
 TextXAlignment = Enum.TextXAlignment.Left,
 TextYAlignment = Enum.TextYAlignment.Center,
 Text = (State.Language == "EN") and tabInfo.vi or tabInfo.en,
-TextTruncate = Enum.TextTruncate.AtEnd,
+TextTruncate = Enum.TextTruncate.None,
 Active = false,
-ZIndex = squircle.ZIndex + 4
+ZIndex = squircle.ZIndex + 6
 }, squircle)
 enLbl:SetAttribute("__HiddenVxLogo", true)
 enLbl.AnchorPoint = v2(0, 0)
-enLbl.Position = u2(0, 30, 0, 19)
-enLbl.Size = u2(1, -33, 0, 14)
+enLbl.Position = u2(0, 36, 0, 25)
+enLbl.Size = u2(1, -38, 0, 15)
 enLbl.Font = Enum.Font.Gotham
-enLbl.TextSize = 9
-enLbl.TextColor3 = (idx == 1) and Color3.new(1, 1, 1) or c3(165, 185, 215)
+enLbl.TextSize = 10
+enLbl.TextColor3 = (idx == 1) and c3(235, 240, 245) or c3(170, 170, 170)
 enLbl.TextXAlignment = Enum.TextXAlignment.Left
 enLbl.TextYAlignment = Enum.TextYAlignment.Center
+enLbl.TextTruncate = Enum.TextTruncate.None
 enLbl.TextTransparency = 0
 enLbl.Visible = true
+enLbl.ZIndex = squircle.ZIndex + 6
 enLbl.Text = (State.Language == "EN") and tabInfo.vi or tabInfo.en
-if not enLbl:FindFirstChildOfClass("UIStroke") then mk("UIStroke", { Thickness = 0.8, Color = c3(6, 8, 16), Transparency = 0.22 }, enLbl) end
+if not enLbl:FindFirstChildOfClass("UIStroke") then mk("UIStroke", { Thickness = 0.85, Color = c3(6, 8, 16), Transparency = 0.20 }, enLbl) end
 
 tabViLabels[idx] = viLbl
 tabEnLabels[idx] = enLbl
@@ -2652,19 +2663,19 @@ tabStrokes[idx] = sqStroke
 tabBars[idx] = actBar
 tabShines[idx] = glassShine
 
--- Icon bên trái: Position = UDim2.new(0, 8, 0.5, 0), Size = UDim2.new(0, 18, 0, 18)
+-- Icon bên trái: Position = UDim2.new(0, 10, 0.5, 0), Size = UDim2.new(0, 20, 0, 20)
 local hasFoundIcon = false
 for _, ch in ipairs(btn:GetDescendants()) do
 if ch ~= squircle and not ch:IsDescendantOf(squircle) and ch.Name ~= "ChilliStealTabIcon" and ch.Name ~= "ChilliTabCaption" and ch.Name ~= "ChilliTabCaptionEn" then
 if ch:IsA("ImageLabel") or ch:IsA("ImageButton") then
 if not hasFoundIcon and idx ~= 2 then
 hasFoundIcon = true
-ch.ZIndex = squircle.ZIndex + 2
+ch.ZIndex = squircle.ZIndex + 4
 ch.ImageColor3 = Color3.new(1, 1, 1)
 ch.ImageTransparency = 0
 ch.AnchorPoint = v2(0, 0.5)
-ch.Position = u2(0, 8, 0.5, 0)
-ch.Size = u2(0, 18, 0, 18)
+ch.Position = u2(0, 10, 0.5, 0)
+ch.Size = u2(0, 20, 0, 20)
 ch.Visible = true
 else
 ch.Visible = false
@@ -2700,19 +2711,19 @@ end
 local stealIcon = btn:FindFirstChild("ChilliStealTabIcon") or mk("ImageLabel", {
 Name = "ChilliStealTabIcon",
 AnchorPoint = v2(0, 0.5),
-Position = u2(0, 8, 0.5, 0),
-Size = u2(0, 18, 0, 18),
+Position = u2(0, 10, 0.5, 0),
+Size = u2(0, 20, 0, 20),
 BackgroundTransparency = 1,
 Image = STEAL_TAB_ICON_ID,
 ScaleType = Enum.ScaleType.Fit,
 Active = false,
 Selectable = false,
-ZIndex = squircle.ZIndex + 3
+ZIndex = squircle.ZIndex + 4
 }, btn)
 stealIcon.Image = STEAL_TAB_ICON_ID
 stealIcon.AnchorPoint = v2(0, 0.5)
-stealIcon.Position = u2(0, 8, 0.5, 0)
-stealIcon.Size = u2(0, 18, 0, 18)
+stealIcon.Position = u2(0, 10, 0.5, 0)
+stealIcon.Size = u2(0, 20, 0, 20)
 stealIcon.Visible = true
 end
 
@@ -2844,7 +2855,7 @@ end
 end
 end)
 
--- 3. Căn chỉnh toàn bộ tọa độ khung con bên trong sang X=126px đồng bộ, mượt mà (Zero Lag)
+-- 3. Căn chỉnh toàn bộ tọa độ khung con bên trong sang X=160px đồng bộ, mượt mà (Zero Lag)
 local function ensureAllContentShifted(targetWin)
 if not targetWin or not targetWin.Parent then return end
 local navContainer = State.ActiveNavContainer
@@ -2855,10 +2866,10 @@ local isWp = (ch.Name:find("^Chilli") and (ch.Name:find("Wallpaper") or ch.Name:
 if not isHdr and not isWp then
 local curX = ch.Position.X.Offset
 local curScale = ch.Position.X.Scale
-if curScale < 0.25 and curX < 124 then
-ch.Position = u2(0, 126, ch.Position.Y.Scale, ch.Position.Y.Offset)
+if curScale < 0.25 and curX < 158 then
+ch.Position = u2(0, 160, ch.Position.Y.Scale, ch.Position.Y.Offset)
 if ch.Size.X.Scale > 0.4 or ch.Size.X.Offset > 150 then
-ch.Size = u2(ch.Size.X.Scale, ch.Size.X.Offset - 75, ch.Size.Y.Scale, ch.Size.Y.Offset)
+ch.Size = u2(ch.Size.X.Scale, ch.Size.X.Offset - 105, ch.Size.Y.Scale, ch.Size.Y.Offset)
 end
 end
 end
@@ -2869,7 +2880,7 @@ if d:IsA("TextLabel") and not (navContainer and d:IsDescendantOf(navContainer)) 
 local relX = d.AbsolutePosition.X - targetWin.AbsolutePosition.X
 local relY = d.AbsolutePosition.Y - targetWin.AbsolutePosition.Y
 local txt = d.Text or ""
-if (relX < 124 and relY > 36 and relY < 90) or txt == "Săn Trứng" or txt == "Dashboard" or txt == "Trang chủ" or txt == "Lấy trứng" or txt == "Tự cày" or txt == "Sự kiện" or txt == "Nhân vật" or txt == "Cài đặt" or txt == "Chức năng khác" then
+if (relX < 158 and relY > 36 and relY < 90) or txt == "Săn Trứng" or txt == "Dashboard" or txt == "Trang chủ" or txt == "Lấy trứng" or txt == "Tự cày" or txt == "Sự kiện" or txt == "Nhân vật" or txt == "Cài đặt" or txt == "Chức năng khác" then
 if relY > 36 and (relY < 90 or (d.Parent and not d.Parent:IsA("ScrollingFrame"))) then
 d.Visible = false
 d.Text = ""
@@ -2893,10 +2904,10 @@ local isWp = (ch.Name:find("^Chilli") and (ch.Name:find("Wallpaper") or ch.Name:
 if not isHdr and not isWp then
 local curX = ch.Position.X.Offset
 local curScale = ch.Position.X.Scale
-if curScale < 0.25 and curX < 124 then
-ch.Position = u2(0, 126, ch.Position.Y.Scale, ch.Position.Y.Offset)
+if curScale < 0.25 and curX < 158 then
+ch.Position = u2(0, 160, ch.Position.Y.Scale, ch.Position.Y.Offset)
 if ch.Size.X.Scale > 0.4 or ch.Size.X.Offset > 150 then
-ch.Size = u2(ch.Size.X.Scale, ch.Size.X.Offset - 75, ch.Size.Y.Scale, ch.Size.Y.Offset)
+ch.Size = u2(ch.Size.X.Scale, ch.Size.X.Offset - 105, ch.Size.Y.Scale, ch.Size.Y.Offset)
 end
 end
 end
@@ -2905,7 +2916,7 @@ elseif ch:IsA("TextLabel") and not (State.ActiveNavContainer and ch:IsDescendant
 local txt = ch.Text or ""
 local relY = ch.AbsolutePosition.Y - win.AbsolutePosition.Y
 local relX = ch.AbsolutePosition.X - win.AbsolutePosition.X
-if (relX < 124 and relY > 36 and relY < 90) or txt == "Săn Trứng" or txt == "Dashboard" or txt == "Trang chủ" or txt == "Lấy trứng" then
+if (relX < 158 and relY > 36 and relY < 90) or txt == "Săn Trứng" or txt == "Dashboard" or txt == "Trang chủ" or txt == "Lấy trứng" then
 if relY > 36 and (relY < 90 or (ch.Parent and not ch.Parent:IsA("ScrollingFrame"))) then
 ch.Visible = false
 ch.Text = ""
