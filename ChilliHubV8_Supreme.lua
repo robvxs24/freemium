@@ -2462,6 +2462,27 @@ end
 
 local function applySenaV7Architecture(win, titleLbl)
 	if not win or not titleLbl then return end
+	if win.AbsoluteSize.X < 180 or win.AbsoluteSize.Y < 120 then
+		if win:GetAttribute("__DeferredArchOnOpen") ~= SID then
+			win:SetAttribute("__DeferredArchOnOpen", SID)
+			win:GetPropertyChangedSignal("Visible"):Connect(function()
+				if win.Visible then
+					task.defer(function()
+						pcall(applySenaV7Architecture, win, titleLbl)
+					end)
+				end
+			end)
+			win:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+				if win.AbsoluteSize.X >= 180 and win.AbsoluteSize.Y >= 120 then
+					task.defer(function()
+						pcall(applySenaV7Architecture, win, titleLbl)
+					end)
+				end
+			end)
+		end
+		return
+	end
+
 	local hy, tx = titleLbl.AbsolutePosition.Y, titleLbl.AbsolutePosition.X
 	local winX, winY = win.AbsolutePosition.X, win.AbsolutePosition.Y
 
@@ -2629,7 +2650,7 @@ local function applySenaV7Architecture(win, titleLbl)
 	end
 	syncWallpaperAndOldBg()
 
-	-- B2. THANH HEADER GỌN GÀNG + XOÁ TRIỆT ĐỂ LOGO CHỮ V (Vx) GỐC + THAY BẰNG LOGO ỚT (74441610995894)
+	-- B2. THANH HEADER GỌN GÀNG + XOÁ CHỈ RIÊNG LOGO CHỮ V (Vx) Ở GÓC TRÁI TRÊN ĐẦU + THAY BẰNG LOGO ỚT (74441610995894)
 	local headerBar = nil
 	local curr = titleLbl
 	while curr and curr ~= win do
@@ -2642,7 +2663,6 @@ local function applySenaV7Architecture(win, titleLbl)
 		end
 		curr = curr.Parent
 	end
-	local headerTarget = headerBar or (titleLbl.Parent and titleLbl.Parent:IsA("GuiObject") and titleLbl.Parent) or win
 
 	-- Khôi phục hiển thị toàn bộ container cha của titleLbl
 	local pWalk = titleLbl
@@ -2651,13 +2671,13 @@ local function applySenaV7Architecture(win, titleLbl)
 		pWalk = pWalk.Parent
 	end
 
-	-- Xoá khung ChilliCosmicHolder / ChilliSenaBottomBar cũ nếu có để không che mất thanh tìm kiếm
+	-- Xoá khung ChilliCosmicHolder / ChilliSenaBottomBar cũ nếu có
 	local oldCosmic = win:FindFirstChild("ChilliCosmicHolder")
 	if oldCosmic then oldCosmic:Destroy() end
 	local oldBotBar = win:FindFirstChild("ChilliSenaBottomBar")
 	if oldBotBar then oldBotBar:Destroy() end
 
-	-- Phủ màu ULTRA rực rỡ trực tiếp lên chữ "Chilli Hub V8" trên Header
+	-- Phủ màu ULTRA trực tiếp lên chữ "Chilli Hub V8" trên Header
 	titleLbl.TextColor3 = Color3.new(1, 1, 1)
 	titleLbl.Font = Enum.Font.GothamBlack
 	titleLbl.TextTransparency = 0
@@ -2669,74 +2689,61 @@ local function applySenaV7Architecture(win, titleLbl)
 		mk("UIStroke", { Name = "TitleUltraStroke", Thickness = 1.2, Color = Color3.fromRGB(12, 8, 22), Transparency = 0.2 }, titleLbl)
 	end
 
-	-- XOÁ TRIỆT ĐỂ LOGO CHỮ V (Vx) GỐC Ở GÓC TRÊN ĐẦU MENU (bên trái chữ Chilli Hub V8)
-	local searchScope = win
-	for _, it in ipairs(searchScope:GetDescendants()) do
+	-- XOÁ CHÍNH XÁC CHỈ RIÊNG LOGO CHỮ V (Vx) Ở GÓC TRÊN TRÁI (46x38px đầu tiên của win, nằm bên trái chữ Chilli Hub V8 và phía trên các nút Tab Sidebar)
+	-- Tuyệt đối KHÔNG đụng tới khung Sidebar hay bất kỳ nút Tab nào bên dưới!
+	local hdrBottomY = hy + titleLbl.AbsoluteSize.Y + 8
+	for _, it in ipairs(win:GetDescendants()) do
 		if it:IsA("GuiObject")
-		   and it ~= win and it ~= mainBg and it ~= headerBar and it ~= headerTarget and it ~= titleLbl
+		   and it ~= win and it ~= mainBg and it ~= headerBar and it ~= titleLbl
 		   and not it.Name:find("^Chilli")
 		   and not it:IsDescendantOf(titleLbl)
-		   and not titleLbl:IsDescendantOf(it) then
+		   and not titleLbl:IsDescendantOf(it)
+		   and not it:FindFirstAncestorOfClass("ScrollingFrame") then
 			local p, s = it.AbsolutePosition, it.AbsoluteSize
-			local inTopLeftHeader = (p.X >= winX - 6 and p.X < tx - 3 and math.abs(p.Y - hy) < 42 and s.X <= 95 and s.Y <= 75)
-			local inTopLeftRel = ((it.Parent == headerTarget or it.Parent == headerBar or it.Parent == win) and it.Position.X.Scale == 0 and it.Position.X.Offset >= 0 and it.Position.X.Offset < 36 and it.Position.Y.Offset < 36 and s.X <= 95 and s.Y <= 75)
-			if inTopLeftHeader or inTopLeftRel then
+			local itemBottomY = p.Y + s.Y
+			local itemRightX = p.X + s.X
+			-- Chỉ nhận diện phần tử nằm trọn vẹn trong ô góc trái trên cùng (bên trái titleLbl và đáy nằm trên đường kẻ Header)
+			if s.X > 0 and s.X <= 46 and s.Y > 0 and s.Y <= 40
+			   and p.X >= winX - 4 and itemRightX <= tx + 2
+			   and p.Y >= winY - 4 and itemBottomY <= hdrBottomY then
 				if it:IsA("TextLabel") or it:IsA("TextButton") then
 					killVxLogo(it)
 				elseif it:IsA("ImageLabel") or it:IsA("ImageButton") then
 					it.ImageTransparency = 1
 					it.BackgroundTransparency = 1
-					if not it:GetAttribute("__VxImgHidden") then
-						it:SetAttribute("__VxImgHidden", true)
-						it:GetPropertyChangedSignal("ImageTransparency"):Connect(function()
-							if it.ImageTransparency ~= 1 then it.ImageTransparency = 1 end
-						end)
-					end
-				elseif it:IsA("Frame") or it:IsA("CanvasGroup") then
+				elseif it:IsA("Frame") and #it:GetChildren() == 0 then
 					it.BackgroundTransparency = 1
-					for _, sub in ipairs(it:GetDescendants()) do
-						if sub:IsA("TextLabel") or sub:IsA("TextButton") then
-							killVxLogo(sub)
-						elseif sub:IsA("ImageLabel") or sub:IsA("ImageButton") then
-							sub.ImageTransparency = 1
-							sub.BackgroundTransparency = 1
-						elseif sub:IsA("Frame") then
-							sub.BackgroundTransparency = 1
-						elseif sub:IsA("UIStroke") then
-							sub.Transparency = 1
-							sub.Enabled = false
-						end
-					end
 				end
 			end
 		end
 	end
 
-	-- THAY THẾ NGAY VỊ TRÍ CHỮ V GỐC BẰNG LOGO QUẢ ỚT CỦA SCRIPT (rbxassetid://74441610995894)
-	local logoParent = headerBar or headerTarget or win
-	local mainChilliLogo = logoParent:FindFirstChild("ChilliMainChilliLogo") or win:FindFirstChild("ChilliMainChilliLogo", true)
-	if mainChilliLogo and mainChilliLogo.Parent ~= logoParent then
-		mainChilliLogo:Destroy()
-		mainChilliLogo = nil
+	-- ĐẶT LOGO QUẢ ỚT (rbxassetid://74441610995894) NGAY Ô GÓC TRÊN TRÁI CỦA WIN (x = 22, y = 19, bên trái chữ Chilli Hub V8, tuyệt đối không đè lên chữ Chilli Hub V8!)
+	for _, oldL in ipairs(win:GetDescendants()) do
+		if oldL.Name == "ChilliMainChilliLogo" and oldL.Parent ~= win then
+			oldL:Destroy()
+		end
 	end
-	local hdrBaseZ = math.max(10, (titleLbl.ZIndex or 5) + 5)
+	local mainChilliLogo = win:FindFirstChild("ChilliMainChilliLogo")
+	local hdrBaseZ = math.max(15, (titleLbl.ZIndex or 5) + 8)
+	local logoCenterX = math.clamp(math.floor((tx - winX) * 0.5), 18, 25)
+	local logoCenterY = math.clamp(math.floor((hy - winY) + titleLbl.AbsoluteSize.Y * 0.5), 16, 22)
 	if not mainChilliLogo then
-		local isHeaderFrame = (logoParent ~= win)
 		mainChilliLogo = mk("Frame", {
 			Name = "ChilliMainChilliLogo",
-			AnchorPoint = isHeaderFrame and Vector2.new(0, 0.5) or Vector2.new(0, 0),
-			Position = isHeaderFrame and UDim2.new(0, 10, 0.5, 0) or UDim2.new(0, 10, 0, 8),
-			Size = UDim2.new(0, 28, 0, 28),
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.new(0, logoCenterX, 0, logoCenterY),
+			Size = UDim2.new(0, 26, 0, 26),
 			BackgroundColor3 = Color3.fromRGB(10, 12, 20),
 			BackgroundTransparency = 0,
 			BorderSizePixel = 0,
 			ClipsDescendants = true,
 			Active = false,
 			ZIndex = hdrBaseZ
-		}, logoParent)
+		}, win)
 		mk("UICorner", { CornerRadius = UDim.new(1, 0) }, mainChilliLogo)
 		local mcStroke = mk("UIStroke", {
-			Thickness = 1.6,
+			Thickness = 1.5,
 			Color = Color3.new(1, 1, 1),
 			Transparency = 0.05,
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border
@@ -2755,6 +2762,7 @@ local function applySenaV7Architecture(win, titleLbl)
 			ZIndex = hdrBaseZ + 1
 		}, mainChilliLogo)
 	else
+		mainChilliLogo.Position = UDim2.new(0, logoCenterX, 0, logoCenterY)
 		mainChilliLogo.Visible = true
 		mainChilliLogo.ZIndex = hdrBaseZ
 		local lImg = mainChilliLogo:FindFirstChild("LogoImg")
@@ -2765,6 +2773,42 @@ local function applySenaV7Architecture(win, titleLbl)
 		end
 	end
 	State.MainChilliLogo = mainChilliLogo
+
+	-- Khôi phục hoàn toàn các nút trong ScrollingFrame (Trang Chủ: Vào lại, Đổi máy chủ...) và các icon Sidebar nếu phiên trước bị ẩn nhầm
+	for _, sc in ipairs(win:GetDescendants()) do
+		if sc:IsA("ScrollingFrame") then
+			for _, sub in ipairs(sc:GetDescendants()) do
+				if sub.Name == "ChilliSenaSquircle" or sub.Name == "ChilliStealTabIcon" or sub.Name == "ChilliSidebarNeonLine" or sub.Name == "ChilliTabRipple" then
+					local par = sub.Parent
+					sub:Destroy()
+					if par and par:IsA("GuiObject") then
+						par.BackgroundTransparency = 0.15
+					end
+				elseif sub:GetAttribute("__HiddenVxLogo") then
+					sub:SetAttribute("__HiddenVxLogo", nil)
+					sub.Visible = true
+					if sub:IsA("TextLabel") or sub:IsA("TextButton") then sub.TextTransparency = 0 end
+				elseif (sub:IsA("ImageLabel") or sub:IsA("ImageButton")) and sub.ImageTransparency == 1 then
+					sub.Visible = true
+					sub.ImageTransparency = 0
+				elseif (sub:IsA("TextLabel") or sub:IsA("TextButton")) and sub.TextTransparency == 1 and (sub.Text or "") ~= "" then
+					sub.Visible = true
+					sub.TextTransparency = 0
+				end
+			end
+		end
+	end
+	for _, sObj in ipairs(win:GetDescendants()) do
+		if sObj:IsA("GuiObject") and not sObj:FindFirstAncestorOfClass("ScrollingFrame") and not sObj.Name:find("^Chilli") then
+			local sp = sObj.AbsolutePosition
+			if (sp.X - winX) >= -2 and (sp.X - winX) < 58 and sp.Y > hdrBottomY then
+				sObj.Visible = true
+				if (sObj:IsA("ImageLabel") or sObj:IsA("ImageButton")) and sObj.ImageTransparency == 1 then
+					sObj.ImageTransparency = 0
+				end
+			end
+		end
+	end
 
 	-- C. ĐỒNG BỘ HIỂN THỊ MENU CHILLI HUB V8
 	local function syncWindowVisibilityInstant()
@@ -2789,8 +2833,8 @@ local function applySenaV7Architecture(win, titleLbl)
 	State.SyncWindowFn = syncWindowVisibilityInstant
 	syncWindowVisibilityInstant()
 
-	if not win:GetAttribute("__InstantHideHooked") then
-		win:SetAttribute("__InstantHideHooked", true)
+	if win:GetAttribute("__InstantHideHooked") ~= SID then
+		win:SetAttribute("__InstantHideHooked", SID)
 		win:GetPropertyChangedSignal("Visible"):Connect(function()
 			syncWindowVisibilityInstant()
 			if win.Visible then
@@ -2828,27 +2872,32 @@ local function applySenaV7Architecture(win, titleLbl)
 		end
 	end
 
-	-- D. THANH TAB HIỆN ĐẠI (CYBER-NEON LIQUID GLASS SQUIRCLE) + HIỆU ỨNG ÂM THANH CLICK SỐNG ĐỘNG
+	-- D. THANH TAB DỌC BÊN TRÁI (SIDEBAR) HIỆN ĐẠI + HIỆU ỨNG ÂM THANH CLICK
+	-- Chỉ tìm đúng cột nút Tab dọc ở mép trái của win (không nằm trong ScrollingFrame, X cách mép trái < 55px, xếp dọc từ trên xuống)
 	local navButtons = {}
 	local navContainer = nil
 	for _, d in ipairs(win:GetDescendants()) do
-		if d:IsA("GuiObject") and not d:IsA("ScrollingFrame") and not d.Name:find("^Chilli") then
-			local relX = d.AbsolutePosition.X - winX
-			local relY = d.AbsolutePosition.Y - hy
-			if (relX < 135 and relY > 8) or (d.Position.X.Scale == 0 and d.Position.X.Offset < 90 and d.Size.X.Offset > 0 and d.Size.X.Offset <= 150) then
-				local children = {}
-				for _, ch in ipairs(d:GetChildren()) do
-					if ch:IsA("GuiObject") and not ch.Name:find("^Chilli") and ch.Visible then
-						local cw, chH = ch.AbsoluteSize.X, ch.AbsoluteSize.Y
-						local sw, sh = ch.Size.X.Offset, ch.Size.Y.Offset
-						local validAbs = (cw >= 16 and cw <= 150 and chH >= 16 and chH <= 115)
-						local validOff = (cw == 0 and sw >= 16 and sw <= 150 and sh >= 16 and sh <= 115)
-						if validAbs or validOff then
-							table.insert(children, ch)
-						end
+		if d:IsA("GuiObject")
+		   and not d:IsA("ScrollingFrame")
+		   and not d:FindFirstAncestorOfClass("ScrollingFrame")
+		   and not d.Name:find("^Chilli")
+		   and (d.AbsolutePosition.X - winX) < 58 then
+			local children = {}
+			for _, ch in ipairs(d:GetChildren()) do
+				if ch:IsA("GuiObject") and not ch.Name:find("^Chilli") and ch.Visible then
+					local cw, chH = ch.AbsoluteSize.X, ch.AbsoluteSize.Y
+					local chRelX = ch.AbsolutePosition.X - winX
+					if chRelX >= -2 and chRelX < 55 and cw >= 18 and cw <= 62 and chH >= 18 and chH <= 62 then
+						table.insert(children, ch)
 					end
 				end
-				if #children >= 5 and #children <= 8 then
+			end
+			if #children >= 5 and #children <= 8 then
+				table.sort(children, function(a, b) return a.AbsolutePosition.Y < b.AbsolutePosition.Y end)
+				local spanY = children[#children].AbsolutePosition.Y - children[1].AbsolutePosition.Y
+				local spanX = math.abs(children[#children].AbsolutePosition.X - children[1].AbsolutePosition.X)
+				-- Bắt buộc phải là cột xếp dọc (spanY > 90px và cùng cột X)
+				if spanY > 90 and spanX < 20 then
 					navButtons = children
 					navContainer = d
 					break
@@ -2857,32 +2906,12 @@ local function applySenaV7Architecture(win, titleLbl)
 		end
 	end
 
-	if #navButtons >= 2 then
-		table.sort(navButtons, function(a, b)
-			if math.abs(a.AbsolutePosition.Y - b.AbsolutePosition.Y) > 2 then
-				return a.AbsolutePosition.Y < b.AbsolutePosition.Y
-			end
-			return a.LayoutOrder < b.LayoutOrder
-		end)
+	if #navButtons >= 5 then
 		State.SystemTabBtn = navButtons[6] or navButtons[#navButtons]
 
-		-- Tô điểm đường chỉ ánh sáng Neon dọc cạnh phải của thanh Tab Sidebar
-		if navContainer and navContainer.Parent and not navContainer:FindFirstChild("ChilliSidebarNeonLine") then
-			local sLine = mk("Frame", {
-				Name = "ChilliSidebarNeonLine",
-				AnchorPoint = Vector2.new(1, 0.5),
-				Position = UDim2.new(1, 0, 0.5, 0),
-				Size = UDim2.new(0, 1.5, 0.92, 0),
-				BackgroundColor3 = Color3.new(1, 1, 1),
-				BackgroundTransparency = 0.25,
-				BorderSizePixel = 0,
-				Active = false,
-				ZIndex = navContainer.ZIndex + 6
-			}, navContainer)
-			table.insert(State.ActiveGradients, mk("UIGradient", {
-				Rotation = 90,
-				Color = RAINBOW
-			}, sLine))
+		-- Đảm bảo khung chứa Sidebar và toàn bộ icon bên trong luôn hiển thị rõ 100%
+		if navContainer and navContainer:IsA("GuiObject") then
+			navContainer.Visible = true
 		end
 
 		local function updateTabActiveStyles(activeIdx)
@@ -2896,43 +2925,43 @@ local function applySenaV7Architecture(win, titleLbl)
 					local bColor = SIDEBAR_PALETTE[((i - 1) % #SIDEBAR_PALETTE) + 1]
 					if i == activeIdx then
 						TweenService:Create(sq, TweenInfo.new(0.20, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-							Size = UDim2.new(0, 36, 0, 36),
+							Size = UDim2.new(0, 34, 0, 34),
 							BackgroundColor3 = Color3.new(1, 1, 1),
-							BackgroundTransparency = 0.02
+							BackgroundTransparency = 0.04
 						}):Play()
 						if st then
 							TweenService:Create(st, TweenInfo.new(0.20, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-								Thickness = 2.0,
+								Thickness = 1.8,
 								Color = Color3.new(1, 1, 1),
-								Transparency = 0.02
+								Transparency = 0.05
 							}):Play()
 						end
 						if actBar then
 							TweenService:Create(actBar, TweenInfo.new(0.20, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-								Size = UDim2.new(0, 3.5, 0, 20),
+								Size = UDim2.new(0, 3, 0, 18),
 								BackgroundTransparency = 0,
 								BackgroundColor3 = Color3.new(1, 1, 1)
 							}):Play()
 						end
 						if shine then
-							shine.BackgroundTransparency = 0.72
+							shine.BackgroundTransparency = 0.74
 						end
 					else
 						TweenService:Create(sq, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-							Size = UDim2.new(0, 31, 0, 31),
+							Size = UDim2.new(0, 29, 0, 29),
 							BackgroundColor3 = Color3.new(1, 1, 1),
-							BackgroundTransparency = 0.34
+							BackgroundTransparency = 0.36
 						}):Play()
 						if st then
 							TweenService:Create(st, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-								Thickness = 1.2,
+								Thickness = 1.1,
 								Color = bColor,
-								Transparency = 0.25
+								Transparency = 0.28
 							}):Play()
 						end
 						if actBar then
 							TweenService:Create(actBar, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-								Size = UDim2.new(0, 3.5, 0, 6),
+								Size = UDim2.new(0, 3, 0, 6),
 								BackgroundTransparency = 1
 							}):Play()
 						end
@@ -3007,33 +3036,9 @@ local function applySenaV7Architecture(win, titleLbl)
 		end
 
 		for idx, btn in ipairs(navButtons) do
+			btn.Visible = true
 			local badgeColor = SIDEBAR_PALETTE[((idx - 1) % #SIDEBAR_PALETTE) + 1]
 			local gradPair = SIDEBAR_GRAD_PAIRS[((idx - 1) % #SIDEBAR_GRAD_PAIRS) + 1]
-
-			-- Ẩn khung nền xám mặc định của Venyx trên nút Tab để màu Neon hiện đại nổi bật 100%
-			btn.BackgroundTransparency = 1
-			if not btn:GetAttribute("__BgTransLocked") then
-				btn:SetAttribute("__BgTransLocked", true)
-				btn:GetPropertyChangedSignal("BackgroundTransparency"):Connect(function()
-					if btn.BackgroundTransparency ~= 1 then
-						btn.BackgroundTransparency = 1
-					end
-				end)
-			end
-			for _, st in ipairs(btn:GetChildren()) do
-				if st:IsA("UIStroke") and st.Name ~= "SquircleStroke" then
-					st.Transparency = 1
-					st.Enabled = false
-				elseif st:IsA("Frame") and not st.Name:find("^Chilli") then
-					st.BackgroundTransparency = 1
-					for _, subSt in ipairs(st:GetChildren()) do
-						if subSt:IsA("UIStroke") then
-							subSt.Transparency = 1
-							subSt.Enabled = false
-						end
-					end
-				end
-			end
 
 			local squircle = btn:FindFirstChild("ChilliSenaSquircle")
 			if not squircle then
@@ -3041,14 +3046,14 @@ local function applySenaV7Architecture(win, titleLbl)
 					Name = "ChilliSenaSquircle",
 					AnchorPoint = Vector2.new(0.5, 0.5),
 					Position = UDim2.fromScale(0.5, 0.5),
-					Size = UDim2.new(0, 32, 0, 32),
+					Size = UDim2.new(0, 30, 0, 30),
 					BackgroundColor3 = Color3.new(1, 1, 1),
 					BackgroundTransparency = 0.25,
 					BorderSizePixel = 0,
 					Active = false,
 					ZIndex = math.max(2, btn.ZIndex + 1)
 				}, btn)
-				mk("UICorner", { CornerRadius = UDim.new(0, 10) }, squircle)
+				mk("UICorner", { CornerRadius = UDim.new(0, 9) }, squircle)
 				mk("UIGradient", {
 					Name = "SquircleGrad",
 					Rotation = 45,
@@ -3059,32 +3064,30 @@ local function applySenaV7Architecture(win, titleLbl)
 				}, squircle)
 				mk("UIStroke", {
 					Name = "SquircleStroke",
-					Thickness = 1.4,
+					Thickness = 1.3,
 					Color = badgeColor,
-					Transparency = 0.2,
+					Transparency = 0.22,
 					ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 				}, squircle)
 
-				-- Lớp phản chiếu kính Liquid Glass nửa trên nút Tab
 				local glassShine = mk("Frame", {
 					Name = "ChilliTabGlassShine",
 					AnchorPoint = Vector2.new(0.5, 0),
 					Position = UDim2.new(0.5, 0, 0, 1),
-					Size = UDim2.new(0.86, 0, 0.42, 0),
+					Size = UDim2.new(0.84, 0, 0.42, 0),
 					BackgroundColor3 = Color3.new(1, 1, 1),
 					BackgroundTransparency = 0.80,
 					BorderSizePixel = 0,
 					Active = false,
 					ZIndex = squircle.ZIndex + 1
 				}, squircle)
-				mk("UICorner", { CornerRadius = UDim.new(0, 8) }, glassShine)
+				mk("UICorner", { CornerRadius = UDim.new(0, 7) }, glassShine)
 
-				-- Thanh vạch sáng Neon báo hiệu Tab đang mở bên cạnh trái
 				local activeBar = mk("Frame", {
 					Name = "ChilliTabActiveBar",
 					AnchorPoint = Vector2.new(0, 0.5),
-					Position = UDim2.new(0, -5, 0.5, 0),
-					Size = UDim2.new(0, 3.5, 0, 18),
+					Position = UDim2.new(0, -4, 0.5, 0),
+					Size = UDim2.new(0, 3, 0, 16),
 					BackgroundColor3 = badgeColor,
 					BackgroundTransparency = 1,
 					BorderSizePixel = 0,
@@ -3094,15 +3097,23 @@ local function applySenaV7Architecture(win, titleLbl)
 				mk("UICorner", { CornerRadius = UDim.new(1, 0) }, activeBar)
 			end
 
+			-- Khôi phục hiển thị rõ nét cho mọi Icon gốc của 6 nút Tab Sidebar
 			for _, ch in ipairs(btn:GetDescendants()) do
 				if ch ~= squircle and not ch:IsDescendantOf(squircle) and ch.Name ~= "ChilliStealTabIcon" then
 					if ch:IsA("ImageLabel") or ch:IsA("ImageButton") then
+						ch.Visible = true
 						ch.ZIndex = squircle.ZIndex + 4
 						ch.ImageColor3 = Color3.new(1, 1, 1)
-						ch.ImageTransparency = 0
+						if idx ~= 2 then
+							ch.ImageTransparency = 0
+						end
 					elseif ch:IsA("TextLabel") or ch:IsA("TextButton") then
+						ch.Visible = true
 						ch.ZIndex = squircle.ZIndex + 4
 						ch.TextColor3 = Color3.new(1, 1, 1)
+						if idx ~= 2 then
+							ch.TextTransparency = 0
+						end
 					end
 				end
 			end
@@ -3113,13 +3124,6 @@ local function applySenaV7Architecture(win, titleLbl)
 					if desc ~= squircle and not desc:IsDescendantOf(squircle) and desc.Name ~= "ChilliStealTabIcon" and not desc:IsA("UICorner") and not desc:IsA("UIStroke") then
 						if desc:IsA("ImageLabel") or desc:IsA("ImageButton") then
 							desc.ImageTransparency = 1
-						elseif desc:IsA("TextLabel") or desc:IsA("TextButton") then
-							desc:SetAttribute("__HiddenVxLogo", true)
-							desc.TextTransparency = 1
-						elseif desc:IsA("Frame") then
-							desc.BackgroundTransparency = 1
-							local st = desc:FindFirstChildOfClass("UIStroke")
-							if st then st.Transparency = 1 end
 						end
 					end
 				end
@@ -3129,7 +3133,7 @@ local function applySenaV7Architecture(win, titleLbl)
 						Name = "ChilliStealTabIcon",
 						AnchorPoint = Vector2.new(0.5, 0.5),
 						Position = UDim2.fromScale(0.5, 0.5),
-						Size = UDim2.fromScale(0.82, 0.82),
+						Size = UDim2.fromScale(0.80, 0.80),
 						BackgroundTransparency = 1,
 						Image = STEAL_TAB_ICON_ID,
 						ScaleType = Enum.ScaleType.Fit,
@@ -3139,8 +3143,10 @@ local function applySenaV7Architecture(win, titleLbl)
 					}, btn)
 					mk("UIAspectRatioConstraint", { AspectRatio = 1 }, stealIcon)
 				else
+					stealIcon.Visible = true
 					stealIcon.Image = STEAL_TAB_ICON_ID
-					stealIcon.Size = UDim2.fromScale(0.82, 0.82)
+					stealIcon.ImageTransparency = 0
+					stealIcon.Size = UDim2.fromScale(0.80, 0.80)
 					stealIcon.ZIndex = squircle.ZIndex + 5
 				end
 			end
@@ -3153,28 +3159,23 @@ local function applySenaV7Architecture(win, titleLbl)
 					if now - (State.LastTabClickTime or 0) < 0.12 then return end
 					State.LastTabClickTime = now
 
-					-- 1. Phát âm thanh click tab sắc nét tức thì
 					playModernTabSound()
-
-					-- 2. Cập nhật màu sắc hiện đại cho Tab đang chọn
 					pcall(updateTabActiveStyles, idx)
 
-					-- 3. Hiệu ứng nảy đàn hồi mượt mà
 					TweenService:Create(squircle, TweenInfo.new(0.07, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-						Size = UDim2.new(0, 27, 0, 27)
+						Size = UDim2.new(0, 26, 0, 26)
 					}):Play()
 					task.delay(0.07, function()
 						TweenService:Create(squircle, TweenInfo.new(0.16, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-							Size = UDim2.new(0, 36, 0, 36)
+							Size = UDim2.new(0, 34, 0, 34)
 						}):Play()
 					end)
 
-					-- 4. Hiệu ứng sóng ánh sáng lan tỏa (Shockwave Ripple)
 					local ripple = mk("Frame", {
 						Name = "ChilliTabRipple",
 						AnchorPoint = Vector2.new(0.5, 0.5),
 						Position = UDim2.fromScale(0.5, 0.5),
-						Size = UDim2.new(0, 26, 0, 26),
+						Size = UDim2.new(0, 24, 0, 24),
 						BackgroundColor3 = badgeColor,
 						BackgroundTransparency = 0.18,
 						BorderSizePixel = 0,
@@ -3185,14 +3186,13 @@ local function applySenaV7Architecture(win, titleLbl)
 					local ripStroke = mk("UIStroke", { Thickness = 1.8, Color = Color3.new(1, 1, 1), Transparency = 0.15 }, ripple)
 
 					local rTween = TweenService:Create(ripple, TweenInfo.new(0.32, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-						Size = UDim2.new(0, 50, 0, 50),
+						Size = UDim2.new(0, 48, 0, 48),
 						BackgroundTransparency = 1
 					})
 					TweenService:Create(ripStroke, TweenInfo.new(0.32, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Transparency = 1 }):Play()
 					rTween:Play()
 					rTween.Completed:Connect(function() ripple:Destroy() end)
 
-					-- 5. Hiện huy hiệu thông báo mini của Tab ở đầu trang
 					showTabToast(idx, badgeColor)
 				end
 
@@ -3226,19 +3226,18 @@ local venyxGuiLocked = nil
 -- ============================================================================
 -- [CHILLI BUBBLE & ORIGIN PEPPER TOGGLE]
 -- Lúc đầu Logo bong bóng (91322208361913) và Logo ớt gốc (74441610995894) gắn liền với nhau,
--- Logo bong bóng đứng đầu (chỉ nhìn thấy logo bong bóng). Khi mở menu lên, Logo quả ớt (74441610995894) mới xuất hiện!
+-- Logo bong bóng đứng đầu (chỉ nhìn thấy logo bong bóng). Khi mở menu lên, Logo quả ớt (74441610995894) xuất hiện trên Menu!
 -- ============================================================================
 local function setupBubbleToggle(gui, win)
 	if not gui or not win then return end
-	if win:GetAttribute("__ChilliBubbleHooked") then return end
-	win:SetAttribute("__ChilliBubbleHooked", true)
+	if win:GetAttribute("__ChilliBubbleHooked") == SID then return end
+	win:SetAttribute("__ChilliBubbleHooked", SID)
 
 	local TweenSvc = game:GetService("TweenService")
 	local RunSvc = game:GetService("RunService")
 	local UserInputSvc = game:GetService("UserInputService")
 	State.IsBubbleAnimating = false
 
-	-- Ẩn các nút toggle "Vx" rời rạc của Venyx để thống nhất vào nút kép Bong Bóng + Quả Ớt
 	for _, ch in ipairs(gui:GetChildren()) do
 		if ch:IsA("GuiObject") and ch ~= win and ch.Name ~= "ChilliV5_ExpandedIsland" and not ch:FindFirstChild("IslandExpandHint") and ch.Name ~= "ChilliCrystalBubble" then
 			ch.Visible = false
@@ -3263,7 +3262,6 @@ local function setupBubbleToggle(gui, win)
 		end)
 	end
 
-	-- Tạo nút tổ hợp gắn kết: Logo Ớt Gốc (74441610995894) + Logo Bong Bóng (91322208361913 đứng đầu)
 	local bubble = gui:FindFirstChild("ChilliCrystalBubble")
 	if not bubble then
 		bubble = Instance.new("ImageButton")
@@ -3277,7 +3275,7 @@ local function setupBubbleToggle(gui, win)
 		bubble.AutoButtonColor = false
 		bubble.BorderSizePixel = 0
 		bubble.ZIndex = 99999
-		bubble.Visible = true
+		bubble.Visible = not win.Visible
 		bubble.Parent = gui
 
 		local container = Instance.new("Frame")
@@ -3297,7 +3295,6 @@ local function setupBubbleToggle(gui, win)
 		bCorner.CornerRadius = UDim.new(1, 0)
 		bCorner.Parent = container
 
-		-- Viền phát sáng pha lê Neon rực rỡ
 		local bStroke = Instance.new("UIStroke")
 		bStroke.Name = "BubbleStroke"
 		bStroke.Thickness = 2.2
@@ -3315,7 +3312,6 @@ local function setupBubbleToggle(gui, win)
 		bStrokeGrad.Parent = bStroke
 
 		-- [LỚP DƯỚI - GẮN LIỀN VỚI NHAU]: Logo Quả Ớt Gốc (rbxassetid://74441610995894)
-		-- Bị che khuất hoàn toàn lúc đầu bởi lớp Bong Bóng đứng đầu; chỉ xuất hiện khi mở Menu!
 		local pepperLogo = Instance.new("ImageLabel")
 		pepperLogo.Name = "OriginPepperLogo"
 		pepperLogo.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -3332,8 +3328,7 @@ local function setupBubbleToggle(gui, win)
 		pCorner.CornerRadius = UDim.new(1, 0)
 		pCorner.Parent = pepperLogo
 
-		-- [LỚP TRÊN - ĐỨNG ĐẦU]: Nền chắn đặc + Logo Quả Cầu Bong Bóng (rbxassetid://91322208361913)
-		-- Đứng đầu che kín logo ớt bên dưới để lúc đầu chỉ nhìn thấy duy nhất Logo Bong Bóng!
+		-- [LỚP TRÊN - ĐỨNG ĐẦU]: Logo Bong Bóng (rbxassetid://91322208361913) đứng đầu che kín logo gốc bên dưới
 		local bubbleFrontDisc = Instance.new("Frame")
 		bubbleFrontDisc.Name = "BubbleFrontDisc"
 		bubbleFrontDisc.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -3393,64 +3388,7 @@ local function setupBubbleToggle(gui, win)
 	local bubbleFrontDisc = container and container:FindFirstChild("BubbleFrontDisc")
 	local shimmerImg = bubbleFrontDisc and bubbleFrontDisc:FindFirstChild("ShimmerGlow")
 	local centerLogo = bubbleFrontDisc and bubbleFrontDisc:FindFirstChild("BubbleLogo")
-	local pepperLogo = container and container:FindFirstChild("OriginPepperLogo")
 
-	-- Hàm chuyển đổi trạng thái giữa:
-	-- + showBubbleFront = true (Đóng menu / Lúc đầu): Logo bong bóng 91322208361913 đứng đầu che kín, chỉ nhìn thấy logo bong bóng
-	-- + showBubbleFront = false (Mở menu): Lớp bong bóng tách mở ra, để lộ Logo Quả Ớt 74441610995894 xuất hiện!
-	local function setBubbleFrontState(showBubbleFront, animated)
-		if not bubbleFrontDisc or not centerLogo or not pepperLogo then return end
-		if showBubbleFront then
-			bubbleFrontDisc.Visible = true
-			if animated then
-				TweenSvc:Create(bubbleFrontDisc, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-					BackgroundTransparency = 0
-				}):Play()
-				TweenSvc:Create(centerLogo, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-					ImageTransparency = 0,
-					Size = UDim2.fromScale(0.84, 0.84)
-				}):Play()
-				if shimmerImg then
-					TweenSvc:Create(shimmerImg, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-						ImageTransparency = 0.25
-					}):Play()
-				end
-			else
-				bubbleFrontDisc.BackgroundTransparency = 0
-				centerLogo.ImageTransparency = 0
-				centerLogo.Size = UDim2.fromScale(0.84, 0.84)
-				if shimmerImg then shimmerImg.ImageTransparency = 0.25 end
-			end
-		else
-			if animated then
-				local tw = TweenSvc:Create(centerLogo, TweenInfo.new(0.16, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-					ImageTransparency = 1,
-					Size = UDim2.fromScale(1.12, 1.12)
-				})
-				TweenSvc:Create(bubbleFrontDisc, TweenInfo.new(0.16, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-					BackgroundTransparency = 1
-				}):Play()
-				if shimmerImg then
-					TweenSvc:Create(shimmerImg, TweenInfo.new(0.16, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-						ImageTransparency = 1
-					}):Play()
-				end
-				tw:Play()
-				tw.Completed:Connect(function()
-					if win and win.Visible then
-						bubbleFrontDisc.Visible = false
-					end
-				end)
-			else
-				bubbleFrontDisc.BackgroundTransparency = 1
-				centerLogo.ImageTransparency = 1
-				if shimmerImg then shimmerImg.ImageTransparency = 1 end
-				bubbleFrontDisc.Visible = false
-			end
-		end
-	end
-
-	-- Kéo thả nút mượt mà trên cả Mobile và PC
 	local totalDragDist = 0
 	if not bubble:GetAttribute("__DragHooked") then
 		bubble:SetAttribute("__DragHooked", true)
@@ -3509,20 +3447,36 @@ local function setupBubbleToggle(gui, win)
 		end)
 	end
 
-	-- 1. HIỆU ỨNG MỞ MENU: Bong bóng 91322208361913 tách mở -> Logo Quả Ớt 74441610995894 xuất hiện & Menu bung mở mượt mà (Quart.Out)
+	-- 1. MỞ MENU: Lớp bong bóng (91322208361913) tách mở lộ diện Logo Ớt (74441610995894) rồi bung ra Menu với Logo Ớt ở góc trên trái
 	local function openMenuAnimated()
 		if State.IsBubbleAnimating then return end
 		State.IsBubbleAnimating = true
 
 		playToggleSound("rbxassetid://6895079853", 0.75, 1.05)
 
-		-- Chuyển nút từ Logo Bong Bóng (91322208361913) sang lộ diện Logo Quả Ớt (74441610995894)
-		setBubbleFrontState(false, true)
-
 		local bCenter = bubble.AbsolutePosition + (bubble.AbsoluteSize * 0.5)
 		local destPos = State.OrigWinPos or win.Position
 		local destSize = State.OrigWinSize or win.Size
 		local destAnchor = State.OrigWinAnchor or win.AnchorPoint
+
+		if bubbleFrontDisc and centerLogo then
+			TweenSvc:Create(bubbleFrontDisc, TweenInfo.new(0.10, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				BackgroundTransparency = 1
+			}):Play()
+			TweenSvc:Create(centerLogo, TweenInfo.new(0.10, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				ImageTransparency = 1
+			}):Play()
+			if shimmerImg then shimmerImg.ImageTransparency = 1 end
+		end
+
+		TweenSvc:Create(bubble, TweenInfo.new(0.16, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+			Size = UDim2.new(0, 0, 0, 0)
+		}):Play()
+
+		task.delay(0.14, function()
+			bubble.Visible = false
+			bubble.Size = UDim2.new(0, 56, 0, 56)
+		end)
 
 		win.Visible = true
 		win.AnchorPoint = destAnchor
@@ -3531,13 +3485,12 @@ local function setupBubbleToggle(gui, win)
 		State.CloseHideUntil = nil
 		if State.SyncWindowFn then pcall(State.SyncWindowFn) end
 
-		-- Bung nở Logo Quả Ớt 74441610995894 ở góc trên trái Header của Menu
 		local mainLogo = State.MainChilliLogo or win:FindFirstChild("ChilliMainChilliLogo", true)
 		if mainLogo then
 			mainLogo.Visible = true
 			mainLogo.Size = UDim2.new(0, 0, 0, 0)
-			TweenSvc:Create(mainLogo, TweenInfo.new(0.26, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-				Size = UDim2.new(0, 28, 0, 28)
+			TweenSvc:Create(mainLogo, TweenInfo.new(0.28, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+				Size = UDim2.new(0, 26, 0, 26)
 			}):Play()
 		end
 
@@ -3554,18 +3507,21 @@ local function setupBubbleToggle(gui, win)
 			local mc = State.MainChilliLogo or win:FindFirstChild("ChilliMainChilliLogo", true)
 			if mc then
 				mc.Visible = true
-				mc.Size = UDim2.new(0, 28, 0, 28)
+				mc.Size = UDim2.new(0, 26, 0, 26)
 			end
 		end)
 		openTween:Play()
 	end
 
-	-- 2. HIỆU ỨNG ĐÓNG MENU: Menu thu gọn mượt mà & Logo Bong Bóng 91322208361913 trở lại đứng đầu
+	-- 2. ĐÓNG MENU: Thu gọn Menu về lại quả cầu Bong Bóng (91322208361913 đứng đầu)
 	local function closeMenuAnimated()
 		if State.IsBubbleAnimating then return end
 		if not win.Visible then
 			bubble.Visible = true
-			setBubbleFrontState(true, true)
+			if bubbleFrontDisc then bubbleFrontDisc.BackgroundTransparency = 0
+			bubbleFrontDisc.Visible = true end
+			if centerLogo then centerLogo.ImageTransparency = 0 end
+			if shimmerImg then shimmerImg.ImageTransparency = 0.25 end
 			return
 		end
 		State.IsBubbleAnimating = true
@@ -3597,11 +3553,20 @@ local function setupBubbleToggle(gui, win)
 			if State.OrigWinPos then win.Position = State.OrigWinPos end
 			if State.OrigWinSize then win.Size = State.OrigWinSize end
 			if State.OrigWinAnchor then win.AnchorPoint = State.OrigWinAnchor end
-			if mainLogo then mainLogo.Size = UDim2.new(0, 28, 0, 28) end
+			if mainLogo then mainLogo.Size = UDim2.new(0, 26, 0, 26) end
 
-			-- Đưa Logo Bong Bóng 91322208361913 trở lại đứng đầu
+			if bubbleFrontDisc then
+				bubbleFrontDisc.Visible = true
+				bubbleFrontDisc.BackgroundTransparency = 0
+			end
+			if centerLogo then centerLogo.ImageTransparency = 0 end
+			if shimmerImg then shimmerImg.ImageTransparency = 0.25 end
+
 			bubble.Visible = true
-			setBubbleFrontState(true, true)
+			bubble.Size = UDim2.new(0, 0, 0, 0)
+			TweenSvc:Create(bubble, TweenInfo.new(0.22, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+				Size = UDim2.new(0, 56, 0, 56)
+			}):Play()
 
 			State.IsBubbleAnimating = false
 			if State.SyncWindowFn then pcall(State.SyncWindowFn) end
@@ -3620,10 +3585,7 @@ local function setupBubbleToggle(gui, win)
 			local now = os.clock()
 			if now - lastTapClock < 0.22 then return end
 			lastTapClock = now
-			if State.IsBubbleAnimating then return end
-			if win.Visible then
-				closeMenuAnimated()
-			else
+			if not State.IsBubbleAnimating then
 				openMenuAnimated()
 			end
 		end
@@ -3632,7 +3594,9 @@ local function setupBubbleToggle(gui, win)
 		end
 		bubble.InputEnded:Connect(function(inp)
 			if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
-				handleBubbleTap()
+				if not win.Visible then
+					handleBubbleTap()
+				end
 			end
 		end)
 	end
@@ -3656,25 +3620,22 @@ local function setupBubbleToggle(gui, win)
 
 	win:GetPropertyChangedSignal("Visible"):Connect(function()
 		if not State.IsBubbleAnimating then
-			bubble.Visible = true
-			bubble.Size = UDim2.new(0, 56, 0, 56)
 			if win.Visible then
-				setBubbleFrontState(false, true)
+				bubble.Visible = false
 			else
-				setBubbleFrontState(true, true)
+				if bubbleFrontDisc then
+					bubbleFrontDisc.Visible = true
+					bubbleFrontDisc.BackgroundTransparency = 0
+				end
+				if centerLogo then centerLogo.ImageTransparency = 0 end
+				if shimmerImg then shimmerImg.ImageTransparency = 0.25 end
+				bubble.Visible = true
+				bubble.Size = UDim2.new(0, 56, 0, 56)
 			end
 		end
 	end)
 
-	-- Thiết lập trạng thái ban đầu:
-	-- Nếu lúc đầu menu đang đóng, hiển thị Logo Bong Bóng (91322208361913) đứng đầu; nếu menu mở thì lộ diện Logo Quả Ớt (74441610995894)
-	bubble.Visible = true
-	if not State.InitialBubbleShownOnce then
-		State.InitialBubbleShownOnce = true
-		setBubbleFrontState(not win.Visible, false)
-	else
-		setBubbleFrontState(not win.Visible, false)
-	end
+	bubble.Visible = not win.Visible
 end
 
 local function patchVenyxGui(gui, titleLbl)
