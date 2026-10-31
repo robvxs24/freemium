@@ -10,10 +10,10 @@ local STEAL_TAB_ICON_ID = "rbxassetid://91536384271341"
 local WALLPAPER_IMAGE_ID = "rbxassetid://90615151648668"
 local c3, u2, u2s, v2, csk = Color3.fromRGB, UDim2.new, UDim2.fromScale, Vector2.new, ColorSequenceKeypoint.new
 local LOGO_BG, BLACK_BG = c3(12, 12, 18), c3(8, 8, 12)
-local MY_URL = "https://raw.githubusercontent.com/kairobloc/stealanegg/refs/heads/main/chillihubv7.lua"
+local MY_URL = "https://raw.githubusercontent.com/napun67/stealanegg/refs/heads/main/chillihubv8.lua"
 local VENYX_URL = "https://raw.githubusercontent.com/tienkhanh1/Venyx/main/VenyxHub"
 local AUTO_FILE, LANG_FILE = "ChilliHubV5_AutoRun.lua", "ChilliV5_Lang.txt"
-local PRESET_JSON = [=[{"venyx":1,"name":"hihi 2","data":{"System / Interface/Quick bars/Show quick bars":true,"Farm / Sell/Favorite/Auto favorite":false,"System / Interface/Quick bars/Quick bar layout":"{\"pins\":{\"Event / Butterfly/Butterfly bloom/Auto butterfly bloom\":2,\"Player / Combat/Hit aura/Hit aura\":1,\"Player / Combat/Auto hit/Chase speed\":1,\"Steal / Auto Steal/Auto hop server/Auto hop\":1,\"Player / Move/Movement/Boost speed\":1,\"Player / Combat/Auto hit/Auto hit\":1,\"Steal / Auto Steal/Auto steal/Auto steal\":1,\"Event / Race/Racing Event/Auto race\":2,\"Farm / Treadmill/Treadmill/Auto treadmill\":1,\"Player / Move/Movement/Speed boost\":1},\"keys\":[],\"at\":{\"1\":[766.9053955078125,21.74544906616211],\"2\":[624.3492431640625,21.080074310302736]},\"fold\":{\"1\":true,\"2\":true}}","System / Optimizer/Graphics/Disable 3D Render":false,"Farm / Pen/Auto place/Place first":"Best value","Steal / Auto Steal/Filter/Only below /s":0,"Farm / Pen/Auto hatch/Equip best pets":false,"Event / AA/Capture the egg/Auto capture event egg":true,"Farm / Mutate/Mutate filter/Only these eggs":[],"Farm / Treadmill/Treadmill/Auto upgrade treadmill":false,"Steal / Auto Steal/Auto steal/Drop eggs at safe zone":false,"Steal / Auto Steal/Auto hop server/Auto hop":false,"System / Interface/Interface/Dim the game":0,"Player / Combat/Hit aura/Skip friends":true,"Player / ESP/Others/Pen egg ESP":true,"System / Optimizer/Frame rate/FPS position":"0.5000,-550,0.0000,49","Event / Butterfly/Butterfly bloom/Auto butterfly bloom":true,"Farm / Pen/Auto hatch/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Steal / Auto Steal/Filter/Min value /s":2000000000,"Player / Combat/Hit aura/Hit aura":true,"Event / Star/Shooting Star/Auto catch shooting star":true,"Steal / Egg Predictor/Egg showcase/Calculate mutations":[],"Steal / Egg Predictor/Egg showcase/Sort eggs":"Value","Event / Halloween/Ghost Dog and fishing/Auto fishing":true,"System / Optimizer/Bases/Hide other players' pets and eggs":true,"Player / Combat/Auto hit/Auto hit":false,"Event / Halloween/Ghost Dog and fishing/Auto Ghost Dog quest":false,"Event / Butterfly/Butterfly bloom/Catch mode":"Chase","Event / Butterfly/Butterfly machine/Trade":[],"Event / Halloween/Halloween Dimension/Halloween eggs":["Bone Emperor","Voidseer Pumpkin","Zombified Bone Emperor","Ghost Reaper","Gorillastein","Phantom Dragon","Shelltide Voyager","Zombified Grave Cerberus","Zombified Phantom Dragon","BloodBloom","Grave Cerberus","Graveyard Brute","Werewolf","Zombified Night Fang","Zombified Pumpkin Fiend","Zombified Tombstone Bear"],"Farm / Pen/Auto place/Auto place":false,"Steal / Auto Steal/Filter/Rarities":["Divine","Eternal","Secret"],"System / Webhook/What to post/Post fused eggs":false,"Event / Halloween/Halloween Dimension/Auto Pumpkin Moon":true,"Farm / Sell/Pets/Sell rarities":["Rare","Uncommon","Common"],"Player / Move/Protection/Ignore traps":true,"Farm / Fuse/Fuse filter/Rarities":["Mythic","Legendary","Epic","Rare","Uncommon","Common"],"System / Webhook/Discord webhook/Ping role ID":"","Player / ESP/Others/Hide sleeping guards":true,"Event / Halloween/Halloween Dimension/Min value /s":1000000000,"System / Optimizer/Frame rate/Show FPS and ping":true,"Farm / Treadmill/Progress/Auto claim index rewards":false,"System / Interface/Quick bars/Keybinds":true,"Steal / Auto Steal/Auto steal/Instant steps":2,"Farm / Fuse/Fuse filter/Never fuse":[],"Farm / Pen/Auto hatch/Mutations":[],"System / Optimizer/Bases/Hide my pets and eggs":true,"Event / Halloween/Monsters/Monster order":"Most tokens","Steal / Auto Steal/Filter/Zones":["Enchanted Forest","Light Dark","Titan Temple","Cherry Blossom"],"Event / Butterfly/Butterfly machine/Auto craft essence":true,"Farm / Mutate/Auto mutate/Auto mutate":false,"Player / ESP/Others/Other pens ESP":true,"Player / ESP/Field eggs/Egg ESP":false,"Farm / Pen/Keep eggs/Min value /s":0,"Steal / Auto Steal/Auto steal/Delivery method":"Instant steps","Farm / Treadmill/Progress/Auto buy trails":false,"Farm / Sell/Eggs/Sell rarities":["Rare","Uncommon","Common"],"System / Interface/Interface/Tone":100,"Event / AA/Admin abuse/Admin treadmill":false,"System / Webhook/What to post/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Farm / Pen/Auto place/Place when":"Always","Event / Halloween/Monsters/Monsters":["Candy Corn","Hollow Bat","Scarecrow","Chest Mimic","Pumpkin Golem","Soul Phantom"],"Event / Butterfly/Wisp companion/Auto banjo cricket":false,"Event / Halloween/Halloween Dimension/Auto buy Halloween Dimension Egg":false,"Event / Halloween/Halloween Dimension/Walk speed":1000,"Steal / Auto Steal/Auto steal/Delivery speed":4500,"Farm / Mutate/Auto mutate/Use items":["Fractured","Scrambled","Enchanted","Nitro","Spectral"],"Farm / Fuse/Fuse machine/Fuse first":"Lowest rarity","Steal / Auto Steal/Auto hop server/Rare from":"Cosmic","Player / Move/Movement/Boost speed":720,"System / Interface/Interface/Opacity":50,"Player / ESP/Others/Guard ESP":true,"Farm / Sell/Favorite/Always favorite":[],"Event / Halloween/Halloween Dimension/Steal speed":100,"Farm / Sell/Eggs/Auto sell eggs":false,"System / Webhook/What to post/Post stolen eggs":false,"Player / ESP/Others/ESP size":60,"Steal / Auto Steal/Filter/Steal first":"Best value","Farm / Sell/Pets/Only below /s":0,"Player / Move/Protection/Anti ragdoll":true,"Player / ESP/Field eggs/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic"],"Player / Move/Protection/Invisible":false,"Steal / Auto Steal/Auto hop server/Hop when":"After stealing a match","Event / AA/Cursed Island Wars/Auto play Cursed Island Wars":true,"Event / Butterfly/Butterfly bloom/Catch":["Radiant","Amethyst","Sapphire","Emerald"],"Farm / Treadmill/Treadmill/Auto treadmill":false,"System / Interface/Game HUD/Steal panel button on game HUD":true,"System / Server/Server/Hop to":"Least players","Farm / Mutate/Mutate filter/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Player / Move/Protection/Instant prompts":true,"System / Server/Join and stay/Rejoin on kick":true,"Farm / Sell/Favorite/Favorite equipped":false,"Event / Halloween/Phantom Express/Auto Phantom Express":true,"System / Optimizer/Frame rate/FPS cap":360,"Steal / Auto Steal/Auto steal/Steal missing index eggs":false,"Steal / Auto Steal/Filter/Only these eggs":["ArchAngel","Kitsune","Nightflame","Royal Skywhale","Unicorn","World Burner","Celestial Sunlion","Gorilla King","Pegasus","Skeleton Horse","Strawberry Elephant","67","Amethyst Runebear","Starry Fox"],"Farm / Sell/Favorite/Min value /s":0,"System / Server/Join and stay/Auto load script":false,"Farm / Mutate/Mutate filter/Skip eggs with":[],"System / Optimizer/Graphics/Low graphics":true,"Event / Halloween/Monsters/Walk speed":1000,"Event / AA/Minigame eggs/Auto steal minigame egg":true,"Farm / Pen/Auto place/Only these eggs":[],"Player / Combat/Auto hit/Hit who":"Nearest player","Farm / Sell/Eggs/Never sell":[],"Farm / Pen/Keep eggs/Eggs to keep":[],"Farm / Fuse/Fuse filter/Only below /s":0,"Event / Halloween/Monsters/Use weapons":["Enchanted Hammer","Racing Bat","Cricket's Banjo","Flyswatter"],"Farm / Fuse/Fuse machine/Skip mutated":true,"Farm / Sell/Pets/Never sell":[],"Farm / Sell/Favorite/Match":"All picked rules","Event / Halloween/Ghost Dog and fishing/Cast luck":"x1.5 Perfect","System / Optimizer/Graphics/Background color":"Black","Player / Move/Movement/God mode":true,"Farm / Pen/Auto place/Mutations":[],"Steal / Auto Steal/Auto steal/Anti guard":true,"Farm / Sell/Favorite/Unfavorite pets not matching":false,"System / Webhook/What to post/Min value /s":0,"Farm / Pen/Auto hatch/Auto hatch":false,"Farm / Sell/Pets/Only mutations":[],"Farm / Fuse/Fuse machine/Eject odd pets":true,"Event / Butterfly/Butterfly machine/Auto trade up":false,"Event / AA/Admin abuse/Instant steal":false,"System / Webhook/What to post/Post when bag is full":false,"Farm / Fuse/Fuse machine/Auto fuse":false,"Farm / Pen/Auto hatch/Only these eggs":[],"Event / Butterfly/Butterfly machine/Smart trade for essence":true,"Event / Halloween/Halloween Dimension/Auto steal Halloween eggs":true,"System / Interface/Quick bars/Bar size":85,"Player / Combat/Weapons/Use weapons":[],"Player / ESP/Others/Player ESP":true,"System / Webhook/Discord webhook/Ping everyone":false,"Farm / Fuse/Fuse machine/Use pets":"Lowest value first","Event / Halloween/Monsters/Auto farm monsters":true,"Farm / Mutate/Auto mutate/Mutate first":"Best value","Player / ESP/Field eggs/Min value /s":0,"Event / AA/Cursed Island Wars/Island Wars target":"Enemies and base","Player / Move/Movement/Infinite jump":true,"Farm / Pen/Auto place/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Player / ESP/Field eggs/Mutations":[],"Event / Halloween/Phantom Express/Auto vacuum Ghouler boss":true,"Farm / Treadmill/Progress/Auto upgrade base":false,"Steal / Auto Steal/Auto steal/Auto steal":true,"Player / Combat/Auto hit/Chase speed":1000,"Player / ESP/Field eggs/Fixed size":false,"Event / Halloween/Halloween Dimension/Instant steal Halloween eggs":true,"Event / Halloween/Phantom Express/Walk speed":1000,"Event / Halloween/Phantom Express/Ghost target":"Rarest first","Farm / Sell/Eggs/Only below /s":0,"Farm / Sell/Favorite/Rarities":[],"Steal / Auto Steal/Auto hop server/First hop after":5,"Steal / Auto Steal/Auto steal/Tween speed":110,"Farm / Sell/Pets/Auto sell pets":false,"Event / Halloween/Phantom Express/Auto trade souls":true,"Farm / Sell/Pets/Keep mutated":true,"Steal / Auto Steal/Filter/Sell cheapest egg when bag is full":false,"Player / ESP/Field eggs/Show":[],"Steal / Auto Steal/Auto steal/Go to egg":"Teleport to egg","Player / Combat/Weapons/Hold each":0.2,"Event / AA/Capture the egg/Hold height":120,"Steal / Auto Steal/Filter/Mutations":[],"Event / AA/Capture the egg/Keep away":150,"Farm / Mutate/Mutate filter/Min value /s":0,"Steal / Auto Steal/Auto steal/Teleport zones":["Enchanted Forest","Light Dark","Titan Temple","Cherry Blossom"],"Farm / Pen/Auto hatch/Min value /s":0,"Player / Move/Movement/Speed boost":false,"System / Interface/Interface/UI scale":90,"Farm / Fuse/Fuse filter/Only these pets":[],"Steal / Egg Predictor/Egg showcase/Preview card":false,"Event / Butterfly/Butterfly bloom/Catch speed":600,"Player / Move/Protection/Anti AFK":true,"Event / Halloween/Halloween Dimension/Halloween rarities":[],"System / Interface/Interface/Show / hide UI":{"k":"LeftControl"},"Steal / Auto Steal/Auto steal/Steal from other players":true,"Farm / Pen/Auto place/Min value /s":0,"Event / Butterfly/Butterfly bloom/Catch priority":"Rarest","System / Webhook/Discord webhook/Ping user ID":"","Farm / Sell/Eggs/Only mutations":[],"Farm / Treadmill/Progress/Auto claim offline cash":false,"Farm / Sell/Favorite/Mutations":[],"Event / AA/Capture the egg/Take it from the holder":true,"System / Webhook/Discord webhook/Webhook URL":"","Farm / Priority/Task order/Task order":["Steal filter eggs","Shooting Star","Phantom Express","Pumpkin Moon","Butterfly","Steal wisp eggs","Wisp","Steal missing index","Place","Mutate","Butterfly machine","Ghost Dog quest","Halloween monsters","Halloween fishing","Treadmill"],"Farm / Sell/Eggs/Keep mutated":true,"Event / Butterfly/Wisp companion/Auto wisp quest":false,"System / Optimizer/Graphics/Hide game UI":false}}]=]
+local PRESET_JSON = [=[{"venyx":1,"name":"hihi 2","data":{"System / Interface/Quick bars/Show quick bars":true,"Farm / Sell/Favorite/Auto favorite":false,"System / Interface/Quick bars/Quick bar layout":"{\"pins\":{\"Event / Butterfly/Butterfly bloom/Auto butterfly bloom\":2,\"Player / Combat/Hit aura/Hit aura\":1,\"Player / Combat/Auto hit/Chase speed\":1,\"Steal / Auto Steal/Auto hop server/Auto hop\":1,\"Player / Move/Movement/Boost speed\":1,\"Player / Combat/Auto hit/Auto hit\":1,\"Steal / Auto Steal/Auto steal/Auto steal\":1,\"Event / Race/Racing Event/Auto race\":2,\"Farm / Treadmill/Treadmill/Auto treadmill\":1,\"Player / Move/Movement/Speed boost\":1},\"keys\":[],\"at\":{\"1\":[766.9053955078125,21.74544906616211],\"2\":[624.3492431640625,21.080074310302736]},\"fold\":{\"1\":true,\"2\":true}}","System / Optimizer/Graphics/Disable 3D Render":false,"Farm / Pen/Auto place/Place first":"Best value","Steal / Auto Steal/Filter/Only below /s":0,"Farm / Pen/Auto hatch/Equip best pets":false,"Event / AA/Capture the egg/Auto capture event egg":true,"Farm / Mutate/Mutate filter/Only these eggs":[],"Farm / Treadmill/Treadmill/Auto upgrade treadmill":false,"Steal / Auto Steal/Auto steal/Drop eggs at safe zone":false,"Steal / Auto Steal/Auto hop server/Auto hop":false,"System / Interface/Interface/Dim the game":0,"Player / Combat/Hit aura/Skip friends":true,"Player / ESP/Others/Pen egg ESP":true,"System / Optimizer/Frame rate/FPS position":"0.5000,-550,0.0000,49","Event / Butterfly/Butterfly bloom/Auto butterfly bloom":true,"Farm / Pen/Auto hatch/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Steal / Auto Steal/Filter/Min value /s":2000000000,"Player / Combat/Hit aura/Hit aura":true,"Event / Star/Shooting Star/Auto catch shooting star":true,"Steal / Egg Predictor/Egg showcase/Calculate mutations":[],"Steal / Egg Predictor/Egg showcase/Sort eggs":"Value","Event / Halloween/Ghost Dog and fishing/Auto fishing":true,"System / Optimizer/Bases/Hide other players' pets and eggs":true,"Player / Combat/Auto hit/Auto hit":false,"Event / Halloween/Ghost Dog and fishing/Auto Ghost Dog quest":false,"Event / Butterfly/Butterfly bloom/Catch mode":"Chase","Event / Butterfly/Butterfly machine/Trade":[],"Event / Halloween/Halloween Dimension/Halloween eggs":["Bone Emperor","Voidseer Pumpkin","Zombified Bone Emperor","Ghost Reaper","Gorillastein","Phantom Dragon","Shelltide Voyager","Zombified Grave Cerberus","Zombified Phantom Dragon","BloodBloom","Grave Cerberus","Graveyard Brute","Werewolf","Zombified Night Fang","Zombified Pumpkin Fiend","Zombified Tombstone Bear"],"Farm / Pen/Auto place/Auto place":false,"Steal / Auto Steal/Filter/Rarities":["Divine","Eternal","Secret"],"System / Webhook/What to post/Post fused eggs":false,"Event / Halloween/Halloween Dimension/Auto Pumpkin Moon":true,"Farm / Sell/Pets/Sell rarities":["Rare","Uncommon","Common"],"Player / Move/Protection/Ignore traps":true,"Farm / Fuse/Fuse filter/Rarities":["Mythic","Legendary","Epic","Rare","Uncommon","Common"],"System / Webhook/Discord webhook/Ping role ID":"","Player / ESP/Others/Hide sleeping guards":true,"Event / Halloween/Halloween Dimension/Min value /s":1000000000,"System / Optimizer/Frame rate/Show FPS and ping":true,"Farm / Treadmill/Progress/Auto claim index rewards":false,"System / Interface/Quick bars/Keybinds":true,"Steal / Auto Steal/Auto steal/Instant steps":2,"Farm / Fuse/Fuse filter/Never fuse":[],"Farm / Pen/Auto hatch/Mutations":[],"System / Optimizer/Bases/Hide my pets and eggs":true,"Event / Halloween/Monsters/Monster order":"Most tokens","Steal / Auto Steal/Filter/Zones":["Enchanted Forest","Light Dark","Titan Temple","Cherry Blossom"],"Event / Butterfly/Butterfly machine/Auto craft essence":true,"Farm / Mutate/Auto mutate/Auto mutate":false,"Player / ESP/Others/Other pens ESP":true,"Player / ESP/Field eggs/Egg ESP":false,"Farm / Pen/Keep eggs/Min value /s":0,"Steal / Auto Steal/Auto steal/Delivery method":"Instant steps","Farm / Treadmill/Progress/Auto buy trails":false,"Farm / Sell/Eggs/Sell rarities":["Rare","Uncommon","Common"],"System / Interface/Interface/Tone":100,"Event / AA/Admin abuse/Admin treadmill":false,"System / Webhook/What to post/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Farm / Pen/Auto place/Place when":"Always","Event / Halloween/Monsters/Monsters":["Candy Corn","Hollow Bat","Scarecrow","Chest Mimic","Pumpkin Golem","Soul Phantom"],"Event / Butterfly/Wisp companion/Auto banjo cricket":false,"Event / Halloween/Halloween Dimension/Auto buy Halloween Dimension Egg":false,"Event / Halloween/Halloween Dimension/Walk speed":1000,"Steal / Auto Steal/Auto steal/Delivery speed":4500,"Farm / Mutate/Auto mutate/Use items":["Fractured","Scrambled","Enchanted","Nitro","Spectral"],"Farm / Fuse/Fuse machine/Fuse first":"Lowest rarity","Steal / Auto Steal/Auto hop server/Rare from":"Cosmic","Player / Move/Movement/Boost speed":720,"System / Interface/Interface/Opacity":50,"Player / ESP/Others/Guard ESP":true,"Farm / Sell/Favorite/Always favorite":[],"Event / Halloween/Halloween Dimension/Steal speed":100,"Farm / Sell/Eggs/Auto sell eggs":false,"System / Webhook/What to post/Post stolen eggs":false,"Player / ESP/Others/ESP size":60,"Steal / Auto Steal/Filter/Steal first":"Best value","Farm / Sell/Pets/Only below /s":0,"Player / Move/Protection/Anti ragdoll":true,"Player / ESP/Field eggs/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic"],"Player / Move/Protection/Invisible":false,"Steal / Auto Steal/Auto hop server/Hop when":"After stealing a match","Event / AA/Cursed Island Wars/Auto play Cursed Island Wars":true,"Event / Butterfly/Butterfly bloom/Catch":["Radiant","Amethyst","Sapphire","Emerald"],"Farm / Treadmill/Treadmill/Auto treadmill":false,"System / Interface/Game HUD/Steal panel button on game HUD":true,"System / Server/Server/Hop to":"Least players","Farm / Mutate/Mutate filter/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Player / Move/Protection/Instant prompts":true,"System / Server/Join and stay/Rejoin on kick":true,"Farm / Sell/Favorite/Favorite equipped":false,"Event / Halloween/Phantom Express/Auto Phantom Express":true,"System / Optimizer/Frame rate/FPS cap":360,"Steal / Auto Steal/Auto steal/Steal missing index eggs":false,"Steal / Auto Steal/Filter/Only these eggs":["ArchAngel","Kitsune","Nightflame","Royal Skywhale","Unicorn","World Burner","Celestial Sunlion","Gorilla King","Pegasus","Skeleton Horse","Strawberry Elephant","67","Amethyst Runebear","Starry Fox"],"Farm / Sell/Favorite/Min value /s":0,"System / Server/Join and stay/Auto load script":true,"Farm / Mutate/Mutate filter/Skip eggs with":[],"System / Optimizer/Graphics/Low graphics":true,"Event / Halloween/Monsters/Walk speed":1000,"Event / AA/Minigame eggs/Auto steal minigame egg":true,"Farm / Pen/Auto place/Only these eggs":[],"Player / Combat/Auto hit/Hit who":"Nearest player","Farm / Sell/Eggs/Never sell":[],"Farm / Pen/Keep eggs/Eggs to keep":[],"Farm / Fuse/Fuse filter/Only below /s":0,"Event / Halloween/Monsters/Use weapons":["Enchanted Hammer","Racing Bat","Cricket's Banjo","Flyswatter"],"Farm / Fuse/Fuse machine/Skip mutated":true,"Farm / Sell/Pets/Never sell":[],"Farm / Sell/Favorite/Match":"All picked rules","Event / Halloween/Ghost Dog and fishing/Cast luck":"x1.5 Perfect","System / Optimizer/Graphics/Background color":"Black","Player / Move/Movement/God mode":true,"Farm / Pen/Auto place/Mutations":[],"Steal / Auto Steal/Auto steal/Anti guard":true,"Farm / Sell/Favorite/Unfavorite pets not matching":false,"System / Webhook/What to post/Min value /s":0,"Farm / Pen/Auto hatch/Auto hatch":false,"Farm / Sell/Pets/Only mutations":[],"Farm / Fuse/Fuse machine/Eject odd pets":true,"Event / Butterfly/Butterfly machine/Auto trade up":false,"Event / AA/Admin abuse/Instant steal":false,"System / Webhook/What to post/Post when bag is full":false,"Farm / Fuse/Fuse machine/Auto fuse":false,"Farm / Pen/Auto hatch/Only these eggs":[],"Event / Butterfly/Butterfly machine/Smart trade for essence":true,"Event / Halloween/Halloween Dimension/Auto steal Halloween eggs":true,"System / Interface/Quick bars/Bar size":85,"Player / Combat/Weapons/Use weapons":[],"Player / ESP/Others/Player ESP":true,"System / Webhook/Discord webhook/Ping everyone":false,"Farm / Fuse/Fuse machine/Use pets":"Lowest value first","Event / Halloween/Monsters/Auto farm monsters":true,"Farm / Mutate/Auto mutate/Mutate first":"Best value","Player / ESP/Field eggs/Min value /s":0,"Event / AA/Cursed Island Wars/Island Wars target":"Enemies and base","Player / Move/Movement/Infinite jump":true,"Farm / Pen/Auto place/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Player / ESP/Field eggs/Mutations":[],"Event / Halloween/Phantom Express/Auto vacuum Ghouler boss":true,"Farm / Treadmill/Progress/Auto upgrade base":false,"Steal / Auto Steal/Auto steal/Auto steal":true,"Player / Combat/Auto hit/Chase speed":1000,"Player / ESP/Field eggs/Fixed size":false,"Event / Halloween/Halloween Dimension/Instant steal Halloween eggs":true,"Event / Halloween/Phantom Express/Walk speed":1000,"Event / Halloween/Phantom Express/Ghost target":"Rarest first","Farm / Sell/Eggs/Only below /s":0,"Farm / Sell/Favorite/Rarities":[],"Steal / Auto Steal/Auto hop server/First hop after":5,"Steal / Auto Steal/Auto steal/Tween speed":110,"Farm / Sell/Pets/Auto sell pets":false,"Event / Halloween/Phantom Express/Auto trade souls":true,"Farm / Sell/Pets/Keep mutated":true,"Steal / Auto Steal/Filter/Sell cheapest egg when bag is full":false,"Player / ESP/Field eggs/Show":[],"Steal / Auto Steal/Auto steal/Go to egg":"Teleport to egg","Player / Combat/Weapons/Hold each":0.2,"Event / AA/Capture the egg/Hold height":120,"Steal / Auto Steal/Filter/Mutations":[],"Event / AA/Capture the egg/Keep away":150,"Farm / Mutate/Mutate filter/Min value /s":0,"Steal / Auto Steal/Auto steal/Teleport zones":["Enchanted Forest","Light Dark","Titan Temple","Cherry Blossom"],"Farm / Pen/Auto hatch/Min value /s":0,"Player / Move/Movement/Speed boost":false,"System / Interface/Interface/UI scale":90,"Farm / Fuse/Fuse filter/Only these pets":[],"Steal / Egg Predictor/Egg showcase/Preview card":false,"Event / Butterfly/Butterfly bloom/Catch speed":600,"Player / Move/Protection/Anti AFK":true,"Event / Halloween/Halloween Dimension/Halloween rarities":[],"System / Interface/Interface/Show / hide UI":{"k":"LeftControl"},"Steal / Auto Steal/Auto steal/Steal from other players":true,"Farm / Pen/Auto place/Min value /s":0,"Event / Butterfly/Butterfly bloom/Catch priority":"Rarest","System / Webhook/Discord webhook/Ping user ID":"","Farm / Sell/Eggs/Only mutations":[],"Farm / Treadmill/Progress/Auto claim offline cash":false,"Farm / Sell/Favorite/Mutations":[],"Event / AA/Capture the egg/Take it from the holder":true,"System / Webhook/Discord webhook/Webhook URL":"","Farm / Priority/Task order/Task order":["Steal filter eggs","Shooting Star","Phantom Express","Pumpkin Moon","Butterfly","Steal wisp eggs","Wisp","Steal missing index","Place","Mutate","Butterfly machine","Ghost Dog quest","Halloween monsters","Halloween fishing","Treadmill"],"Farm / Sell/Eggs/Keep mutated":true,"Event / Butterfly/Wisp companion/Auto wisp quest":false,"System / Optimizer/Graphics/Hide game UI":false}}]=]
 if isfile and delfile then
 pcall(function()
 if isfile(AUTO_FILE) then delfile(AUTO_FILE) end
@@ -140,7 +140,7 @@ local top = d
 while top.Parent and top.Parent ~= ch do top = top.Parent end
 local isBrokenOldRun = false
 for _, subD in ipairs(ch:GetDescendants()) do
-if (subD.Name == "ChilliSenaSquircle" and subD:FindFirstAncestorOfClass("ScrollingFrame")) or subD.Name == "ChilliMainChilliLogo" then
+if (subD.Name == "ChilliSenaSquircle" and subD:FindFirstAncestorOfClass("ScrollingFrame")) or (subD.Name == "ChilliMainChilliLogo" and subD.Parent ~= top) then
 isBrokenOldRun = true
 break
 end
@@ -163,7 +163,7 @@ local rq = env.__ChilliOrigQueue or env.queue_on_teleport or env.queueonteleport
 if not rq then return end
 env.__ChilliOrigQueue = rq
 local clearQ = env.clearteleportqueue or env.clear_teleport_queue or clearteleportqueue or clear_teleport_queue or (syn and syn.clear_teleport_queue) or (fluxus and fluxus.clear_teleport_queue) or (delta and delta.clear_teleport_queue)
-local boot = '--[[CHILLI_V8_AUTHORIZED_TELEPORT]]'
+local boot = '--[[CHILLI_V8_AUTHORIZED_TELEPORT]]\ntask.spawn(function()\n\tif not game:IsLoaded() then game.Loaded:Wait() end\n\tloadstring(game:HttpGet("https://raw.githubusercontent.com/napun67/stealanegg/refs/heads/main/chillihubv8.lua"))()\nend)'
 local safeLock = function(c)
 pcall(function()
 if tostring(c or ""):find("CHILLI_V8_AUTHORIZED_TELEPORT", 1, true) then
@@ -2431,21 +2431,12 @@ return false
 end
 
 local SIDEBAR_PALETTE = {
-	Color3.fromRGB(0, 195, 255),   -- [1] Trang Chủ: Cyber Cyan
-	Color3.fromRGB(255, 65, 95),   -- [2] Cướp Trứng: Crimson Neon
-	Color3.fromRGB(16, 225, 145),  -- [3] Tự Cày: Emerald Matrix
-	Color3.fromRGB(185, 85, 255),  -- [4] Sự Kiện: Hyper Violet
-	Color3.fromRGB(255, 75, 175),  -- [5] Nhân Vật: Cyber Rose
-	Color3.fromRGB(255, 185, 35),  -- [6] Cài Đặt: Solar Gold
-}
-
-local SIDEBAR_GRAD_PAIRS = {
-	{ Color3.fromRGB(25, 110, 255), Color3.fromRGB(0, 225, 255) },   -- [1] Electric Blue -> Aqua Cyan
-	{ Color3.fromRGB(255, 40, 85),  Color3.fromRGB(255, 145, 30) },  -- [2] Crimson Red -> Fiery Orange
-	{ Color3.fromRGB(10, 195, 120), Color3.fromRGB(95, 255, 145) },  -- [3] Emerald -> Neon Mint
-	{ Color3.fromRGB(135, 55, 255), Color3.fromRGB(235, 85, 255) },  -- [4] Royal Violet -> Neon Fuchsia
-	{ Color3.fromRGB(255, 50, 145), Color3.fromRGB(255, 135, 205) }, -- [5] Hot Pink -> Soft Rose
-	{ Color3.fromRGB(255, 165, 20), Color3.fromRGB(255, 95, 45) },   -- [6] Cyber Gold -> Sunset Orange
+	Color3.fromRGB(37, 99, 235),  -- [1] Trang Chủ: Xanh Dương (V7)
+	Color3.fromRGB(239, 68, 68),  -- [2] Cướp Trứng: Đỏ (V7)
+	Color3.fromRGB(245, 158, 11), -- [3] Cày Cuốc: Cam Vàng (V7)
+	Color3.fromRGB(168, 85, 247), -- [4] Sự Kiện: Tím (V7)
+	Color3.fromRGB(236, 72, 153), -- [5] Người Chơi: Hồng (V7)
+	Color3.fromRGB(16, 185, 129), -- [6] Hệ Thống: Xanh Ngọc (V7)
 }
 
 local function playModernTabSound()
@@ -2455,25 +2446,27 @@ local function playModernTabSound()
 		end
 		local ss = game:GetService("SoundService")
 		local snd = Instance.new("Sound")
-		snd.SoundId = "rbxassetid://6895079853"
+		snd.SoundId = "rbxassetid://6026984224"
 		snd.Volume = 0.85
-		snd.PlaybackSpeed = 1.12
+		snd.PlaybackSpeed = 1.15
 		snd.Parent = ss
 		if ss.PlayLocalSound then
 			pcall(function() ss:PlayLocalSound(snd) end)
 		else
 			pcall(function() snd:Play() end)
 		end
-		game:GetService("Debris"):AddItem(snd, 1.5)
+		game:GetService("Debris"):AddItem(snd, 2)
 	end)
 end
 
 local function applySenaV7Architecture(win, titleLbl)
 	if not win or not titleLbl then return end
 
-	-- Xoá mọi logo phụ gắn trên Header nếu có (chỉ dùng duy nhất 1 nút nổi bên ngoài!)
+	-- Xoá khung cũ nếu có
 	for _, oldL in ipairs(win:GetDescendants()) do
-		if oldL.Name == "ChilliMainChilliLogo" or oldL.Name == "ChilliHeaderLogo" or oldL.Name == "ChilliCosmicHolder" or oldL.Name == "ChilliSenaBottomBar" then
+		if oldL.Name == "ChilliCosmicHolder" or oldL.Name == "ChilliSenaBottomBar" then
+			oldL:Destroy()
+		elseif oldL.Name == "ChilliMainChilliLogo" and oldL.Parent ~= win then
 			oldL:Destroy()
 		end
 	end
@@ -2490,7 +2483,66 @@ local function applySenaV7Architecture(win, titleLbl)
 		mk("UIStroke", { Name = "TitleUltraStroke", Thickness = 1.2, Color = Color3.fromRGB(12, 8, 22), Transparency = 0.2 }, titleLbl)
 	end
 
-	-- Tuyệt đối KHÔNG chạy quét toạ độ khi menu đang đóng hoặc đang hiệu ứng Tween thu phóng!
+	-- Logo Quả Ớt tròn viền cầu vồng ở đỉnh cột Sidebar (X = 23, Y = 19) kèm vạch kẻ sáng dưới Header giống hệt ảnh V7 (7601.jpg)
+	local hdrBaseZ = math.max(15, (titleLbl.ZIndex or 5) + 8)
+	local mainChilliLogo = win:FindFirstChild("ChilliMainChilliLogo")
+	if not mainChilliLogo then
+		mainChilliLogo = mk("Frame", {
+			Name = "ChilliMainChilliLogo",
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.new(0, 23, 0, 19),
+			Size = UDim2.new(0, 26, 0, 26),
+			BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+			BackgroundTransparency = 0,
+			BorderSizePixel = 0,
+			ClipsDescendants = true,
+			Active = false,
+			ZIndex = hdrBaseZ
+		}, win)
+		mk("UICorner", { CornerRadius = UDim.new(1, 0) }, mainChilliLogo)
+		local mcStroke = mk("UIStroke", {
+			Thickness = 1.4,
+			Color = Color3.new(1, 1, 1),
+			Transparency = 0.1,
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		}, mainChilliLogo)
+		table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, mcStroke))
+
+		mk("ImageLabel", {
+			Name = "LogoImg",
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromScale(0.88, 0.88),
+			BackgroundTransparency = 1,
+			Image = "rbxassetid://74441610995894",
+			ScaleType = Enum.ScaleType.Fit,
+			Active = false,
+			ZIndex = hdrBaseZ + 1
+		}, mainChilliLogo)
+	else
+		mainChilliLogo.AnchorPoint = Vector2.new(0.5, 0.5)
+		mainChilliLogo.Position = UDim2.new(0, 23, 0, 19)
+		mainChilliLogo.Size = UDim2.new(0, 26, 0, 26)
+		mainChilliLogo.Visible = true
+		mainChilliLogo.ZIndex = hdrBaseZ
+	end
+	State.MainChilliLogo = mainChilliLogo
+
+	local hdrGlowLine = win:FindFirstChild("ChilliHeaderBottomGlow")
+	if not hdrGlowLine then
+		hdrGlowLine = mk("Frame", {
+			Name = "ChilliHeaderBottomGlow",
+			Position = UDim2.new(0, 0, 0, 38),
+			Size = UDim2.new(1, 0, 0, 1.5),
+			BackgroundColor3 = Color3.new(1, 1, 1),
+			BorderSizePixel = 0,
+			Active = false,
+			ZIndex = hdrBaseZ - 1
+		}, win)
+		table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, hdrGlowLine))
+	end
+
+	-- Chặn quét toạ độ khi menu đang đóng hoặc đang hiệu ứng Tween thu phóng
 	if State.IsBubbleAnimating or not win.Visible or win.AbsoluteSize.X < 340 or win.AbsoluteSize.Y < 220 then
 		if win:GetAttribute("__DeferredArchOnOpen") ~= SID then
 			win:SetAttribute("__DeferredArchOnOpen", SID)
@@ -2581,7 +2633,6 @@ local function applySenaV7Architecture(win, titleLbl)
 		wp.Image = WALLPAPER_IMAGE_ID
 	end
 
-	-- Đảm bảo các khung chứa trang (Page Containers) ở giữa không che khuất hình nền vũ trụ
 	local sectionCards = {}
 	for _, d in ipairs(win:GetDescendants()) do
 		if d:IsA("ScrollingFrame") then
@@ -2612,7 +2663,7 @@ local function applySenaV7Architecture(win, titleLbl)
 		end
 	end
 	for _, st in ipairs(win:GetDescendants()) do
-		if st:IsA("UIStroke") and st.Name ~= "ChilliProWindowStroke" and st.Parent and st.Parent.Name ~= "ChilliSenaSquircle" and st.Parent.Name ~= "ChilliTabToast" and st.Parent.Name ~= "ChilliUltraBadgePill" then
+		if st:IsA("UIStroke") and st.Name ~= "ChilliProWindowStroke" and st.Parent and st.Parent.Name ~= "ChilliSenaSquircle" and st.Parent.Name ~= "ChilliTabToast" and st.Parent.Name ~= "ChilliMainChilliLogo" and st.Parent.Name ~= "ChilliUltraBadgePill" then
 			if st.Parent:FindFirstAncestorOfClass("ScrollingFrame") or st.Name == "ChilliCardGrad" then
 				st.Enabled = false
 				st.Transparency = 1
@@ -2672,7 +2723,7 @@ local function applySenaV7Architecture(win, titleLbl)
 	end
 	syncWallpaperAndOldBg()
 
-	-- B2. XOÁ CHỈ RIÊNG CHỮ / ICON Vx TRONG Ô 44x36 GÓC TRÊN TRÁI CỦA HEADER (TUYỆT ĐỐI KHÔNG ẨN FRAME SIDEBAR)
+	-- B2. ẨN CHỮ / ICON Vx TRONG Ô 44x36 GÓC TRÊN TRÁI (KHÔNG ĐỤNG TỚI FRAME SIDEBAR)
 	local headerBar = nil
 	local curr = titleLbl
 	while curr and curr ~= win do
@@ -2690,6 +2741,7 @@ local function applySenaV7Architecture(win, titleLbl)
 		if (it:IsA("TextLabel") or it:IsA("TextButton") or it:IsA("ImageLabel") or it:IsA("ImageButton"))
 		   and it ~= titleLbl
 		   and not it.Name:find("^Chilli")
+		   and not it:IsDescendantOf(mainChilliLogo)
 		   and not it:FindFirstAncestorOfClass("ScrollingFrame") then
 			local p, s = it.AbsolutePosition, it.AbsoluteSize
 			if s.X > 0 and s.X <= 42 and s.Y > 0 and s.Y <= 36
@@ -2705,7 +2757,7 @@ local function applySenaV7Architecture(win, titleLbl)
 		end
 	end
 
-	-- Khôi phục hoàn toàn các nút trong ScrollingFrame (Trang Chủ: Vào lại, Đổi máy chủ...) nếu phiên trước bị gắn nhầm
+	-- Dọn sạch mọi squircle nếu bị gắn nhầm vào trong ScrollingFrame
 	for _, sc in ipairs(win:GetDescendants()) do
 		if sc:IsA("ScrollingFrame") then
 			for _, sub in ipairs(sc:GetDescendants()) do
@@ -2737,6 +2789,8 @@ local function applySenaV7Architecture(win, titleLbl)
 			winStroke.Transparency = isOpen and 0.18 or 1
 		end
 		if wp then wp.Visible = isOpen end
+		if mainChilliLogo then mainChilliLogo.Visible = isOpen end
+		if hdrGlowLine then hdrGlowLine.Visible = isOpen end
 	end
 
 	State.SyncWindowFn = syncWindowVisibilityInstant
@@ -2781,22 +2835,20 @@ local function applySenaV7Architecture(win, titleLbl)
 		end
 	end
 
-	-- D. THANH TAB DỌC BÊN TRÁI (SIDEBAR) HIỆN ĐẠI + HIỆU ỨNG ÂM THANH CLICK
-	-- Chỉ tìm đúng cột nút Tab dọc ở mép trái của win (không nằm trong ScrollingFrame, X cách mép trái < 55px, xếp dọc từ trên xuống)
+	-- D. NÚT SIDEBAR SQUIRCLE ĐA SẮC Y HỆT BẢN V7 (7601.jpg) + ICON TRỨNG (91536384271341)
 	local navButtons = {}
-	local navContainer = nil
 	for _, d in ipairs(win:GetDescendants()) do
 		if d:IsA("GuiObject")
 		   and not d:IsA("ScrollingFrame")
 		   and not d:FindFirstAncestorOfClass("ScrollingFrame")
 		   and not d.Name:find("^Chilli")
-		   and (d.AbsolutePosition.X - winX) < 58 then
+		   and (d.AbsolutePosition.X - winX) < 75
+		   and d.AbsolutePosition.Y > hy + 12 then
 			local children = {}
 			for _, ch in ipairs(d:GetChildren()) do
 				if ch:IsA("GuiObject") and not ch.Name:find("^Chilli") and ch.Visible then
 					local cw, chH = ch.AbsoluteSize.X, ch.AbsoluteSize.Y
-					local chRelX = ch.AbsolutePosition.X - winX
-					if chRelX >= -2 and chRelX < 55 and cw >= 18 and cw <= 62 and chH >= 18 and chH <= 62 then
+					if cw >= 20 and cw <= 68 and chH >= 20 and chH <= 68 then
 						table.insert(children, ch)
 					end
 				end
@@ -2805,93 +2857,29 @@ local function applySenaV7Architecture(win, titleLbl)
 				table.sort(children, function(a, b) return a.AbsolutePosition.Y < b.AbsolutePosition.Y end)
 				local spanY = children[#children].AbsolutePosition.Y - children[1].AbsolutePosition.Y
 				local spanX = math.abs(children[#children].AbsolutePosition.X - children[1].AbsolutePosition.X)
-				if spanY > 90 and spanX < 20 then
+				if spanY > 80 and spanX < 25 then
 					navButtons = children
-					navContainer = d
 					break
 				end
 			end
 		end
 	end
 
-	if #navButtons >= 5 then
+	if #navButtons >= 2 then
+		table.sort(navButtons, function(a, b) return a.AbsolutePosition.Y < b.AbsolutePosition.Y end)
 		State.SystemTabBtn = navButtons[6] or navButtons[#navButtons]
-
-		if navContainer and navContainer:IsA("GuiObject") then
-			navContainer.Visible = true
-		end
-
-		local function updateTabActiveStyles(activeIdx)
-			State.ActiveSidebarTabIdx = activeIdx
-			for i, b in ipairs(navButtons) do
-				local sq = b:FindFirstChild("ChilliSenaSquircle")
-				if sq then
-					local st = sq:FindFirstChild("SquircleStroke") or sq:FindFirstChildOfClass("UIStroke")
-					local actBar = sq:FindFirstChild("ChilliTabActiveBar")
-					local shine = sq:FindFirstChild("ChilliTabGlassShine")
-					local bColor = SIDEBAR_PALETTE[((i - 1) % #SIDEBAR_PALETTE) + 1]
-					if i == activeIdx then
-						TweenService:Create(sq, TweenInfo.new(0.20, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-							Size = UDim2.new(0, 34, 0, 34),
-							BackgroundColor3 = Color3.new(1, 1, 1),
-							BackgroundTransparency = 0.04
-						}):Play()
-						if st then
-							TweenService:Create(st, TweenInfo.new(0.20, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-								Thickness = 1.8,
-								Color = Color3.new(1, 1, 1),
-								Transparency = 0.05
-							}):Play()
-						end
-						if actBar then
-							TweenService:Create(actBar, TweenInfo.new(0.20, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-								Size = UDim2.new(0, 3, 0, 18),
-								BackgroundTransparency = 0,
-								BackgroundColor3 = Color3.new(1, 1, 1)
-							}):Play()
-						end
-						if shine then
-							shine.BackgroundTransparency = 0.74
-						end
-					else
-						TweenService:Create(sq, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-							Size = UDim2.new(0, 29, 0, 29),
-							BackgroundColor3 = Color3.new(1, 1, 1),
-							BackgroundTransparency = 0.36
-						}):Play()
-						if st then
-							TweenService:Create(st, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-								Thickness = 1.1,
-								Color = bColor,
-								Transparency = 0.28
-							}):Play()
-						end
-						if actBar then
-							TweenService:Create(actBar, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-								Size = UDim2.new(0, 3, 0, 6),
-								BackgroundTransparency = 1
-							}):Play()
-						end
-						if shine then
-							shine.BackgroundTransparency = 0.86
-						end
-					end
-				end
-			end
-		end
 
 		local TAB_NAMES = {
 			[1] = { title = "BẢNG ĐIỀU KHIỂN", icon = "🏠", sub = "HOME DASHBOARD" },
 			[2] = { title = "CƯỚP TRỨNG", icon = "🥚", sub = "AUTO STEAL & SNIPER" },
-			[3] = { title = "CÀY CUỐC & PET", icon = "🌱", sub = "AUTO FARM & PETS" },
+			[3] = { title = "CÀY CUỐC & PET", icon = "🌾", sub = "AUTO FARM & PETS" },
 			[4] = { title = "SỰ KIỆN", icon = "✨", sub = "HALLOWEEN & EVENTS" },
 			[5] = { title = "NGƯỜI CHƠI", icon = "👤", sub = "PLAYER & ESP" },
-			[6] = { title = "CÀI ĐẶT", icon = "⚙️", sub = "SYSTEM & CONFIG" },
+			[6] = { title = "HỆ THỐNG", icon = "⚙️", sub = "SYSTEM & CONFIG" },
 		}
 
 		local function showTabToast(idx, badgeColor)
-			pcall(updateTabActiveStyles, idx)
-			local tabInfo = TAB_NAMES[idx] or { title = "TAB " .. tostring(idx), icon = "⚡", sub = "CHILLI HUB V8" }
+			local tabInfo = TAB_NAMES[idx] or { title = "TAB " .. tostring(idx), icon = "⚡", sub = "CHILLI HUB ULTRA" }
 			local oldToast = win:FindFirstChild("ChilliTabToast")
 			if oldToast then oldToast:Destroy() end
 
@@ -2899,13 +2887,13 @@ local function applySenaV7Architecture(win, titleLbl)
 				Name = "ChilliTabToast",
 				AnchorPoint = Vector2.new(0.5, 0),
 				Position = UDim2.new(0.5, 20, 0, -32),
-				Size = UDim2.new(0, 248, 0, 28),
-				BackgroundColor3 = Color3.fromRGB(14, 16, 26),
-				BackgroundTransparency = 0.08,
+				Size = UDim2.new(0, 248, 0, 30),
+				BackgroundColor3 = Color3.fromRGB(15, 17, 26),
+				BackgroundTransparency = 0.12,
 				BorderSizePixel = 0,
 				ClipsDescendants = true,
 				Active = false,
-				ZIndex = (win.ZIndex or 2) + 25
+				ZIndex = (win.ZIndex or 2) + 20
 			}, win)
 			mk("UICorner", { CornerRadius = UDim.new(1, 0) }, toast)
 			local tStroke = mk("UIStroke", { Thickness = 1.4, Color = badgeColor, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, toast)
@@ -2924,18 +2912,18 @@ local function applySenaV7Architecture(win, titleLbl)
 			local tGrad = mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, tLbl)
 			table.insert(State.ActiveGradients, tGrad)
 
-			TweenService:Create(toast, TweenInfo.new(0.20, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-				Position = UDim2.new(0.5, 20, 0, 7)
+			TweenService:Create(toast, TweenInfo.new(0.24, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+				Position = UDim2.new(0.5, 20, 0, 8)
 			}):Play()
 
-			task.delay(1.15, function()
+			task.delay(1.3, function()
 				if toast and toast.Parent then
-					local outTween = TweenService:Create(toast, TweenInfo.new(0.20, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+					local outTween = TweenService:Create(toast, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
 						Position = UDim2.new(0.5, 20, 0, -32),
 						BackgroundTransparency = 1
 					})
-					TweenService:Create(tLbl, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { TextTransparency = 1 }):Play()
-					TweenService:Create(tStroke, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Transparency = 1 }):Play()
+					TweenService:Create(tLbl, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { TextTransparency = 1 }):Play()
+					TweenService:Create(tStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Transparency = 1 }):Play()
 					outTween:Play()
 					outTween.Completed:Connect(function() toast:Destroy() end)
 				end
@@ -2943,92 +2931,63 @@ local function applySenaV7Architecture(win, titleLbl)
 		end
 
 		for idx, btn in ipairs(navButtons) do
-			btn.Visible = true
 			local badgeColor = SIDEBAR_PALETTE[((idx - 1) % #SIDEBAR_PALETTE) + 1]
-			local gradPair = SIDEBAR_GRAD_PAIRS[((idx - 1) % #SIDEBAR_GRAD_PAIRS) + 1]
-
 			local squircle = btn:FindFirstChild("ChilliSenaSquircle")
-			if not squircle then
+			-- Xoá các thành phần phụ cũ nếu có để giữ đúng chuẩn Squircle đơn sắc rực rỡ của V7 (7601.jpg)
+			if squircle then
+				local oldGrad = squircle:FindFirstChild("SquircleGrad")
+				if oldGrad then oldGrad:Destroy() end
+				local oldShine = squircle:FindFirstChild("ChilliTabGlassShine")
+				if oldShine then oldShine:Destroy() end
+				local oldBar = squircle:FindFirstChild("ChilliTabActiveBar")
+				if oldBar then oldBar:Destroy() end
+				squircle.Size = UDim2.new(0, 30, 0, 30)
+				squircle.BackgroundColor3 = badgeColor
+				squircle.BackgroundTransparency = 0.12
+			else
 				squircle = mk("Frame", {
 					Name = "ChilliSenaSquircle",
 					AnchorPoint = Vector2.new(0.5, 0.5),
 					Position = UDim2.fromScale(0.5, 0.5),
 					Size = UDim2.new(0, 30, 0, 30),
-					BackgroundColor3 = Color3.new(1, 1, 1),
-					BackgroundTransparency = 0.25,
-					BorderSizePixel = 0,
-					Active = false,
-					ZIndex = math.max(2, btn.ZIndex + 1)
-				}, btn)
-				mk("UICorner", { CornerRadius = UDim.new(0, 9) }, squircle)
-				mk("UIGradient", {
-					Name = "SquircleGrad",
-					Rotation = 45,
-					Color = ColorSequence.new({
-						ColorSequenceKeypoint.new(0, gradPair[1]),
-						ColorSequenceKeypoint.new(1, gradPair[2])
-					})
-				}, squircle)
-				mk("UIStroke", {
-					Name = "SquircleStroke",
-					Thickness = 1.3,
-					Color = badgeColor,
-					Transparency = 0.22,
-					ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-				}, squircle)
-
-				local glassShine = mk("Frame", {
-					Name = "ChilliTabGlassShine",
-					AnchorPoint = Vector2.new(0.5, 0),
-					Position = UDim2.new(0.5, 0, 0, 1),
-					Size = UDim2.new(0.84, 0, 0.42, 0),
-					BackgroundColor3 = Color3.new(1, 1, 1),
-					BackgroundTransparency = 0.80,
-					BorderSizePixel = 0,
-					Active = false,
-					ZIndex = squircle.ZIndex + 1
-				}, squircle)
-				mk("UICorner", { CornerRadius = UDim.new(0, 7) }, glassShine)
-
-				local activeBar = mk("Frame", {
-					Name = "ChilliTabActiveBar",
-					AnchorPoint = Vector2.new(0, 0.5),
-					Position = UDim2.new(0, -4, 0.5, 0),
-					Size = UDim2.new(0, 3, 0, 16),
 					BackgroundColor3 = badgeColor,
-					BackgroundTransparency = 1,
+					BackgroundTransparency = 0.12,
 					BorderSizePixel = 0,
 					Active = false,
-					ZIndex = squircle.ZIndex + 3
-				}, squircle)
-				mk("UICorner", { CornerRadius = UDim.new(1, 0) }, activeBar)
+					ZIndex = (btn.ZIndex or 1) + 1
+				}, btn)
+				mk("UICorner", { CornerRadius = UDim.new(0, 8) }, squircle)
+				mk("UIStroke", { Name = "SquircleStroke", Thickness = 1, Color = badgeColor, Transparency = 0.65 }, squircle)
 			end
 
 			for _, ch in ipairs(btn:GetDescendants()) do
-				if ch ~= squircle and not ch:IsDescendantOf(squircle) and ch.Name ~= "ChilliStealTabIcon" then
+				if ch ~= squircle and ch.Name ~= "ChilliStealTabIcon" then
 					if ch:IsA("ImageLabel") or ch:IsA("ImageButton") then
-						ch.Visible = true
-						ch.ZIndex = squircle.ZIndex + 4
+						ch.ZIndex = squircle.ZIndex + 2
 						ch.ImageColor3 = Color3.new(1, 1, 1)
 						if idx ~= 2 then
 							ch.ImageTransparency = 0
 						end
 					elseif ch:IsA("TextLabel") or ch:IsA("TextButton") then
-						ch.Visible = true
-						ch.ZIndex = squircle.ZIndex + 4
+						ch.ZIndex = squircle.ZIndex + 2
 						ch.TextColor3 = Color3.new(1, 1, 1)
-						if idx ~= 2 then
-							ch.TextTransparency = 0
-						end
 					end
 				end
 			end
 
+			-- Tab 2: Phóng to ảnh quả trứng (91536384271341) lên kích thước 0.84 cân đối hoàn hảo như V7 (7601.jpg)
 			if idx == 2 then
 				for _, desc in ipairs(btn:GetDescendants()) do
-					if desc ~= squircle and not desc:IsDescendantOf(squircle) and desc.Name ~= "ChilliStealTabIcon" and not desc:IsA("UICorner") and not desc:IsA("UIStroke") then
+					if desc ~= squircle and desc.Name ~= "ChilliStealTabIcon" and not desc:IsA("UICorner") and not desc:IsA("UIStroke") then
 						if desc:IsA("ImageLabel") or desc:IsA("ImageButton") then
 							desc.ImageTransparency = 1
+						elseif desc:IsA("TextLabel") or desc:IsA("TextButton") then
+							desc:SetAttribute("__HiddenVxLogo", true)
+							desc.TextTransparency = 1
+						elseif desc:IsA("Frame") then
+							desc.BackgroundTransparency = 1
+							local st = desc:FindFirstChildOfClass("UIStroke")
+							if st then st.Transparency = 1 end
 						end
 					end
 				end
@@ -3038,89 +2997,85 @@ local function applySenaV7Architecture(win, titleLbl)
 						Name = "ChilliStealTabIcon",
 						AnchorPoint = Vector2.new(0.5, 0.5),
 						Position = UDim2.fromScale(0.5, 0.5),
-						Size = UDim2.fromScale(0.80, 0.80),
+						Size = UDim2.fromScale(0.84, 0.84),
 						BackgroundTransparency = 1,
 						Image = STEAL_TAB_ICON_ID,
 						ScaleType = Enum.ScaleType.Fit,
 						Active = false,
 						Selectable = false,
-						ZIndex = squircle.ZIndex + 5
+						ZIndex = squircle.ZIndex + 3
 					}, btn)
 					mk("UIAspectRatioConstraint", { AspectRatio = 1 }, stealIcon)
 				else
-					stealIcon.Visible = true
 					stealIcon.Image = STEAL_TAB_ICON_ID
-					stealIcon.ImageTransparency = 0
-					stealIcon.Size = UDim2.fromScale(0.80, 0.80)
-					stealIcon.ZIndex = squircle.ZIndex + 5
+					stealIcon.Size = UDim2.fromScale(0.84, 0.84)
+					stealIcon.ZIndex = squircle.ZIndex + 3
 				end
 			end
 
+			-- Hiệu ứng nút bấm tương tác chuẩn V7 (Âm thanh Click + Spring Elastic Bounce + Shockwave Ripple + Tab Toast)
 			if not btn:GetAttribute("__TabEffectHooked") then
 				btn:SetAttribute("__TabEffectHooked", true)
 				local function onTabTriggered()
 					local now = os.clock()
-					if now - (State.LastTabClickTime or 0) < 0.12 then return end
+					if now - (State.LastTabClickTime or 0) < 0.15 then return end
 					State.LastTabClickTime = now
 
 					playModernTabSound()
-					pcall(updateTabActiveStyles, idx)
 
-					TweenService:Create(squircle, TweenInfo.new(0.07, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-						Size = UDim2.new(0, 26, 0, 26)
+					-- 1. Hiệu ứng nảy nút bấm (Spring Bounce chuẩn V7)
+					TweenService:Create(squircle, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+						Size = UDim2.new(0, 24, 0, 24)
 					}):Play()
-					task.delay(0.07, function()
-						TweenService:Create(squircle, TweenInfo.new(0.16, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-							Size = UDim2.new(0, 34, 0, 34)
+					task.delay(0.08, function()
+						TweenService:Create(squircle, TweenInfo.new(0.18, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+							Size = UDim2.new(0, 33, 0, 33)
+						}):Play()
+					end)
+					task.delay(0.26, function()
+						TweenService:Create(squircle, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+							Size = UDim2.new(0, 30, 0, 30)
 						}):Play()
 					end)
 
+					-- 2. Hiệu ứng sóng ánh sáng lan tỏa (Cosmic Shockwave Ripple chuẩn V7)
 					local ripple = mk("Frame", {
 						Name = "ChilliTabRipple",
 						AnchorPoint = Vector2.new(0.5, 0.5),
 						Position = UDim2.fromScale(0.5, 0.5),
 						Size = UDim2.new(0, 24, 0, 24),
 						BackgroundColor3 = badgeColor,
-						BackgroundTransparency = 0.18,
+						BackgroundTransparency = 0.2,
 						BorderSizePixel = 0,
 						Active = false,
 						ZIndex = squircle.ZIndex - 1
 					}, btn)
 					mk("UICorner", { CornerRadius = UDim.new(1, 0) }, ripple)
-					local ripStroke = mk("UIStroke", { Thickness = 1.8, Color = Color3.new(1, 1, 1), Transparency = 0.15 }, ripple)
+					local ripStroke = mk("UIStroke", { Thickness = 1.8, Color = Color3.new(1, 1, 1), Transparency = 0.2 }, ripple)
 
-					local rTween = TweenService:Create(ripple, TweenInfo.new(0.32, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-						Size = UDim2.new(0, 48, 0, 48),
+					local rTween = TweenService:Create(ripple, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+						Size = UDim2.new(0, 52, 0, 52),
 						BackgroundTransparency = 1
 					})
-					TweenService:Create(ripStroke, TweenInfo.new(0.32, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Transparency = 1 }):Play()
+					TweenService:Create(ripStroke, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Transparency = 1 }):Play()
 					rTween:Play()
 					rTween.Completed:Connect(function() ripple:Destroy() end)
 
+					-- 3. Hiện huy hiệu thông báo mini của Tab ở đầu trang
 					showTabToast(idx, badgeColor)
 				end
 
-				local hookTargets = { btn }
-				for _, desc in ipairs(btn:GetDescendants()) do
-					if desc:IsA("GuiButton") then
-						table.insert(hookTargets, desc)
-					end
+				if btn:IsA("GuiButton") then
+					btn.Activated:Connect(onTabTriggered)
+					btn.MouseButton1Click:Connect(onTabTriggered)
 				end
-				for _, hObj in ipairs(hookTargets) do
-					if hObj:IsA("GuiButton") then
-						hObj.Activated:Connect(onTabTriggered)
-						hObj.MouseButton1Click:Connect(onTabTriggered)
-						hObj.MouseButton1Down:Connect(onTabTriggered)
+				btn.InputBegan:Connect(function(inp)
+					if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+						onTabTriggered()
 					end
-					hObj.InputBegan:Connect(function(inp)
-						if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
-							onTabTriggered()
-						end
-					end)
-				end
+				end)
 			end
 		end
-		pcall(updateTabActiveStyles, State.ActiveSidebarTabIdx or 1)
 	end
 end
 
