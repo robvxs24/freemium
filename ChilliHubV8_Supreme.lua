@@ -3,7 +3,7 @@
 -- [PHẦN 1] KHỞI TẠO CẤU HÌNH, TỐI ƯU ĐỒ HỌA & QUẢN LÝ PHIÊN LÀM VIỆC (ZERO ERRORS)
 -- ============================================================================
 local NEW_TITLE = "Chilli Hub V8"
-local LOGO_ID = "rbxassetid://74441610995894"
+local LOGO_ID = "rbxassetid://91322208361913"
 local HEADER_BAR_IMG_ID = "rbxassetid://83726521558450"
 local STEAL_TAB_ICON_ID = "rbxassetid://91536384271341"
 local WALLPAPER_IMAGE_ID = "rbxassetid://90615151648668"
@@ -2475,10 +2475,14 @@ local function applySenaV7Architecture(win, titleLbl)
     local winStroke = strokeTarget:FindFirstChild("ChilliProWindowStroke") or win:FindFirstChild("ChilliProWindowStroke")
     if not winStroke then
         winStroke = mk("UIStroke", {
-            Name = "ChilliProWindowStroke", Thickness = 2.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-            Color = Color3.new(1, 1, 1), Transparency = 0.05
+            Name = "ChilliProWindowStroke", Thickness = 2.0, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+            Color = Color3.fromRGB(68, 88, 160), Transparency = 0.22
         }, strokeTarget)
-        table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, winStroke))
+    else
+        -- Xoa gradient cau vong cu neu co
+        for _, ch in ipairs(winStroke:GetChildren()) do ch:Destroy() end
+        winStroke.Color = Color3.fromRGB(68, 88, 160)
+        winStroke.Transparency = 0.22
     end
 
     -- B1. HÌNH NỀN VŨ TRỤ MẮT THẦN (90615151648668) ĐỒNG BỘ ĐỘ ĐẬM / MỜ VỚI NỀN CŨ CỦA MENU GỐC
@@ -2517,17 +2521,23 @@ local function applySenaV7Architecture(win, titleLbl)
 
     -- NÂNG CẤP NỘI THẤT MENU "CYBERPUNK NEON GLASS V7":
     -- 1) Thẻ tính năng (Section Cards) có viền Neon chuyển sắc + nền kính mờ xuyên thấu thấy nền vũ trụ
+        -- 1) Tháº» tÃ­nh nÄƒng (Section Cards): Ná»n kÃ­nh má» sáº¡ch sáº½, xÃ³a bá» hoÃ n toÃ n viá»n cáº§u vá»“ng & káº» Ã´ vuÃ´ng thá»«a
     for _, card in ipairs(sectionCards) do
         card.BackgroundColor3 = Color3.fromRGB(13, 15, 24)
-        local cStroke = card:FindFirstChildOfClass("UIStroke") or mk("UIStroke", {
-            Thickness = 1.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-        }, card)
-        cStroke.Color = Color3.new(1, 1, 1)
-        cStroke.Thickness = 1.2
-        cStroke.Transparency = 0.25
-        if not cStroke:FindFirstChild("ChilliCardGrad") then
-            local cg = mk("UIGradient", { Name = "ChilliCardGrad", Color = ULTRA_CARD_GRAD }, cStroke)
-            table.insert(State.ActiveGradients, cg)
+        for _, st in ipairs(card:GetChildren()) do
+            if st:IsA("UIStroke") then
+                st.Enabled = false
+                st.Transparency = 1
+                pcall(function() st:Destroy() end)
+            end
+        end
+    end
+    for _, st in ipairs(win:GetDescendants()) do
+        if st:IsA("UIStroke") and st.Name ~= "ChilliProWindowStroke" and st.Parent and st.Parent.Name ~= "ChilliSenaSquircle" and st.Parent.Name ~= "ChilliTabToast" and st.Parent.Name ~= "ChilliHeaderLogo" and st.Parent.Name ~= "ChilliUltraBadgePill" then
+            if st.Parent:FindFirstAncestorOfClass("ScrollingFrame") or st.Name == "ChilliCardGrad" then
+                st.Enabled = false
+                st.Transparency = 1
+            end
         end
     end
 
@@ -2828,8 +2838,8 @@ local function applySenaV7Architecture(win, titleLbl)
         end
 
         -- C. CƠ CHẾ ĐỒNG BỘ HIỂN THỊ MENU CHILLI HUB V7 (KHÔNG DÙNG win.BackgroundTransparency ĐỂ TRÁNH ẨN NHẦM)
-        local function syncWindowVisibilityInstant()
-            if not win or not win.Parent then return end
+                local function syncWindowVisibilityInstant()
+            if not win or not win.Parent or State.IsBubbleAnimating then return end
             local isOffscreen = (win.AbsolutePosition.X < -500 or win.AbsolutePosition.Y < -500)
             local isSizeZero = (win.AbsoluteSize.X < 80 or win.AbsoluteSize.Y < 60)
             local isHdrHidden = (headerBar ~= nil) and (not headerBar.Visible)
@@ -2875,13 +2885,17 @@ local function applySenaV7Architecture(win, titleLbl)
                     if btn and (btn:IsA("TextButton") or btn:IsA("ImageButton")) and not btn:GetAttribute("__CloseSyncHooked") then
                         btn:SetAttribute("__CloseSyncHooked", true)
                         btn.MouseButton1Down:Connect(function()
-                            State.CloseHideUntil = os.clock() + 0.42
-                            if winStroke then winStroke.Enabled = false end
-                            local bBar = win:FindFirstChild("ChilliSenaBottomBar")
-                            if bBar then bBar.Visible = false end
-                            if wp then wp.Visible = false end
-                            local cHolder = win:FindFirstChild("ChilliCosmicHolder")
-                            if cHolder then cHolder.Visible = false end
+                            if State.AnimateCloseFn then
+                                pcall(State.AnimateCloseFn)
+                            else
+                                State.CloseHideUntil = os.clock() + 0.42
+                                if winStroke then winStroke.Enabled = false end
+                                local bBar = win:FindFirstChild("ChilliSenaBottomBar")
+                                if bBar then bBar.Visible = false end
+                                if wp then wp.Visible = false end
+                                local cHolder = win:FindFirstChild("ChilliCosmicHolder")
+                                if cHolder then cHolder.Visible = false end
+                            end
                         end)
                     end
                 end
@@ -3029,6 +3043,16 @@ local function applySenaV7Architecture(win, titleLbl)
             if not btn:GetAttribute("__TabEffectHooked") then
                 btn:SetAttribute("__TabEffectHooked", true)
                 local function onTabTriggered()
+                    -- 0. Am thanh click tab
+                    pcall(function()
+                        local snd = Instance.new("Sound")
+                        snd.SoundId = "rbxassetid://6895079393"
+                        snd.Volume = 0.35
+                        snd.RollOffMaxDistance = 0
+                        snd.Parent = game:GetService("SoundService")
+                        snd:Play()
+                        game:GetService("Debris"):AddItem(snd, 2)
+                    end)
                     -- 1. Hiệu ứng nảy nút bấm (Spring Bounce)
                     TweenService:Create(squircle, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
                         Size = UDim2.new(0, 24, 0, 24)
@@ -3110,8 +3134,7 @@ local function applySenaV7Architecture(win, titleLbl)
                         Active = false, ZIndex = (headerBar and headerBar.ZIndex or 2) + 8
                     }, holder)
                     mk("UICorner", { CornerRadius = UDim.new(1, 0) }, hBadge)
-                    local hStroke = mk("UIStroke", { Thickness = 1.5, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, hBadge)
-                    table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, hStroke))
+                    local hStroke = mk("UIStroke", { Thickness = 1.2, Color = Color3.fromRGB(70, 90, 150), Transparency = 0.25, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, hBadge)
                     hBadge.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
                     local hImg = mk("ImageLabel", {
                         AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromScale(0.80, 0.80),
@@ -3128,6 +3151,277 @@ end
 local venyxGuiLocked = nil
 
 
+-- ============================================================================
+-- [CHILLI BUBBLE TOGGLE] QUáº¢ Cáº¦U BONG BÃ“NG PHA LÃŠ & HIá»†U á»¨NG TWEEN SCALE BUNG Ná»ž
+-- ============================================================================
+local function setupBubbleToggle(gui, win)
+    if not gui or not win then return end
+    if win:GetAttribute("__ChilliBubbleHooked") then return end
+    win:SetAttribute("__ChilliBubbleHooked", true)
+
+    local TweenSvc = game:GetService("TweenService")
+    local RunSvc = game:GetService("RunService")
+    local UserInputSvc = game:GetService("UserInputService")
+    State.IsBubbleAnimating = false
+
+    local bubble = gui:FindFirstChild("ChilliCrystalBubble")
+    if not bubble then
+        bubble = Instance.new("ImageButton")
+        bubble.Name = "ChilliCrystalBubble"
+        bubble.AnchorPoint = Vector2.new(0.5, 0.5)
+        bubble.Position = UDim2.new(0, 48, 0.5, -20)
+        bubble.Size = UDim2.new(0, 56, 0, 56)
+        bubble.BackgroundColor3 = Color3.fromRGB(15, 18, 30)
+        bubble.BackgroundTransparency = 0.15
+        bubble.AutoButtonColor = false
+        bubble.BorderSizePixel = 0
+        bubble.ZIndex = 99999
+        bubble.Parent = gui
+
+        local bCorner = Instance.new("UICorner")
+        bCorner.CornerRadius = UDim.new(1, 0)
+        bCorner.Parent = bubble
+
+        -- Viá»n phÃ¡t sÃ¡ng pha lÃª chuyá»ƒn sáº¯c lung linh
+        local bStroke = Instance.new("UIStroke")
+        bStroke.Name = "BubbleStroke"
+        bStroke.Thickness = 2.0
+        bStroke.Color = Color3.fromRGB(120, 190, 255)
+        bStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+        bStroke.Parent = bubble
+
+        local bStrokeGrad = Instance.new("UIGradient")
+        bStrokeGrad.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0.00, Color3.fromRGB(100, 220, 255)),
+            ColorSequenceKeypoint.new(0.35, Color3.fromRGB(255, 120, 220)),
+            ColorSequenceKeypoint.new(0.70, Color3.fromRGB(120, 255, 180)),
+            ColorSequenceKeypoint.new(1.00, Color3.fromRGB(100, 220, 255)),
+        })
+        bStrokeGrad.Parent = bStroke
+
+        -- Lá»›p Ã¡nh sÃ¡ng bong bÃ³ng pha lÃª pháº£n chiáº¿u 3D
+        local shimmerImg = Instance.new("ImageLabel")
+        shimmerImg.Name = "ShimmerGlow"
+        shimmerImg.AnchorPoint = Vector2.new(0.5, 0.5)
+        shimmerImg.Position = UDim2.fromScale(0.5, 0.5)
+        shimmerImg.Size = UDim2.fromScale(1.15, 1.15)
+        shimmerImg.BackgroundTransparency = 1
+        shimmerImg.Image = "rbxassetid://4965945816"
+        shimmerImg.ImageColor3 = Color3.fromRGB(160, 220, 255)
+        shimmerImg.ImageTransparency = 0.25
+        shimmerImg.ZIndex = bubble.ZIndex + 1
+        shimmerImg.Parent = bubble
+
+        -- Logo Chilli Hub V8 má»›i náº±m giá»¯a tÃ¢m quáº£ cáº§u bong bÃ³ng
+        local centerLogo = Instance.new("ImageLabel")
+        centerLogo.Name = "BubbleLogo"
+        centerLogo.AnchorPoint = Vector2.new(0.5, 0.5)
+        centerLogo.Position = UDim2.fromScale(0.5, 0.5)
+        centerLogo.Size = UDim2.new(0, 36, 0, 36)
+        centerLogo.BackgroundTransparency = 1
+        centerLogo.Image = LOGO_ID
+        centerLogo.ScaleType = Enum.ScaleType.Fit
+        centerLogo.ZIndex = bubble.ZIndex + 2
+        centerLogo.Parent = bubble
+
+        local lCorner = Instance.new("UICorner")
+        lCorner.CornerRadius = UDim.new(1, 0)
+        lCorner.Parent = centerLogo
+
+        -- Hiá»‡u á»©ng váº§ng hÃ o quang pha lÃª xoay trÃ²n mÆ°á»£t mÃ 
+        local rotAngle = 0
+        RunSvc.Heartbeat:Connect(function(dt)
+            if bubble.Visible then
+                rotAngle = (rotAngle + dt * 45) % 360
+                bStrokeGrad.Rotation = rotAngle
+            end
+        end)
+
+        -- KÃ©o tháº£ bong bÃ³ng (Drag) mÆ°á»£t mÃ  trÃªn cáº£ Mobile vÃ  PC
+        local dragging = false
+        local dragStart, startPos
+        local totalDragDist = 0
+
+        bubble.InputBegan:Connect(function(inp)
+            if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+                dragging = true
+                dragStart = inp.Position
+                startPos = bubble.Position
+                totalDragDist = 0
+            end
+        end)
+
+        UserInputSvc.InputChanged:Connect(function(inp)
+            if dragging and (inp.UserInputType == Enum.UserInputType.MouseMovement or inp.UserInputType == Enum.UserInputType.Touch) then
+                local delta = inp.Position - dragStart
+                totalDragDist = totalDragDist + delta.Magnitude
+                bubble.Position = UDim2.new(
+                    startPos.X.Scale,
+                    startPos.X.Offset + delta.X,
+                    startPos.Y.Scale,
+                    startPos.Y.Offset + delta.Y
+                )
+            end
+        end)
+
+        UserInputSvc.InputEnded:Connect(function(inp)
+            if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+                dragging = false
+            end
+        end)
+    end
+
+    -- Khá»Ÿi táº¡o vá»‹ trÃ­ vÃ  kÃ­ch thÆ°á»›c lÆ°u trá»¯ cá»§a Menu chÃ­nh
+    if not State.OrigWinSize then
+        State.OrigWinSize = win.Size
+        State.OrigWinPos = win.Position
+        State.OrigWinAnchor = win.AnchorPoint
+    end
+
+    -- HÃ m phÃ¡t Ã¢m thanh giao diá»‡n
+    local function playToggleSound(soundId, vol, spd)
+        pcall(function()
+            local snd = Instance.new("Sound")
+            snd.SoundId = soundId
+            snd.Volume = vol or 0.45
+            snd.PlaybackSpeed = spd or 1.0
+            snd.Parent = game:GetService("SoundService") or workspace
+            snd:Play()
+            game:GetService("Debris"):AddItem(snd, 2)
+        end)
+    end
+
+    -- 1. HIá»†U á»¨NG Má»ž MENU (Scale tá»« tÃ¢m quáº£ cáº§u bong bÃ³ng bung ná»Ÿ ra thÃ nh MainFrame)
+    local function openMenuAnimated()
+        if State.IsBubbleAnimating then return end
+        State.IsBubbleAnimating = true
+
+        playToggleSound("rbxassetid://6895079853", 0.5, 0.95)
+
+        local bCenter = bubble.AbsolutePosition + (bubble.AbsoluteSize * 0.5)
+        local destPos = State.OrigWinPos or win.Position
+        local destSize = State.OrigWinSize or win.Size
+        local destAnchor = State.OrigWinAnchor or Vector2.new(0, 0)
+
+        -- Bong bÃ³ng thu nhá» biáº¿n máº¥t
+        TweenSvc:Create(bubble, TweenInfo.new(0.18, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
+            Size = UDim2.new(0, 0, 0, 0)
+        }):Play()
+
+        task.delay(0.12, function()
+            bubble.Visible = false
+            bubble.Size = UDim2.new(0, 56, 0, 56)
+        end)
+
+        -- Thiáº¿t láº­p MainFrame xuáº¥t phÃ¡t tá»« tÃ¢m bong bÃ³ng vá»›i kÃ­ch thÆ°á»›c 0
+        win.Visible = true
+        win.AnchorPoint = Vector2.new(0.5, 0.5)
+        win.Position = UDim2.new(0, bCenter.X, 0, bCenter.Y)
+        win.Size = UDim2.new(0, 0, 0, 0)
+        State.CloseHideUntil = nil
+        if State.SyncWindowFn then pcall(State.SyncWindowFn) end
+
+        -- Tween bung ná»Ÿ mÆ°á»£t mÃ  dáº¡ng lÃ² xo
+        local openTween = TweenSvc:Create(win, TweenInfo.new(0.36, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Position = destPos,
+            Size = destSize,
+            AnchorPoint = destAnchor
+        })
+        openTween.Completed:Connect(function()
+            win.Position = destPos
+            win.Size = destSize
+            win.AnchorPoint = destAnchor
+            State.IsBubbleAnimating = false
+            if State.SyncWindowFn then pcall(State.SyncWindowFn) end
+        end)
+        openTween:Play()
+    end
+
+    -- 2. HIá»†U á»¨NG ÄÃ“NG MENU (Hub thu nhá» mÆ°á»£t mÃ  dáº§n vá» láº¡i quáº£ cáº§u bong bÃ³ng)
+    local function closeMenuAnimated()
+        if State.IsBubbleAnimating then return end
+        if not win.Visible then
+            bubble.Visible = true
+            return
+        end
+        State.IsBubbleAnimating = true
+
+        State.OrigWinPos = win.Position
+        State.OrigWinSize = win.Size
+        State.OrigWinAnchor = win.AnchorPoint
+
+        playToggleSound("rbxassetid://6895079853", 0.4, 1.25)
+
+        local bCenter = bubble.AbsolutePosition + (bubble.AbsoluteSize * 0.5)
+
+        -- Tween thu nhá» menu vá» vá»‹ trÃ­ quáº£ cáº§u
+        local closeTween = TweenSvc:Create(win, TweenInfo.new(0.28, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            Position = UDim2.new(0, bCenter.X, 0, bCenter.Y),
+            Size = UDim2.new(0, 0, 0, 0),
+            AnchorPoint = Vector2.new(0.5, 0.5)
+        })
+
+        closeTween.Completed:Connect(function()
+            win.Visible = false
+            win.Position = State.OrigWinPos
+            win.Size = State.OrigWinSize
+            win.AnchorPoint = State.OrigWinAnchor
+
+            -- Hiá»‡n quáº£ cáº§u bung ná»Ÿ xuáº¥t hiá»‡n vá»›i hiá»‡u á»©ng Ä‘Ã n há»“i
+            bubble.Visible = true
+            bubble.Size = UDim2.new(0, 0, 0, 0)
+            TweenSvc:Create(bubble, TweenInfo.new(0.32, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+                Size = UDim2.new(0, 56, 0, 56)
+            }):Play()
+
+            State.IsBubbleAnimating = false
+            if State.SyncWindowFn then pcall(State.SyncWindowFn) end
+        end)
+        closeTween:Play()
+    end
+
+    State.AnimateOpenFn = openMenuAnimated
+    State.AnimateCloseFn = closeMenuAnimated
+
+    -- Cháº¡m/báº¥m vÃ o bong bÃ³ng Ä‘á»ƒ má»Ÿ Hub (náº¿u khÃ´ng pháº£i Ä‘ang drag)
+    bubble.Activated:Connect(function()
+        if not State.IsBubbleAnimating then
+            openMenuAnimated()
+        end
+    end)
+
+    -- Báº¯t sá»± kiá»‡n báº¥m nÃºt Ä‘Ã³ng "-" trÃªn Header Ä‘á»ƒ cháº¡y hiá»‡u á»©ng thu nhá»
+    local hy = win.AbsolutePosition.Y
+    for _, d in ipairs(win:GetDescendants()) do
+        if (d:IsA("TextButton") or d:IsA("ImageButton") or d:IsA("TextLabel")) then
+            if (d.Text == "-" or d.Text == "â€”" or d.AbsolutePosition.X > win.AbsolutePosition.X + win.AbsoluteSize.X - 50)
+               and math.abs(d.AbsolutePosition.Y - hy) < 50 then
+                local btn = (d:IsA("TextButton") or d:IsA("ImageButton")) and d or d.Parent
+                if btn and (btn:IsA("TextButton") or btn:IsA("ImageButton")) and not btn:GetAttribute("__ChilliCloseBubbleHooked") then
+                    btn:SetAttribute("__ChilliCloseBubbleHooked", true)
+                    btn.MouseButton1Click:Connect(function()
+                        closeMenuAnimated()
+                    end)
+                end
+            end
+        end
+    end
+
+    -- Theo dÃµi tráº¡ng thÃ¡i Visible cá»§a Menu chÃ­nh Ä‘á»ƒ giá»¯ tráº¡ng thÃ¡i Ä‘á»“ng bá»™
+    win:GetPropertyChangedSignal("Visible"):Connect(function()
+        if not State.IsBubbleAnimating then
+            if win.Visible then
+                bubble.Visible = false
+            else
+                bubble.Visible = true
+                bubble.Size = UDim2.new(0, 56, 0, 56)
+            end
+        end
+    end)
+
+    -- Tráº¡ng thÃ¡i ban Ä‘áº§u
+    bubble.Visible = not win.Visible
+end
 local function patchVenyxGui(gui, titleLbl)
 gui:SetAttribute("__IsChilliVenyxGui", true)
 pcall(function() gui.Enabled = true end)
@@ -3155,11 +3449,12 @@ if win then
 State.ActiveMainWin = win
 pcall(cleanupStrayLogos, gui, win)
 pcall(applySenaV7Architecture, win, titleLbl)
+pcall(setupBubbleToggle, gui, win)
 end
 
 for _, tc in ipairs(gui:GetChildren()) do
-if tc:IsA("GuiObject") and tc ~= win and tc.Name ~= "ChilliV5_ExpandedIsland" and not tc:FindFirstChild("IslandExpandHint") then
-pcall(setupCircleLogo, tc, win)
+if tc:IsA("GuiObject") and tc ~= win and tc.Name ~= "ChilliV5_ExpandedIsland" and not tc:FindFirstChild("IslandExpandHint") and tc.Name ~= "ChilliCrystalBubble" then
+tc.Visible = false
 end
 end
 pcall(function()
@@ -4541,3 +4836,4 @@ end
 task.defer(function()
 tryBootPass(1)
 end)
+
