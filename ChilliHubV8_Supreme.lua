@@ -4213,7 +4213,7 @@ BackgroundTransparency = 1,
 Font = Enum.Font.GothamBold,
 TextSize = 10.5,
 TextColor3 = c3(175, 205, 255),
-Text = subText or (State.Language == "EN" and "Searching for the least-populated server..." or "Đang tìm kiếm máy chủ ít người chơi nhất..."),
+Text = subText or (State.Language == "EN" and "Searching for the least-populated server..." or "Đang tìm kiếm máy chủ..."),
 TextTruncate = Enum.TextTruncate.None
 }, card)
 
@@ -4301,12 +4301,12 @@ hideFinderSignInBox(sg)
 if joinLbl and (joinLbl:IsA("TextLabel") or joinLbl:IsA("TextButton")) then
 joinLbl:SetAttribute("__IsTranslating", true)
 joinLbl:SetAttribute("__TranslatingFinderHud", true)
-pcall(function() joinLbl.Text = "⏳ Đang đổi..." end)
+pcall(function() joinLbl.Text = "⏳ Đang vào..." end)
 end
 if State.ActiveStatusLbl and State.ActiveStatusLbl.Parent then
 pcall(function()
 State.ActiveStatusLbl:SetAttribute("__Updating", true)
-State.ActiveStatusLbl.Text = "⚡ Đang tìm server ít người nhất..."
+State.ActiveStatusLbl.Text = "⚡ Đang tìm server..."
 State.ActiveStatusLbl:SetAttribute("__Updating", false)
 end)
 end
