@@ -349,11 +349,10 @@ end
 end
 end
 
-task.spawn(function()
-while isAlive() do
+task.defer(function()
+if isAlive() then
 pcall(ensureStandaloneNeonFpsGui)
 pcall(scanForFpsPills)
-task.wait(1.5)
 end
 end)
 local FastCache = {}
@@ -1664,7 +1663,7 @@ pill.BackgroundTransparency = 0
 end
 end)
 pill:GetPropertyChangedSignal("Size"):Connect(function()
-if isAlive() and pill.Size.Y.Offset < 36 then
+if isAlive() and not State.MorphingMiniIsland and pill.Size.Y.Offset < 36 then
 pill.Size = u2(0, 0, 0, 38)
 end
 end)
@@ -1679,12 +1678,14 @@ if not pillLayout then
 pillLayout = mk("UIListLayout", {
 Parent = pill,
 FillDirection = Enum.FillDirection.Horizontal,
+HorizontalAlignment = Enum.HorizontalAlignment.Center,
 VerticalAlignment = Enum.VerticalAlignment.Center,
 Padding = UDim.new(0, 8),
 SortOrder = Enum.SortOrder.LayoutOrder
 })
 else
 pillLayout.FillDirection = Enum.FillDirection.Horizontal
+pillLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 pillLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 pillLayout.Padding = UDim.new(0, 8)
 end
@@ -1694,21 +1695,24 @@ pad.PaddingRight = UDim.new(0, 10)
 pad.PaddingTop = UDim.new(0, 2)
 pad.PaddingBottom = UDim.new(0, 2)
 local leftBadge = pill:FindFirstChild("IslandLogoBadge")
+local lbStroke = nil
 if not leftBadge then
 leftBadge = mk("Frame", { Name = "IslandLogoBadge", LayoutOrder = 1, Size = u2(0, 28, 0, 28), BackgroundColor3 = c3(0, 0, 0), BorderSizePixel = 0, ClipsDescendants = true, LayoutOrder = -10, Active = false, ZIndex = 10000 }, pill)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, leftBadge)
 local lbImg = mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(1, 1), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Crop, Active = false, ZIndex = 10001 }, leftBadge)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, lbImg)
-mk("UIStroke", { Thickness = 1.2, Color = c3(65, 135, 245), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, lbImg)
+lbStroke = mk("UIStroke", { Thickness = 1.2, Color = c3(65, 135, 245), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, lbImg)
 else
 leftBadge.Size = u2(0, 28, 0, 28)
 leftBadge.BackgroundColor3 = c3(0, 0, 0)
+leftBadge.Active = false
 local lbImg = leftBadge:FindFirstChildOfClass("ImageLabel")
 if lbImg then
 lbImg.Image = LOGO_ID
 lbImg.Size = u2s(1, 1)
 lbImg.ScaleType = Enum.ScaleType.Crop
 if not lbImg:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, lbImg) end
+lbStroke = lbImg:FindFirstChildOfClass("UIStroke")
 end
 end
 local hint = pill:FindFirstChild("IslandExpandHint")
@@ -1792,16 +1796,16 @@ pill.AnchorPoint = v2(0.5, 0)
 pill.ZIndex = 9999
 pill.Active = true
 pill.Visible = true
-statusLbl.Active = true
+statusLbl.Active = false
 hint.Active = true
 pill.Position = State.IslandUserPos or u2(0.5, 0, 0, 6)
 if not pill:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, pill) end
-local ps = pill:FindFirstChild("IslandStroke") or mk("UIStroke", { Name = "IslandStroke", Thickness = 1.4, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = c3(65, 130, 245), Transparency = 0.18 }, pill)
+local ps = pill:FindFirstChild("IslandStroke") or mk("UIStroke", { Name = "IslandStroke", Thickness = 1.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = c3(55, 200, 255), Transparency = 0.14 }, pill)
 local oldPsGrad = ps:FindFirstChildOfClass("UIGradient")
 if oldPsGrad then oldPsGrad:Destroy() end
-ps.Color = c3(65, 130, 245)
-ps.Thickness = 1.4
-ps.Transparency = 0.18
+ps.Color = c3(55, 200, 255)
+ps.Thickness = 1.5
+ps.Transparency = 0.14
 local COLLAPSED_EXP_H = 162
 local OPEN_NOTE_EXP_H = 262
 exp = mk("Frame", { Name = "ChilliV5_ExpandedIsland", AnchorPoint = v2(0.5, 0), Position = pill.Position, Size = u2(0, 308, 0, COLLAPSED_EXP_H), BackgroundColor3 = c3(10, 12, 20), BorderSizePixel = 0, Visible = false, Active = true, ClipsDescendants = true, ZIndex = 10000 }, venyxGui)
@@ -1814,46 +1818,211 @@ end
 end)
 end
 mk("UICorner", { CornerRadius = UDim.new(0, 18) }, exp)
-mk("UIStroke", { Thickness = 1.5, Color = c3(65, 125, 225), Transparency = 0.16, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, exp)
+local expStroke = mk("UIStroke", { Thickness = 1.5, Color = c3(65, 125, 225), Transparency = 0.16, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, exp)
 mk("ImageLabel", { Name = "IslandCosmicBg", Position = u2(0, 0, 0, 0), Size = u2(1, 0, 0, 42), BackgroundTransparency = 1, Image = HEADER_BAR_IMG_ID, ImageRectOffset = v2(15, 60), ImageRectSize = v2(650, 170), ScaleType = Enum.ScaleType.Stretch, ImageTransparency = 0.22, Active = false, ZIndex = 10000 }, exp)
 local expLogo = mk("Frame", { Position = u2(0, 10, 0, 7), Size = u2(0, 24, 0, 24), BackgroundColor3 = c3(0, 0, 0), BorderSizePixel = 0, ClipsDescendants = true, Active = false, ZIndex = 10002 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, expLogo)
 mk("UIStroke", { Thickness = 1.2, Color = c3(80, 130, 235) }, expLogo)
 local expLogoImg = mk("ImageLabel", { AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(1, 1), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Crop, Active = false, ZIndex = 10003 }, expLogo)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, expLogoImg)
-local expTitle = mk("TextLabel", { Name = "ChilliIslandTitle", Size = u2(0, 180, 0, 24), Position = u2(0, 40, 0, 7), BackgroundTransparency = 1, Text = "Chilli Hub V8", Font = Enum.Font.GothamBlack, TextSize = 13.8, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 10002 }, exp)
-mk("UIStroke", { Thickness = 1.2, Color = c3(12, 8, 22), Transparency = 0.2 }, expTitle)
+local expTitle = mk("TextLabel", { Name = "ChilliIslandTitle", Size = u2(0, 180, 0, 24), Position = u2(0, 40, 0, 7), BackgroundTransparency = 1, Text = "Chilli Hub V8", Font = Enum.Font.GothamBold, TextSize = 14.5, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 10002 }, exp)
+mk("UIStroke", { Thickness = 1.2, Color = c3(235, 55, 25), Transparency = 0.15 }, expTitle)
 local colBtn = mk("TextButton", { Size = u2(0, 26, 0, 22), Position = u2(1, -34, 0, 8), BackgroundColor3 = c3(22, 24, 36), BorderSizePixel = 0, Text = "▲", Font = Enum.Font.GothamBold, TextSize = 10, TextColor3 = c3(160, 205, 255), ZIndex = 10003 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, colBtn)
 
--- THANH TRẠNG THÁI (HỖ TRỢ BẤM ĐỂ CHUYỂN TRẠNG THÁI MƯỢT MÀ + ÂM THANH)
+-- 3. NÂNG CẤP HIỆU ỨNG DYNAMIC ISLAND ĐỘC LẠ KHI BẤM VÀO (MINI ISLAND MORPH + NEON GLOW + GRADIENT BACKGROUND + AUTO SHRINK)
 local ISLAND_CYCLE_STATES = {
-{ text = "Đang rảnh", icon = "⚡", stroke = c3(55, 85, 145), bg = c3(16, 18, 28) },
-{ text = "Đang săn trứng", icon = "🥚", stroke = c3(245, 190, 55), bg = c3(28, 24, 16) },
-{ text = "Đang đánh quái vật nhỏ", icon = "⚔️", stroke = c3(235, 75, 95), bg = c3(30, 16, 22) },
-{ text = "Đang chạy máy chạy bộ", icon = "🏃", stroke = c3(55, 215, 145), bg = c3(14, 28, 22) },
-{ text = "Đang làm sự kiện", icon = "🎃", stroke = c3(175, 95, 250), bg = c3(24, 16, 34) }
+{
+text = "Đang rảnh",
+icon = "⚡",
+stroke = c3(55, 200, 255),
+bg = c3(16, 26, 48),
+grad = ColorSequence.new({
+csk(0.00, c3(45, 130, 245)),
+csk(0.45, c3(20, 38, 72)),
+csk(1.00, c3(10, 16, 32))
+})
+},
+{
+text = "Tự động cướp",
+icon = "🔥",
+stroke = c3(255, 105, 45),
+bg = c3(46, 18, 20),
+grad = ColorSequence.new({
+csk(0.00, c3(235, 70, 45)),
+csk(0.45, c3(72, 22, 24)),
+csk(1.00, c3(26, 10, 14))
+})
+},
+{
+text = "Hoàn thành",
+icon = "✅",
+stroke = c3(45, 255, 145),
+bg = c3(14, 42, 28),
+grad = ColorSequence.new({
+csk(0.00, c3(35, 195, 110)),
+csk(0.45, c3(16, 58, 38)),
+csk(1.00, c3(8, 24, 16))
+})
+}
 }
 local curIslandStateIdx = 1
-local taskBox = mk("TextButton", { Name = "IslandTaskCycleBtn", Size = u2(1, -20, 0, 24), Position = u2(0, 10, 0, 36), BackgroundColor3 = c3(16, 18, 28), BackgroundTransparency = 0.12, BorderSizePixel = 0, Text = "", AutoButtonColor = false, ZIndex = 10001 }, exp)
+local miniIslandAnimToken = 0
+local taskBox = mk("TextButton", { Name = "IslandTaskCycleBtn", Size = u2(1, -20, 0, 24), Position = u2(0, 10, 0, 36), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.06, BorderSizePixel = 0, Text = "", AutoButtonColor = false, ZIndex = 10001 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, taskBox)
-local taskBoxStroke = mk("UIStroke", { Thickness = 1, Color = c3(55, 85, 145), Transparency = 0.32 }, taskBox)
-expTaskLbl = mk("TextLabel", { Size = u2(1, -16, 1, 0), Position = u2(0, 8, 0, 0), BackgroundTransparency = 1, Text = "⚡ " .. (statusLbl.Text or "Đang rảnh"), Font = Enum.Font.GothamBold, TextSize = 10.2, TextColor3 = Color3.new(1, 1, 1), TextTruncate = Enum.TextTruncate.AtEnd, ZIndex = 10002 }, taskBox)
-taskBox.MouseButton1Click:Connect(function()
+local taskBoxGrad = mk("UIGradient", {
+Name = "TaskBoxStateGrad",
+Rotation = 90,
+Color = ISLAND_CYCLE_STATES[1].grad
+}, taskBox)
+local taskBoxStroke = mk("UIStroke", { Thickness = 1.3, Color = c3(55, 200, 255), Transparency = 0.18, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, taskBox)
+expTaskLbl = mk("TextLabel", { Size = u2(1, -16, 1, 0), Position = u2(0, 8, 0, 0), BackgroundTransparency = 1, Text = "⚡ " .. (statusLbl.Text or "Đang rảnh"), Font = Enum.Font.GothamBold, TextSize = 10.5, TextColor3 = Color3.new(1, 1, 1), TextTruncate = Enum.TextTruncate.AtEnd, ZIndex = 10002 }, taskBox)
+
+local function cycleMiniIslandState()
+-- 1. Kích hoạt hiệu ứng âm thanh click dứt khoát
 playIslandSfx("tap")
 curIslandStateIdx = (curIslandStateIdx % #ISLAND_CYCLE_STATES) + 1
 local st = ISLAND_CYCLE_STATES[curIslandStateIdx]
+miniIslandAnimToken = miniIslandAnimToken + 1
+local myToken = miniIslandAnimToken
+State.MorphingMiniIsland = true
+
 if expTaskLbl and expTaskLbl.Parent then
 expTaskLbl.Text = st.icon .. " " .. st.text
 end
 if statusLbl and statusLbl.Parent then
 statusLbl:SetAttribute("__Updating", true)
-statusLbl.Text = st.text
+statusLbl.Text = st.icon .. " " .. st.text
 statusLbl:SetAttribute("__Updating", false)
 end
-TweenService:Create(taskBox, TweenInfo.new(0.20, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { BackgroundColor3 = st.bg }):Play()
-TweenService:Create(taskBoxStroke, TweenInfo.new(0.20, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Color = st.stroke }):Play()
+
+-- 2. Mở rộng kích thước mượt mà (Mini Island Tween), đổi viền phát sáng (Neon Glow) & đổi nền Gradient theo trạng thái
+if glassGrad and glassGrad.Parent then
+glassGrad.Color = st.grad
+end
+if pill and pill.Parent then
+TweenService:Create(pill, TweenInfo.new(0.22, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+Size = u2(0, 52, 0, 46)
+}):Play()
+end
+if pad and pad.Parent then
+TweenService:Create(pad, TweenInfo.new(0.22, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+PaddingLeft = UDim.new(0, 24),
+PaddingRight = UDim.new(0, 24)
+}):Play()
+end
+if ps and ps.Parent then
+TweenService:Create(ps, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+Color = st.stroke,
+Thickness = 2.6,
+Transparency = 0
+}):Play()
+end
+if leftBadge and leftBadge.Parent then
+TweenService:Create(leftBadge, TweenInfo.new(0.22, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+Size = u2(0, 32, 0, 32)
+}):Play()
+end
+if lbStroke and lbStroke.Parent then
+TweenService:Create(lbStroke, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+Color = st.stroke,
+Thickness = 1.8
+}):Play()
+end
+if hStroke and hStroke.Parent then
+TweenService:Create(hStroke, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+Color = st.stroke,
+Transparency = 0.08
+}):Play()
+end
+
+if taskBoxGrad and taskBoxGrad.Parent then
+taskBoxGrad.Color = st.grad
+end
+if taskBox and taskBox.Parent then
+TweenService:Create(taskBox, TweenInfo.new(0.22, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+Size = u2(1, -8, 0, 30),
+Position = u2(0, 4, 0, 33),
+BackgroundTransparency = 0
+}):Play()
+end
+if taskBoxStroke and taskBoxStroke.Parent then
+TweenService:Create(taskBoxStroke, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+Color = st.stroke,
+Thickness = 2.4,
+Transparency = 0
+}):Play()
+end
+if expStroke and expStroke.Parent then
+TweenService:Create(expStroke, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+Color = st.stroke,
+Thickness = 2.2,
+Transparency = 0.02
+}):Play()
+end
+
+-- 3. Tự động thu gọn về kích thước ban đầu sau khi đổi trạng thái xong
+task.delay(0.62, function()
+if not isAlive() or myToken ~= miniIslandAnimToken then return end
+if pill and pill.Parent then
+TweenService:Create(pill, TweenInfo.new(0.24, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+Size = u2(0, 0, 0, 38)
+}):Play()
+end
+if pad and pad.Parent then
+TweenService:Create(pad, TweenInfo.new(0.24, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+PaddingLeft = UDim.new(0, 10),
+PaddingRight = UDim.new(0, 10)
+}):Play()
+end
+if ps and ps.Parent then
+TweenService:Create(ps, TweenInfo.new(0.24, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+Color = st.stroke,
+Thickness = 1.6,
+Transparency = 0.12
+}):Play()
+end
+if leftBadge and leftBadge.Parent then
+TweenService:Create(leftBadge, TweenInfo.new(0.24, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+Size = u2(0, 28, 0, 28)
+}):Play()
+end
+if lbStroke and lbStroke.Parent then
+TweenService:Create(lbStroke, TweenInfo.new(0.24, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+Color = st.stroke,
+Thickness = 1.2
+}):Play()
+end
+if taskBox and taskBox.Parent then
+TweenService:Create(taskBox, TweenInfo.new(0.24, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+Size = u2(1, -20, 0, 24),
+Position = u2(0, 10, 0, 36),
+BackgroundTransparency = 0.06
+}):Play()
+end
+if taskBoxStroke and taskBoxStroke.Parent then
+TweenService:Create(taskBoxStroke, TweenInfo.new(0.24, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+Color = st.stroke,
+Thickness = 1.3,
+Transparency = 0.18
+}):Play()
+end
+if expStroke and expStroke.Parent then
+TweenService:Create(expStroke, TweenInfo.new(0.24, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+Color = st.stroke,
+Thickness = 1.5,
+Transparency = 0.16
+}):Play()
+end
+task.delay(0.25, function()
+if myToken == miniIslandAnimToken then
+State.MorphingMiniIsland = false
+end
 end)
+end)
+end
+
+taskBox.MouseButton1Click:Connect(cycleMiniIslandState)
 
 -- THANH CHUYỂN ĐỔI NGÔN NGỮ (TIẾNG VIỆT / ENGLISH)
 local cap = mk("Frame", { Size = u2(1, -20, 0, 28), Position = u2(0, 10, 0, 64), BackgroundColor3 = c3(18, 20, 30), BorderSizePixel = 0, ZIndex = 10001 }, exp)
@@ -1944,14 +2113,6 @@ lastToggleClock = os.clock()
 open = not open
 playIslandSfx(open and "open" or "close")
 if open then
-for _, r in ipairs(getScanRoots()) do
-for _, d in ipairs(r:GetDescendants()) do
-if d.Name == "ChilliV5_ExpandedIsland" and d ~= exp then
-pcall(d.Destroy, d)
-end
-end
-end
-syncStatus(false)
 exp.Position = pill.Position
 local targetH = noteOpen and OPEN_NOTE_EXP_H or COLLAPSED_EXP_H
 exp.Size = u2(0, 235, 0, 34)
@@ -1982,16 +2143,31 @@ end
 end)
 end
 colBtn.MouseButton1Click:Connect(toggle)
+local lastPillTouchClock = -10
 local function onIn(i)
 if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+if os.clock() - lastPillTouchClock < 0.08 then return end
+lastPillTouchClock = os.clock()
 local start = i.Position
 local startP = pill.Position
-local dragConn, upConn = nil, nil
+local dragConn, upConn, chgConn = nil, nil, nil
 local hasMoved = false
+local finished = false
+local function finishInput()
+if finished then return end
+finished = true
+if dragConn then dragConn:Disconnect() end
+if upConn then upConn:Disconnect() end
+if chgConn then chgConn:Disconnect() end
+task.delay(0.05, function() State.DraggingIsland = false end)
+if not hasMoved and not open then
+cycleMiniIslandState()
+end
+end
 dragConn = UserInputService.InputChanged:Connect(function(im)
 if im.UserInputType == Enum.UserInputType.MouseMovement or im.UserInputType == Enum.UserInputType.Touch then
 local d = im.Position - start
-if math.abs(d.X) > 4 or math.abs(d.Y) > 4 then
+if math.abs(d.X) > 10 or math.abs(d.Y) > 10 then
 hasMoved = true
 State.DraggingIsland = true
 local newPos = u2(startP.X.Scale, startP.X.Offset + d.X, startP.Y.Scale, startP.Y.Offset + d.Y)
@@ -2003,17 +2179,21 @@ end
 end)
 upConn = UserInputService.InputEnded:Connect(function(ie)
 if ie.UserInputType == Enum.UserInputType.MouseButton1 or ie.UserInputType == Enum.UserInputType.Touch then
-if dragConn then dragConn:Disconnect() end
-if upConn then upConn:Disconnect() end
-task.delay(0.05, function() State.DraggingIsland = false end)
-if not hasMoved and not open then
-toggle()
+finishInput()
 end
+end)
+if i.Changed then
+chgConn = i.Changed:Connect(function()
+if i.UserInputState == Enum.UserInputState.End or i.UserInputState == Enum.UserInputState.Cancel then
+finishInput()
 end
 end)
 end
 end
+end
 pill.InputBegan:Connect(onIn)
+statusLbl.InputBegan:Connect(onIn)
+if leftBadge then leftBadge.InputBegan:Connect(onIn) end
 end
 
 local function cleanupStrayLogos(gui, win)
@@ -2092,6 +2272,26 @@ Color = Color3.new(1, 1, 1),
 ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 }, cov)
 addGrad(mk("UIGradient", { Color = RAINBOW }, covStroke))
+end
+if not top:GetAttribute("__ChilliInstantToggleHooked") then
+top:SetAttribute("__ChilliInstantToggleHooked", true)
+local function onToggleTap()
+State.CloseHideUntil = nil
+if State.SyncWindowFn then pcall(State.SyncWindowFn) end
+end
+if top:IsA("GuiButton") then
+top.MouseButton1Down:Connect(onToggleTap)
+end
+top.InputBegan:Connect(function(inp)
+if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+onToggleTap()
+end
+end)
+for _, ch in ipairs(top:GetDescendants()) do
+if ch:IsA("GuiButton") then
+ch.MouseButton1Down:Connect(onToggleTap)
+end
+end
 end
 end
 -- ============================================================================
@@ -2282,11 +2482,12 @@ titleLbl.TextTransparency = 0
 titleLbl.TextColor3 = Color3.new(1, 1, 1)
 titleLbl.Font = Enum.Font.GothamBold
 end)
+local winScale = win:FindFirstChild("ChilliFastOpenScale") or mk("UIScale", { Name = "ChilliFastOpenScale", Scale = 1 }, win)
 local lastWasOpen = false
 local function syncWindowVisibilityInstant()
 if not win or not win.Parent then return end
 local isOffscreen = (win.AbsolutePosition.X < -500 or win.AbsolutePosition.Y < -500)
-local isSizeZero = (win.AbsoluteSize.X < 80 or win.AbsoluteSize.Y < 60)
+local isSizeZero = (win.AbsoluteSize.X < 24 or win.AbsoluteSize.Y < 24)
 local isForceClosing = (State.CloseHideUntil ~= nil) and (os.clock() < State.CloseHideUntil)
 local isOpen = not ((not win.Visible) or isOffscreen or isSizeZero or isForceClosing)
 if winStroke then
@@ -2296,7 +2497,10 @@ end
 for _, pw in ipairs(pageWallpapers) do if pw and pw.Parent then pw.Visible = isOpen end end
 if titleLbl and titleLbl.Parent then titleLbl.TextTransparency = 0 end
 if isOpen and not lastWasOpen then
-pcall(styleMenuInterior)
+if winScale and winScale.Parent then
+winScale.Scale = 0.96
+TweenService:Create(winScale, TweenInfo.new(0.14, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+end
 end
 lastWasOpen = isOpen
 end
@@ -2304,8 +2508,14 @@ State.SyncWindowFn = syncWindowVisibilityInstant
 syncWindowVisibilityInstant()
 if not win:GetAttribute("__InstantHideHooked") then
 win:SetAttribute("__InstantHideHooked", true)
-win:GetPropertyChangedSignal("Visible"):Connect(syncWindowVisibilityInstant)
-win:GetPropertyChangedSignal("Size"):Connect(syncWindowVisibilityInstant)
+win:GetPropertyChangedSignal("Visible"):Connect(function()
+if win.Visible then State.CloseHideUntil = nil end
+syncWindowVisibilityInstant()
+end)
+win:GetPropertyChangedSignal("Size"):Connect(function()
+if win.AbsoluteSize.Y > 85 then State.CloseHideUntil = nil end
+syncWindowVisibilityInstant()
+end)
 win:GetPropertyChangedSignal("Position"):Connect(syncWindowVisibilityInstant)
 for _, d in ipairs(win:GetDescendants()) do
 if d:IsA("GuiObject") and math.abs(d.AbsolutePosition.Y - hy) < 30 then
@@ -2316,7 +2526,7 @@ local btn = (d:IsA("TextButton") or d:IsA("ImageButton")) and d or d.Parent
 if btn and (btn:IsA("TextButton") or btn:IsA("ImageButton")) and not btn:GetAttribute("__CloseSyncHooked") then
 btn:SetAttribute("__CloseSyncHooked", true)
 btn.MouseButton1Down:Connect(function()
-State.CloseHideUntil = os.clock() + 0.42
+State.CloseHideUntil = os.clock() + 0.18
 if winStroke then winStroke.Enabled = false end
 for _, pw in ipairs(pageWallpapers) do if pw and pw.Parent then pw.Visible = false end end
 end)
@@ -2447,25 +2657,6 @@ local tabEnLabels = {}
 
 local function setActiveTabVisual(activeIdx, playSnd)
 if playSnd then playIslandSfx("tap") end
-pcall(function()
-for _, d in ipairs(win:GetDescendants()) do
-if d:IsA("TextLabel") and d ~= titleLbl and not ( navContainer and d:IsDescendantOf(navContainer) ) and not d:FindFirstAncestorOfClass("ScrollingFrame") then
-if isProfileOrPlayerInfo(d) then
-d:SetAttribute("__HiddenVxLogo", nil)
-d.TextTransparency = 0
-d.Visible = true
-else
-local rawT = (d:GetAttribute("OrigRawText") or d.Text or ""):lower():match("^%s*(.-)%s*$") or ""
-local curT = (d.Text or ""):lower():match("^%s*(.-)%s*$") or ""
-if PAGE_HEADER_TITLES[rawT] or PAGE_HEADER_TITLES[curT] then
-d:SetAttribute("__HiddenVxLogo", true)
-d.TextTransparency = 1
-d.Visible = false
-end
-end
-end
-end
-end)
 for i = 1, #navButtons do
 local sq = tabSquircles[i]
 local st = tabStrokes[i]
@@ -2807,35 +2998,21 @@ win:SetAttribute("__ChilliV7ArchSession", SID)
 pcall(applySenaV8Architecture, win, titleLbl)
 end
 
--- 2. Thiết kế lại khung tiêu đề (Title Frame): Chữ Chilli Hub V8 to vừa khít với thanh như nguyên bản (18pt GothamBlack), căn giữa theo chiều dọc
+-- 2. Làm nổi bật tiêu đề "Chilli Hub V8" ở góc trên Menu (TextSize = 17, GothamBold, tách rời logo cũ, màu trắng sáng + Gradient & viền đỏ cam)
 pcall(function()
 local topBar = (titleLbl.Parent and titleLbl.Parent ~= win and titleLbl.Parent:IsA("GuiObject") and titleLbl.Parent.AbsoluteSize.Y <= 60) and titleLbl.Parent or nil
-local targetParent = topBar or win
-
-local logo = targetParent:FindFirstChild("ChilliHeaderLogoBadge") or win:FindFirstChild("ChilliHeaderLogoBadge")
-if not logo then
-logo = mk("ImageLabel", {
-Name = "ChilliHeaderLogoBadge",
-AnchorPoint = v2(0, 0.5),
-Position = topBar and u2(0, 10, 0.5, 0) or u2(0, 10, 0, 18),
-Size = u2(0, 22, 0, 22),
-BackgroundTransparency = 1,
-Image = "rbxassetid://135898822557579",
-ScaleType = Enum.ScaleType.Fit,
-ZIndex = 65
-}, targetParent)
+local oldLogo1 = win:FindFirstChild("ChilliHeaderLogoBadge")
+if oldLogo1 then oldLogo1:Destroy() end
+if topBar then
+local oldLogo2 = topBar:FindFirstChild("ChilliHeaderLogoBadge")
+if oldLogo2 then oldLogo2:Destroy() end
 end
-logo.Parent = targetParent
-logo.AnchorPoint = v2(0, 0.5)
-logo.Position = topBar and u2(0, 10, 0.5, 0) or u2(0, 10, 0, 18)
-logo.Size = u2(0, 22, 0, 22)
-logo.Visible = true
 
 titleLbl.AnchorPoint = v2(0, 0.5)
-titleLbl.Position = topBar and u2(0, 38, 0.5, 0) or u2(0, 38, 0, 18)
-titleLbl.Font = Enum.Font.GothamBlack
-titleLbl.TextSize = 18
-titleLbl.TextColor3 = Color3.new(1, 1, 1)
+titleLbl.Position = topBar and u2(0, 16, 0.5, 0) or u2(0, 16, 0, 18)
+titleLbl.Font = Enum.Font.GothamBold
+titleLbl.TextSize = 17
+titleLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLbl.TextYAlignment = Enum.TextYAlignment.Center
 titleLbl.AutomaticSize = Enum.AutomaticSize.X
 titleLbl.Text = NEW_TITLE
@@ -2843,25 +3020,25 @@ titleLbl.ZIndex = 65
 
 local tGrad = titleLbl:FindFirstChild("ChilliTitleGrad") or mk("UIGradient", {
 Name = "ChilliTitleGrad",
-Rotation = 45,
-Color = ColorSequence.new({
-ColorSequenceKeypoint.new(0.00, c3(255, 65, 85)),
-ColorSequenceKeypoint.new(0.50, c3(255, 160, 45)),
-ColorSequenceKeypoint.new(1.00, c3(255, 235, 85))
-})
+Rotation = 90
 }, titleLbl)
-tGrad.Rotation = 45
+tGrad.Rotation = 90
+tGrad.Color = ColorSequence.new({
+ColorSequenceKeypoint.new(0.00, c3(255, 255, 255)),
+ColorSequenceKeypoint.new(0.55, c3(255, 242, 205)),
+ColorSequenceKeypoint.new(1.00, c3(255, 195, 115))
+})
 
 local tStroke = titleLbl:FindFirstChild("ChilliTitleStroke") or mk("UIStroke", {
-Name = "ChilliTitleStroke",
-Thickness = 1.3,
-Color = c3(15, 8, 12),
-Transparency = 0.15
+Name = "ChilliTitleStroke"
 }, titleLbl)
+tStroke.Thickness = 1.4
+tStroke.Color = c3(235, 55, 25)
+tStroke.Transparency = 0.08
 
--- Xóa bỏ an toàn chữ/logo Vx gốc ở góc trên bên trái mà không đụng chạm các frame con
+-- Tách rời hoàn toàn khỏi các logo cũ ở góc trên bên trái và căn lề thoáng đãng
 for _, d in ipairs(win:GetDescendants()) do
-if d ~= titleLbl and d ~= logo then
+if d ~= titleLbl then
 if d:IsA("TextLabel") or d:IsA("TextButton") then
 local t = (d.Text or ""):match("^%s*(.-)%s*$")
 if t == "vx" or t == "Vx" or t == "VX" then
@@ -2872,7 +3049,7 @@ elseif t:find("v1.") or t:find("/") or t:find("Lấy Trứng") or t:find("Cướ
 local relY = d.AbsolutePosition.Y - win.AbsolutePosition.Y
 if relY >= 0 and relY <= 40 then
 d.AnchorPoint = v2(0, 0.5)
-d.Position = (topBar and d.Parent == topBar) and u2(0, 180, 0.5, 0) or u2(0, 180, 0, 18)
+d.Position = (topBar and d.Parent == topBar) and u2(0, 146, 0.5, 0) or u2(0, 146, 0, 18)
 d.TextYAlignment = Enum.TextYAlignment.Center
 if t:find("Cướp") or t:find("cướp") then
 d.Text = t:gsub("Cướp", "Lấy"):gsub("cướp", "lấy")
@@ -2884,6 +3061,7 @@ local relY = d.AbsolutePosition.Y - win.AbsolutePosition.Y
 local relX = d.AbsolutePosition.X - win.AbsolutePosition.X
 if relY >= 0 and relY <= 38 and relX >= 0 and relX <= 170 then
 d.ImageTransparency = 1
+d.Visible = false
 end
 end
 end
@@ -3063,7 +3241,7 @@ task.spawn(function()
 for i = 1, #queue do
 if not isAlive() then break end
 if queue[i] and queue[i].Parent then pcall(hookTrans, queue[i]) if watchFinderTextObj then pcall(watchFinderTextObj, queue[i]) end end
-if i % 80 == 0 then task.wait() end
+if i % 250 == 0 then task.wait() end
 end
 gui:SetAttribute("__BatchTranslating", false)
 end)
