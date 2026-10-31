@@ -2642,8 +2642,8 @@ end
 end
 
 -- ============================================================================
--- 2. THANH TAB NGANG DẠNG TRƯỢT (TOP HORIZONTAL NAVBAR SCROLLINGFRAME)
--- CHUẨN CHUYÊN NGHIỆP: VUỐT MƯỢT MÀ, KHÔNG TRÀN VIỀN, BILINGUAL CỰC NÉT
+-- 2. THANH SIDEBAR DỌC BÊN TRÁI (LEFT VERTICAL SIDEBAR) - CHUẨN PIXEL CỐ ĐỊNH TUYỆT ĐỐI
+-- RỘNG RÃI, CHỮ TO RÕ RÀNG (14PX BOLD), KHÔNG BAO GIỜ BỊ ĐÈ HAY TRÀN VIỀN
 -- ============================================================================
 local SIDEBAR_PALETTE = {
 c3(37, 99, 235),   -- Tab 1: Trang chủ (Xanh biển)
@@ -2671,96 +2671,98 @@ local menuBox = mainBg or win
 local navButtons = {}
 local originalContainer = nil
 
--- 1. TẠO HOẶC TÁI SỬ DỤNG SCROLLINGFRAME NẰM NGAY DƯỚI HEADER (CAO 38PX)
-local tabScroll = menuBox:FindFirstChild("ChilliHorizontalTabScroll") or win:FindFirstChild("ChilliHorizontalTabScroll")
-if not tabScroll then
-tabScroll = mk("ScrollingFrame", {
-Name = "ChilliHorizontalTabScroll",
+-- Dọn sạch tàn dư của thanh Tab ngang cũ nếu có
+local oldHoriz = menuBox:FindFirstChild("ChilliHorizontalTabScroll") or win:FindFirstChild("ChilliHorizontalTabScroll")
+if oldHoriz then oldHoriz:Destroy() end
+
+-- 1. KHUNG SIDEBAR DỌC (BÊN TRÁI MENU) - CHUẨN THÔNG SỐ: Size (0, 155, 1, -70), Pos (0, 12, 0, 60)
+local sidebarFrame = menuBox:FindFirstChild("ChilliVerticalSidebar") or win:FindFirstChild("ChilliVerticalSidebar")
+if not sidebarFrame then
+sidebarFrame = mk("ScrollingFrame", {
+Name = "ChilliVerticalSidebar",
 AnchorPoint = v2(0, 0),
-Position = u2(0, 8, 0, 42),
-Size = u2(1, -16, 0, 38),
+Position = u2(0, 12, 0, 60),
+Size = u2(0, 155, 1, -70),
 BackgroundTransparency = 1,
 BorderSizePixel = 0,
 ScrollingEnabled = true,
-ScrollBarThickness = 0,               -- Ẩn hoàn toàn thanh cuộn
-ScrollingDirection = Enum.ScrollingDirection.X,
+ScrollBarThickness = 0,
+ScrollingDirection = Enum.ScrollingDirection.Y,
 ElasticBehavior = Enum.ElasticBehavior.Always,
 HorizontalScrollBarInset = Enum.ScrollBarInset.None,
 VerticalScrollBarInset = Enum.ScrollBarInset.None,
 CanvasSize = u2(0, 0, 0, 0),
-AutomaticCanvasSize = Enum.AutomaticSize.X,
-ClipsDescendants = true,
+AutomaticCanvasSize = Enum.AutomaticSize.Y,
+ClipsDescendants = false,
 Active = true,
 Selectable = false,
 ZIndex = 30
 }, menuBox)
 else
-tabScroll.Parent = menuBox
-tabScroll.Position = u2(0, 8, 0, 42)
-tabScroll.Size = u2(1, -16, 0, 38)
-tabScroll.ScrollingEnabled = true
-tabScroll.ScrollBarThickness = 0
-tabScroll.AutomaticCanvasSize = Enum.AutomaticSize.X
-tabScroll.ClipsDescendants = true
+sidebarFrame.Parent = menuBox
+sidebarFrame.Position = u2(0, 12, 0, 60)
+sidebarFrame.Size = u2(0, 155, 1, -70)
+sidebarFrame.ClipsDescendants = false
+sidebarFrame.ScrollBarThickness = 0
+sidebarFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
 end
 
--- Khóa vị trí cố định của ScrollingFrame để tránh bị frame khác đẩy lệch
-if not tabScroll:GetAttribute("__ChilliTabScrollLocked") then
-tabScroll:SetAttribute("__ChilliTabScrollLocked", true)
-local tabScrollTargetPos = u2(0, 8, 0, 42)
-local tabScrollTargetSize = u2(1, -16, 0, 38)
-tabScroll:GetPropertyChangedSignal("Position"):Connect(function()
-if tabScroll.Position ~= tabScrollTargetPos then tabScroll.Position = tabScrollTargetPos end
+-- Khóa vị trí cố định của Sidebar để không bị dịch chuyển lệch
+if not sidebarFrame:GetAttribute("__ChilliSidebarLocked") then
+sidebarFrame:SetAttribute("__ChilliSidebarLocked", true)
+local sidebarTargetPos = u2(0, 12, 0, 60)
+local sidebarTargetSize = u2(0, 155, 1, -70)
+sidebarFrame:GetPropertyChangedSignal("Position"):Connect(function()
+if sidebarFrame.Position ~= sidebarTargetPos then sidebarFrame.Position = sidebarTargetPos end
 end)
-tabScroll:GetPropertyChangedSignal("Size"):Connect(function()
-if tabScroll.Size ~= tabScrollTargetSize then tabScroll.Size = tabScrollTargetSize end
+sidebarFrame:GetPropertyChangedSignal("Size"):Connect(function()
+if sidebarFrame.Size ~= sidebarTargetSize then sidebarFrame.Size = sidebarTargetSize end
 end)
 end
 
-State.ActiveNavContainer = tabScroll
+State.ActiveNavContainer = sidebarFrame
 
--- 2. THIẾT LẬP UILISTLAYOUT NẰM NGANG (PADDING = 6PX) & PADDING ĐẦU CUỐI
-for _, ch in ipairs(tabScroll:GetChildren()) do
+-- Thiết lập UIListLayout dọc với Padding = 8px
+for _, ch in ipairs(sidebarFrame:GetChildren()) do
 if ch:IsA("UIGridLayout") then ch:Destroy() end
 end
-local listLayout = tabScroll:FindFirstChildOfClass("UIListLayout") or mk("UIListLayout", { Parent = tabScroll })
-listLayout.FillDirection = Enum.FillDirection.Horizontal
+local listLayout = sidebarFrame:FindFirstChildOfClass("UIListLayout") or mk("UIListLayout", { Parent = sidebarFrame })
+listLayout.FillDirection = Enum.FillDirection.Vertical
 listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-listLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+listLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 listLayout.SortOrder = Enum.SortOrder.LayoutOrder
-listLayout.Padding = UDim.new(0, 6)
+listLayout.Padding = UDim.new(0, 8)
 
-local scrollPad = tabScroll:FindFirstChildOfClass("UIPadding") or mk("UIPadding", { Parent = tabScroll })
-scrollPad.PaddingLeft = UDim.new(0, 4)
-scrollPad.PaddingRight = UDim.new(0, 14)
-scrollPad.PaddingTop = UDim.new(0, 0)
-scrollPad.PaddingBottom = UDim.new(0, 0)
+local scrollPad = sidebarFrame:FindFirstChildOfClass("UIPadding") or mk("UIPadding", { Parent = sidebarFrame })
+scrollPad.PaddingLeft = UDim.new(0, 0)
+scrollPad.PaddingRight = UDim.new(0, 2)
+scrollPad.PaddingTop = UDim.new(0, 2)
+scrollPad.PaddingBottom = UDim.new(0, 8)
 
--- Tự động tính toán CanvasSize chuẩn pixel giúp vuốt êm ái trên mọi thiết bị
-local function refreshScrollCanvas()
-local contentW = listLayout.AbsoluteContentSize.X
-if contentW > 0 then
-tabScroll.CanvasSize = u2(0, contentW + 20, 0, 0)
+local function refreshSidebarCanvas()
+local contentH = listLayout.AbsoluteContentSize.Y
+if contentH > 0 then
+sidebarFrame.CanvasSize = u2(0, 0, 0, contentH + 16)
 end
 end
-if not tabScroll:GetAttribute("__CanvasSignalHooked") then
-tabScroll:SetAttribute("__CanvasSignalHooked", true)
-listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(refreshScrollCanvas)
+if not sidebarFrame:GetAttribute("__CanvasSignalHooked") then
+sidebarFrame:SetAttribute("__CanvasSignalHooked", true)
+listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(refreshSidebarCanvas)
 end
 
--- 3. CHUYỂN TOÀN BỘ CÁC NÚT TAB GỐC VÀO TRONG SCROLLINGFRAME
-local foundInScroll = false
-for _, ch in ipairs(tabScroll:GetChildren()) do
+-- 2. TÌM VÀ CHUYỂN CÁC NÚT TAB VÀO SIDEBAR DỌC
+local foundInSidebar = false
+for _, ch in ipairs(sidebarFrame:GetChildren()) do
 if ch:IsA("GuiObject") and not ch:IsA("UIListLayout") and not ch:IsA("UIPadding") then
-foundInScroll = true
+foundInSidebar = true
 table.insert(navButtons, ch)
 end
 end
 
-if not foundInScroll or #navButtons < 2 then
+if not foundInSidebar or #navButtons < 2 then
 table.clear(navButtons)
 for _, d in ipairs(win:GetDescendants()) do
-if d:IsA("GuiObject") and d ~= win and d ~= mainBg and d ~= tabScroll and not d:IsDescendantOf(tabScroll) then
+if d:IsA("GuiObject") and d ~= win and d ~= mainBg and d ~= sidebarFrame and not d:IsDescendantOf(sidebarFrame) then
 local children = {}
 for _, ch in ipairs(d:GetChildren()) do
 if ch:IsA("GuiObject") and ch.AbsoluteSize.X >= 18 and ch.AbsoluteSize.X <= 220 and ch.AbsoluteSize.Y >= 18 and ch.AbsoluteSize.Y <= 90 then
@@ -2778,10 +2780,10 @@ end
 
 if #navButtons >= 2 then
 for _, btn in ipairs(navButtons) do
-btn.Parent = tabScroll
+btn.Parent = sidebarFrame
 btn.Visible = true
 end
-if originalContainer and originalContainer ~= tabScroll then
+if originalContainer and originalContainer ~= sidebarFrame then
 originalContainer.Visible = false
 originalContainer.Size = u2(0, 0, 0, 0)
 originalContainer.Position = u2(0, -9999, 0, -9999)
@@ -2799,24 +2801,24 @@ end
 return a.AbsolutePosition.X < b.AbsolutePosition.X
 end)
 
--- 4. KHÓA VỊ TRÍ KHUNG NỘI DUNG NẰM GỌN DƯỚI NAVBAR (Y = 84PX)
-local function lockPageContainerBelowNavbar(ch)
+-- 3. KHÓA VỊ TRÍ KHUNG NỘI DUNG CHÍNH (NẰM BÊN PHẢI SIDEBAR): Pos (0, 175, 0, 56), Size (1, -185, 1, -66)
+local function lockPageContainerBesideSidebar(ch)
 if not ch or not ch:IsA("GuiObject") then return end
-if ch == win or ch == mainBg or ch == tabScroll or ch:IsDescendantOf(tabScroll) then return end
+if ch == win or ch == mainBg or ch == sidebarFrame or ch:IsDescendantOf(sidebarFrame) then return end
 if titleLbl and (ch == titleLbl or ch == titleLbl.Parent or titleLbl:IsDescendantOf(ch)) then return end
 if ch.Name:find("^Chilli") then return end
 if ch.Position.Y.Scale == 0 and ch.Position.Y.Offset < 36 and ch.Size.Y.Scale == 0 and ch.Size.Y.Offset <= 44 then return end
 
 local hasScroll = (ch:IsA("ScrollingFrame") or ch:FindFirstChildOfClass("ScrollingFrame") ~= nil)
-local isPageArea = hasScroll or (ch.Position.X.Offset >= 20 and ch.Position.X.Offset <= 160 and ch.Position.Y.Offset >= 30)
+local isPageArea = hasScroll or (ch.Position.X.Offset >= 15 and ch.Position.X.Offset <= 240 and ch.Position.Y.Offset >= 30)
 if not isPageArea then return end
 
-local targetPos = u2(0, 8, 0, 84)
-local targetSize = u2(1, -16, 1, -92)
+local targetPos = u2(0, 175, 0, 56)
+local targetSize = u2(1, -185, 1, -66)
 ch.Position = targetPos
 ch.Size = targetSize
-if not ch:GetAttribute("__ChilliPageBelowNavbarLocked") then
-ch:SetAttribute("__ChilliPageBelowNavbarLocked", true)
+if not ch:GetAttribute("__ChilliPageBesideSidebarLocked") then
+ch:SetAttribute("__ChilliPageBesideSidebarLocked", true)
 ch:GetPropertyChangedSignal("Position"):Connect(function()
 if ch.Position ~= targetPos then ch.Position = targetPos end
 end)
@@ -2826,8 +2828,8 @@ end)
 end
 end
 
-for _, ch in ipairs(menuBox:GetChildren()) do lockPageContainerBelowNavbar(ch) end
-if win ~= menuBox then for _, ch in ipairs(win:GetChildren()) do lockPageContainerBelowNavbar(ch) end end
+for _, ch in ipairs(menuBox:GetChildren()) do lockPageContainerBesideSidebar(ch) end
+if win ~= menuBox then for _, ch in ipairs(win:GetChildren()) do lockPageContainerBesideSidebar(ch) end end
 
 State.SystemTabBtn = navButtons[6] or navButtons[#navButtons]
 local tabSquircles = {}
@@ -2873,7 +2875,7 @@ if viL and viL.Parent then
 viL.TextColor3 = isAct and c3(255, 255, 255) or c3(215, 225, 240)
 end
 if enL and enL.Parent then
-enL.TextColor3 = isAct and c3(240, 245, 255) or c3(150, 165, 185)
+enL.TextColor3 = isAct and c3(240, 245, 255) or c3(160, 175, 195)
 enL.TextTransparency = isAct and 0.10 or 0.35
 end
 end
@@ -2895,10 +2897,10 @@ end
 end
 end
 
--- 5. CỐ ĐỊNH KÍCH THƯỚC CHUẨN TỪNG NÚT TAB (115PX X 34PX) & HIỂN THỊ SONG NGỮ
+-- 4. KÍCH THƯỚC TỪNG NÚT TAB (CỐ ĐỊNH TUYỆT ĐỐI): Size (1, 0, 0, 44), ClipsDescendants = false
 local function CreateTab(nameVN, nameEN, iconId, idx, btn)
 local badgeColor = SIDEBAR_PALETTE[((idx - 1) % #SIDEBAR_PALETTE) + 1]
-local btnTargetSize = u2(0, 115, 0, 34)   -- Chiều cao chuẩn 34px, chiều rộng cố định 115px
+local btnTargetSize = u2(1, 0, 0, 44)
 
 pcall(function()
 btn.LayoutOrder = idx
@@ -2907,8 +2909,8 @@ btn.BackgroundTransparency = 1
 btn.ClipsDescendants = false
 btn.Visible = true
 
-if not btn:GetAttribute("__ChilliTopTabSizeLocked") then
-btn:SetAttribute("__ChilliTopTabSizeLocked", true)
+if not btn:GetAttribute("__ChilliSidebarTabSizeLocked") then
+btn:SetAttribute("__ChilliSidebarTabSizeLocked", true)
 btn:GetPropertyChangedSignal("Size"):Connect(function()
 if btn.Size ~= btnTargetSize then btn.Size = btnTargetSize end
 end)
@@ -2925,7 +2927,7 @@ Size = u2s(1, 1),
 BackgroundColor3 = (idx == 1) and badgeColor or c3(18, 22, 36),
 BackgroundTransparency = (idx == 1) and 0.08 or 0.45,
 BorderSizePixel = 0,
-ClipsDescendants = true,
+ClipsDescendants = false,
 Active = false,
 ZIndex = btn.ZIndex + 1
 }, btn)
@@ -2935,7 +2937,7 @@ squircle.Position = u2s(0.5, 0.5)
 squircle.Size = u2s(1, 1)
 squircle.BackgroundColor3 = (idx == 1) and badgeColor or c3(18, 22, 36)
 squircle.BackgroundTransparency = (idx == 1) and 0.08 or 0.45
-squircle.ClipsDescendants = true
+squircle.ClipsDescendants = false
 end
 
 local sqCorner = squircle:FindFirstChildOfClass("UICorner") or mk("UICorner", { CornerRadius = UDim.new(0, 8) }, squircle)
@@ -2978,24 +2980,25 @@ else
 glassShine.BackgroundTransparency = (idx == 1) and 0.45 or 0.88
 end
 
+-- Vạch chỉ số kích hoạt nằm dọc mép trái nút
 local actBar = squircle:FindFirstChild("ChilliTabActiveBar") or mk("Frame", {
 Name = "ChilliTabActiveBar",
-AnchorPoint = v2(0.5, 1),
-Position = u2(0.5, 0, 1, -2),
-Size = u2(0, 24, 0, 2.5),
+AnchorPoint = v2(0, 0.5),
+Position = u2(0, 2, 0.5, 0),
+Size = u2(0, 3.5, 0.62, 0),
 BackgroundColor3 = Color3.new(1, 1, 1),
 BorderSizePixel = 0,
 Visible = (idx == 1),
 Active = false,
 ZIndex = squircle.ZIndex + 3
 }, squircle)
-actBar.AnchorPoint = v2(0.5, 1)
-actBar.Position = u2(0.5, 0, 1, -2)
-actBar.Size = u2(0, 24, 0, 2.5)
+actBar.AnchorPoint = v2(0, 0.5)
+actBar.Position = u2(0, 2, 0.5, 0)
+actBar.Size = u2(0, 3.5, 0.62, 0)
 actBar.Visible = (idx == 1)
 if not actBar:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, actBar) end
 
--- Xử lý Icon của từng Tab
+-- ICON: Position = UDim2.new(0, 10, 0.5, -11), Size = UDim2.new(0, 22, 0, 22)
 local hasFoundIcon = false
 for _, ch in ipairs(btn:GetDescendants()) do
 if ch ~= squircle and not ch:IsDescendantOf(squircle) and ch.Name ~= "ChilliStealTabIcon" and ch.Name ~= "ChilliTabCaption" and ch.Name ~= "ChilliTabCaptionEn" then
@@ -3015,9 +3018,9 @@ end
 ch.ZIndex = squircle.ZIndex + 5
 ch.ImageColor3 = Color3.new(1, 1, 1)
 ch.ImageTransparency = 0
-ch.AnchorPoint = v2(0, 0.5)
-ch.Position = u2(0, 8, 0.5, 0)
-ch.Size = u2(0, 16, 0, 16)
+ch.AnchorPoint = v2(0, 0)
+ch.Position = u2(0, 10, 0.5, -11)
+ch.Size = u2(0, 22, 0, 22)
 ch.Visible = true
 else
 ch.Visible = false
@@ -3040,9 +3043,9 @@ local stealIcon = squircle:FindFirstChild("ChilliStealTabIcon") or btn:FindFirst
 if not stealIcon then
 stealIcon = mk("ImageLabel", {
 Name = "ChilliStealTabIcon",
-AnchorPoint = v2(0, 0.5),
-Position = u2(0, 8, 0.5, 0),
-Size = u2(0, 16, 0, 16),
+AnchorPoint = v2(0, 0),
+Position = u2(0, 10, 0.5, -11),
+Size = u2(0, 22, 0, 22),
 BackgroundTransparency = 1,
 Image = STEAL_TAB_ICON_ID,
 ImageColor3 = Color3.new(1, 1, 1),
@@ -3054,45 +3057,45 @@ ZIndex = squircle.ZIndex + 5
 else
 stealIcon.Parent = squircle
 stealIcon.Image = STEAL_TAB_ICON_ID
-stealIcon.AnchorPoint = v2(0, 0.5)
-stealIcon.Position = u2(0, 8, 0.5, 0)
-stealIcon.Size = u2(0, 16, 0, 16)
+stealIcon.AnchorPoint = v2(0, 0)
+stealIcon.Position = u2(0, 10, 0.5, -11)
+stealIcon.Size = u2(0, 22, 0, 22)
 stealIcon.ImageTransparency = 0
 stealIcon.Visible = true
 stealIcon.ZIndex = squircle.ZIndex + 5
 end
 end
 
-local textLeftOffset = hasFoundIcon and 28 or 10
-
--- Dòng 1: Tiếng Việt (Font GothamBold, TextSize 11, hiển thị rõ nét)
+-- CHỮ TIẾNG VIỆT (Chính): In đậm, màu trắng sáng, TextSize = 14, Font = GothamBold, Pos = (0, 40, 0, 4), Size = (1, -45, 0, 20)
 local viLbl = squircle:FindFirstChild("ChilliTabCaption") or mk("TextLabel", {
 Name = "ChilliTabCaption",
 AnchorPoint = v2(0, 0),
-Position = u2(0, textLeftOffset, 0, 3),
-Size = u2(1, -textLeftOffset - 4, 0, 15),
+Position = u2(0, 40, 0, 4),
+Size = u2(1, -45, 0, 20),
 BackgroundTransparency = 1,
 Font = Enum.Font.GothamBold,
-TextSize = 11,
-TextColor3 = (idx == 1) and c3(255, 255, 255) or c3(215, 225, 240),
+TextSize = 14,
+TextColor3 = (idx == 1) and c3(255, 255, 255) or c3(220, 230, 245),
 TextXAlignment = Enum.TextXAlignment.Left,
 TextYAlignment = Enum.TextYAlignment.Center,
 Text = (State.Language == "EN") and nameEN or nameVN,
 TextTruncate = Enum.TextTruncate.None,
+ClipsDescendants = false,
 Active = false,
 ZIndex = squircle.ZIndex + 6
 }, squircle)
 viLbl:SetAttribute("__HiddenVxLogo", true)
 viLbl.AnchorPoint = v2(0, 0)
-viLbl.Position = u2(0, textLeftOffset, 0, 3)
-viLbl.Size = u2(1, -textLeftOffset - 4, 0, 15)
+viLbl.Position = u2(0, 40, 0, 4)
+viLbl.Size = u2(1, -45, 0, 20)
 viLbl.Font = Enum.Font.GothamBold
-viLbl.TextSize = 11
-viLbl.TextColor3 = (idx == 1) and c3(255, 255, 255) or c3(215, 225, 240)
+viLbl.TextSize = 14
+viLbl.TextColor3 = (idx == 1) and c3(255, 255, 255) or c3(220, 230, 245)
 viLbl.TextXAlignment = Enum.TextXAlignment.Left
 viLbl.TextYAlignment = Enum.TextYAlignment.Center
 viLbl.TextTruncate = Enum.TextTruncate.None
 viLbl.TextTransparency = 0
+viLbl.ClipsDescendants = false
 viLbl.Visible = true
 viLbl.ZIndex = squircle.ZIndex + 6
 viLbl.Text = (State.Language == "EN") and nameEN or nameVN
@@ -3102,33 +3105,38 @@ viSt.Thickness = 1.0
 viSt.Color = c3(8, 10, 18)
 viSt.Transparency = 0.2
 
--- Dòng 2: Tiếng Anh (Font GothamMedium, TextSize 9, nằm ngay dưới không bị khuất)
+-- CHỮ TIẾNG ANH (Phụ): Màu xám nhạt, TextSize = 10, Font = Gotham, Pos = (0, 40, 0, 24), Size = (1, -45, 0, 14)
 local enLbl = squircle:FindFirstChild("ChilliTabCaptionEn") or mk("TextLabel", {
 Name = "ChilliTabCaptionEn",
 AnchorPoint = v2(0, 0),
-Position = u2(0, textLeftOffset, 0, 18),
-Size = u2(1, -textLeftOffset - 4, 0, 12),
+Position = u2(0, 40, 0, 24),
+Size = u2(1, -45, 0, 14),
 BackgroundTransparency = 1,
-Font = Enum.Font.GothamMedium,
-TextSize = 9,
-TextColor3 = (idx == 1) and c3(240, 245, 255) or c3(150, 165, 185),
+Font = Enum.Font.Gotham,
+TextSize = 10,
+TextColor3 = (idx == 1) and c3(240, 245, 255) or c3(160, 175, 195),
 Text = (State.Language == "EN") and nameVN or nameEN,
 TextTransparency = (idx == 1) and 0.10 or 0.35,
+TextXAlignment = Enum.TextXAlignment.Left,
+TextYAlignment = Enum.TextYAlignment.Center,
+TextTruncate = Enum.TextTruncate.None,
+ClipsDescendants = false,
 Visible = true,
 Active = false,
 ZIndex = squircle.ZIndex + 6
 }, squircle)
 enLbl:SetAttribute("__HiddenVxLogo", true)
 enLbl.AnchorPoint = v2(0, 0)
-enLbl.Position = u2(0, textLeftOffset, 0, 18)
-enLbl.Size = u2(1, -textLeftOffset - 4, 0, 12)
-enLbl.Font = Enum.Font.GothamMedium
-enLbl.TextSize = 9
-enLbl.TextColor3 = (idx == 1) and c3(240, 245, 255) or c3(150, 165, 185)
+enLbl.Position = u2(0, 40, 0, 24)
+enLbl.Size = u2(1, -45, 0, 14)
+enLbl.Font = Enum.Font.Gotham
+enLbl.TextSize = 10
+enLbl.TextColor3 = (idx == 1) and c3(240, 245, 255) or c3(160, 175, 195)
 enLbl.TextTransparency = (idx == 1) and 0.10 or 0.35
 enLbl.TextXAlignment = Enum.TextXAlignment.Left
 enLbl.TextYAlignment = Enum.TextYAlignment.Center
 enLbl.TextTruncate = Enum.TextTruncate.None
+enLbl.ClipsDescendants = false
 enLbl.Visible = true
 enLbl.ZIndex = squircle.ZIndex + 6
 enLbl.Text = (State.Language == "EN") and nameVN or nameEN
@@ -3163,7 +3171,7 @@ local tabInfo = SIDEBAR_TAB_BILINGUAL[idx] or { vi = "Mục " .. tostring(idx), 
 CreateTab(tabInfo.vi, tabInfo.en, tabInfo.icon, idx, btn)
 end
 
-refreshScrollCanvas()
+refreshSidebarCanvas()
 end
 end)
 end
@@ -3219,7 +3227,8 @@ end
 end
 
 titleLbl.AnchorPoint = v2(0, 0.5)
-titleLbl.Position = topBar and u2(0, 14, 0.5, 0) or u2(0, 14, 0, 18)
+titleLbl.AnchorPoint = v2(0, 0)
+titleLbl.Position = u2(0, 15, 0, 12)
 titleLbl.Font = Enum.Font.GothamBold
 titleLbl.TextSize = 18
 titleLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -3259,7 +3268,8 @@ local t = (d.Text or ""):match("^%s*(.-)%s*$")
 if t:find("v1.") or t:find("/") or t:find("Lấy Trứng") or t:find("Cướp Trứng") or t:find("Steal An Egg") then
 isSub = true
 d.AnchorPoint = v2(0, 0.5)
-d.Position = (topBar and d.Parent == topBar) and u2(0, 150, 0.5, 0) or u2(0, 150, 0, 18)
+d.AnchorPoint = v2(0, 0)
+d.Position = u2(0, 155, 0, 14)
 d.TextYAlignment = Enum.TextYAlignment.Center
 d.TextColor3 = c3(180, 190, 205)
 d.Font = Enum.Font.GothamMedium
@@ -3307,8 +3317,8 @@ if ch.Position.Y.Scale == 0 and ch.Position.Y.Offset < 32 and ch.Size.Y.Scale ==
 elseif ch:IsA("ScrollingFrame") or ch:FindFirstChildOfClass("ScrollingFrame") ~= nil then
 if not ch:GetAttribute("__ChilliPageBelowNavbarFixed") then
 ch:SetAttribute("__ChilliPageBelowNavbarFixed", true)
-local targetPos = u2(0, 8, 0, 84)
-local targetSize = u2(1, -16, 1, -92)
+local targetPos = u2(0, 175, 0, 56)
+local targetSize = u2(1, -185, 1, -66)
 ch.Position = targetPos
 ch.Size = targetSize
 ch:GetPropertyChangedSignal("Position"):Connect(function()
