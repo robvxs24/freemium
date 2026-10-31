@@ -2431,12 +2431,12 @@ return false
 end
 
 local SIDEBAR_PALETTE = {
-	Color3.fromRGB(37, 99, 235),  -- [1] Trang Chủ: Xanh Dương
-	Color3.fromRGB(239, 68, 68),  -- [2] Cướp Trứng: Đỏ
-	Color3.fromRGB(245, 158, 11), -- [3] Cày Cuốc: Cam Vàng
-	Color3.fromRGB(168, 85, 247), -- [4] Sự Kiện: Tím
-	Color3.fromRGB(236, 72, 153), -- [5] Người Chơi: Hồng
-	Color3.fromRGB(16, 185, 129), -- [6] Hệ Thống: Xanh Ngọc
+	Color3.fromRGB(37, 99, 235),  -- [1] Trang Chủ: Xanh Dương (V7)
+	Color3.fromRGB(239, 68, 68),  -- [2] Cướp Trứng: Đỏ (V7)
+	Color3.fromRGB(245, 158, 11), -- [3] Cày Cuốc: Cam Vàng (V7)
+	Color3.fromRGB(168, 85, 247), -- [4] Sự Kiện: Tím (V7)
+	Color3.fromRGB(236, 72, 153), -- [5] Người Chơi: Hồng (V7)
+	Color3.fromRGB(16, 185, 129), -- [6] Hệ Thống: Xanh Ngọc (V7)
 }
 
 local SIDEBAR_GRAD_PAIRS = {
@@ -2829,52 +2829,50 @@ local function applySenaV7Architecture(win, titleLbl)
 		end
 	end
 
-	-- D. TÌM CHÍNH XÁC CỤM 6 NÚT TAB DỌC BÊN TRÁI (SIDEBAR) & NÂNG CẤP SIÊU ĐẸP + ÂM THANH CLICK
+	-- D. TÌM CHÍNH XÁC CỤM 6 NÚT TAB DỌC BÊN TRÁI (SIDEBAR) & NÂNG CẤP ĐÚNG CHUẨN V7 (7601.jpg)
 	local navButtons = {}
-	-- Cách 1: Tìm container chứa 5-8 nút con ở phía mép trái của win
+
+	-- Cách 1: Tìm container chứa 5-8 nút ở cột bên trái của win
 	for _, d in ipairs(win:GetDescendants()) do
 		if d:IsA("GuiObject")
 		   and not d:IsA("ScrollingFrame")
 		   and not d:FindFirstAncestorOfClass("ScrollingFrame")
 		   and not d.Name:find("^Chilli") then
-			local dX = d.AbsolutePosition.X - winX
-			if dX >= -5 and dX <= 85 then
-				local children = {}
-				for _, ch in ipairs(d:GetChildren()) do
-					if ch:IsA("GuiObject") and not ch.Name:find("^Chilli") and ch.Visible then
-						local cw, chH = ch.AbsoluteSize.X, ch.AbsoluteSize.Y
-						if (cw >= 18 and cw <= 75 and chH >= 18 and chH <= 75)
-						   or (ch.Size.X.Offset >= 18 and ch.Size.X.Offset <= 75) then
-							table.insert(children, ch)
-						end
-					end
+			local count = 0
+			local chList = {}
+			for _, ch in ipairs(d:GetChildren()) do
+				if (ch:IsA("GuiButton") or ch:FindFirstChildOfClass("GuiButton") or ch:FindFirstChildOfClass("ImageLabel"))
+				   and ch.Visible
+				   and not ch.Name:find("^Chilli") then
+					count = count + 1
+					table.insert(chList, ch)
 				end
-				if #children >= 5 and #children <= 8 then
-					table.sort(children, function(a, b) return a.AbsolutePosition.Y < b.AbsolutePosition.Y end)
-					navButtons = children
+			end
+			if count >= 5 and count <= 8 then
+				local dRelX = d.AbsolutePosition.X - winX
+				if dRelX >= -5 and dRelX <= 120 then
+					table.sort(chList, function(a, b) return a.AbsolutePosition.Y < b.AbsolutePosition.Y end)
+					navButtons = chList
 					break
 				end
 			end
 		end
 	end
 
-	-- Cách 2 (Dự phòng): Quét toàn bộ nút bấm ở mép trái win
+	-- Cách 2 (Dự phòng): Quét toàn bộ nút bấm ở dải mép trái win
 	if #navButtons < 5 then
 		local candidates = {}
 		for _, d in ipairs(win:GetDescendants()) do
 			if (d:IsA("ImageButton") or d:IsA("TextButton"))
 			   and not d.Name:find("^Chilli")
-			   and not d:FindFirstAncestorOfClass("ScrollingFrame")
-			   and (d.AbsolutePosition.X - winX) < 75
-			   and d.AbsolutePosition.Y > (winY + 30) then
-				local cw, chH = d.AbsoluteSize.X, d.AbsoluteSize.Y
-				if (cw >= 18 and cw <= 75 and chH >= 18 and chH <= 75)
-				   or (d.Size.X.Offset >= 18 and d.Size.X.Offset <= 75) then
+			   and not d:FindFirstAncestorOfClass("ScrollingFrame") then
+				local dRelX = d.AbsolutePosition.X - winX
+				if dRelX >= -5 and dRelX <= 110 and d.AbsolutePosition.Y > (winY + 25) then
 					table.insert(candidates, d)
 				end
 			end
 		end
-		if #candidates >= 5 and #candidates <= 8 then
+		if #candidates >= 5 and #candidates <= 10 then
 			table.sort(candidates, function(a, b) return a.AbsolutePosition.Y < b.AbsolutePosition.Y end)
 			navButtons = candidates
 		end
@@ -2893,14 +2891,15 @@ local function applySenaV7Architecture(win, titleLbl)
 					local shine = sq:FindFirstChild("ChilliTabGlassShine")
 					local bColor = SIDEBAR_PALETTE[((i - 1) % #SIDEBAR_PALETTE) + 1]
 					if i == activeIdx then
+						-- Tab được chọn (như Tab 2 trong ảnh 7601.jpg): Sáng viền trắng/bạc dày 2px bao quanh
 						TweenService:Create(sq, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-							Size = UDim2.new(0, 35, 0, 35),
-							BackgroundTransparency = 0.04
+							Size = UDim2.new(0, 36, 0, 36),
+							BackgroundTransparency = 0.05
 						}):Play()
 						if st then
 							TweenService:Create(st, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-								Thickness = 2.0,
-								Color = Color3.new(1, 1, 1),
+								Thickness = 2.2,
+								Color = Color3.fromRGB(255, 255, 255),
 								Transparency = 0.05
 							}):Play()
 						end
@@ -2912,18 +2911,19 @@ local function applySenaV7Architecture(win, titleLbl)
 							}):Play()
 						end
 						if shine then
-							shine.BackgroundTransparency = 0.72
+							shine.BackgroundTransparency = 0.74
 						end
 					else
+						-- Tab chưa chọn (như Tab 1, 3, 4, 5, 6 trong 7601.jpg): Màu chuẩn V7 êm ái
 						TweenService:Create(sq, TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-							Size = UDim2.new(0, 30, 0, 30),
-							BackgroundTransparency = 0.22
+							Size = UDim2.new(0, 32, 0, 32),
+							BackgroundTransparency = 0.15
 						}):Play()
 						if st then
 							TweenService:Create(st, TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-								Thickness = 1.2,
+								Thickness = 1.0,
 								Color = bColor,
-								Transparency = 0.35
+								Transparency = 0.55
 							}):Play()
 						end
 						if actBar then
@@ -2933,7 +2933,7 @@ local function applySenaV7Architecture(win, titleLbl)
 							}):Play()
 						end
 						if shine then
-							shine.BackgroundTransparency = 0.86
+							shine.BackgroundTransparency = 0.88
 						end
 					end
 				end
@@ -3013,9 +3013,9 @@ local function applySenaV7Architecture(win, titleLbl)
 					Name = "ChilliSenaSquircle",
 					AnchorPoint = Vector2.new(0.5, 0.5),
 					Position = UDim2.fromScale(0.5, 0.5),
-					Size = UDim2.new(0, 31, 0, 31),
-					BackgroundColor3 = Color3.new(1, 1, 1),
-					BackgroundTransparency = 0.18,
+					Size = UDim2.new(0, 32, 0, 32),
+					BackgroundColor3 = badgeColor,
+					BackgroundTransparency = 0.10,
 					BorderSizePixel = 0,
 					Active = false,
 					ZIndex = (btn.ZIndex or 1) + 1
@@ -3031,9 +3031,9 @@ local function applySenaV7Architecture(win, titleLbl)
 				}, squircle)
 				mk("UIStroke", {
 					Name = "SquircleStroke",
-					Thickness = 1.2,
-					Color = badgeColor,
-					Transparency = 0.35,
+					Thickness = (idx == 2) and 2.0 or 1.0,
+					Color = (idx == 2) and Color3.fromRGB(255, 255, 255) or badgeColor,
+					Transparency = (idx == 2) and 0.05 or 0.55,
 					ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 				}, squircle)
 
@@ -3043,7 +3043,7 @@ local function applySenaV7Architecture(win, titleLbl)
 					Position = UDim2.new(0.5, 0, 0, 1),
 					Size = UDim2.new(0.86, 0, 0.42, 0),
 					BackgroundColor3 = Color3.new(1, 1, 1),
-					BackgroundTransparency = 0.80,
+					BackgroundTransparency = 0.82,
 					BorderSizePixel = 0,
 					Active = false,
 					ZIndex = squircle.ZIndex + 1
@@ -3056,7 +3056,7 @@ local function applySenaV7Architecture(win, titleLbl)
 					Position = UDim2.new(0, -4, 0.5, 0),
 					Size = UDim2.new(0, 3.5, 0, 16),
 					BackgroundColor3 = Color3.new(1, 1, 1),
-					BackgroundTransparency = 1,
+					BackgroundTransparency = (idx == 2) and 0 or 1,
 					BorderSizePixel = 0,
 					Active = false,
 					ZIndex = squircle.ZIndex + 3
@@ -3064,15 +3064,10 @@ local function applySenaV7Architecture(win, titleLbl)
 				mk("UICorner", { CornerRadius = UDim.new(1, 0) }, activeBar)
 			else
 				squircle.Visible = true
-				local sGrad = squircle:FindFirstChild("SquircleGrad")
-				if sGrad then
-					sGrad.Color = ColorSequence.new({
-						ColorSequenceKeypoint.new(0, gradPair[1]),
-						ColorSequenceKeypoint.new(1, gradPair[2])
-					})
-				end
+				squircle.BackgroundColor3 = badgeColor
 			end
 
+			-- Đảm bảo toàn bộ icon gốc hiển thị rõ nét trên squircle
 			for _, ch in ipairs(btn:GetDescendants()) do
 				if ch ~= squircle and not ch:IsDescendantOf(squircle) and ch.Name ~= "ChilliStealTabIcon" then
 					if ch:IsA("ImageLabel") or ch:IsA("ImageButton") then
@@ -3137,13 +3132,13 @@ local function applySenaV7Architecture(win, titleLbl)
 					playModernTabSound()
 					pcall(updateTabActiveStyles, idx)
 
-					-- 1. Spring Bounce nảy đàn hồi cực êm
+					-- 1. Spring Bounce nảy đàn hồi chuẩn V7
 					TweenService:Create(squircle, TweenInfo.new(0.07, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-						Size = UDim2.new(0, 25, 0, 25)
+						Size = UDim2.new(0, 28, 0, 28)
 					}):Play()
 					task.delay(0.07, function()
 						TweenService:Create(squircle, TweenInfo.new(0.16, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-							Size = UDim2.new(0, 35, 0, 35)
+							Size = UDim2.new(0, 36, 0, 36)
 						}):Play()
 					end)
 
@@ -3152,7 +3147,7 @@ local function applySenaV7Architecture(win, titleLbl)
 						Name = "ChilliTabRipple",
 						AnchorPoint = Vector2.new(0.5, 0.5),
 						Position = UDim2.fromScale(0.5, 0.5),
-						Size = UDim2.new(0, 24, 0, 24),
+						Size = UDim2.new(0, 26, 0, 26),
 						BackgroundColor3 = badgeColor,
 						BackgroundTransparency = 0.2,
 						BorderSizePixel = 0,
