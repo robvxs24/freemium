@@ -2650,7 +2650,7 @@ local function applySenaV7Architecture(win, titleLbl)
 
 	local sectionCards = {}
 	for _, d in ipairs(win:GetDescendants()) do
-		if d:IsA("ScrollingFrame") then
+		if d:IsA("ScrollingFrame") and (d.AbsolutePosition.X - winX) > 35 and (d.AbsoluteSize.X >= win.AbsoluteSize.X * 0.45) then
 			d.BackgroundTransparency = 1
 			local p = d.Parent
 			while p and p ~= win and p ~= mainBg do
@@ -2660,7 +2660,7 @@ local function applySenaV7Architecture(win, titleLbl)
 				p = p.Parent
 			end
 			for _, card in ipairs(d:GetChildren()) do
-				if card:IsA("Frame") then
+				if card:IsA("Frame") and card.AbsoluteSize.X >= 120 then
 					table.insert(sectionCards, card)
 				end
 			end
@@ -2775,9 +2775,9 @@ local function applySenaV7Architecture(win, titleLbl)
 		end
 	end
 
-	-- Dọn sạch mọi squircle nếu bị gắn nhầm vào trong ScrollingFrame
+	-- Dọn sạch mọi squircle nếu bị gắn nhầm vào trong trang nội dung bên phải (KHÔNG đụng vào thanh Sidebar bên trái vì Sidebar của Venyx cũng là ScrollingFrame!)
 	for _, sc in ipairs(win:GetDescendants()) do
-		if sc:IsA("ScrollingFrame") then
+		if sc:IsA("ScrollingFrame") and (sc.AbsolutePosition.X - winX) > 65 and sc.AbsoluteSize.X >= win.AbsoluteSize.X * 0.45 then
 			for _, sub in ipairs(sc:GetDescendants()) do
 				if sub.Name == "ChilliSenaSquircle" or sub.Name == "ChilliStealTabIcon" or sub.Name == "ChilliSidebarNeonLine" or sub.Name == "ChilliTabRipple" then
 					local par = sub.Parent
@@ -2855,46 +2855,29 @@ local function applySenaV7Architecture(win, titleLbl)
 	end
 
 	-- D. TÌM CHÍNH XÁC CỤM 6 NÚT TAB DỌC BÊN TRÁI (SIDEBAR)
-	-- Lưu ý quan trọng: Trong Venyx, mỗi nút Tab trên Sidebar là một Frame (GuiObject) chứ không phải GuiButton!
+	-- Lưu ý quan trọng: Trong Venyx, container Sidebar bên trái chính là một ScrollingFrame (d.AbsolutePosition.X - winX < 75)!
 	local navButtons = {}
 	for _, d in ipairs(win:GetDescendants()) do
-		if d:IsA("GuiObject")
-		   and not d:IsA("ScrollingFrame")
-		   and not d:FindFirstAncestorOfClass("ScrollingFrame")
-		   and not d.Name:find("^Chilli") then
-			local dRelX = d.AbsolutePosition.X - winX
-			local dRelY = d.AbsolutePosition.Y - hy
-			if (dRelX >= -5 and dRelX < 95 and dRelY > 8)
-			   or (d.Position.X.Scale == 0 and d.Position.X.Offset >= 0 and d.Position.X.Offset < 65) then
-				local children = {}
-				for _, ch in ipairs(d:GetChildren()) do
-					if ch:IsA("GuiObject") and not ch.Name:find("^Chilli") and ch.Visible then
-						local cw, chH = ch.AbsoluteSize.X, ch.AbsoluteSize.Y
-						local sw, sh = ch.Size.X.Offset, ch.Size.Y.Offset
-						if (cw >= 16 and cw <= 95 and chH >= 16 and chH <= 95)
-						   or (sw >= 16 and sw <= 95 and sh >= 16 and sh <= 95) then
-							table.insert(children, ch)
-						end
-					end
+		if d:IsA("GuiObject") and not d.Name:find("^Chilli") and (d.AbsolutePosition.X - winX) < 75 and d.AbsolutePosition.Y > hy + 12 and d.AbsoluteSize.X <= 95 then
+			local children = {}
+			for _, ch in ipairs(d:GetChildren()) do
+				if ch:IsA("GuiObject") and not ch.Name:find("^Chilli") and ch.AbsoluteSize.X >= 20 and ch.AbsoluteSize.X <= 70 and ch.AbsoluteSize.Y >= 20 and ch.AbsoluteSize.Y <= 70 then
+					ch.Visible = true
+					local oldCardStroke = ch:FindFirstChild("ChilliLuxuryCardStroke")
+					if oldCardStroke then oldCardStroke:Destroy() end
+					table.insert(children, ch)
 				end
-				if #children >= 5 and #children <= 8 then
-					table.sort(children, function(a, b)
-						if math.abs(a.AbsolutePosition.Y - b.AbsolutePosition.Y) > 2 then
-							return a.AbsolutePosition.Y < b.AbsolutePosition.Y
-						end
-						return a.LayoutOrder < b.LayoutOrder
-					end)
-					local spanY = children[#children].AbsolutePosition.Y - children[1].AbsolutePosition.Y
-					local spanX = math.abs(children[#children].AbsolutePosition.X - children[1].AbsolutePosition.X)
-					if spanY > 60 and spanX < 30 then
-						if d.ZIndex < 15 then d.ZIndex = 15 end
-						for _, nb in ipairs(children) do
-							if nb.ZIndex < 16 then nb.ZIndex = 16 end
-						end
-						navButtons = children
-						break
-					end
+			end
+			if #children >= 5 and #children <= 8 then
+				table.sort(children, function(a, b) return a.AbsolutePosition.Y < b.AbsolutePosition.Y end)
+				pcall(function() d.BackgroundTransparency = 1 end)
+				if d.ZIndex < 15 then d.ZIndex = 15 end
+				for _, nb in ipairs(children) do
+					pcall(function() nb.BackgroundTransparency = 1 end)
+					if nb.ZIndex < 16 then nb.ZIndex = 16 end
 				end
+				navButtons = children
+				break
 			end
 		end
 	end
