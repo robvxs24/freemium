@@ -1911,8 +1911,7 @@ mk("UIStroke", { Thickness = 1.2, Color = c3(95, 195, 255) }, expLogo)
 local expLogoImg = mk("ImageLabel", { AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(1, 1), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Crop, Active = false, ZIndex = 10003 }, expLogo)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, expLogoImg)
 
-local expTitle = mk("TextLabel", { Name = "ChilliIslandTitle", Size = u2(0, 190, 0, 26), Position = u2(0, 42, 0, 7), BackgroundTransparency = 1, Text = "Chilli Hub V8", Font = Enum.Font.GothamBlack, TextSize = 16, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 10002 }, exp)
-mk("UIStroke", { Thickness = 1.3, Color = c3(235, 55, 25), Transparency = 0.12 }, expTitle)
+-- Đã bỏ chữ Chilli Hub V8 trên Dynamic Island theo yêu cầu
 
 local colBtn = mk("TextButton", { Size = u2(0, 28, 0, 22), Position = u2(1, -36, 0, 8), BackgroundColor3 = c3(26, 36, 58), BackgroundTransparency = 0.15, BorderSizePixel = 0, Text = "▲", Font = Enum.Font.GothamBold, TextSize = 10, TextColor3 = c3(195, 235, 255), ZIndex = 10003 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, colBtn)
@@ -2074,16 +2073,8 @@ local bVI = mk("TextButton", { Size = u2(0.5, 0, 1, 0), BackgroundTransparency =
 local bEN = mk("TextButton", { Size = u2(0.5, 0, 1, 0), Position = u2(0.5, 0, 0, 0), BackgroundTransparency = 1, Text = "🌐 ENGLISH", Font = Enum.Font.GothamBold, TextSize = 10.2, TextColor3 = (State.Language == "EN" and Color3.new(1, 1, 1) or c3(160, 180, 210)), ZIndex = 10003 }, cap)
 
 -- NÚT KÍCH HOẠT CONFIG SETTING AUTO FARM (LIQUID GLASS GOLD-BLUE)
-local cfgBtn = mk("TextButton", { Name = "AutoFarmConfigBtn", Size = u2(1, -20, 0, 30), Position = u2(0, 10, 0, 97), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.08, BorderSizePixel = 0, Text = "⚡ CONFIG SETTING AUTO FARM", Font = Enum.Font.GothamBlack, TextSize = 10.4, TextColor3 = c3(255, 232, 115), ZIndex = 10003 }, exp)
+local cfgBtn = mk("TextButton", { Name = "AutoFarmConfigBtn", Size = u2(1, -20, 0, 30), Position = u2(0, 10, 0, 97), BackgroundColor3 = c3(22, 26, 42), BackgroundTransparency = 0.06, BorderSizePixel = 0, Text = "⚡ CONFIG SETTING AUTO FARM", Font = Enum.Font.GothamBlack, TextSize = 10.4, TextColor3 = c3(255, 232, 115), ZIndex = 10003 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cfgBtn)
-mk("UIGradient", {
-Rotation = 90,
-Color = ColorSequence.new({
-csk(0.00, c3(42, 52, 82)),
-csk(0.50, c3(22, 28, 46)),
-csk(1.00, c3(16, 20, 34))
-})
-}, cfgBtn)
 mk("UIStroke", { Thickness = 1.3, Color = c3(245, 195, 75), Transparency = 0.16, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, cfgBtn)
 cfgBtn.MouseButton1Click:Connect(function() playIslandSfx("action") runAutoFarmMacro(venyxGui, cfgBtn) end)
 
@@ -2536,7 +2527,7 @@ local oldTGrad = titleLbl:FindFirstChild("TitleUltraGrad")
 if oldTGrad then oldTGrad:Destroy() end
 titleLbl.TextTransparency = 0
 titleLbl.TextColor3 = Color3.new(1, 1, 1)
-titleLbl.Font = Enum.Font.GothamBlack
+titleLbl.Font = Enum.Font.GothamBold
 end)
 
 -- 1. CƠ CHẾ CHỐNG LAG KHI MỞ/TẮT MENU: Chỉ thao tác Visible & chạy 1 Tween 0.15s duy nhất, không chạy vòng lặp nút con
@@ -2866,16 +2857,36 @@ actBar.Size = u2(0, 3, 0, 16)
 actBar.Visible = (idx == 1)
 if not actBar:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, actBar) end
 
--- 1. ImageLabel (Icon) bên trái
-local nativeIconImg = ""
+-- 1. ImageLabel (Icon) bên trái: Giữ nguyên hiển thị icon gốc của Venyx để không bao giờ bị mất ảnh
+local hasFoundIcon = false
 for _, ch in ipairs(btn:GetDescendants()) do
 if ch ~= squircle and not ch:IsDescendantOf(squircle) and ch.Name ~= "ChilliStealTabIcon" and ch.Name ~= "ChilliTabCaption" and ch.Name ~= "ChilliTabCaptionEn" then
 if ch:IsA("ImageLabel") or ch:IsA("ImageButton") then
-if nativeIconImg == "" and ch.Image ~= "" then
-nativeIconImg = ch.Image
+if not hasFoundIcon and idx ~= 2 then
+hasFoundIcon = true
+local p = ch.Parent
+while p and p ~= btn do
+if p:IsA("GuiObject") then
+p.Visible = true
+p.ClipsDescendants = false
+p.BackgroundTransparency = 1
+if p.ZIndex < squircle.ZIndex + 4 then
+p.ZIndex = squircle.ZIndex + 4
 end
+end
+p = p.Parent
+end
+ch.ZIndex = squircle.ZIndex + 5
+ch.ImageColor3 = Color3.new(1, 1, 1)
+ch.ImageTransparency = 0
+ch.AnchorPoint = v2(0, 0.5)
+ch.Position = u2(0, 8, 0.5, 0)
+ch.Size = u2(0, 18, 0, 18)
+ch.Visible = true
+else
 ch.Visible = false
 ch.ImageTransparency = 1
+end
 elseif ch:IsA("TextLabel") or ch:IsA("TextButton") then
 ch:SetAttribute("__HiddenVxLogo", true)
 ch.TextTransparency = 1
@@ -2887,16 +2898,16 @@ end
 end
 end
 
-local finalIconId = (iconId and iconId ~= "") and iconId or nativeIconImg
-local tabIcon = squircle:FindFirstChild("ChilliStealTabIcon") or btn:FindFirstChild("ChilliStealTabIcon")
-if not tabIcon then
-tabIcon = mk("ImageLabel", {
+if idx == 2 then
+local stealIcon = squircle:FindFirstChild("ChilliStealTabIcon") or btn:FindFirstChild("ChilliStealTabIcon")
+if not stealIcon then
+stealIcon = mk("ImageLabel", {
 Name = "ChilliStealTabIcon",
 AnchorPoint = v2(0, 0.5),
-Position = u2(0, 9, 0.5, 0),
-Size = u2(0, 19, 0, 19),
+Position = u2(0, 8, 0.5, 0),
+Size = u2(0, 18, 0, 18),
 BackgroundTransparency = 1,
-Image = finalIconId,
+Image = STEAL_TAB_ICON_ID,
 ImageColor3 = Color3.new(1, 1, 1),
 ScaleType = Enum.ScaleType.Fit,
 Active = false,
@@ -2904,15 +2915,18 @@ Selectable = false,
 ZIndex = squircle.ZIndex + 5
 }, squircle)
 else
-tabIcon.Parent = squircle
-tabIcon.AnchorPoint = v2(0, 0.5)
-tabIcon.Position = u2(0, 9, 0.5, 0)
-tabIcon.Size = u2(0, 19, 0, 19)
-tabIcon.Image = finalIconId
-tabIcon.ImageColor3 = Color3.new(1, 1, 1)
-tabIcon.ImageTransparency = 0
-tabIcon.Visible = true
-tabIcon.ZIndex = squircle.ZIndex + 5
+stealIcon.Parent = squircle
+stealIcon.Image = STEAL_TAB_ICON_ID
+stealIcon.AnchorPoint = v2(0, 0.5)
+stealIcon.Position = u2(0, 8, 0.5, 0)
+stealIcon.Size = u2(0, 18, 0, 18)
+stealIcon.ImageTransparency = 0
+stealIcon.Visible = true
+stealIcon.ZIndex = squircle.ZIndex + 5
+end
+else
+local oldExtraIcon = squircle:FindFirstChild("ChilliStealTabIcon") or btn:FindFirstChild("ChilliStealTabIcon")
+if oldExtraIcon then oldExtraIcon:Destroy() end
 end
 
 -- 2. TextLabel cho tiếng Việt (to, rõ, in đậm)
@@ -3049,7 +3063,7 @@ win:SetAttribute("__ChilliV7ArchSession", SID)
 pcall(applySenaV8Architecture, win, titleLbl)
 end
 
--- 2. Chỉnh kích thước chữ "Chilli Hub V8" TO rõ (TextSize = 20, GothamBlack), tách rời logo cũ, màu sáng + viền đỏ cam
+-- 2. Chữ "Chilli Hub V8" trên menu: Kích cỡ, màu trắng tinh khiết và căn chỉnh chuẩn y hệt Ảnh 3 (7529.jpg)
 pcall(function()
 local topBar = (titleLbl.Parent and titleLbl.Parent ~= win and titleLbl.Parent:IsA("GuiObject") and titleLbl.Parent.AbsoluteSize.Y <= 60) and titleLbl.Parent or nil
 local oldLogo1 = win:FindFirstChild("ChilliHeaderLogoBadge")
@@ -3059,33 +3073,16 @@ local oldLogo2 = topBar:FindFirstChild("ChilliHeaderLogoBadge")
 if oldLogo2 then oldLogo2:Destroy() end
 end
 
-titleLbl.AnchorPoint = v2(0, 0.5)
-titleLbl.Position = topBar and u2(0, 14, 0.5, 0) or u2(0, 14, 0, 18)
-titleLbl.Font = Enum.Font.GothamBlack
-titleLbl.TextSize = 20
-titleLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
-titleLbl.TextYAlignment = Enum.TextYAlignment.Center
+local oldGrad = titleLbl:FindFirstChild("ChilliTitleGrad") or titleLbl:FindFirstChild("TitleUltraGrad")
+if oldGrad then oldGrad:Destroy() end
+local oldStroke = titleLbl:FindFirstChild("ChilliTitleStroke")
+if oldStroke then oldStroke:Destroy() end
+
+titleLbl.Font = Enum.Font.GothamBold
+titleLbl.TextColor3 = Color3.new(1, 1, 1)
+titleLbl.TextTransparency = 0
 titleLbl.AutomaticSize = Enum.AutomaticSize.X
 titleLbl.Text = NEW_TITLE
-titleLbl.ZIndex = 65
-
-local tGrad = titleLbl:FindFirstChild("ChilliTitleGrad") or mk("UIGradient", {
-Name = "ChilliTitleGrad",
-Rotation = 90
-}, titleLbl)
-tGrad.Rotation = 90
-tGrad.Color = ColorSequence.new({
-ColorSequenceKeypoint.new(0.00, c3(255, 255, 255)),
-ColorSequenceKeypoint.new(0.55, c3(255, 240, 195)),
-ColorSequenceKeypoint.new(1.00, c3(255, 185, 95))
-})
-
-local tStroke = titleLbl:FindFirstChild("ChilliTitleStroke") or mk("UIStroke", {
-Name = "ChilliTitleStroke"
-}, titleLbl)
-tStroke.Thickness = 1.5
-tStroke.Color = c3(235, 55, 25)
-tStroke.Transparency = 0.06
 
 for _, d in ipairs(win:GetDescendants()) do
 if d ~= titleLbl then
@@ -3095,23 +3092,6 @@ if t == "vx" or t == "Vx" or t == "VX" then
 d.Text = ""
 d.Visible = false
 d.TextTransparency = 1
-elseif t:find("v1.") or t:find("/") or t:find("Lấy Trứng") or t:find("Cướp Trứng") or t:find("Steal An Egg") then
-local relY = d.AbsolutePosition.Y - win.AbsolutePosition.Y
-if relY >= 0 and relY <= 40 then
-d.AnchorPoint = v2(0, 0.5)
-d.Position = (topBar and d.Parent == topBar) and u2(0, 168, 0.5, 0) or u2(0, 168, 0, 18)
-d.TextYAlignment = Enum.TextYAlignment.Center
-if t:find("Cướp") or t:find("cướp") then
-d.Text = t:gsub("Cướp", "Lấy"):gsub("cướp", "lấy")
-end
-end
-end
-elseif (d:IsA("ImageLabel") or d:IsA("ImageButton")) and d.Name ~= "ChilliSenaWallpaper" and not (State.ActiveNavContainer and d:IsDescendantOf(State.ActiveNavContainer)) then
-local relY = d.AbsolutePosition.Y - win.AbsolutePosition.Y
-local relX = d.AbsolutePosition.X - win.AbsolutePosition.X
-if relY >= 0 and relY <= 38 and relX >= 0 and relX <= 170 then
-d.ImageTransparency = 1
-d.Visible = false
 end
 end
 end
