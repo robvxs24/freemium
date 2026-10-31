@@ -140,7 +140,7 @@ local top = d
 while top.Parent and top.Parent ~= ch do top = top.Parent end
 local isBrokenOldRun = false
 for _, subD in ipairs(ch:GetDescendants()) do
-if (subD.Name == "ChilliSenaSquircle" and subD:FindFirstAncestorOfClass("ScrollingFrame")) or (subD.Name == "ChilliMainChilliLogo" and subD.Parent ~= top) then
+if (subD.Name == "ChilliSenaSquircle" and subD:FindFirstAncestorOfClass("ScrollingFrame")) or (subD.Name == "ChilliMainChilliLogo" and subD.Parent ~= top) or (subD.Name == "ChilliHeaderBottomGlow" and not ch:FindFirstChild("ChilliSenaSquircle", true)) then
 isBrokenOldRun = true
 break
 end
@@ -2431,21 +2431,21 @@ return false
 end
 
 local SIDEBAR_PALETTE = {
-	Color3.fromRGB(37, 99, 235),  -- [1] Trang Chủ: Xanh Dương (V7)
-	Color3.fromRGB(239, 68, 68),  -- [2] Cướp Trứng: Đỏ (V7)
-	Color3.fromRGB(245, 158, 11), -- [3] Cày Cuốc: Cam Vàng (V7)
-	Color3.fromRGB(168, 85, 247), -- [4] Sự Kiện: Tím (V7)
-	Color3.fromRGB(236, 72, 153), -- [5] Người Chơi: Hồng (V7)
-	Color3.fromRGB(16, 185, 129), -- [6] Hệ Thống: Xanh Ngọc (V7)
+	Color3.fromRGB(37, 99, 235),  -- [1] Trang Chủ: Xanh Hoàng Gia
+	Color3.fromRGB(239, 68, 68),  -- [2] Cướp Trứng: Đỏ Ruby
+	Color3.fromRGB(245, 158, 11), -- [3] Tự Cày: Vàng Hổ Phách
+	Color3.fromRGB(168, 85, 247), -- [4] Sự Kiện: Tím Thạch Anh
+	Color3.fromRGB(236, 72, 153), -- [5] Nhân Vật: Hồng Ngọc
+	Color3.fromRGB(16, 185, 129), -- [6] Cài Đặt: Xanh Ngọc Lục Bảo
 }
 
 local SIDEBAR_GRAD_PAIRS = {
-	{ Color3.fromRGB(37, 99, 235), Color3.fromRGB(56, 189, 248) },   -- [1] Blue -> Cyan Glow
-	{ Color3.fromRGB(239, 68, 68), Color3.fromRGB(251, 146, 60) },   -- [2] Red -> Coral Orange
-	{ Color3.fromRGB(245, 158, 11), Color3.fromRGB(253, 224, 71) },  -- [3] Amber -> Sun Yellow
-	{ Color3.fromRGB(168, 85, 247), Color3.fromRGB(216, 180, 254) }, -- [4] Violet -> Soft Lavender
-	{ Color3.fromRGB(236, 72, 153), Color3.fromRGB(244, 114, 182) }, -- [5] Rose -> Blossom Pink
-	{ Color3.fromRGB(16, 185, 129), Color3.fromRGB(52, 211, 153) },  -- [6] Emerald -> Mint Green
+	{ Color3.fromRGB(37, 99, 235), Color3.fromRGB(56, 189, 248) },   -- [1] Royal Blue -> Sky Cyan
+	{ Color3.fromRGB(239, 68, 68), Color3.fromRGB(251, 146, 60) },   -- [2] Ruby Red -> Fiery Coral
+	{ Color3.fromRGB(245, 158, 11), Color3.fromRGB(253, 224, 71) },  -- [3] Amber Gold -> Solar Yellow
+	{ Color3.fromRGB(168, 85, 247), Color3.fromRGB(217, 70, 239) },  -- [4] Amethyst -> Neon Orchid
+	{ Color3.fromRGB(236, 72, 153), Color3.fromRGB(251, 113, 133) }, -- [5] Rose Pink -> Velvet Coral
+	{ Color3.fromRGB(16, 185, 129), Color3.fromRGB(45, 212, 191) },  -- [6] Emerald -> Tiffany Teal
 }
 
 local function playModernTabSound()
@@ -2489,10 +2489,10 @@ local function applySenaV7Architecture(win, titleLbl)
 		table.insert(State.ActiveGradients, origGrad)
 	end
 	if not titleLbl:FindFirstChild("TitleUltraStroke") then
-		mk("UIStroke", { Name = "TitleUltraStroke", Thickness = 1.2, Color = Color3.fromRGB(12, 8, 22), Transparency = 0.2 }, titleLbl)
+		mk("UIStroke", { Name = "TitleUltraStroke", Thickness = 1.3, Color = Color3.fromRGB(10, 8, 20), Transparency = 0.15 }, titleLbl)
 	end
 
-	-- Logo Quả Ớt tròn viền cầu vồng ở đỉnh cột Sidebar (X = 23, Y = 19) kèm vạch kẻ sáng dưới Header giống hệt ảnh V7 (7601.jpg)
+	-- Huy hiệu Quả Ớt tròn viền cầu vồng sang trọng ở đỉnh cột Sidebar (X = 23, Y = 19)
 	local hdrBaseZ = math.max(15, (titleLbl.ZIndex or 5) + 8)
 	local mainChilliLogo = win:FindFirstChild("ChilliMainChilliLogo")
 	if not mainChilliLogo then
@@ -2500,8 +2500,8 @@ local function applySenaV7Architecture(win, titleLbl)
 			Name = "ChilliMainChilliLogo",
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Position = UDim2.new(0, 23, 0, 19),
-			Size = UDim2.new(0, 26, 0, 26),
-			BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+			Size = UDim2.new(0, 27, 0, 27),
+			BackgroundColor3 = Color3.fromRGB(10, 12, 20),
 			BackgroundTransparency = 0,
 			BorderSizePixel = 0,
 			ClipsDescendants = true,
@@ -2510,9 +2510,9 @@ local function applySenaV7Architecture(win, titleLbl)
 		}, win)
 		mk("UICorner", { CornerRadius = UDim.new(1, 0) }, mainChilliLogo)
 		local mcStroke = mk("UIStroke", {
-			Thickness = 1.4,
+			Thickness = 1.6,
 			Color = Color3.new(1, 1, 1),
-			Transparency = 0.1,
+			Transparency = 0.05,
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		}, mainChilliLogo)
 		table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, mcStroke))
@@ -2521,7 +2521,7 @@ local function applySenaV7Architecture(win, titleLbl)
 			Name = "LogoImg",
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Position = UDim2.fromScale(0.5, 0.5),
-			Size = UDim2.fromScale(0.88, 0.88),
+			Size = UDim2.fromScale(0.90, 0.90),
 			BackgroundTransparency = 1,
 			Image = "rbxassetid://74441610995894",
 			ScaleType = Enum.ScaleType.Fit,
@@ -2531,12 +2531,13 @@ local function applySenaV7Architecture(win, titleLbl)
 	else
 		mainChilliLogo.AnchorPoint = Vector2.new(0.5, 0.5)
 		mainChilliLogo.Position = UDim2.new(0, 23, 0, 19)
-		mainChilliLogo.Size = UDim2.new(0, 26, 0, 26)
+		mainChilliLogo.Size = UDim2.new(0, 27, 0, 27)
 		mainChilliLogo.Visible = true
 		mainChilliLogo.ZIndex = hdrBaseZ
 	end
 	State.MainChilliLogo = mainChilliLogo
 
+	-- Đường chỉ sáng Neon chạy ngang dưới Header
 	local hdrGlowLine = win:FindFirstChild("ChilliHeaderBottomGlow")
 	if not hdrGlowLine then
 		hdrGlowLine = mk("Frame", {
@@ -2549,6 +2550,22 @@ local function applySenaV7Architecture(win, titleLbl)
 			ZIndex = hdrBaseZ - 1
 		}, win)
 		table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, hdrGlowLine))
+	end
+
+	-- Đường chỉ sáng Neon dọc ngăn cách thanh Tab Sidebar bên trái với trang nội dung
+	local sideGlowLine = win:FindFirstChild("ChilliSidebarRightGlow")
+	if not sideGlowLine then
+		sideGlowLine = mk("Frame", {
+			Name = "ChilliSidebarRightGlow",
+			Position = UDim2.new(0, 46, 0, 39),
+			Size = UDim2.new(0, 1.2, 1, -39),
+			BackgroundColor3 = Color3.new(1, 1, 1),
+			BackgroundTransparency = 0.35,
+			BorderSizePixel = 0,
+			Active = false,
+			ZIndex = hdrBaseZ - 2
+		}, win)
+		table.insert(State.ActiveGradients, mk("UIGradient", { Rotation = 90, Color = ULTRA_CARD_GRAD }, sideGlowLine))
 	end
 
 	local hy, tx = titleLbl.AbsolutePosition.Y, titleLbl.AbsolutePosition.X
@@ -2589,21 +2606,25 @@ local function applySenaV7Architecture(win, titleLbl)
 		win.ClipsDescendants = true
 	end)
 
-	-- A. VIỀN KHUNG CHÍNH
+	-- A. VIỀN KHUNG CHÍNH SANG TRỌNG (CHUYỂN SẮC NEON LUXURY)
 	local strokeTarget = mainBg or win
 	local winStroke = strokeTarget:FindFirstChild("ChilliProWindowStroke") or win:FindFirstChild("ChilliProWindowStroke")
 	if not winStroke then
 		winStroke = mk("UIStroke", {
 			Name = "ChilliProWindowStroke",
-			Thickness = 2.0,
+			Thickness = 2.2,
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			Color = Color3.fromRGB(68, 88, 160),
-			Transparency = 0.22
+			Color = Color3.new(1, 1, 1),
+			Transparency = 0.08
 		}, strokeTarget)
+		table.insert(State.ActiveGradients, mk("UIGradient", { Color = ULTRA_CARD_GRAD }, winStroke))
 	else
-		for _, ch in ipairs(winStroke:GetChildren()) do ch:Destroy() end
-		winStroke.Color = Color3.fromRGB(68, 88, 160)
-		winStroke.Transparency = 0.22
+		winStroke.Thickness = 2.2
+		winStroke.Color = Color3.new(1, 1, 1)
+		winStroke.Transparency = 0.08
+		if not winStroke:FindFirstChildOfClass("UIGradient") then
+			table.insert(State.ActiveGradients, mk("UIGradient", { Color = ULTRA_CARD_GRAD }, winStroke))
+		end
 	end
 
 	-- B1. HÌNH NỀN VŨ TRỤ MẮT THẦN (90615151648668)
@@ -2617,7 +2638,7 @@ local function applySenaV7Architecture(win, titleLbl)
 			Size = UDim2.fromScale(1, 1),
 			BackgroundTransparency = 1,
 			Image = WALLPAPER_IMAGE_ID,
-			ImageTransparency = 0.38,
+			ImageTransparency = 0.36,
 			ScaleType = Enum.ScaleType.Crop,
 			Active = false,
 			ZIndex = math.max(1, wpParent.ZIndex)
@@ -2646,22 +2667,25 @@ local function applySenaV7Architecture(win, titleLbl)
 		end
 	end
 
+	-- Thẻ tính năng (Section Cards): Kính mờ sang trọng kèm viền ánh tím-xanh mảnh tinh tế
 	for _, card in ipairs(sectionCards) do
-		card.BackgroundColor3 = Color3.fromRGB(13, 15, 24)
+		card.BackgroundColor3 = Color3.fromRGB(13, 15, 25)
+		local luxStroke = card:FindFirstChild("ChilliLuxuryCardStroke")
 		for _, st in ipairs(card:GetChildren()) do
-			if st:IsA("UIStroke") then
+			if st:IsA("UIStroke") and st.Name ~= "ChilliLuxuryCardStroke" then
 				st.Enabled = false
 				st.Transparency = 1
-				pcall(function() st:Destroy() end)
 			end
 		end
-	end
-	for _, st in ipairs(win:GetDescendants()) do
-		if st:IsA("UIStroke") and st.Name ~= "ChilliProWindowStroke" and st.Parent and st.Parent.Name ~= "ChilliSenaSquircle" and st.Parent.Name ~= "ChilliTabToast" and st.Parent.Name ~= "ChilliMainChilliLogo" and st.Parent.Name ~= "ChilliUltraBadgePill" then
-			if st.Parent:FindFirstAncestorOfClass("ScrollingFrame") or st.Name == "ChilliCardGrad" then
-				st.Enabled = false
-				st.Transparency = 1
-			end
+		if not luxStroke then
+			luxStroke = mk("UIStroke", {
+				Name = "ChilliLuxuryCardStroke",
+				Thickness = 1.0,
+				Color = Color3.new(1, 1, 1),
+				Transparency = 0.52,
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+			}, card)
+			mk("UIGradient", { Rotation = 35, Color = ULTRA_CARD_GRAD }, luxStroke)
 		end
 	end
 
@@ -2702,7 +2726,7 @@ local function applySenaV7Architecture(win, titleLbl)
 			end
 		end
 		wp.ImageTransparency = math.clamp(0.16 + curT * 0.78, 0.16, 0.94)
-		local cardT = math.clamp(0.26 + curT * 0.58, 0.24, 0.88)
+		local cardT = math.clamp(0.24 + curT * 0.58, 0.22, 0.88)
 		for _, card in ipairs(sectionCards) do
 			if card and card.Parent then
 				card.BackgroundTransparency = cardT
@@ -2780,11 +2804,12 @@ local function applySenaV7Architecture(win, titleLbl)
 
 		if winStroke then
 			winStroke.Enabled = isOpen
-			winStroke.Transparency = isOpen and 0.18 or 1
+			winStroke.Transparency = isOpen and 0.08 or 1
 		end
 		if wp then wp.Visible = isOpen end
 		if mainChilliLogo then mainChilliLogo.Visible = isOpen end
 		if hdrGlowLine then hdrGlowLine.Visible = isOpen end
+		if sideGlowLine then sideGlowLine.Visible = isOpen end
 	end
 
 	State.SyncWindowFn = syncWindowVisibilityInstant
@@ -2829,52 +2854,48 @@ local function applySenaV7Architecture(win, titleLbl)
 		end
 	end
 
-	-- D. TÌM CHÍNH XÁC CỤM 6 NÚT TAB DỌC BÊN TRÁI (SIDEBAR) & NÂNG CẤP ĐÚNG CHUẨN V7 (7601.jpg)
+	-- D. TÌM CHÍNH XÁC CỤM 6 NÚT TAB DỌC BÊN TRÁI (SIDEBAR)
+	-- Lưu ý quan trọng: Trong Venyx, mỗi nút Tab trên Sidebar là một Frame (GuiObject) chứ không phải GuiButton!
 	local navButtons = {}
-
-	-- Cách 1: Tìm container chứa 5-8 nút ở cột bên trái của win
 	for _, d in ipairs(win:GetDescendants()) do
 		if d:IsA("GuiObject")
 		   and not d:IsA("ScrollingFrame")
 		   and not d:FindFirstAncestorOfClass("ScrollingFrame")
 		   and not d.Name:find("^Chilli") then
-			local count = 0
-			local chList = {}
-			for _, ch in ipairs(d:GetChildren()) do
-				if (ch:IsA("GuiButton") or ch:FindFirstChildOfClass("GuiButton") or ch:FindFirstChildOfClass("ImageLabel"))
-				   and ch.Visible
-				   and not ch.Name:find("^Chilli") then
-					count = count + 1
-					table.insert(chList, ch)
+			local dRelX = d.AbsolutePosition.X - winX
+			local dRelY = d.AbsolutePosition.Y - hy
+			if (dRelX >= -5 and dRelX < 95 and dRelY > 8)
+			   or (d.Position.X.Scale == 0 and d.Position.X.Offset >= 0 and d.Position.X.Offset < 65) then
+				local children = {}
+				for _, ch in ipairs(d:GetChildren()) do
+					if ch:IsA("GuiObject") and not ch.Name:find("^Chilli") and ch.Visible then
+						local cw, chH = ch.AbsoluteSize.X, ch.AbsoluteSize.Y
+						local sw, sh = ch.Size.X.Offset, ch.Size.Y.Offset
+						if (cw >= 16 and cw <= 95 and chH >= 16 and chH <= 95)
+						   or (sw >= 16 and sw <= 95 and sh >= 16 and sh <= 95) then
+							table.insert(children, ch)
+						end
+					end
+				end
+				if #children >= 5 and #children <= 8 then
+					table.sort(children, function(a, b)
+						if math.abs(a.AbsolutePosition.Y - b.AbsolutePosition.Y) > 2 then
+							return a.AbsolutePosition.Y < b.AbsolutePosition.Y
+						end
+						return a.LayoutOrder < b.LayoutOrder
+					end)
+					local spanY = children[#children].AbsolutePosition.Y - children[1].AbsolutePosition.Y
+					local spanX = math.abs(children[#children].AbsolutePosition.X - children[1].AbsolutePosition.X)
+					if spanY > 60 and spanX < 30 then
+						if d.ZIndex < 15 then d.ZIndex = 15 end
+						for _, nb in ipairs(children) do
+							if nb.ZIndex < 16 then nb.ZIndex = 16 end
+						end
+						navButtons = children
+						break
+					end
 				end
 			end
-			if count >= 5 and count <= 8 then
-				local dRelX = d.AbsolutePosition.X - winX
-				if dRelX >= -5 and dRelX <= 120 then
-					table.sort(chList, function(a, b) return a.AbsolutePosition.Y < b.AbsolutePosition.Y end)
-					navButtons = chList
-					break
-				end
-			end
-		end
-	end
-
-	-- Cách 2 (Dự phòng): Quét toàn bộ nút bấm ở dải mép trái win
-	if #navButtons < 5 then
-		local candidates = {}
-		for _, d in ipairs(win:GetDescendants()) do
-			if (d:IsA("ImageButton") or d:IsA("TextButton"))
-			   and not d.Name:find("^Chilli")
-			   and not d:FindFirstAncestorOfClass("ScrollingFrame") then
-				local dRelX = d.AbsolutePosition.X - winX
-				if dRelX >= -5 and dRelX <= 110 and d.AbsolutePosition.Y > (winY + 25) then
-					table.insert(candidates, d)
-				end
-			end
-		end
-		if #candidates >= 5 and #candidates <= 10 then
-			table.sort(candidates, function(a, b) return a.AbsolutePosition.Y < b.AbsolutePosition.Y end)
-			navButtons = candidates
 		end
 	end
 
@@ -2891,14 +2912,13 @@ local function applySenaV7Architecture(win, titleLbl)
 					local shine = sq:FindFirstChild("ChilliTabGlassShine")
 					local bColor = SIDEBAR_PALETTE[((i - 1) % #SIDEBAR_PALETTE) + 1]
 					if i == activeIdx then
-						-- Tab được chọn (như Tab 2 trong ảnh 7601.jpg): Sáng viền trắng/bạc dày 2px bao quanh
 						TweenService:Create(sq, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-							Size = UDim2.new(0, 36, 0, 36),
-							BackgroundTransparency = 0.05
+							Size = UDim2.new(0, 34, 0, 34),
+							BackgroundTransparency = 0.04
 						}):Play()
 						if st then
 							TweenService:Create(st, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-								Thickness = 2.2,
+								Thickness = 2.0,
 								Color = Color3.fromRGB(255, 255, 255),
 								Transparency = 0.05
 							}):Play()
@@ -2911,19 +2931,18 @@ local function applySenaV7Architecture(win, titleLbl)
 							}):Play()
 						end
 						if shine then
-							shine.BackgroundTransparency = 0.74
+							shine.BackgroundTransparency = 0.72
 						end
 					else
-						-- Tab chưa chọn (như Tab 1, 3, 4, 5, 6 trong 7601.jpg): Màu chuẩn V7 êm ái
 						TweenService:Create(sq, TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-							Size = UDim2.new(0, 32, 0, 32),
-							BackgroundTransparency = 0.15
+							Size = UDim2.new(0, 30, 0, 30),
+							BackgroundTransparency = 0.14
 						}):Play()
 						if st then
 							TweenService:Create(st, TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-								Thickness = 1.0,
+								Thickness = 1.1,
 								Color = bColor,
-								Transparency = 0.55
+								Transparency = 0.45
 							}):Play()
 						end
 						if actBar then
@@ -2933,7 +2952,7 @@ local function applySenaV7Architecture(win, titleLbl)
 							}):Play()
 						end
 						if shine then
-							shine.BackgroundTransparency = 0.88
+							shine.BackgroundTransparency = 0.86
 						end
 					end
 				end
@@ -2961,11 +2980,11 @@ local function applySenaV7Architecture(win, titleLbl)
 				Position = UDim2.new(0.5, 20, 0, -32),
 				Size = UDim2.new(0, 248, 0, 30),
 				BackgroundColor3 = Color3.fromRGB(15, 17, 26),
-				BackgroundTransparency = 0.12,
+				BackgroundTransparency = 0.10,
 				BorderSizePixel = 0,
 				ClipsDescendants = true,
 				Active = false,
-				ZIndex = (win.ZIndex or 2) + 20
+				ZIndex = (win.ZIndex or 2) + 25
 			}, win)
 			mk("UICorner", { CornerRadius = UDim.new(1, 0) }, toast)
 			local tStroke = mk("UIStroke", { Thickness = 1.4, Color = badgeColor, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, toast)
@@ -2984,18 +3003,18 @@ local function applySenaV7Architecture(win, titleLbl)
 			local tGrad = mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, tLbl)
 			table.insert(State.ActiveGradients, tGrad)
 
-			TweenService:Create(toast, TweenInfo.new(0.24, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+			TweenService:Create(toast, TweenInfo.new(0.22, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 				Position = UDim2.new(0.5, 20, 0, 8)
 			}):Play()
 
-			task.delay(1.3, function()
+			task.delay(1.25, function()
 				if toast and toast.Parent then
-					local outTween = TweenService:Create(toast, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+					local outTween = TweenService:Create(toast, TweenInfo.new(0.22, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
 						Position = UDim2.new(0.5, 20, 0, -32),
 						BackgroundTransparency = 1
 					})
-					TweenService:Create(tLbl, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { TextTransparency = 1 }):Play()
-					TweenService:Create(tStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Transparency = 1 }):Play()
+					TweenService:Create(tLbl, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { TextTransparency = 1 }):Play()
+					TweenService:Create(tStroke, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Transparency = 1 }):Play()
 					outTween:Play()
 					outTween.Completed:Connect(function() toast:Destroy() end)
 				end
@@ -3004,6 +3023,7 @@ local function applySenaV7Architecture(win, titleLbl)
 
 		for idx, btn in ipairs(navButtons) do
 			btn.Visible = true
+			if btn.ZIndex < 16 then btn.ZIndex = 16 end
 			local badgeColor = SIDEBAR_PALETTE[((idx - 1) % #SIDEBAR_PALETTE) + 1]
 			local gradPair = SIDEBAR_GRAD_PAIRS[((idx - 1) % #SIDEBAR_GRAD_PAIRS) + 1]
 
@@ -3013,17 +3033,17 @@ local function applySenaV7Architecture(win, titleLbl)
 					Name = "ChilliSenaSquircle",
 					AnchorPoint = Vector2.new(0.5, 0.5),
 					Position = UDim2.fromScale(0.5, 0.5),
-					Size = UDim2.new(0, 32, 0, 32),
-					BackgroundColor3 = badgeColor,
-					BackgroundTransparency = 0.10,
+					Size = UDim2.new(0, 30, 0, 30),
+					BackgroundColor3 = Color3.new(1, 1, 1),
+					BackgroundTransparency = 0.12,
 					BorderSizePixel = 0,
 					Active = false,
-					ZIndex = (btn.ZIndex or 1) + 1
+					ZIndex = btn.ZIndex + 1
 				}, btn)
-				mk("UICorner", { CornerRadius = UDim.new(0, 9) }, squircle)
+				mk("UICorner", { CornerRadius = UDim.new(0, 8) }, squircle)
 				mk("UIGradient", {
 					Name = "SquircleGrad",
-					Rotation = 90,
+					Rotation = 45,
 					Color = ColorSequence.new({
 						ColorSequenceKeypoint.new(0, gradPair[1]),
 						ColorSequenceKeypoint.new(1, gradPair[2])
@@ -3031,9 +3051,9 @@ local function applySenaV7Architecture(win, titleLbl)
 				}, squircle)
 				mk("UIStroke", {
 					Name = "SquircleStroke",
-					Thickness = (idx == 2) and 2.0 or 1.0,
-					Color = (idx == 2) and Color3.fromRGB(255, 255, 255) or badgeColor,
-					Transparency = (idx == 2) and 0.05 or 0.55,
+					Thickness = 1.2,
+					Color = badgeColor,
+					Transparency = 0.45,
 					ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 				}, squircle)
 
@@ -3056,7 +3076,7 @@ local function applySenaV7Architecture(win, titleLbl)
 					Position = UDim2.new(0, -4, 0.5, 0),
 					Size = UDim2.new(0, 3.5, 0, 16),
 					BackgroundColor3 = Color3.new(1, 1, 1),
-					BackgroundTransparency = (idx == 2) and 0 or 1,
+					BackgroundTransparency = 1,
 					BorderSizePixel = 0,
 					Active = false,
 					ZIndex = squircle.ZIndex + 3
@@ -3064,22 +3084,23 @@ local function applySenaV7Architecture(win, titleLbl)
 				mk("UICorner", { CornerRadius = UDim.new(1, 0) }, activeBar)
 			else
 				squircle.Visible = true
-				squircle.BackgroundColor3 = badgeColor
+				squircle.ZIndex = btn.ZIndex + 1
 			end
 
-			-- Đảm bảo toàn bộ icon gốc hiển thị rõ nét trên squircle
+			-- Nâng ZIndex cho TẤT CẢ phần tử con bên trong btn (bao gồm cả Frame vẽ icon vector lẫn ImageLabel) để icon luôn nổi rõ trên nền Squircle!
 			for _, ch in ipairs(btn:GetDescendants()) do
 				if ch ~= squircle and not ch:IsDescendantOf(squircle) and ch.Name ~= "ChilliStealTabIcon" then
+					if ch:IsA("GuiObject") then
+						ch.ZIndex = squircle.ZIndex + 4
+					end
 					if ch:IsA("ImageLabel") or ch:IsA("ImageButton") then
 						ch.Visible = true
-						ch.ZIndex = squircle.ZIndex + 4
 						ch.ImageColor3 = Color3.new(1, 1, 1)
 						if idx ~= 2 then
 							ch.ImageTransparency = 0
 						end
 					elseif ch:IsA("TextLabel") or ch:IsA("TextButton") then
 						ch.Visible = true
-						ch.ZIndex = squircle.ZIndex + 4
 						ch.TextColor3 = Color3.new(1, 1, 1)
 						if idx ~= 2 then
 							ch.TextTransparency = 0
@@ -3088,12 +3109,19 @@ local function applySenaV7Architecture(win, titleLbl)
 				end
 			end
 
-			-- Tab 2: Phóng to ảnh quả trứng (91536384271341) lên kích thước 0.84 cân đối hoàn hảo như V7 (7601.jpg)
+			-- Tab 2: Phóng to ảnh quả trứng kỳ lân (91536384271341) lên kích thước 0.84 cân đối hoàn hảo như V7 (7601.jpg)
 			if idx == 2 then
 				for _, desc in ipairs(btn:GetDescendants()) do
 					if desc ~= squircle and not desc:IsDescendantOf(squircle) and desc.Name ~= "ChilliStealTabIcon" and not desc:IsA("UICorner") and not desc:IsA("UIStroke") then
 						if desc:IsA("ImageLabel") or desc:IsA("ImageButton") then
 							desc.ImageTransparency = 1
+						elseif desc:IsA("TextLabel") or desc:IsA("TextButton") then
+							desc:SetAttribute("__HiddenVxLogo", true)
+							desc.TextTransparency = 1
+						elseif desc:IsA("Frame") then
+							desc.BackgroundTransparency = 1
+							local st = desc:FindFirstChildOfClass("UIStroke")
+							if st then st.Transparency = 1 end
 						end
 					end
 				end
@@ -3132,22 +3160,20 @@ local function applySenaV7Architecture(win, titleLbl)
 					playModernTabSound()
 					pcall(updateTabActiveStyles, idx)
 
-					-- 1. Spring Bounce nảy đàn hồi chuẩn V7
 					TweenService:Create(squircle, TweenInfo.new(0.07, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-						Size = UDim2.new(0, 28, 0, 28)
+						Size = UDim2.new(0, 25, 0, 25)
 					}):Play()
 					task.delay(0.07, function()
 						TweenService:Create(squircle, TweenInfo.new(0.16, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-							Size = UDim2.new(0, 36, 0, 36)
+							Size = UDim2.new(0, 34, 0, 34)
 						}):Play()
 					end)
 
-					-- 2. Shockwave Ripple lan tỏa ánh sáng
 					local ripple = mk("Frame", {
 						Name = "ChilliTabRipple",
 						AnchorPoint = Vector2.new(0.5, 0.5),
 						Position = UDim2.fromScale(0.5, 0.5),
-						Size = UDim2.new(0, 26, 0, 26),
+						Size = UDim2.new(0, 24, 0, 24),
 						BackgroundColor3 = badgeColor,
 						BackgroundTransparency = 0.2,
 						BorderSizePixel = 0,
@@ -3158,20 +3184,19 @@ local function applySenaV7Architecture(win, titleLbl)
 					local ripStroke = mk("UIStroke", { Thickness = 1.8, Color = Color3.new(1, 1, 1), Transparency = 0.2 }, ripple)
 
 					local rTween = TweenService:Create(ripple, TweenInfo.new(0.32, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-						Size = UDim2.new(0, 52, 0, 52),
+						Size = UDim2.new(0, 50, 0, 50),
 						BackgroundTransparency = 1
 					})
 					TweenService:Create(ripStroke, TweenInfo.new(0.32, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Transparency = 1 }):Play()
 					rTween:Play()
 					rTween.Completed:Connect(function() ripple:Destroy() end)
 
-					-- 3. Hiện huy hiệu thông báo mini của Tab ở đầu trang
 					showTabToast(idx, badgeColor)
 				end
 
 				local hookTargets = { btn }
 				for _, desc in ipairs(btn:GetDescendants()) do
-					if desc:IsA("GuiButton") then
+					if desc:IsA("GuiObject") and not desc.Name:find("^Chilli") then
 						table.insert(hookTargets, desc)
 					end
 				end
