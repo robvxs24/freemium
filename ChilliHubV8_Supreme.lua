@@ -275,49 +275,59 @@ return (clean:find("fps", 1, true) ~= nil and (clean:find("ms", 1, true) ~= nil 
 end
 
 local function ensureStandaloneNeonFpsGui()
--- BỎ HOÀN TOÀN THANH FPS THEO YÊU CẦU: Xóa sạch mọi thanh FPS lơ lửng và thanh FPS ghim
 pcall(function()
 for _, root in ipairs(getScanRoots()) do
 local oldG = root:FindFirstChild("ChilliV8_NeonFpsPillGui")
 if oldG then oldG:Destroy() end
-for _, ch in ipairs(root:GetChildren()) do
-if ch.Name == "RobloxGui" then
-local rgOld = ch:FindFirstChild("ChilliV8_NeonFpsPillGui")
-if rgOld then rgOld:Destroy() end
-end
-end
-end
-end)
-pcall(function()
-if State.ActiveMainWin and State.ActiveMainWin.Parent then
-for _, p in ipairs(State.ActiveMainWin:GetDescendants()) do
-if p.Name == "ChilliPinnedFpsPill" or p.Name == "ChilliFakeFpsOverlay" then
-p:Destroy()
-end
-end
 end
 end)
 return nil
 end
 
+local function formatFpsPingText()
+return string.format("%d FPS  -  %d ms", currentFakeFps, currentFakeMs)
+end
+
 local function hookFps(lbl)
-if not lbl then return end
+if not lbl or not (lbl:IsA("TextLabel") or lbl:IsA("TextButton")) then return end
+State.TrackedFpsLabels[lbl] = true
 pcall(function()
-lbl.Visible = false
-lbl.TextTransparency = 1
 local p = lbl.Parent
 if p and p:IsA("GuiObject") then
-p.Visible = false
-p.BackgroundTransparency = 1
-for _, ch in ipairs(p:GetDescendants()) do
-if ch:IsA("TextLabel") or ch:IsA("TextButton") then
+p.Visible = true
+for _, ch in ipairs(p:GetChildren()) do
+if (ch:IsA("TextLabel") or ch:IsA("TextButton")) and ch ~= lbl then
 ch.Visible = false
 ch.TextTransparency = 1
-elseif ch:IsA("UIStroke") then
-ch.Transparency = 1
-ch.Enabled = false
 end
 end
+end
+lbl:SetAttribute("__UpdatingFps", true)
+lbl.RichText = false
+lbl.Visible = true
+lbl.TextTransparency = 0
+lbl.Font = Enum.Font.GothamBold
+lbl.TextColor3 = GREEN_COLOR
+lbl.Text = formatFpsPingText()
+lbl:SetAttribute("__UpdatingFps", false)
+
+if lbl:GetAttribute("__FpsHookSession") ~= SID then
+lbl:SetAttribute("__FpsHookSession", SID)
+lbl:GetPropertyChangedSignal("Text"):Connect(function()
+if not isAlive() or lbl:GetAttribute("__UpdatingFps") then return end
+lbl:SetAttribute("__UpdatingFps", true)
+lbl.TextColor3 = GREEN_COLOR
+lbl.Text = formatFpsPingText()
+lbl:SetAttribute("__UpdatingFps", false)
+end)
+lbl:GetPropertyChangedSignal("TextColor3"):Connect(function()
+if not isAlive() or lbl:GetAttribute("__UpdatingFps") then return end
+if lbl.TextColor3 ~= GREEN_COLOR then
+lbl:SetAttribute("__UpdatingFps", true)
+lbl.TextColor3 = GREEN_COLOR
+lbl:SetAttribute("__UpdatingFps", false)
+end
+end)
 end
 end)
 end
@@ -349,10 +359,29 @@ end
 end
 end
 
-task.defer(function()
-if isAlive() then
+-- Vòng lặp task.spawn cập nhật ngẫu nhiên mỗi 1 giây (FPS: 80-120, Ping: 15-80ms), toàn bộ chữ màu xanh lá RGB(50, 255, 100)
+task.spawn(function()
 pcall(ensureStandaloneNeonFpsGui)
 pcall(scanForFpsPills)
+while isAlive() do
+currentFakeFps = math.random(80, 120)
+currentFakeMs = math.random(15, 80)
+local txtNow = formatFpsPingText()
+for lbl in pairs(State.TrackedFpsLabels) do
+if lbl and lbl.Parent then
+pcall(function()
+lbl:SetAttribute("__UpdatingFps", true)
+lbl.Visible = true
+lbl.TextTransparency = 0
+lbl.TextColor3 = GREEN_COLOR
+lbl.Text = txtNow
+lbl:SetAttribute("__UpdatingFps", false)
+end)
+else
+State.TrackedFpsLabels[lbl] = nil
+end
+end
+task.wait(1)
 end
 end)
 local FastCache = {}
@@ -1632,7 +1661,7 @@ else
 pcall(ch.Destroy, ch)
 end
 elseif ch:IsA("Frame") or ch:IsA("ImageLabel") or ch:IsA("ImageButton") then
-if ch ~= statusLbl and ch.Name ~= "IslandExpandHint" then
+if ch ~= statusLbl and ch.Name ~= "IslandExpandHint" and ch.Name ~= "LiquidGlassTopSpecular" then
 ch.Visible = false
 end
 end
@@ -1650,6 +1679,7 @@ Transparency = LIQUID_GLASS_TRANS
 glassGrad.Rotation = 90
 glassGrad.Color = LIQUID_GLASS_COLOR
 glassGrad.Transparency = LIQUID_GLASS_TRANS
+
 if pill:GetAttribute("__LockedIslandBg") ~= SID then
 pill:SetAttribute("__LockedIslandBg", SID)
 pill:GetPropertyChangedSignal("BackgroundColor3"):Connect(function()
@@ -1673,6 +1703,7 @@ pill.Position = State.IslandUserPos or u2(0.5, 0, 0, 6)
 end
 end)
 end
+
 local pillLayout = pill:FindFirstChildOfClass("UIListLayout")
 if not pillLayout then
 pillLayout = mk("UIListLayout", {
@@ -1689,11 +1720,13 @@ pillLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 pillLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 pillLayout.Padding = UDim.new(0, 8)
 end
+
 local pad = pill:FindFirstChildOfClass("UIPadding") or mk("UIPadding", {}, pill)
 pad.PaddingLeft = UDim.new(0, 10)
 pad.PaddingRight = UDim.new(0, 10)
 pad.PaddingTop = UDim.new(0, 2)
 pad.PaddingBottom = UDim.new(0, 2)
+
 local leftBadge = pill:FindFirstChild("IslandLogoBadge")
 local lbStroke = nil
 if not leftBadge then
@@ -1701,7 +1734,7 @@ leftBadge = mk("Frame", { Name = "IslandLogoBadge", LayoutOrder = 1, Size = u2(0
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, leftBadge)
 local lbImg = mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(1, 1), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Crop, Active = false, ZIndex = 10001 }, leftBadge)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, lbImg)
-lbStroke = mk("UIStroke", { Thickness = 1.2, Color = c3(65, 135, 245), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, lbImg)
+lbStroke = mk("UIStroke", { Thickness = 1.2, Color = c3(65, 195, 255), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, lbImg)
 else
 leftBadge.Size = u2(0, 28, 0, 28)
 leftBadge.BackgroundColor3 = c3(0, 0, 0)
@@ -1715,22 +1748,24 @@ if not lbImg:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadiu
 lbStroke = lbImg:FindFirstChildOfClass("UIStroke")
 end
 end
+
 local hint = pill:FindFirstChild("IslandExpandHint")
 if not hint then
-hint = mk("TextLabel", { Name = "IslandExpandHint", LayoutOrder = 3, Size = u2(0, 24, 0, 22), BackgroundColor3 = c3(20, 28, 46), BackgroundTransparency = 0.22, BorderSizePixel = 0, Text = "▼", Font = Enum.Font.GothamBlack, TextSize = 10, TextColor3 = c3(195, 230, 255), LayoutOrder = 99, Active = true, ZIndex = 10000 }, pill)
+hint = mk("TextLabel", { Name = "IslandExpandHint", LayoutOrder = 3, Size = u2(0, 24, 0, 22), BackgroundColor3 = c3(22, 32, 54), BackgroundTransparency = 0.18, BorderSizePixel = 0, Text = "▼", Font = Enum.Font.GothamBlack, TextSize = 10, TextColor3 = c3(205, 238, 255), LayoutOrder = 99, Active = true, ZIndex = 10000 }, pill)
 else
 hint.Size = u2(0, 24, 0, 22)
-hint.BackgroundColor3 = c3(20, 28, 46)
-hint.BackgroundTransparency = 0.22
+hint.BackgroundColor3 = c3(22, 32, 54)
+hint.BackgroundTransparency = 0.18
 hint.Text = "▼"
 hint.Font = Enum.Font.GothamBlack
 hint.TextSize = 10
-hint.TextColor3 = c3(195, 230, 255)
+hint.TextColor3 = c3(205, 238, 255)
 end
 if not hint:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, hint) end
-local hStroke = hint:FindFirstChildOfClass("UIStroke") or mk("UIStroke", { Thickness = 1.1, Color = c3(135, 205, 255), Transparency = 0.32 }, hint)
-hStroke.Color = c3(135, 205, 255)
-hStroke.Transparency = 0.32
+local hStroke = hint:FindFirstChildOfClass("UIStroke") or mk("UIStroke", { Thickness = 1.1, Color = c3(135, 215, 255), Transparency = 0.25 }, hint)
+hStroke.Color = c3(135, 215, 255)
+hStroke.Transparency = 0.25
+
 local expTaskLbl = nil
 local function syncStatus(fromSaved)
 if statusLbl:GetAttribute("__Updating") then return end
@@ -1756,6 +1791,7 @@ statusLbl:SetAttribute("__Updating", false)
 end
 State.RefreshIslandCallback = function() syncStatus(true) end
 syncStatus(false)
+
 if statusLbl:GetAttribute("__LockedStatusColor") ~= SID then
 statusLbl:SetAttribute("__LockedStatusColor", SID)
 statusLbl:GetPropertyChangedSignal("TextColor3"):Connect(function()
@@ -1774,6 +1810,7 @@ syncStatus(false)
 end
 end)
 end
+
 local stStroke = statusLbl:FindFirstChildOfClass("UIStroke") or mk("UIStroke", { Thickness = 1.15, Color = c3(8, 12, 22), Transparency = 0.22 }, statusLbl)
 stStroke.Thickness = 1.15
 stStroke.Color = c3(8, 12, 22)
@@ -1781,6 +1818,7 @@ stStroke.Transparency = 0.22
 local tg = statusLbl:FindFirstChild("TextRainbow")
 if tg then tg:Destroy() end
 statusLbl.TextColor3 = Color3.new(1, 1, 1)
+
 local exp = venyxGui:FindFirstChild("ChilliV5_ExpandedIsland")
 if statusLbl:GetAttribute("__IslandSession") == SID and exp then return end
 statusLbl:SetAttribute("__IslandSession", SID)
@@ -1791,6 +1829,7 @@ pcall(d.Destroy, d)
 end
 end
 end
+
 pill.Parent = venyxGui
 pill.AnchorPoint = v2(0.5, 0)
 pill.ZIndex = 9999
@@ -1800,15 +1839,32 @@ statusLbl.Active = false
 hint.Active = true
 pill.Position = State.IslandUserPos or u2(0.5, 0, 0, 6)
 if not pill:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, pill) end
-local ps = pill:FindFirstChild("IslandStroke") or mk("UIStroke", { Name = "IslandStroke", Thickness = 1.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = c3(55, 200, 255), Transparency = 0.14 }, pill)
+local ps = pill:FindFirstChild("IslandStroke") or mk("UIStroke", { Name = "IslandStroke", Thickness = 1.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = c3(55, 205, 255), Transparency = 0.12 }, pill)
 local oldPsGrad = ps:FindFirstChildOfClass("UIGradient")
 if oldPsGrad then oldPsGrad:Destroy() end
-ps.Color = c3(55, 200, 255)
+ps.Color = c3(55, 205, 255)
 ps.Thickness = 1.5
-ps.Transparency = 0.14
-local COLLAPSED_EXP_H = 162
-local OPEN_NOTE_EXP_H = 262
-exp = mk("Frame", { Name = "ChilliV5_ExpandedIsland", AnchorPoint = v2(0.5, 0), Position = pill.Position, Size = u2(0, 308, 0, COLLAPSED_EXP_H), BackgroundColor3 = c3(10, 12, 20), BorderSizePixel = 0, Visible = false, Active = true, ClipsDescendants = true, ZIndex = 10000 }, venyxGui)
+ps.Transparency = 0.12
+
+-- ============================================================================
+-- DYNAMIC ISLAND LIQUID GLASS PANEL & MODERN BUTTONS
+-- ============================================================================
+local COLLAPSED_EXP_H = 166
+local OPEN_NOTE_EXP_H = 266
+exp = mk("Frame", {
+Name = "ChilliV5_ExpandedIsland",
+AnchorPoint = v2(0.5, 0),
+Position = pill.Position,
+Size = u2(0, 312, 0, COLLAPSED_EXP_H),
+BackgroundColor3 = Color3.new(1, 1, 1),
+BackgroundTransparency = 0.05,
+BorderSizePixel = 0,
+Visible = false,
+Active = true,
+ClipsDescendants = true,
+ZIndex = 10000
+}, venyxGui)
+
 if pill:GetAttribute("__LockedIslandVis") ~= SID then
 pill:SetAttribute("__LockedIslandVis", SID)
 pill:GetPropertyChangedSignal("Visible"):Connect(function()
@@ -1817,69 +1873,101 @@ pill.Visible = true
 end
 end)
 end
-mk("UICorner", { CornerRadius = UDim.new(0, 18) }, exp)
-local expStroke = mk("UIStroke", { Thickness = 1.5, Color = c3(65, 125, 225), Transparency = 0.16, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, exp)
-mk("ImageLabel", { Name = "IslandCosmicBg", Position = u2(0, 0, 0, 0), Size = u2(1, 0, 0, 42), BackgroundTransparency = 1, Image = HEADER_BAR_IMG_ID, ImageRectOffset = v2(15, 60), ImageRectSize = v2(650, 170), ScaleType = Enum.ScaleType.Stretch, ImageTransparency = 0.22, Active = false, ZIndex = 10000 }, exp)
-local expLogo = mk("Frame", { Position = u2(0, 10, 0, 7), Size = u2(0, 24, 0, 24), BackgroundColor3 = c3(0, 0, 0), BorderSizePixel = 0, ClipsDescendants = true, Active = false, ZIndex = 10002 }, exp)
+
+mk("UICorner", { CornerRadius = UDim.new(0, 20) }, exp)
+mk("UIGradient", {
+Name = "LiquidGlassPanelGrad",
+Rotation = 90,
+Color = ColorSequence.new({
+csk(0.00, c3(34, 48, 78)),
+csk(0.22, c3(16, 22, 38)),
+csk(0.78, c3(10, 14, 24)),
+csk(1.00, c3(22, 34, 58))
+}),
+Transparency = NumberSequence.new({
+NumberSequenceKeypoint.new(0.00, 0.06),
+NumberSequenceKeypoint.new(0.30, 0.10),
+NumberSequenceKeypoint.new(1.00, 0.06)
+})
+}, exp)
+
+local expStroke = mk("UIStroke", { Thickness = 1.6, Color = c3(85, 195, 255), Transparency = 0.14, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, exp)
+mk("Frame", {
+Name = "LiquidGlassTopSpecular",
+AnchorPoint = v2(0.5, 0),
+Position = u2(0.5, 0, 0, 1),
+Size = u2(1, -16, 0, 18),
+BackgroundColor3 = Color3.new(1, 1, 1),
+BackgroundTransparency = 0.78,
+BorderSizePixel = 0,
+Active = false,
+ZIndex = 10001
+}, exp)
+mk("ImageLabel", { Name = "IslandCosmicBg", Position = u2(0, 0, 0, 0), Size = u2(1, 0, 0, 42), BackgroundTransparency = 1, Image = HEADER_BAR_IMG_ID, ImageRectOffset = v2(15, 60), ImageRectSize = v2(650, 170), ScaleType = Enum.ScaleType.Stretch, ImageTransparency = 0.28, Active = false, ZIndex = 10000 }, exp)
+
+local expLogo = mk("Frame", { Position = u2(0, 10, 0, 7), Size = u2(0, 26, 0, 26), BackgroundColor3 = c3(0, 0, 0), BorderSizePixel = 0, ClipsDescendants = true, Active = false, ZIndex = 10002 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, expLogo)
-mk("UIStroke", { Thickness = 1.2, Color = c3(80, 130, 235) }, expLogo)
+mk("UIStroke", { Thickness = 1.2, Color = c3(95, 195, 255) }, expLogo)
 local expLogoImg = mk("ImageLabel", { AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(1, 1), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Crop, Active = false, ZIndex = 10003 }, expLogo)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, expLogoImg)
-local expTitle = mk("TextLabel", { Name = "ChilliIslandTitle", Size = u2(0, 180, 0, 24), Position = u2(0, 40, 0, 7), BackgroundTransparency = 1, Text = "Chilli Hub V8", Font = Enum.Font.GothamBold, TextSize = 14.5, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 10002 }, exp)
-mk("UIStroke", { Thickness = 1.2, Color = c3(235, 55, 25), Transparency = 0.15 }, expTitle)
-local colBtn = mk("TextButton", { Size = u2(0, 26, 0, 22), Position = u2(1, -34, 0, 8), BackgroundColor3 = c3(22, 24, 36), BorderSizePixel = 0, Text = "▲", Font = Enum.Font.GothamBold, TextSize = 10, TextColor3 = c3(160, 205, 255), ZIndex = 10003 }, exp)
-mk("UICorner", { CornerRadius = UDim.new(1, 0) }, colBtn)
 
--- 3. NÂNG CẤP HIỆU ỨNG DYNAMIC ISLAND ĐỘC LẠ KHI BẤM VÀO (MINI ISLAND MORPH + NEON GLOW + GRADIENT BACKGROUND + AUTO SHRINK)
+local expTitle = mk("TextLabel", { Name = "ChilliIslandTitle", Size = u2(0, 190, 0, 26), Position = u2(0, 42, 0, 7), BackgroundTransparency = 1, Text = "Chilli Hub V8", Font = Enum.Font.GothamBlack, TextSize = 16, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 10002 }, exp)
+mk("UIStroke", { Thickness = 1.3, Color = c3(235, 55, 25), Transparency = 0.12 }, expTitle)
+
+local colBtn = mk("TextButton", { Size = u2(0, 28, 0, 22), Position = u2(1, -36, 0, 8), BackgroundColor3 = c3(26, 36, 58), BackgroundTransparency = 0.15, BorderSizePixel = 0, Text = "▲", Font = Enum.Font.GothamBold, TextSize = 10, TextColor3 = c3(195, 235, 255), ZIndex = 10003 }, exp)
+mk("UICorner", { CornerRadius = UDim.new(1, 0) }, colBtn)
+mk("UIStroke", { Thickness = 1, Color = c3(120, 200, 255), Transparency = 0.35 }, colBtn)
+
 local ISLAND_CYCLE_STATES = {
 {
 text = "Đang rảnh",
 icon = "⚡",
-stroke = c3(55, 200, 255),
-bg = c3(16, 26, 48),
+stroke = c3(55, 210, 255),
+bg = c3(18, 30, 54),
 grad = ColorSequence.new({
-csk(0.00, c3(45, 130, 245)),
-csk(0.45, c3(20, 38, 72)),
-csk(1.00, c3(10, 16, 32))
+csk(0.00, c3(65, 155, 255)),
+csk(0.35, c3(22, 42, 78)),
+csk(1.00, c3(12, 20, 38))
 })
 },
 {
 text = "Tự động cướp",
 icon = "🔥",
-stroke = c3(255, 105, 45),
-bg = c3(46, 18, 20),
+stroke = c3(255, 110, 45),
+bg = c3(48, 20, 22),
 grad = ColorSequence.new({
-csk(0.00, c3(235, 70, 45)),
-csk(0.45, c3(72, 22, 24)),
-csk(1.00, c3(26, 10, 14))
+csk(0.00, c3(245, 80, 45)),
+csk(0.35, c3(78, 24, 26)),
+csk(1.00, c3(28, 12, 16))
 })
 },
 {
 text = "Hoàn thành",
 icon = "✅",
-stroke = c3(45, 255, 145),
-bg = c3(14, 42, 28),
+stroke = c3(50, 255, 145),
+bg = c3(16, 46, 30),
 grad = ColorSequence.new({
-csk(0.00, c3(35, 195, 110)),
-csk(0.45, c3(16, 58, 38)),
-csk(1.00, c3(8, 24, 16))
+csk(0.00, c3(45, 210, 120)),
+csk(0.35, c3(18, 62, 40)),
+csk(1.00, c3(10, 26, 18))
 })
 }
 }
+
 local curIslandStateIdx = 1
 local miniIslandAnimToken = 0
-local taskBox = mk("TextButton", { Name = "IslandTaskCycleBtn", Size = u2(1, -20, 0, 24), Position = u2(0, 10, 0, 36), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.06, BorderSizePixel = 0, Text = "", AutoButtonColor = false, ZIndex = 10001 }, exp)
+local taskBox = mk("TextButton", { Name = "IslandTaskCycleBtn", Size = u2(1, -20, 0, 25), Position = u2(0, 10, 0, 36), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.05, BorderSizePixel = 0, Text = "", AutoButtonColor = false, ZIndex = 10001 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, taskBox)
 local taskBoxGrad = mk("UIGradient", {
 Name = "TaskBoxStateGrad",
 Rotation = 90,
 Color = ISLAND_CYCLE_STATES[1].grad
 }, taskBox)
-local taskBoxStroke = mk("UIStroke", { Thickness = 1.3, Color = c3(55, 200, 255), Transparency = 0.18, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, taskBox)
-expTaskLbl = mk("TextLabel", { Size = u2(1, -16, 1, 0), Position = u2(0, 8, 0, 0), BackgroundTransparency = 1, Text = "⚡ " .. (statusLbl.Text or "Đang rảnh"), Font = Enum.Font.GothamBold, TextSize = 10.5, TextColor3 = Color3.new(1, 1, 1), TextTruncate = Enum.TextTruncate.AtEnd, ZIndex = 10002 }, taskBox)
+local taskBoxStroke = mk("UIStroke", { Thickness = 1.3, Color = c3(55, 210, 255), Transparency = 0.16, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, taskBox)
+expTaskLbl = mk("TextLabel", { Size = u2(1, -16, 1, 0), Position = u2(0, 8, 0, 0), BackgroundTransparency = 1, Text = "⚡ " .. (statusLbl.Text or "Đang rảnh"), Font = Enum.Font.GothamBold, TextSize = 10.8, TextColor3 = Color3.new(1, 1, 1), TextTruncate = Enum.TextTruncate.AtEnd, ZIndex = 10002 }, taskBox)
 
+-- Hàm chuyển đổi trạng thái Dynamic Island (Tween 0.12s siêu nhanh, đổi viền phát sáng, cập nhật trạng thái rồi tự thu nhỏ)
 local function cycleMiniIslandState()
--- 1. Kích hoạt hiệu ứng âm thanh click dứt khoát
 playIslandSfx("tap")
 curIslandStateIdx = (curIslandStateIdx % #ISLAND_CYCLE_STATES) + 1
 local st = ISLAND_CYCLE_STATES[curIslandStateIdx]
@@ -1896,125 +1984,70 @@ statusLbl.Text = st.icon .. " " .. st.text
 statusLbl:SetAttribute("__Updating", false)
 end
 
--- 2. Mở rộng kích thước mượt mà (Mini Island Tween), đổi viền phát sáng (Neon Glow) & đổi nền Gradient theo trạng thái
+local fastExpandInfo = TweenInfo.new(0.12, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
 if glassGrad and glassGrad.Parent then
 glassGrad.Color = st.grad
 end
 if pill and pill.Parent then
-TweenService:Create(pill, TweenInfo.new(0.22, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-Size = u2(0, 52, 0, 46)
-}):Play()
+TweenService:Create(pill, fastExpandInfo, { Size = u2(0, 42, 0, 44) }):Play()
 end
 if pad and pad.Parent then
-TweenService:Create(pad, TweenInfo.new(0.22, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-PaddingLeft = UDim.new(0, 24),
-PaddingRight = UDim.new(0, 24)
-}):Play()
+TweenService:Create(pad, fastExpandInfo, { PaddingLeft = UDim.new(0, 22), PaddingRight = UDim.new(0, 22) }):Play()
 end
 if ps and ps.Parent then
-TweenService:Create(ps, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-Color = st.stroke,
-Thickness = 2.6,
-Transparency = 0
-}):Play()
+TweenService:Create(ps, fastExpandInfo, { Color = st.stroke, Thickness = 2.5, Transparency = 0 }):Play()
 end
 if leftBadge and leftBadge.Parent then
-TweenService:Create(leftBadge, TweenInfo.new(0.22, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-Size = u2(0, 32, 0, 32)
-}):Play()
+TweenService:Create(leftBadge, fastExpandInfo, { Size = u2(0, 31, 0, 31) }):Play()
 end
 if lbStroke and lbStroke.Parent then
-TweenService:Create(lbStroke, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-Color = st.stroke,
-Thickness = 1.8
-}):Play()
+TweenService:Create(lbStroke, fastExpandInfo, { Color = st.stroke, Thickness = 1.8 }):Play()
 end
 if hStroke and hStroke.Parent then
-TweenService:Create(hStroke, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-Color = st.stroke,
-Transparency = 0.08
-}):Play()
+TweenService:Create(hStroke, fastExpandInfo, { Color = st.stroke, Transparency = 0.08 }):Play()
 end
 
 if taskBoxGrad and taskBoxGrad.Parent then
 taskBoxGrad.Color = st.grad
 end
 if taskBox and taskBox.Parent then
-TweenService:Create(taskBox, TweenInfo.new(0.22, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-Size = u2(1, -8, 0, 30),
-Position = u2(0, 4, 0, 33),
-BackgroundTransparency = 0
-}):Play()
+TweenService:Create(taskBox, fastExpandInfo, { Size = u2(1, -10, 0, 29), Position = u2(0, 5, 0, 34), BackgroundTransparency = 0 }):Play()
 end
 if taskBoxStroke and taskBoxStroke.Parent then
-TweenService:Create(taskBoxStroke, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-Color = st.stroke,
-Thickness = 2.4,
-Transparency = 0
-}):Play()
+TweenService:Create(taskBoxStroke, fastExpandInfo, { Color = st.stroke, Thickness = 2.3, Transparency = 0 }):Play()
 end
 if expStroke and expStroke.Parent then
-TweenService:Create(expStroke, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-Color = st.stroke,
-Thickness = 2.2,
-Transparency = 0.02
-}):Play()
+TweenService:Create(expStroke, fastExpandInfo, { Color = st.stroke, Thickness = 2.1, Transparency = 0.02 }):Play()
 end
 
--- 3. Tự động thu gọn về kích thước ban đầu sau khi đổi trạng thái xong
-task.delay(0.62, function()
+task.delay(0.28, function()
 if not isAlive() or myToken ~= miniIslandAnimToken then return end
+local fastShrinkInfo = TweenInfo.new(0.12, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
 if pill and pill.Parent then
-TweenService:Create(pill, TweenInfo.new(0.24, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-Size = u2(0, 0, 0, 38)
-}):Play()
+TweenService:Create(pill, fastShrinkInfo, { Size = u2(0, 0, 0, 38) }):Play()
 end
 if pad and pad.Parent then
-TweenService:Create(pad, TweenInfo.new(0.24, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-PaddingLeft = UDim.new(0, 10),
-PaddingRight = UDim.new(0, 10)
-}):Play()
+TweenService:Create(pad, fastShrinkInfo, { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }):Play()
 end
 if ps and ps.Parent then
-TweenService:Create(ps, TweenInfo.new(0.24, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-Color = st.stroke,
-Thickness = 1.6,
-Transparency = 0.12
-}):Play()
+TweenService:Create(ps, fastShrinkInfo, { Color = st.stroke, Thickness = 1.6, Transparency = 0.12 }):Play()
 end
 if leftBadge and leftBadge.Parent then
-TweenService:Create(leftBadge, TweenInfo.new(0.24, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-Size = u2(0, 28, 0, 28)
-}):Play()
+TweenService:Create(leftBadge, fastShrinkInfo, { Size = u2(0, 28, 0, 28) }):Play()
 end
 if lbStroke and lbStroke.Parent then
-TweenService:Create(lbStroke, TweenInfo.new(0.24, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-Color = st.stroke,
-Thickness = 1.2
-}):Play()
+TweenService:Create(lbStroke, fastShrinkInfo, { Color = st.stroke, Thickness = 1.2 }):Play()
 end
 if taskBox and taskBox.Parent then
-TweenService:Create(taskBox, TweenInfo.new(0.24, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-Size = u2(1, -20, 0, 24),
-Position = u2(0, 10, 0, 36),
-BackgroundTransparency = 0.06
-}):Play()
+TweenService:Create(taskBox, fastShrinkInfo, { Size = u2(1, -20, 0, 25), Position = u2(0, 10, 0, 36), BackgroundTransparency = 0.05 }):Play()
 end
 if taskBoxStroke and taskBoxStroke.Parent then
-TweenService:Create(taskBoxStroke, TweenInfo.new(0.24, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-Color = st.stroke,
-Thickness = 1.3,
-Transparency = 0.18
-}):Play()
+TweenService:Create(taskBoxStroke, fastShrinkInfo, { Color = st.stroke, Thickness = 1.3, Transparency = 0.16 }):Play()
 end
 if expStroke and expStroke.Parent then
-TweenService:Create(expStroke, TweenInfo.new(0.24, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-Color = st.stroke,
-Thickness = 1.5,
-Transparency = 0.16
-}):Play()
+TweenService:Create(expStroke, fastShrinkInfo, { Color = st.stroke, Thickness = 1.6, Transparency = 0.14 }):Play()
 end
-task.delay(0.25, function()
+task.delay(0.14, function()
 if myToken == miniIslandAnimToken then
 State.MorphingMiniIsland = false
 end
@@ -2024,33 +2057,49 @@ end
 
 taskBox.MouseButton1Click:Connect(cycleMiniIslandState)
 
--- THANH CHUYỂN ĐỔI NGÔN NGỮ (TIẾNG VIỆT / ENGLISH)
-local cap = mk("Frame", { Size = u2(1, -20, 0, 28), Position = u2(0, 10, 0, 64), BackgroundColor3 = c3(18, 20, 30), BorderSizePixel = 0, ZIndex = 10001 }, exp)
+-- THANH CHUYỂN ĐỔI NGÔN NGỮ HIỆN ĐẠI (LIQUID GLASS CAPSULE)
+local cap = mk("Frame", { Size = u2(1, -20, 0, 28), Position = u2(0, 10, 0, 65), BackgroundColor3 = c3(18, 24, 38), BackgroundTransparency = 0.12, BorderSizePixel = 0, ZIndex = 10001 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cap)
-local sld = mk("Frame", { Size = u2(0.5, -4, 1, -4), Position = (State.Language == "VI" and u2(0, 2, 0, 2) or u2(0.5, 2, 0, 2)), BackgroundColor3 = c3(95, 110, 235), BorderSizePixel = 0, ZIndex = 10002 }, cap)
+mk("UIStroke", { Thickness = 1, Color = c3(90, 145, 225), Transparency = 0.42 }, cap)
+local sld = mk("Frame", { Size = u2(0.5, -4, 1, -4), Position = (State.Language == "VI" and u2(0, 2, 0, 2) or u2(0.5, 2, 0, 2)), BackgroundColor3 = Color3.new(1, 1, 1), BorderSizePixel = 0, ZIndex = 10002 }, cap)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, sld)
-local bVI = mk("TextButton", { Size = u2(0.5, 0, 1, 0), BackgroundTransparency = 1, Text = "🇻🇳 TIẾNG VIỆT", Font = Enum.Font.GothamBold, TextSize = 10.0, TextColor3 = (State.Language == "VI" and Color3.new(1, 1, 1) or c3(150, 165, 190)), ZIndex = 10003 }, cap)
-local bEN = mk("TextButton", { Size = u2(0.5, 0, 1, 0), Position = u2(0.5, 0, 0, 0), BackgroundTransparency = 1, Text = "🌐 ENGLISH", Font = Enum.Font.GothamBold, TextSize = 10.0, TextColor3 = (State.Language == "EN" and Color3.new(1, 1, 1) or c3(150, 165, 190)), ZIndex = 10003 }, cap)
+mk("UIGradient", {
+Rotation = 90,
+Color = ColorSequence.new({
+csk(0.00, c3(95, 145, 255)),
+csk(1.00, c3(65, 95, 225))
+})
+}, sld)
+local bVI = mk("TextButton", { Size = u2(0.5, 0, 1, 0), BackgroundTransparency = 1, Text = "🇻🇳 TIẾNG VIỆT", Font = Enum.Font.GothamBold, TextSize = 10.2, TextColor3 = (State.Language == "VI" and Color3.new(1, 1, 1) or c3(160, 180, 210)), ZIndex = 10003 }, cap)
+local bEN = mk("TextButton", { Size = u2(0.5, 0, 1, 0), Position = u2(0.5, 0, 0, 0), BackgroundTransparency = 1, Text = "🌐 ENGLISH", Font = Enum.Font.GothamBold, TextSize = 10.2, TextColor3 = (State.Language == "EN" and Color3.new(1, 1, 1) or c3(160, 180, 210)), ZIndex = 10003 }, cap)
 
--- NÚT KÍCH HOẠT CONFIG SETTING AUTO FARM
-local cfgBtn = mk("TextButton", { Name = "AutoFarmConfigBtn", Size = u2(1, -20, 0, 30), Position = u2(0, 10, 0, 96), BackgroundColor3 = c3(22, 25, 40), BorderSizePixel = 0, Text = "⚡ CONFIG SETTING AUTO FARM", Font = Enum.Font.GothamBlack, TextSize = 10.2, TextColor3 = c3(255, 225, 105), ZIndex = 10003 }, exp)
+-- NÚT KÍCH HOẠT CONFIG SETTING AUTO FARM (LIQUID GLASS GOLD-BLUE)
+local cfgBtn = mk("TextButton", { Name = "AutoFarmConfigBtn", Size = u2(1, -20, 0, 30), Position = u2(0, 10, 0, 97), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.08, BorderSizePixel = 0, Text = "⚡ CONFIG SETTING AUTO FARM", Font = Enum.Font.GothamBlack, TextSize = 10.4, TextColor3 = c3(255, 232, 115), ZIndex = 10003 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cfgBtn)
-mk("UIStroke", { Thickness = 1.2, Color = c3(235, 185, 65), Transparency = 0.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, cfgBtn)
+mk("UIGradient", {
+Rotation = 90,
+Color = ColorSequence.new({
+csk(0.00, c3(42, 52, 82)),
+csk(0.50, c3(22, 28, 46)),
+csk(1.00, c3(16, 20, 34))
+})
+}, cfgBtn)
+mk("UIStroke", { Thickness = 1.3, Color = c3(245, 195, 75), Transparency = 0.16, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, cfgBtn)
 cfgBtn.MouseButton1Click:Connect(function() playIslandSfx("action") runAutoFarmMacro(venyxGui, cfgBtn) end)
 
--- NÚT MỞ/ĐÓNG GHI CHÚ SETTING AUTO FARM VIP 24/7
-local noteBtn = mk("TextButton", { Name = "SettingNoteToggleBtn", Size = u2(1, -20, 0, 24), Position = u2(0, 10, 0, 130), BackgroundColor3 = c3(16, 20, 34), BackgroundTransparency = 0.12, BorderSizePixel = 0, Text = "", AutoButtonColor = true, ZIndex = 10003 }, exp)
+-- NÚT MỞ/ĐÓNG GHI CHÚ SETTING AUTO FARM VIP 24/7 (LIQUID GLASS)
+local noteBtn = mk("TextButton", { Name = "SettingNoteToggleBtn", Size = u2(1, -20, 0, 25), Position = u2(0, 10, 0, 132), BackgroundColor3 = c3(20, 28, 46), BackgroundTransparency = 0.12, BorderSizePixel = 0, Text = "", AutoButtonColor = true, ZIndex = 10003 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, noteBtn)
-mk("UIStroke", { Thickness = 1, Color = c3(70, 115, 185), Transparency = 0.35, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, noteBtn)
-local noteBadge = mk("Frame", { Name = "NoteNewBadge", AnchorPoint = v2(0, 0.5), Position = u2(0, 6, 0.5, 0), Size = u2(0, 54, 0, 16), BackgroundColor3 = c3(28, 18, 48), BorderSizePixel = 0, Active = false, ZIndex = 10004 }, noteBtn)
+mk("UIStroke", { Thickness = 1, Color = c3(85, 145, 225), Transparency = 0.30, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, noteBtn)
+local noteBadge = mk("Frame", { Name = "NoteNewBadge", AnchorPoint = v2(0, 0.5), Position = u2(0, 6, 0.5, 0), Size = u2(0, 54, 0, 17), BackgroundColor3 = c3(32, 22, 56), BorderSizePixel = 0, Active = false, ZIndex = 10004 }, noteBtn)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, noteBadge)
-mk("UIStroke", { Thickness = 1, Color = c3(235, 185, 65), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, noteBadge)
-mk("TextLabel", { Name = "BadgeTxt", Size = u2s(1, 1), BackgroundTransparency = 1, Font = Enum.Font.GothamBlack, TextSize = 8.5, TextColor3 = c3(255, 225, 85), Text = "👑 MỚI", Active = false, ZIndex = 10005 }, noteBadge)
-local noteSmallLbl = mk("TextLabel", { Name = "NoteSmallTitle", Size = u2(1, -86, 1, 0), Position = u2(0, 66, 0, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextSize = 9.5, TextColor3 = c3(205, 228, 255), TextXAlignment = Enum.TextXAlignment.Left, Text = "Setting Auto Farm (Bấm xem note)", Active = false, ZIndex = 10004 }, noteBtn)
-local noteArrowLbl = mk("TextLabel", { Name = "NoteArrow", Size = u2(0, 18, 1, 0), Position = u2(1, -22, 0, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamBlack, TextSize = 10, TextColor3 = c3(150, 215, 255), Text = "▼", Active = false, ZIndex = 10004 }, noteBtn)
-local noteDrawer = mk("Frame", { Name = "SettingNoteDrawer", Size = u2(1, -20, 0, 96), Position = u2(0, 10, 0, 158), BackgroundColor3 = c3(13, 16, 26), BackgroundTransparency = 0.06, BorderSizePixel = 0, Visible = false, ClipsDescendants = true, ZIndex = 10003 }, exp)
+mk("UIStroke", { Thickness = 1, Color = c3(245, 195, 75), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, noteBadge)
+mk("TextLabel", { Name = "BadgeTxt", Size = u2s(1, 1), BackgroundTransparency = 1, Font = Enum.Font.GothamBlack, TextSize = 8.5, TextColor3 = c3(255, 230, 95), Text = "👑 MỚI", Active = false, ZIndex = 10005 }, noteBadge)
+local noteSmallLbl = mk("TextLabel", { Name = "NoteSmallTitle", Size = u2(1, -86, 1, 0), Position = u2(0, 66, 0, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextSize = 9.6, TextColor3 = c3(215, 235, 255), TextXAlignment = Enum.TextXAlignment.Left, Text = "Setting Auto Farm (Bấm xem note)", Active = false, ZIndex = 10004 }, noteBtn)
+local noteArrowLbl = mk("TextLabel", { Name = "NoteArrow", Size = u2(0, 18, 1, 0), Position = u2(1, -22, 0, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamBlack, TextSize = 10, TextColor3 = c3(165, 225, 255), Text = "▼", Active = false, ZIndex = 10004 }, noteBtn)
+local noteDrawer = mk("Frame", { Name = "SettingNoteDrawer", Size = u2(1, -20, 0, 96), Position = u2(0, 10, 0, 161), BackgroundColor3 = c3(14, 18, 30), BackgroundTransparency = 0.06, BorderSizePixel = 0, Visible = false, ClipsDescendants = true, ZIndex = 10003 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(0, 12) }, noteDrawer)
-mk("UIStroke", { Thickness = 1.1, Color = c3(70, 105, 165), Transparency = 0.25, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, noteDrawer)
+mk("UIStroke", { Thickness = 1.1, Color = c3(80, 130, 205), Transparency = 0.22, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, noteDrawer)
 mk("TextLabel", { Size = u2(1, -96, 0, 18), Position = u2(0, 10, 0, 4), BackgroundTransparency = 1, Font = Enum.Font.GothamBlack, TextSize = 9.5, TextColor3 = c3(255, 225, 95), TextXAlignment = Enum.TextXAlignment.Left, Text = "⚡ SETTING AUTO FARM", ZIndex = 10004 }, noteDrawer)
 local vipBadge = mk("Frame", { AnchorPoint = v2(1, 0), Position = u2(1, -8, 0, 4), Size = u2(0, 82, 0, 16), BackgroundColor3 = c3(20, 34, 28), BorderSizePixel = 0, ZIndex = 10004 }, noteDrawer)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, vipBadge)
@@ -2061,6 +2110,7 @@ mk("UITextSizeConstraint", { MaxTextSize = 8.5, MinTextSize = 6.5 }, l1)
 mk("TextLabel", { Size = u2(1, -14, 0, 17), Position = u2(0, 7, 0, 41), BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextSize = 8.8, TextColor3 = c3(220, 235, 255), TextXAlignment = Enum.TextXAlignment.Left, Text = "+ Tự động làm tất cả nhiệm vụ sự kiện (A-Z)", ZIndex = 10004 }, noteDrawer)
 mk("TextLabel", { Size = u2(1, -14, 0, 17), Position = u2(0, 7, 0, 59), BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextSize = 8.8, TextColor3 = c3(255, 230, 145), TextXAlignment = Enum.TextXAlignment.Left, Text = "+ Chạy máy chạy bộ và bán pet dưới 1B", ZIndex = 10004 }, noteDrawer)
 mk("TextLabel", { Size = u2(1, -14, 0, 17), Position = u2(0, 7, 0, 76), BackgroundTransparency = 1, Font = Enum.Font.GothamBlack, TextSize = 9.0, TextColor3 = c3(95, 255, 165), TextXAlignment = Enum.TextXAlignment.Left, Text = "+++ Setting treo 24/7 không văng", ZIndex = 10004 }, noteDrawer)
+
 local noteOpen = false
 noteBtn.MouseButton1Click:Connect(function()
 playIslandSfx("tap")
@@ -2069,17 +2119,18 @@ if noteOpen then
 noteDrawer.Visible = true
 noteArrowLbl.Text = "▲"
 noteSmallLbl.Text = "Setting Auto Farm (Bấm thu gọn)"
-TweenService:Create(exp, TweenInfo.new(0.16, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Size = u2(0, 308, 0, OPEN_NOTE_EXP_H) }):Play()
+TweenService:Create(exp, TweenInfo.new(0.12, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Size = u2(0, 312, 0, OPEN_NOTE_EXP_H) }):Play()
 else
 noteArrowLbl.Text = "▼"
 noteSmallLbl.Text = "Setting Auto Farm (Bấm xem note)"
-local nTw = TweenService:Create(exp, TweenInfo.new(0.14, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Size = u2(0, 308, 0, COLLAPSED_EXP_H) })
+local nTw = TweenService:Create(exp, TweenInfo.new(0.12, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Size = u2(0, 312, 0, COLLAPSED_EXP_H) })
 nTw:Play()
 nTw.Completed:Connect(function()
 if not noteOpen then noteDrawer.Visible = false end
 end)
 end
 end)
+
 State.AntiAfkEnabled = true
 if not State.AntiAfkHooked then
 State.AntiAfkHooked = true
@@ -2094,18 +2145,20 @@ end
 end)
 end)
 end
+
 local function setLang(l)
 playIslandSfx("tap")
 if State.Language == l then return end
 State.Language = l
 if writefile then pcall(writefile, LANG_FILE, l) end
-TweenService:Create(sld, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Position = (l == "VI" and u2(0, 2, 0, 2) or u2(0.5, 2, 0, 2)) }):Play()
-bVI.TextColor3 = l == "VI" and Color3.new(1, 1, 1) or c3(150, 165, 190)
-bEN.TextColor3 = l == "EN" and Color3.new(1, 1, 1) or c3(150, 165, 190)
+TweenService:Create(sld, TweenInfo.new(0.12, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Position = (l == "VI" and u2(0, 2, 0, 2) or u2(0.5, 2, 0, 2)) }):Play()
+bVI.TextColor3 = l == "VI" and Color3.new(1, 1, 1) or c3(160, 180, 210)
+bEN.TextColor3 = l == "EN" and Color3.new(1, 1, 1) or c3(160, 180, 210)
 refreshAllTexts()
 end
 bVI.MouseButton1Click:Connect(function() setLang("VI") end)
 bEN.MouseButton1Click:Connect(function() setLang("EN") end)
+
 local open, lastToggleClock = false, -10
 local function toggle()
 if os.clock() - lastToggleClock < 0.12 then return end
@@ -2115,12 +2168,12 @@ playIslandSfx(open and "open" or "close")
 if open then
 exp.Position = pill.Position
 local targetH = noteOpen and OPEN_NOTE_EXP_H or COLLAPSED_EXP_H
-exp.Size = u2(0, 235, 0, 34)
+exp.Size = u2(0, 240, 0, 36)
 exp.Visible = true
 pill.Visible = false
-TweenService:Create(exp, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Size = u2(0, 308, 0, targetH) }):Play()
+TweenService:Create(exp, TweenInfo.new(0.12, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Size = u2(0, 312, 0, targetH) }):Play()
 else
-local tw = TweenService:Create(exp, TweenInfo.new(0.15, Enum.EasingStyle.Quart, Enum.EasingDirection.In), { Size = u2(0, 235, 0, 34) })
+local tw = TweenService:Create(exp, TweenInfo.new(0.12, Enum.EasingStyle.Quart, Enum.EasingDirection.In), { Size = u2(0, 240, 0, 36) })
 tw:Play()
 tw.Completed:Connect(function()
 if not open then
@@ -2133,6 +2186,7 @@ end
 State.CollapseIslandFn = function()
 if open then toggle() end
 end
+
 if hint:IsA("GuiButton") then
 hint.MouseButton1Click:Connect(toggle)
 else
@@ -2143,6 +2197,7 @@ end
 end)
 end
 colBtn.MouseButton1Click:Connect(toggle)
+
 local lastPillTouchClock = -10
 local function onIn(i)
 if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
@@ -2294,8 +2349,9 @@ end
 end
 end
 end
+
 -- ============================================================================
--- [PHẦN 4] KIẾN TRÚC GIAO DIỆN CHÍNH DARK MODE V8 SUPREME (SIÊU MƯỢT, ZERO LAG)
+-- [PHẦN 4] KIẾN TRÚC GIAO DIỆN CHÍNH DARK MODE V8 SUPREME (CHỐNG LAG & SIDEBAR UIListLayout)
 -- ============================================================================
 local PAGE_HEADER_TITLES = {
 ["dashboard"] = true, ["home"] = true, ["trang chủ"] = true,
@@ -2394,9 +2450,9 @@ end
 local pageWallpapers = { wp }
 local sectionCards = {}
 local curBaseOpacity = (mainBg.BackgroundTransparency < 0.95) and mainBg.BackgroundTransparency or 0.15
-local function styleMenuInterior()
-if not win or not win.Parent then return end
-if State.MenuInteriorStyled then return end
+
+-- Khởi tạo trang trí nội thất 1 lần duy nhất (Tuyệt đối không chạy lại khi mở/tắt menu)
+if not State.MenuInteriorStyled then
 State.MenuInteriorStyled = true
 local cardT = 0.58
 for _, d in ipairs(win:GetDescendants()) do
@@ -2428,6 +2484,7 @@ end
 end
 end
 end
+
 local syncingOpacity = false
 local function syncWallpaperAndOldBg(changedFrame)
 if syncingOpacity or not wp or not wp.Parent then return end
@@ -2461,7 +2518,6 @@ end
 end
 syncingOpacity = false
 end
-pcall(styleMenuInterior)
 for _, bf in ipairs(bgFrames) do
 if not bf:GetAttribute("__WpSyncHooked") then
 bf:SetAttribute("__WpSyncHooked", true)
@@ -2480,8 +2536,11 @@ local oldTGrad = titleLbl:FindFirstChild("TitleUltraGrad")
 if oldTGrad then oldTGrad:Destroy() end
 titleLbl.TextTransparency = 0
 titleLbl.TextColor3 = Color3.new(1, 1, 1)
-titleLbl.Font = Enum.Font.GothamBold
+titleLbl.Font = Enum.Font.GothamBlack
 end)
+
+-- 1. CƠ CHẾ CHỐNG LAG KHI MỞ/TẮT MENU: Chỉ thao tác Visible & chạy 1 Tween 0.15s duy nhất, không chạy vòng lặp nút con
+local fullWinSize = win.Size
 local winScale = win:FindFirstChild("ChilliFastOpenScale") or mk("UIScale", { Name = "ChilliFastOpenScale", Scale = 1 }, win)
 local lastWasOpen = false
 local function syncWindowVisibilityInstant()
@@ -2498,14 +2557,15 @@ for _, pw in ipairs(pageWallpapers) do if pw and pw.Parent then pw.Visible = isO
 if titleLbl and titleLbl.Parent then titleLbl.TextTransparency = 0 end
 if isOpen and not lastWasOpen then
 if winScale and winScale.Parent then
-winScale.Scale = 0.96
-TweenService:Create(winScale, TweenInfo.new(0.14, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+winScale.Scale = 0.95
+TweenService:Create(winScale, TweenInfo.new(0.15, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Scale = 1 }):Play()
 end
 end
 lastWasOpen = isOpen
 end
 State.SyncWindowFn = syncWindowVisibilityInstant
 syncWindowVisibilityInstant()
+
 if not win:GetAttribute("__InstantHideHooked") then
 win:SetAttribute("__InstantHideHooked", true)
 win:GetPropertyChangedSignal("Visible"):Connect(function()
@@ -2526,7 +2586,7 @@ local btn = (d:IsA("TextButton") or d:IsA("ImageButton")) and d or d.Parent
 if btn and (btn:IsA("TextButton") or btn:IsA("ImageButton")) and not btn:GetAttribute("__CloseSyncHooked") then
 btn:SetAttribute("__CloseSyncHooked", true)
 btn.MouseButton1Down:Connect(function()
-State.CloseHideUntil = os.clock() + 0.18
+State.CloseHideUntil = os.clock() + 0.15
 if winStroke then winStroke.Enabled = false end
 for _, pw in ipairs(pageWallpapers) do if pw and pw.Parent then pw.Visible = false end end
 end)
@@ -2535,6 +2595,11 @@ end
 end
 end
 end
+
+-- ============================================================================
+-- 2. CỤM NÚT TAB (SIDEBAR) KHÔNG BAO GIỜ VỠ: CreateTab(nameVN, nameEN, iconId)
+-- Sidebar Frame cố định (Size = UDim2.new(0, 135, 1, -55)), CHỈ DÙNG UIListLayout (Padding = 8px)
+-- ============================================================================
 local SIDEBAR_PALETTE = {
 c3(37, 99, 235),   -- Tab 1: Trang chủ (Xanh biển)
 c3(239, 68, 68),   -- Tab 2: Lấy trứng (Đỏ rực)
@@ -2546,15 +2611,16 @@ c3(14, 165, 233),  -- Tab 7: Máy chủ (Xanh Cyan)
 c3(139, 92, 246)   -- Tab 8: Khác (Tím Violet)
 }
 local SIDEBAR_TAB_BILINGUAL = {
-{ vi = "Trang chủ", en = "Home" },
-{ vi = "Lấy trứng", en = "Steal" },
-{ vi = "Tự cày", en = "Farm" },
-{ vi = "Sự kiện", en = "Events" },
-{ vi = "Nhân vật", en = "Player" },
-{ vi = "Cài đặt", en = "Settings" },
-{ vi = "Máy chủ", en = "Server" },
-{ vi = "Khác", en = "Misc" }
+{ vi = "Trang chủ", en = "Home", icon = "" },
+{ vi = "Lấy trứng", en = "Steal", icon = STEAL_TAB_ICON_ID },
+{ vi = "Tự cày", en = "Farm", icon = "" },
+{ vi = "Sự kiện", en = "Events", icon = "" },
+{ vi = "Nhân vật", en = "Player", icon = "" },
+{ vi = "Cài đặt", en = "Settings", icon = "" },
+{ vi = "Máy chủ", en = "Server", icon = "" },
+{ vi = "Khác", en = "Misc", icon = "" }
 }
+
 pcall(function()
 local navButtons = {}
 local navContainer = nil
@@ -2579,61 +2645,56 @@ break
 end
 end
 end
+
 if #navButtons >= 2 then
 table.sort(navButtons, function(a, b) return a.AbsolutePosition.Y < b.AbsolutePosition.Y end)
-
--- Mở rộng chiều ngang và chiều cao nút Tab (138x46px) thoáng đãng, không bao giờ cắt chữ và dịch nội dung sang X=160px
--- 1. GIỮ NGUYÊN 100% KÍCH THƯỚC KHUNG CHÍNH (MainFrame), tuyệt đối không phóng to menu
-local EXTRA_SIDEBAR_W = 0
-local EXTRA_WIN_H = 0
-local CONTENT_START_X = 108
+local CONTENT_START_X = 152
 
 pcall(function()
-if not win:GetAttribute("__ChilliIosSidebarExpandedV11") then
-win:SetAttribute("__ChilliIosSidebarExpandedV11", true)
--- Tuyệt đối không thay đổi kích thước win.Size hay mainBg.Size
-end
-
--- 2. Khung chứa Sidebar (TabContainer): Thu hẹp chiều ngang vừa khít cột sidebar bên trái (Rộng 96px, căn lề trái chuẩn xác X = 6)
 if navContainer then
 navContainer.Parent = win
-navContainer.Position = u2(0, 6, 0, 46)
-navContainer.Size = u2(0, 96, 1, -52)
+navContainer.Position = u2(0, 10, 0, 46)
+navContainer.Size = u2(0, 135, 1, -55)
 navContainer.ClipsDescendants = false
 navContainer.BackgroundTransparency = 1
 
 for _, ch in ipairs(navContainer:GetChildren()) do
-if ch:IsA("UIListLayout") or ch:IsA("UIPadding") or ch:IsA("UIGridLayout") then
+if ch:IsA("UIPadding") or ch:IsA("UIGridLayout") then
 ch:Destroy()
 end
 end
+local listLayout = navContainer:FindFirstChildOfClass("UIListLayout") or mk("UIListLayout", { Parent = navContainer })
+listLayout.FillDirection = Enum.FillDirection.Vertical
+listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+listLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+listLayout.Padding = UDim.new(0, 8)
 end
 
--- Dịch chuyển toàn bộ container trang/nội dung bên phải sang vị trí an toàn (bắt đầu từ X=108px)
 local function shiftContentTarget(sib)
 if not sib or not sib:IsA("GuiObject") or sib == win or sib == mainBg or sib == navContainer or sib:IsDescendantOf(navContainer) or navContainer:IsDescendantOf(sib) then return end
 local isHdr = (titleLbl and (sib == titleLbl.Parent or titleLbl:IsDescendantOf(sib)))
 local isWp = (sib.Name:find("^Chilli") and (sib.Name:find("Wallpaper") or sib.Name:find("Stroke") or sib.Name:find("Cosmic") or sib.Name:find("Logo")))
 if isHdr or isWp then return end
 
-if not sib:GetAttribute("__ChilliShiftedRightV11") then
+if not sib:GetAttribute("__ChilliShiftedRightV12") then
 local sx = sib.Position.X.Offset
 local sy = sib.Position.Y.Offset
 local relY = sib.AbsolutePosition.Y - win.AbsolutePosition.Y
 local relX = sib.AbsolutePosition.X - win.AbsolutePosition.X
-if (sx >= 15 and sx <= 105) or (relX >= 15 and relX <= 105 and relY >= 20) then
+if (sx >= 15 and sx <= 148) or (relX >= 15 and relX <= 148 and relY >= 20) then
 local ancShifted = false
 local p = sib.Parent
 while p and p ~= win and p ~= mainBg do
-if p:GetAttribute("__ChilliShiftedRightV11") then ancShifted = true break end
+if p:GetAttribute("__ChilliShiftedRightV12") then ancShifted = true break end
 p = p.Parent
 end
 if not ancShifted then
-sib:SetAttribute("__ChilliShiftedRightV11", true)
+sib:SetAttribute("__ChilliShiftedRightV12", true)
 local targetX = math.max(sx, CONTENT_START_X)
 sib.Position = u2(sib.Position.X.Scale, targetX, sib.Position.Y.Scale, sy)
 if sib.Size.X.Scale > 0.4 or sib.Size.X.Offset > 180 then
-sib.Size = u2(sib.Size.X.Scale, sib.Size.X.Offset - 55, sib.Size.Y.Scale, sib.Size.Y.Offset)
+sib.Size = u2(sib.Size.X.Scale, sib.Size.X.Offset - 98, sib.Size.Y.Scale, sib.Size.Y.Offset)
 end
 end
 end
@@ -2657,6 +2718,7 @@ local tabEnLabels = {}
 
 local function setActiveTabVisual(activeIdx, playSnd)
 if playSnd then playIslandSfx("tap") end
+local fastTabTw = TweenInfo.new(0.15, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
 for i = 1, #navButtons do
 local sq = tabSquircles[i]
 local st = tabStrokes[i]
@@ -2667,14 +2729,14 @@ local enL = tabEnLabels[i]
 local isAct = (i == activeIdx)
 local bColor = SIDEBAR_PALETTE[((i - 1) % #SIDEBAR_PALETTE) + 1]
 if sq and sq.Parent then
-TweenService:Create(sq, TweenInfo.new(0.22, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+TweenService:Create(sq, fastTabTw, {
 Size = u2s(1, 1),
 BackgroundColor3 = isAct and bColor or c3(16, 20, 32),
 BackgroundTransparency = isAct and 0.08 or 0.45
 }):Play()
 end
 if st and st.Parent then
-TweenService:Create(st, TweenInfo.new(0.22, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+TweenService:Create(st, fastTabTw, {
 Thickness = isAct and 1.5 or 1.0,
 Color = isAct and Color3.new(1, 1, 1) or bColor,
 Transparency = isAct and 0.05 or 0.45
@@ -2682,7 +2744,7 @@ Transparency = isAct and 0.05 or 0.45
 end
 if sh and sh.Parent then
 sh.Visible = true
-TweenService:Create(sh, TweenInfo.new(0.22, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+TweenService:Create(sh, fastTabTw, {
 BackgroundTransparency = isAct and 0.50 or 0.88
 }):Play()
 end
@@ -2693,7 +2755,7 @@ if viL and viL.Parent then
 viL.TextColor3 = c3(255, 255, 255)
 end
 if enL and enL.Parent then
-enL.TextColor3 = isAct and c3(255, 255, 255) or c3(180, 180, 180)
+enL.TextColor3 = isAct and c3(255, 255, 255) or c3(185, 195, 210)
 end
 end
 end
@@ -2714,17 +2776,16 @@ end
 end
 end
 
--- 3. Từng nút Tab: Thu hẹp vừa khít cột sidebar (Rộng 96px, Cao 38px), căn lề trái chuẩn xác, ClipsDescendants = false
-for idx, btn in ipairs(navButtons) do
-pcall(function()
-btn.AnchorPoint = v2(0, 0)
-btn.Position = u2(0, 0, 0, (idx - 1) * 44)
-btn.Size = u2(1, 0, 0, 38)
-btn.BackgroundTransparency = 1
-btn.ClipsDescendants = false
-end)
+-- Hàm tạo Tab chuẩn mực: CreateTab(nameVN, nameEN, iconId)
+-- Không set Position thủ công cho nút Tab, hoàn toàn để UIListLayout (Padding = 8px) tự căn chỉnh
+local function CreateTab(nameVN, nameEN, iconId, idx, btn)
 local badgeColor = SIDEBAR_PALETTE[((idx - 1) % #SIDEBAR_PALETTE) + 1]
-local tabInfo = SIDEBAR_TAB_BILINGUAL[idx] or { vi = "Mục " .. tostring(idx), en = "Tab " .. tostring(idx) }
+pcall(function()
+btn.LayoutOrder = idx
+btn.Size = u2(1, 0, 0, 40)
+btn.BackgroundTransparency = 1
+btn.ClipsDescendants = true
+end)
 
 local squircle = btn:FindFirstChild("ChilliSenaSquircle")
 if not squircle then
@@ -2736,7 +2797,7 @@ Size = u2s(1, 1),
 BackgroundColor3 = (idx == 1) and badgeColor or c3(16, 20, 32),
 BackgroundTransparency = (idx == 1) and 0.08 or 0.45,
 BorderSizePixel = 0,
-ClipsDescendants = false,
+ClipsDescendants = true,
 Active = false,
 ZIndex = btn.ZIndex + 1
 }, btn)
@@ -2746,10 +2807,9 @@ squircle.Position = u2s(0.5, 0.5)
 squircle.Size = u2s(1, 1)
 squircle.BackgroundColor3 = (idx == 1) and badgeColor or c3(16, 20, 32)
 squircle.BackgroundTransparency = (idx == 1) and 0.08 or 0.45
-squircle.ClipsDescendants = false
+squircle.ClipsDescendants = true
 end
 
--- 4. Giữ nguyên hiệu ứng bo góc (UICorner) và màu sắc sang trọng như cũ
 local sqCorner = squircle:FindFirstChildOfClass("UICorner") or mk("UICorner", { CornerRadius = UDim.new(0, 10) }, squircle)
 sqCorner.CornerRadius = UDim.new(0, 10)
 
@@ -2806,24 +2866,16 @@ actBar.Size = u2(0, 3, 0, 16)
 actBar.Visible = (idx == 1)
 if not actBar:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, actBar) end
 
--- Icon: Position = UDim2.new(0, 6, 0.5, -10), Size = UDim2.new(0, 18, 0, 18)
-local hasFoundIcon = false
+-- 1. ImageLabel (Icon) bên trái
+local nativeIconImg = ""
 for _, ch in ipairs(btn:GetDescendants()) do
 if ch ~= squircle and not ch:IsDescendantOf(squircle) and ch.Name ~= "ChilliStealTabIcon" and ch.Name ~= "ChilliTabCaption" and ch.Name ~= "ChilliTabCaptionEn" then
 if ch:IsA("ImageLabel") or ch:IsA("ImageButton") then
-if not hasFoundIcon and idx ~= 2 then
-hasFoundIcon = true
-ch.ZIndex = squircle.ZIndex + 4
-ch.ImageColor3 = Color3.new(1, 1, 1)
-ch.ImageTransparency = 0
-ch.AnchorPoint = v2(0, 0)
-ch.Position = u2(0, 6, 0.5, -10)
-ch.Size = u2(0, 18, 0, 18)
-ch.Visible = true
-else
+if nativeIconImg == "" and ch.Image ~= "" then
+nativeIconImg = ch.Image
+end
 ch.Visible = false
 ch.ImageTransparency = 1
-end
 elseif ch:IsA("TextLabel") or ch:IsA("TextButton") then
 ch:SetAttribute("__HiddenVxLogo", true)
 ch.TextTransparency = 1
@@ -2835,64 +2887,57 @@ end
 end
 end
 
-if idx == 2 then
-for _, desc in ipairs(btn:GetDescendants()) do
-if desc ~= squircle and not desc:IsDescendantOf(squircle) and desc.Name ~= "ChilliStealTabIcon" and desc.Name ~= "ChilliTabCaption" and desc.Name ~= "ChilliTabCaptionEn" and not desc:IsA("UICorner") and not desc:IsA("UIStroke") then
-if desc:IsA("ImageLabel") or desc:IsA("ImageButton") then
-desc.ImageTransparency = 1
-desc.Visible = false
-elseif desc:IsA("TextLabel") or desc:IsA("TextButton") then
-desc:SetAttribute("__HiddenVxLogo", true)
-desc.TextTransparency = 1
-desc.Visible = false
-desc.Text = ""
-elseif desc:IsA("Frame") then
-desc.BackgroundTransparency = 1
-end
-end
-end
-local stealIcon = btn:FindFirstChild("ChilliStealTabIcon") or mk("ImageLabel", {
+local finalIconId = (iconId and iconId ~= "") and iconId or nativeIconImg
+local tabIcon = squircle:FindFirstChild("ChilliStealTabIcon") or btn:FindFirstChild("ChilliStealTabIcon")
+if not tabIcon then
+tabIcon = mk("ImageLabel", {
 Name = "ChilliStealTabIcon",
-AnchorPoint = v2(0, 0),
-Position = u2(0, 6, 0.5, -10),
-Size = u2(0, 18, 0, 18),
+AnchorPoint = v2(0, 0.5),
+Position = u2(0, 9, 0.5, 0),
+Size = u2(0, 19, 0, 19),
 BackgroundTransparency = 1,
-Image = STEAL_TAB_ICON_ID,
+Image = finalIconId,
+ImageColor3 = Color3.new(1, 1, 1),
 ScaleType = Enum.ScaleType.Fit,
 Active = false,
 Selectable = false,
-ZIndex = squircle.ZIndex + 4
-}, btn)
-stealIcon.Image = STEAL_TAB_ICON_ID
-stealIcon.AnchorPoint = v2(0, 0)
-stealIcon.Position = u2(0, 6, 0.5, -10)
-stealIcon.Size = u2(0, 18, 0, 18)
-stealIcon.Visible = true
+ZIndex = squircle.ZIndex + 5
+}, squircle)
+else
+tabIcon.Parent = squircle
+tabIcon.AnchorPoint = v2(0, 0.5)
+tabIcon.Position = u2(0, 9, 0.5, 0)
+tabIcon.Size = u2(0, 19, 0, 19)
+tabIcon.Image = finalIconId
+tabIcon.ImageColor3 = Color3.new(1, 1, 1)
+tabIcon.ImageTransparency = 0
+tabIcon.Visible = true
+tabIcon.ZIndex = squircle.ZIndex + 5
 end
 
--- Chữ Tiếng Việt (Chính): Position = UDim2.new(0, 30, 0, 3), Size = UDim2.new(1, -34, 0, 18), TextSize = 13
+-- 2. TextLabel cho tiếng Việt (to, rõ, in đậm)
 local viLbl = squircle:FindFirstChild("ChilliTabCaption") or mk("TextLabel", {
 Name = "ChilliTabCaption",
 AnchorPoint = v2(0, 0),
-Position = u2(0, 30, 0, 3),
-Size = u2(1, -34, 0, 18),
+Position = u2(0, 34, 0, 3),
+Size = u2(1, -38, 0, 19),
 BackgroundTransparency = 1,
 Font = Enum.Font.GothamBold,
-TextSize = 13,
+TextSize = 14,
 TextColor3 = c3(255, 255, 255),
 TextXAlignment = Enum.TextXAlignment.Left,
 TextYAlignment = Enum.TextYAlignment.Center,
-Text = (State.Language == "EN") and tabInfo.en or tabInfo.vi,
+Text = (State.Language == "EN") and nameEN or nameVN,
 TextTruncate = Enum.TextTruncate.None,
 Active = false,
 ZIndex = squircle.ZIndex + 6
 }, squircle)
 viLbl:SetAttribute("__HiddenVxLogo", true)
 viLbl.AnchorPoint = v2(0, 0)
-viLbl.Position = u2(0, 30, 0, 3)
-viLbl.Size = u2(1, -34, 0, 18)
+viLbl.Position = u2(0, 34, 0, 3)
+viLbl.Size = u2(1, -38, 0, 19)
 viLbl.Font = Enum.Font.GothamBold
-viLbl.TextSize = 13
+viLbl.TextSize = 14
 viLbl.TextColor3 = c3(255, 255, 255)
 viLbl.TextXAlignment = Enum.TextXAlignment.Left
 viLbl.TextYAlignment = Enum.TextYAlignment.Center
@@ -2900,43 +2945,43 @@ viLbl.TextTruncate = Enum.TextTruncate.None
 viLbl.TextTransparency = 0
 viLbl.Visible = true
 viLbl.ZIndex = squircle.ZIndex + 6
-viLbl.Text = (State.Language == "EN") and tabInfo.en or tabInfo.vi
+viLbl.Text = (State.Language == "EN") and nameEN or nameVN
 local viSt = viLbl:FindFirstChildOfClass("UIStroke") or mk("UIStroke", { Thickness = 1.1, Color = c3(8, 10, 18), Transparency = 0.15 }, viLbl)
 viSt.Thickness = 1.1
 viSt.Color = c3(8, 10, 18)
 viSt.Transparency = 0.15
 
--- Chữ Tiếng Anh (Phụ): Position = UDim2.new(0, 30, 0, 21), Size = UDim2.new(1, -34, 0, 13), TextSize = 9
+-- 3. TextLabel cho tiếng Anh (nhỏ hơn, nằm ngay dưới)
 local enLbl = squircle:FindFirstChild("ChilliTabCaptionEn") or mk("TextLabel", {
 Name = "ChilliTabCaptionEn",
 AnchorPoint = v2(0, 0),
-Position = u2(0, 30, 0, 21),
-Size = u2(1, -34, 0, 13),
+Position = u2(0, 34, 0, 22),
+Size = u2(1, -38, 0, 14),
 BackgroundTransparency = 1,
 Font = Enum.Font.Gotham,
-TextSize = 9,
-TextColor3 = c3(180, 180, 180),
+TextSize = 10,
+TextColor3 = c3(185, 195, 210),
 TextXAlignment = Enum.TextXAlignment.Left,
 TextYAlignment = Enum.TextYAlignment.Center,
-Text = (State.Language == "EN") and tabInfo.vi or tabInfo.en,
+Text = (State.Language == "EN") and nameVN or nameEN,
 TextTruncate = Enum.TextTruncate.None,
 Active = false,
 ZIndex = squircle.ZIndex + 6
 }, squircle)
 enLbl:SetAttribute("__HiddenVxLogo", true)
 enLbl.AnchorPoint = v2(0, 0)
-enLbl.Position = u2(0, 30, 0, 21)
-enLbl.Size = u2(1, -34, 0, 13)
+enLbl.Position = u2(0, 34, 0, 22)
+enLbl.Size = u2(1, -38, 0, 14)
 enLbl.Font = Enum.Font.Gotham
-enLbl.TextSize = 9
-enLbl.TextColor3 = c3(180, 180, 180)
+enLbl.TextSize = 10
+enLbl.TextColor3 = c3(185, 195, 210)
 enLbl.TextXAlignment = Enum.TextXAlignment.Left
 enLbl.TextYAlignment = Enum.TextYAlignment.Center
 enLbl.TextTruncate = Enum.TextTruncate.None
 enLbl.TextTransparency = 0
 enLbl.Visible = true
 enLbl.ZIndex = squircle.ZIndex + 6
-enLbl.Text = (State.Language == "EN") and tabInfo.vi or tabInfo.en
+enLbl.Text = (State.Language == "EN") and nameVN or nameEN
 if not enLbl:FindFirstChildOfClass("UIStroke") then mk("UIStroke", { Thickness = 0.8, Color = c3(6, 8, 16), Transparency = 0.20 }, enLbl) end
 
 tabViLabels[idx] = viLbl
@@ -2959,6 +3004,12 @@ end
 end)
 end
 end
+return btn
+end
+
+for idx, btn in ipairs(navButtons) do
+local tabInfo = SIDEBAR_TAB_BILINGUAL[idx] or { vi = "Mục " .. tostring(idx), en = "Tab " .. tostring(idx), icon = "" }
+CreateTab(tabInfo.vi, tabInfo.en, tabInfo.icon, idx, btn)
 end
 end
 end)
@@ -2998,7 +3049,7 @@ win:SetAttribute("__ChilliV7ArchSession", SID)
 pcall(applySenaV8Architecture, win, titleLbl)
 end
 
--- 2. Làm nổi bật tiêu đề "Chilli Hub V8" ở góc trên Menu (TextSize = 17, GothamBold, tách rời logo cũ, màu trắng sáng + Gradient & viền đỏ cam)
+-- 2. Chỉnh kích thước chữ "Chilli Hub V8" TO rõ (TextSize = 20, GothamBlack), tách rời logo cũ, màu sáng + viền đỏ cam
 pcall(function()
 local topBar = (titleLbl.Parent and titleLbl.Parent ~= win and titleLbl.Parent:IsA("GuiObject") and titleLbl.Parent.AbsoluteSize.Y <= 60) and titleLbl.Parent or nil
 local oldLogo1 = win:FindFirstChild("ChilliHeaderLogoBadge")
@@ -3009,9 +3060,9 @@ if oldLogo2 then oldLogo2:Destroy() end
 end
 
 titleLbl.AnchorPoint = v2(0, 0.5)
-titleLbl.Position = topBar and u2(0, 16, 0.5, 0) or u2(0, 16, 0, 18)
-titleLbl.Font = Enum.Font.GothamBold
-titleLbl.TextSize = 17
+titleLbl.Position = topBar and u2(0, 14, 0.5, 0) or u2(0, 14, 0, 18)
+titleLbl.Font = Enum.Font.GothamBlack
+titleLbl.TextSize = 20
 titleLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLbl.TextYAlignment = Enum.TextYAlignment.Center
 titleLbl.AutomaticSize = Enum.AutomaticSize.X
@@ -3025,18 +3076,17 @@ Rotation = 90
 tGrad.Rotation = 90
 tGrad.Color = ColorSequence.new({
 ColorSequenceKeypoint.new(0.00, c3(255, 255, 255)),
-ColorSequenceKeypoint.new(0.55, c3(255, 242, 205)),
-ColorSequenceKeypoint.new(1.00, c3(255, 195, 115))
+ColorSequenceKeypoint.new(0.55, c3(255, 240, 195)),
+ColorSequenceKeypoint.new(1.00, c3(255, 185, 95))
 })
 
 local tStroke = titleLbl:FindFirstChild("ChilliTitleStroke") or mk("UIStroke", {
 Name = "ChilliTitleStroke"
 }, titleLbl)
-tStroke.Thickness = 1.4
+tStroke.Thickness = 1.5
 tStroke.Color = c3(235, 55, 25)
-tStroke.Transparency = 0.08
+tStroke.Transparency = 0.06
 
--- Tách rời hoàn toàn khỏi các logo cũ ở góc trên bên trái và căn lề thoáng đãng
 for _, d in ipairs(win:GetDescendants()) do
 if d ~= titleLbl then
 if d:IsA("TextLabel") or d:IsA("TextButton") then
@@ -3049,7 +3099,7 @@ elseif t:find("v1.") or t:find("/") or t:find("Lấy Trứng") or t:find("Cướ
 local relY = d.AbsolutePosition.Y - win.AbsolutePosition.Y
 if relY >= 0 and relY <= 40 then
 d.AnchorPoint = v2(0, 0.5)
-d.Position = (topBar and d.Parent == topBar) and u2(0, 146, 0.5, 0) or u2(0, 146, 0, 18)
+d.Position = (topBar and d.Parent == topBar) and u2(0, 168, 0.5, 0) or u2(0, 168, 0, 18)
 d.TextYAlignment = Enum.TextYAlignment.Center
 if t:find("Cướp") or t:find("cướp") then
 d.Text = t:gsub("Cướp", "Lấy"):gsub("cướp", "lấy")
@@ -3068,7 +3118,7 @@ end
 end
 end)
 
--- 3. Căn chỉnh toàn bộ tọa độ khung con bên trong sang X=108px đồng bộ, mượt mà (Zero Lag)
+-- 3. Căn chỉnh toàn bộ tọa độ khung con bên trong sang X=152px đồng bộ, mượt mà (Zero Lag)
 local function ensureAllContentShifted(targetWin)
 if not targetWin or not targetWin.Parent then return end
 local navContainer = State.ActiveNavContainer
@@ -3079,10 +3129,10 @@ local isWp = (ch.Name:find("^Chilli") and (ch.Name:find("Wallpaper") or ch.Name:
 if not isHdr and not isWp then
 local curX = ch.Position.X.Offset
 local curScale = ch.Position.X.Scale
-if curScale < 0.25 and curX < 106 then
-ch.Position = u2(0, 108, ch.Position.Y.Scale, ch.Position.Y.Offset)
+if curScale < 0.25 and curX < 148 then
+ch.Position = u2(0, 152, ch.Position.Y.Scale, ch.Position.Y.Offset)
 if ch.Size.X.Scale > 0.4 or ch.Size.X.Offset > 150 then
-ch.Size = u2(ch.Size.X.Scale, ch.Size.X.Offset - 55, ch.Size.Y.Scale, ch.Size.Y.Offset)
+ch.Size = u2(ch.Size.X.Scale, ch.Size.X.Offset - 98, ch.Size.Y.Scale, ch.Size.Y.Offset)
 end
 end
 end
@@ -3156,10 +3206,10 @@ local isWp = (ch.Name:find("^Chilli") and (ch.Name:find("Wallpaper") or ch.Name:
 if not isHdr and not isWp then
 local curX = ch.Position.X.Offset
 local curScale = ch.Position.X.Scale
-if curScale < 0.25 and curX < 106 then
-ch.Position = u2(0, 108, ch.Position.Y.Scale, ch.Position.Y.Offset)
+if curScale < 0.25 and curX < 148 then
+ch.Position = u2(0, 152, ch.Position.Y.Scale, ch.Position.Y.Offset)
 if ch.Size.X.Scale > 0.4 or ch.Size.X.Offset > 150 then
-ch.Size = u2(ch.Size.X.Scale, ch.Size.X.Offset - 55, ch.Size.Y.Scale, ch.Size.Y.Offset)
+ch.Size = u2(ch.Size.X.Scale, ch.Size.X.Offset - 98, ch.Size.Y.Scale, ch.Size.Y.Offset)
 end
 end
 end
@@ -3241,7 +3291,7 @@ task.spawn(function()
 for i = 1, #queue do
 if not isAlive() then break end
 if queue[i] and queue[i].Parent then pcall(hookTrans, queue[i]) if watchFinderTextObj then pcall(watchFinderTextObj, queue[i]) end end
-if i % 250 == 0 then task.wait() end
+if i % 350 == 0 then task.wait() end
 end
 gui:SetAttribute("__BatchTranslating", false)
 end)
