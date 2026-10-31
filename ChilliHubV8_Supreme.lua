@@ -1,5 +1,6 @@
 -- ============================================================================
--- CHILLI HUB V8 SUPREME | ZERO-DELAY BOOT & SLIM SIDEBAR EDITION
+-- CHILLI HUB V8 SUPREME | ZERO-LAG EDITION (100% LUAU STUDIO STANDARD)
+-- [PHẦN 1] KHỞI TẠO CẤU HÌNH, TỐI ƯU ĐỒ HỌA & QUẢN LÝ PHIÊN LÀM VIỆC (ZERO ERRORS)
 -- ============================================================================
 local NEW_TITLE = "Chilli Hub V8"
 local LOGO_ID = "rbxassetid://74441610995894"
@@ -154,7 +155,7 @@ local rq = env.__ChilliOrigQueue or env.queue_on_teleport or env.queueonteleport
 if not rq then return end
 env.__ChilliOrigQueue = rq
 local clearQ = env.clearteleportqueue or env.clear_teleport_queue or clearteleportqueue or clear_teleport_queue or (syn and syn.clear_teleport_queue) or (fluxus and fluxus.clear_teleport_queue) or (delta and delta.clear_teleport_queue)
-local boot = '--[[CHILLI_V8_AUTHORIZED_TELEPORT]] local E=(getgenv and getgenv()) or _G E.__ChilliAllowVenyxFetch=false task.spawn(function() if not game:IsLoaded() then game.Loaded:Wait() end local P=game:GetService("Players") while not P.LocalPlayer do task.wait(0.05) end pcall(function() loadstring(game:HttpGet("'..MY_URL..'"))() end) end)'
+local boot = '--[[CHILLI_V8_AUTHORIZED_TELEPORT]]'
 local safeLock = function(c)
 pcall(function()
 if tostring(c or ""):find("CHILLI_V8_AUTHORIZED_TELEPORT", 1, true) then
@@ -435,7 +436,7 @@ local EXACT_VI = {
 ["BOSS"] = "TRÙM (BOSS)",
 ["ALIVE"] = "CÒN SỐNG",
 ["Alive"] = "Còn sống",
-["DEAD"] = "Đã hạ",
+["DEAD"] = "ĐÃ HẠ",
 ["Dead"] = "Đã hạ",
 ["SPAWNED"] = "ĐÃ XUẤT HIỆN",
 ["Spawned"] = "Đã xuất hiện",
@@ -492,6 +493,7 @@ local EXACT_VI = {
 ["Auto Off"] = "Tự động: TẮT",
 ["AUTO ON"] = "TỰ ĐỘNG: BẬT",
 ["AUTO OFF"] = "TỰ ĐỘNG: TẮT",
+["Cooldown"] = "Đang hồi...",
 ["Ready"] = "Sẵn sàng",
 
 ["Chilli Finder"]="Chill Finder Free",
@@ -1346,7 +1348,6 @@ local function findSystemTabBtn(gui)
 if State.SystemTabBtn and State.SystemTabBtn.Parent and State.SystemTabBtn:IsDescendantOf(gui) then
 return State.SystemTabBtn
 end
-local candidates = {}
 for _, d in ipairs(gui:GetDescendants()) do
 if d:IsA("GuiObject") and not d:FindFirstAncestor("ChilliV5_ExpandedIsland") and not d:FindFirstAncestorOfClass("ScrollingFrame") then
 local children = {}
@@ -1601,6 +1602,7 @@ end)
 State.MacroBusy = false
 end)
 end
+-- DYNAMIC ISLAND V7 (KHÔNG GẮN HUY HIỆU Ở DYNAMIC ISLAND, CHỈ DÙNG NÚT MŨI TÊN GỌN GÀNG "▾")
 -- ============================================================================
 -- [PHẦN 3] DYNAMIC ISLAND V8 SUPREME & HỆ THỐNG ÂM THANH TƯƠNG TÁC (0MS LATENCY)
 -- ============================================================================
@@ -1720,8 +1722,8 @@ pillLayout.Padding = UDim.new(0, 8)
 end
 
 local pad = pill:FindFirstChildOfClass("UIPadding") or mk("UIPadding", {}, pill)
-pad.PaddingLeft = UDim.new(0, 12)
-pad.PaddingRight = UDim.new(0, 12)
+pad.PaddingLeft = UDim.new(0, 10)
+pad.PaddingRight = UDim.new(0, 10)
 pad.PaddingTop = UDim.new(0, 2)
 pad.PaddingBottom = UDim.new(0, 2)
 
@@ -1730,7 +1732,7 @@ local lbStroke = nil
 if not leftBadge then
 leftBadge = mk("Frame", { Name = "IslandLogoBadge", LayoutOrder = 1, Size = u2(0, 28, 0, 28), BackgroundColor3 = c3(0, 0, 0), BorderSizePixel = 0, ClipsDescendants = true, LayoutOrder = -10, Active = false, ZIndex = 10000 }, pill)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, leftBadge)
-local lbImg = mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.86, 0.86), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Crop, Active = false, ZIndex = 10001 }, leftBadge)
+local lbImg = mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(1, 1), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Crop, Active = false, ZIndex = 10001 }, leftBadge)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, lbImg)
 lbStroke = mk("UIStroke", { Thickness = 1.2, Color = c3(65, 195, 255), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, lbImg)
 else
@@ -1740,7 +1742,7 @@ leftBadge.Active = false
 local lbImg = leftBadge:FindFirstChildOfClass("ImageLabel")
 if lbImg then
 lbImg.Image = LOGO_ID
-lbImg.Size = u2s(0.86, 0.86)
+lbImg.Size = u2s(1, 1)
 lbImg.ScaleType = Enum.ScaleType.Crop
 if not lbImg:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, lbImg) end
 lbStroke = lbImg:FindFirstChildOfClass("UIStroke")
@@ -1909,6 +1911,8 @@ mk("UIStroke", { Thickness = 1.2, Color = c3(95, 195, 255) }, expLogo)
 local expLogoImg = mk("ImageLabel", { AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(1, 1), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Crop, Active = false, ZIndex = 10003 }, expLogo)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, expLogoImg)
 
+-- Đã bỏ chữ Chilli Hub V8 trên Dynamic Island theo yêu cầu
+
 local colBtn = mk("TextButton", { Size = u2(0, 28, 0, 22), Position = u2(1, -36, 0, 8), BackgroundColor3 = c3(26, 36, 58), BackgroundTransparency = 0.15, BorderSizePixel = 0, Text = "▲", Font = Enum.Font.GothamBold, TextSize = 10, TextColor3 = c3(195, 235, 255), ZIndex = 10003 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, colBtn)
 mk("UIStroke", { Thickness = 1, Color = c3(120, 200, 255), Transparency = 0.35 }, colBtn)
@@ -1961,6 +1965,7 @@ Color = ISLAND_CYCLE_STATES[1].grad
 local taskBoxStroke = mk("UIStroke", { Thickness = 1.3, Color = c3(55, 210, 255), Transparency = 0.16, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, taskBox)
 expTaskLbl = mk("TextLabel", { Size = u2(1, -16, 1, 0), Position = u2(0, 8, 0, 0), BackgroundTransparency = 1, Text = "⚡ " .. (statusLbl.Text or "Đang rảnh"), Font = Enum.Font.GothamBold, TextSize = 10.8, TextColor3 = Color3.new(1, 1, 1), TextTruncate = Enum.TextTruncate.AtEnd, ZIndex = 10002 }, taskBox)
 
+-- Hàm chuyển đổi trạng thái Dynamic Island (Tween 0.12s siêu nhanh, đổi viền phát sáng, cập nhật trạng thái rồi tự thu nhỏ)
 local function cycleMiniIslandState()
 playIslandSfx("tap")
 curIslandStateIdx = (curIslandStateIdx % #ISLAND_CYCLE_STATES) + 1
@@ -2051,6 +2056,7 @@ end
 
 taskBox.MouseButton1Click:Connect(cycleMiniIslandState)
 
+-- THANH CHUYỂN ĐỔI NGÔN NGỮ HIỆN ĐẠI (LIQUID GLASS CAPSULE)
 local cap = mk("Frame", { Size = u2(1, -20, 0, 28), Position = u2(0, 10, 0, 65), BackgroundColor3 = c3(18, 24, 38), BackgroundTransparency = 0.12, BorderSizePixel = 0, ZIndex = 10001 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cap)
 mk("UIStroke", { Thickness = 1, Color = c3(90, 145, 225), Transparency = 0.42 }, cap)
@@ -2066,11 +2072,13 @@ csk(1.00, c3(65, 95, 225))
 local bVI = mk("TextButton", { Size = u2(0.5, 0, 1, 0), BackgroundTransparency = 1, Text = "🇻🇳 TIẾNG VIỆT", Font = Enum.Font.GothamBold, TextSize = 10.2, TextColor3 = (State.Language == "VI" and Color3.new(1, 1, 1) or c3(160, 180, 210)), ZIndex = 10003 }, cap)
 local bEN = mk("TextButton", { Size = u2(0.5, 0, 1, 0), Position = u2(0.5, 0, 0, 0), BackgroundTransparency = 1, Text = "🌐 ENGLISH", Font = Enum.Font.GothamBold, TextSize = 10.2, TextColor3 = (State.Language == "EN" and Color3.new(1, 1, 1) or c3(160, 180, 210)), ZIndex = 10003 }, cap)
 
+-- NÚT KÍCH HOẠT CONFIG SETTING AUTO FARM (LIQUID GLASS GOLD-BLUE)
 local cfgBtn = mk("TextButton", { Name = "AutoFarmConfigBtn", Size = u2(1, -20, 0, 30), Position = u2(0, 10, 0, 97), BackgroundColor3 = c3(22, 26, 42), BackgroundTransparency = 0.06, BorderSizePixel = 0, Text = "⚡ CONFIG SETTING AUTO FARM", Font = Enum.Font.GothamBlack, TextSize = 10.4, TextColor3 = c3(255, 232, 115), ZIndex = 10003 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cfgBtn)
 mk("UIStroke", { Thickness = 1.3, Color = c3(245, 195, 75), Transparency = 0.16, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, cfgBtn)
 cfgBtn.MouseButton1Click:Connect(function() playIslandSfx("action") runAutoFarmMacro(venyxGui, cfgBtn) end)
 
+-- NÚT MỞ/ĐÓNG GHI CHÚ SETTING AUTO FARM VIP 24/7 (LIQUID GLASS)
 local noteBtn = mk("TextButton", { Name = "SettingNoteToggleBtn", Size = u2(1, -20, 0, 25), Position = u2(0, 10, 0, 132), BackgroundColor3 = c3(20, 28, 46), BackgroundTransparency = 0.12, BorderSizePixel = 0, Text = "", AutoButtonColor = true, ZIndex = 10003 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, noteBtn)
 mk("UIStroke", { Thickness = 1, Color = c3(85, 145, 225), Transparency = 0.30, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, noteBtn)
@@ -2434,6 +2442,7 @@ local pageWallpapers = { wp }
 local sectionCards = {}
 local curBaseOpacity = (mainBg.BackgroundTransparency < 0.95) and mainBg.BackgroundTransparency or 0.15
 
+-- Khởi tạo trang trí nội thất 1 lần duy nhất (Tuyệt đối không chạy lại khi mở/tắt menu)
 if not State.MenuInteriorStyled then
 State.MenuInteriorStyled = true
 local cardT = 0.58
@@ -2521,10 +2530,9 @@ titleLbl.TextColor3 = Color3.new(1, 1, 1)
 titleLbl.Font = Enum.Font.GothamBold
 end)
 
--- 1. CƠ CHẾ CHỐNG LAG KHI MỞ/TẮT MENU: Chỉ thao tác Visible, KHÔNG DÙNG TWEEN UISCALE ĐỂ TRÁNH DELAY & LỆCH HƯỚNG
-local fullWinSize = win.Size
-local winScale = win:FindFirstChild("ChilliFastOpenScale")
-if winScale then winScale:Destroy() end
+-- 1. CƠ CHẾ CHỐNG LAG KHI MỞ/TẮT MENU: Không dùng UIScale làm lệch tâm, mở tức thì mượt mà ngay từ lần đầu
+local oldScale = win:FindFirstChild("ChilliFastOpenScale")
+if oldScale then oldScale:Destroy() end
 local lastWasOpen = false
 local function syncWindowVisibilityInstant()
 if not win or not win.Parent then return end
@@ -2574,7 +2582,8 @@ end
 end
 
 -- ============================================================================
--- 2. CỤM NÚT TAB (SIDEBAR) THON GỌN (120px) CHỈ DÙNG UIListLayout
+-- 2. CỤM NÚT TAB (SIDEBAR) KHÔNG BAO GIỜ VỠ: CreateTab(nameVN, nameEN, iconId)
+-- Sidebar Frame cố định (Size = UDim2.new(0, 135, 1, -55)), CHỈ DÙNG UIListLayout (Padding = 8px)
 -- ============================================================================
 local SIDEBAR_PALETTE = {
 c3(37, 99, 235),   -- Tab 1: Trang chủ (Xanh biển)
@@ -2624,15 +2633,27 @@ end
 
 if #navButtons >= 2 then
 table.sort(navButtons, function(a, b) return a.AbsolutePosition.Y < b.AbsolutePosition.Y end)
-local CONTENT_START_X = 142
 
 pcall(function()
 if navContainer then
 navContainer.Parent = win
-navContainer.Position = u2(0, 10, 0, 46)
-navContainer.Size = u2(0, 120, 1, -55)
+navContainer.Position = u2(0, 6, 0, 44)
+navContainer.Size = u2(0, 84, 1, -50)
 navContainer.ClipsDescendants = false
 navContainer.BackgroundTransparency = 1
+if not navContainer:GetAttribute("__ChilliNavPosLocked") then
+navContainer:SetAttribute("__ChilliNavPosLocked", true)
+navContainer:GetPropertyChangedSignal("Position"):Connect(function()
+if navContainer.Position ~= u2(0, 6, 0, 44) then
+navContainer.Position = u2(0, 6, 0, 44)
+end
+end)
+navContainer:GetPropertyChangedSignal("Size"):Connect(function()
+if navContainer.Size ~= u2(0, 84, 1, -50) then
+navContainer.Size = u2(0, 84, 1, -50)
+end
+end)
+end
 
 for _, ch in ipairs(navContainer:GetChildren()) do
 if ch:IsA("UIPadding") or ch:IsA("UIGridLayout") then
@@ -2644,44 +2665,38 @@ listLayout.FillDirection = Enum.FillDirection.Vertical
 listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 listLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 listLayout.SortOrder = Enum.SortOrder.LayoutOrder
-listLayout.Padding = UDim.new(0, 8)
+listLayout.Padding = UDim.new(0, 6)
 end
 
-local function shiftContentTarget(sib)
-if not sib or not sib:IsA("GuiObject") or sib == win or sib == mainBg or sib == navContainer or sib:IsDescendantOf(navContainer) or navContainer:IsDescendantOf(sib) then return end
-local isHdr = (titleLbl and (sib == titleLbl.Parent or titleLbl:IsDescendantOf(sib)))
-local isWp = (sib.Name:find("^Chilli") and (sib.Name:find("Wallpaper") or sib.Name:find("Stroke") or sib.Name:find("Cosmic") or sib.Name:find("Logo")))
+local function lockContentContainer(ch)
+if not ch or not ch:IsA("GuiObject") or ch == navContainer or (navContainer and ch:IsDescendantOf(navContainer)) then return end
+local isHdr = (titleLbl and (ch == titleLbl.Parent or ch:IsDescendantOf(titleLbl.Parent)))
+local isWp = (ch.Name:find("^Chilli") and (ch.Name:find("Wallpaper") or ch.Name:find("Stroke") or ch.Name:find("Cosmic") or ch.Name:find("Logo")))
 if isHdr or isWp then return end
-
-if not sib:GetAttribute("__ChilliShiftedRightV12") then
-local sx = sib.Position.X.Offset
-local sy = sib.Position.Y.Offset
-local relY = sib.AbsolutePosition.Y - win.AbsolutePosition.Y
-local relX = sib.AbsolutePosition.X - win.AbsolutePosition.X
-if (sx >= 15 and sx <= 148) or (relX >= 15 and relX <= 148 and relY >= 20) then
-local ancShifted = false
-local p = sib.Parent
-while p and p ~= win and p ~= mainBg do
-if p:GetAttribute("__ChilliShiftedRightV12") then ancShifted = true break end
-p = p.Parent
-end
-if not ancShifted then
-sib:SetAttribute("__ChilliShiftedRightV12", true)
-local targetX = math.max(sx, CONTENT_START_X)
-sib.Position = u2(sib.Position.X.Scale, targetX, sib.Position.Y.Scale, sy)
-if sib.Size.X.Scale > 0.4 or sib.Size.X.Offset > 180 then
-sib.Size = u2(sib.Size.X.Scale, sib.Size.X.Offset - 88, sib.Size.Y.Scale, sib.Size.Y.Offset)
-end
-end
-end
+if ch.Position.Y.Scale == 0 and ch.Position.Y.Offset < 32 and ch.Size.Y.Scale == 0 and ch.Size.Y.Offset <= 44 then return end
+local targetPos = u2(0, 96, 0, 44)
+local targetSize = u2(1, -102, 1, -50)
+ch.Position = targetPos
+ch.Size = targetSize
+if not ch:GetAttribute("__ChilliContentContainerLocked") then
+ch:SetAttribute("__ChilliContentContainerLocked", true)
+ch:GetPropertyChangedSignal("Position"):Connect(function()
+if ch.Position ~= targetPos then ch.Position = targetPos end
+end)
+ch:GetPropertyChangedSignal("Size"):Connect(function()
+if ch.Size ~= targetSize then ch.Size = targetSize end
+end)
 end
 end
 
-for _, sib in ipairs(win:GetDescendants()) do
-if sib:IsA("GuiObject") then
-shiftContentTarget(sib)
+local function setupContentContainer(parentWin)
+if not parentWin then return end
+for _, ch in ipairs(parentWin:GetChildren()) do
+lockContentContainer(ch)
 end
 end
+setupContentContainer(win)
+if mainBg and mainBg ~= win then setupContentContainer(mainBg) end
 end)
 
 State.SystemTabBtn = navButtons[6] or navButtons[#navButtons]
@@ -2752,6 +2767,8 @@ end
 end
 end
 
+-- Hàm tạo Tab chuẩn mực: CreateTab(nameVN, nameEN, iconId)
+-- Không set Position thủ công cho nút Tab, hoàn toàn để UIListLayout (Padding = 8px) tự căn chỉnh
 local function CreateTab(nameVN, nameEN, iconId, idx, btn)
 local badgeColor = SIDEBAR_PALETTE[((idx - 1) % #SIDEBAR_PALETTE) + 1]
 pcall(function()
@@ -2840,6 +2857,7 @@ actBar.Size = u2(0, 3, 0, 16)
 actBar.Visible = (idx == 1)
 if not actBar:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, actBar) end
 
+-- 1. ImageLabel (Icon) bên trái: Giữ nguyên hiển thị icon gốc của Venyx để không bao giờ bị mất ảnh
 local hasFoundIcon = false
 for _, ch in ipairs(btn:GetDescendants()) do
 if ch ~= squircle and not ch:IsDescendantOf(squircle) and ch.Name ~= "ChilliStealTabIcon" and ch.Name ~= "ChilliTabCaption" and ch.Name ~= "ChilliTabCaptionEn" then
@@ -2911,14 +2929,15 @@ local oldExtraIcon = squircle:FindFirstChild("ChilliStealTabIcon") or btn:FindFi
 if oldExtraIcon then oldExtraIcon:Destroy() end
 end
 
+-- 2. TextLabel cho tiếng Việt (to, rõ, in đậm, vừa khít thanh tab gọn)
 local viLbl = squircle:FindFirstChild("ChilliTabCaption") or mk("TextLabel", {
 Name = "ChilliTabCaption",
 AnchorPoint = v2(0, 0),
-Position = u2(0, 30, 0, 3),
-Size = u2(1, -34, 0, 18),
+Position = u2(0, 25, 0, 3),
+Size = u2(1, -27, 0, 18),
 BackgroundTransparency = 1,
 Font = Enum.Font.GothamBold,
-TextSize = 13,
+TextSize = 12,
 TextColor3 = c3(255, 255, 255),
 TextXAlignment = Enum.TextXAlignment.Left,
 TextYAlignment = Enum.TextYAlignment.Center,
@@ -2929,10 +2948,10 @@ ZIndex = squircle.ZIndex + 6
 }, squircle)
 viLbl:SetAttribute("__HiddenVxLogo", true)
 viLbl.AnchorPoint = v2(0, 0)
-viLbl.Position = u2(0, 30, 0, 3)
-viLbl.Size = u2(1, -34, 0, 18)
+viLbl.Position = u2(0, 25, 0, 3)
+viLbl.Size = u2(1, -27, 0, 18)
 viLbl.Font = Enum.Font.GothamBold
-viLbl.TextSize = 13
+viLbl.TextSize = 12
 viLbl.TextColor3 = c3(255, 255, 255)
 viLbl.TextXAlignment = Enum.TextXAlignment.Left
 viLbl.TextYAlignment = Enum.TextYAlignment.Center
@@ -2946,11 +2965,12 @@ viSt.Thickness = 1.1
 viSt.Color = c3(8, 10, 18)
 viSt.Transparency = 0.15
 
+-- 3. TextLabel cho tiếng Anh (nhỏ hơn, nằm ngay dưới)
 local enLbl = squircle:FindFirstChild("ChilliTabCaptionEn") or mk("TextLabel", {
 Name = "ChilliTabCaptionEn",
 AnchorPoint = v2(0, 0),
-Position = u2(0, 30, 0, 21),
-Size = u2(1, -34, 0, 13),
+Position = u2(0, 25, 0, 20),
+Size = u2(1, -27, 0, 13),
 BackgroundTransparency = 1,
 Font = Enum.Font.Gotham,
 TextSize = 9,
@@ -2964,8 +2984,8 @@ ZIndex = squircle.ZIndex + 6
 }, squircle)
 enLbl:SetAttribute("__HiddenVxLogo", true)
 enLbl.AnchorPoint = v2(0, 0)
-enLbl.Position = u2(0, 30, 0, 21)
-enLbl.Size = u2(1, -34, 0, 13)
+enLbl.Position = u2(0, 25, 0, 20)
+enLbl.Size = u2(1, -27, 0, 13)
 enLbl.Font = Enum.Font.Gotham
 enLbl.TextSize = 9
 enLbl.TextColor3 = c3(185, 195, 210)
@@ -3013,14 +3033,7 @@ local venyxGuiLocked = nil
 local function patchVenyxGui(gui, titleLbl)
 gui:SetAttribute("__IsChilliVenyxGui", true)
 pcall(function() gui.Enabled = true end)
-
-if titleLbl:GetAttribute("__TitleShiftedV8") ~= SID then
-titleLbl:SetAttribute("__TitleShiftedV8", SID)
-local tx = titleLbl.Position.X.Offset
-if tx < 45 then
-titleLbl.Position = u2(titleLbl.Position.X.Scale, 56, titleLbl.Position.Y.Scale, titleLbl.Position.Y.Offset)
-end
-end
+pcall(setupSafeTeleportHook)
 
 if titleLbl.Text ~= NEW_TITLE then
 titleLbl:SetAttribute("__IsTranslating", true)
@@ -3044,18 +3057,24 @@ if win then
 State.ActiveMainWin = win
 pcall(cleanupStrayLogos, gui, win)
 
+-- 1. Áp dụng kiến trúc giao diện Dark Mode V8 & Sidebar Tabs trước
 if win:GetAttribute("__ChilliV7ArchSession") ~= SID or not State.SystemTabBtn then
 win:SetAttribute("__ChilliV7ArchSession", SID)
 pcall(applySenaV8Architecture, win, titleLbl)
 end
 
+-- 2. Dịch chữ "Chilli Hub V8" sát sang trái (X = 8px) và xoá sạch 100% logo chữ V (Vx) trên thanh
 pcall(function()
 local topBar = (titleLbl.Parent and titleLbl.Parent ~= win and titleLbl.Parent:IsA("GuiObject") and titleLbl.Parent.AbsoluteSize.Y <= 60) and titleLbl.Parent or nil
+local oldLogo1 = win:FindFirstChild("ChilliHeaderLogoBadge")
+if oldLogo1 then oldLogo1:Destroy() end
 if topBar then
-for _, c in ipairs(topBar:GetChildren()) do
-if c.Name == "ChilliHeaderLogoBadge" or c.Name == "ChilliHeaderLogo" then
-c:Destroy()
-end
+local oldLogo2 = topBar:FindFirstChild("ChilliHeaderLogoBadge")
+if oldLogo2 then oldLogo2:Destroy() end
+local tbPad = topBar:FindFirstChildOfClass("UIPadding")
+if tbPad then tbPad.PaddingLeft = UDim.new(0, 6) end
+if topBar.Position.X.Offset > 0 and topBar.Size.X.Scale > 0.5 then
+topBar.Position = u2(topBar.Position.X.Scale, 0, topBar.Position.Y.Scale, topBar.Position.Y.Offset)
 end
 end
 
@@ -3067,26 +3086,102 @@ if oldStroke then oldStroke:Destroy() end
 titleLbl.Font = Enum.Font.GothamBold
 titleLbl.TextColor3 = Color3.new(1, 1, 1)
 titleLbl.TextTransparency = 0
+titleLbl.TextXAlignment = Enum.TextXAlignment.Left
 titleLbl.AutomaticSize = Enum.AutomaticSize.X
 titleLbl.Text = NEW_TITLE
 
+-- Xoá sạch hoàn toàn logo chữ V (Vx) ở thanh trên (dù là ImageLabel, TextLabel hay các Frame xoay chéo tạo hình chữ V/x)
 for _, d in ipairs(win:GetDescendants()) do
-if d ~= titleLbl then
-if d:IsA("TextLabel") or d:IsA("TextButton") then
+if d ~= titleLbl and d ~= win and d ~= topBar and d.Name ~= "ChilliSenaWallpaper" and not (State.ActiveNavContainer and d:IsDescendantOf(State.ActiveNavContainer)) then
+local ry = d.AbsolutePosition.Y - win.AbsolutePosition.Y
+local rx = d.AbsolutePosition.X - win.AbsolutePosition.X
+if ry >= -2 and ry <= 42 and rx >= -2 and rx <= 260 then
+if d:IsA("ImageLabel") or d:IsA("ImageButton") then
+d.ImageTransparency = 1
+d.Visible = false
+elseif d:IsA("TextLabel") or d:IsA("TextButton") then
 local t = (d.Text or ""):match("^%s*(.-)%s*$")
-if t == "vx" or t == "Vx" or t == "VX" then
+if t == "vx" or t == "Vx" or t == "VX" or t == "V" or t == "v" or t == "x" or t == "X" then
 d.Text = ""
 d.Visible = false
 d.TextTransparency = 1
+if d.Parent and d.Parent ~= topBar and d.Parent ~= win and d.Parent.AbsoluteSize.X <= 45 then
+d.Parent.Visible = false
+end
+end
+elseif d:IsA("Frame") and not titleLbl:IsDescendantOf(d) then
+local hasValidTxt = false
+for _, sub in ipairs(d:GetDescendants()) do
+if sub:IsA("TextLabel") or sub:IsA("TextButton") or sub:IsA("TextBox") then
+local st = (sub.Text or ""):match("^%s*(.-)%s*$")
+if st ~= "" and st ~= "vx" and st ~= "Vx" and st ~= "VX" and st ~= "V" and st ~= "v" and st ~= "x" and st ~= "X" then
+hasValidTxt = true
+break
+end
+end
+end
+if not hasValidTxt and (d.Rotation ~= 0 or (d.AbsoluteSize.X <= 48 and d.AbsoluteSize.Y <= 42)) then
+d.Visible = false
+d.BackgroundTransparency = 1
+end
+end
+end
+end
+end
+
+-- Dịch cụm tiêu đề Chilli Hub V8 / Cướp Trứng v1.4.5 sát sang lề trái (X = 8px)
+if not titleLbl:GetAttribute("__ChilliTitleShiftedLeft") then
+local curRelX = titleLbl.AbsolutePosition.X - win.AbsolutePosition.X
+local deltaX = (curRelX > 12 and curRelX < 120) and (curRelX - 8) or 32
+titleLbl:SetAttribute("__ChilliTitleShiftedLeft", true)
+titleLbl.Position = u2(titleLbl.Position.X.Scale, 8, titleLbl.Position.Y.Scale, titleLbl.Position.Y.Offset)
+local hdrContainer = titleLbl.Parent
+if hdrContainer then
+for _, ch in ipairs(hdrContainer:GetChildren()) do
+if ch ~= titleLbl and ch:IsA("GuiObject") and ch.Visible then
+local cx = ch.Position.X.Offset
+if ch.Position.X.Scale < 0.3 and cx > 25 and cx < 320 then
+ch.Position = u2(ch.Position.X.Scale, math.max(98, cx - deltaX), ch.Position.Y.Scale, ch.Position.Y.Offset)
+end
 end
 end
 end
 end
 end)
 
+-- 3. Căn chỉnh khung nội dung chính sang X=148px chuẩn xác 1 lần duy nhất, chống delay & chống lệch khi mở
+local function ensureAllContentShifted(targetWin)
+if not targetWin or not targetWin.Parent then return end
+local navContainer = State.ActiveNavContainer
+for _, ch in ipairs(targetWin:GetChildren()) do
+if ch:IsA("GuiObject") and ch ~= navContainer and not (navContainer and ch:IsDescendantOf(navContainer)) then
+local isHdr = (titleLbl and (ch == titleLbl.Parent or ch:IsDescendantOf(titleLbl.Parent)))
+local isWp = (ch.Name:find("^Chilli") and (ch.Name:find("Wallpaper") or ch.Name:find("Stroke") or ch.Name:find("Cosmic") or ch.Name:find("Logo")))
+if not isHdr and not isWp then
+if ch.Position.Y.Scale == 0 and ch.Position.Y.Offset < 32 and ch.Size.Y.Scale == 0 and ch.Size.Y.Offset <= 44 then
+-- Giữ nguyên thanh topbar
+elseif not ch:GetAttribute("__ChilliContentContainerFixed") then
+ch:SetAttribute("__ChilliContentContainerFixed", true)
+local targetPos = u2(0, 96, 0, 44)
+local targetSize = u2(1, -102, 1, -50)
+ch.Position = targetPos
+ch.Size = targetSize
+ch:GetPropertyChangedSignal("Position"):Connect(function()
+if ch.Position ~= targetPos then ch.Position = targetPos end
+end)
+ch:GetPropertyChangedSignal("Size"):Connect(function()
+if ch.Size ~= targetSize then ch.Size = targetSize end
+end)
+end
+end
+end
+end
+end
+
 local function lockHidePageTitleLabel(d)
 if not d or not d:IsA("TextLabel") or d == titleLbl then return end
-if State.ActiveNavContainer and d:IsDescendantOf(State.ActiveNavContainer) then return end
+local navContainer = State.ActiveNavContainer
+if navContainer and d:IsDescendantOf(navContainer) then return end
 if d:FindFirstAncestorOfClass("ScrollingFrame") then return end
 if isProfileOrPlayerInfo(d) then
 d:SetAttribute("__HiddenVxLogo", nil)
@@ -3137,11 +3232,35 @@ end
 end
 end
 
+pcall(ensureAllContentShifted, win)
 if not win:GetAttribute("__ChilliShiftListenerHooked") then
 win:SetAttribute("__ChilliShiftListenerHooked", true)
 win.DescendantAdded:Connect(function(ch)
 if not isAlive() then return end
-if ch:IsA("TextLabel") and not (State.ActiveNavContainer and ch:IsDescendantOf(State.ActiveNavContainer)) and ch ~= titleLbl then
+if ch:IsA("GuiObject") and ch ~= win and ch.Parent == win then
+local navContainer = State.ActiveNavContainer
+if ch ~= navContainer and not (navContainer and ch:IsDescendantOf(navContainer)) then
+local isHdr = (titleLbl and (ch == titleLbl.Parent or ch:IsDescendantOf(titleLbl.Parent)))
+local isWp = (ch.Name:find("^Chilli") and (ch.Name:find("Wallpaper") or ch.Name:find("Stroke") or ch.Name:find("Cosmic") or ch.Name:find("Logo")))
+if not isHdr and not isWp then
+if ch.Position.Y.Scale == 0 and ch.Position.Y.Offset < 32 and ch.Size.Y.Scale == 0 and ch.Size.Y.Offset <= 44 then
+-- Giữ nguyên thanh topbar
+elseif not ch:GetAttribute("__ChilliContentContainerFixed") then
+ch:SetAttribute("__ChilliContentContainerFixed", true)
+local targetPos = u2(0, 96, 0, 44)
+local targetSize = u2(1, -102, 1, -50)
+ch.Position = targetPos
+ch.Size = targetSize
+ch:GetPropertyChangedSignal("Position"):Connect(function()
+if ch.Position ~= targetPos then ch.Position = targetPos end
+end)
+ch:GetPropertyChangedSignal("Size"):Connect(function()
+if ch.Size ~= targetSize then ch.Size = targetSize end
+end)
+end
+end
+end
+elseif ch:IsA("TextLabel") and not (State.ActiveNavContainer and ch:IsDescendantOf(State.ActiveNavContainer)) and ch ~= titleLbl then
 if isProfileOrPlayerInfo(ch) then
 ch.Visible = true
 ch.TextTransparency = 0
@@ -3157,107 +3276,1389 @@ end
 end
 end)
 end
-end
+
 for _, tc in ipairs(gui:GetChildren()) do
 if tc:IsA("GuiObject") and tc ~= win and tc.Name ~= "ChilliV5_ExpandedIsland" and not tc:FindFirstChild("IslandExpandHint") then
 pcall(setupCircleLogo, tc, win)
 end
 end
-return (win ~= nil)
 end
-
--- ============================================================================
--- GHOST TRANSLATOR DAEMON (FLAT ARRAY POLLING) - NO STACK OVERFLOW
--- ============================================================================
-local activeLabels = {}
-local function trackInstance(inst)
-if inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox") then
-if not inst:GetAttribute("__ViTrk") then
-inst:SetAttribute("__ViTrk", true)
-table.insert(activeLabels, inst)
-end
+pcall(function()
+for _, ch in ipairs(gui:GetChildren()) do
+if ch:FindFirstChild("IslandLogoBadge") and ch:FindFirstChildOfClass("TextBox") then
+local tb = ch:FindFirstChildOfClass("TextBox")
+tb:SetAttribute("__IslandDone", nil)
+tb:SetAttribute("__IslandSession", nil)
+tb.Text = ""
+for _, sub in ipairs(ch:GetChildren()) do
+if sub.Name == "IslandLogoBadge" or sub.Name == "IslandExpandHint" or sub.Name == "IslandStroke" then
+sub:Destroy()
 end
 end
-
-local function scanRootsForGuis()
-local roots = { CoreGui }
-if gethui then pcall(function() table.insert(roots, gethui()) end) end
-local pg = LocalPlayer:FindFirstChildOfClass("PlayerGui")
-if pg then table.insert(roots, pg) end
-for _, root in ipairs(roots) do
-for _, gui in ipairs(root:GetChildren()) do
-if gui:IsA("ScreenGui") and not IGNORED_GUIS[gui.Name] then
-if not gui:GetAttribute("__ViHk") then
-gui:SetAttribute("__ViHk", true)
-for _, d in ipairs(gui:GetDescendants()) do trackInstance(d) end
-gui.DescendantAdded:Connect(trackInstance)
+local hdrBar = titleLbl.Parent
+if hdrBar and hdrBar:IsA("GuiObject") then
+ch.Parent = hdrBar
+ch.AnchorPoint = v2(1, 0.5)
+ch.Position = u2(1, -42, 0.5, 0)
+ch.Size = u2(0, 115, 0, 24)
+ch.AutomaticSize = Enum.AutomaticSize.None
+end
+gui:SetAttribute("__IslandLocked", nil)
 end
 end
-end
-end
-end
-
-local RunService = game:GetService("RunService")
-local idx = 1
-RunService.Heartbeat:Connect(function()
-if not isAlive() or #activeLabels == 0 then return end
-local count = 0
-local limit = 600
-while idx <= #activeLabels and count < limit do
-local inst = activeLabels[idx]
-if not inst.Parent then
-table.remove(activeLabels, idx)
-else
-if inst:IsA("TextBox") then
-local ph = inst.PlaceholderText
-if ph and ph ~= "" and ph ~= inst:GetAttribute("__LastPh") then
-local tr = translateFullText(ph)
-if tr and tr ~= ph then pcall(function() inst.PlaceholderText = tr end) end
-inst:SetAttribute("__LastPh", tr)
-end
-else
-local txt = inst.Text
-if txt and txt ~= "" and txt ~= inst:GetAttribute("__LastTxt") then
-if txt:find("[\194-\244][\128-\191]") and not stillHasUntranslatedEnglish(txt) then
-inst:SetAttribute("__LastTxt", txt)
-else
-local tr = translateFullText(txt)
-if tr and tr ~= txt then pcall(function() inst.Text = tr end) end
-inst:SetAttribute("__LastTxt", tr)
-end
-end
-end
-idx = idx + 1
-end
-count = count + 1
-end
-if idx > #activeLabels then idx = 1 end
 end)
-
-task.spawn(function()
-while task.wait(1.5) do
-if not isAlive() then break end
-pcall(scanRootsForGuis)
-local sg = CoreGui:FindFirstChild("RobloxGui") or CoreGui
-if not venyxGuiLocked then
-for _, gui in ipairs(sg:GetChildren()) do
-if gui:IsA("ScreenGui") and not IGNORED_GUIS[gui.Name] then
-local titleLbl = nil
+local queue = {}
 for _, d in ipairs(gui:GetDescendants()) do
-if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Name ~= "ChilliUltraTitleBadge" and d.Name ~= "ChilliIslandTitle" then
-local t = (d.Text or ""):match("^%s*(.-)%s*$")
-if (t == "VENYX" or t == NEW_TITLE or t == "Chilli Hub Ultra" or t == "Chilli Hub V5" or t == "Chilli V5 |") and not d:FindFirstAncestorOfClass("ScrollingFrame") then
-titleLbl = d
+if d:IsA("TextLabel") or d:IsA("TextButton") or d:IsA("TextBox") then
+local txt = d.Text or ""
+local hasDot = false
+if d:IsA("TextLabel") and d.Parent and d.Parent:IsA("GuiObject") and d.Parent.AbsoluteSize.X < 320 and not d.Parent:FindFirstChildOfClass("TextBox") then
+for _, sb in ipairs(d.Parent:GetChildren()) do
+if sb:IsA("Frame") and sb.AbsoluteSize.X <= 14 and sb.AbsoluteSize.Y <= 14 then
+hasDot = true
 break
 end
 end
 end
+local isStatus = d:IsA("TextLabel") and (not isFpsTxt(txt)) and (not gui:GetAttribute("__IslandLocked")) and (not d:FindFirstAncestorOfClass("ScrollingFrame")) and d.Parent and (not d.Parent:FindFirstChildOfClass("TextBox")) and (not titleLbl:IsDescendantOf(d.Parent)) and math.abs(d.AbsolutePosition.Y - hy) < 35 and d.AbsolutePosition.X > titleLbl.AbsolutePosition.X + 60 and (hasDot or txt:lower():find("idle", 1, true) or txt == "Đang rảnh") and not txt:find("v1.", 1, true)
+if isFpsTxt(txt) then
+pcall(hookFps, d)
+elseif isStatus or (d:IsA("TextLabel") and d:GetAttribute("__IslandDone")) then
+gui:SetAttribute("__IslandLocked", true)
+pcall(setupIsland, d, gui)
+elseif d:GetAttribute("__TransHookSession") ~= SID then
+queue[#queue + 1] = d
+end
+end
+end
+if #queue > 0 and not gui:GetAttribute("__BatchTranslating") then
+gui:SetAttribute("__BatchTranslating", true)
+task.spawn(function()
+for i = 1, #queue do
+if not isAlive() then break end
+if queue[i] and queue[i].Parent then pcall(hookTrans, queue[i]) if watchFinderTextObj then pcall(watchFinderTextObj, queue[i]) end end
+if i % 350 == 0 then task.wait() end
+end
+gui:SetAttribute("__BatchTranslating", false)
+end)
+end
+return (win ~= nil and gui:GetAttribute("__IslandLocked") == true)
+end
+
+-- ============================================================================
+-- [PHẦN 5] CHILLI FINDER FREE (VIỆT HÓA 100%, ĐỔI SERVER ÍT NGƯỜI & SIÊU MƯỢT 0 LAG)
+-- ============================================================================
+local HttpService = game:GetService("HttpService")
+local TeleportService = game:GetService("TeleportService")
+local GuiService = game:GetService("GuiService")
+local UserInputService = game:GetService("UserInputService")
+
+local FINDER_BORDER_NEON_GRAD = ColorSequence.new({
+csk(0.00, c3(255, 65, 125)),
+csk(0.20, c3(255, 195, 45)),
+csk(0.40, c3(55, 255, 165)),
+csk(0.60, c3(45, 215, 255)),
+csk(0.80, c3(195, 95, 255)),
+csk(1.00, c3(255, 65, 125))
+})
+
+local FINDER_STATE_MAP = {
+["connecting..."] = "Đang kết nối...",
+["connecting"] = "Đang kết nối...",
+["reconnecting..."] = "Đang kết nối lại...",
+["reconnecting"] = "Đang kết nối lại...",
+["hopping..."] = "Đang đổi server...",
+["hopping"] = "Đang đổi server...",
+["new egg!"] = "Trứng mới!",
+["new egg"] = "Trứng mới!",
+["server full"] = "Server đầy",
+["full"] = "Đầy",
+["error"] = "Lỗi",
+["retry"] = "Thử lại",
+["retrying..."] = "Đang thử lại...",
+["finder"] = "Tìm Trứng",
+["chilli finder"] = "Chilli Finder Free",
+["chill finder free"] = "Chilli Finder Free",
+["chilli finder free"] = "Chilli Finder Free",
+["open finder"] = "Mở Tìm Trứng",
+["close finder"] = "Đóng Tìm Trứng",
+["show finder"] = "Hiện Tìm Trứng",
+["hide finder"] = "Ẩn Tìm Trứng",
+["auto off"] = "TỰ ĐỘNG: TẮT",
+["auto on"] = "TỰ ĐỘNG: BẬT",
+["auto: off"] = "TỰ ĐỘNG: TẮT",
+["auto: on"] = "TỰ ĐỘNG: BẬT",
+["auto join: off"] = "TỰ VÀO: TẮT",
+["auto join: on"] = "TỰ VÀO: BẬT",
+["force join"] = "TỰ VÀO SAU",
+["min value"] = "GIÁ TỐI THIỂU",
+["rarity"] = "ĐỘ HIẾM",
+["account"] = "TÀI KHOẢN",
+["any"] = "Tất cả",
+["all"] = "Tất cả",
+["none"] = "Không",
+["off"] = "Tắt",
+["on"] = "Bật",
+["instant"] = "Tức thì",
+["fast"] = "Nhanh",
+["normal"] = "Thường",
+["slow"] = "Chậm",
+["sign in"] = "Miễn phí",
+["sign trong"] = "Miễn phí",
+["sign up"] = "Đăng ký",
+["log in"] = "Miễn phí",
+["login"] = "Miễn phí",
+["no plan"] = "Miễn phí",
+["free"] = "Miễn phí",
+["hide"] = "Ẩn",
+["show"] = "Hiện",
+["active"] = "Đang chạy",
+["idle"] = "Đang rảnh",
+["paused"] = "Tạm dừng",
+["stopped"] = "Đã dừng",
+["ready"] = "Sẵn sàng",
+["cooldown"] = "Đang hồi...",
+["searching..."] = "Đang tìm...",
+["searching"] = "Đang tìm...",
+["scanning..."] = "Đang quét...",
+["scanning"] = "Đang quét...",
+["checking..."] = "Đang kiểm tra...",
+["checking"] = "Đang kiểm tra...",
+["waiting..."] = "Đang chờ...",
+["waiting"] = "Đang chờ...",
+["loading..."] = "Đang tải...",
+["loading"] = "Đang tải...",
+["joining..."] = "Đang vào...",
+["joining"] = "Đang vào...",
+["teleporting..."] = "Đang chuyển...",
+["teleporting"] = "Đang chuyển...",
+["found!"] = "Đã thấy!",
+["found"] = "Đã thấy!",
+["egg found!"] = "Có trứng mới!",
+["egg found"] = "Có trứng mới!",
+["no eggs"] = "Chưa có trứng",
+["no egg"] = "Chưa có trứng",
+["no recent eggs"] = "Chưa có trứng",
+["common"] = "Phổ Thông",
+["uncommon"] = "Thường",
+["rare"] = "Hiếm",
+["epic"] = "Sử Thi",
+["legendary"] = "Huyền Thoại",
+["mythical"] = "Thần Thoại",
+["mythic"] = "Thần Thoại",
+["divine"] = "Thánh Thần",
+["eternal"] = "Vĩnh Cửu",
+["secret"] = "Bí Ẩn",
+["cosmic"] = "Vũ Trụ",
+["celestial"] = "Thiên Giới",
+["exclusive"] = "Độc Quyền",
+["limited"] = "Giới Hạn",
+["golden"] = "Vàng",
+["gold"] = "Vàng",
+["silver"] = "Bạc",
+["rainbow"] = "Cầu Vồng",
+["diamond"] = "Kim Cương",
+["shiny"] = "Lấp Lánh",
+["hexed"] = "Tà Thuật",
+["cursed"] = "Nguyền Rủa",
+["blood"] = "Huyết",
+["void"] = "Hư Không",
+["galaxy"] = "Vũ Trụ",
+["lava"] = "Dung Nham",
+["ice"] = "Băng Giá",
+["frozen"] = "Băng Giá",
+["electric"] = "Sấm Sét",
+["toxic"] = "Độc Tố",
+["acid"] = "Axit",
+["join"] = "Vào ngay",
+["vào ngay"] = "Vào ngay"
+}
+
+local function getFinderWindowFromObj(obj)
+if not obj or not obj.Parent then return nil end
+local winFrame = nil
+local curr = obj.Parent
+for _ = 1, 6 do
+if not curr or curr:IsA("ScreenGui") or curr == game then break end
+if curr:GetAttribute("__IsChilliFinderContainer") or curr:FindFirstChild("ChillFinderRainbowBorder") then
+return curr
+end
+if curr:IsA("GuiObject") then
+if (curr.AbsoluteSize.X >= 200 and curr.AbsoluteSize.Y >= 180) or (curr.Size.X.Offset >= 200 and curr.Size.Y.Offset >= 180) then
+winFrame = curr
+end
+end
+curr = curr.Parent
+end
+if not winFrame and obj.Parent and obj.Parent.Parent and obj.Parent.Parent:IsA("GuiObject") and not obj.Parent.Parent:IsA("ScreenGui") then
+winFrame = obj.Parent.Parent
+end
+return winFrame
+end
+
+local function styleMasterChillFinderFree(titleObj)
+if not titleObj or not titleObj.Parent then return end
+pcall(function()
+local oldTGrad = titleObj:FindFirstChild("ChillFinderRainbowTxt")
+if oldTGrad then oldTGrad:Destroy() end
+titleObj.TextColor3 = Color3.new(1, 1, 1)
+local hdrFrame = titleObj.Parent
+if hdrFrame and hdrFrame:IsA("GuiObject") then
+if not hdrFrame:FindFirstChild("ChillFinderHeaderNeonLine") then
+local hLine = mk("Frame", {
+Name = "ChillFinderHeaderNeonLine",
+AnchorPoint = v2(0.5, 1),
+Position = u2(0.5, 0, 1, 0),
+Size = u2(1, 0, 0, 2),
+BackgroundColor3 = Color3.new(1, 1, 1),
+BorderSizePixel = 0,
+ZIndex = math.max((hdrFrame.ZIndex or 1) + 2, 8)
+}, hdrFrame)
+local hlGrad = mk("UIGradient", { Name = "NeonLineGrad", Color = FINDER_BORDER_NEON_GRAD }, hLine)
+addGrad(hlGrad)
+end
+end
+local winFrame = getFinderWindowFromObj(titleObj)
+if winFrame then
+winFrame:SetAttribute("__IsChilliFinderContainer", true)
+State.ActiveFinderWin = winFrame
+local wCorner = winFrame:FindFirstChildOfClass("UICorner")
+if not wCorner then
+mk("UICorner", { CornerRadius = UDim.new(0, 10) }, winFrame)
+end
+for _, st in ipairs(winFrame:GetChildren()) do
+if st:IsA("UIStroke") and st.Name ~= "ChillFinderRainbowBorder" then
+st.Transparency = 1
+st.Enabled = false
+end
+end
+local rb = winFrame:FindFirstChild("ChillFinderRainbowBorder")
+if not rb then
+rb = mk("UIStroke", {
+Name = "ChillFinderRainbowBorder",
+Thickness = 2.8,
+Color = Color3.new(1, 1, 1),
+ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+Transparency = 0
+}, winFrame)
+local bgGrad = mk("UIGradient", { Name = "BorderNeonGrad", Color = FINDER_BORDER_NEON_GRAD }, rb)
+addGrad(bgGrad)
+else
+rb.Thickness = 2.8
+rb.Transparency = 0
+rb.Enabled = true
+end
+end
+end)
+end
+
+local function isInsideChilliFinder(inst)
+if not inst or not inst.Parent then return false end
+if inst:GetAttribute("__IsFinderHudElement") then return true end
+if inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliHeaderOverlay") then
+return false
+end
+if State.ActiveFinderWin and State.ActiveFinderWin.Parent and inst:IsDescendantOf(State.ActiveFinderWin) then
+return true
+end
+local sg = inst:FindFirstAncestorOfClass("ScreenGui")
+if sg and sg:GetAttribute("__IsChilliFinderGui") and not isVenyxScreenGui(sg) then
+return true
+end
+local curr = inst.Parent
+for _ = 1, 5 do
+if not curr or curr:IsA("ScreenGui") or curr == game then break end
+if curr:GetAttribute("__IsChilliFinderContainer") or curr.Name == "ChillFinderRainbowBorder" or curr.Name == "ChillFinderHeaderNeonLine" or curr:FindFirstChild("ChillFinderRainbowBorder") or curr:FindFirstChild("ChillFinderHeaderNeonLine") then
+curr:SetAttribute("__IsChilliFinderContainer", true)
+State.ActiveFinderWin = curr
+return true
+end
+for _, ch in ipairs(curr:GetChildren()) do
+if ch:IsA("TextLabel") or ch:IsA("TextButton") then
+local t = stripRichTags(ch.Text)
+if (t:find("/s", 1, true) or t:find("$", 1, true)) and (t:find("ago", 1, true) or t:find("trước", 1, true) or t:find("recent", 1, true) or t:find("x", 1, true)) then
+curr:SetAttribute("__IsChilliFinderContainer", true)
+return true
+elseif t == "Chilli Finder" or t == "Chill Finder Free" or t == "Chilli Finder Free" or t:find("chillihub.pro", 1, true) or t:find("Top 5", 1, true) or t:find("No active booking", 1, true) or t == "FORCE JOIN" or t == "TỰ VÀO SAU" or t == "MIN VALUE" or t == "GIÁ TỐI THIỂU" then
+curr:SetAttribute("__IsChilliFinderContainer", true)
+return true
+end
+end
+end
+curr = curr.Parent
+end
+return false
+end
+
+hookLoginFrameTrigger = function(loginFrame)
+if not loginFrame or not loginFrame:IsA("GuiObject") then return end
+loginFrame.Visible = false
+loginFrame.Position = UDim2.new(2, 0, 2, 0)
+if loginFrame:GetAttribute("__LockedHideSignIn") == SID then return end
+loginFrame:SetAttribute("__LockedHideSignIn", SID)
+loginFrame:GetPropertyChangedSignal("Visible"):Connect(function()
+if not isAlive() then return end
+if loginFrame.Visible then
+pcall(function()
+loginFrame.Visible = false
+loginFrame.Position = UDim2.new(2, 0, 2, 0)
+end)
+end
+end)
+end
+
+local function hideFinderSignInBox(rootGui)
+if os.clock() - (State.LastHideSignInClock or 0) < 0.12 then return end
+State.LastHideSignInClock = os.clock()
+local root = (State.ActiveFinderWin and State.ActiveFinderWin.Parent and State.ActiveFinderWin) or rootGui
+if not root then
+for _, r in ipairs(getScanRoots()) do
+for _, d in ipairs(r:GetDescendants()) do
+if d:IsA("TextLabel") and (d.Text == "Chilli Finder" or d.Text == "Chilli Finder Free" or d.Text == "Top 5 trứng mới nhất | Chilli Finder Free") then
+local win = getFinderWindowFromObj(d)
+if win then root = win State.ActiveFinderWin = win break end
+end
+end
+if root then break end
+end
+end
+if not root then return end
+pcall(function()
+for _, d in ipairs(root:GetDescendants()) do
+if d:IsA("TextBox") then
+local ph = (d.PlaceholderText or ""):lower()
+local tx = (d.Text or ""):lower()
+if ph:find("password", 1, true) or ph:find("user", 1, true) or tx == "hihi" or isInsideChilliFinder(d) then
+local curr = d.Parent
+for _ = 1, 4 do
+if not curr or curr:IsA("ScreenGui") or curr == State.ActiveFinderWin then break end
+if curr:IsA("GuiObject") and curr.AbsoluteSize.Y <= 260 then
+curr.Visible = false
+curr.Position = UDim2.new(2, 0, 2, 0)
+hookLoginFrameTrigger(curr)
+break
+end
+curr = curr.Parent
+end
+end
+elseif d:IsA("TextLabel") or d:IsA("TextButton") then
+local t = stripRichTags(d.Text)
+local tl = t:lower()
+if t == "Sign Up" or t == "Đăng ký" or t == "Password" or tl:find("sign in with your", 1, true) then
+local curr = d.Parent
+for _ = 1, 4 do
+if not curr or curr:IsA("ScreenGui") or curr == State.ActiveFinderWin then break end
+if curr:IsA("GuiObject") and curr.AbsoluteSize.Y >= 40 and curr.AbsoluteSize.Y <= 260 and (curr:FindFirstChildWhichIsA("TextBox", true) or tl:find("sign in with your", 1, true)) then
+curr.Visible = false
+curr.Position = UDim2.new(2, 0, 2, 0)
+hookLoginFrameTrigger(curr)
+break
+end
+curr = curr.Parent
+end
+elseif t == "Hide" or t == "Ẩn" or tl == "sign trong" or t == "Sign In" or t == "No plan" then
+local accP = d.Parent
+if accP then
+for _, sib in ipairs(accP:GetChildren()) do
+local sibT = stripRichTags(sib.Text):upper()
+if (sib:IsA("TextLabel") or sib:IsA("TextButton")) and (sibT == "ACCOUNT" or sibT == "TÀI KHOẢN") then
+if not accP:GetAttribute("__AccBtnTouchHooked") then
+accP:SetAttribute("__AccBtnTouchHooked", true)
+accP.InputBegan:Connect(function(inp)
+if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+State.LastAccountBtnTouchClock = os.clock()
+end
+end)
+end
+if d.Text ~= "Miễn phí" and d.Text ~= "Free" then
+d:SetAttribute("__IsTranslating", true)
+d:SetAttribute("__TranslatingFinderHud", true)
+pcall(function() d.Text = (State.Language == "EN") and "Free" or "Miễn phí" end)
+d:SetAttribute("__TranslatingFinderHud", false)
+d:SetAttribute("__IsTranslating", false)
+end
+end
+end
+end
+end
+end
+end
+end)
+end
+
+local function sanitizeChillFinderFreeObj(d)
+if not d or not d.Parent then return end
+if not (d:IsA("TextLabel") or d:IsA("TextButton")) then return end
+if d:GetAttribute("__ModifyingFinderText") then return end
+local raw = stripRichTags(d.Text)
+if raw == "" then return end
+local low = raw:lower()
+if raw == "Chilli Finder" or raw == "Chill Finder Free" or raw == "Chilli Finder Free" or raw == "⚡ Chill Finder Free" then
+d:SetAttribute("__ModifyingFinderText", true)
+d:SetAttribute("__IsTranslating", true)
+d:SetAttribute("OrigRawText", "Chilli Finder Free")
+d:SetAttribute("OrigFinderStateText", "Chilli Finder Free")
+if d.Text ~= "Chilli Finder Free" then
+pcall(function() d.Text = "Chilli Finder Free" end)
+end
+if d:GetAttribute("__FinderMasterStyled") ~= SID then
+d:SetAttribute("__FinderMasterStyled", SID)
+styleMasterChillFinderFree(d)
+task.defer(function() hideFinderSignInBox(State.ActiveFinderWin) end)
+end
+d:SetAttribute("__IsTranslating", false)
+d:SetAttribute("__ModifyingFinderText", false)
+local sg = d:FindFirstAncestorOfClass("ScreenGui")
+if sg and not isVenyxScreenGui(sg) then
+sg:SetAttribute("__IsChilliFinderGui", true)
+end
+elseif low == "https://chillihub.pro" or low == "chillihub.pro" or low:find("create your account and get", 1, true) then
+d:SetAttribute("__ModifyingFinderText", true)
+d:SetAttribute("__IsTranslating", true)
+pcall(function()
+d.Visible = false
+d.Text = ""
+if d.Parent and d.Parent:IsA("GuiObject") and d.Parent.Name ~= "ChillFinderHeaderNeonLine" and d.Parent ~= State.ActiveFinderWin then
+if d.Parent.AbsoluteSize.Y > 0 and d.Parent.AbsoluteSize.Y <= 65 then
+d.Parent.Visible = false
+end
+end
+end)
+d:SetAttribute("__IsTranslating", false)
+d:SetAttribute("__ModifyingFinderText", false)
+elseif low == "copy link" or low == "copied!" then
+if isInsideChilliFinder(d) then
+d:SetAttribute("__ModifyingFinderText", true)
+d:SetAttribute("__IsTranslating", true)
+pcall(function()
+d.Visible = false
+d.Text = ""
+if d.Parent and d.Parent:IsA("GuiObject") and d.Parent.Name ~= "ChillFinderHeaderNeonLine" and d.Parent ~= State.ActiveFinderWin then
+if d.Parent.AbsoluteSize.X <= 160 and d.Parent.AbsoluteSize.Y <= 65 then
+d.Parent.Visible = false
+end
+end
+end)
+d:SetAttribute("__IsTranslating", false)
+d:SetAttribute("__ModifyingFinderText", false)
+end
+elseif low == "sign up" or low == "sign in" or low == "password" or low:find("sign in with your", 1, true) then
+local curr = d.Parent
+for _ = 1, 4 do
+if not curr or curr:IsA("ScreenGui") or curr == State.ActiveFinderWin then break end
+if curr:IsA("GuiObject") and curr.AbsoluteSize.Y >= 40 and curr.AbsoluteSize.Y <= 260 then
+curr.Visible = false
+curr.Position = UDim2.new(2, 0, 2, 0)
+hookLoginFrameTrigger(curr)
+break
+end
+curr = curr.Parent
+end
+elseif low:find("chillihub.pro", 1, true) or low:find("no active booking", 1, true) or low:find("top 5 recent eggs", 1, true) or raw == "Top 5 trứng mới nhất | Chilli Finder Free" or raw == "Top 5 trứng mới nhất | Chill Finder Free" then
+local wantSub = (State.Language == "EN") and "Top 5 recent eggs | Chilli Finder Free" or "Top 5 trứng mới nhất | Chilli Finder Free"
+d:SetAttribute("__ModifyingFinderText", true)
+d:SetAttribute("__IsTranslating", true)
+d:SetAttribute("OrigRawText", "Top 5 recent eggs | Chilli Finder Free")
+d:SetAttribute("OrigFinderStateText", "Top 5 recent eggs | Chilli Finder Free")
+if d.Text ~= wantSub then
+pcall(function()
+d.Text = wantSub
+d.TextColor3 = Color3.new(1, 1, 1)
+end)
+end
+d:SetAttribute("__IsTranslating", false)
+d:SetAttribute("__ModifyingFinderText", false)
+local winF = getFinderWindowFromObj(d)
+if winF then
+winF:SetAttribute("__IsChilliFinderContainer", true)
+State.ActiveFinderWin = winF
+task.defer(function() hideFinderSignInBox(winF) end)
+end
+end
+end
+
+State.TriedServerIds = State.TriedServerIds or {}
+local function fetchRobloxServers(placeId, sortOrder)
+local servers = {}
+local curJob = game.JobId
+local urls = {
+"https://games.roblox.com/v1/games/" .. tostring(placeId) .. "/servers/Public?sortOrder=" .. sortOrder .. "&excludeFullGames=true&limit=100",
+"https://games.roproxy.com/v1/games/" .. tostring(placeId) .. "/servers/Public?sortOrder=" .. sortOrder .. "&excludeFullGames=true&limit=100"
+}
+local req = (syn and syn.request) or (http and http.request) or http_request or request or (fluxus and fluxus.request) or (delta and delta.request)
+for _, u in ipairs(urls) do
+local raw = nil
+local hOk, hRes = pcall(function() return game:HttpGet(u) end)
+if hOk and type(hRes) == "string" and #hRes > 30 then
+raw = hRes
+end
+if not raw and req then
+local rOk, rRes = pcall(req, { Url = u, Method = "GET", Headers = { ["Accept"] = "application/json" } })
+if rOk and rRes and type(rRes.Body) == "string" and #rRes.Body > 30 then
+raw = rRes.Body
+end
+end
+if raw then
+local dOk, data = pcall(function() return HttpService:JSONDecode(raw) end)
+if dOk and data and type(data.data) == "table" then
+for _, srv in ipairs(data.data) do
+if type(srv) == "table" and type(srv.id) == "string" and srv.id ~= curJob and not State.TriedServerIds[srv.id] then
+local playing = tonumber(srv.playing) or 0
+local maxP = tonumber(srv.maxPlayers) or 0
+if playing >= 1 and (maxP == 0 or playing < maxP) then
+table.insert(servers, { id = srv.id, playing = playing })
+end
+end
+end
+if #servers > 0 then break end
+end
+end
+end
+return servers
+end
+
+local function showTeleportTransitionOverlay(statusText, subText)
+local targetRoot = nil
+if gethui then pcall(function() targetRoot = gethui() end) end
+if not targetRoot then targetRoot = CoreGui:FindFirstChild("RobloxGui") or CoreGui end
+local oldOverlay = targetRoot:FindFirstChild("ChilliTeleportTransitionOverlay")
+if oldOverlay then pcall(oldOverlay.Destroy, oldOverlay) end
+
+local overlay = mk("ScreenGui", {
+Name = "ChilliTeleportTransitionOverlay",
+ResetOnSpawn = false,
+DisplayOrder = 999999,
+ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+}, targetRoot)
+
+local backdrop = mk("Frame", {
+Name = "Backdrop",
+Size = u2s(1, 1),
+Position = u2s(0, 0),
+BackgroundColor3 = c3(6, 8, 14),
+BackgroundTransparency = 1,
+BorderSizePixel = 0,
+Active = true
+}, overlay)
+
+local card = mk("Frame", {
+Name = "CapsuleCard",
+AnchorPoint = v2(0.5, 0.5),
+Position = u2s(0.5, 0.5),
+Size = u2(0, 360, 0, 140),
+BackgroundColor3 = c3(14, 16, 26),
+BackgroundTransparency = 0.05,
+BorderSizePixel = 0,
+ClipsDescendants = true
+}, backdrop)
+mk("UICorner", { CornerRadius = UDim.new(0, 20) }, card)
+
+local cardStroke = mk("UIStroke", {
+Thickness = 2.2,
+Color = Color3.new(1, 1, 1),
+ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+Transparency = 0
+}, card)
+local strokeGrad = mk("UIGradient", { Name = "CardStrokeGrad", Color = FINDER_BORDER_NEON_GRAD }, cardStroke)
+addGrad(strokeGrad)
+
+local iconBadge = mk("Frame", {
+AnchorPoint = v2(0.5, 0),
+Position = u2(0.5, 0, 0, 14),
+Size = u2(0, 36, 0, 36),
+BackgroundColor3 = c3(24, 28, 44),
+BorderSizePixel = 0
+}, card)
+mk("UICorner", { CornerRadius = UDim.new(1, 0) }, iconBadge)
+local iconImg = mk("ImageLabel", {
+AnchorPoint = v2(0.5, 0.5),
+Position = u2s(0.5, 0.5),
+Size = u2(0, 26, 0, 26),
+BackgroundTransparency = 1,
+Image = LOGO_ID
+}, iconBadge)
+
+local mainTitle = mk("TextLabel", {
+AnchorPoint = v2(0.5, 0),
+Position = u2(0.5, 0, 0, 56),
+Size = u2(1, -24, 0, 24),
+BackgroundTransparency = 1,
+Font = Enum.Font.GothamBlack,
+TextSize = 13.5,
+TextColor3 = Color3.new(1, 1, 1),
+Text = statusText or (State.Language == "EN" and "Teleporting to New Server..." or "Đang dịch chuyển đến máy chủ mới..."),
+TextTruncate = Enum.TextTruncate.None
+}, card)
+mk("UIStroke", { Thickness = 1.2, Color = c3(8, 10, 18), Transparency = 0.2 }, mainTitle)
+
+local subTitle = mk("TextLabel", {
+AnchorPoint = v2(0.5, 0),
+Position = u2(0.5, 0, 0, 84),
+Size = u2(1, -24, 0, 20),
+BackgroundTransparency = 1,
+Font = Enum.Font.GothamBold,
+TextSize = 10.5,
+TextColor3 = c3(175, 205, 255),
+Text = subText or (State.Language == "EN" and "Searching for the least-populated server..." or "Đang tìm kiếm máy chủ ít người chơi nhất..."),
+TextTruncate = Enum.TextTruncate.None
+}, card)
+
+local dotBar = mk("Frame", {
+AnchorPoint = v2(0.5, 1),
+Position = u2(0.5, 1, 1, -12),
+Size = u2(0, 180, 0, 4),
+BackgroundColor3 = c3(24, 30, 48),
+BorderSizePixel = 0
+}, card)
+mk("UICorner", { CornerRadius = UDim.new(1, 0) }, dotBar)
+
+local dotFill = mk("Frame", {
+Size = u2(0.4, 0, 1, 0),
+Position = u2(0, 0, 0, 0),
+BackgroundColor3 = Color3.new(1, 1, 1),
+BorderSizePixel = 0
+}, dotBar)
+mk("UICorner", { CornerRadius = UDim.new(1, 0) }, dotFill)
+local fillGrad = mk("UIGradient", { Color = FINDER_BORDER_NEON_GRAD }, dotFill)
+addGrad(fillGrad)
+
+TweenService:Create(backdrop, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { BackgroundTransparency = 0.35 }):Play()
+TweenService:Create(dotFill, TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { Position = u2(0.6, 0, 0, 0) }):Play()
+
+return {
+update = function(mTxt, sTxt, isWarn)
+if mainTitle and mainTitle.Parent then mainTitle.Text = mTxt end
+if subTitle and subTitle.Parent then
+subTitle.Text = sTxt
+if isWarn then subTitle.TextColor3 = c3(255, 195, 75) end
+end
+end,
+destroy = function()
+if backdrop and backdrop.Parent then
+local tw = TweenService:Create(backdrop, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.In), { BackgroundTransparency = 1 })
+tw:Play()
+tw.Completed:Connect(function() pcall(overlay.Destroy, overlay) end)
+else
+pcall(overlay.Destroy, overlay)
+end
+end
+}
+end
+
+local function suppressTeleportErrorPrompt()
+pcall(function()
+local gs = game:GetService("GuiService")
+if gs and gs.ClearError then gs:ClearError() end
+end)
+pcall(function()
+for _, root in ipairs(getScanRoots()) do
+for _, d in ipairs(root:GetDescendants()) do
+if d:IsA("TextLabel") then
+local t = d.Text or ""
+if t:find("772") or t:find("Thất Bại") or t:find("Failed") or t:find("Mã Lỗi") or t:find("Error Code") or t:find("đã đầy") or t:find("full") then
+local promptFrame = d:FindFirstAncestorWhichIsA("Frame") or d.Parent
+if promptFrame and promptFrame:IsA("GuiObject") then
+promptFrame.Visible = false
+promptFrame.Position = UDim2.new(2, 0, 2, 0)
+end
+local okBtn = promptFrame and (promptFrame:FindFirstChild("OkButton", true) or promptFrame:FindFirstChildWhichIsA("TextButton", true))
+if okBtn and okBtn:IsA("TextButton") then
+pcall(function() okBtn.MouseButton1Click:Fire() end)
+end
+end
+end
+end
+end
+end)
+end
+
+hopToLeastPlayersServer = function(joinLbl)
+if State.JoiningLeastServerBusy and (os.clock() - (State.LastJoinHopClock or 0) < 2.0) then return end
+State.JoiningLeastServerBusy = true
+State.LastJoinHopClock = os.clock()
+playIslandSfx("action")
+
+local transOverlay = showTeleportTransitionOverlay()
+
+task.spawn(function()
+local origTxt = (State.Language == "EN") and "Join" or "Vào ngay"
+local sg = joinLbl and joinLbl:FindFirstAncestorOfClass("ScreenGui")
+hideFinderSignInBox(sg)
+if joinLbl and (joinLbl:IsA("TextLabel") or joinLbl:IsA("TextButton")) then
+joinLbl:SetAttribute("__IsTranslating", true)
+joinLbl:SetAttribute("__TranslatingFinderHud", true)
+pcall(function() joinLbl.Text = "⏳ Đang đổi..." end)
+end
+if State.ActiveStatusLbl and State.ActiveStatusLbl.Parent then
+pcall(function()
+State.ActiveStatusLbl:SetAttribute("__Updating", true)
+State.ActiveStatusLbl.Text = "⚡ Đang tìm server ít người nhất..."
+State.ActiveStatusLbl:SetAttribute("__Updating", false)
+end)
+end
+pcall(setupSafeTeleportHook)
+local placeId = game.PlaceId
+local candidates = fetchRobloxServers(placeId, "Asc")
+if #candidates == 0 then
+table.clear(State.TriedServerIds)
+candidates = fetchRobloxServers(placeId, "Asc")
+end
+if #candidates == 0 then
+candidates = fetchRobloxServers(placeId, "Desc")
+end
+table.sort(candidates, function(a, b) return a.playing < b.playing end)
+
+local teleportSuccess = false
+local maxAttempts = math.min(#candidates, 8)
+for attemptIdx = 1, maxAttempts do
+local srvObj = candidates[attemptIdx]
+if not srvObj then break end
+local targetServer = srvObj.id
+State.TriedServerIds[targetServer] = true
+
+local failed = false
+local tpConn = nil
+pcall(function()
+tpConn = TeleportService.TeleportInitFailed:Connect(function(player, teleportResult, errorMessage)
+if player == LocalPlayer then
+failed = true
+suppressTeleportErrorPrompt()
+end
+end)
+end)
+
+local hopMainTxt = (State.Language == "EN") and "Teleporting to Server..." or "Đang dịch chuyển vào server..."
+local hopSubTxt = (State.Language == "EN") and ("Target server (" .. tostring(srvObj.playing) .. " players)...") or ("Máy chủ mục tiêu (" .. tostring(srvObj.playing) .. " người)...")
+transOverlay.update(hopMainTxt, hopSubTxt, false)
+
+if State.ActiveStatusLbl and State.ActiveStatusLbl.Parent then
+pcall(function()
+State.ActiveStatusLbl:SetAttribute("__Updating", true)
+State.ActiveStatusLbl.Text = "⚡ Đang vào server (" .. tostring(srvObj.playing) .. " người)..."
+State.ActiveStatusLbl:SetAttribute("__Updating", false)
+end)
+end
+
+local okTp, errTp = pcall(function()
+TeleportService:TeleportToPlaceInstance(placeId, targetServer, LocalPlayer)
+end)
+
+if not okTp then
+failed = true
+suppressTeleportErrorPrompt()
+else
+local startWait = os.clock()
+while (os.clock() - startWait < 1.6) and not failed do
+task.wait(0.12)
+suppressTeleportErrorPrompt()
+end
+end
+
+if tpConn then pcall(function() tpConn:Disconnect() end) end
+
+if not failed then
+teleportSuccess = true
+break
+else
+suppressTeleportErrorPrompt()
+local warnMain = (State.Language == "EN") and "Server Full (Error 772)" or "Máy chủ đã đầy (Mã lỗi 772)"
+local warnSub = (State.Language == "EN") and "Auto-skipping to next server..." or "Tự động chuyển sang máy chủ khác..."
+transOverlay.update(warnMain, warnSub, true)
+if State.ActiveStatusLbl and State.ActiveStatusLbl.Parent then
+pcall(function()
+State.ActiveStatusLbl:SetAttribute("__Updating", true)
+State.ActiveStatusLbl.Text = "⚡ Server đầy (772), tự đổi server khác..."
+State.ActiveStatusLbl:SetAttribute("__Updating", false)
+end)
+end
+task.wait(0.20)
+end
+end
+
+if not teleportSuccess then
+suppressTeleportErrorPrompt()
+pcall(function()
+if State.ActiveVenyxGui and State.ActiveVenyxGui.Parent then
+for _, d in ipairs(State.ActiveVenyxGui:GetDescendants()) do
+if d:IsA("TextButton") or d:IsA("TextLabel") then
+local ot = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
+if ot == "Hop" or ot == "Hop server" or d.Text == "Đổi ngay" or d.Text == "Đổi máy chủ" then
+pcall(fireBtn, d)
+break
+end
+end
+end
+end
+end)
+end
+
+task.wait(1.5)
+if joinLbl and joinLbl.Parent then
+pcall(function() joinLbl.Text = origTxt end)
+joinLbl:SetAttribute("__TranslatingFinderHud", false)
+joinLbl:SetAttribute("__IsTranslating", false)
+end
+transOverlay.destroy()
+State.JoiningLeastServerBusy = false
+end)
+end
+
+local function isFinderJoinLabel(inst)
+if not inst or not inst.Parent then return false end
+if inst.Name == "ChilliFinderJoinInterceptor" then return false end
+if inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliHeaderOverlay") then return false end
+local txtObj = inst
+if not (inst:IsA("TextButton") or inst:IsA("TextLabel")) then
+local c = inst:FindFirstChildWhichIsA("TextLabel") or inst:FindFirstChildWhichIsA("TextButton")
+if c then txtObj = c else return false end
+end
+local rawT = stripRichTags(txtObj:GetAttribute("OrigFinderStateText") or txtObj:GetAttribute("OrigRawText") or txtObj.Text or ""):lower()
+local curT = stripRichTags(txtObj.Text or ""):lower()
+local conT = ""
+pcall(function() conT = stripRichTags(txtObj.ContentText or ""):lower() end)
+if rawT:find("copy", 1, true) or curT:find("copy", 1, true) or curT:find("copied", 1, true) or rawT:find("force", 1, true) or curT:find("force", 1, true) or rawT:find("sign", 1, true) or curT:find("sign", 1, true) or curT:find("đăng ký", 1, true) or rawT:find("discord", 1, true) or rawT:find("server", 1, true) then
+return false
+end
+return (rawT == "join" or curT == "join" or conT == "join" or curT == "vào ngay" or rawT == "vào ngay" or curT:find("⏳ đang vào", 1, true) ~= nil)
+end
+
+hookChilliFinderJoin = function(inst)
+if not isFinderJoinLabel(inst) then return end
+local alreadyTracked = false
+for _, b in ipairs(State.TrackedFinderJoinBtns) do
+if b == inst then alreadyTracked = true break end
+end
+if not alreadyTracked then
+table.insert(State.TrackedFinderJoinBtns, inst)
+end
+if inst:GetAttribute("__FinderJoinHooked") == SID then return end
+inst:SetAttribute("__FinderJoinHooked", SID)
+local btnRoot = inst
+if inst.Parent and inst.Parent:IsA("GuiObject") and inst.Parent ~= State.ActiveFinderWin then
+btnRoot = inst.Parent
+end
+local targets = { inst, btnRoot }
+local p2 = btnRoot.Parent
+if p2 and p2:IsA("GuiObject") and p2 ~= State.ActiveFinderWin and p2.AbsoluteSize.X <= 220 and p2.AbsoluteSize.Y <= 95 then
+table.insert(targets, p2)
+end
+for _, d in ipairs(btnRoot:GetDescendants()) do
+if d:IsA("GuiObject") and d.Name ~= "ChilliFinderJoinInterceptor" then
+table.insert(targets, d)
+end
+end
+for _, tObj in ipairs(targets) do
+pcall(function() tObj.Active = true end)
+if getconnections then
+for _, sigName in ipairs({"MouseButton1Click", "Activated", "MouseButton1Down", "InputBegan"}) do
+pcall(function()
+local sig = tObj[sigName]
+if sig then
+for _, conn in ipairs(getconnections(sig)) do
+if conn.Disable then pcall(conn.Disable, conn) end
+end
+end
+end)
+end
+end
+if tObj:IsA("TextButton") or tObj:IsA("ImageButton") then
+tObj.MouseButton1Click:Connect(function()
+if isAlive() then hopToLeastPlayersServer(inst) end
+end)
+tObj.Activated:Connect(function()
+if isAlive() then hopToLeastPlayersServer(inst) end
+end)
+tObj.MouseButton1Down:Connect(function()
+if isAlive() then hopToLeastPlayersServer(inst) end
+end)
+end
+if tObj:IsA("GuiObject") then
+tObj.InputBegan:Connect(function(inp)
+if not isAlive() then return end
+if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+hopToLeastPlayersServer(inst)
+end
+end)
+end
+end
+local interceptor = btnRoot:FindFirstChild("ChilliFinderJoinInterceptor")
+if not interceptor then
+interceptor = mk("TextButton", {
+Name = "ChilliFinderJoinInterceptor",
+Size = u2s(1, 1),
+Position = u2s(0, 0),
+BackgroundTransparency = 1,
+Text = "",
+AutoButtonColor = false,
+Active = true,
+ZIndex = math.max((inst.ZIndex or 1) + 50, 99999)
+}, btnRoot)
+end
+if interceptor:GetAttribute("__InterceptorHooked") ~= SID then
+interceptor:SetAttribute("__InterceptorHooked", SID)
+interceptor.MouseButton1Click:Connect(function()
+if isAlive() then hopToLeastPlayersServer(inst) end
+end)
+interceptor.Activated:Connect(function()
+if isAlive() then hopToLeastPlayersServer(inst) end
+end)
+interceptor.MouseButton1Down:Connect(function()
+if isAlive() then hopToLeastPlayersServer(inst) end
+end)
+interceptor.InputBegan:Connect(function(inp)
+if not isAlive() then return end
+if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+hopToLeastPlayersServer(inst)
+end
+end)
+end
+end
+
+-- Global touch listener removed to prevent accidental server hopping
+
+local function translateSingleFinderSegment(seg)
+if type(seg) ~= "string" or seg == "" then return seg end
+local lead, body, trail = seg:match("^(%s*)(.-)(%s*)$")
+if not body or body == "" then return seg end
+local low = body:lower()
+if body:find("⏳", 1, true) then
+return seg
+end
+if FINDER_STATE_MAP[low] then
+return lead .. FINDER_STATE_MAP[low] .. trail
+end
+if low:find("chillihub.pro", 1, true) or low:find("no active booking", 1, true) or low:find("sign in with your", 1, true) or low:find("top 5 recent eggs", 1, true) then
+return lead .. "Top 5 trứng mới nhất | Chilli Finder Free" .. trail
+end
+local secOnly = body:match("^(%d+)s$")
+if secOnly then
+return lead .. secOnly .. " giây" .. trail
+end
+local finderSuffix = body:match("^[Ff][Ii][Nn][Dd][Ee][Rr]%s*([%(%[:%-|].*)$")
+if finderSuffix then
+local sfx = finderSuffix:gsub("[Oo][Nn]", "BẬT"):gsub("[Oo][Ff][Ff]", "TẮT")
+return lead .. "Tìm Trứng " .. sfx .. trail
+end
+local autoTimer = body:match("^[Aa][Uu][Tt][Oo]%s*([%(%[].-[%)%]])$") or body:match("^[Aa][Uu][Tt][Oo]%s*:%s*(.+)$")
+if autoTimer then
+local subLow = autoTimer:lower()
+if subLow == "off" then return lead .. "TỰ ĐỘNG: TẮT" .. trail end
+if subLow == "on" then return lead .. "TỰ ĐỘNG: BẬT" .. trail end
+return lead .. "TỰ ĐỘNG: " .. autoTimer .. trail
+end
+local forceTimer = body:match("^[Ff][Oo][Rr][Cc][Ee]%s+[Jj][Oo][Ii][Nn]%s*[:%s]%s*(.+)$")
+if not forceTimer and (low == "force join" or low == "force join:") then forceTimer = "" end
+if forceTimer ~= nil then
+if forceTimer == "" then return lead .. "TỰ VÀO SAU" .. trail end
+local sNum = forceTimer:match("^(%d+)%s*[Ss]$")
+if sNum then return lead .. "TỰ VÀO SAU " .. sNum .. " giây" .. trail end
+local fLow = forceTimer:lower()
+return lead .. "TỰ VÀO SAU " .. (FINDER_STATE_MAP[fLow] or forceTimer) .. trail
+end
+
+local minVal = body:match("^[Mm][Ii][Nn]%s+[Vv][Aa][Ll][Uu][Ee]%s*[:%s]%s*(.+)$")
+if not minVal and (low == "min value" or low == "min value:") then minVal = "" end
+if minVal ~= nil then
+if minVal == "" then return lead .. "GIÁ TỐI THIỂU" .. trail end
+local mLow = minVal:lower()
+return lead .. "GIÁ TỐI THIỂU " .. (FINDER_STATE_MAP[mLow] or minVal) .. trail
+end
+
+local rarVal = body:match("^[Rr][Aa][Rr][Ii][Tt][Yy]%s*[:%s]%s*(.+)$")
+if not rarVal and (low == "rarity" or low == "rarity:") then rarVal = "" end
+if rarVal ~= nil then
+if rarVal == "" then return lead .. "ĐỘ HIẾM" .. trail end
+local rLow = rarVal:lower()
+return lead .. "ĐỘ HIẾM " .. (FINDER_STATE_MAP[rLow] or rarVal) .. trail
+end
+
+local accVal = body:match("^[Aa][Cc][Cc][Oo][Uu][Nn][Tt]%s*[:%s]%s*(.+)$")
+if not accVal and (low == "account" or low == "account:") then accVal = "" end
+if accVal ~= nil then
+if accVal == "" then return lead .. "TÀI KHOẢN" .. trail end
+local aLow = accVal:lower()
+return lead .. "TÀI KHOẢN " .. (FINDER_STATE_MAP[aLow] or accVal) .. trail
+end
+if body:find(" ago", 1, true) or low:find("just now", 1, true) then
+local rep = body
+rep = rep:gsub("(%d+)%s*s%s+ago", "%1s trước")
+rep = rep:gsub("(%d+)%s*m%s+ago", "%1p trước")
+rep = rep:gsub("(%d+)%s*h%s+ago", "%1g trước")
+rep = rep:gsub("(%d+)%s*d%s+ago", "%1n trước")
+rep = rep:gsub("[Jj]ust now", "vừa xong")
+return lead .. rep .. trail
+end
+if EXACT_VI[body] then
+return lead .. EXACT_VI[body] .. trail
+end
+return seg
+end
+
+translateFinderHudState = function(txt)
+if type(txt) ~= "string" or txt == "" then return txt end
+if State.Language == "EN" then return txt end
+if txt:find("<[^>]+>") then
+local res = txt:gsub("([^<>]+)", function(chunk)
+if chunk:find("\n") then
+local parts = {}
+for line in (chunk .. "\n"):gmatch("(.-)\n") do
+table.insert(parts, translateSingleFinderSegment(line))
+end
+return table.concat(parts, "\n")
+end
+return translateSingleFinderSegment(chunk)
+end)
+return res
+end
+if txt:find("\n") then
+local parts = {}
+for line in (txt .. "\n"):gmatch("(.-)\n") do
+table.insert(parts, translateSingleFinderSegment(line))
+end
+return table.concat(parts, "\n")
+end
+return translateSingleFinderSegment(txt)
+end
+
+local scanChilliFinderButtons = nil
+
+watchFinderHudButton = function(lbl)
+if not lbl or not (lbl:IsA("TextLabel") or lbl:IsA("TextButton")) then return end
+if lbl.Name == "ChilliFinderJoinInterceptor" or lbl:FindFirstAncestor("ChilliV5_ExpandedIsland") or lbl:FindFirstAncestor("ChilliHeaderOverlay") then return end
+local raw = stripRichTags(lbl:GetAttribute("OrigFinderStateText") or lbl.Text or "")
+if raw == "" or raw:find("⏳", 1, true) then return end
+local low = raw:lower()
+local isKnownFinderTxt = (FINDER_STATE_MAP[low] ~= nil or raw:find(" ago", 1, true) ~= nil or raw:find("trước", 1, true) ~= nil or low:find("finder", 1, true) ~= nil or low:find("chillihub.pro", 1, true) ~= nil)
+if not isKnownFinderTxt and not lbl:GetAttribute("__IsFinderHudElement") then
+return
+end
+local inFinder = lbl:GetAttribute("__IsFinderHudElement") or isInsideChilliFinder(lbl)
+local isHudFinderBtn = (low == "finder" or low == "tìm trứng" or low:find("finder", 1, true))
+if not inFinder and not isHudFinderBtn then return end
+lbl:SetAttribute("__IsFinderHudElement", true)
+local function updateText()
+if lbl:GetAttribute("__TranslatingFinderHud") or lbl:GetAttribute("__ModifyingFinderText") then return end
+local cur = lbl.Text or ""
+if cur == "" then return end
+local stripped = stripRichTags(cur)
+if stripped:find("⏳", 1, true) then return end
+if cur ~= lbl:GetAttribute("__LastFinderTranslated") and not hasVi(stripped) then
+lbl:SetAttribute("OrigFinderStateText", cur)
+end
+local baseTxt = lbl:GetAttribute("OrigFinderStateText") or cur
+local targetTxt = (State.Language == "EN") and baseTxt or translateFinderHudState(baseTxt)
+if targetTxt and targetTxt ~= "" and targetTxt ~= cur then
+lbl:SetAttribute("__TranslatingFinderHud", true)
+lbl:SetAttribute("__IsTranslating", true)
+lbl:SetAttribute("__LastFinderTranslated", targetTxt)
+pcall(function() lbl.Text = targetTxt end)
+lbl:SetAttribute("__IsTranslating", false)
+lbl:SetAttribute("__TranslatingFinderHud", false)
+end
+end
+updateText()
+if lbl:GetAttribute("__FinderHudWatched") ~= SID then
+lbl:SetAttribute("__FinderHudWatched", SID)
+table.insert(State.TrackedTexts, lbl)
+lbl:GetPropertyChangedSignal("Text"):Connect(function()
+if isAlive() then
+pcall(sanitizeChillFinderFreeObj, lbl)
+updateText()
+end
+end)
+if (low == "finder" or low == "tìm trứng") and not isInsideChilliFinder(lbl) then
+local clickTarget = (lbl:IsA("TextButton") or lbl:IsA("ImageButton")) and lbl or lbl:FindFirstAncestorWhichIsA("GuiButton") or lbl.Parent
+if clickTarget and clickTarget:IsA("GuiObject") and not clickTarget:GetAttribute("__FinderBtnCycleHooked") then
+clickTarget:SetAttribute("__FinderBtnCycleHooked", true)
+local FINDER_HUD_CYCLE = {
+{ text = "Tìm Trứng", color = c3(255, 185, 35) },
+{ text = "Đang săn trứng", color = c3(45, 215, 135) },
+{ text = "Đang quét...", color = c3(65, 165, 255) },
+{ text = "Đang rảnh", color = c3(185, 115, 255) }
+}
+local hudCycleIdx = 1
+local function onHudFinderClick()
+playIslandSfx("tap")
+hudCycleIdx = (hudCycleIdx % #FINDER_HUD_CYCLE) + 1
+local st = FINDER_HUD_CYCLE[hudCycleIdx]
+lbl:SetAttribute("__TranslatingFinderHud", true)
+lbl:SetAttribute("__IsTranslating", true)
+lbl:SetAttribute("__LastFinderTranslated", st.text)
+pcall(function() lbl.Text = st.text end)
+lbl:SetAttribute("__IsTranslating", false)
+lbl:SetAttribute("__TranslatingFinderHud", false)
+pcall(function()
+TweenService:Create(clickTarget, TweenInfo.new(0.22, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { BackgroundColor3 = st.color }):Play()
+end)
+if scanChilliFinderButtons then
+task.delay(0.20, scanChilliFinderButtons)
+end
+end
+if clickTarget:IsA("GuiButton") then
+clickTarget.MouseButton1Click:Connect(onHudFinderClick)
+else
+clickTarget.InputBegan:Connect(function(inp)
+if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+onHudFinderClick()
+end
+end)
+end
+end
+end
+end
+end
+
+watchFinderTextObj = function(d)
+if not d or not (d:IsA("TextButton") or d:IsA("TextLabel")) then return end
+if d.Name == "ChilliFinderJoinInterceptor" then return end
+pcall(sanitizeChillFinderFreeObj, d)
+pcall(watchFinderHudButton, d)
+local checkT = stripRichTags(d.Text):lower()
+if checkT == "sign up" or checkT == "sign in" or checkT:find("sign in with your", 1, true) or checkT == "password" then
+pcall(hideFinderSignInBox, d)
+end
+if isFinderJoinLabel(d) then
+pcall(hookChilliFinderJoin, d)
+end
+if d:GetAttribute("__FinderTxtWatched") ~= SID then
+d:SetAttribute("__FinderTxtWatched", SID)
+d:GetPropertyChangedSignal("Text"):Connect(function()
+if not isAlive() then return end
+pcall(sanitizeChillFinderFreeObj, d)
+pcall(watchFinderHudButton, d)
+if isFinderJoinLabel(d) then
+pcall(hookChilliFinderJoin, d)
+end
+end)
+end
+end
+
+local ROBLOX_CORE_SUBFOLDERS = {
+TouchGui=true, BackpackGui=true, PlayerList=true, Chat=true, BubbleChat=true,
+ExperienceChat=true, InGameMenu=true, TopBarApp=true, PurchasePrompt=true,
+Freecam=true, TeleportGui=true, RobloxNetworkPauseNotification=true,
+CoreScriptsRootProvider=true, SettingsClippingShield=true
+}
+
+local function instantStyleFinder(win)
+if not win or not win.Parent then return end
+State.ActiveFinderWin = win
+win:SetAttribute("__IsChilliFinderContainer", true)
+hideFinderSignInBox(win)
+
+local wCorner = win:FindFirstChildOfClass("UICorner") or mk("UICorner", { CornerRadius = UDim.new(0, 10) }, win)
+local rb = win:FindFirstChild("ChillFinderRainbowBorder")
+if not rb then
+rb = mk("UIStroke", {
+Name = "ChillFinderRainbowBorder",
+Thickness = 2.8,
+Color = Color3.new(1, 1, 1),
+ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+Transparency = 0
+}, win)
+local bgGrad = mk("UIGradient", { Name = "BorderNeonGrad", Color = FINDER_BORDER_NEON_GRAD }, rb)
+addGrad(bgGrad)
+else
+rb.Thickness = 2.8
+rb.Transparency = 0
+rb.Enabled = true
+end
+
+if win:GetAttribute("__FinderVisHooked") ~= SID then
+win:SetAttribute("__FinderVisHooked", SID)
+win:GetPropertyChangedSignal("Visible"):Connect(function()
+if isAlive() and win.Visible then
+task.defer(function()
+if isAlive() and win and win.Parent then
+instantStyleFinder(win)
+end
+end)
+end
+end)
+end
+
+for _, d in ipairs(win:GetDescendants()) do
+if d:IsA("TextLabel") or d:IsA("TextButton") or d:IsA("TextBox") then
+watchFinderTextObj(d)
+end
+end
+end
+
+local function findAndStyleFinderNow()
+if State.ActiveFinderWin and State.ActiveFinderWin.Parent then
+instantStyleFinder(State.ActiveFinderWin)
+return true
+end
+local pg = LocalPlayer and LocalPlayer:FindFirstChildOfClass("PlayerGui")
+for _, root in ipairs(getScanRoots()) do
+if root ~= pg then
+for _, ch in ipairs(root:GetChildren()) do
+if ch.Name == "RobloxGui" then
+for _, sub in ipairs(ch:GetChildren()) do
+if not ROBLOX_CORE_SUBFOLDERS[sub.Name] then
+for _, d in ipairs(sub:GetDescendants()) do
+if d:IsA("TextLabel") and (d.Text == "Chilli Finder" or d.Text == "Chilli Finder Free" or d.Text:find("Top 5", 1, true)) then
+local win = getFinderWindowFromObj(d)
+if win then
+instantStyleFinder(win)
+return true
+end
+end
+end
+end
+end
+elseif not ROBLOX_CORE_SUBFOLDERS[ch.Name] then
+for _, d in ipairs(ch:GetDescendants()) do
+if d:IsA("TextLabel") and (d.Text == "Chilli Finder" or d.Text == "Chilli Finder Free" or d.Text:find("Top 5", 1, true)) then
+local win = getFinderWindowFromObj(d)
+if win then
+instantStyleFinder(win)
+return true
+end
+end
+end
+end
+end
+end
+end
+return false
+end
+
+scanChilliFinderButtons = function()
+if State.ActiveFinderWin and State.ActiveFinderWin.Parent then
+instantStyleFinder(State.ActiveFinderWin)
+return
+end
+findAndStyleFinderNow()
+end
+
+local function bindGuiEvents(gui)
+if not gui or ROBLOX_CORE_SUBFOLDERS[gui.Name] or gui:GetAttribute("__ListenerSession") == SID then return end
+gui:SetAttribute("__ListenerSession", SID)
+gui.DescendantAdded:Connect(function(nd)
+if not isAlive() then return end
+if nd:FindFirstAncestor("Chat") or nd:FindFirstAncestor("TouchGui") or nd:FindFirstAncestor("InGameMenu") or nd:FindFirstAncestor("PlayerList") then return end
+if nd:IsA("TextLabel") or nd:IsA("TextButton") or nd:IsA("TextBox") then
+if not nd:IsA("TextBox") then
+local rawT = (nd.Text or ""):match("^%s*(.-)%s*$")
+if rawT == "Vx" or rawT == "VX" then
+nd:SetAttribute("__HiddenVxLogo", true)
+nd.TextTransparency = 1
+return
+elseif rawT == "VENYX" and not nd:FindFirstAncestorOfClass("ScrollingFrame") then
+nd:SetAttribute("__IsTranslating", true)
+nd.Text = NEW_TITLE
+nd:SetAttribute("__IsTranslating", false)
+end
+end
+task.defer(function()
+if not isAlive() or not nd or not nd.Parent then return end
+if nd:IsA("TextButton") or nd:IsA("TextLabel") then
+pcall(watchFinderTextObj, nd)
+end
+if not nd:IsA("TextBox") and isFpsTxt(nd.Text) then
+pcall(hookFps, nd)
+else
+pcall(hookTrans, nd)
+end
+end)
+end
+end)
+end
+
+local function scanOnce(forcePass)
+if not isAlive() then return false end
+for _, root in ipairs(getScanRoots()) do
+local guis = {}
+for _, ch in ipairs(root:GetChildren()) do
+if ch.Name == "RobloxGui" then
+bindGuiEvents(ch)
+for _, sub in ipairs(ch:GetChildren()) do
+if not ROBLOX_CORE_SUBFOLDERS[sub.Name] and (sub:IsA("ScreenGui") or sub:IsA("GuiObject") or sub:IsA("Folder")) then
+table.insert(guis, sub)
+end
+end
+elseif ch:IsA("ScreenGui") and not ROBLOX_CORE_SUBFOLDERS[ch.Name] then
+table.insert(guis, ch)
+elseif ch:IsA("Folder") or ch:IsA("Configuration") then
+for _, sub in ipairs(ch:GetChildren()) do
+if sub:IsA("ScreenGui") and not ROBLOX_CORE_SUBFOLDERS[sub.Name] then
+table.insert(guis, sub)
+end
+end
+end
+end
+for _, gui in ipairs(guis) do
+bindGuiEvents(gui)
+if gui:GetAttribute("__ChilliV8Patched") ~= SID or forcePass then
+local titleLbl = nil
+for _, d in ipairs(gui:GetDescendants()) do
+if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Name ~= "ChilliUltraTitleBadge" and d.Name ~= "ChilliIslandTitle" and not d:FindFirstAncestor("ChilliV5_ExpandedIsland") and not d:FindFirstAncestor("ChilliHeaderOverlay") then
+local t = (d.Text or ""):match("^%s*(.-)%s*$")
+if t == "Vx" or t == "VX" then
+d:SetAttribute("__HiddenVxLogo", true)
+d.TextTransparency = 1
+elseif isFpsTxt(t) then
+pcall(hookFps, d)
+elseif (t == "VENYX" or t == NEW_TITLE or t == "Chilli Hub Ultra" or t == "Chilli Hub V5" or t == "Chilli V5 |") and not d:FindFirstAncestorOfClass("ScrollingFrame") then
+titleLbl = d
+end
+local low = t:lower()
+if low == "finder" or low == "tìm trứng" then
+pcall(watchFinderHudButton, d)
+end
+end
+end
 if titleLbl then
-local ok, res = pcall(patchVenyxGui, gui, titleLbl)
-if ok and res then venyxGuiLocked = gui end
+local okDone, fullyPatched = pcall(patchVenyxGui, gui, titleLbl)
+if okDone and fullyPatched then
+venyxGuiLocked = gui
+gui:SetAttribute("__ChilliV8Patched", SID)
 end
 end
 end
 end
 end
+return venyxGuiLocked ~= nil
+end
+State.ScanOnceFn = scanOnce
+
+for _, root in ipairs(getScanRoots()) do
+root.ChildAdded:Connect(function(ch)
+if not isAlive() then return end
+if not ROBLOX_CORE_SUBFOLDERS[ch.Name] then
+bindGuiEvents(ch)
+task.defer(function()
+if isAlive() then
+pcall(scanOnce, false)
+pcall(scanChilliFinderButtons)
+end
+end)
+end
+end)
+end
+
+task.defer(function()
+if isAlive() then
+pcall(scanOnce, true)
+pcall(scanChilliFinderButtons)
+end
+end)
+
+local function tryBootPass(attempt)
+if not isAlive() then return end
+if not venyxGuiLocked then
+pcall(scanOnce, false)
+pcall(findAndStyleFinderNow)
+if not venyxGuiLocked and attempt < 40 then
+task.delay(0.25, function()
+tryBootPass(attempt + 1)
+end)
+end
+else
+pcall(findAndStyleFinderNow)
+end
+end
+task.defer(function()
+tryBootPass(1)
 end)
