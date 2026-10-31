@@ -2097,6 +2097,40 @@ end
 -- ============================================================================
 -- [PHẦN 4] KIẾN TRÚC GIAO DIỆN CHÍNH DARK MODE V8 SUPREME (SIÊU MƯỢT, ZERO LAG)
 -- ============================================================================
+local PAGE_HEADER_TITLES = {
+["dashboard"] = true, ["home"] = true, ["trang chủ"] = true,
+["steal"] = true, ["săn trứng"] = true, ["lấy trứng"] = true, ["cướp trứng"] = true,
+["farm"] = true, ["tự cày"] = true, ["tự động cày"] = true,
+["events"] = true, ["event"] = true, ["sự kiện"] = true,
+["player"] = true, ["localplayer"] = true, ["nhân vật"] = true, ["người chơi"] = true,
+["misc"] = true, ["miscellaneous"] = true, ["chức năng khác"] = true, ["khác"] = true,
+["settings"] = true, ["setting"] = true, ["cài đặt"] = true, ["hệ thống"] = true, ["system"] = true
+}
+
+local function isProfileOrPlayerInfo(d)
+if not d or not d:IsA("TextLabel") then return false end
+local lp = game:GetService("Players").LocalPlayer
+local pName = lp and lp.Name or ""
+local pDisplay = lp and lp.DisplayName or ""
+local t = d.Text or ""
+local tLow = t:lower()
+if (pName ~= "" and t:find(pName, 1, true)) or (pDisplay ~= "" and t:find(pDisplay, 1, true)) then
+return true
+end
+if tLow:find("chào mừng") or tLow:find("welcome") or tLow:find("delta") or tLow:find("sae") or tLow:find("chilli") then
+return true
+end
+local par = d.Parent
+if par and (par:FindFirstChildOfClass("ImageLabel") or par:FindFirstChildOfClass("ImageButton")) then
+return true
+end
+local gpar = par and par.Parent
+if gpar and (gpar:FindFirstChildOfClass("ImageLabel") or gpar:FindFirstChildOfClass("ImageButton")) then
+return true
+end
+return false
+end
+
 local function applySenaV8Architecture(win, titleLbl)
 if not win or not titleLbl then return end
 local hy, tx = titleLbl.AbsolutePosition.Y, titleLbl.AbsolutePosition.X
@@ -2297,9 +2331,9 @@ c3(239, 68, 68),   -- Tab 2: Lấy trứng (Đỏ rực)
 c3(245, 158, 11),  -- Tab 3: Tự cày (Cam hổ phách)
 c3(168, 85, 247),  -- Tab 4: Sự kiện (Tím neon)
 c3(236, 72, 153),  -- Tab 5: Nhân vật (Hồng cánh sen)
-c3(16, 185, 129),  -- Tab 6: Chức năng khác (Xanh lục bảo)
-c3(14, 165, 233),  -- Tab 7: Cài đặt (Xanh Cyan)
-c3(139, 92, 246)   -- Tab 8: Máy chủ (Tím Violet)
+c3(16, 185, 129),  -- Tab 6: Cài đặt (Xanh lục bảo)
+c3(14, 165, 233),  -- Tab 7: Máy chủ (Xanh Cyan)
+c3(139, 92, 246)   -- Tab 8: Khác (Tím Violet)
 }
 local SIDEBAR_TAB_BILINGUAL = {
 { vi = "Trang chủ", en = "Home" },
@@ -2307,9 +2341,9 @@ local SIDEBAR_TAB_BILINGUAL = {
 { vi = "Tự cày", en = "Farm" },
 { vi = "Sự kiện", en = "Events" },
 { vi = "Nhân vật", en = "Player" },
-{ vi = "Chức năng khác", en = "Misc" },
 { vi = "Cài đặt", en = "Settings" },
-{ vi = "Máy chủ", en = "Server" }
+{ vi = "Máy chủ", en = "Server" },
+{ vi = "Khác", en = "Misc" }
 }
 pcall(function()
 local navButtons = {}
@@ -2416,12 +2450,18 @@ if playSnd then playIslandSfx("tap") end
 pcall(function()
 for _, d in ipairs(win:GetDescendants()) do
 if d:IsA("TextLabel") and d ~= titleLbl and not ( navContainer and d:IsDescendantOf(navContainer) ) and not d:FindFirstAncestorOfClass("ScrollingFrame") then
-local ry = d.AbsolutePosition.Y - win.AbsolutePosition.Y
-local rx = d.AbsolutePosition.X - win.AbsolutePosition.X
-if (ry > 32 and ry < 96 and rx < 180) or d.TextSize >= 17 then
+if isProfileOrPlayerInfo(d) then
+d:SetAttribute("__HiddenVxLogo", nil)
+d.TextTransparency = 0
+d.Visible = true
+else
+local rawT = (d:GetAttribute("OrigRawText") or d.Text or ""):lower():match("^%s*(.-)%s*$") or ""
+local curT = (d.Text or ""):lower():match("^%s*(.-)%s*$") or ""
+if PAGE_HEADER_TITLES[rawT] or PAGE_HEADER_TITLES[curT] then
 d:SetAttribute("__HiddenVxLogo", true)
 d.TextTransparency = 1
 d.Visible = false
+end
 end
 end
 end
@@ -2767,30 +2807,36 @@ win:SetAttribute("__ChilliV7ArchSession", SID)
 pcall(applySenaV8Architecture, win, titleLbl)
 end
 
--- 2. Thiết kế lại khung tiêu đề (Title Frame): Chữ Chilli Hub V8 to đẹp (17pt GothamBlack), có Gradient lửa và Logo Ớt đỏ
+-- 2. Thiết kế lại khung tiêu đề (Title Frame): Chữ Chilli Hub V8 to vừa khít với thanh như nguyên bản (18pt GothamBlack), căn giữa theo chiều dọc
 pcall(function()
-local logo = win:FindFirstChild("ChilliHeaderLogoBadge")
+local topBar = (titleLbl.Parent and titleLbl.Parent ~= win and titleLbl.Parent:IsA("GuiObject") and titleLbl.Parent.AbsoluteSize.Y <= 60) and titleLbl.Parent or nil
+local targetParent = topBar or win
+
+local logo = targetParent:FindFirstChild("ChilliHeaderLogoBadge") or win:FindFirstChild("ChilliHeaderLogoBadge")
 if not logo then
 logo = mk("ImageLabel", {
 Name = "ChilliHeaderLogoBadge",
-AnchorPoint = v2(0, 0),
-Position = u2(0, 12, 0, 8),
+AnchorPoint = v2(0, 0.5),
+Position = topBar and u2(0, 10, 0.5, 0) or u2(0, 10, 0, 18),
 Size = u2(0, 22, 0, 22),
 BackgroundTransparency = 1,
 Image = "rbxassetid://135898822557579",
 ScaleType = Enum.ScaleType.Fit,
 ZIndex = 65
-}, win)
+}, targetParent)
 end
-logo.Position = u2(0, 12, 0, 8)
+logo.Parent = targetParent
+logo.AnchorPoint = v2(0, 0.5)
+logo.Position = topBar and u2(0, 10, 0.5, 0) or u2(0, 10, 0, 18)
 logo.Size = u2(0, 22, 0, 22)
 logo.Visible = true
 
-titleLbl.AnchorPoint = v2(0, 0)
-titleLbl.Position = u2(0, 40, 0, 8)
+titleLbl.AnchorPoint = v2(0, 0.5)
+titleLbl.Position = topBar and u2(0, 38, 0.5, 0) or u2(0, 38, 0, 18)
 titleLbl.Font = Enum.Font.GothamBlack
-titleLbl.TextSize = 17
+titleLbl.TextSize = 18
 titleLbl.TextColor3 = Color3.new(1, 1, 1)
+titleLbl.TextYAlignment = Enum.TextYAlignment.Center
 titleLbl.AutomaticSize = Enum.AutomaticSize.X
 titleLbl.Text = NEW_TITLE
 titleLbl.ZIndex = 65
@@ -2825,7 +2871,9 @@ d.TextTransparency = 1
 elseif t:find("v1.") or t:find("/") or t:find("Lấy Trứng") or t:find("Cướp Trứng") or t:find("Steal An Egg") then
 local relY = d.AbsolutePosition.Y - win.AbsolutePosition.Y
 if relY >= 0 and relY <= 40 then
-d.Position = u2(0, 175, d.Position.Y.Scale, d.Position.Y.Offset)
+d.AnchorPoint = v2(0, 0.5)
+d.Position = (topBar and d.Parent == topBar) and u2(0, 180, 0.5, 0) or u2(0, 180, 0, 18)
+d.TextYAlignment = Enum.TextYAlignment.Center
 if t:find("Cướp") or t:find("cướp") then
 d.Text = t:gsub("Cướp", "Lấy"):gsub("cướp", "lấy")
 end
@@ -2842,7 +2890,7 @@ end
 end
 end)
 
--- 3. Căn chỉnh toàn bộ tọa độ khung con bên trong sang X=160px đồng bộ, mượt mà (Zero Lag)
+-- 3. Căn chỉnh toàn bộ tọa độ khung con bên trong sang X=108px đồng bộ, mượt mà (Zero Lag)
 local function ensureAllContentShifted(targetWin)
 if not targetWin or not targetWin.Parent then return end
 local navContainer = State.ActiveNavContainer
@@ -2862,24 +2910,21 @@ end
 end
 end
 end
-local PAGE_HEADER_TITLES = {
-["dashboard"] = true, ["home"] = true, ["trang chủ"] = true,
-["steal"] = true, ["săn trứng"] = true, ["lấy trứng"] = true, ["cướp trứng"] = true,
-["farm"] = true, ["tự cày"] = true, ["tự động cày"] = true,
-["events"] = true, ["event"] = true, ["sự kiện"] = true,
-["player"] = true, ["localplayer"] = true, ["nhân vật"] = true, ["người chơi"] = true,
-["misc"] = true, ["miscellaneous"] = true, ["chức năng khác"] = true, ["khác"] = true,
-["settings"] = true, ["setting"] = true, ["cài đặt"] = true, ["hệ thống"] = true, ["system"] = true
-}
+
 local function lockHidePageTitleLabel(d)
 if not d or not d:IsA("TextLabel") or d == titleLbl then return end
 if navContainer and d:IsDescendantOf(navContainer) then return end
 if d:FindFirstAncestorOfClass("ScrollingFrame") then return end
-local relX = d.AbsolutePosition.X - targetWin.AbsolutePosition.X
-local relY = d.AbsolutePosition.Y - targetWin.AbsolutePosition.Y
+if isProfileOrPlayerInfo(d) then
+d:SetAttribute("__HiddenVxLogo", nil)
+d:SetAttribute("__LockedPageHeaderHide", nil)
+d.TextTransparency = 0
+d.Visible = true
+return
+end
 local rawT = (d:GetAttribute("OrigRawText") or d.Text or ""):lower():match("^%s*(.-)%s*$") or ""
 local curT = (d.Text or ""):lower():match("^%s*(.-)%s*$") or ""
-if (relY > 32 and relY < 96 and relX < 210) or PAGE_HEADER_TITLES[rawT] or PAGE_HEADER_TITLES[curT] or (d.TextSize >= 17 and relY > 32 and relY < 105) then
+if PAGE_HEADER_TITLES[rawT] or PAGE_HEADER_TITLES[curT] then
 d:SetAttribute("__HiddenVxLogo", true)
 d.TextTransparency = 1
 d.Visible = false
@@ -2887,21 +2932,35 @@ d.Position = u2(0, -9999, 0, -9999)
 if not d:GetAttribute("__LockedPageHeaderHide") then
 d:SetAttribute("__LockedPageHeaderHide", true)
 d:GetPropertyChangedSignal("Text"):Connect(function()
+if not isProfileOrPlayerInfo(d) then
 d.TextTransparency = 1
 d.Visible = false
+end
 end)
 d:GetPropertyChangedSignal("TextTransparency"):Connect(function()
-if d.TextTransparency ~= 1 then d.TextTransparency = 1 end
+if not isProfileOrPlayerInfo(d) and d.TextTransparency ~= 1 then
+d.TextTransparency = 1
+end
 end)
 d:GetPropertyChangedSignal("Visible"):Connect(function()
-if d.Visible then d.Visible = false end
+if not isProfileOrPlayerInfo(d) and d.Visible then
+d.Visible = false
+end
 end)
 end
 end
 end
+
 for _, d in ipairs(targetWin:GetDescendants()) do
 if d:IsA("TextLabel") then
+if isProfileOrPlayerInfo(d) then
+d:SetAttribute("__HiddenVxLogo", nil)
+d:SetAttribute("__LockedPageHeaderHide", nil)
+d.TextTransparency = 0
+d.Visible = true
+else
 lockHidePageTitleLabel(d)
+end
 end
 end
 end
@@ -2928,11 +2987,13 @@ end
 end
 end
 elseif ch:IsA("TextLabel") and not (State.ActiveNavContainer and ch:IsDescendantOf(State.ActiveNavContainer)) and ch ~= titleLbl then
-local txt = ch.Text or ""
+if isProfileOrPlayerInfo(ch) then
+ch.Visible = true
+ch.TextTransparency = 0
+else
+local txt = (ch.Text or ""):lower():match("^%s*(.-)%s*$") or ""
 local relY = ch.AbsolutePosition.Y - win.AbsolutePosition.Y
-local relX = ch.AbsolutePosition.X - win.AbsolutePosition.X
-if (relX < 106 and relY > 36 and relY < 90) or txt == "Săn Trứng" or txt == "Dashboard" or txt == "Trang chủ" or txt == "Lấy trứng" then
-if relY > 36 and (relY < 90 or (ch.Parent and not ch.Parent:IsA("ScrollingFrame"))) then
+if PAGE_HEADER_TITLES[txt] and relY > 36 and (relY < 90 or (ch.Parent and not ch.Parent:IsA("ScrollingFrame"))) then
 ch.Visible = false
 ch.Text = ""
 ch.TextTransparency = 1
