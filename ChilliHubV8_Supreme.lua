@@ -2301,27 +2301,27 @@ end
 local function setupCircleLogo(obj, win)
 if not obj or not obj:IsA("GuiObject") or obj == win then return end
 if obj.Name == "ChilliV5_ExpandedIsland" or obj:FindFirstChild("IslandExpandHint") or obj:FindFirstChild("IslandLogoBadge") then return end
-if obj.AbsoluteSize.X > 135 or obj.AbsoluteSize.Y > 135 or obj.AbsoluteSize.X < 18 or obj.AbsoluteSize.Y < 18 then return end
+local isBtn = obj:IsA("GuiButton") or obj:FindFirstChildOfClass("GuiButton") ~= nil
+local isSmall = (obj.AbsoluteSize.X > 0 and obj.AbsoluteSize.X <= 135 and obj.AbsoluteSize.Y <= 135) or (obj.Size.X.Offset >= 20 and obj.Size.X.Offset <= 135)
+if not isBtn and not isSmall then return end
 local top = obj
 top:SetAttribute("__SizeLockedV5Pro", true)
 top.BackgroundTransparency = 1
-top.Size = u2(0, 62, 0, 62)
+top.Visible = true
+top.Size = u2(0, 58, 0, 58)
 if not top:FindFirstChild("PerfectCircleAspect") then
 mk("UIAspectRatioConstraint", { Name = "PerfectCircleAspect", AspectRatio = 1 }, top)
 end
 for _, ch in ipairs(top:GetDescendants()) do
 if ch.Name ~= "ChilliCircleDisc" and ch.Name ~= "ChilliV5CoverLogo" and not ch:IsDescendantOf(top:FindFirstChild("ChilliCircleDisc") or top) then
 if ch:IsA("TextLabel") or ch:IsA("TextButton") then
-ch:SetAttribute("__HiddenVxLogo", true)
-ch.TextTransparency = 1
+killVxLogo(ch)
 elseif ch:IsA("ImageLabel") or ch:IsA("ImageButton") then
 if ch.Name ~= "ChilliV5CoverLogo" then ch.ImageTransparency = 1 end
 end
 end
 end
-local disc = top:FindFirstChild("ChilliCircleDisc")
-if not disc then
-disc = mk("Frame", {
+local disc = top:FindFirstChild("ChilliCircleDisc") or mk("Frame", {
 Name = "ChilliCircleDisc",
 AnchorPoint = v2(0.5, 0.5),
 Position = u2s(0.5, 0.5),
@@ -2332,11 +2332,9 @@ ClipsDescendants = true,
 Active = false,
 ZIndex = 50
 }, top)
-mk("UICorner", { CornerRadius = UDim.new(1, 0) }, disc)
-end
-local cov = disc:FindFirstChild("ChilliV5CoverLogo")
-if not cov then
-cov = mk("ImageLabel", {
+disc.Visible = true
+if not disc:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, disc) end
+local cov = disc:FindFirstChild("ChilliV5CoverLogo") or mk("ImageLabel", {
 Name = "ChilliV5CoverLogo",
 AnchorPoint = v2(0.5, 0.5),
 Position = u2s(0.5, 0.5),
@@ -2347,13 +2345,18 @@ ScaleType = Enum.ScaleType.Crop,
 Active = false,
 ZIndex = 51
 }, disc)
-mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cov)
-local covStroke = mk("UIStroke", {
+cov.Visible = true
+cov.Image = LOGO_ID
+cov.ImageTransparency = 0
+if not cov:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cov) end
+local covStroke = cov:FindFirstChild("RainbowBorder") or mk("UIStroke", {
 Name = "RainbowBorder",
 Thickness = 2.2,
 Color = Color3.new(1, 1, 1),
 ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 }, cov)
+covStroke.Enabled = true
+if not covStroke:FindFirstChildOfClass("UIGradient") then
 addGrad(mk("UIGradient", { Color = RAINBOW }, covStroke))
 end
 if not top:GetAttribute("__ChilliInstantToggleHooked") then
@@ -2567,22 +2570,72 @@ titleLbl.TextColor3 = Color3.new(1, 1, 1)
 titleLbl.Font = Enum.Font.GothamBold
 end)
 
--- 1. CƠ CHẾ CHỐNG LAG KHI MỞ/TẮT MENU: Không dùng UIScale làm lệch tâm, mở tức thì mượt mà ngay từ lần đầu
-local oldScale = win:FindFirstChild("ChilliFastOpenScale")
-if oldScale then oldScale:Destroy() end
+-- 1. HIỆU ỨNG MỞ MENU MƯỢT MÀ (0.20s Quart.Out, ZOOM TỪ TÂM 90% LÊN 100%, KHÔNG OVERSHOOT)
+win.AnchorPoint = v2(0.5, 0.5)
+win.Position = u2(0.5, 0, 0.5, 20)
+local winScale = win:FindFirstChild("ChilliMenuScale") or mk("UIScale", { Name = "ChilliMenuScale", Scale = 1 }, win)
+
+local isMenuAnimating = false
 local lastWasOpen = false
+
+local function hideOverlappingRobloxIcons(hide)
+pcall(function()
+for _, root in ipairs(getScanRoots()) do
+for _, d in ipairs(root:GetDescendants()) do
+if d:IsA("GuiObject") and not d:IsDescendantOf(win) and not (State.ActiveNavContainer and d:IsDescendantOf(State.ActiveNavContainer)) then
+if d.Name ~= "ChilliCircleDisc" and d.Name ~= "ChilliV5CoverLogo" and d.Name ~= "ChilliV5_ExpandedIsland" then
+local rx = d.AbsolutePosition.X
+local ry = d.AbsolutePosition.Y
+-- Icon khiên ninja đen hoặc dải icon nhỏ bị đè bên trái
+if rx >= 220 and rx <= 320 and ry >= 35 and ry <= 90 and (d.AbsoluteSize.X <= 60 and d.AbsoluteSize.Y <= 60) then
+d.Visible = not hide
+end
+end
+end
+end
+end
+end)
+end
+
 local function syncWindowVisibilityInstant()
 if not win or not win.Parent then return end
 local isOffscreen = (win.AbsolutePosition.X < -500 or win.AbsolutePosition.Y < -500)
 local isSizeZero = (win.AbsoluteSize.X < 24 or win.AbsoluteSize.Y < 24)
 local isForceClosing = (State.CloseHideUntil ~= nil) and (os.clock() < State.CloseHideUntil)
 local isOpen = not ((not win.Visible) or isOffscreen or isSizeZero or isForceClosing)
+
+hideOverlappingRobloxIcons(isOpen)
+
 if winStroke then
 winStroke.Enabled = isOpen
 winStroke.Transparency = isOpen and 0.2 or 1
 end
 for _, pw in ipairs(pageWallpapers) do if pw and pw.Parent then pw.Visible = isOpen end end
 if titleLbl and titleLbl.Parent then titleLbl.TextTransparency = 0 end
+
+if isOpen and not lastWasOpen then
+if not isMenuAnimating then
+isMenuAnimating = true
+winScale.Scale = 0.90
+if winStroke then winStroke.Transparency = 1 end
+if wp then wp.ImageTransparency = 0.35 end
+local openTw = TweenService:Create(winScale, TweenInfo.new(0.20, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Scale = 1 })
+openTw:Play()
+if winStroke then
+TweenService:Create(winStroke, TweenInfo.new(0.20, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Transparency = 0.2 }):Play()
+end
+if wp then
+TweenService:Create(wp, TweenInfo.new(0.20, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { ImageTransparency = 0.05 }):Play()
+end
+openTw.Completed:Connect(function()
+isMenuAnimating = false
+winScale.Scale = 1
+end)
+end
+elseif not isOpen and lastWasOpen then
+isMenuAnimating = false
+winScale.Scale = 1
+end
 lastWasOpen = isOpen
 end
 State.SyncWindowFn = syncWindowVisibilityInstant
@@ -2598,7 +2651,6 @@ win:GetPropertyChangedSignal("Size"):Connect(function()
 if win.AbsoluteSize.Y > 85 then State.CloseHideUntil = nil end
 syncWindowVisibilityInstant()
 end)
-win:GetPropertyChangedSignal("Position"):Connect(syncWindowVisibilityInstant)
 for _, d in ipairs(win:GetDescendants()) do
 if d:IsA("GuiObject") and math.abs(d.AbsolutePosition.Y - hy) < 30 then
 local isTxtClose = (d:IsA("TextButton") or d:IsA("TextLabel")) and (d.Text == "-" or d.Text == "—")
@@ -2608,9 +2660,21 @@ local btn = (d:IsA("TextButton") or d:IsA("ImageButton")) and d or d.Parent
 if btn and (btn:IsA("TextButton") or btn:IsA("ImageButton")) and not btn:GetAttribute("__CloseSyncHooked") then
 btn:SetAttribute("__CloseSyncHooked", true)
 btn.MouseButton1Down:Connect(function()
-State.CloseHideUntil = os.clock() + 0.15
+State.CloseHideUntil = os.clock() + 0.20
+if not isMenuAnimating then
+isMenuAnimating = true
+local closeTw = TweenService:Create(winScale, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Scale = 0.90 })
+closeTw:Play()
+if winStroke then
+TweenService:Create(winStroke, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Transparency = 1 }):Play()
+end
+closeTw.Completed:Connect(function()
+isMenuAnimating = false
+winScale.Scale = 1
 if winStroke then winStroke.Enabled = false end
 for _, pw in ipairs(pageWallpapers) do if pw and pw.Parent then pw.Visible = false end end
+end)
+end
 end)
 end
 end
@@ -3100,27 +3164,46 @@ win:SetAttribute("__ChilliV7ArchSession", SID)
 pcall(applySenaV8Architecture, win, titleLbl)
 end
 
--- 2. Xoá sạch hoàn toàn 100% logo chữ V (Vx) & làm chữ "Chilli Hub V8" màu Ultra Gradient rực rỡ
+-- 2. LÀM GỌN & NỔI BẬT THANH TIÊU ĐỀ: Logo ớt đỏ thương hiệu + Chữ "Chilli Hub V8" viền cam đỏ rực rỡ
 pcall(function()
 local topBar = (titleLbl.Parent and titleLbl.Parent ~= win and titleLbl.Parent:IsA("GuiObject") and titleLbl.Parent.AbsoluteSize.Y <= 60) and titleLbl.Parent or nil
-local oldLogo1 = win:FindFirstChild("ChilliHeaderLogoBadge")
-if oldLogo1 then oldLogo1:Destroy() end
+local targetParent = topBar or win
+
+local logo = targetParent:FindFirstChild("ChilliHeaderLogoBadge") or win:FindFirstChild("ChilliHeaderLogoBadge")
+if not logo then
+logo = mk("ImageLabel", {
+Name = "ChilliHeaderLogoBadge",
+AnchorPoint = v2(0, 0.5),
+Position = topBar and u2(0, 12, 0.5, 0) or u2(0, 12, 0, 18),
+Size = u2(0, 22, 0, 22),
+BackgroundTransparency = 1,
+Image = "rbxassetid://135898822557579",
+ScaleType = Enum.ScaleType.Fit,
+ZIndex = 65
+}, targetParent)
+end
+logo.Parent = targetParent
+logo.AnchorPoint = v2(0, 0.5)
+logo.Position = topBar and u2(0, 12, 0.5, 0) or u2(0, 12, 0, 18)
+logo.Size = u2(0, 22, 0, 22)
+logo.Image = "rbxassetid://135898822557579"
+logo.ImageTransparency = 0
+logo.Visible = true
+
 if topBar then
-local oldLogo2 = topBar:FindFirstChild("ChilliHeaderLogoBadge")
-if oldLogo2 then oldLogo2:Destroy() end
 local tbPad = topBar:FindFirstChildOfClass("UIPadding")
-if tbPad then tbPad.PaddingLeft = UDim.new(0, 14) end
+if tbPad then tbPad.PaddingLeft = UDim.new(0, 10) end
 if topBar.Position.X.Offset > 0 and topBar.Size.X.Scale > 0.5 then
 topBar.Position = u2(topBar.Position.X.Scale, 0, topBar.Position.Y.Scale, topBar.Position.Y.Offset)
 end
 end
 
--- Vị trí tiêu đề thoáng đãng bên lề trái (X = 14px), không dính mép và tách biệt
+-- Vị trí tiêu đề thoáng đãng (X = 38px, ngay cạnh logo ớt), TextSize = 17, GothamBold, phối màu trắng sáng viền đỏ cam rực rỡ
 titleLbl.AnchorPoint = v2(0, 0.5)
-titleLbl.Position = topBar and u2(0, 14, 0.5, 0) or u2(0, 14, 0, 18)
+titleLbl.Position = topBar and u2(0, 38, 0.5, 0) or u2(0, 38, 0, 18)
 titleLbl.Font = Enum.Font.GothamBold
 titleLbl.TextSize = 17
-titleLbl.TextColor3 = Color3.new(1, 1, 1)
+titleLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLbl.TextTransparency = 0
 titleLbl.TextXAlignment = Enum.TextXAlignment.Left
 titleLbl.TextYAlignment = Enum.TextYAlignment.Center
@@ -3128,36 +3211,36 @@ titleLbl.AutomaticSize = Enum.AutomaticSize.X
 titleLbl.Text = NEW_TITLE
 titleLbl.ZIndex = 65
 
--- Hiệu ứng màu Ultra Gradient tuyệt đẹp (Chuyển sắc trắng - xanh cyan - hồng tím - vàng ánh kim)
 local tGrad = titleLbl:FindFirstChild("TitleUltraGrad") or mk("UIGradient", {
 Name = "TitleUltraGrad",
-Rotation = 45,
-Color = ULTRA_TEXT_GRAD
+Rotation = 45
 }, titleLbl)
 tGrad.Rotation = 45
-tGrad.Color = ULTRA_TEXT_GRAD
+tGrad.Color = ColorSequence.new({
+csk(0.00, c3(255, 255, 255)),
+csk(0.28, c3(255, 235, 160)),
+csk(0.65, c3(255, 125, 45)),
+csk(1.00, c3(255, 65, 45))
+})
 
 local tStroke = titleLbl:FindFirstChild("TitleUltraStroke") or mk("UIStroke", {
-Name = "TitleUltraStroke",
-Thickness = 1.2,
-Color = c3(10, 8, 16),
-Transparency = 0.22
+Name = "TitleUltraStroke"
 }, titleLbl)
-tStroke.Thickness = 1.2
-tStroke.Color = c3(10, 8, 16)
-tStroke.Transparency = 0.22
+tStroke.Thickness = 1.3
+tStroke.Color = Color3.fromRGB(255, 85, 45)
+tStroke.Transparency = 0.05
 
--- Xoá vĩnh viễn logo chữ V (Vx) trên thanh (cả ImageLabel, TextLabel, Frame xoay) & chỉnh subtitle / Lấy Trứng v1.4.5
+-- Xoá vĩnh viễn logo chữ V (Vx) trên thanh & chỉnh subtitle / Lấy Trứng v1.4.5
 local hdr = topBar or win
 for _, d in ipairs(hdr:GetChildren()) do
-if d ~= titleLbl and d.Name ~= "ChilliSenaWallpaper" and not (State.ActiveNavContainer and d:IsDescendantOf(State.ActiveNavContainer)) then
+if d ~= titleLbl and d ~= logo and d.Name ~= "ChilliSenaWallpaper" and not (State.ActiveNavContainer and d:IsDescendantOf(State.ActiveNavContainer)) then
 local isSub = false
 if d:IsA("TextLabel") or d:IsA("TextButton") then
 local t = (d.Text or ""):match("^%s*(.-)%s*$")
 if t:find("v1.") or t:find("/") or t:find("Lấy Trứng") or t:find("Cướp Trứng") or t:find("Steal An Egg") then
 isSub = true
 d.AnchorPoint = v2(0, 0.5)
-d.Position = (topBar and d.Parent == topBar) and u2(0, 138, 0.5, 0) or u2(0, 138, 0, 18)
+d.Position = (topBar and d.Parent == topBar) and u2(0, 162, 0.5, 0) or u2(0, 162, 0, 18)
 d.TextYAlignment = Enum.TextYAlignment.Center
 d.TextColor3 = c3(180, 190, 205)
 d.Font = Enum.Font.GothamMedium
@@ -3178,7 +3261,7 @@ end
 end
 
 for _, d in ipairs(win:GetDescendants()) do
-if d ~= titleLbl and d.Name ~= "ChilliSenaWallpaper" and not (State.ActiveNavContainer and d:IsDescendantOf(State.ActiveNavContainer)) then
+if d ~= titleLbl and d ~= logo and d.Name ~= "ChilliSenaWallpaper" and not (State.ActiveNavContainer and d:IsDescendantOf(State.ActiveNavContainer)) then
 if d:IsA("TextLabel") or d:IsA("TextButton") then
 local t = (d.Text or ""):lower():match("^%s*(.-)%s*$")
 if t == "vx" or t == "v" or t == "x" then
