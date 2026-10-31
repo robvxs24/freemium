@@ -2548,8 +2548,7 @@ for _, pw in ipairs(pageWallpapers) do if pw and pw.Parent then pw.Visible = isO
 if titleLbl and titleLbl.Parent then titleLbl.TextTransparency = 0 end
 if isOpen and not lastWasOpen then
 if winScale and winScale.Parent then
-winScale.Scale = 0.95
-TweenService:Create(winScale, TweenInfo.new(0.15, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+winScale.Scale = 1
 end
 end
 lastWasOpen = isOpen
@@ -2662,41 +2661,24 @@ listLayout.SortOrder = Enum.SortOrder.LayoutOrder
 listLayout.Padding = UDim.new(0, 8)
 end
 
-local function shiftContentTarget(sib)
-if not sib or not sib:IsA("GuiObject") or sib == win or sib == mainBg or sib == navContainer or sib:IsDescendantOf(navContainer) or navContainer:IsDescendantOf(sib) then return end
-local isHdr = (titleLbl and (sib == titleLbl.Parent or titleLbl:IsDescendantOf(sib)))
-local isWp = (sib.Name:find("^Chilli") and (sib.Name:find("Wallpaper") or sib.Name:find("Stroke") or sib.Name:find("Cosmic") or sib.Name:find("Logo")))
-if isHdr or isWp then return end
-
-if not sib:GetAttribute("__ChilliShiftedRightV12") then
-local sx = sib.Position.X.Offset
-local sy = sib.Position.Y.Offset
-local relY = sib.AbsolutePosition.Y - win.AbsolutePosition.Y
-local relX = sib.AbsolutePosition.X - win.AbsolutePosition.X
-if (sx >= 15 and sx <= 148) or (relX >= 15 and relX <= 148 and relY >= 20) then
-local ancShifted = false
-local p = sib.Parent
-while p and p ~= win and p ~= mainBg do
-if p:GetAttribute("__ChilliShiftedRightV12") then ancShifted = true break end
-p = p.Parent
-end
-if not ancShifted then
-sib:SetAttribute("__ChilliShiftedRightV12", true)
-local targetX = math.max(sx, CONTENT_START_X)
-sib.Position = u2(sib.Position.X.Scale, targetX, sib.Position.Y.Scale, sy)
-if sib.Size.X.Scale > 0.4 or sib.Size.X.Offset > 180 then
-sib.Size = u2(sib.Size.X.Scale, sib.Size.X.Offset - 98, sib.Size.Y.Scale, sib.Size.Y.Offset)
+local function setupContentContainer(parentWin)
+if not parentWin then return end
+for _, ch in ipairs(parentWin:GetChildren()) do
+if ch:IsA("GuiObject") and ch ~= navContainer and not (navContainer and ch:IsDescendantOf(navContainer)) then
+local isHdr = (titleLbl and (ch == titleLbl.Parent or ch:IsDescendantOf(titleLbl.Parent)))
+local isWp = (ch.Name:find("^Chilli") and (ch.Name:find("Wallpaper") or ch.Name:find("Stroke") or ch.Name:find("Cosmic") or ch.Name:find("Logo")))
+if not isHdr and not isWp then
+if not ch:GetAttribute("__ChilliContentContainerFixed") then
+ch:SetAttribute("__ChilliContentContainerFixed", true)
+ch.Position = u2(0, 148, 0, 46)
+ch.Size = u2(1, -156, 1, -55)
 end
 end
 end
 end
 end
-
-for _, sib in ipairs(win:GetDescendants()) do
-if sib:IsA("GuiObject") then
-shiftContentTarget(sib)
-end
-end
+setupContentContainer(win)
+if mainBg and mainBg ~= win then setupContentContainer(mainBg) end
 end)
 
 State.SystemTabBtn = navButtons[6] or navButtons[#navButtons]
@@ -3063,7 +3045,7 @@ win:SetAttribute("__ChilliV7ArchSession", SID)
 pcall(applySenaV8Architecture, win, titleLbl)
 end
 
--- 2. Chữ "Chilli Hub V8" trên menu: Kích cỡ, màu trắng tinh khiết và căn chỉnh chuẩn y hệt Ảnh 3 (7529.jpg)
+-- 2. Dịch chữ "Chilli Hub V8" sang trái nhiều (X = 10px) và xoá hoàn toàn logo chữ V (Vx) trên thanh
 pcall(function()
 local topBar = (titleLbl.Parent and titleLbl.Parent ~= win and titleLbl.Parent:IsA("GuiObject") and titleLbl.Parent.AbsoluteSize.Y <= 60) and titleLbl.Parent or nil
 local oldLogo1 = win:FindFirstChild("ChilliHeaderLogoBadge")
@@ -3078,27 +3060,55 @@ if oldGrad then oldGrad:Destroy() end
 local oldStroke = titleLbl:FindFirstChild("ChilliTitleStroke")
 if oldStroke then oldStroke:Destroy() end
 
+titleLbl.AnchorPoint = v2(0, 0.5)
+titleLbl.Position = topBar and u2(0, 10, 0.5, 0) or u2(0, 10, 0, 18)
 titleLbl.Font = Enum.Font.GothamBold
+titleLbl.TextSize = 16.5
 titleLbl.TextColor3 = Color3.new(1, 1, 1)
 titleLbl.TextTransparency = 0
+titleLbl.TextXAlignment = Enum.TextXAlignment.Left
+titleLbl.TextYAlignment = Enum.TextYAlignment.Center
 titleLbl.AutomaticSize = Enum.AutomaticSize.X
 titleLbl.Text = NEW_TITLE
+titleLbl.ZIndex = 65
 
+-- Xoá bỏ hoàn toàn logo chữ V (Vx) trên thanh và căn chỉnh subtitle
 for _, d in ipairs(win:GetDescendants()) do
-if d ~= titleLbl then
+if d ~= titleLbl and d.Name ~= "ChilliSenaWallpaper" and not (State.ActiveNavContainer and d:IsDescendantOf(State.ActiveNavContainer)) then
+local ry = d.AbsolutePosition.Y - win.AbsolutePosition.Y
+local rx = d.AbsolutePosition.X - win.AbsolutePosition.X
+if ry >= 0 and ry <= 42 and rx >= 0 and rx <= 60 then
+if d:IsA("ImageLabel") or d:IsA("ImageButton") then
+d.ImageTransparency = 1
+d.Visible = false
+elseif d:IsA("TextLabel") or d:IsA("TextButton") then
+d.TextTransparency = 1
+d.Visible = false
+d.Text = ""
+end
+end
 if d:IsA("TextLabel") or d:IsA("TextButton") then
 local t = (d.Text or ""):match("^%s*(.-)%s*$")
-if t == "vx" or t == "Vx" or t == "VX" then
+if t == "vx" or t == "Vx" or t == "VX" or t == "V" or t == "v" then
 d.Text = ""
 d.Visible = false
 d.TextTransparency = 1
+elseif t:find("v1.") or t:find("/") or t:find("Lấy Trứng") or t:find("Cướp Trứng") or t:find("Steal An Egg") then
+if ry >= 0 and ry <= 42 then
+d.AnchorPoint = v2(0, 0.5)
+d.Position = (topBar and d.Parent == topBar) and u2(0, 126, 0.5, 0) or u2(0, 126, 0, 18)
+d.TextYAlignment = Enum.TextYAlignment.Center
+if t:find("Cướp") or t:find("cướp") then
+d.Text = t:gsub("Cướp", "Lấy"):gsub("cướp", "lấy")
+end
+end
 end
 end
 end
 end
 end)
 
--- 3. Căn chỉnh toàn bộ tọa độ khung con bên trong sang X=152px đồng bộ, mượt mà (Zero Lag)
+-- 3. Căn chỉnh khung nội dung chính sang X=148px chuẩn xác 1 lần duy nhất, chống delay & chống lệch khi mở
 local function ensureAllContentShifted(targetWin)
 if not targetWin or not targetWin.Parent then return end
 local navContainer = State.ActiveNavContainer
@@ -3107,12 +3117,10 @@ if ch:IsA("GuiObject") and ch ~= navContainer and not (navContainer and ch:IsDes
 local isHdr = (titleLbl and (ch == titleLbl.Parent or ch:IsDescendantOf(titleLbl.Parent)))
 local isWp = (ch.Name:find("^Chilli") and (ch.Name:find("Wallpaper") or ch.Name:find("Stroke") or ch.Name:find("Cosmic") or ch.Name:find("Logo")))
 if not isHdr and not isWp then
-local curX = ch.Position.X.Offset
-local curScale = ch.Position.X.Scale
-if curScale < 0.25 and curX < 148 then
-ch.Position = u2(0, 152, ch.Position.Y.Scale, ch.Position.Y.Offset)
-if ch.Size.X.Scale > 0.4 or ch.Size.X.Offset > 150 then
-ch.Size = u2(ch.Size.X.Scale, ch.Size.X.Offset - 98, ch.Size.Y.Scale, ch.Size.Y.Offset)
+if not ch:GetAttribute("__ChilliContentContainerFixed") then
+ch:SetAttribute("__ChilliContentContainerFixed", true)
+ch.Position = u2(0, 148, 0, 46)
+ch.Size = u2(1, -156, 1, -55)
 end
 end
 end
@@ -3121,6 +3129,7 @@ end
 
 local function lockHidePageTitleLabel(d)
 if not d or not d:IsA("TextLabel") or d == titleLbl then return end
+local navContainer = State.ActiveNavContainer
 if navContainer and d:IsDescendantOf(navContainer) then return end
 if d:FindFirstAncestorOfClass("ScrollingFrame") then return end
 if isProfileOrPlayerInfo(d) then
@@ -3159,7 +3168,7 @@ end
 end
 end
 
-for _, d in ipairs(targetWin:GetDescendants()) do
+for _, d in ipairs(win:GetDescendants()) do
 if d:IsA("TextLabel") then
 if isProfileOrPlayerInfo(d) then
 d:SetAttribute("__HiddenVxLogo", nil)
@@ -3168,7 +3177,6 @@ d.TextTransparency = 0
 d.Visible = true
 else
 lockHidePageTitleLabel(d)
-end
 end
 end
 end
@@ -3184,13 +3192,10 @@ if ch ~= navContainer and not (navContainer and ch:IsDescendantOf(navContainer))
 local isHdr = (titleLbl and (ch == titleLbl.Parent or ch:IsDescendantOf(titleLbl.Parent)))
 local isWp = (ch.Name:find("^Chilli") and (ch.Name:find("Wallpaper") or ch.Name:find("Stroke") or ch.Name:find("Cosmic") or ch.Name:find("Logo")))
 if not isHdr and not isWp then
-local curX = ch.Position.X.Offset
-local curScale = ch.Position.X.Scale
-if curScale < 0.25 and curX < 148 then
-ch.Position = u2(0, 152, ch.Position.Y.Scale, ch.Position.Y.Offset)
-if ch.Size.X.Scale > 0.4 or ch.Size.X.Offset > 150 then
-ch.Size = u2(ch.Size.X.Scale, ch.Size.X.Offset - 98, ch.Size.Y.Scale, ch.Size.Y.Offset)
-end
+if not ch:GetAttribute("__ChilliContentContainerFixed") then
+ch:SetAttribute("__ChilliContentContainerFixed", true)
+ch.Position = u2(0, 148, 0, 46)
+ch.Size = u2(1, -156, 1, -55)
 end
 end
 end
