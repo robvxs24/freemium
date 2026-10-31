@@ -3199,41 +3199,37 @@ local function setupBubbleToggle(gui, win, extBtn)
     local UserInputSvc = game:GetService("UserInputService")
     State.IsBubbleAnimating = false
 
-    local bubble = extBtn or gui:FindFirstChild("ChilliCrystalBubble")
-    if not bubble then
-        for _, ch in ipairs(gui:GetChildren()) do
-            if ch:IsA("GuiObject") and ch ~= win and ch.Name ~= "ChilliV5_ExpandedIsland" and not ch:FindFirstChild("IslandExpandHint") then
-                bubble = ch
-                break
+    -- 1. Tiêu diệt triệt để tất cả nút / nhãn "Vx", "V", "x" cũ của Venyx để không bao giờ có 2 logo
+    for _, ch in ipairs(gui:GetChildren()) do
+        if ch:IsA("GuiObject") and ch ~= win and ch.Name ~= "ChilliV5_ExpandedIsland" and not ch:FindFirstChild("IslandExpandHint") and ch.Name ~= "ChilliCrystalBubble" then
+            ch.Visible = false
+            for _, d in ipairs(ch:GetDescendants()) do
+                if d:IsA("TextLabel") or d:IsA("TextButton") then
+                    d.Text = ""
+                    d.TextTransparency = 1
+                    d.Visible = false
+                end
             end
-        end
-    end
-
-    if not bubble then
-        bubble = Instance.new("ImageButton")
-        bubble.Name = "ChilliCrystalBubble"
-        bubble.Parent = gui
-    end
-
-    bubble.Name = "ChilliCrystalBubble"
-    bubble.AnchorPoint = Vector2.new(0.5, 0.5)
-    bubble.Position = UDim2.new(0, 48, 0.5, -20)
-    bubble.Size = UDim2.new(0, 56, 0, 56)
-    bubble.BackgroundColor3 = Color3.fromRGB(15, 18, 30)
-    bubble.BackgroundTransparency = 1
-    bubble.BorderSizePixel = 0
-    bubble.ZIndex = 99999
-    bubble.Visible = not win.Visible
-
-    for _, ch in ipairs(bubble:GetChildren()) do
-        if ch.Name ~= "ChilliBubbleContainer" then
             pcall(function() ch:Destroy() end)
         end
     end
 
-    local container = bubble:FindFirstChild("ChilliBubbleContainer")
-    if not container then
-        container = Instance.new("Frame")
+    -- 2. Tạo duy nhất nút Quả Cầu Bong Bóng ngoài màn hình với ID 91322208361913
+    local bubble = gui:FindFirstChild("ChilliCrystalBubble")
+    if not bubble then
+        bubble = Instance.new("ImageButton")
+        bubble.Name = "ChilliCrystalBubble"
+        bubble.AnchorPoint = Vector2.new(0.5, 0.5)
+        bubble.Position = UDim2.new(0, 36, 0.5, -20)
+        bubble.Size = UDim2.new(0, 56, 0, 56)
+        bubble.BackgroundColor3 = Color3.fromRGB(15, 18, 30)
+        bubble.BackgroundTransparency = 1
+        bubble.BorderSizePixel = 0
+        bubble.ZIndex = 99999
+        bubble.Visible = not win.Visible
+        bubble.Parent = gui
+
+        local container = Instance.new("Frame")
         container.Name = "ChilliBubbleContainer"
         container.AnchorPoint = Vector2.new(0.5, 0.5)
         container.Position = UDim2.fromScale(0.5, 0.5)
@@ -3248,6 +3244,7 @@ local function setupBubbleToggle(gui, win, extBtn)
         bCorner.CornerRadius = UDim.new(1, 0)
         bCorner.Parent = container
 
+        -- Viền phát sáng pha lê Neon rực rỡ
         local bStroke = Instance.new("UIStroke")
         bStroke.Name = "BubbleStroke"
         bStroke.Thickness = 2.0
@@ -3264,6 +3261,7 @@ local function setupBubbleToggle(gui, win, extBtn)
         })
         bStrokeGrad.Parent = bStroke
 
+        -- Lớp ánh sáng bong bóng pha lê phản chiếu 3D
         local shimmerImg = Instance.new("ImageLabel")
         shimmerImg.Name = "ShimmerGlow"
         shimmerImg.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -3276,13 +3274,14 @@ local function setupBubbleToggle(gui, win, extBtn)
         shimmerImg.ZIndex = container.ZIndex + 1
         shimmerImg.Parent = container
 
+        -- Logo Quả Cầu Bong Bóng chuẩn ID: 91322208361913
         local centerLogo = Instance.new("ImageLabel")
         centerLogo.Name = "BubbleLogo"
         centerLogo.AnchorPoint = Vector2.new(0.5, 0.5)
         centerLogo.Position = UDim2.fromScale(0.5, 0.5)
-        centerLogo.Size = UDim2.new(0, 40, 0, 40)
+        centerLogo.Size = UDim2.new(0, 44, 0, 44)
         centerLogo.BackgroundTransparency = 1
-        centerLogo.Image = LOGO_ID
+        centerLogo.Image = "rbxassetid://91322208361913"
         centerLogo.ScaleType = Enum.ScaleType.Fit
         centerLogo.ZIndex = container.ZIndex + 2
         centerLogo.Parent = container
@@ -3300,18 +3299,7 @@ local function setupBubbleToggle(gui, win, extBtn)
         end)
     end
 
-    for _, d in ipairs(gui:GetDescendants()) do
-        if d ~= bubble and not d:IsDescendantOf(bubble) and not d:IsDescendantOf(win) then
-            if (d:IsA("TextLabel") or d:IsA("TextButton")) and (d.Text:lower():find("vx") or d.Text:lower() == "v") then
-                d.TextTransparency = 1
-                d.Visible = false
-                if d.Parent and d.Parent ~= gui and d.Parent ~= win then
-                    d.Parent.Visible = false
-                end
-            end
-        end
-    end
-
+    -- Kéo thả bong bóng (Drag) mượt mà trên cả Mobile và PC
     if not bubble:GetAttribute("__DragHooked") then
         bubble:SetAttribute("__DragHooked", true)
         local dragging = false
@@ -3365,6 +3353,7 @@ local function setupBubbleToggle(gui, win, extBtn)
         end)
     end
 
+    -- 1. HIỆU ỨNG MỞ MENU (Scale từ tâm quả cầu bong bóng bung nở ra thành MainFrame)
     local function openMenuAnimated()
         if State.IsBubbleAnimating then return end
         State.IsBubbleAnimating = true
@@ -3376,6 +3365,7 @@ local function setupBubbleToggle(gui, win, extBtn)
         local destSize = State.OrigWinSize or win.Size
         local destAnchor = State.OrigWinAnchor or Vector2.new(0, 0)
 
+        -- Bong bóng 91322208361913 thu nhỏ và biến mất
         TweenSvc:Create(bubble, TweenInfo.new(0.18, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
             Size = UDim2.new(0, 0, 0, 0)
         }):Play()
@@ -3385,6 +3375,7 @@ local function setupBubbleToggle(gui, win, extBtn)
             bubble.Size = UDim2.new(0, 56, 0, 56)
         end)
 
+        -- Thiết lập MainFrame xuất phát từ tâm bong bóng với kích thước 0
         win.Visible = true
         win.AnchorPoint = Vector2.new(0.5, 0.5)
         win.Position = UDim2.new(0, bCenter.X, 0, bCenter.Y)
@@ -3407,6 +3398,7 @@ local function setupBubbleToggle(gui, win, extBtn)
         openTween:Play()
     end
 
+    -- 2. HIỆU ỨNG ĐÓNG MENU (Hub thu nhỏ mượt mà dần về lại quả cầu bong bóng)
     local function closeMenuAnimated()
         if State.IsBubbleAnimating then return end
         if not win.Visible then
@@ -3423,6 +3415,7 @@ local function setupBubbleToggle(gui, win, extBtn)
 
         local bCenter = bubble.AbsolutePosition + (bubble.AbsoluteSize * 0.5)
 
+        -- Tween thu nhỏ menu về vị trí quả cầu
         local closeTween = TweenSvc:Create(win, TweenInfo.new(0.28, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
             Position = UDim2.new(0, bCenter.X, 0, bCenter.Y),
             Size = UDim2.new(0, 0, 0, 0),
@@ -3435,6 +3428,7 @@ local function setupBubbleToggle(gui, win, extBtn)
             win.Size = State.OrigWinSize
             win.AnchorPoint = State.OrigWinAnchor
 
+            -- Hiện quả cầu bong bóng 91322208361913 bung nở xuất hiện với hiệu ứng đàn hồi
             bubble.Visible = true
             bubble.Size = UDim2.new(0, 0, 0, 0)
             TweenSvc:Create(bubble, TweenInfo.new(0.32, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
@@ -3525,20 +3519,13 @@ if win then
 State.ActiveMainWin = win
 pcall(cleanupStrayLogos, gui, win)
 pcall(applySenaV7Architecture, win, titleLbl)
+pcall(setupBubbleToggle, gui, win)
+end
 
-local foundTc = nil
 for _, tc in ipairs(gui:GetChildren()) do
 if tc:IsA("GuiObject") and tc ~= win and tc.Name ~= "ChilliV5_ExpandedIsland" and not tc:FindFirstChild("IslandExpandHint") and tc.Name ~= "ChilliCrystalBubble" then
-foundTc = tc
-break
-end
-end
-pcall(setupBubbleToggle, gui, win, foundTc)
-end
-
-for _, other in ipairs(gui:GetChildren()) do
-if other:IsA("GuiObject") and other ~= win and other.Name ~= "ChilliV5_ExpandedIsland" and not other:FindFirstChild("IslandExpandHint") and other.Name ~= "ChilliCrystalBubble" then
-other.Visible = false
+tc.Visible = false
+pcall(function() tc:Destroy() end)
 end
 end
 
