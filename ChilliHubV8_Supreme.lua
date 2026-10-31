@@ -3,7 +3,7 @@
 -- [PHẦN 1] KHỞI TẠO CẤU HÌNH, TỐI ƯU ĐỒ HỌA & QUẢN LÝ PHIÊN LÀM VIỆC (ZERO ERRORS)
 -- ============================================================================
 local NEW_TITLE = "Chilli Hub V8"
-local LOGO_ID = "rbxassetid://91322208361913"
+local LOGO_ID = "rbxassetid://74441610995894"
 local HEADER_BAR_IMG_ID = "rbxassetid://83726521558450"
 local STEAL_TAB_ICON_ID = "rbxassetid://91536384271341"
 local WALLPAPER_IMAGE_ID = "rbxassetid://90615151648668"
@@ -2924,6 +2924,39 @@ local function applySenaV7Architecture(win, titleLbl)
         table.sort(navButtons, function(a, b) return a.AbsolutePosition.Y < b.AbsolutePosition.Y end)
         State.SystemTabBtn = navButtons[6] or navButtons[#navButtons]
 
+        local function updateTabActiveStyles(activeIdx)
+            for i, b in ipairs(navButtons) do
+                local sq = b:FindFirstChild("ChilliSenaSquircle")
+                if sq then
+                    local st = sq:FindFirstChild("SquircleStroke") or sq:FindFirstChildOfClass("UIStroke")
+                    local bColor = SIDEBAR_PALETTE[((i - 1) % #SIDEBAR_PALETTE) + 1]
+                    if i == activeIdx then
+                        TweenService:Create(sq, TweenInfo.new(0.22, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+                            Size = UDim2.new(0, 34, 0, 34),
+                            BackgroundColor3 = bColor,
+                            BackgroundTransparency = 0.05
+                        }):Play()
+                        if st then
+                            st.Thickness = 2.2
+                            st.Color = Color3.new(1, 1, 1)
+                            st.Transparency = 0.05
+                        end
+                    else
+                        TweenService:Create(sq, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                            Size = UDim2.new(0, 28, 0, 28),
+                            BackgroundColor3 = Color3.fromRGB(18, 20, 32),
+                            BackgroundTransparency = 0.45
+                        }):Play()
+                        if st then
+                            st.Thickness = 1.0
+                            st.Color = bColor
+                            st.Transparency = 0.65
+                        end
+                    end
+                end
+            end
+        end
+
         local TAB_NAMES = {
             [1] = { title = "BẢNG ĐIỀU KHIỂN", icon = "🏠", sub = "HOME DASHBOARD" },
             [2] = { title = "CƯỚP TRỨNG", icon = "🥚", sub = "AUTO STEAL & SNIPER" },
@@ -2935,6 +2968,7 @@ local function applySenaV7Architecture(win, titleLbl)
 
         -- Khung thông báo mini xuất hiện cực đẹp khi bấm vào từng tab
         local function showTabToast(idx, badgeColor)
+                    pcall(updateTabActiveStyles, idx)
             local tabInfo = TAB_NAMES[idx] or { title = "TAB " .. tostring(idx), icon = "⚡", sub = "CHILLI HUB ULTRA" }
             local oldToast = win:FindFirstChild("ChilliTabToast")
             if oldToast then oldToast:Destroy() end
@@ -3093,6 +3127,7 @@ local function applySenaV7Architecture(win, titleLbl)
 
                     -- 3. Hiện huy hiệu thông báo mini của Tab ở đầu trang
                     showTabToast(idx, badgeColor)
+                    pcall(updateTabActiveStyles, idx)
                 end
 
                 if btn:IsA("GuiButton") then
@@ -3152,9 +3187,9 @@ local venyxGuiLocked = nil
 
 
 -- ============================================================================
--- [CHILLI BUBBLE TOGGLE] QUáº¢ Cáº¦U BONG BÃ“NG PHA LÃŠ & HIá»†U á»¨NG TWEEN SCALE BUNG Ná»ž
+-- [CHILLI BUBBLE TOGGLE] QUẢ CẦU BONG BÓNG PHA LÊ & HIỆU ỨNG TWEEN SCALE BUNG NỞ
 -- ============================================================================
-local function setupBubbleToggle(gui, win)
+local function setupBubbleToggle(gui, win, extBtn)
     if not gui or not win then return end
     if win:GetAttribute("__ChilliBubbleHooked") then return end
     win:SetAttribute("__ChilliBubbleHooked", true)
@@ -3164,31 +3199,61 @@ local function setupBubbleToggle(gui, win)
     local UserInputSvc = game:GetService("UserInputService")
     State.IsBubbleAnimating = false
 
-    local bubble = gui:FindFirstChild("ChilliCrystalBubble")
+    local bubble = extBtn or gui:FindFirstChild("ChilliCrystalBubble")
+    if not bubble then
+        for _, ch in ipairs(gui:GetChildren()) do
+            if ch:IsA("GuiObject") and ch ~= win and ch.Name ~= "ChilliV5_ExpandedIsland" and not ch:FindFirstChild("IslandExpandHint") then
+                bubble = ch
+                break
+            end
+        end
+    end
+
     if not bubble then
         bubble = Instance.new("ImageButton")
         bubble.Name = "ChilliCrystalBubble"
-        bubble.AnchorPoint = Vector2.new(0.5, 0.5)
-        bubble.Position = UDim2.new(0, 48, 0.5, -20)
-        bubble.Size = UDim2.new(0, 56, 0, 56)
-        bubble.BackgroundColor3 = Color3.fromRGB(15, 18, 30)
-        bubble.BackgroundTransparency = 0.15
-        bubble.AutoButtonColor = false
-        bubble.BorderSizePixel = 0
-        bubble.ZIndex = 99999
         bubble.Parent = gui
+    end
+
+    bubble.Name = "ChilliCrystalBubble"
+    bubble.AnchorPoint = Vector2.new(0.5, 0.5)
+    bubble.Position = UDim2.new(0, 48, 0.5, -20)
+    bubble.Size = UDim2.new(0, 56, 0, 56)
+    bubble.BackgroundColor3 = Color3.fromRGB(15, 18, 30)
+    bubble.BackgroundTransparency = 1
+    bubble.BorderSizePixel = 0
+    bubble.ZIndex = 99999
+    bubble.Visible = not win.Visible
+
+    for _, ch in ipairs(bubble:GetChildren()) do
+        if ch.Name ~= "ChilliBubbleContainer" then
+            pcall(function() ch:Destroy() end)
+        end
+    end
+
+    local container = bubble:FindFirstChild("ChilliBubbleContainer")
+    if not container then
+        container = Instance.new("Frame")
+        container.Name = "ChilliBubbleContainer"
+        container.AnchorPoint = Vector2.new(0.5, 0.5)
+        container.Position = UDim2.fromScale(0.5, 0.5)
+        container.Size = UDim2.fromScale(1, 1)
+        container.BackgroundColor3 = Color3.fromRGB(15, 18, 30)
+        container.BackgroundTransparency = 0.15
+        container.BorderSizePixel = 0
+        container.ZIndex = bubble.ZIndex + 1
+        container.Parent = bubble
 
         local bCorner = Instance.new("UICorner")
         bCorner.CornerRadius = UDim.new(1, 0)
-        bCorner.Parent = bubble
+        bCorner.Parent = container
 
-        -- Viá»n phÃ¡t sÃ¡ng pha lÃª chuyá»ƒn sáº¯c lung linh
         local bStroke = Instance.new("UIStroke")
         bStroke.Name = "BubbleStroke"
         bStroke.Thickness = 2.0
         bStroke.Color = Color3.fromRGB(120, 190, 255)
         bStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-        bStroke.Parent = bubble
+        bStroke.Parent = container
 
         local bStrokeGrad = Instance.new("UIGradient")
         bStrokeGrad.Color = ColorSequence.new({
@@ -3199,7 +3264,6 @@ local function setupBubbleToggle(gui, win)
         })
         bStrokeGrad.Parent = bStroke
 
-        -- Lá»›p Ã¡nh sÃ¡ng bong bÃ³ng pha lÃª pháº£n chiáº¿u 3D
         local shimmerImg = Instance.new("ImageLabel")
         shimmerImg.Name = "ShimmerGlow"
         shimmerImg.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -3209,26 +3273,24 @@ local function setupBubbleToggle(gui, win)
         shimmerImg.Image = "rbxassetid://4965945816"
         shimmerImg.ImageColor3 = Color3.fromRGB(160, 220, 255)
         shimmerImg.ImageTransparency = 0.25
-        shimmerImg.ZIndex = bubble.ZIndex + 1
-        shimmerImg.Parent = bubble
+        shimmerImg.ZIndex = container.ZIndex + 1
+        shimmerImg.Parent = container
 
-        -- Logo Chilli Hub V8 má»›i náº±m giá»¯a tÃ¢m quáº£ cáº§u bong bÃ³ng
         local centerLogo = Instance.new("ImageLabel")
         centerLogo.Name = "BubbleLogo"
         centerLogo.AnchorPoint = Vector2.new(0.5, 0.5)
         centerLogo.Position = UDim2.fromScale(0.5, 0.5)
-        centerLogo.Size = UDim2.new(0, 36, 0, 36)
+        centerLogo.Size = UDim2.new(0, 40, 0, 40)
         centerLogo.BackgroundTransparency = 1
         centerLogo.Image = LOGO_ID
         centerLogo.ScaleType = Enum.ScaleType.Fit
-        centerLogo.ZIndex = bubble.ZIndex + 2
-        centerLogo.Parent = bubble
+        centerLogo.ZIndex = container.ZIndex + 2
+        centerLogo.Parent = container
 
         local lCorner = Instance.new("UICorner")
         lCorner.CornerRadius = UDim.new(1, 0)
         lCorner.Parent = centerLogo
 
-        -- Hiá»‡u á»©ng váº§ng hÃ o quang pha lÃª xoay trÃ²n mÆ°á»£t mÃ 
         local rotAngle = 0
         RunSvc.Heartbeat:Connect(function(dt)
             if bubble.Visible then
@@ -3236,8 +3298,22 @@ local function setupBubbleToggle(gui, win)
                 bStrokeGrad.Rotation = rotAngle
             end
         end)
+    end
 
-        -- KÃ©o tháº£ bong bÃ³ng (Drag) mÆ°á»£t mÃ  trÃªn cáº£ Mobile vÃ  PC
+    for _, d in ipairs(gui:GetDescendants()) do
+        if d ~= bubble and not d:IsDescendantOf(bubble) and not d:IsDescendantOf(win) then
+            if (d:IsA("TextLabel") or d:IsA("TextButton")) and (d.Text:lower():find("vx") or d.Text:lower() == "v") then
+                d.TextTransparency = 1
+                d.Visible = false
+                if d.Parent and d.Parent ~= gui and d.Parent ~= win then
+                    d.Parent.Visible = false
+                end
+            end
+        end
+    end
+
+    if not bubble:GetAttribute("__DragHooked") then
+        bubble:SetAttribute("__DragHooked", true)
         local dragging = false
         local dragStart, startPos
         local totalDragDist = 0
@@ -3271,14 +3347,12 @@ local function setupBubbleToggle(gui, win)
         end)
     end
 
-    -- Khá»Ÿi táº¡o vá»‹ trÃ­ vÃ  kÃ­ch thÆ°á»›c lÆ°u trá»¯ cá»§a Menu chÃ­nh
     if not State.OrigWinSize then
         State.OrigWinSize = win.Size
         State.OrigWinPos = win.Position
         State.OrigWinAnchor = win.AnchorPoint
     end
 
-    -- HÃ m phÃ¡t Ã¢m thanh giao diá»‡n
     local function playToggleSound(soundId, vol, spd)
         pcall(function()
             local snd = Instance.new("Sound")
@@ -3291,7 +3365,6 @@ local function setupBubbleToggle(gui, win)
         end)
     end
 
-    -- 1. HIá»†U á»¨NG Má»ž MENU (Scale tá»« tÃ¢m quáº£ cáº§u bong bÃ³ng bung ná»Ÿ ra thÃ nh MainFrame)
     local function openMenuAnimated()
         if State.IsBubbleAnimating then return end
         State.IsBubbleAnimating = true
@@ -3303,7 +3376,6 @@ local function setupBubbleToggle(gui, win)
         local destSize = State.OrigWinSize or win.Size
         local destAnchor = State.OrigWinAnchor or Vector2.new(0, 0)
 
-        -- Bong bÃ³ng thu nhá» biáº¿n máº¥t
         TweenSvc:Create(bubble, TweenInfo.new(0.18, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
             Size = UDim2.new(0, 0, 0, 0)
         }):Play()
@@ -3313,7 +3385,6 @@ local function setupBubbleToggle(gui, win)
             bubble.Size = UDim2.new(0, 56, 0, 56)
         end)
 
-        -- Thiáº¿t láº­p MainFrame xuáº¥t phÃ¡t tá»« tÃ¢m bong bÃ³ng vá»›i kÃ­ch thÆ°á»›c 0
         win.Visible = true
         win.AnchorPoint = Vector2.new(0.5, 0.5)
         win.Position = UDim2.new(0, bCenter.X, 0, bCenter.Y)
@@ -3321,7 +3392,6 @@ local function setupBubbleToggle(gui, win)
         State.CloseHideUntil = nil
         if State.SyncWindowFn then pcall(State.SyncWindowFn) end
 
-        -- Tween bung ná»Ÿ mÆ°á»£t mÃ  dáº¡ng lÃ² xo
         local openTween = TweenSvc:Create(win, TweenInfo.new(0.36, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
             Position = destPos,
             Size = destSize,
@@ -3337,7 +3407,6 @@ local function setupBubbleToggle(gui, win)
         openTween:Play()
     end
 
-    -- 2. HIá»†U á»¨NG ÄÃ“NG MENU (Hub thu nhá» mÆ°á»£t mÃ  dáº§n vá» láº¡i quáº£ cáº§u bong bÃ³ng)
     local function closeMenuAnimated()
         if State.IsBubbleAnimating then return end
         if not win.Visible then
@@ -3354,7 +3423,6 @@ local function setupBubbleToggle(gui, win)
 
         local bCenter = bubble.AbsolutePosition + (bubble.AbsoluteSize * 0.5)
 
-        -- Tween thu nhá» menu vá» vá»‹ trÃ­ quáº£ cáº§u
         local closeTween = TweenSvc:Create(win, TweenInfo.new(0.28, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
             Position = UDim2.new(0, bCenter.X, 0, bCenter.Y),
             Size = UDim2.new(0, 0, 0, 0),
@@ -3367,7 +3435,6 @@ local function setupBubbleToggle(gui, win)
             win.Size = State.OrigWinSize
             win.AnchorPoint = State.OrigWinAnchor
 
-            -- Hiá»‡n quáº£ cáº§u bung ná»Ÿ xuáº¥t hiá»‡n vá»›i hiá»‡u á»©ng Ä‘Ã n há»“i
             bubble.Visible = true
             bubble.Size = UDim2.new(0, 0, 0, 0)
             TweenSvc:Create(bubble, TweenInfo.new(0.32, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
@@ -3383,18 +3450,28 @@ local function setupBubbleToggle(gui, win)
     State.AnimateOpenFn = openMenuAnimated
     State.AnimateCloseFn = closeMenuAnimated
 
-    -- Cháº¡m/báº¥m vÃ o bong bÃ³ng Ä‘á»ƒ má»Ÿ Hub (náº¿u khÃ´ng pháº£i Ä‘ang drag)
-    bubble.Activated:Connect(function()
-        if not State.IsBubbleAnimating then
-            openMenuAnimated()
+    if not bubble:GetAttribute("__TapHooked") then
+        bubble:SetAttribute("__TapHooked", true)
+        if bubble:IsA("GuiButton") then
+            bubble.Activated:Connect(function()
+                if not State.IsBubbleAnimating then
+                    openMenuAnimated()
+                end
+            end)
         end
-    end)
+        bubble.InputEnded:Connect(function(inp)
+            if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+                if not State.IsBubbleAnimating and not win.Visible then
+                    openMenuAnimated()
+                end
+            end
+        end)
+    end
 
-    -- Báº¯t sá»± kiá»‡n báº¥m nÃºt Ä‘Ã³ng "-" trÃªn Header Ä‘á»ƒ cháº¡y hiá»‡u á»©ng thu nhá»
     local hy = win.AbsolutePosition.Y
     for _, d in ipairs(win:GetDescendants()) do
         if (d:IsA("TextButton") or d:IsA("ImageButton") or d:IsA("TextLabel")) then
-            if (d.Text == "-" or d.Text == "â€”" or d.AbsolutePosition.X > win.AbsolutePosition.X + win.AbsoluteSize.X - 50)
+            if (d.Text == "-" or d.Text == "—" or d.AbsolutePosition.X > win.AbsolutePosition.X + win.AbsoluteSize.X - 50)
                and math.abs(d.AbsolutePosition.Y - hy) < 50 then
                 local btn = (d:IsA("TextButton") or d:IsA("ImageButton")) and d or d.Parent
                 if btn and (btn:IsA("TextButton") or btn:IsA("ImageButton")) and not btn:GetAttribute("__ChilliCloseBubbleHooked") then
@@ -3407,7 +3484,6 @@ local function setupBubbleToggle(gui, win)
         end
     end
 
-    -- Theo dÃµi tráº¡ng thÃ¡i Visible cá»§a Menu chÃ­nh Ä‘á»ƒ giá»¯ tráº¡ng thÃ¡i Ä‘á»“ng bá»™
     win:GetPropertyChangedSignal("Visible"):Connect(function()
         if not State.IsBubbleAnimating then
             if win.Visible then
@@ -3419,9 +3495,9 @@ local function setupBubbleToggle(gui, win)
         end
     end)
 
-    -- Tráº¡ng thÃ¡i ban Ä‘áº§u
     bubble.Visible = not win.Visible
 end
+
 local function patchVenyxGui(gui, titleLbl)
 gui:SetAttribute("__IsChilliVenyxGui", true)
 pcall(function() gui.Enabled = true end)
@@ -3449,14 +3525,23 @@ if win then
 State.ActiveMainWin = win
 pcall(cleanupStrayLogos, gui, win)
 pcall(applySenaV7Architecture, win, titleLbl)
-pcall(setupBubbleToggle, gui, win)
-end
 
+local foundTc = nil
 for _, tc in ipairs(gui:GetChildren()) do
 if tc:IsA("GuiObject") and tc ~= win and tc.Name ~= "ChilliV5_ExpandedIsland" and not tc:FindFirstChild("IslandExpandHint") and tc.Name ~= "ChilliCrystalBubble" then
-tc.Visible = false
+foundTc = tc
+break
 end
 end
+pcall(setupBubbleToggle, gui, win, foundTc)
+end
+
+for _, other in ipairs(gui:GetChildren()) do
+if other:IsA("GuiObject") and other ~= win and other.Name ~= "ChilliV5_ExpandedIsland" and not other:FindFirstChild("IslandExpandHint") and other.Name ~= "ChilliCrystalBubble" then
+other.Visible = false
+end
+end
+
 pcall(function()
 for _, ch in ipairs(gui:GetChildren()) do
 if ch:FindFirstChild("IslandLogoBadge") and ch:FindFirstChildOfClass("TextBox") then
