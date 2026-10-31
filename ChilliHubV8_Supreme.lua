@@ -2360,27 +2360,18 @@ end
 end
 end
 
--- Cố định vị trí Khung chứa Sidebar cân đối bên lề trái: Position = UDim2.new(0, 10, 0, 48), Size = UDim2.new(0, 142, 1, -56)
+-- 1. Khung chứa Sidebar (TabContainer): Size = UDim2.new(0, 140, 1, -55), Position = UDim2.new(0, 10, 0, 48), xóa bỏ UIListLayout
 if navContainer then
 navContainer.Parent = win
 navContainer.Position = u2(0, 10, 0, 48)
-navContainer.Size = u2(0, 142, 1, -56)
+navContainer.Size = u2(0, 140, 1, -55)
 navContainer.ClipsDescendants = false
 navContainer.BackgroundTransparency = 1
 
-local listLayout = navContainer:FindFirstChildOfClass("UIListLayout")
-if not listLayout then
-listLayout = mk("UIListLayout", {
-Parent = navContainer,
-FillDirection = Enum.FillDirection.Vertical,
-Padding = UDim.new(0, 7),
-HorizontalAlignment = Enum.HorizontalAlignment.Center,
-SortOrder = Enum.SortOrder.LayoutOrder
-})
-else
-listLayout.FillDirection = Enum.FillDirection.Vertical
-listLayout.Padding = UDim.new(0, 7)
-listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+for _, ch in ipairs(navContainer:GetChildren()) do
+if ch:IsA("UIListLayout") or ch:IsA("UIPadding") or ch:IsA("UIGridLayout") then
+ch:Destroy()
+end
 end
 end
 
@@ -2436,7 +2427,6 @@ local tabShines = {}
 local tabViLabels = {}
 local tabEnLabels = {}
 
--- Hiệu ứng mặt kính chuyển màu mượt mà (Bấm nút nào hóa kính rực rỡ nút đó)
 local function setActiveTabVisual(activeIdx, playSnd)
 if playSnd then playIslandSfx("tap") end
 pcall(function()
@@ -2485,10 +2475,10 @@ if bar and bar.Parent then
 bar.Visible = isAct
 end
 if viL and viL.Parent then
-viL.TextColor3 = Color3.new(1, 1, 1)
+viL.TextColor3 = c3(255, 255, 255)
 end
 if enL and enL.Parent then
-enL.TextColor3 = isAct and c3(235, 240, 245) or c3(170, 170, 170)
+enL.TextColor3 = c3(180, 180, 180)
 end
 end
 end
@@ -2509,10 +2499,12 @@ end
 end
 end
 
--- Cấu trúc từng nút Tab: Rộng 138px, Cao 46px, ClipsDescendants = false (không cắt chữ), chữ Tiếng Việt chính 15pt in đậm nổi bật tuyệt đối
+-- 2. Từng nút Tab: Size = UDim2.new(1, 0, 0, 44), Position Y riêng biệt bằng vòng lặp, ClipsDescendants = false
 for idx, btn in ipairs(navButtons) do
 pcall(function()
-btn.Size = u2(0, 138, 0, 46)
+btn.AnchorPoint = v2(0, 0)
+btn.Position = u2(0, 0, 0, (idx - 1) * 50)
+btn.Size = u2(1, 0, 0, 44)
 btn.BackgroundTransparency = 1
 btn.ClipsDescendants = false
 end)
@@ -2556,7 +2548,6 @@ sqStroke.Thickness = (idx == 1) and 1.6 or 1.1
 sqStroke.Color = (idx == 1) and Color3.new(1, 1, 1) or badgeColor
 sqStroke.Transparency = (idx == 1) and 0.05 or 0.45
 
--- Dải kính phản chiếu mỏng ở mép trên (ZIndex thấp hơn chữ, không làm mờ chữ)
 local glassShine = squircle:FindFirstChild("ChilliTabGlassShine")
 if not glassShine then
 glassShine = mk("Frame", {
@@ -2583,7 +2574,6 @@ else
 glassShine.BackgroundTransparency = (idx == 1) and 0.62 or 0.90
 end
 
--- Vạch chỉ thị trắng bo tròn ở mép trái
 local actBar = squircle:FindFirstChild("ChilliTabActiveBar") or mk("Frame", {
 Name = "ChilliTabActiveBar",
 AnchorPoint = v2(0, 0.5),
@@ -2600,16 +2590,16 @@ actBar.Size = u2(0, 3.5, 0, 22)
 actBar.Visible = (idx == 1)
 if not actBar:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, actBar) end
 
--- Dòng Tiếng Việt chính: TO RÕ, IN ĐẬM, NỔI BẬT HOÀN TOÀN (TextSize = 15, GothamBold, màu trắng sáng)
+-- Chữ Tiếng Việt (Chính): Font GothamBold, TextSize = 14, TextColor3 = Trắng tinh (255, 255, 255), Position = UDim2.new(0, 38, 0, 4), Size = UDim2.new(1, -45, 0, 20)
 local viLbl = squircle:FindFirstChild("ChilliTabCaption") or mk("TextLabel", {
 Name = "ChilliTabCaption",
 AnchorPoint = v2(0, 0),
-Position = u2(0, 36, 0, 5),
-Size = u2(1, -38, 0, 20),
+Position = u2(0, 38, 0, 4),
+Size = u2(1, -45, 0, 20),
 BackgroundTransparency = 1,
 Font = Enum.Font.GothamBold,
-TextSize = 15,
-TextColor3 = Color3.new(1, 1, 1),
+TextSize = 14,
+TextColor3 = c3(255, 255, 255),
 TextXAlignment = Enum.TextXAlignment.Left,
 TextYAlignment = Enum.TextYAlignment.Center,
 Text = (State.Language == "EN") and tabInfo.en or tabInfo.vi,
@@ -2619,11 +2609,11 @@ ZIndex = squircle.ZIndex + 6
 }, squircle)
 viLbl:SetAttribute("__HiddenVxLogo", true)
 viLbl.AnchorPoint = v2(0, 0)
-viLbl.Position = u2(0, 36, 0, 5)
-viLbl.Size = u2(1, -38, 0, 20)
+viLbl.Position = u2(0, 38, 0, 4)
+viLbl.Size = u2(1, -45, 0, 20)
 viLbl.Font = Enum.Font.GothamBold
-viLbl.TextSize = 15
-viLbl.TextColor3 = Color3.new(1, 1, 1)
+viLbl.TextSize = 14
+viLbl.TextColor3 = c3(255, 255, 255)
 viLbl.TextXAlignment = Enum.TextXAlignment.Left
 viLbl.TextYAlignment = Enum.TextYAlignment.Center
 viLbl.TextTruncate = Enum.TextTruncate.None
@@ -2636,16 +2626,16 @@ viSt.Thickness = 1.2
 viSt.Color = c3(8, 10, 18)
 viSt.Transparency = 0.12
 
--- Dòng Tiếng Anh phụ: Đặt ngay bên dưới, nhỏ gọn (TextSize = 10, màu xám mờ Color3.fromRGB(170, 170, 170))
+-- Chữ Tiếng Anh (Phụ): Font Gotham, TextSize = 10, TextColor3 = Xám sáng (180, 180, 180), Position = UDim2.new(0, 38, 0, 24), Size = UDim2.new(1, -45, 0, 14)
 local enLbl = squircle:FindFirstChild("ChilliTabCaptionEn") or mk("TextLabel", {
 Name = "ChilliTabCaptionEn",
 AnchorPoint = v2(0, 0),
-Position = u2(0, 36, 0, 25),
-Size = u2(1, -38, 0, 15),
+Position = u2(0, 38, 0, 24),
+Size = u2(1, -45, 0, 14),
 BackgroundTransparency = 1,
 Font = Enum.Font.Gotham,
 TextSize = 10,
-TextColor3 = (idx == 1) and c3(235, 240, 245) or c3(170, 170, 170),
+TextColor3 = c3(180, 180, 180),
 TextXAlignment = Enum.TextXAlignment.Left,
 TextYAlignment = Enum.TextYAlignment.Center,
 Text = (State.Language == "EN") and tabInfo.vi or tabInfo.en,
@@ -2655,11 +2645,11 @@ ZIndex = squircle.ZIndex + 6
 }, squircle)
 enLbl:SetAttribute("__HiddenVxLogo", true)
 enLbl.AnchorPoint = v2(0, 0)
-enLbl.Position = u2(0, 36, 0, 25)
-enLbl.Size = u2(1, -38, 0, 15)
+enLbl.Position = u2(0, 38, 0, 24)
+enLbl.Size = u2(1, -45, 0, 14)
 enLbl.Font = Enum.Font.Gotham
 enLbl.TextSize = 10
-enLbl.TextColor3 = (idx == 1) and c3(235, 240, 245) or c3(170, 170, 170)
+enLbl.TextColor3 = c3(180, 180, 180)
 enLbl.TextXAlignment = Enum.TextXAlignment.Left
 enLbl.TextYAlignment = Enum.TextYAlignment.Center
 enLbl.TextTruncate = Enum.TextTruncate.None
@@ -2676,7 +2666,7 @@ tabStrokes[idx] = sqStroke
 tabBars[idx] = actBar
 tabShines[idx] = glassShine
 
--- Icon bên trái: Position = UDim2.new(0, 10, 0.5, 0), Size = UDim2.new(0, 20, 0, 20)
+-- Icon: Position = UDim2.new(0, 8, 0.5, -10), Size = UDim2.new(0, 20, 0, 20)
 local hasFoundIcon = false
 for _, ch in ipairs(btn:GetDescendants()) do
 if ch ~= squircle and not ch:IsDescendantOf(squircle) and ch.Name ~= "ChilliStealTabIcon" and ch.Name ~= "ChilliTabCaption" and ch.Name ~= "ChilliTabCaptionEn" then
@@ -2686,8 +2676,8 @@ hasFoundIcon = true
 ch.ZIndex = squircle.ZIndex + 4
 ch.ImageColor3 = Color3.new(1, 1, 1)
 ch.ImageTransparency = 0
-ch.AnchorPoint = v2(0, 0.5)
-ch.Position = u2(0, 10, 0.5, 0)
+ch.AnchorPoint = v2(0, 0)
+ch.Position = u2(0, 8, 0.5, -10)
 ch.Size = u2(0, 20, 0, 20)
 ch.Visible = true
 else
@@ -2723,8 +2713,8 @@ end
 end
 local stealIcon = btn:FindFirstChild("ChilliStealTabIcon") or mk("ImageLabel", {
 Name = "ChilliStealTabIcon",
-AnchorPoint = v2(0, 0.5),
-Position = u2(0, 10, 0.5, 0),
+AnchorPoint = v2(0, 0),
+Position = u2(0, 8, 0.5, -10),
 Size = u2(0, 20, 0, 20),
 BackgroundTransparency = 1,
 Image = STEAL_TAB_ICON_ID,
@@ -2734,8 +2724,8 @@ Selectable = false,
 ZIndex = squircle.ZIndex + 4
 }, btn)
 stealIcon.Image = STEAL_TAB_ICON_ID
-stealIcon.AnchorPoint = v2(0, 0.5)
-stealIcon.Position = u2(0, 10, 0.5, 0)
+stealIcon.AnchorPoint = v2(0, 0)
+stealIcon.Position = u2(0, 8, 0.5, -10)
 stealIcon.Size = u2(0, 20, 0, 20)
 stealIcon.Visible = true
 end
