@@ -2692,6 +2692,44 @@ local function applySenaV7Architecture(win, titleLbl)
             table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, bottomLine))
         end
 
+                -- LOGO QUáº¢ á»šT CHÃNH THá»¨C Cá»¦A CHILLI HUB (rbxassetid://74441610995894)
+        local mainChilliLogo = bannerHolder:FindFirstChild("ChilliMainChilliLogo")
+        if not mainChilliLogo then
+            mainChilliLogo = mk("Frame", {
+                Name = "ChilliMainChilliLogo",
+                AnchorPoint = Vector2.new(0, 0.5),
+                Position = UDim2.new(0, 8, 0.5, 0),
+                Size = UDim2.new(0, 26, 0, 26),
+                BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+                BackgroundTransparency = 0,
+                BorderSizePixel = 0,
+                ClipsDescendants = true,
+                Active = false,
+                ZIndex = baseZ + 12
+            }, bannerHolder)
+            mk("UICorner", { CornerRadius = UDim.new(1, 0) }, mainChilliLogo)
+            local mcStroke = mk("UIStroke", {
+                Thickness = 1.3,
+                Color = Color3.fromRGB(255, 90, 60),
+                Transparency = 0.2,
+                ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            }, mainChilliLogo)
+            table.insert(State.ActiveGradients, mk("UIGradient", { Color = RAINBOW }, mcStroke))
+
+            local mcImg = mk("ImageLabel", {
+                Name = "LogoImg",
+                AnchorPoint = Vector2.new(0.5, 0.5),
+                Position = UDim2.fromScale(0.5, 0.5),
+                Size = UDim2.fromScale(0.85, 0.85),
+                BackgroundTransparency = 1,
+                Image = "rbxassetid://74441610995894",
+                ScaleType = Enum.ScaleType.Fit,
+                Active = false,
+                ZIndex = mainChilliLogo.ZIndex + 1
+            }, mainChilliLogo)
+            State.MainChilliLogo = mainChilliLogo
+        end
+
         local ultraTitle = bannerHolder:FindFirstChild("ChilliUltraTitleBadge")
         if not ultraTitle then
             ultraTitle = mk("TextLabel", {
@@ -3032,7 +3070,7 @@ local function applySenaV7Architecture(win, titleLbl)
                     BorderSizePixel = 0, Active = false, ZIndex = btn.ZIndex + 1
                 }, btn)
                 mk("UICorner", { CornerRadius = UDim.new(0, 8) }, squircle)
-                mk("UIStroke", { Thickness = 1, Color = Color3.new(1, 1, 1), Transparency = 0.65 }, squircle)
+                mk("UIStroke", { Name = "SquircleStroke", Thickness = 1, Color = badgeColor, Transparency = 0.65 }, squircle)
 
                 for _, ch in ipairs(btn:GetDescendants()) do
                     if ch ~= squircle and ch.Name ~= "ChilliStealTabIcon" then
@@ -3077,14 +3115,22 @@ local function applySenaV7Architecture(win, titleLbl)
             if not btn:GetAttribute("__TabEffectHooked") then
                 btn:SetAttribute("__TabEffectHooked", true)
                 local function onTabTriggered()
-                    -- 0. Am thanh click tab
+                    local now = os.clock()
+                    if now - (State.LastTabClickTime or 0) < 0.15 then return end
+                    State.LastTabClickTime = now
+                    -- 0. Am thanh click tab song dong chuan Roblox
                     pcall(function()
+                        local ss = game:GetService("SoundService")
                         local snd = Instance.new("Sound")
-                        snd.SoundId = "rbxassetid://6895079393"
-                        snd.Volume = 0.35
-                        snd.RollOffMaxDistance = 0
-                        snd.Parent = game:GetService("SoundService")
-                        snd:Play()
+                        snd.SoundId = "rbxassetid://6026984224"
+                        snd.Volume = 0.85
+                        snd.PlaybackSpeed = 1.15
+                        snd.Parent = ss
+                        if ss.PlayLocalSound then
+                            pcall(function() ss:PlayLocalSound(snd) end)
+                        else
+                            pcall(function() snd:Play() end)
+                        end
                         game:GetService("Debris"):AddItem(snd, 2)
                     end)
                     -- 1. Hiệu ứng nảy nút bấm (Spring Bounce)
@@ -3141,6 +3187,7 @@ local function applySenaV7Architecture(win, titleLbl)
                 end)
             end
         end
+        pcall(updateTabActiveStyles, 1)
     end
 
     -- E. LOGO NHỎ GÓC TRÁI HEADER
@@ -3212,6 +3259,16 @@ local function setupBubbleToggle(gui, win, extBtn)
             end
             pcall(function() ch:Destroy() end)
         end
+    end
+
+    if not gui:GetAttribute("__ChilliChildAddedHooked") then
+        gui:SetAttribute("__ChilliChildAddedHooked", true)
+        gui.ChildAdded:Connect(function(ch)
+            if ch:IsA("GuiObject") and ch ~= win and ch.Name ~= "ChilliV5_ExpandedIsland" and not ch:FindFirstChild("IslandExpandHint") and ch.Name ~= "ChilliCrystalBubble" then
+                ch.Visible = false
+                pcall(function() ch:Destroy() end)
+            end
+        end)
     end
 
     -- 2. Tạo duy nhất nút Quả Cầu Bong Bóng ngoài màn hình với ID 91322208361913
@@ -3383,6 +3440,15 @@ local function setupBubbleToggle(gui, win, extBtn)
         State.CloseHideUntil = nil
         if State.SyncWindowFn then pcall(State.SyncWindowFn) end
 
+        -- Bung nở logo ớt ở góc trên bên trái header từ 0 lên 26x26 (Hiệu ứng bong bóng biến đổi thành logo quả ớt)
+        local mainLogo = State.MainChilliLogo or win:FindFirstChild("ChilliMainChilliLogo", true)
+        if mainLogo then
+            mainLogo.Size = UDim2.new(0, 0, 0, 0)
+            TweenSvc:Create(mainLogo, TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+                Size = UDim2.new(0, 26, 0, 26)
+            }):Play()
+        end
+
         local openTween = TweenSvc:Create(win, TweenInfo.new(0.36, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
             Position = destPos,
             Size = destSize,
@@ -3394,6 +3460,8 @@ local function setupBubbleToggle(gui, win, extBtn)
             win.AnchorPoint = destAnchor
             State.IsBubbleAnimating = false
             if State.SyncWindowFn then pcall(State.SyncWindowFn) end
+            local mc = State.MainChilliLogo or win:FindFirstChild("ChilliMainChilliLogo", true)
+            if mc then mc.Size = UDim2.new(0, 26, 0, 26) end
         end)
         openTween:Play()
     end
@@ -3415,6 +3483,14 @@ local function setupBubbleToggle(gui, win, extBtn)
 
         local bCenter = bubble.AbsolutePosition + (bubble.AbsoluteSize * 0.5)
 
+        -- Logo ớt thu nhỏ lại về 0
+        local mainLogo = State.MainChilliLogo or win:FindFirstChild("ChilliMainChilliLogo", true)
+        if mainLogo then
+            TweenSvc:Create(mainLogo, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+                Size = UDim2.new(0, 0, 0, 0)
+            }):Play()
+        end
+
         -- Tween thu nhỏ menu về vị trí quả cầu
         local closeTween = TweenSvc:Create(win, TweenInfo.new(0.28, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
             Position = UDim2.new(0, bCenter.X, 0, bCenter.Y),
@@ -3427,6 +3503,7 @@ local function setupBubbleToggle(gui, win, extBtn)
             win.Position = State.OrigWinPos
             win.Size = State.OrigWinSize
             win.AnchorPoint = State.OrigWinAnchor
+            if mainLogo then mainLogo.Size = UDim2.new(0, 26, 0, 26) end
 
             -- Hiện quả cầu bong bóng 91322208361913 bung nở xuất hiện với hiệu ứng đàn hồi
             bubble.Visible = true
