@@ -2242,20 +2242,57 @@ statusLbl.InputBegan:Connect(onIn)
 if leftBadge then leftBadge.InputBegan:Connect(onIn) end
 end
 
+local function killVxLogo(d)
+if not d or not d:IsA("GuiObject") then return end
+d:SetAttribute("__HiddenVxLogo", true)
+d.Visible = false
+if d:IsA("TextLabel") or d:IsA("TextButton") then
+d.TextTransparency = 1
+d.Text = ""
+elseif d:IsA("ImageLabel") or d:IsA("ImageButton") then
+d.ImageTransparency = 1
+end
+d.Position = u2(0, -9999, 0, -9999)
+d.Size = u2(0, 0, 0, 0)
+if not d:GetAttribute("__VxKillLock") then
+d:SetAttribute("__VxKillLock", true)
+d:GetPropertyChangedSignal("Visible"):Connect(function()
+if d.Visible then d.Visible = false end
+end)
+d:GetPropertyChangedSignal("Position"):Connect(function()
+if d.Position.X.Offset > -9000 then d.Position = u2(0, -9999, 0, -9999) end
+end)
+if d:IsA("TextLabel") or d:IsA("TextButton") then
+d:GetPropertyChangedSignal("TextTransparency"):Connect(function()
+if d.TextTransparency ~= 1 then d.TextTransparency = 1 end
+end)
+d:GetPropertyChangedSignal("Text"):Connect(function()
+if d.Text ~= "" then d.Text = "" end
+end)
+elseif d:IsA("ImageLabel") or d:IsA("ImageButton") then
+d:GetPropertyChangedSignal("ImageTransparency"):Connect(function()
+if d.ImageTransparency ~= 1 then d.ImageTransparency = 1 end
+end)
+end
+end
+end
+
 local function cleanupStrayLogos(gui, win)
 if not gui then return end
 pcall(function()
 if win then
 for _, ch in ipairs(win:GetChildren()) do
-if ch.Name == "ChilliCircleDisc" or ch.Name == "ChilliV5CoverLogo" or ch.Name == "PerfectCircleAspect" then
+if ch.Name == "ChilliCircleDisc" or ch.Name == "ChilliV5CoverLogo" or ch.Name == "PerfectCircleAspect" or ch.Name == "ChilliHeaderLogoBadge" then
 ch:Destroy()
 end
 end
 end
 for _, d in ipairs(gui:GetDescendants()) do
-if (d:IsA("TextLabel") or d:IsA("TextButton")) and (d.Text == "Vx" or d.Text == "VX") then
-d:SetAttribute("__HiddenVxLogo", true)
-d.TextTransparency = 1
+if d:IsA("TextLabel") or d:IsA("TextButton") then
+local t = (d.Text or ""):lower():match("^%s*(.-)%s*$")
+if t == "vx" or t == "v" or t == "x" then
+killVxLogo(d)
+end
 end
 end
 end)
@@ -3063,7 +3100,7 @@ win:SetAttribute("__ChilliV7ArchSession", SID)
 pcall(applySenaV8Architecture, win, titleLbl)
 end
 
--- 2. Dịch chữ "Chilli Hub V8" sát sang trái (X = 8px) và xoá sạch 100% logo chữ V (Vx) trên thanh
+-- 2. Xoá sạch hoàn toàn 100% logo chữ V (Vx) & làm chữ "Chilli Hub V8" màu Ultra Gradient rực rỡ
 pcall(function()
 local topBar = (titleLbl.Parent and titleLbl.Parent ~= win and titleLbl.Parent:IsA("GuiObject") and titleLbl.Parent.AbsoluteSize.Y <= 60) and titleLbl.Parent or nil
 local oldLogo1 = win:FindFirstChild("ChilliHeaderLogoBadge")
@@ -3072,77 +3109,80 @@ if topBar then
 local oldLogo2 = topBar:FindFirstChild("ChilliHeaderLogoBadge")
 if oldLogo2 then oldLogo2:Destroy() end
 local tbPad = topBar:FindFirstChildOfClass("UIPadding")
-if tbPad then tbPad.PaddingLeft = UDim.new(0, 6) end
+if tbPad then tbPad.PaddingLeft = UDim.new(0, 14) end
 if topBar.Position.X.Offset > 0 and topBar.Size.X.Scale > 0.5 then
 topBar.Position = u2(topBar.Position.X.Scale, 0, topBar.Position.Y.Scale, topBar.Position.Y.Offset)
 end
 end
 
-local oldGrad = titleLbl:FindFirstChild("ChilliTitleGrad") or titleLbl:FindFirstChild("TitleUltraGrad")
-if oldGrad then oldGrad:Destroy() end
-local oldStroke = titleLbl:FindFirstChild("ChilliTitleStroke")
-if oldStroke then oldStroke:Destroy() end
-
+-- Vị trí tiêu đề thoáng đãng bên lề trái (X = 14px), không dính mép và tách biệt
+titleLbl.AnchorPoint = v2(0, 0.5)
+titleLbl.Position = topBar and u2(0, 14, 0.5, 0) or u2(0, 14, 0, 18)
 titleLbl.Font = Enum.Font.GothamBold
+titleLbl.TextSize = 17
 titleLbl.TextColor3 = Color3.new(1, 1, 1)
 titleLbl.TextTransparency = 0
 titleLbl.TextXAlignment = Enum.TextXAlignment.Left
+titleLbl.TextYAlignment = Enum.TextYAlignment.Center
 titleLbl.AutomaticSize = Enum.AutomaticSize.X
 titleLbl.Text = NEW_TITLE
+titleLbl.ZIndex = 65
 
--- Xoá sạch hoàn toàn logo chữ V (Vx) ở thanh trên (dù là ImageLabel, TextLabel hay các Frame xoay chéo tạo hình chữ V/x)
-for _, d in ipairs(win:GetDescendants()) do
-if d ~= titleLbl and d ~= win and d ~= topBar and d.Name ~= "ChilliSenaWallpaper" and not (State.ActiveNavContainer and d:IsDescendantOf(State.ActiveNavContainer)) then
-local ry = d.AbsolutePosition.Y - win.AbsolutePosition.Y
-local rx = d.AbsolutePosition.X - win.AbsolutePosition.X
-if ry >= -2 and ry <= 42 and rx >= -2 and rx <= 260 then
-if d:IsA("ImageLabel") or d:IsA("ImageButton") then
-d.ImageTransparency = 1
-d.Visible = false
-elseif d:IsA("TextLabel") or d:IsA("TextButton") then
+-- Hiệu ứng màu Ultra Gradient tuyệt đẹp (Chuyển sắc trắng - xanh cyan - hồng tím - vàng ánh kim)
+local tGrad = titleLbl:FindFirstChild("TitleUltraGrad") or mk("UIGradient", {
+Name = "TitleUltraGrad",
+Rotation = 45,
+Color = ULTRA_TEXT_GRAD
+}, titleLbl)
+tGrad.Rotation = 45
+tGrad.Color = ULTRA_TEXT_GRAD
+
+local tStroke = titleLbl:FindFirstChild("TitleUltraStroke") or mk("UIStroke", {
+Name = "TitleUltraStroke",
+Thickness = 1.2,
+Color = c3(10, 8, 16),
+Transparency = 0.22
+}, titleLbl)
+tStroke.Thickness = 1.2
+tStroke.Color = c3(10, 8, 16)
+tStroke.Transparency = 0.22
+
+-- Xoá vĩnh viễn logo chữ V (Vx) trên thanh (cả ImageLabel, TextLabel, Frame xoay) & chỉnh subtitle / Lấy Trứng v1.4.5
+local hdr = topBar or win
+for _, d in ipairs(hdr:GetChildren()) do
+if d ~= titleLbl and d.Name ~= "ChilliSenaWallpaper" and not (State.ActiveNavContainer and d:IsDescendantOf(State.ActiveNavContainer)) then
+local isSub = false
+if d:IsA("TextLabel") or d:IsA("TextButton") then
 local t = (d.Text or ""):match("^%s*(.-)%s*$")
-if t == "vx" or t == "Vx" or t == "VX" or t == "V" or t == "v" or t == "x" or t == "X" then
-d.Text = ""
-d.Visible = false
-d.TextTransparency = 1
-if d.Parent and d.Parent ~= topBar and d.Parent ~= win and d.Parent.AbsoluteSize.X <= 45 then
-d.Parent.Visible = false
-end
-end
-elseif d:IsA("Frame") and not titleLbl:IsDescendantOf(d) then
-local hasValidTxt = false
-for _, sub in ipairs(d:GetDescendants()) do
-if sub:IsA("TextLabel") or sub:IsA("TextButton") or sub:IsA("TextBox") then
-local st = (sub.Text or ""):match("^%s*(.-)%s*$")
-if st ~= "" and st ~= "vx" and st ~= "Vx" and st ~= "VX" and st ~= "V" and st ~= "v" and st ~= "x" and st ~= "X" then
-hasValidTxt = true
-break
+if t:find("v1.") or t:find("/") or t:find("Lấy Trứng") or t:find("Cướp Trứng") or t:find("Steal An Egg") then
+isSub = true
+d.AnchorPoint = v2(0, 0.5)
+d.Position = (topBar and d.Parent == topBar) and u2(0, 138, 0.5, 0) or u2(0, 138, 0, 18)
+d.TextYAlignment = Enum.TextYAlignment.Center
+d.TextColor3 = c3(180, 190, 205)
+d.Font = Enum.Font.GothamMedium
+d.TextSize = 13
+if t:find("Cướp") or t:find("cướp") then
+d.Text = t:gsub("Cướp", "Lấy"):gsub("cướp", "lấy")
 end
 end
 end
-if not hasValidTxt and (d.Rotation ~= 0 or (d.AbsoluteSize.X <= 48 and d.AbsoluteSize.Y <= 42)) then
-d.Visible = false
-d.BackgroundTransparency = 1
-end
+if not isSub then
+local isSearchOrClose = (d:FindFirstChildOfClass("TextBox") ~= nil) or (d:IsA("TextBox")) or (d.Position.X.Scale >= 0.5) or (d.Position.X.Offset > 250)
+if not isSearchOrClose then
+killVxLogo(d)
+for _, sub in ipairs(d:GetDescendants()) do killVxLogo(sub) end
 end
 end
 end
 end
 
--- Dịch cụm tiêu đề Chilli Hub V8 / Cướp Trứng v1.4.5 sát sang lề trái (X = 8px)
-if not titleLbl:GetAttribute("__ChilliTitleShiftedLeft") then
-local curRelX = titleLbl.AbsolutePosition.X - win.AbsolutePosition.X
-local deltaX = (curRelX > 12 and curRelX < 120) and (curRelX - 8) or 32
-titleLbl:SetAttribute("__ChilliTitleShiftedLeft", true)
-titleLbl.Position = u2(titleLbl.Position.X.Scale, 8, titleLbl.Position.Y.Scale, titleLbl.Position.Y.Offset)
-local hdrContainer = titleLbl.Parent
-if hdrContainer then
-for _, ch in ipairs(hdrContainer:GetChildren()) do
-if ch ~= titleLbl and ch:IsA("GuiObject") and ch.Visible then
-local cx = ch.Position.X.Offset
-if ch.Position.X.Scale < 0.3 and cx > 25 and cx < 320 then
-ch.Position = u2(ch.Position.X.Scale, math.max(98, cx - deltaX), ch.Position.Y.Scale, ch.Position.Y.Offset)
-end
+for _, d in ipairs(win:GetDescendants()) do
+if d ~= titleLbl and d.Name ~= "ChilliSenaWallpaper" and not (State.ActiveNavContainer and d:IsDescendantOf(State.ActiveNavContainer)) then
+if d:IsA("TextLabel") or d:IsA("TextButton") then
+local t = (d.Text or ""):lower():match("^%s*(.-)%s*$")
+if t == "vx" or t == "v" or t == "x" then
+killVxLogo(d)
 end
 end
 end
