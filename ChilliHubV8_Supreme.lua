@@ -2115,18 +2115,18 @@ end
 cleanupStrayLogos=function(gui,win)
 if not gui then return end
 pcall(function()
-if win then
-for _,ch in ipairs(win:GetChildren())do
-if ch.Name=="ChilliCircleDisc" or ch.Name=="ChilliV5CoverLogo" or ch.Name=="PerfectCircleAspect" or ch.Name=="ChilliHeaderLogoBadge" then
-ch:Destroy()
+for _,root in ipairs(getScanRoots())do
+for _,d in ipairs(root:GetDescendants())do
+if d.Name=="ChilliCircleDisc" or d.Name=="ChilliV5CoverLogo" or d.Name=="PerfectCircleAspect"
+or d.Name=="ChilliHeaderLogoBadge" or d.Name=="RainbowBorder"
+or d.Name=="ShimmerGlow" or d.Name=="OriginPepperLogo" or d.Name=="BubbleFrontDisc" then
+pcall(function()d:Destroy()end)
 end
-end
-end
-for _,d in ipairs(gui:GetDescendants())do
-if d:IsA("TextLabel")or d:IsA("TextButton")then
+if(d:IsA("TextLabel")or d:IsA("TextButton"))and not(win and d:IsDescendantOf(win))then
 local t=(d.Text or ""):lower():match("^%s*(.-)%s*$")
 if t=="vx" or t=="v" or t=="x" then
 killVxLogo(d)
+end
 end
 end
 end
@@ -2907,24 +2907,14 @@ end
 local TweenSvc=game:GetService("TweenService")
 local UserInputSvc=game:GetService("UserInputService")
 State.IsBubbleAnimating=false
-local function hideNativeVxToggleOnly(ch)
-if not ch or not ch:IsA("GuiObject")or ch==win or ch.Name=="ChilliV5_ExpandedIsland" or ch:FindFirstChild("IslandExpandHint")or ch.Name=="ChilliCrystalBubble" then
-return
-end
-local isVxToggle=false
-if ch.AbsoluteSize.X>0 and ch.AbsoluteSize.X<=75 and ch.AbsoluteSize.Y>0 and ch.AbsoluteSize.Y<=75 then
-for _,d in ipairs(ch:GetDescendants())do
-if d:IsA("TextLabel")or d:IsA("TextButton")then
-local t=(d.Text or ""):lower():match("^%s*(.-)%s*$")
-if t=="vx" or t=="v" or t=="" then
-isVxToggle=true
-break
-end
-end
-end
-end
-if isVxToggle then
+local function banishNativeVxButton(ch)
+if not ch or not ch:IsA("GuiObject")then return end
+pcall(function()
+ch.Visible=false
+ch.Position=u2(2,0,2,0)
 ch.BackgroundTransparency=1
+if ch:IsA("ImageButton")or ch:IsA("ImageLabel")then ch.ImageTransparency=1 end
+if ch:IsA("TextButton")or ch:IsA("TextLabel")then ch.TextTransparency=1 end
 for _,sub in ipairs(ch:GetDescendants())do
 if sub:IsA("TextLabel")or sub:IsA("TextButton")then
 sub.TextTransparency=1
@@ -2938,10 +2928,70 @@ elseif sub:IsA("UIStroke")then
 sub.Transparency=1
 end
 end
+if ch:GetAttribute("__VxBanishHooked")~=SID then
+ch:SetAttribute("__VxBanishHooked",SID)
+ch:GetPropertyChangedSignal("Visible"):Connect(function()
+if isAlive()and ch.Visible then
+ch.Visible=false
+ch.Position=u2(2,0,2,0)
+if State.AnimateCloseFn and win and win.Visible then
+pcall(State.AnimateCloseFn)
+elseif State.SyncBubbleIconFn then
+pcall(State.SyncBubbleIconFn,false,true)
+end
+end
+end)
+ch:GetPropertyChangedSignal("Position"):Connect(function()
+if isAlive()and ch.Position.X.Scale<1.5 then
+ch.Position=u2(2,0,2,0)
+end
+end)
+ch:GetPropertyChangedSignal("BackgroundTransparency"):Connect(function()
+if isAlive()and ch.BackgroundTransparency<0.99 then
+ch.BackgroundTransparency=1
+end
+end)
+end
+end)
+end
+local function hideNativeVxToggleOnly(ch)
+if not ch or not ch:IsA("GuiObject")or ch==win or ch.Name=="ChilliV5_ExpandedIsland" or ch:FindFirstChild("IslandExpandHint")or ch:FindFirstChild("IslandLogoBadge")or ch.Name=="ChilliCrystalBubble" then
+return
+end
+if win and(ch:IsDescendantOf(win)or win:IsDescendantOf(ch))then return end
+local isVxToggle=false
+local aw,ah=ch.AbsoluteSize.X,ch.AbsoluteSize.Y
+local sw,sh=ch.Size.X.Offset,ch.Size.Y.Offset
+local isSmallBox=(aw>0 and aw<=85 and ah>0 and ah<=85 and math.abs(aw-ah)<=16)or(sw>0 and sw<=85 and sh>0 and sh<=85 and math.abs(sw-sh)<=16)
+if isSmallBox then
+if ch:FindFirstChildOfClass("UICorner")or ch:IsA("GuiButton")then
+isVxToggle=true
+end
+end
+if not isVxToggle then
+local checkList={ch}
+for _,d in ipairs(ch:GetDescendants())do table.insert(checkList,d)end
+for _,d in ipairs(checkList)do
+if d:IsA("TextLabel")or d:IsA("TextButton")then
+local t=(d.Text or ""):lower():match("^%s*(.-)%s*$")
+if t=="vx" or t=="v" then
+isVxToggle=true
+break
+end
+end
+end
+end
+if isVxToggle then
+banishNativeVxButton(ch)
 end
 end
 for _,ch in ipairs(gui:GetChildren())do
 pcall(hideNativeVxToggleOnly,ch)
+if ch~=win and ch.Name~="ChilliV5_ExpandedIsland" and ch.Name~="ChilliCrystalBubble" then
+for _,subCh in ipairs(ch:GetChildren())do
+pcall(hideNativeVxToggleOnly,subCh)
+end
+end
 end
 if gui:GetAttribute("__ChilliChildAddedHooked")~=SID then
 gui:SetAttribute("__ChilliChildAddedHooked",SID)
@@ -2952,7 +3002,7 @@ end)
 end)
 end
 for _,oldCh in ipairs(gui:GetChildren())do
-if oldCh.Name=="ChilliCrystalBubble" and oldCh:GetAttribute("__BubbleSession")~=SID then
+if(oldCh.Name=="ChilliCrystalBubble" or oldCh.Name=="ChilliCircleDisc")and oldCh:GetAttribute("__BubbleSession")~=SID then
 pcall(function()oldCh:Destroy()end)
 end
 end
@@ -2961,172 +3011,45 @@ if not bubble then
 bubble=Instance.new("ImageButton")
 bubble.Name="ChilliCrystalBubble"
 bubble.AnchorPoint=v2(0.5,0.5)
-bubble.Position=u2(0,36,0.5,-20)
-bubble.Size=u2(0,56,0,56)
-bubble.BackgroundColor3=c3(15,18,30)
-bubble.BackgroundTransparency=1
-bubble.ImageTransparency=1
+bubble.Position=u2(0,88,0,82)
+bubble.Size=u2(0,52,0,52)
+bubble.BackgroundColor3=c3(15,18,28)
+bubble.BackgroundTransparency=0.15
 bubble.AutoButtonColor=false
 bubble.BorderSizePixel=0
 bubble.ZIndex=99999
 bubble.Visible=true
 bubble:SetAttribute("__BubbleSession",SID)
 bubble.Parent=gui
-local container=Instance.new("Frame")
-container.Name="ChilliBubbleContainer"
-container.AnchorPoint=v2(0.5,0.5)
-container.Position=u2s(0.5,0.5)
-container.Size=u2s(1,1)
-container.BackgroundColor3=c3(12,15,26)
-container.BackgroundTransparency=0.04
-container.BorderSizePixel=0
-container.ClipsDescendants=true
-container.Active=false
-container.ZIndex=bubble.ZIndex+1
-container.Parent=bubble
-local bCorner=Instance.new("UICorner")
-bCorner.CornerRadius=UDim.new(1,0)
-bCorner.Parent=container
-local bStroke=Instance.new("UIStroke")
+Instance.new("UICorner",bubble).CornerRadius=UDim.new(1,0)
+local bStroke=Instance.new("UIStroke",bubble)
 bStroke.Name="BubbleStroke"
-bStroke.Thickness=2.0
+bStroke.Thickness=1.6
 bStroke.Color=c3(110,215,255)
-bStroke.Transparency=0.15
-bStroke.ApplyStrokeMode=EASM.Border
-bStroke.Parent=container
-local pepperLogo=Instance.new("ImageLabel")
-pepperLogo.Name="OriginPepperLogo"
-pepperLogo.AnchorPoint=v2(0.5,0.5)
-pepperLogo.Position=u2s(0.5,0.5)
-pepperLogo.Size=u2s(0.92,0.92)
-pepperLogo.BackgroundTransparency=1
-pepperLogo.Image="rbxassetid://74441610995894"
-pepperLogo.ScaleType=Enum.ScaleType.Fit
-pepperLogo.Active=false
-pepperLogo.ZIndex=container.ZIndex+2
-pepperLogo.Parent=container
-local pCorner=Instance.new("UICorner")
-pCorner.CornerRadius=UDim.new(1,0)
-pCorner.Parent=pepperLogo
-local bubbleFrontDisc=Instance.new("Frame")
-bubbleFrontDisc.Name="BubbleFrontDisc"
-bubbleFrontDisc.AnchorPoint=v2(0.5,0.5)
-bubbleFrontDisc.Position=u2s(0.5,0.5)
-bubbleFrontDisc.Size=u2s(1,1)
-bubbleFrontDisc.BackgroundColor3=c3(14,17,29)
-bubbleFrontDisc.BackgroundTransparency=0
-bubbleFrontDisc.BorderSizePixel=0
-bubbleFrontDisc.ClipsDescendants=true
-bubbleFrontDisc.Active=false
-bubbleFrontDisc.ZIndex=container.ZIndex+4
-bubbleFrontDisc.Parent=container
-local bfCorner=Instance.new("UICorner")
-bfCorner.CornerRadius=UDim.new(1,0)
-bfCorner.Parent=bubbleFrontDisc
-local shimmerImg=Instance.new("ImageLabel")
-shimmerImg.Name="ShimmerGlow"
-shimmerImg.AnchorPoint=v2(0.5,0.5)
-shimmerImg.Position=u2s(0.5,0.5)
-shimmerImg.Size=u2s(1.15,1.15)
-shimmerImg.BackgroundTransparency=1
-shimmerImg.Image="rbxassetid://4965945816"
-shimmerImg.ImageColor3=c3(160,220,255)
-shimmerImg.ImageTransparency=0.25
-shimmerImg.Active=false
-shimmerImg.ZIndex=bubbleFrontDisc.ZIndex+1
-shimmerImg.Parent=bubbleFrontDisc
-local centerLogo=Instance.new("ImageLabel")
-centerLogo.Name="BubbleLogo"
-centerLogo.AnchorPoint=v2(0.5,0.5)
-centerLogo.Position=u2s(0.5,0.5)
-centerLogo.Size=u2s(0.84,0.84)
-centerLogo.BackgroundTransparency=1
-centerLogo.Image="rbxassetid://91322208361913"
-centerLogo.ScaleType=Enum.ScaleType.Fit
-centerLogo.Active=false
-centerLogo.ZIndex=bubbleFrontDisc.ZIndex+2
-centerLogo.Parent=bubbleFrontDisc
-local lCorner=Instance.new("UICorner")
-lCorner.CornerRadius=UDim.new(1,0)
-lCorner.Parent=centerLogo
+bStroke.Transparency=0.20
+local bubbleImg=Instance.new("ImageLabel",bubble)
+bubbleImg.Name="BubbleIcon"
+bubbleImg.AnchorPoint=v2(0.5,0.5)
+bubbleImg.Position=u2s(0.5,0.5)
+bubbleImg.Size=u2s(0.88,0.88)
+bubbleImg.BackgroundTransparency=1
+bubbleImg.Image="rbxassetid://91322208361913"
+bubbleImg.ScaleType=Enum.ScaleType.Fit
+bubbleImg.Active=false
+bubbleImg.ZIndex=bubble.ZIndex+1
+Instance.new("UICorner",bubbleImg).CornerRadius=UDim.new(1,0)
 end
-local container=bubble:FindFirstChild("ChilliBubbleContainer")
-if container then
-local bSt=container:FindFirstChild("BubbleStroke")
-if bSt then
-local oldG=bSt:FindFirstChildOfClass("UIGradient")
-if oldG then oldG:Destroy()end
-bSt.Color=c3(110,215,255)
-bSt.Thickness=2.0
-bSt.Transparency=0.15
-end
-end
-local bubbleFrontDisc=container and container:FindFirstChild("BubbleFrontDisc")
-local shimmerImg=bubbleFrontDisc and bubbleFrontDisc:FindFirstChild("ShimmerGlow")
-local centerLogo=bubbleFrontDisc and bubbleFrontDisc:FindFirstChild("BubbleLogo")
 local function syncBubbleIconState(isMenuOpen,animated)
 bubble.Visible=true
-if not bubbleFrontDisc or not centerLogo then return end
-if isMenuOpen then
 if animated then
-TweenSvc:Create(bubble,twi(0.10,EES.Quad,EED.Out),{
-Size=u2(0,48,0,48)
+TweenSvc:Create(bubble,twi(0.08,EES.Quad,EED.Out),{
+Size=u2(0,46,0,46)
 }):Play()
-task.delay(0.10,function()
-TweenSvc:Create(bubble,twi(0.16,EES.Quart,EED.Out),{
-Size=u2(0,56,0,56)
-}):Play()
-end)
-local tw=TweenSvc:Create(centerLogo,twi(0.14,EES.Quart,EED.Out),{
-ImageTransparency=1
-})
-TweenSvc:Create(bubbleFrontDisc,twi(0.14,EES.Quart,EED.Out),{
-BackgroundTransparency=1
-}):Play()
-if shimmerImg then
-TweenSvc:Create(shimmerImg,twi(0.14,EES.Quart,EED.Out),{
-ImageTransparency=1
-}):Play()
-end
-tw:Play()
-tw.Completed:Connect(function()
-if win and win.Visible then
-bubbleFrontDisc.Visible=false
-end
-end)
-else
-bubbleFrontDisc.Visible=false
-bubbleFrontDisc.BackgroundTransparency=1
-centerLogo.ImageTransparency=1
-if shimmerImg then shimmerImg.ImageTransparency=1 end
-end
-else
-bubbleFrontDisc.Visible=true
-if animated then
-TweenSvc:Create(bubble,twi(0.10,EES.Quad,EED.Out),{
-Size=u2(0,48,0,48)
-}):Play()
-task.delay(0.10,function()
-TweenSvc:Create(bubble,twi(0.16,EES.Quart,EED.Out),{
-Size=u2(0,56,0,56)
+task.delay(0.08,function()
+TweenSvc:Create(bubble,twi(0.14,EES.Back,EED.Out),{
+Size=u2(0,52,0,52)
 }):Play()
 end)
-TweenSvc:Create(bubbleFrontDisc,twi(0.14,EES.Quart,EED.Out),{
-BackgroundTransparency=0
-}):Play()
-TweenSvc:Create(centerLogo,twi(0.14,EES.Quart,EED.Out),{
-ImageTransparency=0
-}):Play()
-if shimmerImg then
-TweenSvc:Create(shimmerImg,twi(0.14,EES.Quart,EED.Out),{
-ImageTransparency=0.25
-}):Play()
-end
-else
-bubbleFrontDisc.BackgroundTransparency=0
-centerLogo.ImageTransparency=0
-if shimmerImg then shimmerImg.ImageTransparency=0.25 end
-end
 end
 end
 local function isPointInsideGui(guiObj,pos)
@@ -3395,8 +3318,11 @@ curr=curr.Parent
 if curr:IsA("GuiObject")then
 local aw,ah=curr.AbsoluteSize.X,curr.AbsoluteSize.Y
 local sw,sh=curr.Size.X.Offset,curr.Size.Y.Offset
-if(aw>=260 and ah>=165)or(aw==0 and sw>=260 and sh>=165)then
-if aw<vpX*0.96 or ah<vpY*0.96 then win=curr end
+local sx,sy=curr.Size.X.Scale,curr.Size.Y.Scale
+if sx<0.95 and sy<0.95 then
+if(aw>=260 and ah>=165 and aw<vpX*0.92 and ah<vpY*0.94)or(aw==0 and sw>=260 and sh>=165 and sw<=850 and sh<=600)then
+win=curr
+end
 end
 end
 end
@@ -3461,6 +3387,36 @@ queue[#queue+1]=d
 end
 end
 end
+if gui:GetAttribute("__IslandLocked")~=SID then
+local fallbackPill=gui:FindFirstChild("ChilliV8_FallbackIslandPill")
+if not fallbackPill then
+fallbackPill=mk("Frame",{
+Name="ChilliV8_FallbackIslandPill",
+AnchorPoint=v2(0.5,0),
+Position=u2(0.5,0,0,6),
+Size=u2(0,140,0,40),
+BackgroundColor3=Color3.new(1,1,1),
+BorderSizePixel=0,
+ZIndex=9999
+},gui)
+mk("TextLabel",{
+Name="StatusText",
+Size=u2(1,0,1,0),
+BackgroundTransparency=1,
+Text="Đang rảnh",
+Font=EF.GothamBold,
+TextSize=13,
+TextColor3=Color3.new(1,1,1)
+},fallbackPill)
+end
+local fbLbl=fallbackPill:FindFirstChild("StatusText")or fallbackPill:FindFirstChildOfClass("TextLabel")
+if fbLbl then
+local okIsl,resIsl=pcall(setupIsland,fbLbl,gui)
+if okIsl and resIsl then
+gui:SetAttribute("__IslandLocked",SID)
+end
+end
+end
 if #queue>0 and not gui:GetAttribute("__BatchTranslating")then
 gui:SetAttribute("__BatchTranslating",true)
 task.spawn(function()
@@ -3506,7 +3462,6 @@ return false
 end
 local function getFinderWindowFromObj(obj)
 if not obj or not obj.Parent then return nil end
-if State.ActiveMainWin and State.ActiveMainWin.Parent and obj:IsDescendantOf(State.ActiveMainWin)then return nil end
 local winFrame=nil
 local curr=obj.Parent
 for _=1,8 do
@@ -3578,9 +3533,6 @@ local function isInsideChilliFinder(inst)
 if not inst or not inst.Parent then return false end
 if inst:GetAttribute("__IsFinderHudElement")then return true end
 if inst:FindFirstAncestor("ChilliV5_ExpandedIsland")or inst:FindFirstAncestor("ChilliHeaderOverlay")then
-return false
-end
-if State.ActiveMainWin and State.ActiveMainWin.Parent and inst:IsDescendantOf(State.ActiveMainWin)then
 return false
 end
 if State.ActiveFinderWin and State.ActiveFinderWin.Parent and inst:IsDescendantOf(State.ActiveFinderWin)then
@@ -5210,7 +5162,6 @@ end
 watchFinderHudButton=function(lbl)
 if not lbl or not(lbl:IsA("TextLabel")or lbl:IsA("TextButton"))then return end
 if lbl.Name=="ChilliFinderJoinInterceptor" or lbl:FindFirstAncestor("ChilliV5_ExpandedIsland")or lbl:FindFirstAncestor("ChilliHeaderOverlay")then return end
-if State.ActiveMainWin and State.ActiveMainWin.Parent and lbl:IsDescendantOf(State.ActiveMainWin)then return end
 local raw=(stripRichTags(lbl:GetAttribute("OrigFinderStateText")or lbl.Text or "")):match("^%s*(.-)%s*$")
 if raw=="" or raw:find("⏳",1,true)then return end
 local low=raw:lower()
@@ -5294,7 +5245,6 @@ end
 watchFinderTextObj=function(d)
 if not d or not(d:IsA("TextButton")or d:IsA("TextLabel"))then return end
 if d.Name=="ChilliFinderJoinInterceptor" then return end
-if State.ActiveMainWin and State.ActiveMainWin.Parent and d:IsDescendantOf(State.ActiveMainWin)then return end
 pcall(sanitizeChillFinderFreeObj,d)
 pcall(watchFinderHudButton,d)
 local checkT=stripRichTags(d.Text):lower()
@@ -5389,7 +5339,6 @@ end
 end
 local function isFinderCandidateLabel(d)
 if not(d:IsA("TextLabel")or d:IsA("TextButton"))then return false end
-if State.ActiveMainWin and State.ActiveMainWin.Parent and d:IsDescendantOf(State.ActiveMainWin)then return false end
 local t=(stripRichTags(d.Text or "")):match("^%s*(.-)%s*$")
 if t=="" then return false end
 local low=t:lower()
@@ -5408,7 +5357,7 @@ for _,root in ipairs(getScanRoots())do
 local okD,descList=pcall(function()return root:GetDescendants()end)
 if okD and type(descList)=="table" then
 for _,d in ipairs(descList)do
-if(d:IsA("TextLabel")or d:IsA("TextButton"))and not isSkippedAncestor(d)and not(State.ActiveMainWin and State.ActiveMainWin.Parent and d:IsDescendantOf(State.ActiveMainWin))then
+if(d:IsA("TextLabel")or d:IsA("TextButton"))and not isSkippedAncestor(d)then
 if isFinderCandidateLabel(d)then
 foundAny=true
 local win=getFinderWindowFromObj(d)
@@ -5419,7 +5368,7 @@ local sg=d:FindFirstAncestorOfClass("ScreenGui")or(win and win.Parent)or d.Paren
 if sg and not scannedGuiContainers[sg]then
 scannedGuiContainers[sg]=true
 for _,subD in ipairs(sg:GetDescendants())do
-if(subD:IsA("TextLabel")or subD:IsA("TextButton")or subD:IsA("TextBox"))and not isSkippedAncestor(subD)and not(State.ActiveMainWin and State.ActiveMainWin.Parent and subD:IsDescendantOf(State.ActiveMainWin))then
+if(subD:IsA("TextLabel")or subD:IsA("TextButton")or subD:IsA("TextBox"))and not isSkippedAncestor(subD)then
 if subD:IsA("TextLabel")or subD:IsA("TextButton")then
 pcall(watchFinderTextObj,subD)
 end
@@ -5467,6 +5416,8 @@ else
 if nd:IsA("TextLabel")and State.ActiveVenyxGui and State.ActiveVenyxGui:GetAttribute("__IslandLocked")~=SID and not nd:FindFirstAncestorOfClass("ScrollingFrame")and not nd:FindFirstAncestor("ChilliV5_ExpandedIsland")then
 local nt=(nd.Text or ""):lower()
 if nt:find("idle",1,true)or(nd.Text or ""):find("Đang rảnh",1,true)then
+local fbP=State.ActiveVenyxGui:FindFirstChild("ChilliV8_FallbackIslandPill")
+if fbP and not nd:IsDescendantOf(fbP)then pcall(function()fbP:Destroy()end)end
 local okI,resI=pcall(setupIsland,nd,State.ActiveVenyxGui)
 if okI and resI then
 State.ActiveVenyxGui:SetAttribute("__IslandLocked",SID)
