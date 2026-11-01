@@ -124,6 +124,12 @@ end
 if gethui then
 pcall(function()addRoot(gethui())end)
 end
+if get_hidden_gui then
+pcall(function()addRoot(get_hidden_gui())end)
+end
+if gethiddenui then
+pcall(function()addRoot(gethiddenui())end)
+end
 pcall(function()addRoot(CoreGui)end)
 local pg=LocalPlayer and(LocalPlayer:FindFirstChildOfClass("PlayerGui")or LocalPlayer:FindFirstChild("PlayerGui"))
 addRoot(pg)
@@ -3829,7 +3835,7 @@ if(t:find("/s",1,true)or t:find("$",1,true))and(t:find("ago",1,true)or t:find("t
 local w=getFinderWindowFromObj(curr)
 if w then w:SetAttribute("__IsChilliFinderContainer",true)State.ActiveFinderWin=w end
 return true
-elseif t=="Chilli Finder" or t=="Chill Finder Free" or t=="Chilli Finder Free" or t:find("chillihub.pro",1,true)or t:find("Top 5",1,true)or t:find("No active booking",1,true)or t=="FORCE JOIN" or t=="TỰ VÀO SAU" or t=="MIN VALUE" or t=="GIÁ TỐI THIỂU" or t=="AUTO OFF" or t=="AUTO ON" then
+elseif t=="Chilli Finder" or t=="Chill Finder Free" or t=="Chilli Finder Free" or t:find("chillihub.pro",1,true)or t:find("Top 5",1,true)or t:find("No active booking",1,true)or t=="FORCE JOIN" or t=="TỰ VÀO SAU" or t=="MIN VALUE" or t=="GIÁ TỐI THIỂU" or t=="RARITY" or t=="ĐỘ HIẾM" or t=="ACCOUNT" or t=="TÀI KHOẢN" or t=="AUTO OFF" or t=="AUTO ON" then
 local w=getFinderWindowFromObj(curr)
 if w then w:SetAttribute("__IsChilliFinderContainer",true)State.ActiveFinderWin=w end
 return true
@@ -3938,10 +3944,14 @@ local function sanitizeChillFinderFreeObj(d)
 if not d or not d.Parent then return end
 if not(d:IsA("TextLabel")or d:IsA("TextButton"))then return end
 if d:GetAttribute("__ModifyingFinderText")then return end
-local raw=stripRichTags(d.Text)
+local raw=(stripRichTags(d.Text or "")):match("^%s*(.-)%s*$")
 if raw=="" then return end
 local low=raw:lower()
-if raw=="Chilli Finder" or raw=="Chill Finder Free" or raw=="Chilli Finder Free" or raw=="⚡ Chill Finder Free" then
+local isFinderTitle=(raw=="Chilli Finder" or raw=="Chill Finder Free" or raw=="Chilli Finder Free" or raw=="⚡ Chill Finder Free")
+if not isFinderTitle and(low:find("chilli finder",1,true)or low:find("chill finder",1,true))and not low:find("top 5",1,true)and not low:find("create your",1,true)and not low:find("trứng mới",1,true)and not low:find("key",1,true)and #raw<=28 then
+isFinderTitle=true
+end
+if isFinderTitle then
 d:SetAttribute("__ModifyingFinderText",true)
 d:SetAttribute("__IsTranslating",true)
 d:SetAttribute("OrigRawText","Chilli Finder Free")
@@ -3960,14 +3970,14 @@ local sg=d:FindFirstAncestorOfClass("ScreenGui")
 if sg and not isVenyxScreenGui(sg)then
 sg:SetAttribute("__IsChilliFinderGui",true)
 end
-elseif low=="https://chillihub.pro" or low=="chillihub.pro" or low:find("create your account and get",1,true)then
+elseif low=="https://chillihub.pro" or low=="chillihub.pro" or low:find("create your account",1,true)then
 d:SetAttribute("__ModifyingFinderText",true)
 d:SetAttribute("__IsTranslating",true)
 pcall(function()
 d.Visible=false
 d.Text=""
 if d.Parent and d.Parent:IsA("GuiObject")and d.Parent.Name~="ChillFinderHeaderNeonLine" and d.Parent~=State.ActiveFinderWin then
-if d.Parent.AbsoluteSize.Y>0 and d.Parent.AbsoluteSize.Y<=65 then
+if d.Parent.AbsoluteSize.Y<=85 and d.Parent.Size.Y.Offset<=85 then
 d.Parent.Visible=false
 end
 end
@@ -3982,7 +3992,7 @@ pcall(function()
 d.Visible=false
 d.Text=""
 if d.Parent and d.Parent:IsA("GuiObject")and d.Parent.Name~="ChillFinderHeaderNeonLine" and d.Parent~=State.ActiveFinderWin then
-if d.Parent.AbsoluteSize.X<=160 and d.Parent.AbsoluteSize.Y<=65 then
+if d.Parent.AbsoluteSize.X<=160 and d.Parent.AbsoluteSize.Y<=75 then
 d.Parent.Visible=false
 end
 end
@@ -4011,7 +4021,6 @@ State.ActiveFinderWin=winF
 task.defer(function()hideFinderSignInBox(winF)end)
 end
 elseif low=="sign in" or low=="sign trong" or low=="no plan" then
-if isInsideChilliFinder(d)then
 local wantFree=(State.Language=="EN")and "Free" or "Miễn phí"
 d:SetAttribute("__ModifyingFinderText",true)
 d:SetAttribute("__IsTranslating",true)
@@ -4022,7 +4031,6 @@ pcall(function()d.Text=wantFree end)
 end
 d:SetAttribute("__IsTranslating",false)
 d:SetAttribute("__ModifyingFinderText",false)
-end
 elseif low=="sign up" or low=="password" then
 local curr=d.Parent
 for _=1,4 do
@@ -5715,6 +5723,16 @@ return(rawT=="join" or curT=="join" or conT=="join" or curT=="vào ngay" or rawT
 end
 hookChilliFinderJoin=function(inst)
 if not isFinderJoinLabel(inst)then return end
+if State.Language~="EN" then
+local curJ=(stripRichTags(inst.Text or "")):match("^%s*(.-)%s*$"):lower()
+if curJ=="join" then
+inst:SetAttribute("OrigRawText","Join")
+inst:SetAttribute("OrigFinderStateText","Join")
+inst:SetAttribute("__IsTranslating",true)
+pcall(function()inst.Text="Vào ngay" end)
+inst:SetAttribute("__IsTranslating",false)
+end
+end
 local alreadyTracked=false
 for _,b in ipairs(State.TrackedFinderJoinBtns)do
 if b==inst then alreadyTracked=true break end
@@ -5907,7 +5925,7 @@ local scanChilliFinderButtons=nil
 watchFinderHudButton=function(lbl)
 if not lbl or not(lbl:IsA("TextLabel")or lbl:IsA("TextButton"))then return end
 if lbl.Name=="ChilliFinderJoinInterceptor" or lbl:FindFirstAncestor("ChilliV5_ExpandedIsland")or lbl:FindFirstAncestor("ChilliHeaderOverlay")then return end
-local raw=stripRichTags(lbl:GetAttribute("OrigFinderStateText")or lbl.Text or "")
+local raw=(stripRichTags(lbl:GetAttribute("OrigFinderStateText")or lbl.Text or "")):match("^%s*(.-)%s*$")
 if raw=="" or raw:find("⏳",1,true)then return end
 local low=raw:lower()
 local inFinder=lbl:GetAttribute("__IsFinderHudElement")or isInsideChilliFinder(lbl)
@@ -6070,46 +6088,54 @@ pcall(hookTrans,d)
 end
 end
 end
+local FAST_SKIP_ANCESTORS={
+Chat=true,BubbleChat=true,ExperienceChat=true,TouchGui=true,
+BackpackGui=true,PlayerList=true,ChilliV7_GetKeyUI=true,
+ChilliV7_InputBlocker=true,ChilliV5_ExpandedIsland=true
+}
+local function isSkippedAncestor(inst)
+local p=inst.Parent
+while p and p~=game do
+if FAST_SKIP_ANCESTORS[p.Name] then return true end
+p=p.Parent
+end
+return false
+end
 local function isFinderCandidateLabel(d)
 if not(d:IsA("TextLabel")or d:IsA("TextButton"))then return false end
-local t=stripRichTags(d.Text or "")
-if t=="Chilli Finder" or t=="Chilli Finder Free" or t=="Chill Finder Free" or t=="AUTO OFF" or t=="AUTO ON" then
+local t=(stripRichTags(d.Text or "")):match("^%s*(.-)%s*$")
+if t=="" then return false end
+local low=t:lower()
+if low:find("chilli finder",1,true)or low:find("chill finder",1,true)or low=="auto off" or low=="auto on" or low:find("force join",1,true)or low:find("min value",1,true)then
 return true
 end
-if t:find("Top 5",1,true)or t:find("chillihub.pro",1,true)then
+if low:find("top 5",1,true)or low:find("chillihub.pro",1,true)or low:find("sign in with your",1,true)or low:find("create your account",1,true)then
 return true
 end
 return false
 end
 local function findAndStyleFinderNow()
 if State.ActiveFinderWin and State.ActiveFinderWin.Parent then
-instantStyleFinder(State.ActiveFinderWin)
+pcall(instantStyleFinder,State.ActiveFinderWin)
 end
 local foundAny=false
 for _,root in ipairs(getScanRoots())do
-local containers={}
-if root:IsA("ScreenGui")and not ROBLOX_CORE_SUBFOLDERS[root.Name] then
-table.insert(containers,root)
-end
-for _,ch in ipairs(root:GetChildren())do
-if ch.Name=="RobloxGui" then
-for _,sub in ipairs(ch:GetChildren())do
-if not ROBLOX_CORE_SUBFOLDERS[sub.Name] then
-table.insert(containers,sub)
-end
-end
-elseif not ROBLOX_CORE_SUBFOLDERS[ch.Name] then
-table.insert(containers,ch)
-end
-end
-for _,cont in ipairs(containers)do
-for _,d in ipairs(cont:GetDescendants())do
+local okD,descList=pcall(function()return root:GetDescendants()end)
+if okD and type(descList)=="table" then
+for _,d in ipairs(descList)do
+if(d:IsA("TextLabel")or d:IsA("TextButton")or d:IsA("TextBox"))and not isSkippedAncestor(d)then
+if d:IsA("TextLabel")or d:IsA("TextButton")then
+pcall(watchFinderTextObj,d)
 if isFinderCandidateLabel(d)then
+foundAny=true
 local win=getFinderWindowFromObj(d)
 if win then
-instantStyleFinder(win)
-foundAny=true
-break
+pcall(instantStyleFinder,win)
+end
+if d.Parent and d.Parent.Parent and d.Parent.Parent:IsA("GuiObject")and not d.Parent.Parent:IsA("ScreenGui")then
+pcall(instantStyleFinder,d.Parent.Parent)
+end
+end
 end
 end
 end
