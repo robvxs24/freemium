@@ -1,7 +1,4 @@
-﻿if not game:IsLoaded() then
-	pcall(function() game.Loaded:Wait() end)
-end
-if not math.clamp then math.clamp = function(v, a, b) return math.max(a, math.min(b, v)) end end
+﻿if not math.clamp then math.clamp = function(v, a, b) return math.max(a, math.min(b, v)) end end
 -- ============================================================================
 -- CHILLI HUB V8 SUPREME | ZERO-LAG EDITION (100% LUAU STUDIO STANDARD)
 -- [PHẦN 1] KHỞI TẠO CẤU HÌNH, TỐI ƯU ĐỒ HỌA & QUẢN LÝ PHIÊN LÀM VIỆC (ZERO ERRORS)
@@ -81,11 +78,14 @@ end)
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 if not LocalPlayer then
-	local startWait = os.clock()
-	while not LocalPlayer and (os.clock() - startWait < 8) do
-		task.wait(0.1)
-		LocalPlayer = Players.LocalPlayer
-	end
+	task.spawn(function()
+		local count = 0
+		while not LocalPlayer and count < 50 do
+			task.wait(0.2)
+			LocalPlayer = Players.LocalPlayer
+			count = count + 1
+		end
+	end)
 end
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
@@ -221,27 +221,11 @@ local function launchVenyxBase()
 	env.__VenyxLaunchingNow = true
 	env.__VenyxLaunchClock = os.clock()
 	task.spawn(function()
-		if not game:IsLoaded() then pcall(function() game.Loaded:Wait() end) end
-		local okLaunch = false
-		-- Uu tien 1: Tai truc tiep tu GitHub raw napun67 (540KB) giup Arceus X mo script 100% khong bi chan Luarmor
-		if MY_URL and #MY_URL > 5 then
-			local rawMy = safeHttpGet(MY_URL)
-			if rawMy and #rawMy > 200 then
-				local fnMy = loadstring(rawMy)
-				if type(fnMy) == "function" then
-					local sOk = pcall(fnMy)
-					if sOk then okLaunch = true end
-				end
-			end
-		end
-		-- Uu tien 2: Du phong VENYX_URL neu can
-		if not okLaunch and not isVenyxUiPresent() and VENYX_URL and #VENYX_URL > 5 then
-			local rawVenyx = safeHttpGet(VENYX_URL)
-			if rawVenyx and #rawVenyx > 10 then
-				local fnVenyx = loadstring(rawVenyx)
-				if type(fnVenyx) == "function" then
-					pcall(fnVenyx)
-				end
+		local rawCode = safeHttpGet(VENYX_URL)
+		if rawCode and #rawCode > 10 then
+			local fn = loadstring(rawCode)
+			if type(fn) == "function" then
+				pcall(fn)
 			end
 		end
 		env.__VenyxLaunchingNow = false
