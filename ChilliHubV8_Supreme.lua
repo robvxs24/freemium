@@ -32,6 +32,27 @@ pcall(function()
 if isfile(AUTO_FILE)then delfile(AUTO_FILE)end
 end)
 end
+task.spawn(function()
+pcall(function()
+if setfpscap then pcall(setfpscap,120)end
+pcall(function()game:GetService("RunService"):Set3dRenderingEnabled(true)end)
+local lgt=game:GetService("Lighting")
+lgt.GlobalShadows=false
+lgt.FogEnd=9e9
+settings().Rendering.QualityLevel=Enum.QualityLevel.Level01
+end)
+pcall(function()
+local cp=game:GetService("ContentProvider")
+local pre={}
+for _,id in ipairs({LOGO_ID,HEADER_BAR_IMG_ID,STEAL_TAB_ICON_ID,WALLPAPER_IMAGE_ID,"rbxassetid://91322208361913"})do
+local im=Instance.new("ImageLabel")
+im.Image=id
+table.insert(pre,im)
+end
+cp:PreloadAsync(pre)
+for _,im in ipairs(pre)do im:Destroy()end
+end)
+end)
 local function safeHttpGet(url)
 for attempt=1,2 do
 local ok1,res1=pcall(function()return game:HttpGet(url)end)
