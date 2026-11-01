@@ -243,8 +243,8 @@ csk(0.00, c3(255, 45, 85)), csk(0.17, c3(255, 155, 35)), csk(0.33, c3(255, 235, 
 csk(0.50, c3(45, 255, 145)), csk(0.67, c3(45, 195, 255)), csk(0.83, c3(185, 85, 255)), csk(1.00, c3(255, 45, 85))
 })
 local ULTRA_TEXT_GRAD = ColorSequence.new({
-csk(0.00, c3(255, 255, 255)), csk(0.20, c3(125, 225, 255)), csk(0.45, c3(255, 95, 215)),
-csk(0.72, c3(175, 115, 255)), csk(1.00, c3(255, 215, 85))
+csk(0.00, c3(235, 245, 255)), csk(0.32, c3(155, 212, 250)), csk(0.68, c3(192, 170, 248)),
+csk(1.00, c3(238, 188, 225))
 })
 local ULTRA_CARD_GRAD = ColorSequence.new({
 csk(0.00, c3(70, 210, 255)), csk(0.50, c3(170, 95, 255)), csk(1.00, c3(255, 75, 195))
@@ -1473,10 +1473,16 @@ if State.ActiveStatusLbl and State.ActiveStatusLbl.Parent and State.ActiveStatus
 State.ActiveStatusLbl.Parent.Visible = true
 end
 end
+State.AllowMenuCloseNow = false
+State.IsMenuAuthorizedClosed = false
 if State.ActiveMainWin and State.ActiveMainWin.Parent and not State.ActiveMainWin.Visible then
+if State.AnimateOpenFn then
+pcall(State.AnimateOpenFn)
+else
 State.ActiveMainWin.Visible = true
+end
 if State.SyncWindowFn then pcall(State.SyncWindowFn) end
-task.wait(0.15)
+task.wait(0.18)
 end
 local sysBtn = findSystemTabBtn(venyxGui)
 if sysBtn then
@@ -2517,7 +2523,6 @@ local function applySenaV7Architecture(win, titleLbl)
 		   or nm == "ChilliTabActiveBar"
 		   or nm == "ChilliLuxuryCardStroke"
 		   or nm == "ChilliControlNeonGrad"
-		   or nm == "ChilliInnerUltraGrad"
 		   or nm == "ChilliTabToast"
 		   or nm == "ChilliTabRipple" then
 			oldL:Destroy()
@@ -2526,14 +2531,18 @@ local function applySenaV7Architecture(win, titleLbl)
 		end
 	end
 
-	-- Tiêu đề "Chilli Hub V8" trên Header gọn đẹp, không dùng gradient nặng
-	local oldTGrad = titleLbl:FindFirstChild("TitleUltraGrad")
-	if oldTGrad then oldTGrad:Destroy() end
+	-- Tiêu đề "Chilli Hub V8" trên Header phủ màu Ultra Pastel dịu mắt, sang trọng
 	titleLbl.TextColor3 = Color3.new(1, 1, 1)
 	titleLbl.Font = Enum.Font.GothamBlack
 	titleLbl.TextTransparency = 0
+	local tGrad = titleLbl:FindFirstChild("TitleUltraGrad")
+	if not tGrad then
+		tGrad = mk("UIGradient", { Name = "TitleUltraGrad", Color = ULTRA_TEXT_GRAD }, titleLbl)
+	else
+		tGrad.Color = ULTRA_TEXT_GRAD
+	end
 	if not titleLbl:FindFirstChild("TitleUltraStroke") then
-		mk("UIStroke", { Name = "TitleUltraStroke", Thickness = 1.2, Color = Color3.fromRGB(10, 8, 20), Transparency = 0.2 }, titleLbl)
+		mk("UIStroke", { Name = "TitleUltraStroke", Thickness = 1.2, Color = Color3.fromRGB(10, 8, 20), Transparency = 0.25 }, titleLbl)
 	end
 
 	-- Huy hiệu Quả Ớt tròn ở đỉnh cột Sidebar (X = 23, Y = 19) thay thế chữ V gốc
@@ -2696,6 +2705,29 @@ local function applySenaV7Architecture(win, titleLbl)
 		end
 	end
 
+	-- Phủ màu chữ Ultra Pastel dịu mắt (không chói) cho tiêu đề trang lớn, tiêu đề mục lớn & chữ tính năng
+	for _, d in ipairs(win:GetDescendants()) do
+		if (d:IsA("TextLabel") or d:IsA("TextButton")) and not d.Name:find("^Chilli") and d ~= titleLbl then
+			local txt = d.Text or ""
+			local isBigPageTitle = ((d.TextSize or 14) >= 15 and d.AbsolutePosition.Y > hy + 8 and d.AbsolutePosition.Y < hy + 105 and (d.AbsolutePosition.X - winX) < 260 and not d:FindFirstAncestorOfClass("ScrollingFrame"))
+			local isSectionHeader = (txt:upper() == txt and #txt >= 4 and (d.TextSize or 14) <= 13 and d:FindFirstAncestorOfClass("ScrollingFrame") ~= nil)
+			if isBigPageTitle or isSectionHeader then
+				d.TextColor3 = Color3.fromRGB(242, 246, 255)
+				local ig = d:FindFirstChild("ChilliInnerUltraGrad")
+				if not ig then
+					mk("UIGradient", { Name = "ChilliInnerUltraGrad", Color = ULTRA_TEXT_GRAD }, d)
+				else
+					ig.Color = ULTRA_TEXT_GRAD
+				end
+			elseif d:FindFirstAncestorOfClass("ScrollingFrame") and d:IsA("TextLabel") then
+				local c = d.TextColor3
+				if c.R > 0.85 and c.G > 0.85 and c.B > 0.85 then
+					d.TextColor3 = Color3.fromRGB(214, 224, 242)
+				end
+			end
+		end
+	end
+
 	local function syncWallpaperAndOldBg()
 		if not wp or not wp.Parent then return end
 		local curT = 0.35
@@ -2804,13 +2836,14 @@ local function applySenaV7Architecture(win, titleLbl)
 
 		for _, d in ipairs(win:GetDescendants()) do
 			if d:IsA("TextButton") or d:IsA("ImageButton") or d:IsA("TextLabel") then
-				local dTxt = (d:IsA("TextButton") or d:IsA("TextLabel")) and (d.Text or "") or ""
-				if math.abs(d.AbsolutePosition.Y - hy) < 42
-				   and (dTxt == "-" or dTxt == "—" or d.AbsolutePosition.X > win.AbsolutePosition.X + win.AbsoluteSize.X - 65) then
+				local dTxt = ((d:IsA("TextButton") or d:IsA("TextLabel")) and (d.Text or "") or ""):match("^%s*(.-)%s*$")
+				if (dTxt == "-" or dTxt == "—") and math.abs(d.AbsolutePosition.Y - hy) < 22 then
 					local btn = (d:IsA("TextButton") or d:IsA("ImageButton")) and d or d.Parent
-					if btn and (btn:IsA("TextButton") or btn:IsA("ImageButton")) and not btn:GetAttribute("__CloseSyncHooked") then
-						btn:SetAttribute("__CloseSyncHooked", true)
+					if btn and (btn:IsA("TextButton") or btn:IsA("ImageButton")) and btn:GetAttribute("__CloseSyncHooked") ~= SID then
+						btn:SetAttribute("__CloseSyncHooked", SID)
 						btn.MouseButton1Down:Connect(function()
+							State.AllowMenuCloseNow = true
+							State.IsMenuAuthorizedClosed = true
 							if State.AnimateCloseFn then
 								pcall(State.AnimateCloseFn)
 							else
@@ -3405,10 +3438,27 @@ local function setupBubbleToggle(gui, win, titleLbl)
 		winScale.Parent = win
 	end
 
+	-- Gỡ bỏ mọi kết nối đóng menu bị gắn nhầm vào nút tab con ("Cấu Hình", "Giao Diện"...) từ phiên chạy trước nếu có
+	local hy = titleLbl and titleLbl.AbsolutePosition.Y or win.AbsolutePosition.Y
+	for _, d in ipairs(win:GetDescendants()) do
+		if d:GetAttribute("__CloseSyncHooked") or d:GetAttribute("__ChilliCloseBubbleHooked") then
+			local dTxt = ((d:IsA("TextButton") or d:IsA("TextLabel")) and (d.Text or "") or ""):match("^%s*(.-)%s*$")
+			if dTxt ~= "-" and dTxt ~= "—" then
+				d:SetAttribute("__CloseSyncHooked", nil)
+				d:SetAttribute("__ChilliCloseBubbleHooked", nil)
+			end
+		end
+	end
+
+	State.AllowMenuCloseNow = false
+	State.IsMenuAuthorizedClosed = not win.Visible
+
 	-- 1. MỞ MENU (SIÊU MƯỢT 0MS, KHÔNG QUÉT LẠI DOM)
 	local function openMenuAnimated()
 		if State.IsBubbleAnimating then return end
 		State.IsBubbleAnimating = true
+		State.AllowMenuCloseNow = false
+		State.IsMenuAuthorizedClosed = false
 
 		playToggleSound("rbxassetid://6895079853", 0.75, 1.05)
 		syncBubbleIconState(true, true)
@@ -3433,14 +3483,17 @@ local function setupBubbleToggle(gui, win, titleLbl)
 		openTween:Play()
 	end
 
-	-- 2. ĐÓNG MENU (SIÊU MƯỢT 0MS, KHÔNG QUÉT LẠI DOM)
+	-- 2. ĐÓNG MENU (CHỈ ĐÓNG KHI BẤM NÚT BONG BÓNG HOẶC NÚT "-" TRÊN HEADER)
 	local function closeMenuAnimated()
+		if not State.AllowMenuCloseNow and State.MacroBusy then return end
 		if State.IsBubbleAnimating then return end
 		if not win.Visible then
 			syncBubbleIconState(false, true)
 			return
 		end
 		State.IsBubbleAnimating = true
+		State.AllowMenuCloseNow = true
+		State.IsMenuAuthorizedClosed = true
 
 		playToggleSound("rbxassetid://6895079853", 0.65, 1.25)
 		syncBubbleIconState(false, true)
@@ -3449,9 +3502,15 @@ local function setupBubbleToggle(gui, win, titleLbl)
 			Scale = 0.92
 		})
 		closeTween.Completed:Connect(function()
-			win.Visible = false
-			winScale.Scale = 0.92
+			if State.IsMenuAuthorizedClosed then
+				win.Visible = false
+				winScale.Scale = 0.92
+			else
+				win.Visible = true
+				winScale.Scale = 1.0
+			end
 			State.IsBubbleAnimating = false
+			State.AllowMenuCloseNow = false
 			if State.SyncWindowFn then pcall(State.SyncWindowFn) end
 		end)
 		closeTween:Play()
@@ -3460,8 +3519,8 @@ local function setupBubbleToggle(gui, win, titleLbl)
 	State.AnimateOpenFn = openMenuAnimated
 	State.AnimateCloseFn = closeMenuAnimated
 
-	if not bubble:GetAttribute("__TapHooked") then
-		bubble:SetAttribute("__TapHooked", true)
+	if bubble:GetAttribute("__TapHooked") ~= SID then
+		bubble:SetAttribute("__TapHooked", SID)
 		local lastTapClock = 0
 		local function handleBubbleTap()
 			if totalDragDist > 12 then return end
@@ -3470,8 +3529,12 @@ local function setupBubbleToggle(gui, win, titleLbl)
 			lastTapClock = now
 			if State.IsBubbleAnimating then return end
 			if win.Visible then
+				State.AllowMenuCloseNow = true
+				State.IsMenuAuthorizedClosed = true
 				closeMenuAnimated()
 			else
+				State.AllowMenuCloseNow = false
+				State.IsMenuAuthorizedClosed = false
 				openMenuAnimated()
 			end
 		end
@@ -3485,16 +3548,16 @@ local function setupBubbleToggle(gui, win, titleLbl)
 		end)
 	end
 
-	local hy = win.AbsolutePosition.Y
 	for _, d in ipairs(win:GetDescendants()) do
 		if d:IsA("TextButton") or d:IsA("ImageButton") or d:IsA("TextLabel") then
-			local dTxt = (d:IsA("TextButton") or d:IsA("TextLabel")) and (d.Text or "") or ""
-			if (dTxt == "-" or dTxt == "—" or d.AbsolutePosition.X > win.AbsolutePosition.X + win.AbsoluteSize.X - 65)
-			   and math.abs(d.AbsolutePosition.Y - hy) < 50 then
+			local dTxt = ((d:IsA("TextButton") or d:IsA("TextLabel")) and (d.Text or "") or ""):match("^%s*(.-)%s*$")
+			if (dTxt == "-" or dTxt == "—") and math.abs(d.AbsolutePosition.Y - hy) < 22 then
 				local btn = (d:IsA("TextButton") or d:IsA("ImageButton")) and d or d.Parent
-				if btn and (btn:IsA("TextButton") or btn:IsA("ImageButton")) and not btn:GetAttribute("__ChilliCloseBubbleHooked") then
-					btn:SetAttribute("__ChilliCloseBubbleHooked", true)
+				if btn and (btn:IsA("TextButton") or btn:IsA("ImageButton")) and btn:GetAttribute("__ChilliCloseBubbleHooked") ~= SID then
+					btn:SetAttribute("__ChilliCloseBubbleHooked", SID)
 					btn.MouseButton1Click:Connect(function()
+						State.AllowMenuCloseNow = true
+						State.IsMenuAuthorizedClosed = true
 						closeMenuAnimated()
 					end)
 				end
@@ -3502,7 +3565,15 @@ local function setupBubbleToggle(gui, win, titleLbl)
 		end
 	end
 
+	-- Chặn triệt để lỗi tự đóng menu khi bấm vào "Cấu Hình" hoặc khi chạy Auto Config
 	win:GetPropertyChangedSignal("Visible"):Connect(function()
+		if not win.Visible and not State.AllowMenuCloseNow and not State.IsMenuAuthorizedClosed then
+			win.Visible = true
+			winScale.Scale = 1.0
+			syncBubbleIconState(true, false)
+			if State.SyncWindowFn then pcall(State.SyncWindowFn) end
+			return
+		end
 		if not State.IsBubbleAnimating then
 			syncBubbleIconState(win.Visible, true)
 		end
