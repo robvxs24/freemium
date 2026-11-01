@@ -22,12 +22,11 @@ local HEADER_BAR_IMG_ID="rbxassetid://83726521558450"
 local STEAL_TAB_ICON_ID="rbxassetid://91536384271341"
 local WALLPAPER_IMAGE_ID="rbxassetid://90615151648668"
 local c3,u2,u2s,v2,csk=Color3.fromRGB,UDim2.new,UDim2.fromScale,Vector2.new,ColorSequenceKeypoint.new
-local EF,EES,EED,ETX,ETY,EASM,EUIT,twi=Enum.Font,Enum.EasingStyle,Enum.EasingDirection,Enum.TextXAlignment,Enum.TextYAlignment,Enum.ApplyStrokeMode,Enum.UserInputType,TweenInfo.new
 local LOGO_BG,BLACK_BG=c3(12,12,18),c3(8,8,12)
 local MY_URL="https://raw.githubusercontent.com/napun67/stealanegg/refs/heads/main/chillihubv8.lua"
 local VENYX_URL="https://raw.githubusercontent.com/tienkhanh1/Venyx/main/VenyxHub"
 local AUTO_FILE,LANG_FILE="ChilliHubV5_AutoRun.lua","ChilliV5_Lang.txt"
-local PRESET_JSON=[=[{"venyx":1,"name":"hihi 2","data":{"System / Interface/Quick bars/Show quick bars":true,"Farm / Sell/Favorite/Auto favorite":false,"System / Interface/Quick bars/Quick bar layout":"{\"pins\":{\"Event / Butterfly/Butterfly bloom/Auto butterfly bloom\":2,\"Player / Combat/Hit aura/Hit aura\":1,\"Player / Combat/Auto hit/Chase speed\":1,\"Steal / Auto Steal/Auto hop server/Auto hop\":1,\"Player / Move/Movement/Boost speed\":1,\"Player / Combat/Auto hit/Auto hit\":1,\"Steal / Auto Steal/Auto steal/Auto steal\":1,\"Event / Race/Racing Event/Auto race\":2,\"Farm / Treadmill/Treadmill/Auto treadmill\":1,\"Player / Move/Movement/Speed boost\":1},\"keys\":[],\"at\":{\"1\":[766.9053955078125,21.74544906616211],\"2\":[624.3492431640625,21.080074310302736]},\"fold\":{\"1\":true,\"2\":true}}","System / Optimizer/Graphics/Disable 3D Render":false,"Farm / Pen/Auto place/Place first":"Best value","Steal / Auto Steal/Filter/Only below /s":0,"Farm / Pen/Auto hatch/Equip best pets":false,"Event / AA/Capture the egg/Auto capture event egg":true,"Farm / Mutate/Mutate filter/Only these eggs":[],"Farm / Treadmill/Treadmill/Auto upgrade treadmill":false,"Steal / Auto Steal/Auto steal/Drop eggs at safe zone":false,"Steal / Auto Steal/Auto hop server/Auto hop":false,"System / Interface/Interface/Dim the game":0,"Player / Combat/Hit aura/Skip friends":true,"Player / ESP/Others/Pen egg ESP":true,"System / Optimizer/Frame rate/FPS position":"0.5000,-550,0.0000,49","Event / Butterfly/Butterfly bloom/Auto butterfly bloom":true,"Farm / Pen/Auto hatch/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Steal / Auto Steal/Filter/Min value /s":2000000000,"Player / Combat/Hit aura/Hit aura":true,"Event / Star/Shooting Star/Auto catch shooting star":true,"Steal / Egg Predictor/Egg showcase/Calculate mutations":[],"Steal / Egg Predictor/Egg showcase/Sort eggs":"Value","Event / Halloween/Ghost Dog and fishing/Auto fishing":true,"System / Optimizer/Bases/Hide other players' pets and eggs":true,"Player / Combat/Auto hit/Auto hit":false,"Event / Halloween/Ghost Dog and fishing/Auto Ghost Dog quest":false,"Event / Butterfly/Butterfly bloom/Catch mode":"Chase","Event / Butterfly/Butterfly machine/Trade":[],"Event / Halloween/Halloween Dimension/Halloween eggs":["Bone Emperor","Voidseer Pumpkin","Zombified Bone Emperor","Ghost Reaper","Gorillastein","Phantom Dragon","Shelltide Voyager","Zombified Grave Cerberus","Zombified Phantom Dragon","BloodBloom","Grave Cerberus","Graveyard Brute","Werewolf","Zombified Night Fang","Zombified Pumpkin Fiend","Zombified Tombstone Bear"],"Farm / Pen/Auto place/Auto place":false,"Steal / Auto Steal/Filter/Rarities":["Divine","Eternal","Secret"],"System / Webhook/What to post/Post fused eggs":false,"Event / Halloween/Halloween Dimension/Auto Pumpkin Moon":true,"Farm / Sell/Pets/Sell rarities":["Rare","Uncommon","Common"],"Player / Move/Protection/Ignore traps":true,"Farm / Fuse/Fuse filter/Rarities":["Mythic","Legendary","Epic","Rare","Uncommon","Common"],"System / Webhook/Discord webhook/Ping role ID":"","Player / ESP/Others/Hide sleeping guards":true,"Event / Halloween/Halloween Dimension/Min value /s":1000000000,"System / Optimizer/Frame rate/Show FPS and ping":true,"Farm / Treadmill/Progress/Auto claim index rewards":false,"System / Interface/Quick bars/Keybinds":true,"Steal / Auto Steal/Auto steal/Instant steps":2,"Farm / Fuse/Fuse filter/Never fuse":[],"Farm / Pen/Auto hatch/Mutations":[],"System / Optimizer/Bases/Hide my pets and eggs":true,"Event / Halloween/Monsters/Monster order":"Most tokens","Steal / Auto Steal/Filter/Zones":["Enchanted Forest","Light Dark","Titan Temple","Cherry Blossom"],"Event / Butterfly/Butterfly machine/Auto craft essence":true,"Farm / Mutate/Auto mutate/Auto mutate":false,"Player / ESP/Others/Other pens ESP":true,"Player / ESP/Field eggs/Egg ESP":false,"Farm / Pen/Keep eggs/Min value /s":0,"Steal / Auto Steal/Auto steal/Delivery method":"Instant steps","Farm / Treadmill/Progress/Auto buy trails":false,"Farm / Sell/Eggs/Sell rarities":["Rare","Uncommon","Common"],"System / Interface/Interface/Tone":100,"Event / AA/Admin abuse/Admin treadmill":false,"System / Webhook/What to post/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Farm / Pen/Auto place/Place when":"Always","Event / Halloween/Monsters/Monsters":["Candy Corn","Hollow Bat","Scarecrow","Chest Mimic","Pumpkin Golem","Soul Phantom"],"Event / Butterfly/Wisp companion/Auto banjo cricket":false,"Event / Halloween/Halloween Dimension/Auto buy Halloween Dimension Egg":false,"Event / Halloween/Halloween Dimension/Walk speed":1000,"Steal / Auto Steal/Auto steal/Delivery speed":4500,"Farm / Mutate/Auto mutate/Use items":["Fractured","Scrambled","Enchanted","Nitro","Spectral"],"Farm / Fuse/Fuse machine/Fuse first":"Lowest rarity","Steal / Auto Steal/Auto hop server/Rare from":"Cosmic","Player / Move/Movement/Boost speed":720,"System / Interface/Interface/Opacity":50,"Player / ESP/Others/Guard ESP":true,"Farm / Sell/Favorite/Always favorite":[],"Event / Halloween/Halloween Dimension/Steal speed":100,"Farm / Sell/Eggs/Auto sell eggs":false,"System / Webhook/What to post/Post stolen eggs":false,"Player / ESP/Others/ESP size":60,"Steal / Auto Steal/Filter/Steal first":"Best value","Farm / Sell/Pets/Only below /s":0,"Player / Move/Protection/Anti ragdoll":true,"Player / ESP/Field eggs/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic"],"Player / Move/Protection/Invisible":false,"Steal / Auto Steal/Auto hop server/Hop when":"After stealing a match","Event / AA/Cursed Island Wars/Auto play Cursed Island Wars":true,"Event / Butterfly/Butterfly bloom/Catch":["Radiant","Amethyst","Sapphire","Emerald"],"Farm / Treadmill/Treadmill/Auto treadmill":false,"System / Interface/Game HUD/Steal panel button on game HUD":true,"System / Server/Server/Hop to":"Least players","Farm / Mutate/Mutate filter/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Player / Move/Protection/Instant prompts":true,"System / Server/Join and stay/Rejoin on kick":true,"Farm / Sell/Favorite/Favorite equipped":false,"Event / Halloween/Phantom Express/Auto Phantom Express":true,"System / Optimizer/Frame rate/FPS cap":360,"Steal / Auto Steal/Auto steal/Steal missing index eggs":false,"Steal / Auto Steal/Filter/Only these eggs":["ArchAngel","Kitsune","Nightflame","Royal Skywhale","Unicorn","World Burner","Celestial Sunlion","Gorilla King","Pegasus","Skeleton Horse","Strawberry Elephant","67","Amethyst Runebear","Starry Fox"],"Farm / Sell/Favorite/Min value /s":0,"System / Server/Join and stay/Auto load script":true,"Farm / Mutate/Mutate filter/Skip eggs with":[],"System / Optimizer/Graphics/Low graphics":true,"Event / Halloween/Monsters/Walk speed":1000,"Event / AA/Minigame eggs/Auto steal minigame egg":true,"Farm / Pen/Auto place/Only these eggs":[],"Player / Combat/Auto hit/Hit who":"Nearest player","Farm / Sell/Eggs/Never sell":[],"Farm / Pen/Keep eggs/Eggs to keep":[],"Farm / Fuse/Fuse filter/Only below /s":0,"Event / Halloween/Monsters/Use weapons":["Enchanted Hammer","Racing Bat","Cricket's Banjo","Flyswatter"],"Farm / Fuse/Fuse machine/Skip mutated":true,"Farm / Sell/Pets/Never sell":[],"Farm / Sell/Favorite/Match":"All picked rules","Event / Halloween/Ghost Dog and fishing/Cast luck":"x1.5 Perfect","System / Optimizer/Graphics/Background color":"Black","Player / Move/Movement/God mode":true,"Farm / Pen/Auto place/Mutations":[],"Steal / Auto Steal/Auto steal/Anti guard":true,"Farm / Sell/Favorite/Unfavorite pets not matching":false,"System / Webhook/What to post/Min value /s":0,"Farm / Pen/Auto hatch/Auto hatch":false,"Farm / Sell/Pets/Only mutations":[],"Farm / Fuse/Fuse machine/Eject odd pets":true,"Event / Butterfly/Butterfly machine/Auto trade up":false,"Event / AA/Admin abuse/Instant steal":false,"System / Webhook/What to post/Post when bag is full":false,"Farm / Fuse/Fuse machine/Auto fuse":false,"Farm / Pen/Auto hatch/Only these eggs":[],"Event / Butterfly/Butterfly machine/Smart trade for essence":true,"Event / Halloween/Halloween Dimension/Auto steal Halloween eggs":true,"System / Interface/Quick bars/Bar size":85,"Player / Combat/Weapons/Use weapons":[],"Player / ESP/Others/Player ESP":true,"System / Webhook/Discord webhook/Ping everyone":false,"Farm / Fuse/Fuse machine/Use pets":"Lowest value first","Event / Halloween/Monsters/Auto farm monsters":true,"Farm / Mutate/Auto mutate/Mutate first":"Best value","Player / ESP/Field eggs/Min value /s":0,"Event / AA/Cursed Island Wars/Island Wars target":"Enemies and base","Player / Move/Movement/Infinite jump":true,"Farm / Pen/Auto place/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Player / ESP/Field eggs/Mutations":[],"Event / Halloween/Phantom Express/Auto vacuum Ghouler boss":true,"Farm / Treadmill/Progress/Auto upgrade base":false,"Steal / Auto Steal/Auto steal/Auto steal":true,"Player / Combat/Auto hit/Chase speed":1000,"Player / ESP/Field eggs/Fixed size":false,"Event / Halloween/Halloween Dimension/Instant steal Halloween eggs":true,"Event / Halloween/Phantom Express/Walk speed":1000,"Event / Halloween/Phantom Express/Ghost target":"Rarest first","Farm / Sell/Eggs/Only below /s":0,"Farm / Sell/Favorite/Rarities":[],"Steal / Auto Steal/Auto hop server/First hop after":5,"Steal / Auto Steal/Auto steal/Tween speed":110,"Farm / Sell/Pets/Auto sell pets":false,"Event / Halloween/Phantom Express/Auto trade souls":true,"Farm / Sell/Pets/Keep mutated":true,"Steal / Auto Steal/Filter/Sell cheapest egg when bag is full":false,"Player / ESP/Field eggs/Show":[],"Steal / Auto Steal/Auto steal/Go to egg":"Teleport to egg","Player / Combat/Weapons/Hold each":0.2,"Event / AA/Capture the egg/Hold height":120,"Steal / Auto Steal/Filter/Mutations":[],"Event / AA/Capture the egg/Keep away":150,"Farm / Mutate/Mutate filter/Min value /s":0,"Steal / Auto Steal/Auto steal/Teleport zones":["Enchanted Forest","Light Dark","Titan Temple","Cherry Blossom"],"Farm / Pen/Auto hatch/Min value /s":0,"Player / Move/Movement/Speed boost":false,"System / Interface/Interface/UI scale":90,"Farm / Fuse/Fuse filter/Only these pets":[],"Steal / Egg Predictor/Egg showcase/Preview card":false,"Event / Butterfly/Butterfly bloom/Catch speed":600,"Player / Move/Protection/Anti AFK":true,"Event / Halloween/Halloween Dimension/Halloween rarities":[],"System / Interface/Interface/Show / hide UI":{"k":"LeftControl"},"Steal / Auto Steal/Auto steal/Steal from other players":true,"Farm / Pen/Auto place/Min value /s":0,"Event / Butterfly/Butterfly bloom/Catch priority":"Rarest","System / Webhook/Discord webhook/Ping user ID":"","Farm / Sell/Eggs/Only mutations":[],"Farm / Treadmill/Progress/Auto claim offline cash":false,"Farm / Sell/Favorite/Mutations":[],"Event / AA/Capture the egg/Take it from the holder":true,"System / Webhook/Discord webhook/Webhook URL":"","Farm / Priority/Task order/Task order":["Steal filter eggs","Shooting Star","Phantom Express","Pumpkin Moon","Butterfly","Steal wisp eggs","Wisp","Steal missing index","Place","Mutate","Butterfly machine","Ghost Dog quest","Halloween monsters","Halloween fishing","Treadmill"],"Farm / Sell/Eggs/Keep mutated":true,"Event / Butterfly/Wisp companion/Auto wisp quest":false,"System / Optimizer/Graphics/Hide game UI":false}}]=]
+local PRESET_JSON = [=[{"venyx":1,"name":"hihi 2","data":{"System / Interface/Quick bars/Show quick bars":true,"Farm / Sell/Favorite/Auto favorite":false,"System / Interface/Quick bars/Quick bar layout":"{\"pins\":{\"Event / Butterfly/Butterfly bloom/Auto butterfly bloom\":2,\"Player / Combat/Hit aura/Hit aura\":1,\"Player / Combat/Auto hit/Chase speed\":1,\"Steal / Auto Steal/Auto hop server/Auto hop\":1,\"Player / Move/Movement/Boost speed\":1,\"Player / Combat/Auto hit/Auto hit\":1,\"Steal / Auto Steal/Auto steal/Auto steal\":1,\"Event / Race/Racing Event/Auto race\":2,\"Farm / Treadmill/Treadmill/Auto treadmill\":1,\"Player / Move/Movement/Speed boost\":1},\"keys\":[],\"at\":{\"1\":[766.9053955078125,21.74544906616211],\"2\":[624.3492431640625,21.080074310302736]},\"fold\":{\"1\":true,\"2\":true}}","System / Optimizer/Graphics/Disable 3D Render":false,"Farm / Pen/Auto place/Place first":"Best value","Steal / Auto Steal/Filter/Only below /s":0,"Farm / Pen/Auto hatch/Equip best pets":false,"Event / AA/Capture the egg/Auto capture event egg":true,"Farm / Mutate/Mutate filter/Only these eggs":[],"Farm / Treadmill/Treadmill/Auto upgrade treadmill":false,"Steal / Auto Steal/Auto steal/Drop eggs at safe zone":false,"Steal / Auto Steal/Auto hop server/Auto hop":false,"System / Interface/Interface/Dim the game":0,"Player / Combat/Hit aura/Skip friends":true,"Player / ESP/Others/Pen egg ESP":true,"System / Optimizer/Frame rate/FPS position":"0.5000,-550,0.0000,49","Event / Butterfly/Butterfly bloom/Auto butterfly bloom":true,"Farm / Pen/Auto hatch/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Steal / Auto Steal/Filter/Min value /s":2000000000,"Player / Combat/Hit aura/Hit aura":true,"Event / Star/Shooting Star/Auto catch shooting star":true,"Steal / Egg Predictor/Egg showcase/Calculate mutations":[],"Steal / Egg Predictor/Egg showcase/Sort eggs":"Value","Event / Halloween/Ghost Dog and fishing/Auto fishing":true,"System / Optimizer/Bases/Hide other players' pets and eggs":true,"Player / Combat/Auto hit/Auto hit":false,"Event / Halloween/Ghost Dog and fishing/Auto Ghost Dog quest":false,"Event / Butterfly/Butterfly bloom/Catch mode":"Chase","Event / Butterfly/Butterfly machine/Trade":[],"Event / Halloween/Halloween Dimension/Halloween eggs":["Bone Emperor","Voidseer Pumpkin","Zombified Bone Emperor","Ghost Reaper","Gorillastein","Phantom Dragon","Shelltide Voyager","Zombified Grave Cerberus","Zombified Phantom Dragon","BloodBloom","Grave Cerberus","Graveyard Brute","Werewolf","Zombified Night Fang","Zombified Pumpkin Fiend","Zombified Tombstone Bear"],"Farm / Pen/Auto place/Auto place":false,"Steal / Auto Steal/Filter/Rarities":["Divine","Eternal","Secret"],"System / Webhook/What to post/Post fused eggs":false,"Event / Halloween/Halloween Dimension/Auto Pumpkin Moon":true,"Farm / Sell/Pets/Sell rarities":["Rare","Uncommon","Common"],"Player / Move/Protection/Ignore traps":true,"Farm / Fuse/Fuse filter/Rarities":["Mythic","Legendary","Epic","Rare","Uncommon","Common"],"System / Webhook/Discord webhook/Ping role ID":"","Player / ESP/Others/Hide sleeping guards":true,"Event / Halloween/Halloween Dimension/Min value /s":1000000000,"System / Optimizer/Frame rate/Show FPS and ping":true,"Farm / Treadmill/Progress/Auto claim index rewards":false,"System / Interface/Quick bars/Keybinds":true,"Steal / Auto Steal/Auto steal/Instant steps":2,"Farm / Fuse/Fuse filter/Never fuse":[],"Farm / Pen/Auto hatch/Mutations":[],"System / Optimizer/Bases/Hide my pets and eggs":true,"Event / Halloween/Monsters/Monster order":"Most tokens","Steal / Auto Steal/Filter/Zones":["Enchanted Forest","Light Dark","Titan Temple","Cherry Blossom"],"Event / Butterfly/Butterfly machine/Auto craft essence":true,"Farm / Mutate/Auto mutate/Auto mutate":false,"Player / ESP/Others/Other pens ESP":true,"Player / ESP/Field eggs/Egg ESP":false,"Farm / Pen/Keep eggs/Min value /s":0,"Steal / Auto Steal/Auto steal/Delivery method":"Instant steps","Farm / Treadmill/Progress/Auto buy trails":false,"Farm / Sell/Eggs/Sell rarities":["Rare","Uncommon","Common"],"System / Interface/Interface/Tone":100,"Event / AA/Admin abuse/Admin treadmill":false,"System / Webhook/What to post/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Farm / Pen/Auto place/Place when":"Always","Event / Halloween/Monsters/Monsters":["Candy Corn","Hollow Bat","Scarecrow","Chest Mimic","Pumpkin Golem","Soul Phantom"],"Event / Butterfly/Wisp companion/Auto banjo cricket":false,"Event / Halloween/Halloween Dimension/Auto buy Halloween Dimension Egg":false,"Event / Halloween/Halloween Dimension/Walk speed":1000,"Steal / Auto Steal/Auto steal/Delivery speed":4500,"Farm / Mutate/Auto mutate/Use items":["Fractured","Scrambled","Enchanted","Nitro","Spectral"],"Farm / Fuse/Fuse machine/Fuse first":"Lowest rarity","Steal / Auto Steal/Auto hop server/Rare from":"Cosmic","Player / Move/Movement/Boost speed":720,"System / Interface/Interface/Opacity":50,"Player / ESP/Others/Guard ESP":true,"Farm / Sell/Favorite/Always favorite":[],"Event / Halloween/Halloween Dimension/Steal speed":100,"Farm / Sell/Eggs/Auto sell eggs":false,"System / Webhook/What to post/Post stolen eggs":false,"Player / ESP/Others/ESP size":60,"Steal / Auto Steal/Filter/Steal first":"Best value","Farm / Sell/Pets/Only below /s":0,"Player / Move/Protection/Anti ragdoll":true,"Player / ESP/Field eggs/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic"],"Player / Move/Protection/Invisible":false,"Steal / Auto Steal/Auto hop server/Hop when":"After stealing a match","Event / AA/Cursed Island Wars/Auto play Cursed Island Wars":true,"Event / Butterfly/Butterfly bloom/Catch":["Radiant","Amethyst","Sapphire","Emerald"],"Farm / Treadmill/Treadmill/Auto treadmill":false,"System / Interface/Game HUD/Steal panel button on game HUD":true,"System / Server/Server/Hop to":"Least players","Farm / Mutate/Mutate filter/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Player / Move/Protection/Instant prompts":true,"System / Server/Join and stay/Rejoin on kick":true,"Farm / Sell/Favorite/Favorite equipped":false,"Event / Halloween/Phantom Express/Auto Phantom Express":true,"System / Optimizer/Frame rate/FPS cap":360,"Steal / Auto Steal/Auto steal/Steal missing index eggs":false,"Steal / Auto Steal/Filter/Only these eggs":["ArchAngel","Kitsune","Nightflame","Royal Skywhale","Unicorn","World Burner","Celestial Sunlion","Gorilla King","Pegasus","Skeleton Horse","Strawberry Elephant","67","Amethyst Runebear","Starry Fox"],"Farm / Sell/Favorite/Min value /s":0,"System / Server/Join and stay/Auto load script":true,"Farm / Mutate/Mutate filter/Skip eggs with":[],"System / Optimizer/Graphics/Low graphics":true,"Event / Halloween/Monsters/Walk speed":1000,"Event / AA/Minigame eggs/Auto steal minigame egg":true,"Farm / Pen/Auto place/Only these eggs":[],"Player / Combat/Auto hit/Hit who":"Nearest player","Farm / Sell/Eggs/Never sell":[],"Farm / Pen/Keep eggs/Eggs to keep":[],"Farm / Fuse/Fuse filter/Only below /s":0,"Event / Halloween/Monsters/Use weapons":["Enchanted Hammer","Racing Bat","Cricket's Banjo","Flyswatter"],"Farm / Fuse/Fuse machine/Skip mutated":true,"Farm / Sell/Pets/Never sell":[],"Farm / Sell/Favorite/Match":"All picked rules","Event / Halloween/Ghost Dog and fishing/Cast luck":"x1.5 Perfect","System / Optimizer/Graphics/Background color":"Black","Player / Move/Movement/God mode":true,"Farm / Pen/Auto place/Mutations":[],"Steal / Auto Steal/Auto steal/Anti guard":true,"Farm / Sell/Favorite/Unfavorite pets not matching":false,"System / Webhook/What to post/Min value /s":0,"Farm / Pen/Auto hatch/Auto hatch":false,"Farm / Sell/Pets/Only mutations":[],"Farm / Fuse/Fuse machine/Eject odd pets":true,"Event / Butterfly/Butterfly machine/Auto trade up":false,"Event / AA/Admin abuse/Instant steal":false,"System / Webhook/What to post/Post when bag is full":false,"Farm / Fuse/Fuse machine/Auto fuse":false,"Farm / Pen/Auto hatch/Only these eggs":[],"Event / Butterfly/Butterfly machine/Smart trade for essence":true,"Event / Halloween/Halloween Dimension/Auto steal Halloween eggs":true,"System / Interface/Quick bars/Bar size":85,"Player / Combat/Weapons/Use weapons":[],"Player / ESP/Others/Player ESP":true,"System / Webhook/Discord webhook/Ping everyone":false,"Farm / Fuse/Fuse machine/Use pets":"Lowest value first","Event / Halloween/Monsters/Auto farm monsters":true,"Farm / Mutate/Auto mutate/Mutate first":"Best value","Player / ESP/Field eggs/Min value /s":0,"Event / AA/Cursed Island Wars/Island Wars target":"Enemies and base","Player / Move/Movement/Infinite jump":true,"Farm / Pen/Auto place/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Player / ESP/Field eggs/Mutations":[],"Event / Halloween/Phantom Express/Auto vacuum Ghouler boss":true,"Farm / Treadmill/Progress/Auto upgrade base":false,"Steal / Auto Steal/Auto steal/Auto steal":true,"Player / Combat/Auto hit/Chase speed":1000,"Player / ESP/Field eggs/Fixed size":false,"Event / Halloween/Halloween Dimension/Instant steal Halloween eggs":true,"Event / Halloween/Phantom Express/Walk speed":1000,"Event / Halloween/Phantom Express/Ghost target":"Rarest first","Farm / Sell/Eggs/Only below /s":0,"Farm / Sell/Favorite/Rarities":[],"Steal / Auto Steal/Auto hop server/First hop after":5,"Steal / Auto Steal/Auto steal/Tween speed":110,"Farm / Sell/Pets/Auto sell pets":false,"Event / Halloween/Phantom Express/Auto trade souls":true,"Farm / Sell/Pets/Keep mutated":true,"Steal / Auto Steal/Filter/Sell cheapest egg when bag is full":false,"Player / ESP/Field eggs/Show":[],"Steal / Auto Steal/Auto steal/Go to egg":"Teleport to egg","Player / Combat/Weapons/Hold each":0.2,"Event / AA/Capture the egg/Hold height":120,"Steal / Auto Steal/Filter/Mutations":[],"Event / AA/Capture the egg/Keep away":150,"Farm / Mutate/Mutate filter/Min value /s":0,"Steal / Auto Steal/Auto steal/Teleport zones":["Enchanted Forest","Light Dark","Titan Temple","Cherry Blossom"],"Farm / Pen/Auto hatch/Min value /s":0,"Player / Move/Movement/Speed boost":false,"System / Interface/Interface/UI scale":90,"Farm / Fuse/Fuse filter/Only these pets":[],"Steal / Egg Predictor/Egg showcase/Preview card":false,"Event / Butterfly/Butterfly bloom/Catch speed":600,"Player / Move/Protection/Anti AFK":true,"Event / Halloween/Halloween Dimension/Halloween rarities":[],"System / Interface/Interface/Show / hide UI":{"k":"LeftControl"},"Steal / Auto Steal/Auto steal/Steal from other players":true,"Farm / Pen/Auto place/Min value /s":0,"Event / Butterfly/Butterfly bloom/Catch priority":"Rarest","System / Webhook/Discord webhook/Ping user ID":"","Farm / Sell/Eggs/Only mutations":[],"Farm / Treadmill/Progress/Auto claim offline cash":false,"Farm / Sell/Favorite/Mutations":[],"Event / AA/Capture the egg/Take it from the holder":true,"System / Webhook/Discord webhook/Webhook URL":"","Farm / Priority/Task order/Task order":["Steal filter eggs","Shooting Star","Phantom Express","Pumpkin Moon","Butterfly","Steal wisp eggs","Wisp","Steal missing index","Place","Mutate","Butterfly machine","Ghost Dog quest","Halloween monsters","Halloween fishing","Treadmill"],"Farm / Sell/Eggs/Keep mutated":true,"Event / Butterfly/Wisp companion/Auto wisp quest":false,"System / Optimizer/Graphics/Hide game UI":false}}]=]
 if isfile and delfile then
 pcall(function()
 if isfile(AUTO_FILE)then delfile(AUTO_FILE)end
@@ -64,6 +63,11 @@ State.StartClock=State.StartClock or os.clock()
 State.JoiningLeastServerBusy=false
 State.ScanningFinderBusy=false
 State.MacroBusy=false
+State.IsBubbleAnimating=false
+State.ActiveFinderWin=nil
+State.ActiveMainWin=nil
+State.ActiveVenyxGui=nil
+State.LastHideSignInClock=0
 State.TrackedFinderJoinBtns={}
 local SID=State.SessionId
 local function isAlive()return State.SessionId==SID end
@@ -242,9 +246,8 @@ csk(0.00,c3(255,45,85)),csk(0.17,c3(255,155,35)),csk(0.33,c3(255,235,45)),
 csk(0.50,c3(45,255,145)),csk(0.67,c3(45,195,255)),csk(0.83,c3(185,85,255)),csk(1.00,c3(255,45,85))
 })
 local ULTRA_TEXT_GRAD=ColorSequence.new({
-csk(0.00,c3(180,100,255)),
-csk(0.50,c3(115,160,255)),
-csk(1.00,c3(50,220,255))
+csk(0.00,c3(235,245,255)),csk(0.32,c3(155,212,250)),csk(0.68,c3(192,170,248)),
+csk(1.00,c3(238,188,225))
 })
 local ULTRA_CARD_GRAD=ColorSequence.new({
 csk(0.00,c3(70,210,255)),csk(0.50,c3(170,95,255)),csk(1.00,c3(255,75,195))
@@ -387,9 +390,345 @@ local function hasVi(s)
 return type(s)=="string" and s~="" and(s:find("\225[\186\187][\128-\191]")~=nil or s:find("\195[\128-\191]")~=nil or s:find("\196[\130\131\144\145\168\169]")~=nil or s:find("\197[\168\169\175\176]")~=nil)
 end
 local translateText,translateStatus,stripRichTags,applyTrans,hookTrans,refreshAllTexts
-local hopToLeastPlayersServer,executeRawHopToLeastPlayersServer,watchFinderHudButton,hookChilliFinderJoin,watchFinderTextObj,hookLoginFrameTrigger,translateFinderHudState,scanChilliFinderButtons
 do
-local EXACT_VI={["Home"]="Trang Chủ",["Dashboard"]="Trang Chủ",["Steal"]="Săn Trứng",["Farm"]="Tự Cày",["Event"]="Sự Kiện",["Events"]="Sự Kiện",["Player"]="Nhân Vật",["System"]="Cài Đặt",["Settings"]="Cài Đặt",["Halloween & Shooting Star"]="Halloween & Sao Băng",["Halloween & sao băng"]="Halloween & Sao Băng",["HALLOWEEN & SHOOTING STAR"]="HALLOWEEN & SAO BĂNG",["HALLOWEEN & SAO BĂNG"]="HALLOWEEN & SAO BĂNG",["The Hollow"]="Vực Hollow",["Hollow"]="Vực Hollow",["Steal missing Halloween index"]="Cướp trứng Halloween thiếu trong Chỉ mục",["Steal missing Halloween index eggs"]="Cướp trứng Halloween thiếu trong Chỉ mục",["cướp missing Halloween index"]="Cướp trứng Halloween thiếu trong Chỉ mục",["Place eggs in pen and hatch missing in Egg Index"]="Đặt trứng vào chuồng và ấp trứng thiếu trong Chỉ mục",["Place and hatch eggs missing from your Egg Index"]="Đặt trứng vào chuồng và ấp trứng thiếu trong Chỉ mục",["Đặt trứng vào chuồng và hatch thiếu trong Chỉ mục trứng"]="Đặt trứng vào chuồng và ấp trứng thiếu trong Chỉ mục",["PUMPKIN BOSS"]="BOSS BÍ NGÔ",["Pumpkin Boss"]="Boss Bí Ngô",["Auto Pumpkin Boss"]="Tự đánh Boss Bí Ngô",["Auto dodge attacks"]="Tự động né đòn đánh",["Dodge attacks"]="Tự động né đòn đánh",["Auto claim mastery"]="Tự động nhận thưởng Thông Thạo",["Tự động nhận mastery"]="Tự động nhận thưởng Thông Thạo",["Claim mastery"]="Nhận thưởng Thông Thạo",["Mastery"]="Thông Thạo",["MASTERY"]="THÔNG THẠO",["Stub pickup speed"]="Tốc độ nhặt Cuống Bí Ngô",["Pickup speed"]="Tốc độ nhặt vật phẩm",["Tốc độ cuống pickup"]="Tốc độ nhặt Cuống Bí Ngô",["Auto manor key"]="Tự lấy chìa khóa dinh thự",["Manor key"]="Chìa khóa dinh thự",["MANOR KEY"]="CHÌA KHÓA DINH THỰ",["KILLS"]="SỐ LẦN HẠ",["Kills"]="Số lần hạ",["BOSS"]="TRÙM (BOSS)",["ALIVE"]="CÒN SỐNG",["Alive"]="Còn sống",["DEAD"]="ĐÃ HẠ",["Dead"]="Đã hạ",["SPAWNED"]="ĐÃ XUẤT HIỆN",["Spawned"]="Đã xuất hiện",["NOT SPAWNED"]="CHƯA XUẤT HIỆN",["Not spawned"]="Chưa xuất hiện",["Cooldown"]="Đang hồi",["COOLDOWN"]="ĐANG HỒI",["Active"]="Đang bật",["ACTIVE"]="ĐANG BẬT",["Inactive"]="Đang tắt",["INACTIVE"]="ĐANG TẮT",["Sign In"]="Miễn phí",["SIGN IN"]="MIỄN PHÍ",["Sign trong"]="Miễn phí",["Sign Up"]="Đăng ký",["No plan"]="Miễn phí",["FORCE JOIN"]="TỰ VÀO SAU",["Force Join"]="Tự vào sau",["MIN VALUE"]="GIÁ TỐI THIỂU",["RARITY"]="ĐỘ HIẾM",["ACCOUNT"]="TÀI KHOẢN",["Account"]="Tài khoản",["Chilli Finder"]="Chilli Finder Free",["Chill Finder Free"]="Chilli Finder Free",["Chilli Finder Free"]="Chilli Finder Free",["Top 5 recent eggs | Book at chillihub.pro"]="Top 5 trứng mới nhất | Chilli Finder Free",["Sign in with your chillihub.pro account to join"]="Top 5 trứng mới nhất | Chilli Finder Free",["Sign in with your chillihub.pro account"]="Top 5 trứng mới nhất | Chilli Finder Free",["No active booking. Book hours at chillihub.pro"]="Top 5 trứng mới nhất | Chilli Finder Free",["Finder"]="Tìm Trứng",["FINDER"]="TÌM TRỨNG",["finder"]="tìm trứng",["Scanning..."]="Đang quét...",["Scanning"]="Đang quét...",["Searching..."]="Đang tìm...",["Searching"]="Đang tìm...",["Checking..."]="Đang kiểm tra...",["Checking"]="Đang kiểm tra...",["Found!"]="Đã thấy!",["Found"]="Đã thấy",["Egg Found!"]="Có trứng mới!",["Egg Found"]="Có trứng mới",["Waiting..."]="Đang chờ...",["Waiting"]="Đang chờ...",["No Eggs"]="Hết trứng",["None"]="Không có",["Auto On"]="Tự động: BẬT",["Auto Off"]="Tự động: TẮT",["AUTO ON"]="TỰ ĐỘNG: BẬT",["AUTO OFF"]="TỰ ĐỘNG: TẮT",["Cooldown"]="Đang hồi...",["Ready"]="Sẵn sàng",["Chilli Finder"]="Chill Finder Free",["Top 5 recent eggs | Book at chillihub.pro"]="Top 5 recent eggs | Chill Finder Free",["Sign in with your chillihub.pro account to join"]="Top 5 recent eggs | Chill Finder Free",["Sign in with your chillihub.pro account"]="Top 5 recent eggs | Chill Finder Free",["No active booking. Book hours at chillihub.pro"]="Top 5 recent eggs | Chill Finder Free",["Venyx"]="Chilli Hub",["VENYX"]="Chilli Hub V8 Supreme",["Media"]="Mạng Xã Hội",["Chat"]="Trò Chuyện",["Features"]="Tính Năng",["Egg"]="Trứng (Egg)",["Pet"]="Thú Cưng (Pet)",["Activities"]="Hoạt Động",["Barn"]="Chuồng Trại",["Others"]="Khác",["Keyless"]="Không cần Key",["Anime"]="Chế độ Anime",["Search..."]="Tìm kiếm...",["Steal Egg"]="Cướp Trứng",["Filtering"]="Bộ Lọc",["Strict Filter"]="Lọc Nghiêm Ngặt",["Only target eggs that match every filter you set."]="Chỉ cướp trứng khớp với mọi bộ lọc bạn đã cài.",["Steal Priority"]="Ưu Tiên Cướp",["Select Area"]="Chọn Khu Vực",["Select Rarity"]="Chọn Độ Hiếm",["Select Pet"]="Chọn Thú Cưng",["Select Mutation"]="Chọn Đột Biến",["Min Value"]="Giá Trị Tối Thiểu",["Target eggs earning at least this much per second, mutations included (e.g. 500k, 1.5m). 0 or empty to disable."]="Chỉ cướp trứng kiếm được ít nhất mức này mỗi giây (VD: 500k, 1.5m). Nhập 0 để tắt.",["Indexing"]="Chỉ Mục (Index)",["Auto Claim Index"]="Tự Nhận Thưởng Chỉ Mục",["Redeems unlocked index rewards."]="Tự động nhận phần thưởng từ danh mục đã mở khóa.",["Auto Indexing"]="Tự Động Thu Thập Chỉ Mục",["Auto Steal only targets eggs you haven't indexed or owned yet. Other filters are ignored."]="Chỉ cướp các trứng bạn chưa có trong chỉ mục. Các bộ lọc khác sẽ bị bỏ qua.",["Steal Settings"]="Cài Đặt Cướp",["Steal Mode"]="Chế Độ Cướp",["Normal flies to the egg, Instant Steal works in every area."]="Bình thường sẽ bay tới trứng. Cướp Tức Thì hoạt động ở mọi khu vực.",["Normal"]="Bình Thường",["Delivery Mode"]="Chế Độ Giao Trứng",["Recommended Delivery Mode: Speed Match or Steady"]="Khuyên dùng: Tốc độ khớp hoặc Ổn định",["Speed Match"]="Tốc độ khớp",["Steady"]="Ổn định",["Steal From Player"]="Cướp Từ Người Chơi",["Steals eggs from other players."]="Cướp trứng từ tay người chơi khác.",["Server Hop (No Target)"]="Đổi Server (Khi Hết Mục Tiêu)",["Hops server when no target is found."]="Tự động đổi máy chủ khi không tìm thấy trứng mục tiêu.",["Drop for Friend"]="Nhặt Hộ Bạn Bè",["Drops the egg at the drop point and leaves it for a friend to pick up, then looks for another egg."]="Mang trứng đến điểm hẹn, thả xuống cho bạn bè nhặt và đi tìm trứng khác.",["Flies to field eggs, grabs them and brings them home."]="Bay tới bãi, nhặt trứng và mang về nhà.",["Steal Other Script"]="Cướp Của Script Khác",["Grabs eggs other players drop near safezone."]="Nhặt trứng mà các người chơi dùng script khác làm rớt gần vùng an toàn.",["Steal Status"]="Trạng Thái Cướp",["Shows the Auto Steal status panel."]="Hiển thị bảng trạng thái tự động cướp.",["Open Steal Panel"]="Mở Bảng Cướp Trứng",["Find and steal World and Halloween eggs by hand."]="Tìm và cướp trứng Thế Giới / Halloween bằng tay.",["Open Steal History"]="Mở Lịch Sử Cướp",["Open the last 10 steal results in a separate window."]="Mở 10 kết quả cướp gần nhất ở cửa sổ riêng.",["Egg Utilities"]="Tiện Ích Trứng",["Open Egg Predictor"]="Mở Dự Đoán Trứng",["Open standalone egg cycle predictor window."]="Mở cửa sổ dự đoán chu kỳ trứng riêng biệt.",["Egg Inventory Value"]="Giá Trị Trứng Trong Túi",["Show generation rate (/s) and sell price on backpack egg slots."]="Hiển thị tốc độ sinh tiền (/s) và giá bán trên từng ô trứng trong ba lô.",["Place Egg"]="Đặt Trứng Vào Chuồng",["Hatch Egg"]="Ấp Trứng",["Stop At Rarity"]="Dừng Lại Ở Độ Hiếm",["Eggs of this rarity or higher won't be placed."]="Trứng đạt độ hiếm này hoặc cao hơn sẽ không bị mang đi đặt.",["Eggs of this rarity or higher won't be hatched."]="Trứng đạt độ hiếm này hoặc cao hơn sẽ không bị mang đi ấp.",["Whitelist"]="Danh Sách Trắng (Ưu Tiên)",["Blacklist"]="Danh Sách Đen (Bỏ Qua)",["Whitelist Rarity"]="Ưu Tiên Độ Hiếm",["Whitelist Pet"]="Ưu Tiên Thú Cưng",["Whitelist Mutation"]="Ưu Tiên Đột Biến",["Blacklist Rarity"]="Bỏ Qua Độ Hiếm",["Blacklist Pet"]="Bỏ Qua Thú Cưng",["Blacklist Mutation"]="Bỏ Qua Đột Biến",["Auto Place Egg"]="Tự Động Đặt Trứng",["Places matching eggs from your bag into the pen. Whitelist picks which eggs, blacklist always blocks."]="Đặt trứng phù hợp từ túi vào chuồng. Ưu tiên các mục trong Whitelist, luôn chặn mục trong Blacklist.",["Auto Place Indexing"]="Tự Động Đặt Lấy Chỉ Mục",["Auto Place Egg only places eggs you haven't indexed yet. Whitelist and blacklist are ignored."]="Chỉ tự động đặt các trứng bạn chưa có trong danh mục. Bỏ qua Whitelist và Blacklist.",["Automatically hatch ready eggs matching the selected filters."]="Tự động ấp các trứng đã sẵn sàng và khớp với bộ lọc.",["Auto Hatch Indexing"]="Tự Động Ấp Lấy Chỉ Mục",["Auto Hatch only hatches eggs you haven't indexed yet. Whitelist is ignored, blacklist still applies."]="Chỉ ấp các trứng bạn chưa có trong danh mục. Bỏ qua Whitelist, vẫn áp dụng Blacklist.",["Sell Egg"]="Bán Trứng",["Keep Above"]="Giữ Lại Trên Mức",["Never sell eggs earning at least this much per second (e.g. 100m). 0 or empty to disable."]="Không bao giờ bán trứng kiếm được trên mức này mỗi giây (VD: 100m). Nhập 0 để tắt.",["Sells eggs that pass your filters. Placed eggs are never sold."]="Bán trứng lọt qua bộ lọc. Trứng đã đặt trong chuồng sẽ không bao giờ bị bán.",["Sell On Inventory Full"]="Chỉ Bán Khi Đầy Túi",["Only sell when your egg backpack is full."]="Chỉ kích hoạt bán khi ba lô chứa trứng đã đầy.",["Player Stats"]="Thống Kê Người Chơi",["Money"]="Tiền",["Gems"]="Đá Quý",["Equipped"]="Đang Trang Bị",["Gain"]="Tăng Tốc Độ",["Inventory"]="Túi Đồ",["Map"]="Bản Đồ",["World"]="Thế Giới",["Discord webhook URL for sending notifications."]="Đường dẫn Webhook Discord để gửi thông báo.",["Ping @everyone"]="Tag @everyone",["Mention @everyone in Discord when a new egg is claimed."]="Gắn thẻ @everyone trên Discord khi nhận được trứng mới.",["Egg Webhook"]="Webhook Trứng",["Select Egg Rarity"]="Chọn Độ Hiếm Của Trứng",["Enable New Egg Claimed"]="Bật Thông Báo Trứng Mới",["Send webhook notification when stealing/claiming a new egg."]="Gửi thông báo Webhook khi cướp/nhận được trứng mới.",["Player Webhook"]="Webhook Người Chơi",["Stats Interval (Min)"]="Khoảng Thời Gian Báo Thống Kê (Phút)",["Enable Player Stats"]="Bật Thông Báo Thống Kê",["Periodically send player stats to Discord."]="Định kỳ gửi thông số người chơi qua Discord.",["Test Webhook"]="Thử Nghiệm Webhook",["Send Stats Now"]="Gửi Thống Kê Ngay Lúc Này",["Immediately send stats to Discord."]="Gửi ngay thông số người chơi vào Discord.",["Test Egg Webhook"]="Gửi Thử Webhook Trứng",["Simulate claiming an egg."]="Mô phỏng thao tác nhận trứng để kiểm tra.",["Admin Abuse Boost (BETA)"]="Nhận Buff Quyền Admin (BETA)",["Halloween Dimension"]="Không Gian Halloween",["Ghost Dog Quest"]="Nhiệm Vụ Chó Ma",["Abandoned Manor"]="Dinh Thự Bỏ Hoang",["Pumpkin King"]="Vua Bí Ngô",["just now"]="vừa xong",["Just now"]="Vừa xong",["Inventory values"]="Giá trị túi đồ",["Find option"]="Tìm tùy chọn",["🔍 Find option"]="🔍 Tìm tùy chọn",["Tip: you can also hold any feature to pin it or set a key."]="Mẹo: Nhấn giữ tính năng bất kỳ để ghim lên Thanh Nhanh hoặc gán phím tắt.",["Tip: you can also hold any feature to pin it or set key."]="Mẹo: Nhấn giữ tính năng bất kỳ để ghim lên Thanh Nhanh hoặc gán phím tắt.",["Tip: you can also hold any feature to pin it hoặc set key."]="Mẹo: Nhấn giữ tính năng bất kỳ để ghim lên Thanh Nhanh hoặc gán phím tắt.",["v1.4.2: Fixed some bugs"]="v1.4.2: Đã sửa một số lỗi vặt",["v1.4.2: đã sửa some bugs"]="v1.4.2: Đã sửa một số lỗi vặt",["v1.4.1: Movement speed up to 110%, improved Fast Tween"]="v1.4.1: Tăng tốc độ di chuyển lên tới 110%, cải thiện Bay Nhanh (Fast Tween)",["v1.4.1: Di Chuyển tốc độ up tới 110%, improved Fast Bay (Tween)"]="v1.4.1: Tăng tốc độ di chuyển lên tới 110%, cải thiện Bay Nhanh (Fast Tween)",["v1.4.0: Auto Pumpkin Boss (dodges attacks, fires cannons, collects Pumpkin Stubs), auto manor key, and Go to Egg Leap (replaces old Go to Egg)"]="v1.4.0: Tự đánh Boss Bí Ngô (né đòn, bắn đại bác, nhặt Cuống Bí Ngô), tự lấy chìa khóa dinh thự và Nhảy Tới Trứng (thay thế Đi Tới Trứng cũ)",["v1.4.0: tự động bí ngô Boss (dodges attacks, fires cannons, collects bí ngô Stubs), tự động manor key, và Di Chuyển tới trứng Leap (replaces old Di Chuyển tới trứng)"]="v1.4.0: Tự đánh Boss Bí Ngô (né đòn, bắn đại bác, nhặt Cuống Bí Ngô), tự lấy chìa khóa dinh thự và Nhảy Tới Trứng (thay thế Đi Tới Trứng cũ)",["v1.3.0: Anti guard fires again, and finishes about twice as fast"]="v1.3.0: Chống vệ sĩ hoạt động trở lại và hoàn tất nhanh gấp đôi",["v1.3.0: Anti vệ sĩ fires again, và finishes about twice as fast"]="v1.3.0: Chống vệ sĩ hoạt động trở lại và hoàn tất nhanh gấp đôi",["Go to Egg Leap"]="Nhảy Tới Trứng",["Go to egg leap"]="Nhảy tới trứng",["Manor key"]="Chìa khóa dinh thự",["Pumpkin Stubs"]="Cuống Bí Ngô",["Going into the Halloween Dimension"]="Đang vào Không gian Halloween",["Going into Halloween Dimension"]="Đang vào Không gian Halloween",["Leaving Halloween Dimension"]="Đang rời Không gian Halloween",["Entering Halloween Dimension"]="Đang vào Không gian Halloween",["v1.2.9: New optimizer modes: Balanced, Strong (way much higher FPS, ultra-low GPU), no lag spike when you turn it on"]="v1.2.9: Chế độ tối ưu mới: Cân bằng, Mạnh (tăng FPS cực cao, siêu nhẹ GPU), không bị khựng lag khi bật",["v1.2.8: Inventory values, see how much every pet and every egg in your backpack is worth"]="v1.2.8: Giá trị túi đồ, xem giá trị của từng pet và từng quả trứng trong ba lô",["v1.2.7: Auto race The Hollow"]="v1.2.7: Tự động đua sự kiện The Hollow",["v1.2.7: Auto race Hollow"]="v1.2.7: Tự động đua sự kiện Hollow",["Auto race Hollow"]="Tự động đua sự kiện Hollow",["Balanced"]="Cân bằng",["Strong"]="Mạnh",["v1.2.6: Mutate eggs you choose with multiple mutations, much shorter delay between tasks and instant take back when someone grabs your egg"]="v1.2.6: Đột biến trứng tự chọn với nhiều đột biến, giảm độ trễ giữa các tác vụ và giật lại tức thì khi bị cướp",["v1.2.5: Teleport to egg"]="v1.2.5: Dịch chuyển tới trứng",["Riding the Phantom Express"]="Đang đi Tàu Bóng Ma",["Fighting Small monster"]="Đang đánh quái vật nhỏ",["Fighting Medium monster"]="Đang đánh quái vật vừa",["Fighting Large monster"]="Đang đánh quái vật lớn",["UI scale"]="Kích cỡ Menu",["Show / hide UI"]="Phím ẩn / hiện Menu",["Opacity"]="Độ trong suốt",["Tone"]="Tông màu",["Dim the game"]="Làm tối nền game",["QUICK BARS"]="THANH PHÍM TẮT NHANH",["Quick bars"]="Thanh phím tắt nhanh",["Show quick bars"]="Hiện thanh phím tắt nhanh",["Keybinds"]="Phím tắt",["Bar size"]="Kích cỡ thanh nhanh",["PINS AND KEYBINDS"]="GHIM & PHÍM TẮT",["All"]="Tất cả",["Pinned"]="Đã ghim",["Clear all quick bars"]="Xóa hết thanh nhanh",["Clear all keybinds"]="Xóa hết phím tắt",["DEFAULTS"]="MẶC ĐỊNH",["Reset to defaults"]="Khôi phục mặc định",["Reset"]="Đặt lại",["Turn off all toggles"]="Tắt toàn bộ công tắc",["Turn off"]="Tắt hết",["Steal An Egg"]="Cướp Trứng",["CANDY CORN"]="KẸO NGÔ",["Candy Corn"]="Kẹo Ngô",["Calculate mutations"]="Tính thử đột biến",["Cards show the value with these mutations added"]="Thẻ trứng sẽ hiển thị giá trị sau khi cộng thêm các đột biến này",["Delivery speed"]="Tốc độ mang trứng về",["Change if steal fails"]="Hãy chỉnh giảm xuống nếu cướp trứng bị lỗi",["Auto farm monsters"]="Tự động cày quái vật",["Auto kill monsters"]="Tự động đánh quái vật",["Bat"]="Gậy Dơi (Bat)",["Instant steal"]="Cướp tức thì",["Admin treadmill"]="Máy tập Admin",["CURSED ISLAND WARS"]="ĐẠI CHIẾN ĐẢO NGUYỀN RỦA",["Cursed Island Wars"]="Đại Chiến Đảo Nguyền Rủa",["Waiting for Cursed Island Wars"]="Đang chờ Đại Chiến Đảo Nguyền Rủa",["Auto play Cursed Island Wars"]="Tự động chơi Đại Chiến Đảo Nguyền Rủa",["Island Wars target"]="Mục tiêu Đảo Nguyền Rủa",["Enemies and base"]="Kẻ địch và Căn cứ",["Walls and crystal"]="Tường chắn và Pha lê",["Catching a pumpkin"]="Đang nhặt bí ngô",["Carrying a pumpkin to the altar"]="Đang mang bí ngô tới bệ thờ",["Delivering a pumpkin to the altar"]="Đang giao bí ngô tới bệ thờ",["FIX"]="SỬA LỖI",["Most tokens"]="Nhiều kẹo/xu nhất",["Admin abuse works like Chilli: admin treadmill, Capture the egg, minigame eggs and Instant steal"]="Lạm dụng Admin hoạt động chuẩn: Máy tập Admin, Cướp trứng sự kiện, trứng Minigame và Cướp tức thì",["Fixed lag back with the Tween delivery method"]="Đã sửa lỗi giật lùi (lag back) khi mang trứng về bằng chế độ Bay (Tween)",["Welcome to Venyx 1.0.4! Join our Discord for updates and support"]="Chào mừng tới Chilli Hub V8! Tham gia Discord để cập nhật và nhận hỗ trợ",["v1.1.0: Halloween tasks follow Task order, Walk speed for monsters, pumpkins and ghosts, Use weapons picks every weapon, Lab and Race shop removed"]="v1.1.0: Nhiệm vụ Halloween tuân theo Thứ tự tác vụ, thêm Tốc độ chạy khi săn quái, bí ngô và ma, Sử dụng vũ khí tự chọn mọi loại vũ khí, đã gỡ bỏ Phòng Lab và Shop Đua Xe",["Halloween: Dimension eggs, monsters, Ghost Dog quest, fishing, Phantom Express and Cursed Island Wars"]="Sự kiện Halloween: Trứng Không gian Halloween, đánh quái, nhiệm vụ Chó Ma, câu cá, Tàu Ma Phantom Express và Đại Chiến Đảo Nguyền Rủa",["Idle"]="Đang rảnh",["Waiting"]="Đang chờ",["Nothing"]="Không có gì",["Off"]="Tắt",["OFF"]="TẮT",["On"]="Bật",["ON"]="BẬT",["No egg matches your targets"]="Không có trứng nào khớp mục tiêu",["No eggs match your targets"]="Không có trứng nào khớp mục tiêu",["No egg matches filter"]="Không có trứng khớp bộ lọc",["No eggs match filter"]="Không có trứng khớp bộ lọc",["No target egg found"]="Không tìm thấy trứng mục tiêu",["No matching eggs"]="Không có trứng nào khớp",["No valid targets"]="Không có mục tiêu hợp lệ",["Bag is full"]="Túi đã đầy",["Egg bag is full"]="Túi trứng đã đầy",["Pet bag is full"]="Túi pet đã đầy",["Pen is full"]="Chuồng ấp đã đầy",["Field is closed"]="Sân trứng đang đóng",["Waiting for field to open"]="Đang chờ sân trứng mở",["Waiting for eggs to spawn"]="Đang chờ trứng xuất hiện",["Waiting in safe zone"]="Đợi ở vùng an toàn",["Returning to safe zone"]="Đang về vùng an toàn",["Returning home"]="Đang quay về nhà",["Delivering egg"]="Đang giao trứng về chuồng",["Dropping egg"]="Đang thả trứng",["Selling eggs"]="Đang bán trứng",["Selling pets"]="Đang bán pet",["Hatching eggs"]="Đang ấp trứng",["Placing eggs"]="Đang đặt trứng",["Mutating eggs"]="Đang đột biến trứng",["Fusing pets"]="Đang dung hợp pet",["Hopping server"]="Đang đổi máy chủ",["Rejoining"]="Đang vào lại phòng",["Avoiding guard"]="Đang né vệ sĩ",["Using treadmill"]="Đang chạy máy tập",["Upgrading treadmill"]="Đang nâng cấp máy tập",["Upgrading base"]="Đang nâng cấp căn cứ",["Claiming rewards"]="Đang nhận thưởng",["Claiming offline cash"]="Đang nhận tiền ngoại tuyến",["Joining race"]="Đang vào đường đua",["Racing"]="Đang đua xe",["Welcome Home"]="Trang Chủ",["Welcome back"]="Chào mừng trở lại",["Venyx Discord"]="Chilli Hub Discord",["Updates, keys, support"]="Cập nhật, nhận key, hỗ trợ",["Copy Invite"]="Chép Link Mời",["Copy link"]="Chép Link Mời",["Discord"]="Chilli Hub",["MONEY /S"]="TIỀN /GIÂY",["CASH / S"]="TIỀN / GIÂY",["OPEN"]="MỞ",["Open"]="Mở",["Close"]="Đóng",["Welcome to Venyx 1.0.0! Join our Discord for updates and support"]="Chào mừng tới Chilli Hub V8! Tham gia Discord để cập nhật và nhận hỗ trợ",["Beta version"]="Phiên bản Beta",["This is a test build. Features may change and bugs can happen."]="Đây là bản thử nghiệm. Tính năng có thể thay đổi và phát sinh lỗi.",["Rejoin"]="Vào lại",["Server hop"]="Đổi server",["Copy Job ID"]="Chép Job ID",["Unload hub"]="Tắt Hub",["Unload"]="Tắt Hub",["Save config"]="Lưu cấu hình",["Hide UI"]="Ẩn Menu",["SESSION"]="PHIÊN CHƠI",["STOLEN"]="ĐÃ CƯỚP",["LAST EGG"]="TRỨNG CUỐI",["PLACED"]="ĐÃ ĐẶT",["HATCHED"]="ĐÃ ẤP",["NIGHT IN"]="ĐÊM SAU",["NEXT NIGHT"]="ĐÊM SAU",["SESSION TIME"]="THỜI GIAN",["TIME"]="THỜI GIAN",["BEST STEAL"]="CƯỚP TỐT NHẤT",["EGG BAG"]="TÚI TRỨNG",["PET BAG"]="TÚI PET",["WHAT'S NEW"]="CÓ GÌ MỚI",["NEW"]="MỚI",["Search"]="Tìm kiếm",["Filter"]="Lọc tìm",["Auto Steal"]="Tự Động Cướp",["AUTO STEAL"]="TỰ ĐỘNG CƯỚP",["Auto steal"]="Tự động cướp",["Egg Predictor"]="Dự Đoán Trứng",["Go to egg"]="Di chuyển tới trứng",["Teleport to egg"]="Dịch chuyển tới trứng",["Walk to egg"]="Đi bộ tới trứng",["Tween to egg"]="Bay mượt tới trứng",["Teleport zones"]="Khu vực dịch chuyển",["Tween"]="Bay (Tween)",["Walk"]="Đi bộ",["Delivery method"]="Cách mang về",["Instant steps"]="Tức thì từng bước",["Instant"]="Tức thì",["Teleport"]="Dịch chuyển",["Fast tween speed"]="Tốc độ bay nhanh",["Tween speed"]="Tốc độ bay",["Steal missing index eggs"]="Cướp trứng thiếu trong Chỉ mục",["Steal back from players"]="Cướp lại từ người chơi",["Steal from other players"]="Cướp từ người chơi khác",["Anti guard"]="Chống vệ sĩ",["Drop eggs at safe zone"]="Thả trứng ở vùng an toàn",["FILTER"]="BỘ LỌC",["Zones"]="Khu vực",["Steal first"]="Ưu tiên cướp",["Best value"]="Giá trị cao nhất",["Lowest value"]="Giá trị thấp nhất",["Best rarity"]="Độ hiếm cao nhất",["Best mutation"]="Đột biến tốt nhất",["Biggest"]="Kích thước to nhất",["Closest"]="Khoảng cách gần nhất",["Nearest"]="Gần nhất",["Mutations"]="Đột biến",["Rarities"]="Độ hiếm",["Only these eggs"]="Chỉ những trứng này",["Min value /s"]="Giá trị tối thiểu /s",["Max value /s"]="Giá trị tối đa /s",["Sell cheapest egg when bag is full"]="Bán trứng rẻ nhất khi đầy túi",["Keep lab eggs"]="Giữ lại trứng Lab",["AUTO HOP SERVER"]="TỰ ĐỔI MÁY CHỦ",["Auto hop server"]="Tự đổi máy chủ",["Auto hop"]="Tự động đổi server",["Hop now"]="Đổi server ngay",["First hop after"]="Đổi lần đầu sau",["Hop when"]="Đổi khi",["After stealing a match"]="Sau khi cướp đủ trứng lọc",["No matching egg"]="Không có trứng phù hợp",["Rare from"]="Độ hiếm từ",["Hop delay"]="Độ trễ đổi server",["Only sell eggs below /s"]="Chỉ bán trứng dưới mức /s",["EGG SHOWCASE"]="TRƯNG BÀY TRỨNG",["Sort eggs"]="Sắp xếp trứng",["Preview card"]="Thẻ xem trước",["Pick one"]="Chọn một mục",["Pick any"]="Chọn bất kỳ",["Value"]="Giá trị",["Rarity"]="Độ hiếm",["Time left"]="Thời gian còn lại",["Default"]="Mặc định",["Clear"]="Xóa chọn",["Select all"]="Chọn tất cả",["SIZE"]="KÍCH CỠ",["WEIGHT"]="CÂN NẶNG",["READY"]="SẴN SÀNG",["IN BAG"]="TRONG TÚI",["GROWING"]="ĐANG LỚN",["Hatch now"]="Ấp ngay",["Hold egg"]="Cầm trứng",["Fly to egg"]="Bay tới trứng",["Steal egg"]="Cướp trứng",["Enchanted Forest"]="Rừng Phù Phép",["Light Dark"]="Sáng Tối",["Titan Temple"]="Đền Titan",["Cherry Blossom"]="Hoa Anh Đào",["Prehistoric"]="Tiền Sử",["Abyss Ocean"]="Đáy Đại Dương",["Volcano"]="Núi Lửa",["Snow"]="Tuyết",["Jungle"]="Rừng Rậm",["Desert"]="Sa Mạc",["Lake"]="Hồ Nước",["Forest"]="Khu Rừng",["Silver"]="Bạc",["Rainbow"]="Cầu Vồng",["Golden"]="Vàng",["Fractured"]="Rạn Nứt",["Scrambled"]="Hỗn Loạn",["Enchanted"]="Phù Phép",["Nitro"]="Nitro",["SCRAMBLED"]="HỖN LOẠN",["NITRO"]="NITRO",["FRACTURED"]="RẠN NỨT",["ENCHANTED"]="PHÙ PHÉP",["Pen"]="Chuồng Ấp",["PEN"]="CHUỒNG ẤP",["Treadmill"]="Máy Tập",["TREADMILL"]="MÁY TẬP CHẠY",["Mutate"]="Đột Biến",["Sell"]="Bán",["SELL"]="BÁN TỰ ĐỘNG",["Fuse"]="Dung Hợp",["FUSE"]="DUNG HỢP",["Priority"]="Ưu Tiên",["PRIORITY"]="THỨ TỰ ƯU TIÊN",["AUTO PLACE"]="TỰ ĐỘNG ĐẶT TRỨNG",["Auto place"]="Tự động đặt trứng",["Place when"]="Đặt khi",["Always"]="Luôn luôn",["Place first"]="Ưu tiên đặt",["KEEP EGGS"]="GIỮ LẠI TRỨNG",["Eggs to keep"]="Trứng cần giữ",["AUTO HATCH"]="TỰ ĐỘNG ẤP TRỨNG",["Auto hatch"]="Tự động ấp trứng",["Equip best pets"]="Trang bị pet mạnh nhất",["READY NOW"]="SẴN SÀNG ẤP",["Auto treadmill"]="Tự chạy máy tập",["Auto upgrade treadmill"]="Tự nâng cấp máy tập",["PROGRESS"]="TIẾN TRÌNH",["Auto upgrade base"]="Tự nâng cấp căn cứ",["Auto buy trails"]="Tự mua vệt sáng",["Auto claim offline cash"]="Tự nhận tiền ngoại tuyến",["Auto claim index rewards"]="Tự nhận thưởng Chỉ mục",["AUTO MUTATE"]="TỰ ĐỘNG ĐỘT BIẾN",["Auto mutate"]="Tự động đột biến",["MUTATE FILTER"]="BỘ LỌC ĐỘT BIẾN",["Use items"]="Dùng vật phẩm",["Mutate first"]="Ưu tiên đột biến",["Skip eggs with"]="Bỏ qua trứng đã có",["Auto buy Nitro"]="Tự mua Nitro",["PETS"]="THÚ CƯNG (PETS)",["EGGS"]="TRỨNG (EGGS)",["Auto sell pets"]="Tự động bán pet",["Auto sell eggs"]="Tự động bán trứng",["Sell all eggs now"]="Bán hết trứng ngay",["Sell all pets now"]="Bán hết Pet ngay",["Sell rarities"]="Độ hiếm bán",["Never sell"]="Không bao giờ bán",["Only mutations"]="Chỉ bán đột biến",["Only below /s"]="Chỉ dưới mức /s",["Keep mutated"]="Giữ lại đồ đột biến",["LAB EGGS"]="TRỨNG PHÒNG LAB",["FAVORITE"]="YÊU THÍCH (KHÓA)",["Auto favorite"]="Tự động khóa bảo vệ",["Favorite matching now"]="Khóa đồ khớp lọc ngay",["Unfavorite pets not matching"]="Bỏ thích Pet không khớp",["Always favorite"]="Luôn khóa Yêu thích",["Auto sell lab eggs"]="Tự động bán trứng Lab",["Match"]="Điều kiện khớp",["All picked rules"]="Khớp tất cả quy tắc",["Any picked rule"]="Khớp bất kỳ quy tắc",["Favorite equipped"]="Khóa pet đang trang bị",["FUSE MACHINE"]="MÁY DUNG HỢP",["No 3 matching pets"]="Chưa đủ 3 pet cùng loại",["Auto fuse"]="Tự động dung hợp",["Fuse first"]="Ưu tiên dung hợp",["Lowest rarity"]="Độ hiếm thấp nhất",["Highest rarity"]="Độ hiếm cao nhất",["Use pets"]="Sử dụng pet",["Lowest value first"]="Giá trị thấp nhất trước",["Highest value first"]="Giá trị cao nhất trước",["Skip mutated"]="Bỏ qua pet đột biến",["Eject odd pets"]="Đẩy pet lẻ ra ngoài",["FUSE FILTER"]="BỘ LỌC DUNG HỢP",["Only these pets"]="Chỉ những pet này",["Never fuse"]="Không bao giờ dung hợp",["FUSE PREDICTOR"]="DỰ ĐOÁN DUNG HỢP",["SLOTS"]="Ô CHỨA",["STATUS"]="TRẠNG THÁI",["LIKELY SIZE"]="KÍCH CỠ DỰ KIẾN",["CHANCE"]="TỶ LỆ",["VALUE"]="GIÁ TRỊ",["BEST CASE"]="TỐT NHẤT CÓ THỂ",["TASK ORDER"]="THỨ TỰ TÁC VỤ",["Task order"]="Thứ tự tác vụ",["Reset order"]="Đặt lại thứ tự",["DOING"]="ĐANG LÀM",["WAITING"]="ĐANG CHỜ",["Steal filter eggs"]="Cướp trứng theo bộ lọc",["Shooting Star"]="Bắt Sao Băng",["Racing Event"]="Sự Kiện Đua Xe",["Butterfly"]="Bắt Bướm",["Steal wisp eggs"]="Cướp trứng Wisp",["Wisp"]="Nhặt Wisp",["Steal missing index"]="Cướp trứng thiếu trong Chỉ mục",["Steal lab eggs"]="Cướp trứng phòng Lab",["Place"]="Đặt trứng vào chuồng",["Butterfly machine"]="Máy đổi Bướm",["Race"]="Đua Xe",["RACE"]="ĐUA XE",["Star"]="Sao Băng",["STAR"]="SAO BĂNG",["BUTTERFLY"]="BẮT BƯỚM",["Lab"]="Phòng Lab",["LAB"]="PHÒNG LAB",["AA"]="Admin (AA)",["Halloween"]="Halloween",["HALLOWEEN"]="HALLOWEEN",["HALLOWEEN DIMENSION"]="KHÔNG GIAN HALLOWEEN",["Auto steal Halloween eggs"]="Tự động cướp trứng Halloween",["Instant steal Halloween eggs"]="Cướp tức thì trứng Halloween",["Steal speed"]="Tốc độ cướp",["Halloween eggs"]="Trứng Halloween",["Halloween rarities"]="Độ hiếm Halloween",["Auto Pumpkin Moon"]="Tự làm sự kiện Trăng Bí Ngô",["Auto buy Halloween Dimension Egg"]="Tự mua trứng Không gian Halloween",["Walk speed"]="Tốc độ chạy bộ",["GHOST DOG AND FISHING"]="CHÓ MA VÀ CÂU CÁ",["QUEST"]="NHIỆM VỤ",["Done"]="Đã xong",["FISH CAUGHT"]="CÁ ĐÃ CÂU",["Auto Ghost Dog quest"]="Tự làm nhiệm vụ Chó Ma",["Auto fishing"]="Tự động câu cá",["Cast luck"]="Tỷ lệ câu may mắn",["Perfect"]="Hoàn hảo (Perfect)",["MONSTERS"]="QUÁI VẬT",["Monsters"]="Tên quái vật",["Monster order"]="Thứ tự đánh quái",["Rarest first"]="Hiếm nhất trước",["PHANTOM EXPRESS"]="TÀU MA PHANTOM EXPRESS",["TRAIN"]="CHUYẾN TÀU",["Not here"]="Chưa đến",["SOULS"]="LINH HỒN",["Auto Phantom Express"]="Tự động cướp Tàu Ma",["Auto vacuum Ghouler boss"]="Tự hút linh hồn Boss Ghouler",["Ghost target"]="Mục tiêu ma",["Auto trade souls"]="Tự động đổi linh hồn",["RACING EVENT"]="SỰ KIỆN ĐUA XE",["NEXT RACE"]="ĐUA TIẾP THEO",["WINS"]="THẮNG",["TROPHIES"]="CÚP",["Auto race"]="Tự động đua xe",["Race speed"]="Tốc độ đua",["Use power-ups"]="Tự dùng vật phẩm tăng tốc",["REWARDS"]="PHẦN THƯỞNG",["Auto claim rewards"]="Tự nhận phần thưởng",["Auto equip racer"]="Tự trang bị xe đua",["Racer"]="Xe đua",["Best owned"]="Tốt nhất đang có",["Auto buy shop"]="Tự mua vật phẩm Shop",["Shop items"]="Vật phẩm Shop",["SHOOTING STAR"]="SAO BĂNG RƠI",["LANDS IN"]="RƠI SAU",["CATCH"]="BẮT SAO BĂNG",["CAUGHT"]="ĐÃ BẮT",["EXPIRES IN"]="BIẾN MẤT SAU",["SLIPPED"]="TUỘT MẤT",["TRIES"]="SỐ LẦN THỬ",["DISTANCE"]="KHOẢNG CÁCH",["Auto catch shooting star"]="Tự động bắt sao băng",["BUTTERFLY BLOOM"]="MÙA BƯỚM NỞ",["Auto butterfly bloom"]="Tự động bắt bướm",["EMERALD"]="LỤC BẢO",["SAPPHIRE"]="LAM NGỌC",["AMETHYST"]="THẠCH ANH TÍM",["RADIANT"]="RỰC RỠ",["ESSENCE"]="TINH CHẤT",["Catch mode"]="Chế độ bắt",["Stand"]="Đứng yên",["Chase"]="Đuổi theo",["BUTTERFLY MACHINE"]="MÁY ĐỔI BƯỚM",["Auto trade up"]="Tự nâng cấp bậc bướm",["Trade"]="Giao dịch đổi",["Smart trade for essence"]="Đổi bướm lấy tinh chất thông minh",["Auto craft essence"]="Tự chế tạo tinh chất",["WISP COMPANION"]="ĐỒNG HÀNH WISP",["Catch priority"]="Ưu tiên bắt",["Rarest"]="Hiếm nhất",["Catch"]="Loại bướm bắt",["Catch speed"]="Tốc độ bắt",["Auto wisp quest"]="Tự làm nhiệm vụ Wisp",["Auto banjo cricket"]="Tự bắt dế Banjo",["STAGE"]="GIAI ĐOẠN",["LAB ODDS"]="TỶ LỆ PHÒNG LAB",["BANNER"]="BĂNG RÔN",["ENDS IN"]="KẾT THÚC SAU",["BANNER CHANCE"]="TỶ LỆ BĂNG RÔN",["NEXT"]="TIẾP THEO",["Experimental Pets"]="Pet Thí Nghiệm",["Biohazard Pets"]="Pet Sinh Học",["Lab banners"]="Băng rôn phòng Lab",["Auto trade in"]="Tự động đổi trứng Lab",["Auto reroll recipe"]="Tự đổi lại công thức",["Place lab reward eggs"]="Đặt trứng thưởng từ Lab",["ADMIN ABUSE"]="LẠM DỤNG ADMIN (ABUSE)",["No admin boost right now"]="Hiện không có buff Admin nào",["Instant steal (Admin Treadmill)"]="Cướp tức thì (Máy tập Admin)",["Use admin treadmill"]="Tự dùng máy tập Admin",["CAPTURE THE EGG"]="CƯỚP TRỨNG SỰ KIỆN",["Auto capture event egg"]="Tự bắt trứng sự kiện",["Take it from the holder"]="Giật trứng từ người đang cầm",["Hold height"]="Độ cao giữ trứng",["Keep away"]="Khoảng cách né tránh",["MINIGAME EGGS"]="TRỨNG MINIGAME",["Auto steal minigame egg"]="Tự cướp trứng Minigame",["ESP"]="Định Vị (ESP)",["Move"]="Di Chuyển",["MOVE"]="DI CHUYỂN",["Combat"]="Chiến Đấu",["COMBAT"]="CHIẾN ĐẤU",["FIELD EGGS"]="TRỨNG NGOÀI SÂN",["Egg ESP"]="ESP Trứng",["Show"]="Hiển thị",["Name"]="Tên",["Fixed size"]="Cố định kích cỡ",["OTHERS"]="MỤC KHÁC",["Pen egg ESP"]="ESP trứng trong chuồng",["Other pens ESP"]="ESP chuồng người khác",["Guard ESP"]="ESP Vệ sĩ",["Hide sleeping guards"]="Ẩn vệ sĩ đang ngủ",["Player ESP"]="ESP Người chơi",["ESP size"]="Kích cỡ ESP",["MOVEMENT"]="TỐC ĐỘ & DI CHUYỂN",["Speed boost"]="Tăng tốc chạy",["Boost speed"]="Tốc độ tăng thêm",["Infinite jump"]="Nhảy vô hạn",["God mode"]="Bất tử (God mode)",["PROTECTION"]="BẢO VỆ NHÂN VẬT",["Anti ragdoll"]="Chống ngã (Anti Ragdoll)",["Ignore traps"]="Bỏ qua bẫy",["Instant prompts"]="Tương tác nhấn giữ tức thì",["Anti AFK"]="Chống treo máy (Anti AFK)",["Invisible"]="Tàng hình",["AUTO HIT"]="TỰ ĐỘNG ĐÁNH",["Auto hit"]="Tự động đánh",["Hit who"]="Mục tiêu đánh",["Nearest player"]="Người chơi gần nhất",["Chosen player"]="Người chơi chỉ định",["Egg carrier"]="Người đang ôm trứng",["Chase speed"]="Tốc độ đuổi theo",["HIT AURA"]="VÒNG ĐÁNH TỰ ĐỘNG",["Hit aura"]="Vòng đánh tự động (Hit Aura)",["Skip friends"]="Bỏ qua bạn bè",["WEAPONS"]="VŨ KHÍ",["Use weapons"]="Sử dụng vũ khí",["Hold each"]="Thời gian cầm mỗi món",["Server"]="Máy Chủ",["SERVER"]="MÁY CHỦ",["Webhook"]="Webhook",["WEBHOOK"]="WEBHOOK",["Optimizer"]="Tối Ưu Hóa",["OPTIMIZER"]="TỐI ƯU HÓA",["Interface"]="Giao Diện",["INTERFACE"]="GIAO DIỆN",["GAME HUD"]="TRÊN MÀN HÌNH GAME",["Steal panel button on game HUD"]="Hiện nút Bảng Cướp trên màn hình",["Config"]="Cấu Hình",["CONFIG"]="CẤU HÌNH",["CONFIGS"]="QUẢN LÝ CẤU HÌNH",["Configs"]="Danh sách cấu hình",["ACTIVE"]="ĐANG DÙNG",["SAVED CONFIGS"]="ĐÃ LƯU",["Set as active config"]="Đặt làm cấu hình chính",["Set active"]="Kích hoạt",["Save changes"]="Lưu thay đổi",["Save"]="Lưu",["Overwrite"]="Lưu đè",["PROFILES"]="HỒ SƠ CẤU HÌNH",["New config name"]="Tên cấu hình mới",["Config name"]="Tên cấu hình",["Auto if empty"]="Tự đặt nếu trống",["Create config"]="Tạo cấu hình mới",["Create"]="Tạo mới",["Pick to delete"]="Chọn mục cần xóa",["Delete picked"]="Xóa mục đã chọn",["Delete"]="Xóa",["Restore deleted"]="Khôi phục mục đã xóa",["Export config"]="Xuất mã cấu hình",["Export to clipboard"]="Chép mã cấu hình",["Import text"]="Dán mã cấu hình",["Paste config text"]="Dán mã JSON vào đây",["Paste config JSON here"]="Dán mã JSON vào đây",["Import config"]="Nhập cấu hình",["Import"]="Nhập",["Config imported"]="Đã nhập cấu hình",["Config loaded"]="Đã nạp cấu hình",["Later"]="Để sau",["Apply now"]="Áp dụng ngay",["Hop to"]="Chuyển tới server",["Least players"]="Ít người chơi nhất",["Most players"]="Đông người chơi nhất",["Random"]="Ngẫu nhiên",["Hop server"]="Đổi máy chủ",["Hop"]="Đổi ngay",["Rejoin this server"]="Vào lại máy chủ này",["Copy"]="Sao chép",["JOIN AND STAY"]="VÀO PHÒNG & DUY TRÌ",["Job ID"]="Mã phòng (Job ID)",["Paste a Job ID"]="Dán mã Job ID vào đây",["Join that server"]="Vào máy chủ đó",["Join"]="Vào ngay",["Rejoin on kick"]="Tự vào lại khi bị văng/kick",["Auto load script"]="Tự chạy lại script khi chuyển server",["DISCORD WEBHOOK"]="WEBHOOK DISCORD",["Webhook URL"]="Đường dẫn Webhook",["Ping role ID"]="ID Vai trò (Role ID)",["Ping user ID"]="ID Người dùng (User ID)",["Ping everyone"]="Tag @everyone",["WHAT TO POST"]="NỘI DUNG GỬI BÁO CÁO",["Post stolen eggs"]="Báo cáo trứng cướp được",["Post fused eggs"]="Báo cáo trứng dung hợp",["POSTED"]="ĐÃ GỬI",["Send a test post"]="Gửi tin nhắn thử nghiệm",["Test"]="Thử nghiệm",["Post when bag is full"]="Gửi thông báo khi đầy túi",["GRAPHICS"]="ĐỒ HỌA",["Low graphics"]="Đồ họa thấp (Tăng FPS)",["Disable 3D Render"]="Tắt kết xuất 3D (Treo máy)",["Background color"]="Màu nền màn hình",["Black"]="Màu Đen",["White"]="Màu Trắng",["Hide game UI"]="Ẩn giao diện gốc của Game",["FRAME RATE"]="TỐC ĐỘ KHUNG HÌNH (FPS)",["FPS cap"]="Giới hạn FPS",["FPS position"]="Vị trí thanh FPS",["Show FPS and ping"]="Hiện chỉ số FPS và Ping",["BASES"]="CĂN CỨ (BASES)",["Hide other players' pets and eggs"]="Ẩn pet và trứng của người chơi khác",["Hide my pets and eggs"]="Ẩn pet và trứng của bản thân",["Theme"]="Chủ đề màu",["Toggle key"]="Phím đóng/mở Menu",["Quick bar"]="Thanh phím tắt nhanh",["QUICK BAR"]="THANH PHÍM TẮT NHANH",["Auto save"]="Tự động lưu cấu hình",["Auto load"]="Tự động nạp cấu hình",["Auto load on join"]="Tự động nạp khi vào game",["Load config"]="Nạp cấu hình",["Load"]="Nạp cấu hình",["Reset config"]="Đặt lại mặc định",["Delete config"]="Xóa cấu hình",["Common"]="Phổ Thông",["Uncommon"]="Thường",["Rare"]="Hiếm",["Epic"]="Sử Thi",["Legendary"]="Huyền Thoại",["Mythic"]="Thần Thoại",["Cosmic"]="Vũ Trụ",["Secret"]="Bí Ẩn",["Divine"]="Thánh Thần",["Eternal"]="Vĩnh Cửu",["COMMON"]="PHỔ THÔNG",["UNCOMMON"]="THƯỜNG",["RARE"]="HIẾM",["EPIC"]="SỬ THI",["LEGENDARY"]="HUYỀN THOẠI",["MYTHIC"]="THẦN THOẠI",["COSMIC"]="VŨ TRỤ",["SECRET"]="BÍ ẨN",["DIVINE"]="THÁNH THẦN",["ETERNAL"]="VĨNH CỬU",["Radiant"]="Rực Rỡ",["Amethyst"]="Thạch Anh Tím",["Sapphire"]="Lam Ngọc",["Emerald"]="Ngọc Lục Bảo"
+local EXACT_VI={
+["Home"]="Trang Chủ",
+["Dashboard"]="Trang Chủ",
+["Steal"]="Săn Trứng",
+["Farm"]="Tự Cày",
+["Event"]="Sự Kiện",
+["Events"]="Sự Kiện",
+["Player"]="Nhân Vật",
+["System"]="Cài Đặt",
+["Settings"]="Cài Đặt",
+["Halloween & Shooting Star"]="Halloween & Sao Băng",
+["Halloween & sao băng"]="Halloween & Sao Băng",
+["HALLOWEEN & SHOOTING STAR"]="HALLOWEEN & SAO BĂNG",
+["HALLOWEEN & SAO BĂNG"]="HALLOWEEN & SAO BĂNG",
+["The Hollow"]="Vực Hollow",
+["Hollow"]="Vực Hollow",
+["Steal missing Halloween index"]="Cướp trứng Halloween thiếu trong Chỉ mục",
+["Steal missing Halloween index eggs"]="Cướp trứng Halloween thiếu trong Chỉ mục",
+["cướp missing Halloween index"]="Cướp trứng Halloween thiếu trong Chỉ mục",
+["Place eggs in pen and hatch missing in Egg Index"]="Đặt trứng vào chuồng và ấp trứng thiếu trong Chỉ mục",
+["Place and hatch eggs missing from your Egg Index"]="Đặt trứng vào chuồng và ấp trứng thiếu trong Chỉ mục",
+["Đặt trứng vào chuồng và hatch thiếu trong Chỉ mục trứng"]="Đặt trứng vào chuồng và ấp trứng thiếu trong Chỉ mục",
+["PUMPKIN BOSS"]="BOSS BÍ NGÔ",
+["Pumpkin Boss"]="Boss Bí Ngô",
+["Auto Pumpkin Boss"]="Tự đánh Boss Bí Ngô",
+["Auto dodge attacks"]="Tự động né đòn đánh",
+["Dodge attacks"]="Tự động né đòn đánh",
+["Auto claim mastery"]="Tự động nhận thưởng Thông Thạo",
+["Tự động nhận mastery"]="Tự động nhận thưởng Thông Thạo",
+["Claim mastery"]="Nhận thưởng Thông Thạo",
+["Mastery"]="Thông Thạo",
+["MASTERY"]="THÔNG THẠO",
+["Stub pickup speed"]="Tốc độ nhặt Cuống Bí Ngô",
+["Pickup speed"]="Tốc độ nhặt vật phẩm",
+["Tốc độ cuống pickup"]="Tốc độ nhặt Cuống Bí Ngô",
+["Auto manor key"]="Tự lấy chìa khóa dinh thự",
+["Manor key"]="Chìa khóa dinh thự",
+["MANOR KEY"]="CHÌA KHÓA DINH THỰ",
+["KILLS"]="SỐ LẦN HẠ",
+["Kills"]="Số lần hạ",
+["BOSS"]="TRÙM (BOSS)",
+["ALIVE"]="CÒN SỐNG",
+["Alive"]="Còn sống",
+["DEAD"]="ĐÃ HẠ",
+["Dead"]="Đã hạ",
+["SPAWNED"]="ĐÃ XUẤT HIỆN",
+["Spawned"]="Đã xuất hiện",
+["NOT SPAWNED"]="CHƯA XUẤT HIỆN",
+["Not spawned"]="Chưa xuất hiện",
+["Cooldown"]="Đang hồi",
+["COOLDOWN"]="ĐANG HỒI",
+["Active"]="Đang bật",
+["ACTIVE"]="ĐANG BẬT",
+["Inactive"]="Đang tắt",
+["INACTIVE"]="ĐANG TẮT",
+["Sign In"]="Miễn phí",
+["Sign in"]="Miễn phí",
+["SIGN IN"]="MIỄN PHÍ",
+["Sign trong"]="Miễn phí",
+["Sign Up"]="Đăng ký",
+["Sign up"]="Đăng ký",
+["No plan"]="Miễn phí",
+["No Plan"]="Miễn phí",
+["FORCE JOIN"]="TỰ VÀO SAU",
+["Force Join"]="Tự vào sau",
+["MIN VALUE"]="GIÁ TỐI THIỂU",
+["RARITY"]="ĐỘ HIẾM",
+["ACCOUNT"]="TÀI KHOẢN",
+["Account"]="Tài khoản",
+["Chilli Finder"]="Chilli Finder Free",
+["Chill Finder Free"]="Chilli Finder Free",
+["Chilli Finder Free"]="Chilli Finder Free",
+["Top 5 recent eggs | Book at chillihub.pro"]="Top 5 trứng mới nhất | Chilli Finder Free",
+["Sign in with your chillihub.pro account to join"]="Top 5 trứng mới nhất | Chilli Finder Free",
+["Sign in with your chillihub.pro account"]="Top 5 trứng mới nhất | Chilli Finder Free",
+["No active booking. Book hours at chillihub.pro"]="Top 5 trứng mới nhất | Chilli Finder Free",
+["Finder"]="Tìm Trứng",
+["FINDER"]="TÌM TRỨNG",
+["finder"]="tìm trứng",
+["Scanning..."]="Đang quét...",
+["Scanning"]="Đang quét...",
+["Searching..."]="Đang tìm...",
+["Searching"]="Đang tìm...",
+["Checking..."]="Đang kiểm tra...",
+["Checking"]="Đang kiểm tra...",
+["Found!"]="Đã thấy!",
+["Found"]="Đã thấy",
+["Egg Found!"]="Có trứng mới!",
+["Egg Found"]="Có trứng mới",
+["Waiting..."]="Đang chờ...",
+["Waiting"]="Đang chờ...",
+["No Eggs"]="Hết trứng",
+["No eggs"]="Hết trứng",
+["None"]="Không có",
+["Auto On"]="Tự động: BẬT",
+["Auto Off"]="Tự động: TẮT",
+["AUTO ON"]="TỰ ĐỘNG: BẬT",
+["AUTO OFF"]="TỰ ĐỘNG: TẮT",
+["Cooldown"]="Đang hồi...",
+["Ready"]="Sẵn sàng",
+["Chilli Finder"]="Chill Finder Free",
+["Top 5 recent eggs | Book at chillihub.pro"]="Top 5 recent eggs | Chill Finder Free",
+["Sign in with your chillihub.pro account to join"]="Top 5 recent eggs | Chill Finder Free",
+["Sign in with your chillihub.pro account"]="Top 5 recent eggs | Chill Finder Free",
+["No active booking. Book hours at chillihub.pro"]="Top 5 recent eggs | Chill Finder Free",
+["Venyx"]="Chilli Hub",["VENYX"]="Chilli Hub V8 Supreme",
+["Media"]="Mạng Xã Hội",["Chat"]="Trò Chuyện",["Features"]="Tính Năng",
+["Egg"]="Trứng (Egg)",["Pet"]="Thú Cưng (Pet)",["Activities"]="Hoạt Động",
+["Barn"]="Chuồng Trại",["Others"]="Khác",["Keyless"]="Không cần Key",
+["Anime"]="Chế độ Anime",["Search..."]="Tìm kiếm...",
+["Steal Egg"]="Cướp Trứng",["Filtering"]="Bộ Lọc",["Strict Filter"]="Lọc Nghiêm Ngặt",
+["Only target eggs that match every filter you set."]="Chỉ cướp trứng khớp với mọi bộ lọc bạn đã cài.",
+["Steal Priority"]="Ưu Tiên Cướp",["Select Area"]="Chọn Khu Vực",["Select Rarity"]="Chọn Độ Hiếm",
+["Select Pet"]="Chọn Thú Cưng",["Select Mutation"]="Chọn Đột Biến",["Min Value"]="Giá Trị Tối Thiểu",
+["Target eggs earning at least this much per second, mutations included (e.g. 500k, 1.5m). 0 or empty to disable."]="Chỉ cướp trứng kiếm được ít nhất mức này mỗi giây (VD: 500k, 1.5m). Nhập 0 để tắt.",
+["Indexing"]="Chỉ Mục (Index)",["Auto Claim Index"]="Tự Nhận Thưởng Chỉ Mục",
+["Redeems unlocked index rewards."]="Tự động nhận phần thưởng từ danh mục đã mở khóa.",
+["Auto Indexing"]="Tự Động Thu Thập Chỉ Mục",
+["Auto Steal only targets eggs you haven't indexed or owned yet. Other filters are ignored."]="Chỉ cướp các trứng bạn chưa có trong chỉ mục. Các bộ lọc khác sẽ bị bỏ qua.",
+["Steal Settings"]="Cài Đặt Cướp",["Steal Mode"]="Chế Độ Cướp",
+["Normal flies to the egg, Instant Steal works in every area."]="Bình thường sẽ bay tới trứng. Cướp Tức Thì hoạt động ở mọi khu vực.",
+["Normal"]="Bình Thường",["Delivery Mode"]="Chế Độ Giao Trứng",
+["Recommended Delivery Mode: Speed Match or Steady"]="Khuyên dùng: Tốc độ khớp hoặc Ổn định",
+["Speed Match"]="Tốc độ khớp",["Steady"]="Ổn định",["Steal From Player"]="Cướp Từ Người Chơi",
+["Steals eggs from other players."]="Cướp trứng từ tay người chơi khác.",
+["Server Hop (No Target)"]="Đổi Server (Khi Hết Mục Tiêu)",
+["Hops server when no target is found."]="Tự động đổi máy chủ khi không tìm thấy trứng mục tiêu.",
+["Drop for Friend"]="Nhặt Hộ Bạn Bè",
+["Drops the egg at the drop point and leaves it for a friend to pick up, then looks for another egg."]="Mang trứng đến điểm hẹn, thả xuống cho bạn bè nhặt và đi tìm trứng khác.",
+["Flies to field eggs, grabs them and brings them home."]="Bay tới bãi, nhặt trứng và mang về nhà.",
+["Steal Other Script"]="Cướp Của Script Khác",
+["Grabs eggs other players drop near safezone."]="Nhặt trứng mà các người chơi dùng script khác làm rớt gần vùng an toàn.",
+["Steal Status"]="Trạng Thái Cướp",["Shows the Auto Steal status panel."]="Hiển thị bảng trạng thái tự động cướp.",
+["Open Steal Panel"]="Mở Bảng Cướp Trứng",["Find and steal World and Halloween eggs by hand."]="Tìm và cướp trứng Thế Giới / Halloween bằng tay.",
+["Open Steal History"]="Mở Lịch Sử Cướp",["Open the last 10 steal results in a separate window."]="Mở 10 kết quả cướp gần nhất ở cửa sổ riêng.",
+["Egg Utilities"]="Tiện Ích Trứng",["Open Egg Predictor"]="Mở Dự Đoán Trứng",
+["Open standalone egg cycle predictor window."]="Mở cửa sổ dự đoán chu kỳ trứng riêng biệt.",
+["Egg Inventory Value"]="Giá Trị Trứng Trong Túi",
+["Show generation rate (/s) and sell price on backpack egg slots."]="Hiển thị tốc độ sinh tiền (/s) và giá bán trên từng ô trứng trong ba lô.",
+["Place Egg"]="Đặt Trứng Vào Chuồng",["Hatch Egg"]="Ấp Trứng",["Stop At Rarity"]="Dừng Lại Ở Độ Hiếm",
+["Eggs of this rarity or higher won't be placed."]="Trứng đạt độ hiếm này hoặc cao hơn sẽ không bị mang đi đặt.",
+["Eggs of this rarity or higher won't be hatched."]="Trứng đạt độ hiếm này hoặc cao hơn sẽ không bị mang đi ấp.",
+["Whitelist"]="Danh Sách Trắng (Ưu Tiên)",["Blacklist"]="Danh Sách Đen (Bỏ Qua)",
+["Whitelist Rarity"]="Ưu Tiên Độ Hiếm",["Whitelist Pet"]="Ưu Tiên Thú Cưng",["Whitelist Mutation"]="Ưu Tiên Đột Biến",
+["Blacklist Rarity"]="Bỏ Qua Độ Hiếm",["Blacklist Pet"]="Bỏ Qua Thú Cưng",["Blacklist Mutation"]="Bỏ Qua Đột Biến",
+["Auto Place Egg"]="Tự Động Đặt Trứng",
+["Places matching eggs from your bag into the pen. Whitelist picks which eggs, blacklist always blocks."]="Đặt trứng phù hợp từ túi vào chuồng. Ưu tiên các mục trong Whitelist, luôn chặn mục trong Blacklist.",
+["Auto Place Indexing"]="Tự Động Đặt Lấy Chỉ Mục",
+["Auto Place Egg only places eggs you haven't indexed yet. Whitelist and blacklist are ignored."]="Chỉ tự động đặt các trứng bạn chưa có trong danh mục. Bỏ qua Whitelist và Blacklist.",
+["Automatically hatch ready eggs matching the selected filters."]="Tự động ấp các trứng đã sẵn sàng và khớp với bộ lọc.",
+["Auto Hatch Indexing"]="Tự Động Ấp Lấy Chỉ Mục",
+["Auto Hatch only hatches eggs you haven't indexed yet. Whitelist is ignored, blacklist still applies."]="Chỉ ấp các trứng bạn chưa có trong danh mục. Bỏ qua Whitelist, vẫn áp dụng Blacklist.",
+["Sell Egg"]="Bán Trứng",["Keep Above"]="Giữ Lại Trên Mức",
+["Never sell eggs earning at least this much per second (e.g. 100m). 0 or empty to disable."]="Không bao giờ bán trứng kiếm được trên mức này mỗi giây (VD: 100m). Nhập 0 để tắt.",
+["Sells eggs that pass your filters. Placed eggs are never sold."]="Bán trứng lọt qua bộ lọc. Trứng đã đặt trong chuồng sẽ không bao giờ bị bán.",
+["Sell On Inventory Full"]="Chỉ Bán Khi Đầy Túi",["Only sell when your egg backpack is full."]="Chỉ kích hoạt bán khi ba lô chứa trứng đã đầy.",
+["Player Stats"]="Thống Kê Người Chơi",["Money"]="Tiền",["Gems"]="Đá Quý",["Equipped"]="Đang Trang Bị",
+["Gain"]="Tăng Tốc Độ",["Inventory"]="Túi Đồ",["Map"]="Bản Đồ",["World"]="Thế Giới",
+["Discord webhook URL for sending notifications."]="Đường dẫn Webhook Discord để gửi thông báo.",
+["Ping @everyone"]="Tag @everyone",["Mention @everyone in Discord when a new egg is claimed."]="Gắn thẻ @everyone trên Discord khi nhận được trứng mới.",
+["Egg Webhook"]="Webhook Trứng",["Select Egg Rarity"]="Chọn Độ Hiếm Của Trứng",
+["Enable New Egg Claimed"]="Bật Thông Báo Trứng Mới",["Send webhook notification when stealing/claiming a new egg."]="Gửi thông báo Webhook khi cướp/nhận được trứng mới.",
+["Player Webhook"]="Webhook Người Chơi",["Stats Interval (Min)"]="Khoảng Thời Gian Báo Thống Kê (Phút)",
+["Enable Player Stats"]="Bật Thông Báo Thống Kê",["Periodically send player stats to Discord."]="Định kỳ gửi thông số người chơi qua Discord.",
+["Test Webhook"]="Thử Nghiệm Webhook",["Send Stats Now"]="Gửi Thống Kê Ngay Lúc Này",
+["Immediately send stats to Discord."]="Gửi ngay thông số người chơi vào Discord.",
+["Test Egg Webhook"]="Gửi Thử Webhook Trứng",["Simulate claiming an egg."]="Mô phỏng thao tác nhận trứng để kiểm tra.",
+["Admin Abuse Boost (BETA)"]="Nhận Buff Quyền Admin (BETA)",["Halloween Dimension"]="Không Gian Halloween",
+["Ghost Dog Quest"]="Nhiệm Vụ Chó Ma",["Abandoned Manor"]="Dinh Thự Bỏ Hoang",
+["Pumpkin King"]="Vua Bí Ngô",["The Hollow"]="Vực Hollow",["just now"]="vừa xong",["Just now"]="Vừa xong",
+["Inventory values"]="Giá trị túi đồ",["Inventory Values"]="Giá trị túi đồ",
+["Find option"]="Tìm tùy chọn",["🔍 Find option"]="🔍 Tìm tùy chọn",
+["Tip: you can also hold any feature to pin it or set a key."]="Mẹo: Nhấn giữ tính năng bất kỳ để ghim lên Thanh Nhanh hoặc gán phím tắt.",
+["Tip: you can also hold any feature to pin it or set key."]="Mẹo: Nhấn giữ tính năng bất kỳ để ghim lên Thanh Nhanh hoặc gán phím tắt.",
+["Tip: you can also hold any feature to pin it hoặc set key."]="Mẹo: Nhấn giữ tính năng bất kỳ để ghim lên Thanh Nhanh hoặc gán phím tắt.",
+["v1.4.2: Fixed some bugs"]="v1.4.2: Đã sửa một số lỗi vặt",["v1.4.2: fixed some bugs"]="v1.4.2: Đã sửa một số lỗi vặt",["v1.4.2: đã sửa some bugs"]="v1.4.2: Đã sửa một số lỗi vặt",
+["v1.4.1: Movement speed up to 110%, improved Fast Tween"]="v1.4.1: Tăng tốc độ di chuyển lên tới 110%, cải thiện Bay Nhanh (Fast Tween)",
+["v1.4.1: Di Chuyển tốc độ up tới 110%, improved Fast Bay (Tween)"]="v1.4.1: Tăng tốc độ di chuyển lên tới 110%, cải thiện Bay Nhanh (Fast Tween)",
+["v1.4.0: Auto Pumpkin Boss (dodges attacks, fires cannons, collects Pumpkin Stubs), auto manor key, and Go to Egg Leap (replaces old Go to Egg)"]="v1.4.0: Tự đánh Boss Bí Ngô (né đòn, bắn đại bác, nhặt Cuống Bí Ngô), tự lấy chìa khóa dinh thự và Nhảy Tới Trứng (thay thế Đi Tới Trứng cũ)",
+["v1.4.0: tự động bí ngô Boss (dodges attacks, fires cannons, collects bí ngô Stubs), tự động manor key, và Di Chuyển tới trứng Leap (replaces old Di Chuyển tới trứng)"]="v1.4.0: Tự đánh Boss Bí Ngô (né đòn, bắn đại bác, nhặt Cuống Bí Ngô), tự lấy chìa khóa dinh thự và Nhảy Tới Trứng (thay thế Đi Tới Trứng cũ)",
+["v1.3.0: Anti guard fires again, and finishes about twice as fast"]="v1.3.0: Chống vệ sĩ hoạt động trở lại và hoàn tất nhanh gấp đôi",
+["v1.3.0: Anti vệ sĩ fires again, và finishes about twice as fast"]="v1.3.0: Chống vệ sĩ hoạt động trở lại và hoàn tất nhanh gấp đôi",
+["Go to Egg Leap"]="Nhảy Tới Trứng",["Go to egg leap"]="Nhảy tới trứng",["Manor key"]="Chìa khóa dinh thự",["Auto manor key"]="Tự lấy chìa khóa dinh thự",
+["Auto Pumpkin Boss"]="Tự đánh Boss Bí Ngô",["Pumpkin Boss"]="Boss Bí Ngô",["Pumpkin Stubs"]="Cuống Bí Ngô",
+["Going into the Halloween Dimension"]="Đang vào Không gian Halloween",["Going into Halloween Dimension"]="Đang vào Không gian Halloween",
+["Leaving Halloween Dimension"]="Đang rời Không gian Halloween",["Entering Halloween Dimension"]="Đang vào Không gian Halloween",
+["v1.2.9: New optimizer modes: Balanced, Strong (way much higher FPS, ultra-low GPU), no lag spike when you turn it on"]="v1.2.9: Chế độ tối ưu mới: Cân bằng, Mạnh (tăng FPS cực cao, siêu nhẹ GPU), không bị khựng lag khi bật",
+["v1.2.8: Inventory values, see how much every pet and every egg in your backpack is worth"]="v1.2.8: Giá trị túi đồ, xem giá trị của từng pet và từng quả trứng trong ba lô",
+["v1.2.7: Auto race The Hollow"]="v1.2.7: Tự động đua sự kiện The Hollow",
+["v1.2.7: Auto race Hollow"]="v1.2.7: Tự động đua sự kiện Hollow",["Auto race Hollow"]="Tự động đua sự kiện Hollow",
+["Balanced"]="Cân bằng",["Strong"]="Mạnh",
+["v1.2.6: Mutate eggs you choose with multiple mutations, much shorter delay between tasks and instant take back when someone grabs your egg"]="v1.2.6: Đột biến trứng tự chọn với nhiều đột biến, giảm độ trễ giữa các tác vụ và giật lại tức thì khi bị cướp",
+["v1.2.5: Teleport to egg"]="v1.2.5: Dịch chuyển tới trứng",
+["Riding the Phantom Express"]="Đang đi Tàu Bóng Ma",["Fighting Small monster"]="Đang đánh quái vật nhỏ",["Fighting Medium monster"]="Đang đánh quái vật vừa",["Fighting Large monster"]="Đang đánh quái vật lớn",
+["UI scale"]="Kích cỡ Menu",["Show / hide UI"]="Phím ẩn / hiện Menu",["Opacity"]="Độ trong suốt",["Tone"]="Tông màu",["Dim the game"]="Làm tối nền game",
+["QUICK BARS"]="THANH PHÍM TẮT NHANH",["Quick bars"]="Thanh phím tắt nhanh",["Show quick bars"]="Hiện thanh phím tắt nhanh",["Keybinds"]="Phím tắt",["Bar size"]="Kích cỡ thanh nhanh",
+["PINS AND KEYBINDS"]="GHIM & PHÍM TẮT",["Find option"]="Tìm tùy chọn",["All"]="Tất cả",["Pinned"]="Đã ghim",["Clear all quick bars"]="Xóa hết thanh nhanh",["Clear all keybinds"]="Xóa hết phím tắt",
+["DEFAULTS"]="MẶC ĐỊNH",["Reset to defaults"]="Khôi phục mặc định",["Reset"]="Đặt lại",["Turn off all toggles"]="Tắt toàn bộ công tắc",["Turn off"]="Tắt hết",
+["Steal An Egg"]="Cướp Trứng",["CANDY CORN"]="KẸO NGÔ",["Candy Corn"]="Kẹo Ngô",["Calculate mutations"]="Tính thử đột biến",
+["Cards show the value with these mutations added"]="Thẻ trứng sẽ hiển thị giá trị sau khi cộng thêm các đột biến này",
+["Delivery speed"]="Tốc độ mang trứng về",["Change if steal fails"]="Hãy chỉnh giảm xuống nếu cướp trứng bị lỗi",
+["Auto farm monsters"]="Tự động cày quái vật",["Auto kill monsters"]="Tự động đánh quái vật",["Bat"]="Gậy Dơi (Bat)",
+["Instant steal"]="Cướp tức thì",["Admin treadmill"]="Máy tập Admin",["CURSED ISLAND WARS"]="ĐẠI CHIẾN ĐẢO NGUYỀN RỦA",
+["Cursed Island Wars"]="Đại Chiến Đảo Nguyền Rủa",["Waiting for Cursed Island Wars"]="Đang chờ Đại Chiến Đảo Nguyền Rủa",
+["Auto play Cursed Island Wars"]="Tự động chơi Đại Chiến Đảo Nguyền Rủa",["Island Wars target"]="Mục tiêu Đảo Nguyền Rủa",
+["Enemies and base"]="Kẻ địch và Căn cứ",["Walls and crystal"]="Tường chắn và Pha lê",["Catching a pumpkin"]="Đang nhặt bí ngô",
+["Carrying a pumpkin to the altar"]="Đang mang bí ngô tới bệ thờ",["Delivering a pumpkin to the altar"]="Đang giao bí ngô tới bệ thờ",
+["FIX"]="SỬA LỖI",["Most tokens"]="Nhiều kẹo/xu nhất",
+["Admin abuse works like Chilli: admin treadmill, Capture the egg, minigame eggs and Instant steal"]="Lạm dụng Admin hoạt động chuẩn: Máy tập Admin, Cướp trứng sự kiện, trứng Minigame và Cướp tức thì",
+["Fixed lag back with the Tween delivery method"]="Đã sửa lỗi giật lùi (lag back) khi mang trứng về bằng chế độ Bay (Tween)",
+["Welcome to Venyx 1.0.4! Join our Discord for updates and support"]="Chào mừng tới Chilli Hub V8! Tham gia Discord để cập nhật và nhận hỗ trợ",
+["v1.1.0: Halloween tasks follow Task order, Walk speed for monsters, pumpkins and ghosts, Use weapons picks every weapon, Lab and Race shop removed"]="v1.1.0: Nhiệm vụ Halloween tuân theo Thứ tự tác vụ, thêm Tốc độ chạy khi săn quái, bí ngô và ma, Sử dụng vũ khí tự chọn mọi loại vũ khí, đã gỡ bỏ Phòng Lab và Shop Đua Xe",
+["Halloween: Dimension eggs, monsters, Ghost Dog quest, fishing, Phantom Express and Cursed Island Wars"]="Sự kiện Halloween: Trứng Không gian Halloween, đánh quái, nhiệm vụ Chó Ma, câu cá, Tàu Ma Phantom Express và Đại Chiến Đảo Nguyền Rủa",
+["Idle"]="Đang rảnh",["Waiting"]="Đang chờ",["Nothing"]="Không có gì",["None"]="Không có",["Off"]="Tắt",["OFF"]="TẮT",["On"]="Bật",["ON"]="BẬT",
+["No egg matches your targets"]="Không có trứng nào khớp mục tiêu",["No eggs match your targets"]="Không có trứng nào khớp mục tiêu",
+["No egg matches filter"]="Không có trứng khớp bộ lọc",["No eggs match filter"]="Không có trứng khớp bộ lọc",
+["No target egg found"]="Không tìm thấy trứng mục tiêu",["No matching eggs"]="Không có trứng nào khớp",["No valid targets"]="Không có mục tiêu hợp lệ",
+["Bag is full"]="Túi đã đầy",["Egg bag is full"]="Túi trứng đã đầy",["Pet bag is full"]="Túi pet đã đầy",["Pen is full"]="Chuồng ấp đã đầy",
+["Field is closed"]="Sân trứng đang đóng",["Waiting for field to open"]="Đang chờ sân trứng mở",["Waiting for eggs to spawn"]="Đang chờ trứng xuất hiện",
+["Waiting in safe zone"]="Đợi ở vùng an toàn",["Returning to safe zone"]="Đang về vùng an toàn",["Returning home"]="Đang quay về nhà",
+["Delivering egg"]="Đang giao trứng về chuồng",["Dropping egg"]="Đang thả trứng",["Selling eggs"]="Đang bán trứng",["Selling pets"]="Đang bán pet",
+["Hatching eggs"]="Đang ấp trứng",["Placing eggs"]="Đang đặt trứng",["Mutating eggs"]="Đang đột biến trứng",["Fusing pets"]="Đang dung hợp pet",
+["Hopping server"]="Đang đổi máy chủ",["Rejoining"]="Đang vào lại phòng",["Avoiding guard"]="Đang né vệ sĩ",
+["Using treadmill"]="Đang chạy máy tập",["Upgrading treadmill"]="Đang nâng cấp máy tập",["Upgrading base"]="Đang nâng cấp căn cứ",
+["Claiming rewards"]="Đang nhận thưởng",["Claiming offline cash"]="Đang nhận tiền ngoại tuyến",["Joining race"]="Đang vào đường đua",["Racing"]="Đang đua xe",
+["Welcome Home"]="Trang Chủ",["Welcome back"]="Chào mừng trở lại",["Venyx Discord"]="Chilli Hub Discord",
+["Updates, keys, support"]="Cập nhật, nhận key, hỗ trợ",["Copy Invite"]="Chép Link Mời",["Copy invite"]="Chép Link Mời",["Copy link"]="Chép Link Mời",["Discord"]="Chilli Hub",["MONEY /S"]="TIỀN /GIÂY",["CASH / S"]="TIỀN / GIÂY",
+["OPEN"]="MỞ",["Open"]="Mở",["Close"]="Đóng",["Welcome to Venyx 1.0.0! Join our Discord for updates and support"]="Chào mừng tới Chilli Hub V8! Tham gia Discord để cập nhật và nhận hỗ trợ",
+["Beta version"]="Phiên bản Beta",["This is a test build. Features may change and bugs can happen."]="Đây là bản thử nghiệm. Tính năng có thể thay đổi và phát sinh lỗi.",
+["Rejoin"]="Vào lại",["Server hop"]="Đổi server",["Copy Job ID"]="Chép Job ID",["Unload hub"]="Tắt Hub",["Unload"]="Tắt Hub",["Save config"]="Lưu cấu hình",["Hide UI"]="Ẩn Menu",
+["SESSION"]="PHIÊN CHƠI",["STOLEN"]="ĐÃ CƯỚP",["LAST EGG"]="TRỨNG CUỐI",["PLACED"]="ĐÃ ĐẶT",["HATCHED"]="ĐÃ ẤP",["NIGHT IN"]="ĐÊM SAU",["NEXT NIGHT"]="ĐÊM SAU",
+["SESSION TIME"]="THỜI GIAN",["TIME"]="THỜI GIAN",["BEST STEAL"]="CƯỚP TỐT NHẤT",["EGG BAG"]="TÚI TRỨNG",["PET BAG"]="TÚI PET",["WHAT'S NEW"]="CÓ GÌ MỚI",["NEW"]="MỚI",
+["Search"]="Tìm kiếm",["Filter"]="Lọc tìm",["Auto Steal"]="Tự Động Cướp",["AUTO STEAL"]="TỰ ĐỘNG CƯỚP",
+["Auto steal"]="Tự động cướp",["Egg Predictor"]="Dự Đoán Trứng",["Go to egg"]="Di chuyển tới trứng",["Teleport to egg"]="Dịch chuyển tới trứng",
+["Walk to egg"]="Đi bộ tới trứng",["Tween to egg"]="Bay mượt tới trứng",
+["Teleport zones"]="Khu vực dịch chuyển",["Tween"]="Bay (Tween)",["Walk"]="Đi bộ",["Delivery method"]="Cách mang về",["Instant steps"]="Tức thì từng bước",["Instant"]="Tức thì",["Teleport"]="Dịch chuyển",
+["Fast tween speed"]="Tốc độ bay nhanh",["Tween speed"]="Tốc độ bay",["Steal missing index eggs"]="Cướp trứng thiếu trong Chỉ mục",["Steal back from players"]="Cướp lại từ người chơi",
+["Steal from other players"]="Cướp từ người chơi khác",["Anti guard"]="Chống vệ sĩ",["Drop eggs at safe zone"]="Thả trứng ở vùng an toàn",["FILTER"]="BỘ LỌC",
+["Zones"]="Khu vực",["Steal first"]="Ưu tiên cướp",["Best value"]="Giá trị cao nhất",["Lowest value"]="Giá trị thấp nhất",["Best rarity"]="Độ hiếm cao nhất",
+["Best mutation"]="Đột biến tốt nhất",["Biggest"]="Kích thước to nhất",["Closest"]="Khoảng cách gần nhất",["Nearest"]="Gần nhất",["Mutations"]="Đột biến",["Rarities"]="Độ hiếm",
+["Only these eggs"]="Chỉ những trứng này",["Min value /s"]="Giá trị tối thiểu /s",["Max value /s"]="Giá trị tối đa /s",
+["Sell cheapest egg when bag is full"]="Bán trứng rẻ nhất khi đầy túi",["Keep lab eggs"]="Giữ lại trứng Lab",["AUTO HOP SERVER"]="TỰ ĐỔI MÁY CHỦ",
+["Auto hop server"]="Tự đổi máy chủ",["Auto hop"]="Tự động đổi server",["Hop now"]="Đổi server ngay",["First hop after"]="Đổi lần đầu sau",["Hop when"]="Đổi khi",
+["After stealing a match"]="Sau khi cướp đủ trứng lọc",["No matching egg"]="Không có trứng phù hợp",["Rare from"]="Độ hiếm từ",
+["Hop delay"]="Độ trễ đổi server",["Only sell eggs below /s"]="Chỉ bán trứng dưới mức /s",
+["EGG SHOWCASE"]="TRƯNG BÀY TRỨNG",["Sort eggs"]="Sắp xếp trứng",["Preview card"]="Thẻ xem trước",["Pick one"]="Chọn một mục",["Pick any"]="Chọn bất kỳ",
+["Value"]="Giá trị",["Rarity"]="Độ hiếm",["Time left"]="Thời gian còn lại",["Default"]="Mặc định",["Clear"]="Xóa chọn",["Select all"]="Chọn tất cả",
+["SIZE"]="KÍCH CỠ",["WEIGHT"]="CÂN NẶNG",["READY"]="SẴN SÀNG",["IN BAG"]="TRONG TÚI",["GROWING"]="ĐANG LỚN",["Hatch now"]="Ấp ngay",["Hold egg"]="Cầm trứng",
+["Fly to egg"]="Bay tới trứng",["Steal egg"]="Cướp trứng",["Enchanted Forest"]="Rừng Phù Phép",["Light Dark"]="Sáng Tối",["Titan Temple"]="Đền Titan",
+["Cherry Blossom"]="Hoa Anh Đào",["Prehistoric"]="Tiền Sử",["Abyss Ocean"]="Đáy Đại Dương",["Volcano"]="Núi Lửa",["Snow"]="Tuyết",["Jungle"]="Rừng Rậm",
+["Desert"]="Sa Mạc",["Lake"]="Hồ Nước",["Forest"]="Khu Rừng",["Silver"]="Bạc",["Rainbow"]="Cầu Vồng",["Golden"]="Vàng",["Fractured"]="Rạn Nứt",
+["Scrambled"]="Hỗn Loạn",["Enchanted"]="Phù Phép",["Nitro"]="Nitro",["SCRAMBLED"]="HỖN LOẠN",["NITRO"]="NITRO",["FRACTURED"]="RẠN NỨT",["ENCHANTED"]="PHÙ PHÉP",
+["Pen"]="Chuồng Ấp",["PEN"]="CHUỒNG ẤP",["Treadmill"]="Máy Tập",["TREADMILL"]="MÁY TẬP CHẠY",["Mutate"]="Đột Biến",
+["Sell"]="Bán",["SELL"]="BÁN TỰ ĐỘNG",["Fuse"]="Dung Hợp",["FUSE"]="DUNG HỢP",["Priority"]="Ưu Tiên",["PRIORITY"]="THỨ TỰ ƯU TIÊN",
+["AUTO PLACE"]="TỰ ĐỘNG ĐẶT TRỨNG",["Auto place"]="Tự động đặt trứng",["Place when"]="Đặt khi",["Always"]="Luôn luôn",["Place first"]="Ưu tiên đặt",
+["KEEP EGGS"]="GIỮ LẠI TRỨNG",["Eggs to keep"]="Trứng cần giữ",
+["AUTO HATCH"]="TỰ ĐỘNG ẤP TRỨNG",["Auto hatch"]="Tự động ấp trứng",["Equip best pets"]="Trang bị pet mạnh nhất",["READY NOW"]="SẴN SÀNG ẤP",
+["Auto treadmill"]="Tự chạy máy tập",["Auto upgrade treadmill"]="Tự nâng cấp máy tập",["PROGRESS"]="TIẾN TRÌNH",["Auto upgrade base"]="Tự nâng cấp căn cứ",
+["Auto buy trails"]="Tự mua vệt sáng",["Auto claim offline cash"]="Tự nhận tiền ngoại tuyến",["Auto claim index rewards"]="Tự nhận thưởng Chỉ mục",
+["AUTO MUTATE"]="TỰ ĐỘNG ĐỘT BIẾN",["Auto mutate"]="Tự động đột biến",["MUTATE FILTER"]="BỘ LỌC ĐỘT BIẾN",["Use items"]="Dùng vật phẩm",
+["Mutate first"]="Ưu tiên đột biến",["Skip eggs with"]="Bỏ qua trứng đã có",["Auto buy Nitro"]="Tự mua Nitro",["PETS"]="THÚ CƯNG (PETS)",["EGGS"]="TRỨNG (EGGS)",["Auto sell pets"]="Tự động bán pet",
+["Auto sell eggs"]="Tự động bán trứng",["Sell all eggs now"]="Bán hết trứng ngay",["Sell all pets now"]="Bán hết Pet ngay",
+["Sell rarities"]="Độ hiếm bán",["Never sell"]="Không bao giờ bán",["Only mutations"]="Chỉ bán đột biến",
+["Only below /s"]="Chỉ dưới mức /s",["Keep mutated"]="Giữ lại đồ đột biến",["LAB EGGS"]="TRỨNG PHÒNG LAB",["FAVORITE"]="YÊU THÍCH (KHÓA)",
+["Auto favorite"]="Tự động khóa bảo vệ",["Favorite matching now"]="Khóa đồ khớp lọc ngay",["Unfavorite pets not matching"]="Bỏ thích Pet không khớp",["Always favorite"]="Luôn khóa Yêu thích",
+["Auto sell lab eggs"]="Tự động bán trứng Lab",["Match"]="Điều kiện khớp",["All picked rules"]="Khớp tất cả quy tắc",
+["Any picked rule"]="Khớp bất kỳ quy tắc",["Favorite equipped"]="Khóa pet đang trang bị",["FUSE MACHINE"]="MÁY DUNG HỢP",
+["No 3 matching pets"]="Chưa đủ 3 pet cùng loại",["Auto fuse"]="Tự động dung hợp",["Fuse first"]="Ưu tiên dung hợp",["Lowest rarity"]="Độ hiếm thấp nhất",
+["Highest rarity"]="Độ hiếm cao nhất",["Use pets"]="Sử dụng pet",["Lowest value first"]="Giá trị thấp nhất trước",["Highest value first"]="Giá trị cao nhất trước",
+["Skip mutated"]="Bỏ qua pet đột biến",["Eject odd pets"]="Đẩy pet lẻ ra ngoài",["FUSE FILTER"]="BỘ LỌC DUNG HỢP",["Only these pets"]="Chỉ những pet này",
+["Never fuse"]="Không bao giờ dung hợp",["FUSE PREDICTOR"]="DỰ ĐOÁN DUNG HỢP",["SLOTS"]="Ô CHỨA",["STATUS"]="TRẠNG THÁI",["LIKELY SIZE"]="KÍCH CỠ DỰ KIẾN",
+["CHANCE"]="TỶ LỆ",["VALUE"]="GIÁ TRỊ",["BEST CASE"]="TỐT NHẤT CÓ THỂ",["TASK ORDER"]="THỨ TỰ TÁC VỤ",["Task order"]="Thứ tự tác vụ",["Reset order"]="Đặt lại thứ tự",["DOING"]="ĐANG LÀM",["WAITING"]="ĐANG CHỜ",
+["Steal filter eggs"]="Cướp trứng theo bộ lọc",["Shooting Star"]="Bắt Sao Băng",["Racing Event"]="Sự Kiện Đua Xe",["Butterfly"]="Bắt Bướm",
+["Steal wisp eggs"]="Cướp trứng Wisp",["Wisp"]="Nhặt Wisp",["Steal missing index"]="Cướp trứng thiếu trong Chỉ mục",["Steal lab eggs"]="Cướp trứng phòng Lab",
+["Place"]="Đặt trứng vào chuồng",["Butterfly machine"]="Máy đổi Bướm",["Race"]="Đua Xe",["RACE"]="ĐUA XE",["Star"]="Sao Băng",["STAR"]="SAO BĂNG",
+["BUTTERFLY"]="BẮT BƯỚM",["Lab"]="Phòng Lab",["LAB"]="PHÒNG LAB",["AA"]="Admin (AA)",["Halloween"]="Halloween",["HALLOWEEN"]="HALLOWEEN",
+["HALLOWEEN DIMENSION"]="KHÔNG GIAN HALLOWEEN",["Auto steal Halloween eggs"]="Tự động cướp trứng Halloween",["Instant steal Halloween eggs"]="Cướp tức thì trứng Halloween",
+["Steal speed"]="Tốc độ cướp",["Halloween eggs"]="Trứng Halloween",["Halloween rarities"]="Độ hiếm Halloween",["Auto Pumpkin Moon"]="Tự làm sự kiện Trăng Bí Ngô",
+["Auto buy Halloween Dimension Egg"]="Tự mua trứng Không gian Halloween",["Walk speed"]="Tốc độ chạy bộ",["GHOST DOG AND FISHING"]="CHÓ MA VÀ CÂU CÁ",
+["QUEST"]="NHIỆM VỤ",["Done"]="Đã xong",["FISH CAUGHT"]="CÁ ĐÃ CÂU",["Auto Ghost Dog quest"]="Tự làm nhiệm vụ Chó Ma",["Auto fishing"]="Tự động câu cá",
+["Cast luck"]="Tỷ lệ câu may mắn",["Perfect"]="Hoàn hảo (Perfect)",["MONSTERS"]="QUÁI VẬT",["Monsters"]="Tên quái vật",["Monster order"]="Thứ tự đánh quái",
+["Rarest first"]="Hiếm nhất trước",["PHANTOM EXPRESS"]="TÀU MA PHANTOM EXPRESS",["TRAIN"]="CHUYẾN TÀU",["Not here"]="Chưa đến",["SOULS"]="LINH HỒN",
+["Auto Phantom Express"]="Tự động cướp Tàu Ma",["Auto vacuum Ghouler boss"]="Tự hút linh hồn Boss Ghouler",["Ghost target"]="Mục tiêu ma",
+["Auto trade souls"]="Tự động đổi linh hồn",["RACING EVENT"]="SỰ KIỆN ĐUA XE",["NEXT RACE"]="ĐUA TIẾP THEO",["WINS"]="THẮNG",["TROPHIES"]="CÚP",
+["Auto race"]="Tự động đua xe",["Race speed"]="Tốc độ đua",["Use power-ups"]="Tự dùng vật phẩm tăng tốc",["REWARDS"]="PHẦN THƯỞNG",
+["Auto claim rewards"]="Tự nhận phần thưởng",["Auto equip racer"]="Tự trang bị xe đua",["Racer"]="Xe đua",["Best owned"]="Tốt nhất đang có",
+["Auto buy shop"]="Tự mua vật phẩm Shop",["Shop items"]="Vật phẩm Shop",["SHOOTING STAR"]="SAO BĂNG RƠI",["LANDS IN"]="RƠI SAU",["CATCH"]="BẮT SAO BĂNG",
+["CAUGHT"]="ĐÃ BẮT",["EXPIRES IN"]="BIẾN MẤT SAU",["SLIPPED"]="TUỘT MẤT",["TRIES"]="SỐ LẦN THỬ",["DISTANCE"]="KHOẢNG CÁCH",
+["Auto catch shooting star"]="Tự động bắt sao băng",["BUTTERFLY BLOOM"]="MÙA BƯỚM NỞ",["Auto butterfly bloom"]="Tự động bắt bướm",["EMERALD"]="LỤC BẢO",
+["SAPPHIRE"]="LAM NGỌC",["AMETHYST"]="THẠCH ANH TÍM",["RADIANT"]="RỰC RỠ",["ESSENCE"]="TINH CHẤT",["Catch mode"]="Chế độ bắt",["Stand"]="Đứng yên",
+["Chase"]="Đuổi theo",["BUTTERFLY MACHINE"]="MÁY ĐỔI BƯỚM",["Auto trade up"]="Tự nâng cấp bậc bướm",["Trade"]="Giao dịch đổi",
+["Smart trade for essence"]="Đổi bướm lấy tinh chất thông minh",["Auto craft essence"]="Tự chế tạo tinh chất",["WISP COMPANION"]="ĐỒNG HÀNH WISP",
+["Catch priority"]="Ưu tiên bắt",["Rarest"]="Hiếm nhất",["Catch"]="Loại bướm bắt",["Catch speed"]="Tốc độ bắt",["Auto wisp quest"]="Tự làm nhiệm vụ Wisp",
+["Auto banjo cricket"]="Tự bắt dế Banjo",["STAGE"]="GIAI ĐOẠN",["LAB ODDS"]="TỶ LỆ PHÒNG LAB",["BANNER"]="BĂNG RÔN",["ENDS IN"]="KẾT THÚC SAU",
+["BANNER CHANCE"]="TỶ LỆ BĂNG RÔN",["NEXT"]="TIẾP THEO",["Experimental Pets"]="Pet Thí Nghiệm",["Biohazard Pets"]="Pet Sinh Học",
+["Lab banners"]="Băng rôn phòng Lab",["Auto trade in"]="Tự động đổi trứng Lab",["Auto reroll recipe"]="Tự đổi lại công thức",
+["Place lab reward eggs"]="Đặt trứng thưởng từ Lab",["ADMIN ABUSE"]="LẠM DỤNG ADMIN (ABUSE)",["No admin boost right now"]="Hiện không có buff Admin nào",
+["Instant steal (Admin Treadmill)"]="Cướp tức thì (Máy tập Admin)",["Use admin treadmill"]="Tự dùng máy tập Admin",["CAPTURE THE EGG"]="CƯỚP TRỨNG SỰ KIỆN",
+["Auto capture event egg"]="Tự bắt trứng sự kiện",["Take it from the holder"]="Giật trứng từ người đang cầm",["Hold height"]="Độ cao giữ trứng",
+["Keep away"]="Khoảng cách né tránh",["MINIGAME EGGS"]="TRỨNG MINIGAME",["Auto steal minigame egg"]="Tự cướp trứng Minigame",
+["ESP"]="Định Vị (ESP)",["Move"]="Di Chuyển",["MOVE"]="DI CHUYỂN",["Combat"]="Chiến Đấu",["COMBAT"]="CHIẾN ĐẤU",["FIELD EGGS"]="TRỨNG NGOÀI SÂN",
+["Egg ESP"]="ESP Trứng",["Show"]="Hiển thị",["Name"]="Tên",["Fixed size"]="Cố định kích cỡ",["OTHERS"]="MỤC KHÁC",["Pen egg ESP"]="ESP trứng trong chuồng",
+["Other pens ESP"]="ESP chuồng người khác",["Guard ESP"]="ESP Vệ sĩ",["Hide sleeping guards"]="Ẩn vệ sĩ đang ngủ",["Player ESP"]="ESP Người chơi",["ESP size"]="Kích cỡ ESP",
+["MOVEMENT"]="TỐC ĐỘ & DI CHUYỂN",["Speed boost"]="Tăng tốc chạy",["Boost speed"]="Tốc độ tăng thêm",["Infinite jump"]="Nhảy vô hạn",
+["God mode"]="Bất tử (God mode)",["PROTECTION"]="BẢO VỆ NHÂN VẬT",["Anti ragdoll"]="Chống ngã (Anti Ragdoll)",["Ignore traps"]="Bỏ qua bẫy",
+["Instant prompts"]="Tương tác nhấn giữ tức thì",["Anti AFK"]="Chống treo máy (Anti AFK)",["Invisible"]="Tàng hình",["AUTO HIT"]="TỰ ĐỘNG ĐÁNH",
+["Auto hit"]="Tự động đánh",["Hit who"]="Mục tiêu đánh",["Nearest player"]="Người chơi gần nhất",["Chosen player"]="Người chơi chỉ định",["Egg carrier"]="Người đang ôm trứng",
+["Chase speed"]="Tốc độ đuổi theo",["HIT AURA"]="VÒNG ĐÁNH TỰ ĐỘNG",["Hit aura"]="Vòng đánh tự động (Hit Aura)",["Skip friends"]="Bỏ qua bạn bè",
+["WEAPONS"]="VŨ KHÍ",["Use weapons"]="Sử dụng vũ khí",["Hold each"]="Thời gian cầm mỗi món",["Server"]="Máy Chủ",["SERVER"]="MÁY CHỦ",
+["Webhook"]="Webhook",["WEBHOOK"]="WEBHOOK",["Optimizer"]="Tối Ưu Hóa",["OPTIMIZER"]="TỐI ƯU HÓA",["Interface"]="Giao Diện",["INTERFACE"]="GIAO DIỆN",
+["GAME HUD"]="TRÊN MÀN HÌNH GAME",["Steal panel button on game HUD"]="Hiện nút Bảng Cướp trên màn hình",
+["Config"]="Cấu Hình",["CONFIG"]="CẤU HÌNH",["CONFIGS"]="QUẢN LÝ CẤU HÌNH",["Configs"]="Danh sách cấu hình",["ACTIVE"]="ĐANG DÙNG",["SAVED CONFIGS"]="ĐÃ LƯU",
+["Set as active config"]="Đặt làm cấu hình chính",["Set active"]="Kích hoạt",["Save changes"]="Lưu thay đổi",["Save"]="Lưu",["Overwrite"]="Lưu đè",
+["PROFILES"]="HỒ SƠ CẤU HÌNH",["New config name"]="Tên cấu hình mới",["Config name"]="Tên cấu hình",["Auto if empty"]="Tự đặt nếu trống",
+["Create config"]="Tạo cấu hình mới",["Create"]="Tạo mới",["Pick to delete"]="Chọn mục cần xóa",
+["Delete picked"]="Xóa mục đã chọn",["Delete"]="Xóa",["Restore deleted"]="Khôi phục mục đã xóa",["Export config"]="Xuất mã cấu hình",["Export to clipboard"]="Chép mã cấu hình",
+["Import text"]="Dán mã cấu hình",["Paste config text"]="Dán mã JSON vào đây",["Paste config JSON here"]="Dán mã JSON vào đây",
+["Import config"]="Nhập cấu hình",["Import"]="Nhập",
+["Config imported"]="Đã nhập cấu hình",["Config loaded"]="Đã nạp cấu hình",["Later"]="Để sau",["Apply now"]="Áp dụng ngay",["Hop to"]="Chuyển tới server",
+["Least players"]="Ít người chơi nhất",["Most players"]="Đông người chơi nhất",["Random"]="Ngẫu nhiên",["Hop server"]="Đổi máy chủ",["Hop"]="Đổi ngay",
+["Rejoin this server"]="Vào lại máy chủ này",["Copy"]="Sao chép",["JOIN AND STAY"]="VÀO PHÒNG & DUY TRÌ",["Job ID"]="Mã phòng (Job ID)",
+["Paste a Job ID"]="Dán mã Job ID vào đây",["Join that server"]="Vào máy chủ đó",["Join"]="Vào ngay",["Rejoin on kick"]="Tự vào lại khi bị văng/kick",
+["Auto load script"]="Tự chạy lại script khi chuyển server",["DISCORD WEBHOOK"]="WEBHOOK DISCORD",["Webhook URL"]="Đường dẫn Webhook",
+["Ping role ID"]="ID Vai trò (Role ID)",["Ping user ID"]="ID Người dùng (User ID)",
+["Ping everyone"]="Tag @everyone",["WHAT TO POST"]="NỘI DUNG GỬI BÁO CÁO",["Post stolen eggs"]="Báo cáo trứng cướp được",
+["Post fused eggs"]="Báo cáo trứng dung hợp",["POSTED"]="ĐÃ GỬI",["Send a test post"]="Gửi tin nhắn thử nghiệm",["Test"]="Thử nghiệm",
+["Post when bag is full"]="Gửi thông báo khi đầy túi",["GRAPHICS"]="ĐỒ HỌA",["Low graphics"]="Đồ họa thấp (Tăng FPS)",
+["Disable 3D Render"]="Tắt kết xuất 3D (Treo máy)",["Background color"]="Màu nền màn hình",["Black"]="Màu Đen",["White"]="Màu Trắng",
+["Hide game UI"]="Ẩn giao diện gốc của Game",["FRAME RATE"]="TỐC ĐỘ KHUNG HÌNH (FPS)",["FPS cap"]="Giới hạn FPS",["FPS position"]="Vị trí thanh FPS",
+["Show FPS and ping"]="Hiện chỉ số FPS và Ping",["BASES"]="CĂN CỨ (BASES)",["Hide other players' pets and eggs"]="Ẩn pet và trứng của người chơi khác",
+["Hide my pets and eggs"]="Ẩn pet và trứng của bản thân",["Theme"]="Chủ đề màu",["Toggle key"]="Phím đóng/mở Menu",["Quick bar"]="Thanh phím tắt nhanh",
+["QUICK BAR"]="THANH PHÍM TẮT NHANH",["Auto save"]="Tự động lưu cấu hình",["Auto load"]="Tự động nạp cấu hình",["Auto load on join"]="Tự động nạp khi vào game",
+["Load config"]="Nạp cấu hình",["Load"]="Nạp cấu hình",
+["Reset config"]="Đặt lại mặc định",["Delete config"]="Xóa cấu hình",["Common"]="Phổ Thông",["Uncommon"]="Thường",["Rare"]="Hiếm",["Epic"]="Sử Thi",
+["Legendary"]="Huyền Thoại",["Mythic"]="Thần Thoại",["Cosmic"]="Vũ Trụ",["Secret"]="Bí Ẩn",["Divine"]="Thánh Thần",["Eternal"]="Vĩnh Cửu",
+["COMMON"]="PHỔ THÔNG",["UNCOMMON"]="THƯỜNG",["RARE"]="HIẾM",["EPIC"]="SỬ THI",["LEGENDARY"]="HUYỀN THOẠI",["MYTHIC"]="THẦN THOẠI",
+["COSMIC"]="VŨ TRỤ",["SECRET"]="BÍ ẨN",["DIVINE"]="THÁNH THẦN",["ETERNAL"]="VĨNH CỬU",
+["Radiant"]="Rực Rỡ",["Amethyst"]="Thạch Anh Tím",["Sapphire"]="Lam Ngọc",["Emerald"]="Ngọc Lục Bảo"
 }
 local LOWER_VI={}
 for k,v in pairs(EXACT_VI)do
@@ -730,6 +1069,13 @@ stripRichTags=function(s)
 if type(s)~="string" then return "" end
 return(s:gsub("<[^>]+>",""):match("^%s*(.-)%s*$")or "")
 end
+local hopToLeastPlayersServer=nil
+local watchFinderHudButton=nil
+local hookChilliFinderJoin=nil
+local watchFinderTextObj=nil
+local hookLoginFrameTrigger=nil
+local translateFinderHudState=nil
+local scanChilliFinderButtons=nil
 applyTrans=function(inst)
 if not(inst:IsA("TextLabel")or inst:IsA("TextButton")or inst:IsA("TextBox"))then return end
 if inst:GetAttribute("__IslandDone")or inst:GetAttribute("__FpsHookSession")or inst:GetAttribute("__HiddenVxLogo")
@@ -842,30 +1188,11 @@ inst:GetPropertyChangedSignal("Text"):Connect(function()
 if not isAlive()or inst:GetAttribute("__IsTranslating")or inst:GetAttribute("__IslandDone")or inst:GetAttribute("__HiddenVxLogo")then return end
 local cur=inst.Text
 if cur=="" or cur==inst:GetAttribute("__LastTranslated")then return end
-if cur:match("^[%$%+%-%d%.%,%/%%sxhm%s:]+$")then return end
-local now=os.clock()
-local lastT=inst:GetAttribute("__LastTransTick")or 0
-if now-lastT<0.12 then
-if inst:GetAttribute("__TransPending")then return end
-inst:SetAttribute("__TransPending",true)
-task.delay(0.12,function()
-inst:SetAttribute("__TransPending",false)
-if not isAlive()or not inst or not inst.Parent then return end
-inst:SetAttribute("__LastTransTick",os.clock())
-local cNow=inst.Text
-if cNow=="" or cNow==inst:GetAttribute("__LastTranslated")then return end
-if not hasVi(cNow)then
-inst:SetAttribute("OrigRawText",cNow)
-applyTrans(inst)
-end
-end)
-return
-end
-inst:SetAttribute("__LastTransTick",now)
 if not inst:IsA("TextBox")and isFpsTxt(cur)then
 hookFps(inst)
 return
 end
+if cur:match("^[%$%+%-%d%.%,%/%%sxhm%s:]+$")then return end
 if inst:IsA("TextBox")then
 applyTrans(inst)
 return
@@ -1814,12 +2141,13 @@ if open then toggle()end
 end
 if hint:IsA("GuiButton")then
 hint.MouseButton1Click:Connect(toggle)
-end
+else
 hint.InputBegan:Connect(function(i)
 if i.UserInputType==EUIT.MouseButton1 or i.UserInputType==EUIT.Touch then
 toggle()
 end
 end)
+end
 colBtn.MouseButton1Click:Connect(toggle)
 local lastPillTouchClock=-10
 local function onIn(i)
@@ -2287,15 +2615,12 @@ local txt=d.Text or ""
 local isBigPageTitle=((d.TextSize or 14)>=15 and d.AbsolutePosition.Y>hy+8 and d.AbsolutePosition.Y<hy+105 and(d.AbsolutePosition.X-winX)<260 and not d:FindFirstAncestorOfClass("ScrollingFrame"))
 local isSectionHeader=(txt:upper()==txt and #txt>=4 and(d.TextSize or 14)<=13 and d:FindFirstAncestorOfClass("ScrollingFrame")~=nil)
 if isBigPageTitle or isSectionHeader then
-d.TextColor3=Color3.new(1,1,1)
+d.TextColor3=c3(242,246,255)
 local ig=d:FindFirstChild("ChilliInnerUltraGrad")
 if not ig then
 mk("UIGradient",{Name="ChilliInnerUltraGrad",Color=ULTRA_TEXT_GRAD},d)
 else
 ig.Color=ULTRA_TEXT_GRAD
-end
-if not d:FindFirstChild("ChilliUltraThinStroke")then
-mk("UIStroke",{Name="ChilliUltraThinStroke",Thickness=1.0,Color=c3(10,12,22),Transparency=0.25},d)
 end
 elseif d:FindFirstAncestorOfClass("ScrollingFrame")and d:IsA("TextLabel")then
 local c=d.TextColor3
@@ -2377,7 +2702,7 @@ if win.AbsoluteSize.X>=200 and win.AbsoluteSize.Y>=140 then
 State.SavedFullWinSize=win.Size
 end
 local function syncWindowVisibilityInstant()
-if not isAlive()or not win or not win.Parent or State.IsBubbleAnimating then return end
+if not win or not win.Parent or State.IsBubbleAnimating then return end
 if win.Visible and win.AbsoluteSize.X>=200 and win.AbsoluteSize.Y>=140 then
 State.SavedFullWinSize=win.Size
 end
@@ -2386,6 +2711,10 @@ local isSizeZero=(win.AbsoluteSize.X>0 and(win.AbsoluteSize.X<95 or win.Absolute
 local isHdrHidden=(headerBar~=nil)and(not headerBar.Visible)
 local isForceClosing=(State.CloseHideUntil~=nil)and(os.clock()<State.CloseHideUntil)
 local isRealBgHidden=(mainBg~=win)and(mainBg.BackgroundTransparency>=0.99)
+if win.Visible and(isSizeZero or isHdrHidden or isRealBgHidden)then
+win.Visible=false
+if State.SyncBubbleIconFn then pcall(State.SyncBubbleIconFn,false,true)end
+end
 local isClosed=(not win.Visible)or isOffscreen or isSizeZero or isHdrHidden or isForceClosing or isRealBgHidden
 local isOpen=not isClosed
 if winStroke then
@@ -2405,17 +2734,15 @@ win:GetPropertyChangedSignal("Position"):Connect(syncWindowVisibilityInstant)
 if mainBg and mainBg~=win then
 mainBg:GetPropertyChangedSignal("BackgroundTransparency"):Connect(syncWindowVisibilityInstant)
 end
-end
-if win.AbsoluteSize.X>=200 then
 for _,d in ipairs(win:GetDescendants())do
-if d:IsA("GuiObject")and not d.Name:find("^Chilli")and not d:IsA("TextBox")and not d:FindFirstChildOfClass("TextBox")and not d:FindFirstAncestorOfClass("ScrollingFrame")then
+if d:IsA("GuiObject")and not d.Name:find("^Chilli")and not d:FindFirstAncestorOfClass("ScrollingFrame")then
 local relX=d.AbsolutePosition.X-win.AbsolutePosition.X
 local relY=d.AbsolutePosition.Y-win.AbsolutePosition.Y
-if relY>=-2 and relY<36 and relX>(win.AbsoluteSize.X-44)and d.AbsoluteSize.X>0 and d.AbsoluteSize.X<=40 and d.AbsoluteSize.Y>0 and d.AbsoluteSize.Y<=36 then
+if relY>=0 and relY<32 and relX>(win.AbsoluteSize.X-38)and d.AbsoluteSize.X<=34 and d.AbsoluteSize.Y<=32 then
 d.Active=false
+if d:IsA("GuiButton")or d:IsA("Frame")then
 d.Visible=false
-d.Position=u2(0,-9999,0,-9999)
-d.Size=u2(0,0,0,0)
+end
 end
 end
 end
@@ -2699,14 +3026,20 @@ local function hideNativeVxToggleOnly(ch)
 if not ch or not ch:IsA("GuiObject")or ch==win or ch.Name=="ChilliV5_ExpandedIsland" or ch:FindFirstChild("IslandExpandHint")or ch.Name=="ChilliCrystalBubble" then
 return
 end
-local aw,ah=ch.AbsoluteSize.X,ch.AbsoluteSize.Y
-local sw,sh=ch.Size.X.Offset,ch.Size.Y.Offset
-local isSmallCircle=((aw>0 and aw<=90 and ah>0 and ah<=90)or(sw>0 and sw<=90 and sh>0 and sh<=90))
-if isSmallCircle then
-ch.Position=u2(0,-9999,0,-9999)
+local isVxToggle=false
+if ch.AbsoluteSize.X>0 and ch.AbsoluteSize.X<=75 and ch.AbsoluteSize.Y>0 and ch.AbsoluteSize.Y<=75 then
+for _,d in ipairs(ch:GetDescendants())do
+if d:IsA("TextLabel")or d:IsA("TextButton")then
+local t=(d.Text or ""):lower():match("^%s*(.-)%s*$")
+if t=="vx" or t=="v" or t=="" then
+isVxToggle=true
+break
+end
+end
+end
+end
+if isVxToggle then
 ch.BackgroundTransparency=1
-if ch:IsA("ImageLabel")or ch:IsA("ImageButton")then ch.ImageTransparency=1 end
-if ch:IsA("TextLabel")or ch:IsA("TextButton")then ch.TextTransparency=1 end
 for _,sub in ipairs(ch:GetDescendants())do
 if sub:IsA("TextLabel")or sub:IsA("TextButton")then
 sub.TextTransparency=1
@@ -2742,7 +3075,6 @@ local bubble=gui:FindFirstChild("ChilliCrystalBubble")
 if not bubble then
 bubble=Instance.new("ImageButton")
 bubble.Name="ChilliCrystalBubble"
-bubble:SetAttribute("__BubbleSession",SID)
 bubble.AnchorPoint=v2(0.5,0.5)
 bubble.Position=u2(0,36,0.5,-20)
 bubble.Size=u2(0,56,0,56)
@@ -2753,6 +3085,7 @@ bubble.AutoButtonColor=false
 bubble.BorderSizePixel=0
 bubble.ZIndex=99999
 bubble.Visible=true
+bubble:SetAttribute("__BubbleSession",SID)
 bubble.Parent=gui
 local container=Instance.new("Frame")
 container.Name="ChilliBubbleContainer"
@@ -2911,39 +3244,50 @@ if shimmerImg then shimmerImg.ImageTransparency=0.25 end
 end
 end
 end
-if env.__ChilliBubbleDragConn then
-pcall(function()env.__ChilliBubbleDragConn:Disconnect()end)
-env.__ChilliBubbleDragConn=nil
+local function isPointInsideGui(guiObj,pos)
+if not guiObj or not guiObj.Parent or not guiObj.Visible or not pos then return false end
+local ap,as=guiObj.AbsolutePosition,guiObj.AbsoluteSize
+if as.X<=0 or as.Y<=0 then return true end
+return pos.X>=(ap.X-6)and pos.X<=(ap.X+as.X+6)and pos.Y>=(ap.Y-6)and pos.Y<=(ap.Y+as.Y+6)
 end
 local dragging,dragInput,dragStart,startPos=false,nil,nil,nil
+local pressedInsideBubble=false
 local totalDragDist=0
 if bubble:GetAttribute("__DragHooked")~=SID then
 bubble:SetAttribute("__DragHooked",SID)
 bubble.InputBegan:Connect(function(inp)
 if not isAlive()then return end
 if inp.UserInputType==EUIT.MouseButton1 or inp.UserInputType==EUIT.Touch then
+if not isPointInsideGui(bubble,inp.Position)then return end
+pressedInsideBubble=true
 dragging=true
 dragStart=inp.Position
 startPos=bubble.Position
 totalDragDist=0
+if inp.Changed then
 inp.Changed:Connect(function()
 if inp.UserInputState==Enum.UserInputState.End or inp.UserInputState==Enum.UserInputState.Cancel then
 dragging=false
 end
 end)
 end
+end
 end)
 bubble.InputChanged:Connect(function(inp)
+if not isAlive()then return end
 if inp.UserInputType==EUIT.MouseMovement or inp.UserInputType==EUIT.Touch then
 dragInput=inp
 end
 end)
+if env.__ChilliBubbleDragConn then
+pcall(function()env.__ChilliBubbleDragConn:Disconnect()end)
+end
 env.__ChilliBubbleDragConn=UserInputSvc.InputChanged:Connect(function(inp)
 if not isAlive()then return end
 if inp==dragInput and dragging and dragStart and startPos then
 local delta=inp.Position-dragStart
 totalDragDist=delta.Magnitude
-if totalDragDist>8 then
+if totalDragDist>6 then
 bubble.Position=u2(
 startPos.X.Scale,startPos.X.Offset+delta.X,
 startPos.Y.Scale,startPos.Y.Offset+delta.Y
@@ -3048,7 +3392,7 @@ bubble:SetAttribute("__TapHooked",SID)
 local lastTapClock=0
 local function handleBubbleTap()
 if not isAlive()then return end
-if totalDragDist>10 then return end
+if totalDragDist>14 then return end
 local now=os.clock()
 if now-lastTapClock<0.25 then return end
 lastTapClock=now
@@ -3061,6 +3405,16 @@ end
 end
 bubble.MouseButton1Click:Connect(handleBubbleTap)
 bubble.Activated:Connect(handleBubbleTap)
+bubble.InputEnded:Connect(function(inp)
+if not isAlive()then return end
+if inp.UserInputType==EUIT.MouseButton1 or inp.UserInputType==EUIT.Touch then
+local wasPressed=pressedInsideBubble
+pressedInsideBubble=false
+if wasPressed and totalDragDist<=14 and isPointInsideGui(bubble,inp.Position)then
+handleBubbleTap()
+end
+end
+end)
 end
 local oldMinus=win:FindFirstChild("ChilliCustomMinusBtn")
 if oldMinus and oldMinus:GetAttribute("__MinusSession")~=SID then
@@ -3087,10 +3441,14 @@ ZIndex=9999
 customMinusBtn:SetAttribute("__MinusSession",SID)
 mk("UICorner",{CornerRadius=UDim.new(0,6)},customMinusBtn)
 mk("UIStroke",{Thickness=1,Color=c3(70,90,135),Transparency=0.35},customMinusBtn)
+else
+customMinusBtn.Visible=true
+customMinusBtn.ZIndex=9999
 end
 if customMinusBtn:GetAttribute("__MinusHooked")~=SID then
 customMinusBtn:SetAttribute("__MinusHooked",SID)
 local lastMinusClick=0
+local pressedInsideMinus=false
 local function triggerMinusClose()
 if not isAlive()then return end
 local now=os.clock()
@@ -3098,6 +3456,24 @@ if now-lastMinusClick<0.25 then return end
 lastMinusClick=now
 closeMenuAnimated()
 end
+customMinusBtn.InputBegan:Connect(function(inp)
+if not isAlive()then return end
+if inp.UserInputType==EUIT.MouseButton1 or inp.UserInputType==EUIT.Touch then
+if isPointInsideGui(customMinusBtn,inp.Position)then
+pressedInsideMinus=true
+end
+end
+end)
+customMinusBtn.InputEnded:Connect(function(inp)
+if not isAlive()then return end
+if inp.UserInputType==EUIT.MouseButton1 or inp.UserInputType==EUIT.Touch then
+local wasM=pressedInsideMinus
+pressedInsideMinus=false
+if wasM and isPointInsideGui(customMinusBtn,inp.Position)then
+triggerMinusClose()
+end
+end
+end)
 customMinusBtn.MouseButton1Click:Connect(triggerMinusClose)
 customMinusBtn.Activated:Connect(triggerMinusClose)
 end
@@ -3108,6 +3484,11 @@ syncBubbleIconState(win.Visible,true)
 if State.SyncWindowFn then pcall(State.SyncWindowFn)end
 end
 end)
+if win:GetAttribute("__InitialOpenSession")~=SID then
+win:SetAttribute("__InitialOpenSession",SID)
+winScale.Scale=1.0
+win.Visible=true
+end
 syncBubbleIconState(win.Visible,false)
 end
 end
@@ -3331,13 +3712,16 @@ local function getFinderWindowFromObj(obj)
 if not obj or not obj.Parent then return nil end
 local winFrame=nil
 local curr=obj.Parent
-for _=1,6 do
+for _=1,8 do
 if not curr or curr:IsA("ScreenGui")or curr==game then break end
-if curr:GetAttribute("__IsChilliFinderContainer")or curr:FindFirstChild("ChillFinderRainbowBorder")then
-return curr
-end
 if curr:IsA("GuiObject")then
-if(curr.AbsoluteSize.X>=200 and curr.AbsoluteSize.Y>=180)or(curr.Size.X.Offset>=200 and curr.Size.Y.Offset>=180)then
+local aw,ah=curr.AbsoluteSize.X,curr.AbsoluteSize.Y
+local sw,sh=curr.Size.X.Offset,curr.Size.Y.Offset
+if(aw>=190 and ah>=165)or(sw>=190 and sh>=165)then
+if aw<1400 and ah<950 then
+winFrame=curr
+end
+elseif curr:FindFirstChild("ChillFinderRainbowBorder")then
 winFrame=curr
 end
 end
@@ -3398,6 +3782,9 @@ if inst:GetAttribute("__IsFinderHudElement")then return true end
 if inst:FindFirstAncestor("ChilliV5_ExpandedIsland")or inst:FindFirstAncestor("ChilliHeaderOverlay")then
 return false
 end
+if State.ActiveMainWin and State.ActiveMainWin.Parent and inst:IsDescendantOf(State.ActiveMainWin)then
+return false
+end
 if State.ActiveFinderWin and State.ActiveFinderWin.Parent and inst:IsDescendantOf(State.ActiveFinderWin)then
 return true
 end
@@ -3406,21 +3793,21 @@ if sg and sg:GetAttribute("__IsChilliFinderGui")and not isVenyxScreenGui(sg)then
 return true
 end
 local curr=inst.Parent
-for _=1,5 do
+for _=1,6 do
 if not curr or curr:IsA("ScreenGui")or curr==game then break end
-if curr:GetAttribute("__IsChilliFinderContainer")or curr.Name=="ChillFinderRainbowBorder" or curr.Name=="ChillFinderHeaderNeonLine" or curr:FindFirstChild("ChillFinderRainbowBorder")or curr:FindFirstChild("ChillFinderHeaderNeonLine")then
-curr:SetAttribute("__IsChilliFinderContainer",true)
-State.ActiveFinderWin=curr
+if curr:GetAttribute("__IsChilliFinderContainer")or curr:FindFirstChild("ChillFinderRainbowBorder")then
 return true
 end
 for _,ch in ipairs(curr:GetChildren())do
 if ch:IsA("TextLabel")or ch:IsA("TextButton")then
 local t=stripRichTags(ch.Text)
 if(t:find("/s",1,true)or t:find("$",1,true))and(t:find("ago",1,true)or t:find("trước",1,true)or t:find("recent",1,true)or t:find("x",1,true))then
-curr:SetAttribute("__IsChilliFinderContainer",true)
+local w=getFinderWindowFromObj(curr)
+if w then w:SetAttribute("__IsChilliFinderContainer",true)State.ActiveFinderWin=w end
 return true
-elseif t=="Chilli Finder" or t=="Chill Finder Free" or t=="Chilli Finder Free" or t:find("chillihub.pro",1,true)or t:find("Top 5",1,true)or t:find("No active booking",1,true)or t=="FORCE JOIN" or t=="TỰ VÀO SAU" or t=="MIN VALUE" or t=="GIÁ TỐI THIỂU" then
-curr:SetAttribute("__IsChilliFinderContainer",true)
+elseif t=="Chilli Finder" or t=="Chill Finder Free" or t=="Chilli Finder Free" or t:find("chillihub.pro",1,true)or t:find("Top 5",1,true)or t:find("No active booking",1,true)or t=="FORCE JOIN" or t=="TỰ VÀO SAU" or t=="MIN VALUE" or t=="GIÁ TỐI THIỂU" or t=="AUTO OFF" or t=="AUTO ON" then
+local w=getFinderWindowFromObj(curr)
+if w then w:SetAttribute("__IsChilliFinderContainer",true)State.ActiveFinderWin=w end
 return true
 end
 end
@@ -3579,19 +3966,7 @@ end)
 d:SetAttribute("__IsTranslating",false)
 d:SetAttribute("__ModifyingFinderText",false)
 end
-elseif low=="sign up" or low=="sign in" or low=="password" or low:find("sign in with your",1,true)then
-local curr=d.Parent
-for _=1,4 do
-if not curr or curr:IsA("ScreenGui")or curr==State.ActiveFinderWin then break end
-if curr:IsA("GuiObject")and curr.AbsoluteSize.Y>=40 and curr.AbsoluteSize.Y<=260 then
-curr.Visible=false
-curr.Position=u2(2,0,2,0)
-hookLoginFrameTrigger(curr)
-break
-end
-curr=curr.Parent
-end
-elseif low:find("chillihub.pro",1,true)or low:find("no active booking",1,true)or low:find("top 5 recent eggs",1,true)or raw=="Top 5 trứng mới nhất | Chilli Finder Free" or raw=="Top 5 trứng mới nhất | Chill Finder Free" then
+elseif low:find("sign in with your",1,true)or low:find("chillihub.pro",1,true)or low:find("no active booking",1,true)or low:find("top 5 recent eggs",1,true)or raw=="Top 5 trứng mới nhất | Chilli Finder Free" or raw=="Top 5 trứng mới nhất | Chill Finder Free" then
 local wantSub=(State.Language=="EN")and "Top 5 recent eggs | Chilli Finder Free" or "Top 5 trứng mới nhất | Chilli Finder Free"
 d:SetAttribute("__ModifyingFinderText",true)
 d:SetAttribute("__IsTranslating",true)
@@ -3610,6 +3985,31 @@ if winF then
 winF:SetAttribute("__IsChilliFinderContainer",true)
 State.ActiveFinderWin=winF
 task.defer(function()hideFinderSignInBox(winF)end)
+end
+elseif low=="sign in" or low=="sign trong" or low=="no plan" then
+if isInsideChilliFinder(d)then
+local wantFree=(State.Language=="EN")and "Free" or "Miễn phí"
+d:SetAttribute("__ModifyingFinderText",true)
+d:SetAttribute("__IsTranslating",true)
+d:SetAttribute("OrigRawText","Sign In")
+d:SetAttribute("OrigFinderStateText","Sign In")
+if d.Text~=wantFree then
+pcall(function()d.Text=wantFree end)
+end
+d:SetAttribute("__IsTranslating",false)
+d:SetAttribute("__ModifyingFinderText",false)
+end
+elseif low=="sign up" or low=="password" then
+local curr=d.Parent
+for _=1,4 do
+if not curr or curr:IsA("ScreenGui")or curr==State.ActiveFinderWin then break end
+if curr:IsA("GuiObject")and curr.AbsoluteSize.Y>=40 and curr.AbsoluteSize.Y<=260 and curr:FindFirstChildWhichIsA("TextBox",true)then
+curr.Visible=false
+curr.Position=u2(2,0,2,0)
+hookLoginFrameTrigger(curr)
+break
+end
+curr=curr.Parent
 end
 end
 end
@@ -4010,7 +4410,16 @@ pcall(function()InputBlockerScreen.Parent=CoreGui end)
 if not InputBlockerScreen.Parent and LocalPlayer then
 InputBlockerScreen.Parent=LocalPlayer:FindFirstChildOfClass("PlayerGui")
 end
-local shield=mk("TextButton",{Size=u2(1,0,1,0),Position=u2(0,0,0,0),BackgroundTransparency=1,Text="",AutoButtonColor=false,Active=true,Modal=true,ZIndex=15},InputBlockerScreen)
+local shield=Instance.new("TextButton")
+shield.Size=u2(1,0,1,0)
+shield.Position=u2(0,0,0,0)
+shield.BackgroundTransparency=1
+shield.Text=""
+shield.AutoButtonColor=false
+shield.Active=true
+shield.Modal=true
+shield.ZIndex=15
+shield.Parent=InputBlockerScreen
 end
 end
 local function RemoveScreenLockdown()
@@ -4159,13 +4568,26 @@ if MainScreenGui and MainScreenGui.Parent then
 MainScreenGui.Enabled=true
 return
 end
-local ScreenGui=mk("ScreenGui",{Name="ChilliV7_GetKeyUI",ResetOnSpawn=false,DisplayOrder=999995,ZIndexBehavior=Enum.ZIndexBehavior.Sibling})
+local ScreenGui=Instance.new("ScreenGui")
+ScreenGui.Name="ChilliV7_GetKeyUI"
+ScreenGui.ResetOnSpawn=false
+ScreenGui.DisplayOrder=999995
+ScreenGui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling
 pcall(function()ScreenGui.Parent=CoreGui end)
 if not ScreenGui.Parent and LocalPlayer then
 ScreenGui.Parent=LocalPlayer:FindFirstChildOfClass("PlayerGui")
 end
 MainScreenGui=ScreenGui
-local MainFrame=mk("Frame",{Name="MainFrame",AnchorPoint=v2(0.5,0.5),Size=u2(0,420,0,395),Position=u2(0.5,0,0.5,0),BackgroundColor3=c3(16,18,24),BorderSizePixel=0,ClipsDescendants=true,ZIndex=30},ScreenGui)
+local MainFrame=Instance.new("Frame")
+MainFrame.Name="MainFrame"
+MainFrame.AnchorPoint=v2(0.5,0.5)
+MainFrame.Size=u2(0,420,0,395)
+MainFrame.Position=u2(0.5,0,0.5,0)
+MainFrame.BackgroundColor3=c3(16,18,24)
+MainFrame.BorderSizePixel=0
+MainFrame.ClipsDescendants=true
+MainFrame.ZIndex=30
+MainFrame.Parent=ScreenGui
 Instance.new("UICorner",MainFrame).CornerRadius=UDim.new(0,16)
 local MainScale=Instance.new("UIScale",MainFrame)
 MainScale.Scale=0.95
@@ -4173,21 +4595,78 @@ local MainStroke=Instance.new("UIStroke",MainFrame)
 MainStroke.Thickness=1
 MainStroke.ApplyStrokeMode=EASM.Border
 MainStroke.Color=c3(36,41,52)
-local HeaderBar=mk("Frame",{Size=u2(1,-28,0,36),Position=u2(0,14,0,8),BackgroundTransparency=1,ZIndex=31},MainFrame)
-local MiniLogo=mk("Frame",{Size=u2(0,26,0,26),Position=u2(0,0,0.5,-13),BackgroundColor3=c3(22,25,34),ClipsDescendants=true,ZIndex=32},HeaderBar)
+local HeaderBar=Instance.new("Frame")
+HeaderBar.Size=u2(1,-28,0,36)
+HeaderBar.Position=u2(0,14,0,8)
+HeaderBar.BackgroundTransparency=1
+HeaderBar.ZIndex=31
+HeaderBar.Parent=MainFrame
+local MiniLogo=Instance.new("Frame")
+MiniLogo.Size=u2(0,26,0,26)
+MiniLogo.Position=u2(0,0,0.5,-13)
+MiniLogo.BackgroundColor3=c3(22,25,34)
+MiniLogo.ClipsDescendants=true
+MiniLogo.ZIndex=32
+MiniLogo.Parent=HeaderBar
 Instance.new("UICorner",MiniLogo).CornerRadius=UDim.new(1,0)
 local MiniLogoStroke=Instance.new("UIStroke",MiniLogo)
 MiniLogoStroke.Color=c3(190,40,70)
 MiniLogoStroke.Thickness=1
-local MiniLogoImg=mk("ImageLabel",{Size=u2(1,0,1,0),BackgroundTransparency=1,Image=ChilliAvatarId,ScaleType=Enum.ScaleType.Fit,ZIndex=33},MiniLogo)
-local TitleLabel=mk("TextLabel",{Size=u2(1,-125,0,16),Position=u2(0,34,0,2),BackgroundTransparency=1,Text=Languages[CurrentLang].Title,TextColor3=c3(226,232,240),TextSize=11.5,Font=EF.GothamBold,TextXAlignment=ETX.Left,ZIndex=32},HeaderBar)
-local SubTitleLabel=mk("TextLabel",{Size=u2(1,-125,0,14),Position=u2(0,34,0,18),BackgroundTransparency=1,Text=Languages[CurrentLang].Subtitle,TextColor3=c3(148,163,184),TextSize=9.5,Font=EF.GothamMedium,TextXAlignment=ETX.Left,ZIndex=32},HeaderBar)
-local OpenLangBtn=mk("TextButton",{Size=u2(0,56,0,24),Position=u2(1,-86,0.5,-12),BackgroundColor3=c3(22,25,34),Text=Languages[CurrentLang].LangBtnText,TextColor3=c3(203,213,225),TextSize=10,Font=EF.GothamBold,AutoButtonColor=false,ZIndex=32},HeaderBar)
+local MiniLogoImg=Instance.new("ImageLabel")
+MiniLogoImg.Size=u2(1,0,1,0)
+MiniLogoImg.BackgroundTransparency=1
+MiniLogoImg.Image=ChilliAvatarId
+MiniLogoImg.ScaleType=Enum.ScaleType.Fit
+MiniLogoImg.ZIndex=33
+MiniLogoImg.Parent=MiniLogo
+local TitleLabel=Instance.new("TextLabel")
+TitleLabel.Size=u2(1,-125,0,16)
+TitleLabel.Position=u2(0,34,0,2)
+TitleLabel.BackgroundTransparency=1
+TitleLabel.Text=Languages[CurrentLang].Title
+TitleLabel.TextColor3=c3(226,232,240)
+TitleLabel.TextSize=11.5
+TitleLabel.Font=EF.GothamBold
+TitleLabel.TextXAlignment=ETX.Left
+TitleLabel.ZIndex=32
+TitleLabel.Parent=HeaderBar
+local SubTitleLabel=Instance.new("TextLabel")
+SubTitleLabel.Size=u2(1,-125,0,14)
+SubTitleLabel.Position=u2(0,34,0,18)
+SubTitleLabel.BackgroundTransparency=1
+SubTitleLabel.Text=Languages[CurrentLang].Subtitle
+SubTitleLabel.TextColor3=c3(148,163,184)
+SubTitleLabel.TextSize=9.5
+SubTitleLabel.Font=EF.GothamMedium
+SubTitleLabel.TextXAlignment=ETX.Left
+SubTitleLabel.ZIndex=32
+SubTitleLabel.Parent=HeaderBar
+local OpenLangBtn=Instance.new("TextButton")
+OpenLangBtn.Size=u2(0,56,0,24)
+OpenLangBtn.Position=u2(1,-86,0.5,-12)
+OpenLangBtn.BackgroundColor3=c3(22,25,34)
+OpenLangBtn.Text=Languages[CurrentLang].LangBtnText
+OpenLangBtn.TextColor3=c3(203,213,225)
+OpenLangBtn.TextSize=10
+OpenLangBtn.Font=EF.GothamBold
+OpenLangBtn.AutoButtonColor=false
+OpenLangBtn.ZIndex=32
+OpenLangBtn.Parent=HeaderBar
 Instance.new("UICorner",OpenLangBtn).CornerRadius=UDim.new(0,6)
 local LangStroke=Instance.new("UIStroke",OpenLangBtn)
 LangStroke.Color=c3(42,48,62)
 LangStroke.Thickness=1
-local CloseKeyUiBtn=mk("TextButton",{Size=u2(0,24,0,24),Position=u2(1,-24,0.5,-12),BackgroundColor3=c3(24,28,38),Text="✕",TextColor3=c3(148,163,184),TextSize=11,Font=EF.GothamBold,AutoButtonColor=false,ZIndex=32},HeaderBar)
+local CloseKeyUiBtn=Instance.new("TextButton")
+CloseKeyUiBtn.Size=u2(0,24,0,24)
+CloseKeyUiBtn.Position=u2(1,-24,0.5,-12)
+CloseKeyUiBtn.BackgroundColor3=c3(24,28,38)
+CloseKeyUiBtn.Text="✕"
+CloseKeyUiBtn.TextColor3=c3(148,163,184)
+CloseKeyUiBtn.TextSize=11
+CloseKeyUiBtn.Font=EF.GothamBold
+CloseKeyUiBtn.AutoButtonColor=false
+CloseKeyUiBtn.ZIndex=32
+CloseKeyUiBtn.Parent=HeaderBar
 Instance.new("UICorner",CloseKeyUiBtn).CornerRadius=UDim.new(0,6)
 local CloseKeyStroke=Instance.new("UIStroke",CloseKeyUiBtn)
 CloseKeyStroke.Color=c3(42,48,62)
@@ -4197,105 +4676,460 @@ PlaySpringButton(CloseKeyUiBtn)
 RemoveScreenLockdown()
 if MainScreenGui then MainScreenGui.Enabled=false end
 end)
-local CenterLogoBox=mk("Frame",{Size=u2(0,46,0,46),Position=u2(0.5,-23,0,44),BackgroundColor3=c3(22,25,34),ClipsDescendants=true,ZIndex=31},MainFrame)
+local CenterLogoBox=Instance.new("Frame")
+CenterLogoBox.Size=u2(0,46,0,46)
+CenterLogoBox.Position=u2(0.5,-23,0,44)
+CenterLogoBox.BackgroundColor3=c3(22,25,34)
+CenterLogoBox.ClipsDescendants=true
+CenterLogoBox.ZIndex=31
+CenterLogoBox.Parent=MainFrame
 Instance.new("UICorner",CenterLogoBox).CornerRadius=UDim.new(0,12)
 local CenterLogoStroke=Instance.new("UIStroke",CenterLogoBox)
 CenterLogoStroke.Color=c3(190,40,70)
 CenterLogoStroke.Thickness=1
-local CenterLogoImg=mk("ImageLabel",{Size=u2(0.88,0,0.88,0),AnchorPoint=v2(0.5,0.5),Position=u2(0.5,0,0.5,0),BackgroundTransparency=1,Image=ChilliAvatarId,ScaleType=Enum.ScaleType.Fit,ZIndex=32},CenterLogoBox)
-local CenterTitle=mk("TextLabel",{Size=u2(1,-30,0,18),Position=u2(0,15,0,94),BackgroundTransparency=1,Text=Languages[CurrentLang].CenterTitle,TextColor3=c3(226,232,240),TextSize=12.5,Font=EF.GothamBold,ZIndex=31},MainFrame)
-local CenterSub=mk("TextLabel",{Size=u2(1,-30,0,14),Position=u2(0,15,0,112),BackgroundTransparency=1,Text=Languages[CurrentLang].CenterSub,TextColor3=c3(148,163,184),TextSize=9.5,Font=EF.GothamMedium,ZIndex=31},MainFrame)
-local InputContainer=mk("Frame",{Size=u2(1,-36,0,36),Position=u2(0,18,0,131),BackgroundColor3=c3(21,24,33),ZIndex=31},MainFrame)
+local CenterLogoImg=Instance.new("ImageLabel")
+CenterLogoImg.Size=u2(0.88,0,0.88,0)
+CenterLogoImg.AnchorPoint=v2(0.5,0.5)
+CenterLogoImg.Position=u2(0.5,0,0.5,0)
+CenterLogoImg.BackgroundTransparency=1
+CenterLogoImg.Image=ChilliAvatarId
+CenterLogoImg.ScaleType=Enum.ScaleType.Fit
+CenterLogoImg.ZIndex=32
+CenterLogoImg.Parent=CenterLogoBox
+local CenterTitle=Instance.new("TextLabel")
+CenterTitle.Size=u2(1,-30,0,18)
+CenterTitle.Position=u2(0,15,0,94)
+CenterTitle.BackgroundTransparency=1
+CenterTitle.Text=Languages[CurrentLang].CenterTitle
+CenterTitle.TextColor3=c3(226,232,240)
+CenterTitle.TextSize=12.5
+CenterTitle.Font=EF.GothamBold
+CenterTitle.ZIndex=31
+CenterTitle.Parent=MainFrame
+local CenterSub=Instance.new("TextLabel")
+CenterSub.Size=u2(1,-30,0,14)
+CenterSub.Position=u2(0,15,0,112)
+CenterSub.BackgroundTransparency=1
+CenterSub.Text=Languages[CurrentLang].CenterSub
+CenterSub.TextColor3=c3(148,163,184)
+CenterSub.TextSize=9.5
+CenterSub.Font=EF.GothamMedium
+CenterSub.ZIndex=31
+CenterSub.Parent=MainFrame
+local InputContainer=Instance.new("Frame")
+InputContainer.Size=u2(1,-36,0,36)
+InputContainer.Position=u2(0,18,0,131)
+InputContainer.BackgroundColor3=c3(21,24,33)
+InputContainer.ZIndex=31
+InputContainer.Parent=MainFrame
 Instance.new("UICorner",InputContainer).CornerRadius=UDim.new(0,9)
 local InputStroke=Instance.new("UIStroke",InputContainer)
 InputStroke.Color=c3(40,46,60)
 InputStroke.Thickness=1
-local InputBox=mk("TextBox",{Size=u2(1,-74,1,0),Position=u2(0,12,0,0),BackgroundTransparency=1,TextColor3=c3(226,232,240),PlaceholderColor3=c3(100,116,139),PlaceholderText=Languages[CurrentLang].Placeholder,Text="",TextSize=11,Font=EF.GothamMedium,TextXAlignment=ETX.Left,ClearTextOnFocus=false,ZIndex=32},InputContainer)
-local QuickPasteBtn=mk("TextButton",{Size=u2(0,52,0,24),Position=u2(1,-58,0.5,-12),BackgroundColor3=c3(30,35,47),Text=Languages[CurrentLang].QuickPaste,TextColor3=c3(203,213,225),TextSize=10,Font=EF.GothamBold,AutoButtonColor=false,ZIndex=33},InputContainer)
+local InputBox=Instance.new("TextBox")
+InputBox.Size=u2(1,-74,1,0)
+InputBox.Position=u2(0,12,0,0)
+InputBox.BackgroundTransparency=1
+InputBox.TextColor3=c3(226,232,240)
+InputBox.PlaceholderColor3=c3(100,116,139)
+InputBox.PlaceholderText=Languages[CurrentLang].Placeholder
+InputBox.Text=""
+InputBox.TextSize=11
+InputBox.Font=EF.GothamMedium
+InputBox.TextXAlignment=ETX.Left
+InputBox.ClearTextOnFocus=false
+InputBox.ZIndex=32
+InputBox.Parent=InputContainer
+local QuickPasteBtn=Instance.new("TextButton")
+QuickPasteBtn.Size=u2(0,52,0,24)
+QuickPasteBtn.Position=u2(1,-58,0.5,-12)
+QuickPasteBtn.BackgroundColor3=c3(30,35,47)
+QuickPasteBtn.Text=Languages[CurrentLang].QuickPaste
+QuickPasteBtn.TextColor3=c3(203,213,225)
+QuickPasteBtn.TextSize=10
+QuickPasteBtn.Font=EF.GothamBold
+QuickPasteBtn.AutoButtonColor=false
+QuickPasteBtn.ZIndex=33
+QuickPasteBtn.Parent=InputContainer
 Instance.new("UICorner",QuickPasteBtn).CornerRadius=UDim.new(0,6)
-local ButtonsRow=mk("Frame",{Size=u2(1,-36,0,36),Position=u2(0,18,0,173),BackgroundTransparency=1,ZIndex=31},MainFrame)
-local GetKeyBtn=mk("TextButton",{Size=u2(0.5,-5,1,0),Position=u2(0,0,0,0),BackgroundColor3=c3(190,35,68),Text=Languages[CurrentLang].GetKey,TextColor3=c3(241,245,249),TextSize=11,Font=EF.GothamBold,AutoButtonColor=false,ZIndex=32},ButtonsRow)
+local ButtonsRow=Instance.new("Frame")
+ButtonsRow.Size=u2(1,-36,0,36)
+ButtonsRow.Position=u2(0,18,0,173)
+ButtonsRow.BackgroundTransparency=1
+ButtonsRow.ZIndex=31
+ButtonsRow.Parent=MainFrame
+local GetKeyBtn=Instance.new("TextButton")
+GetKeyBtn.Size=u2(0.5,-5,1,0)
+GetKeyBtn.Position=u2(0,0,0,0)
+GetKeyBtn.BackgroundColor3=c3(190,35,68)
+GetKeyBtn.Text=Languages[CurrentLang].GetKey
+GetKeyBtn.TextColor3=c3(241,245,249)
+GetKeyBtn.TextSize=11
+GetKeyBtn.Font=EF.GothamBold
+GetKeyBtn.AutoButtonColor=false
+GetKeyBtn.ZIndex=32
+GetKeyBtn.Parent=ButtonsRow
 Instance.new("UICorner",GetKeyBtn).CornerRadius=UDim.new(0,9)
-local CheckKeyBtn=mk("TextButton",{Size=u2(0.5,-5,1,0),Position=u2(0.5,5,0,0),BackgroundColor3=c3(24,28,38),Text=Languages[CurrentLang].CheckKey,TextColor3=c3(203,213,225),TextSize=11,Font=EF.GothamBold,AutoButtonColor=false,ZIndex=32},ButtonsRow)
+local CheckKeyBtn=Instance.new("TextButton")
+CheckKeyBtn.Size=u2(0.5,-5,1,0)
+CheckKeyBtn.Position=u2(0.5,5,0,0)
+CheckKeyBtn.BackgroundColor3=c3(24,28,38)
+CheckKeyBtn.Text=Languages[CurrentLang].CheckKey
+CheckKeyBtn.TextColor3=c3(203,213,225)
+CheckKeyBtn.TextSize=11
+CheckKeyBtn.Font=EF.GothamBold
+CheckKeyBtn.AutoButtonColor=false
+CheckKeyBtn.ZIndex=32
+CheckKeyBtn.Parent=ButtonsRow
 Instance.new("UICorner",CheckKeyBtn).CornerRadius=UDim.new(0,9)
 local CheckStroke=Instance.new("UIStroke",CheckKeyBtn)
 CheckStroke.Color=c3(48,56,72)
 CheckStroke.Thickness=1
-local TutorialBtn=mk("TextButton",{Size=u2(1,-36,0,28),Position=u2(0,18,0,215),BackgroundColor3=c3(21,24,33),Text=Languages[CurrentLang].Tutorial,TextColor3=c3(148,163,184),TextSize=10,Font=EF.GothamBold,AutoButtonColor=false,ZIndex=32},MainFrame)
+local TutorialBtn=Instance.new("TextButton")
+TutorialBtn.Size=u2(1,-36,0,28)
+TutorialBtn.Position=u2(0,18,0,215)
+TutorialBtn.BackgroundColor3=c3(21,24,33)
+TutorialBtn.Text=Languages[CurrentLang].Tutorial
+TutorialBtn.TextColor3=c3(148,163,184)
+TutorialBtn.TextSize=10
+TutorialBtn.Font=EF.GothamBold
+TutorialBtn.AutoButtonColor=false
+TutorialBtn.ZIndex=32
+TutorialBtn.Parent=MainFrame
 Instance.new("UICorner",TutorialBtn).CornerRadius=UDim.new(0,8)
 local TutorialStroke=Instance.new("UIStroke",TutorialBtn)
 TutorialStroke.Color=c3(36,41,52)
 TutorialStroke.Thickness=1
-local NoticeCard=mk("Frame",{Size=u2(1,-36,0,44),Position=u2(0,18,0,249),BackgroundColor3=c3(20,23,31),ZIndex=31},MainFrame)
+local NoticeCard=Instance.new("Frame")
+NoticeCard.Size=u2(1,-36,0,44)
+NoticeCard.Position=u2(0,18,0,249)
+NoticeCard.BackgroundColor3=c3(20,23,31)
+NoticeCard.ZIndex=31
+NoticeCard.Parent=MainFrame
 Instance.new("UICorner",NoticeCard).CornerRadius=UDim.new(0,9)
 local NoticeStroke=Instance.new("UIStroke",NoticeCard)
 NoticeStroke.Color=c3(32,37,49)
 NoticeStroke.Thickness=1
-local NoticeText=mk("TextLabel",{Size=u2(1,-16,1,-6),Position=u2(0,8,0,3),BackgroundTransparency=1,Text=Languages[CurrentLang].Notice,TextColor3=c3(148,163,184),TextSize=9.5,Font=EF.GothamMedium,TextWrapped=true,TextYAlignment=ETY.Center,TextXAlignment=ETX.Left,ZIndex=32},NoticeCard)
-local MiniGamesRow=mk("Frame",{Size=u2(1,-36,0,36),Position=u2(0,18,0,299),BackgroundTransparency=1,ZIndex=31},MainFrame)
-local MiniGameBtn=mk("TextButton",{Size=u2(0.5,-4,1,0),Position=u2(0,0,0,0),BackgroundColor3=c3(22,26,36),Text=CanPlayGachaToday()and Languages[CurrentLang].MiniGameBox or Languages[CurrentLang].MiniGameBoxLocked,TextColor3=CanPlayGachaToday()and c3(203,213,225)or c3(100,116,139),TextSize=10,Font=EF.GothamBold,TextWrapped=true,AutoButtonColor=false,ZIndex=32},MiniGamesRow)
+local NoticeText=Instance.new("TextLabel")
+NoticeText.Size=u2(1,-16,1,-6)
+NoticeText.Position=u2(0,8,0,3)
+NoticeText.BackgroundTransparency=1
+NoticeText.Text=Languages[CurrentLang].Notice
+NoticeText.TextColor3=c3(148,163,184)
+NoticeText.TextSize=9.5
+NoticeText.Font=EF.GothamMedium
+NoticeText.TextWrapped=true
+NoticeText.TextYAlignment=ETY.Center
+NoticeText.TextXAlignment=ETX.Left
+NoticeText.ZIndex=32
+NoticeText.Parent=NoticeCard
+local MiniGamesRow=Instance.new("Frame")
+MiniGamesRow.Size=u2(1,-36,0,36)
+MiniGamesRow.Position=u2(0,18,0,299)
+MiniGamesRow.BackgroundTransparency=1
+MiniGamesRow.ZIndex=31
+MiniGamesRow.Parent=MainFrame
+local MiniGameBtn=Instance.new("TextButton")
+MiniGameBtn.Size=u2(0.5,-4,1,0)
+MiniGameBtn.Position=u2(0,0,0,0)
+MiniGameBtn.BackgroundColor3=c3(22,26,36)
+MiniGameBtn.Text=CanPlayGachaToday()and Languages[CurrentLang].MiniGameBox or Languages[CurrentLang].MiniGameBoxLocked
+MiniGameBtn.TextColor3=CanPlayGachaToday()and c3(203,213,225)or c3(100,116,139)
+MiniGameBtn.TextSize=10
+MiniGameBtn.Font=EF.GothamBold
+MiniGameBtn.TextWrapped=true
+MiniGameBtn.AutoButtonColor=false
+MiniGameBtn.ZIndex=32
+MiniGameBtn.Parent=MiniGamesRow
 Instance.new("UICorner",MiniGameBtn).CornerRadius=UDim.new(0,9)
 local MiniGameStroke=Instance.new("UIStroke",MiniGameBtn)
 MiniGameStroke.Color=CanPlayGachaToday()and c3(52,62,82)or c3(34,39,50)
 MiniGameStroke.Thickness=1
 local initSpin=LoadSpinDataToday()
-local SpinGameBtn=mk("TextButton",{Size=u2(0.5,-4,1,0),Position=u2(0.5,4,0,0),BackgroundColor3=c3(22,26,36),Text=(not initSpin.Played)and Languages[CurrentLang].MiniGameSpin or string.format(Languages[CurrentLang].MiniGameSpinLocked,initSpin.BonusHours),TextColor3=(not initSpin.Played)and c3(203,213,225)or c3(100,116,139),TextSize=9.5,Font=EF.GothamBold,TextWrapped=true,AutoButtonColor=false,ZIndex=32},MiniGamesRow)
+local SpinGameBtn=Instance.new("TextButton")
+SpinGameBtn.Size=u2(0.5,-4,1,0)
+SpinGameBtn.Position=u2(0.5,4,0,0)
+SpinGameBtn.BackgroundColor3=c3(22,26,36)
+SpinGameBtn.Text=(not initSpin.Played)and Languages[CurrentLang].MiniGameSpin or string.format(Languages[CurrentLang].MiniGameSpinLocked,initSpin.BonusHours)
+SpinGameBtn.TextColor3=(not initSpin.Played)and c3(203,213,225)or c3(100,116,139)
+SpinGameBtn.TextSize=9.5
+SpinGameBtn.Font=EF.GothamBold
+SpinGameBtn.TextWrapped=true
+SpinGameBtn.AutoButtonColor=false
+SpinGameBtn.ZIndex=32
+SpinGameBtn.Parent=MiniGamesRow
 Instance.new("UICorner",SpinGameBtn).CornerRadius=UDim.new(0,9)
 local SpinGameStroke=Instance.new("UIStroke",SpinGameBtn)
 SpinGameStroke.Color=(not initSpin.Played)and c3(52,62,82)or c3(34,39,50)
 SpinGameStroke.Thickness=1
-local StatusMsg=mk("TextLabel",{Size=u2(1,-36,0,22),Position=u2(0,18,0,344),BackgroundTransparency=1,Text=Languages[CurrentLang].FooterText,TextColor3=c3(100,116,139),TextSize=10.5,Font=EF.GothamMedium,TextWrapped=true,ZIndex=31},MainFrame)
-local GachaModal=mk("Frame",{Name="GachaModal",Size=u2(1,0,1,0),Position=u2(0,0,1,0),BackgroundColor3=c3(16,18,24),ZIndex=45,ClipsDescendants=true},MainFrame)
+local StatusMsg=Instance.new("TextLabel")
+StatusMsg.Size=u2(1,-36,0,22)
+StatusMsg.Position=u2(0,18,0,344)
+StatusMsg.BackgroundTransparency=1
+StatusMsg.Text=Languages[CurrentLang].FooterText
+StatusMsg.TextColor3=c3(100,116,139)
+StatusMsg.TextSize=10.5
+StatusMsg.Font=EF.GothamMedium
+StatusMsg.TextWrapped=true
+StatusMsg.ZIndex=31
+StatusMsg.Parent=MainFrame
+local GachaModal=Instance.new("Frame")
+GachaModal.Name="GachaModal"
+GachaModal.Size=u2(1,0,1,0)
+GachaModal.Position=u2(0,0,1,0)
+GachaModal.BackgroundColor3=c3(16,18,24)
+GachaModal.ZIndex=45
+GachaModal.ClipsDescendants=true
+GachaModal.Parent=MainFrame
 Instance.new("UICorner",GachaModal).CornerRadius=UDim.new(0,16)
-local GachaHeader=mk("TextLabel",{Size=u2(1,-60,0,24),Position=u2(0,18,0,12),BackgroundTransparency=1,Text=Languages[CurrentLang].GachaTitle,TextColor3=c3(226,232,240),TextSize=12,Font=EF.GothamBold,TextXAlignment=ETX.Left,ZIndex=46},GachaModal)
-local GachaCloseBtn=mk("TextButton",{Size=u2(0,26,0,26),Position=u2(1,-36,0,12),BackgroundColor3=c3(24,28,38),Text="✕",TextColor3=c3(148,163,184),TextSize=11,Font=EF.GothamBold,ZIndex=46},GachaModal)
+local GachaHeader=Instance.new("TextLabel")
+GachaHeader.Size=u2(1,-60,0,24)
+GachaHeader.Position=u2(0,18,0,12)
+GachaHeader.BackgroundTransparency=1
+GachaHeader.Text=Languages[CurrentLang].GachaTitle
+GachaHeader.TextColor3=c3(226,232,240)
+GachaHeader.TextSize=12
+GachaHeader.Font=EF.GothamBold
+GachaHeader.TextXAlignment=ETX.Left
+GachaHeader.ZIndex=46
+GachaHeader.Parent=GachaModal
+local GachaCloseBtn=Instance.new("TextButton")
+GachaCloseBtn.Size=u2(0,26,0,26)
+GachaCloseBtn.Position=u2(1,-36,0,12)
+GachaCloseBtn.BackgroundColor3=c3(24,28,38)
+GachaCloseBtn.Text="✕"
+GachaCloseBtn.TextColor3=c3(148,163,184)
+GachaCloseBtn.TextSize=11
+GachaCloseBtn.Font=EF.GothamBold
+GachaCloseBtn.ZIndex=46
+GachaCloseBtn.Parent=GachaModal
 Instance.new("UICorner",GachaCloseBtn).CornerRadius=UDim.new(0,6)
-local GachaSubText=mk("TextLabel",{Size=u2(1,-36,0,20),Position=u2(0,18,0,36),BackgroundTransparency=1,Text=Languages[CurrentLang].GachaSub,TextColor3=c3(148,163,184),TextSize=10,Font=EF.GothamMedium,TextXAlignment=ETX.Left,ZIndex=46},GachaModal)
-local BoxesContainer=mk("Frame",{Size=u2(1,-36,0,210),Position=u2(0,18,0,62),BackgroundTransparency=1,ZIndex=46},GachaModal)
+local GachaSubText=Instance.new("TextLabel")
+GachaSubText.Size=u2(1,-36,0,20)
+GachaSubText.Position=u2(0,18,0,36)
+GachaSubText.BackgroundTransparency=1
+GachaSubText.Text=Languages[CurrentLang].GachaSub
+GachaSubText.TextColor3=c3(148,163,184)
+GachaSubText.TextSize=10
+GachaSubText.Font=EF.GothamMedium
+GachaSubText.TextXAlignment=ETX.Left
+GachaSubText.ZIndex=46
+GachaSubText.Parent=GachaModal
+local BoxesContainer=Instance.new("Frame")
+BoxesContainer.Size=u2(1,-36,0,210)
+BoxesContainer.Position=u2(0,18,0,62)
+BoxesContainer.BackgroundTransparency=1
+BoxesContainer.ZIndex=46
+BoxesContainer.Parent=GachaModal
 local function CreateMysteryBox(name,posXScale,posXOffset,boxTitle)
-local BoxCard=mk("TextButton",{Name=name,Size=u2(0.5,-6,1,0),Position=u2(posXScale,posXOffset,0,0),BackgroundColor3=c3(21,24,33),Text="",AutoButtonColor=false,ZIndex=47},BoxesContainer)
+local BoxCard=Instance.new("TextButton")
+BoxCard.Name=name
+BoxCard.Size=u2(0.5,-6,1,0)
+BoxCard.Position=u2(posXScale,posXOffset,0,0)
+BoxCard.BackgroundColor3=c3(21,24,33)
+BoxCard.Text=""
+BoxCard.AutoButtonColor=false
+BoxCard.ZIndex=47
+BoxCard.Parent=BoxesContainer
 Instance.new("UICorner",BoxCard).CornerRadius=UDim.new(0,14)
 local BoxStroke=Instance.new("UIStroke",BoxCard)
 BoxStroke.Color=c3(42,48,62)
 BoxStroke.Thickness=1
-local Tag5050=mk("TextLabel",{Size=u2(1,-16,0,18),Position=u2(0,8,0,8),BackgroundColor3=c3(28,33,44),Text=Languages[CurrentLang].Rate5050,TextColor3=c3(203,213,225),TextSize=9,Font=EF.GothamBold,ZIndex=48},BoxCard)
+local Tag5050=Instance.new("TextLabel")
+Tag5050.Size=u2(1,-16,0,18)
+Tag5050.Position=u2(0,8,0,8)
+Tag5050.BackgroundColor3=c3(28,33,44)
+Tag5050.Text=Languages[CurrentLang].Rate5050
+Tag5050.TextColor3=c3(203,213,225)
+Tag5050.TextSize=9
+Tag5050.Font=EF.GothamBold
+Tag5050.ZIndex=48
+Tag5050.Parent=BoxCard
 Instance.new("UICorner",Tag5050).CornerRadius=UDim.new(0,6)
-local CropMask=mk("Frame",{Name="CropMask",AnchorPoint=v2(0.5,0),Size=u2(0,90,0,90),Position=u2(0.5,0,0,30),BackgroundTransparency=1,BorderSizePixel=0,ClipsDescendants=false,ZIndex=48},BoxCard)
-local GiftImage=mk("ImageLabel",{Name="GiftImage",AnchorPoint=v2(0.5,0.5),Size=u2(0.85,0,0.85,0),Position=u2(0.5,0,0.5,0),BackgroundTransparency=1,Image=GiftBoxAssetId,ScaleType=Enum.ScaleType.Fit,ZIndex=49},CropMask)
+local CropMask=Instance.new("Frame")
+CropMask.Name="CropMask"
+CropMask.AnchorPoint=v2(0.5,0)
+CropMask.Size=u2(0,90,0,90)
+CropMask.Position=u2(0.5,0,0,30)
+CropMask.BackgroundTransparency=1
+CropMask.BorderSizePixel=0
+CropMask.ClipsDescendants=false
+CropMask.ZIndex=48
+CropMask.Parent=BoxCard
+local GiftImage=Instance.new("ImageLabel")
+GiftImage.Name="GiftImage"
+GiftImage.AnchorPoint=v2(0.5,0.5)
+GiftImage.Size=u2(0.85,0,0.85,0)
+GiftImage.Position=u2(0.5,0,0.5,0)
+GiftImage.BackgroundTransparency=1
+GiftImage.Image=GiftBoxAssetId
+GiftImage.ScaleType=Enum.ScaleType.Fit
+GiftImage.ZIndex=49
+GiftImage.Parent=CropMask
 local Aspect=Instance.new("UIAspectRatioConstraint",GiftImage)
 Aspect.AspectRatio=1
-local Title=mk("TextLabel",{Name="BoxTitle",Size=u2(1,0,0,18),Position=u2(0,0,0,126),BackgroundTransparency=1,Text=boxTitle,TextColor3=c3(226,232,240),TextSize=11.5,Font=EF.GothamBold,ZIndex=48},BoxCard)
-local ActionHint=mk("TextLabel",{Name="ActionHint",Size=u2(1,-20,0,26),Position=u2(0,10,0,158),BackgroundColor3=c3(190,35,68),Text=Languages[CurrentLang].OpenBoxBtn,TextColor3=c3(241,245,249),TextSize=10.5,Font=EF.GothamBold,ZIndex=48},BoxCard)
+local Title=Instance.new("TextLabel")
+Title.Name="BoxTitle"
+Title.Size=u2(1,0,0,18)
+Title.Position=u2(0,0,0,126)
+Title.BackgroundTransparency=1
+Title.Text=boxTitle
+Title.TextColor3=c3(226,232,240)
+Title.TextSize=11.5
+Title.Font=EF.GothamBold
+Title.ZIndex=48
+Title.Parent=BoxCard
+local ActionHint=Instance.new("TextLabel")
+ActionHint.Name="ActionHint"
+ActionHint.Size=u2(1,-20,0,26)
+ActionHint.Position=u2(0,10,0,158)
+ActionHint.BackgroundColor3=c3(190,35,68)
+ActionHint.Text=Languages[CurrentLang].OpenBoxBtn
+ActionHint.TextColor3=c3(241,245,249)
+ActionHint.TextSize=10.5
+ActionHint.Font=EF.GothamBold
+ActionHint.ZIndex=48
+ActionHint.Parent=BoxCard
 Instance.new("UICorner",ActionHint).CornerRadius=UDim.new(0,8)
 return BoxCard,BoxStroke,CropMask,Title,ActionHint,Tag5050
 end
 local Box1,Box1Stroke,Box1Mask,Box1Title,Box1Hint,Box1Tag=CreateMysteryBox("Box1",0,0,Languages[CurrentLang].Box1Name)
 local Box2,Box2Stroke,Box2Mask,Box2Title,Box2Hint,Box2Tag=CreateMysteryBox("Box2",0.5,6,Languages[CurrentLang].Box2Name)
-local GachaResultBanner=mk("TextLabel",{Size=u2(1,-36,0,32),Position=u2(0,18,0,282),BackgroundColor3=c3(21,24,33),Text=Languages[CurrentLang].BoxBannerIdle,TextColor3=c3(203,213,225),TextSize=10,Font=EF.GothamMedium,ZIndex=46},GachaModal)
+local GachaResultBanner=Instance.new("TextLabel")
+GachaResultBanner.Size=u2(1,-36,0,32)
+GachaResultBanner.Position=u2(0,18,0,282)
+GachaResultBanner.BackgroundColor3=c3(21,24,33)
+GachaResultBanner.Text=Languages[CurrentLang].BoxBannerIdle
+GachaResultBanner.TextColor3=c3(203,213,225)
+GachaResultBanner.TextSize=10
+GachaResultBanner.Font=EF.GothamMedium
+GachaResultBanner.ZIndex=46
+GachaResultBanner.Parent=GachaModal
 Instance.new("UICorner",GachaResultBanner).CornerRadius=UDim.new(0,8)
-local SpinModal=mk("Frame",{Name="SpinModal",Size=u2(1,0,1,0),Position=u2(0,0,0,0),BackgroundColor3=c3(16,18,24),Visible=false,ClipsDescendants=false,ZIndex=55},MainFrame)
+local SpinModal=Instance.new("Frame")
+SpinModal.Name="SpinModal"
+SpinModal.Size=u2(1,0,1,0)
+SpinModal.Position=u2(0,0,0,0)
+SpinModal.BackgroundColor3=c3(16,18,24)
+SpinModal.Visible=false
+SpinModal.ClipsDescendants=false
+SpinModal.ZIndex=55
+SpinModal.Parent=MainFrame
 Instance.new("UICorner",SpinModal).CornerRadius=UDim.new(0,16)
-local SpinHeader=mk("TextLabel",{Size=u2(1,-60,0,22),Position=u2(0,18,0,10),BackgroundTransparency=1,Text=Languages[CurrentLang].SpinTitle,TextColor3=c3(226,232,240),TextSize=12,Font=EF.GothamBold,TextXAlignment=ETX.Left,ZIndex=56},SpinModal)
-local SpinCloseBtn=mk("TextButton",{Size=u2(0,24,0,24),Position=u2(1,-34,0,10),BackgroundColor3=c3(24,28,38),Text="✕",TextColor3=c3(148,163,184),TextSize=11,Font=EF.GothamBold,ZIndex=56},SpinModal)
+local SpinHeader=Instance.new("TextLabel")
+SpinHeader.Size=u2(1,-60,0,22)
+SpinHeader.Position=u2(0,18,0,10)
+SpinHeader.BackgroundTransparency=1
+SpinHeader.Text=Languages[CurrentLang].SpinTitle
+SpinHeader.TextColor3=c3(226,232,240)
+SpinHeader.TextSize=12
+SpinHeader.Font=EF.GothamBold
+SpinHeader.TextXAlignment=ETX.Left
+SpinHeader.ZIndex=56
+SpinHeader.Parent=SpinModal
+local SpinCloseBtn=Instance.new("TextButton")
+SpinCloseBtn.Size=u2(0,24,0,24)
+SpinCloseBtn.Position=u2(1,-34,0,10)
+SpinCloseBtn.BackgroundColor3=c3(24,28,38)
+SpinCloseBtn.Text="✕"
+SpinCloseBtn.TextColor3=c3(148,163,184)
+SpinCloseBtn.TextSize=11
+SpinCloseBtn.Font=EF.GothamBold
+SpinCloseBtn.ZIndex=56
+SpinCloseBtn.Parent=SpinModal
 Instance.new("UICorner",SpinCloseBtn).CornerRadius=UDim.new(0,6)
-local SpinSubText=mk("TextLabel",{Size=u2(1,-36,0,16),Position=u2(0,18,0,32),BackgroundTransparency=1,Text=Languages[CurrentLang].SpinSub,TextColor3=c3(148,163,184),TextSize=9.5,Font=EF.GothamMedium,TextXAlignment=ETX.Left,ZIndex=56},SpinModal)
-local PointerArrow=mk("TextLabel",{AnchorPoint=v2(0.5,0),Size=u2(0,24,0,18),Position=u2(0.5,0,0,48),BackgroundTransparency=1,Text="▼",TextColor3=c3(210,50,80),TextSize=16,Font=EF.GothamBlack,ZIndex=65},SpinModal)
-local WheelDisk=mk("Frame",{Name="WheelDisk",AnchorPoint=v2(0.5,0.5),Size=u2(0,168,0,168),Position=u2(0.5,0,0,148),BackgroundColor3=c3(22,26,36),ClipsDescendants=false,ZIndex=57},SpinModal)
+local SpinSubText=Instance.new("TextLabel")
+SpinSubText.Size=u2(1,-36,0,16)
+SpinSubText.Position=u2(0,18,0,32)
+SpinSubText.BackgroundTransparency=1
+SpinSubText.Text=Languages[CurrentLang].SpinSub
+SpinSubText.TextColor3=c3(148,163,184)
+SpinSubText.TextSize=9.5
+SpinSubText.Font=EF.GothamMedium
+SpinSubText.TextXAlignment=ETX.Left
+SpinSubText.ZIndex=56
+SpinSubText.Parent=SpinModal
+local PointerArrow=Instance.new("TextLabel")
+PointerArrow.AnchorPoint=v2(0.5,0)
+PointerArrow.Size=u2(0,24,0,18)
+PointerArrow.Position=u2(0.5,0,0,48)
+PointerArrow.BackgroundTransparency=1
+PointerArrow.Text="▼"
+PointerArrow.TextColor3=c3(210,50,80)
+PointerArrow.TextSize=16
+PointerArrow.Font=EF.GothamBlack
+PointerArrow.ZIndex=65
+PointerArrow.Parent=SpinModal
+local WheelDisk=Instance.new("Frame")
+WheelDisk.Name="WheelDisk"
+WheelDisk.AnchorPoint=v2(0.5,0.5)
+WheelDisk.Size=u2(0,168,0,168)
+WheelDisk.Position=u2(0.5,0,0,148)
+WheelDisk.BackgroundColor3=c3(22,26,36)
+WheelDisk.ClipsDescendants=false
+WheelDisk.ZIndex=57
+WheelDisk.Parent=SpinModal
 Instance.new("UICorner",WheelDisk).CornerRadius=UDim.new(1,0)
 local DiskStroke=Instance.new("UIStroke",WheelDisk)
 DiskStroke.Color=c3(55,65,85)
 DiskStroke.Thickness=2.5
-local Line1=mk("Frame",{AnchorPoint=v2(0.5,0.5),Size=u2(1,0,0,2),Position=u2(0.5,0,0.5,0),BackgroundColor3=c3(45,52,68),BorderSizePixel=0,Rotation=45,ZIndex=58},WheelDisk)
-local Line2=mk("Frame",{AnchorPoint=v2(0.5,0.5),Size=u2(1,0,0,2),Position=u2(0.5,0,0.5,0),BackgroundColor3=c3(45,52,68),BorderSizePixel=0,Rotation=-45,ZIndex=58},WheelDisk)
-local CenterCap=mk("Frame",{AnchorPoint=v2(0.5,0.5),Size=u2(0,24,0,24),Position=u2(0.5,0,0.5,0),BackgroundColor3=c3(32,38,52),ZIndex=61},WheelDisk)
+local Line1=Instance.new("Frame")
+Line1.AnchorPoint=v2(0.5,0.5)
+Line1.Size=u2(1,0,0,2)
+Line1.Position=u2(0.5,0,0.5,0)
+Line1.BackgroundColor3=c3(45,52,68)
+Line1.BorderSizePixel=0
+Line1.Rotation=45
+Line1.ZIndex=58
+Line1.Parent=WheelDisk
+local Line2=Instance.new("Frame")
+Line2.AnchorPoint=v2(0.5,0.5)
+Line2.Size=u2(1,0,0,2)
+Line2.Position=u2(0.5,0,0.5,0)
+Line2.BackgroundColor3=c3(45,52,68)
+Line2.BorderSizePixel=0
+Line2.Rotation=-45
+Line2.ZIndex=58
+Line2.Parent=WheelDisk
+local CenterCap=Instance.new("Frame")
+CenterCap.AnchorPoint=v2(0.5,0.5)
+CenterCap.Size=u2(0,24,0,24)
+CenterCap.Position=u2(0.5,0,0.5,0)
+CenterCap.BackgroundColor3=c3(32,38,52)
+CenterCap.ZIndex=61
+CenterCap.Parent=WheelDisk
 Instance.new("UICorner",CenterCap).CornerRadius=UDim.new(1,0)
 local CapStroke=Instance.new("UIStroke",CenterCap)
 CapStroke.Color=c3(190,40,70)
 CapStroke.Thickness=1.2
 local function CreateSliceLabel(posX,posY,titleText)
-local Holder=mk("Frame",{AnchorPoint=v2(0.5,0.5),Size=u2(0,62,0,32),Position=u2(posX,0,posY,0),BackgroundTransparency=1,ZIndex=59},WheelDisk)
-local MainTxt=mk("TextLabel",{Size=u2(1,0,0,16),Position=u2(0,0,0,0),BackgroundTransparency=1,Text=titleText,TextColor3=c3(226,232,240),TextSize=11,Font=EF.GothamBold,ZIndex=60},Holder)
-local SubTxt=mk("TextLabel",{Size=u2(1,0,0,14),Position=u2(0,0,0,16),BackgroundTransparency=1,Text="50% - 50%",TextColor3=c3(148,163,184),TextSize=8.5,Font=EF.GothamMedium,ZIndex=60},Holder)
+local Holder=Instance.new("Frame")
+Holder.AnchorPoint=v2(0.5,0.5)
+Holder.Size=u2(0,62,0,32)
+Holder.Position=u2(posX,0,posY,0)
+Holder.BackgroundTransparency=1
+Holder.ZIndex=59
+Holder.Parent=WheelDisk
+local MainTxt=Instance.new("TextLabel")
+MainTxt.Size=u2(1,0,0,16)
+MainTxt.Position=u2(0,0,0,0)
+MainTxt.BackgroundTransparency=1
+MainTxt.Text=titleText
+MainTxt.TextColor3=c3(226,232,240)
+MainTxt.TextSize=11
+MainTxt.Font=EF.GothamBold
+MainTxt.ZIndex=60
+MainTxt.Parent=Holder
+local SubTxt=Instance.new("TextLabel")
+SubTxt.Size=u2(1,0,0,14)
+SubTxt.Position=u2(0,0,0,16)
+SubTxt.BackgroundTransparency=1
+SubTxt.Text="50% - 50%"
+SubTxt.TextColor3=c3(148,163,184)
+SubTxt.TextSize=8.5
+SubTxt.Font=EF.GothamMedium
+SubTxt.ZIndex=60
+SubTxt.Parent=Holder
 return MainTxt
 end
 local Title1=CreateSliceLabel(0.5,0.22,Languages[CurrentLang].Prize2H)
@@ -4308,11 +5142,41 @@ local WheelSlices={
 {Title=Title3,Hours=4,TargetAngle=180,MsgKey="Msg4H"},
 {Title=Title4,Hours=12,TargetAngle=90,MsgKey="Msg12H"}
 }
-local TriggerSpinBtn=mk("TextButton",{Size=u2(0,170,0,32),Position=u2(0.5,-85,0,244),BackgroundColor3=(not initSpin.Played)and c3(190,35,68)or c3(30,35,47),Text=(not initSpin.Played)and Languages[CurrentLang].SpinBtnText or Languages[CurrentLang].SpinDoneText,TextColor3=(not initSpin.Played)and c3(241,245,249)or c3(148,163,184),TextSize=11,Font=EF.GothamBold,AutoButtonColor=false,ZIndex=60},SpinModal)
+local TriggerSpinBtn=Instance.new("TextButton")
+TriggerSpinBtn.Size=u2(0,170,0,32)
+TriggerSpinBtn.Position=u2(0.5,-85,0,244)
+TriggerSpinBtn.BackgroundColor3=(not initSpin.Played)and c3(190,35,68)or c3(30,35,47)
+TriggerSpinBtn.Text=(not initSpin.Played)and Languages[CurrentLang].SpinBtnText or Languages[CurrentLang].SpinDoneText
+TriggerSpinBtn.TextColor3=(not initSpin.Played)and c3(241,245,249)or c3(148,163,184)
+TriggerSpinBtn.TextSize=11
+TriggerSpinBtn.Font=EF.GothamBold
+TriggerSpinBtn.AutoButtonColor=false
+TriggerSpinBtn.ZIndex=60
+TriggerSpinBtn.Parent=SpinModal
 Instance.new("UICorner",TriggerSpinBtn).CornerRadius=UDim.new(0,8)
-local SpinResultBanner=mk("TextLabel",{Size=u2(1,-36,0,34),Position=u2(0,18,0,284),BackgroundColor3=c3(21,24,33),Text=initSpin.Played and string.format("✔ Hôm nay bạn đã quay trúng +%d giờ sử dụng!",initSpin.BonusHours)or "Bấm nút QUAY NGAY để nhận thêm giờ dùng Key!",TextColor3=initSpin.Played and c3(110,231,183)or c3(203,213,225),TextSize=10,Font=EF.GothamMedium,TextWrapped=true,ZIndex=56},SpinModal)
+local SpinResultBanner=Instance.new("TextLabel")
+SpinResultBanner.Size=u2(1,-36,0,34)
+SpinResultBanner.Position=u2(0,18,0,284)
+SpinResultBanner.BackgroundColor3=c3(21,24,33)
+SpinResultBanner.Text=initSpin.Played and string.format("✔ Hôm nay bạn đã quay trúng +%d giờ sử dụng!",initSpin.BonusHours)or "Bấm nút QUAY NGAY để nhận thêm giờ dùng Key!"
+SpinResultBanner.TextColor3=initSpin.Played and c3(110,231,183)or c3(203,213,225)
+SpinResultBanner.TextSize=10
+SpinResultBanner.Font=EF.GothamMedium
+SpinResultBanner.TextWrapped=true
+SpinResultBanner.ZIndex=56
+SpinResultBanner.Parent=SpinModal
 Instance.new("UICorner",SpinResultBanner).CornerRadius=UDim.new(0,8)
-local SpinFooterNote=mk("TextLabel",{Size=u2(1,-36,0,28),Position=u2(0,18,0,324),BackgroundTransparency=1,Text=Languages[CurrentLang].SpinNote,TextColor3=c3(148,163,184),TextSize=9.5,Font=EF.GothamMedium,TextWrapped=true,ZIndex=56},SpinModal)
+local SpinFooterNote=Instance.new("TextLabel")
+SpinFooterNote.Size=u2(1,-36,0,28)
+SpinFooterNote.Position=u2(0,18,0,324)
+SpinFooterNote.BackgroundTransparency=1
+SpinFooterNote.Text=Languages[CurrentLang].SpinNote
+SpinFooterNote.TextColor3=c3(148,163,184)
+SpinFooterNote.TextSize=9.5
+SpinFooterNote.Font=EF.GothamMedium
+SpinFooterNote.TextWrapped=true
+SpinFooterNote.ZIndex=56
+SpinFooterNote.Parent=SpinModal
 local isRollingMutex=false
 local isSpinningMutex=false
 local function OpenGachaModal()
@@ -4811,6 +5675,7 @@ local function isFinderJoinLabel(inst)
 if not inst or not inst.Parent then return false end
 if inst.Name=="ChilliFinderJoinInterceptor" then return false end
 if inst:FindFirstAncestor("ChilliV5_ExpandedIsland")or inst:FindFirstAncestor("ChilliHeaderOverlay")then return false end
+if State.ActiveMainWin and State.ActiveMainWin.Parent and inst:IsDescendantOf(State.ActiveMainWin)then return false end
 local txtObj=inst
 if not(inst:IsA("TextButton")or inst:IsA("TextLabel"))then
 local c=inst:FindFirstChildWhichIsA("TextLabel")or inst:FindFirstChildWhichIsA("TextButton")
@@ -5015,19 +5880,20 @@ return table.concat(parts,"\n")
 end
 return translateSingleFinderSegment(txt)
 end
+local scanChilliFinderButtons=nil
 watchFinderHudButton=function(lbl)
 if not lbl or not(lbl:IsA("TextLabel")or lbl:IsA("TextButton"))then return end
 if lbl.Name=="ChilliFinderJoinInterceptor" or lbl:FindFirstAncestor("ChilliV5_ExpandedIsland")or lbl:FindFirstAncestor("ChilliHeaderOverlay")then return end
+if State.ActiveMainWin and State.ActiveMainWin.Parent and lbl:IsDescendantOf(State.ActiveMainWin)then return end
 local raw=stripRichTags(lbl:GetAttribute("OrigFinderStateText")or lbl.Text or "")
 if raw=="" or raw:find("⏳",1,true)then return end
 local low=raw:lower()
-local isKnownFinderTxt=(FINDER_STATE_MAP[low]~=nil or raw:find(" ago",1,true)~=nil or raw:find("trước",1,true)~=nil or low:find("finder",1,true)~=nil or low:find("chillihub.pro",1,true)~=nil)
-if not isKnownFinderTxt and not lbl:GetAttribute("__IsFinderHudElement")then
+local inFinder=lbl:GetAttribute("__IsFinderHudElement")or isInsideChilliFinder(lbl)
+local isHudFinderBtn=(low=="finder" or low=="tìm trứng" or low:find("finder",1,true)~=nil)
+local isKnownFinderTxt=(FINDER_STATE_MAP[low]~=nil or raw:find(" ago",1,true)~=nil or raw:find("trước",1,true)~=nil or low:find("finder",1,true)~=nil or low:find("chillihub.pro",1,true)~=nil or low:find("force join",1,true)~=nil or low:find("min value",1,true)~=nil or low:find("rarity",1,true)~=nil or low:find("account",1,true)~=nil or low:find("auto",1,true)~=nil or raw:match("^%d+s$")~=nil)
+if not inFinder and not isHudFinderBtn and not isKnownFinderTxt then
 return
 end
-local inFinder=lbl:GetAttribute("__IsFinderHudElement")or isInsideChilliFinder(lbl)
-local isHudFinderBtn=(low=="finder" or low=="tìm trứng" or low:find("finder",1,true))
-if not inFinder and not isHudFinderBtn then return end
 lbl:SetAttribute("__IsFinderHudElement",true)
 local function updateText()
 if lbl:GetAttribute("__TranslatingFinderHud")or lbl:GetAttribute("__ModifyingFinderText")then return end
@@ -5061,8 +5927,8 @@ end
 end)
 if(low=="finder" or low=="tìm trứng")and not isInsideChilliFinder(lbl)then
 local clickTarget=(lbl:IsA("TextButton")or lbl:IsA("ImageButton"))and lbl or lbl:FindFirstAncestorWhichIsA("GuiButton")or lbl.Parent
-if clickTarget and clickTarget:IsA("GuiObject")and not clickTarget:GetAttribute("__FinderBtnCycleHooked")then
-clickTarget:SetAttribute("__FinderBtnCycleHooked",true)
+if clickTarget and clickTarget:IsA("GuiObject")and clickTarget:GetAttribute("__FinderBtnCycleHooked")~=SID then
+clickTarget:SetAttribute("__FinderBtnCycleHooked",SID)
 local FINDER_HUD_CYCLE={
 {text="Tìm Trứng",color=c3(255,185,35)},
 {text="Đang săn trứng",color=c3(45,215,135)},
@@ -5103,11 +5969,11 @@ end
 watchFinderTextObj=function(d)
 if not d or not(d:IsA("TextButton")or d:IsA("TextLabel"))then return end
 if d.Name=="ChilliFinderJoinInterceptor" then return end
-if State.ActiveMainWin and d:IsDescendantOf(State.ActiveMainWin)then return end
+if State.ActiveMainWin and State.ActiveMainWin.Parent and d:IsDescendantOf(State.ActiveMainWin)then return end
 pcall(sanitizeChillFinderFreeObj,d)
 pcall(watchFinderHudButton,d)
 local checkT=stripRichTags(d.Text):lower()
-if checkT=="sign up" or checkT=="sign in" or checkT:find("sign in with your",1,true)or checkT=="password" then
+if checkT=="sign up" or checkT=="password" then
 pcall(hideFinderSignInBox,d)
 end
 if isFinderJoinLabel(d)then
@@ -5164,51 +6030,71 @@ end
 end)
 end
 end)
+win.DescendantAdded:Connect(function(nd)
+if not isAlive()then return end
+if nd:IsA("TextLabel")or nd:IsA("TextButton")or nd:IsA("TextBox")then
+task.defer(function()
+if isAlive()and nd and nd.Parent then
+pcall(watchFinderTextObj,nd)
+pcall(hookTrans,nd)
+end
+end)
+end
+end)
 end
 for _,d in ipairs(win:GetDescendants())do
 if d:IsA("TextLabel")or d:IsA("TextButton")or d:IsA("TextBox")then
-watchFinderTextObj(d)
+pcall(watchFinderTextObj,d)
+pcall(hookTrans,d)
 end
 end
+end
+local function isFinderCandidateLabel(d)
+if not(d:IsA("TextLabel")or d:IsA("TextButton"))then return false end
+local t=stripRichTags(d.Text or "")
+if t=="Chilli Finder" or t=="Chilli Finder Free" or t=="Chill Finder Free" or t=="AUTO OFF" or t=="AUTO ON" then
+return true
+end
+if t:find("Top 5",1,true)or t:find("chillihub.pro",1,true)then
+return true
+end
+return false
 end
 local function findAndStyleFinderNow()
 if State.ActiveFinderWin and State.ActiveFinderWin.Parent then
 instantStyleFinder(State.ActiveFinderWin)
-return true
 end
-local pg=LocalPlayer and LocalPlayer:FindFirstChildOfClass("PlayerGui")
+local foundAny=false
 for _,root in ipairs(getScanRoots())do
-if root~=pg then
+local containers={}
+if root:IsA("ScreenGui")and not ROBLOX_CORE_SUBFOLDERS[root.Name] then
+table.insert(containers,root)
+end
 for _,ch in ipairs(root:GetChildren())do
 if ch.Name=="RobloxGui" then
 for _,sub in ipairs(ch:GetChildren())do
 if not ROBLOX_CORE_SUBFOLDERS[sub.Name] then
-for _,d in ipairs(sub:GetDescendants())do
-if d:IsA("TextLabel")and(d.Text=="Chilli Finder" or d.Text=="Chilli Finder Free" or d.Text:find("Top 5",1,true))then
-local win=getFinderWindowFromObj(d)
-if win then
-instantStyleFinder(win)
-return true
-end
-end
-end
+table.insert(containers,sub)
 end
 end
 elseif not ROBLOX_CORE_SUBFOLDERS[ch.Name] then
-for _,d in ipairs(ch:GetDescendants())do
-if d:IsA("TextLabel")and(d.Text=="Chilli Finder" or d.Text=="Chilli Finder Free" or d.Text:find("Top 5",1,true))then
+table.insert(containers,ch)
+end
+end
+for _,cont in ipairs(containers)do
+for _,d in ipairs(cont:GetDescendants())do
+if isFinderCandidateLabel(d)then
 local win=getFinderWindowFromObj(d)
 if win then
 instantStyleFinder(win)
-return true
+foundAny=true
+break
 end
 end
 end
 end
 end
-end
-end
-return false
+return foundAny
 end
 scanChilliFinderButtons=function()
 if State.ActiveFinderWin and State.ActiveFinderWin.Parent then
@@ -5359,4 +6245,11 @@ end
 end
 task.defer(function()
 tryBootPass(1)
+end)
+task.spawn(function()
+while isAlive()do
+task.wait(1.0)
+if not isAlive()then break end
+pcall(findAndStyleFinderNow)
+end
 end)
