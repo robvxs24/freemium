@@ -387,7 +387,7 @@ local FastCache = {}
 local function hasVi(s)
 return type(s) == "string" and s ~= "" and (s:find("\225[\186\187][\128-\191]") ~= nil or s:find("\195[\128-\191]") ~= nil or s:find("\196[\130\131\144\145\168\169]") ~= nil or s:find("\197[\168\169\175\176]") ~= nil)
 end
-local translateText, stripRichTags, applyTrans, hookTrans, refreshAllTexts
+local translateText, translateStatus, stripRichTags, applyTrans, hookTrans, refreshAllTexts
 do
 -- ============================================================================
 -- [PHẦN 2] BỘ TỪ ĐIỂN & ĐỘNG CƠ DỊCH THUẬT TIẾNG VIỆT THỜI GIAN THỰC
@@ -980,7 +980,7 @@ local l = w:lower()
 return WORDS_VI[l] or LOWER_VI[l] or w
 end))
 end
-local function translateStatus(en)
+translateStatus = function(en)
 if not en or en == "" then return State.Language == "EN" and "Idle" or "Đang rảnh" end
 local t = (en:match("^%s*(.-)%s*$") or en):gsub("%.+$", "")
 if State.Language == "EN" then return t == "Đang rảnh" and "Idle" or t end
@@ -1656,11 +1656,12 @@ pcall(function() snd:Play() end)
 end)
 end
 local function setupIsland(statusLbl, venyxGui)
-local pill = statusLbl.Parent
-if not (pill and pill:IsA("GuiObject")) then return end
-if isFpsTxt(statusLbl.Text) then return end
+local pill = statusLbl and statusLbl.Parent
+if not (pill and pill:IsA("GuiObject")) then return false end
+if isFpsTxt(statusLbl.Text) then return false end
 statusLbl:SetAttribute("__IslandDone", true)
 State.ActiveStatusLbl = statusLbl
+
 local keptBadge = nil
 for _, ch in ipairs(pill:GetChildren()) do
 if (ch:IsA("UIGradient") and ch.Name ~= "LiquidGlassSheen") or ch.Name == "IslandClickHitbox" or ch.Name == "ChilliHeaderLogo" or ch.Name == "ChilliCircleDisc" then
@@ -1672,24 +1673,38 @@ else
 pcall(ch.Destroy, ch)
 end
 elseif ch:IsA("Frame") or ch:IsA("ImageLabel") or ch:IsA("ImageButton") then
-if ch ~= statusLbl and ch.Name ~= "IslandExpandHint" and ch.Name ~= "LiquidGlassTopSpecular" then
+if ch ~= statusLbl and ch.Name ~= "IslandExpandHint" and ch.Name ~= "LiquidGlassTopSpecular" and ch.Name ~= "IslandLiveDot" then
 ch.Visible = false
 end
 end
 end
+
 pill.BackgroundColor3 = Color3.new(1, 1, 1)
 pill.BackgroundTransparency = 0
-pill.Size = u2(0, 0, 0, 38)
+pill.Size = u2(0, 0, 0, 40)
 pill.AutomaticSize = Enum.AutomaticSize.X
+
+local pillScale = pill:FindFirstChild("IslandFluidScale") or mk("UIScale", { Name = "IslandFluidScale", Scale = 1.0 }, pill)
+
+local MODERN_PILL_GRAD = ColorSequence.new({
+csk(0.00, c3(28, 38, 64)),
+csk(0.35, c3(14, 19, 34)),
+csk(0.75, c3(9, 12, 22)),
+csk(1.00, c3(20, 30, 52))
+})
+
 local glassGrad = pill:FindFirstChild("LiquidGlassSheen") or mk("UIGradient", {
 Name = "LiquidGlassSheen",
 Rotation = 90,
-Color = LIQUID_GLASS_COLOR,
-Transparency = LIQUID_GLASS_TRANS
+Color = MODERN_PILL_GRAD,
+Transparency = NumberSequence.new({
+NumberSequenceKeypoint.new(0.00, 0.04),
+NumberSequenceKeypoint.new(0.50, 0.08),
+NumberSequenceKeypoint.new(1.00, 0.04)
+})
 }, pill)
 glassGrad.Rotation = 90
-glassGrad.Color = LIQUID_GLASS_COLOR
-glassGrad.Transparency = LIQUID_GLASS_TRANS
+glassGrad.Color = MODERN_PILL_GRAD
 
 if pill:GetAttribute("__LockedIslandBg") ~= SID then
 pill:SetAttribute("__LockedIslandBg", SID)
@@ -1705,7 +1720,7 @@ end
 end)
 pill:GetPropertyChangedSignal("Size"):Connect(function()
 if isAlive() and not State.MorphingMiniIsland and pill.Size.Y.Offset < 36 then
-pill.Size = u2(0, 0, 0, 38)
+pill.Size = u2(0, 0, 0, 40)
 end
 end)
 pill:GetPropertyChangedSignal("Position"):Connect(function()
@@ -1741,63 +1756,73 @@ pad.PaddingBottom = UDim.new(0, 2)
 local leftBadge = pill:FindFirstChild("IslandLogoBadge")
 local lbStroke = nil
 if not leftBadge then
-leftBadge = mk("Frame", { Name = "IslandLogoBadge", LayoutOrder = 1, Size = u2(0, 28, 0, 28), BackgroundColor3 = c3(0, 0, 0), BorderSizePixel = 0, ClipsDescendants = true, LayoutOrder = -10, Active = false, ZIndex = 10000 }, pill)
+leftBadge = mk("Frame", { Name = "IslandLogoBadge", LayoutOrder = -10, Size = u2(0, 28, 0, 28), BackgroundColor3 = c3(10, 14, 24), BorderSizePixel = 0, ClipsDescendants = true, Active = false, ZIndex = 10000 }, pill)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, leftBadge)
-local lbImg = mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(1, 1), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Crop, Active = false, ZIndex = 10001 }, leftBadge)
+local lbImg = mk("ImageLabel", { Name = "LogoImg", AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.92, 0.92), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = 10001 }, leftBadge)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, lbImg)
-lbStroke = mk("UIStroke", { Thickness = 1.2, Color = c3(65, 195, 255), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, lbImg)
+lbStroke = mk("UIStroke", { Thickness = 1.4, Color = c3(85, 210, 255), Transparency = 0.1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, leftBadge)
 else
 leftBadge.Size = u2(0, 28, 0, 28)
-leftBadge.BackgroundColor3 = c3(0, 0, 0)
+leftBadge.BackgroundColor3 = c3(10, 14, 24)
 leftBadge.Active = false
+lbStroke = leftBadge:FindFirstChildOfClass("UIStroke")
 local lbImg = leftBadge:FindFirstChildOfClass("ImageLabel")
 if lbImg then
 lbImg.Image = LOGO_ID
-lbImg.Size = u2s(1, 1)
-lbImg.ScaleType = Enum.ScaleType.Crop
-if not lbImg:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, lbImg) end
-lbStroke = lbImg:FindFirstChildOfClass("UIStroke")
+lbImg.Size = u2s(0.92, 0.92)
+lbImg.ScaleType = Enum.ScaleType.Fit
+if not lbStroke then lbStroke = lbImg:FindFirstChildOfClass("UIStroke") end
 end
+end
+
+local liveDot = pill:FindFirstChild("IslandLiveDot")
+if not liveDot then
+liveDot = mk("Frame", { Name = "IslandLiveDot", LayoutOrder = 1, Size = u2(0, 7, 0, 7), BackgroundColor3 = c3(65, 245, 155), BorderSizePixel = 0, Active = false, ZIndex = 10001 }, pill)
+mk("UICorner", { CornerRadius = UDim.new(1, 0) }, liveDot)
+mk("UIStroke", { Thickness = 1.5, Color = c3(65, 245, 155), Transparency = 0.55 }, liveDot)
+else
+liveDot.Visible = true
 end
 
 local hint = pill:FindFirstChild("IslandExpandHint")
 if not hint then
-hint = mk("TextLabel", { Name = "IslandExpandHint", LayoutOrder = 3, Size = u2(0, 24, 0, 22), BackgroundColor3 = c3(22, 32, 54), BackgroundTransparency = 0.18, BorderSizePixel = 0, Text = "▼", Font = Enum.Font.GothamBlack, TextSize = 10, TextColor3 = c3(205, 238, 255), LayoutOrder = 99, Active = true, ZIndex = 10000 }, pill)
+hint = mk("TextButton", { Name = "IslandExpandHint", LayoutOrder = 99, Size = u2(0, 26, 0, 22), BackgroundColor3 = c3(24, 34, 58), BackgroundTransparency = 0.12, BorderSizePixel = 0, Text = "▾", Font = Enum.Font.GothamBlack, TextSize = 12, TextColor3 = c3(195, 235, 255), AutoButtonColor = true, Active = true, ZIndex = 10000 }, pill)
 else
-hint.Size = u2(0, 24, 0, 22)
-hint.BackgroundColor3 = c3(22, 32, 54)
-hint.BackgroundTransparency = 0.18
-hint.Text = "▼"
+hint.Size = u2(0, 26, 0, 22)
+hint.BackgroundColor3 = c3(24, 34, 58)
+hint.BackgroundTransparency = 0.12
+hint.Text = "▾"
 hint.Font = Enum.Font.GothamBlack
-hint.TextSize = 10
-hint.TextColor3 = c3(205, 238, 255)
+hint.TextSize = 12
+hint.TextColor3 = c3(195, 235, 255)
 end
 if not hint:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, hint) end
-local hStroke = hint:FindFirstChildOfClass("UIStroke") or mk("UIStroke", { Thickness = 1.1, Color = c3(135, 215, 255), Transparency = 0.25 }, hint)
+local hStroke = hint:FindFirstChildOfClass("UIStroke") or mk("UIStroke", { Thickness = 1.1, Color = c3(135, 215, 255), Transparency = 0.28 }, hint)
 hStroke.Color = c3(135, 215, 255)
-hStroke.Transparency = 0.25
+hStroke.Transparency = 0.28
 
 local expTaskLbl = nil
 local function syncStatus(fromSaved)
 if statusLbl:GetAttribute("__Updating") then return end
 statusLbl:SetAttribute("__Updating", true)
-local cur = statusLbl.Text:gsub("●",""):gsub("•",""):gsub("✨%s*rainbow",""):match("^%s*(.-)%s*$") or ""
+local cur = (statusLbl.Text or ""):gsub("●",""):gsub("•",""):gsub("✨%s*rainbow",""):match("^%s*(.-)%s*$") or ""
 local en = statusLbl:GetAttribute("OrigStatusEn") or statusLbl:GetAttribute("OrigRawText")
 if not fromSaved and cur ~= "" and cur ~= statusLbl:GetAttribute("__LastTranslatedStatus") and not hasVi(cur) then
 en = cur
 statusLbl:SetAttribute("OrigStatusEn", en)
 end
-local out = translateStatus(en or cur)
+local out = (translateStatus and translateStatus(en or cur)) or cur
+if out == "" then out = "Đang rảnh" end
 statusLbl:SetAttribute("__LastTranslatedStatus", out)
 statusLbl.RichText = false
 statusLbl.LayoutOrder = 2
 statusLbl.AutomaticSize = Enum.AutomaticSize.XY
 statusLbl.Font = Enum.Font.GothamBold
 statusLbl.TextSize = 13
-statusLbl.TextColor3 = Color3.new(1, 1, 1)
+statusLbl.TextColor3 = Color3.fromRGB(242, 248, 255)
 statusLbl.TextTransparency = 0
 statusLbl.Text = out
-if expTaskLbl and expTaskLbl.Parent then expTaskLbl.Text = "⚡ " .. out end
+if expTaskLbl and expTaskLbl.Parent then expTaskLbl.Text = "⚡ Trạng thái: " .. out end
 statusLbl:SetAttribute("__Updating", false)
 end
 State.RefreshIslandCallback = function() syncStatus(true) end
@@ -1806,8 +1831,8 @@ syncStatus(false)
 if statusLbl:GetAttribute("__LockedStatusColor") ~= SID then
 statusLbl:SetAttribute("__LockedStatusColor", SID)
 statusLbl:GetPropertyChangedSignal("TextColor3"):Connect(function()
-if isAlive() and statusLbl.TextColor3 ~= Color3.new(1, 1, 1) then
-statusLbl.TextColor3 = Color3.new(1, 1, 1)
+if isAlive() and statusLbl.TextColor3 ~= Color3.fromRGB(242, 248, 255) then
+statusLbl.TextColor3 = Color3.fromRGB(242, 248, 255)
 end
 end)
 statusLbl:GetPropertyChangedSignal("TextTransparency"):Connect(function()
@@ -1828,10 +1853,9 @@ stStroke.Color = c3(8, 12, 22)
 stStroke.Transparency = 0.22
 local tg = statusLbl:FindFirstChild("TextRainbow")
 if tg then tg:Destroy() end
-statusLbl.TextColor3 = Color3.new(1, 1, 1)
 
 local exp = venyxGui:FindFirstChild("ChilliV5_ExpandedIsland")
-if statusLbl:GetAttribute("__IslandSession") == SID and exp then return end
+if statusLbl:GetAttribute("__IslandSession") == SID and exp and pill.Parent == venyxGui then return true end
 statusLbl:SetAttribute("__IslandSession", SID)
 for _, r in ipairs(getScanRoots()) do
 for _, d in ipairs(r:GetDescendants()) do
@@ -1850,31 +1874,34 @@ statusLbl.Active = false
 hint.Active = true
 pill.Position = State.IslandUserPos or u2(0.5, 0, 0, 6)
 if not pill:FindFirstChildOfClass("UICorner") then mk("UICorner", { CornerRadius = UDim.new(1, 0) }, pill) end
-local ps = pill:FindFirstChild("IslandStroke") or mk("UIStroke", { Name = "IslandStroke", Thickness = 1.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = c3(55, 205, 255), Transparency = 0.12 }, pill)
+local ps = pill:FindFirstChild("IslandStroke") or mk("UIStroke", { Name = "IslandStroke", Thickness = 1.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = c3(85, 205, 255), Transparency = 0.14 }, pill)
 local oldPsGrad = ps:FindFirstChildOfClass("UIGradient")
 if oldPsGrad then oldPsGrad:Destroy() end
-ps.Color = c3(55, 205, 255)
+ps.Color = c3(85, 205, 255)
 ps.Thickness = 1.5
-ps.Transparency = 0.12
+ps.Transparency = 0.14
 
 -- ============================================================================
--- DYNAMIC ISLAND LIQUID GLASS PANEL & MODERN BUTTONS
+-- DYNAMIC ISLAND V8 PRO: iOS 18 FLUID CONTROL CENTER (MƯỢT MÀ & HIỆN ĐẠI)
 -- ============================================================================
-local COLLAPSED_EXP_H = 166
-local OPEN_NOTE_EXP_H = 266
+local COLLAPSED_EXP_H = 176
+local OPEN_NOTE_EXP_H = 276
+local EXP_W = 328
 exp = mk("Frame", {
 Name = "ChilliV5_ExpandedIsland",
 AnchorPoint = v2(0.5, 0),
 Position = pill.Position,
-Size = u2(0, 312, 0, COLLAPSED_EXP_H),
+Size = u2(0, EXP_W, 0, COLLAPSED_EXP_H),
 BackgroundColor3 = Color3.new(1, 1, 1),
-BackgroundTransparency = 0.05,
+BackgroundTransparency = 0.04,
 BorderSizePixel = 0,
 Visible = false,
 Active = true,
 ClipsDescendants = true,
 ZIndex = 10000
 }, venyxGui)
+
+local expScale = mk("UIScale", { Name = "ExpFluidScale", Scale = 1.0 }, exp)
 
 if pill:GetAttribute("__LockedIslandVis") ~= SID then
 pill:SetAttribute("__LockedIslandVis", SID)
@@ -1885,80 +1912,82 @@ end
 end)
 end
 
-mk("UICorner", { CornerRadius = UDim.new(0, 20) }, exp)
+mk("UICorner", { CornerRadius = UDim.new(0, 22) }, exp)
 mk("UIGradient", {
 Name = "LiquidGlassPanelGrad",
 Rotation = 90,
 Color = ColorSequence.new({
-csk(0.00, c3(34, 48, 78)),
-csk(0.22, c3(16, 22, 38)),
-csk(0.78, c3(10, 14, 24)),
-csk(1.00, c3(22, 34, 58))
+csk(0.00, c3(30, 42, 72)),
+csk(0.25, c3(15, 20, 36)),
+csk(0.80, c3(9, 13, 24)),
+csk(1.00, c3(20, 30, 54))
 }),
 Transparency = NumberSequence.new({
-NumberSequenceKeypoint.new(0.00, 0.06),
-NumberSequenceKeypoint.new(0.30, 0.10),
-NumberSequenceKeypoint.new(1.00, 0.06)
+NumberSequenceKeypoint.new(0.00, 0.04),
+NumberSequenceKeypoint.new(0.35, 0.08),
+NumberSequenceKeypoint.new(1.00, 0.04)
 })
 }, exp)
 
-local expStroke = mk("UIStroke", { Thickness = 1.6, Color = c3(85, 195, 255), Transparency = 0.14, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, exp)
+local expStroke = mk("UIStroke", { Thickness = 1.6, Color = c3(95, 205, 255), Transparency = 0.16, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, exp)
 mk("Frame", {
 Name = "LiquidGlassTopSpecular",
 AnchorPoint = v2(0.5, 0),
 Position = u2(0.5, 0, 0, 1),
-Size = u2(1, -16, 0, 18),
+Size = u2(1, -20, 0, 16),
 BackgroundColor3 = Color3.new(1, 1, 1),
-BackgroundTransparency = 0.78,
+BackgroundTransparency = 0.84,
 BorderSizePixel = 0,
 Active = false,
 ZIndex = 10001
 }, exp)
-mk("ImageLabel", { Name = "IslandCosmicBg", Position = u2(0, 0, 0, 0), Size = u2(1, 0, 0, 42), BackgroundTransparency = 1, Image = HEADER_BAR_IMG_ID, ImageRectOffset = v2(15, 60), ImageRectSize = v2(650, 170), ScaleType = Enum.ScaleType.Stretch, ImageTransparency = 0.28, Active = false, ZIndex = 10000 }, exp)
 
-local expLogo = mk("Frame", { Position = u2(0, 10, 0, 7), Size = u2(0, 26, 0, 26), BackgroundColor3 = c3(0, 0, 0), BorderSizePixel = 0, ClipsDescendants = true, Active = false, ZIndex = 10002 }, exp)
+-- HEADER CỦA DYNAMIC ISLAND KHI MỞ RỘNG
+local expLogo = mk("Frame", { Position = u2(0, 12, 0, 8), Size = u2(0, 28, 0, 28), BackgroundColor3 = c3(10, 14, 24), BorderSizePixel = 0, ClipsDescendants = true, Active = false, ZIndex = 10002 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, expLogo)
-mk("UIStroke", { Thickness = 1.2, Color = c3(95, 195, 255) }, expLogo)
-local expLogoImg = mk("ImageLabel", { AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(1, 1), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Crop, Active = false, ZIndex = 10003 }, expLogo)
+mk("UIStroke", { Thickness = 1.3, Color = c3(95, 205, 255), Transparency = 0.15 }, expLogo)
+local expLogoImg = mk("ImageLabel", { AnchorPoint = v2(0.5, 0.5), Position = u2s(0.5, 0.5), Size = u2s(0.92, 0.92), BackgroundTransparency = 1, Image = LOGO_ID, ScaleType = Enum.ScaleType.Fit, Active = false, ZIndex = 10003 }, expLogo)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, expLogoImg)
 
--- Đã bỏ chữ Chilli Hub V8 trên Dynamic Island theo yêu cầu
+local expTitle = mk("TextLabel", { Name = "ChilliIslandTitle", Position = u2(0, 48, 0, 7), Size = u2(0, 150, 0, 16), BackgroundTransparency = 1, Font = Enum.Font.GothamBlack, TextSize = 12, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left, Text = "CHILLI ISLAND V8", Active = false, ZIndex = 10003 }, exp)
+mk("UIGradient", { Color = ULTRA_TEXT_GRAD }, expTitle)
+mk("TextLabel", { Name = "ChilliUltraTitleBadge", Position = u2(0, 48, 0, 22), Size = u2(0, 160, 0, 12), BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextSize = 9, TextColor3 = c3(110, 245, 175), TextXAlignment = Enum.TextXAlignment.Left, Text = "● LIVE CONTROL • ZERO LAG", Active = false, ZIndex = 10003 }, exp)
 
-local colBtn = mk("TextButton", { Size = u2(0, 28, 0, 22), Position = u2(1, -36, 0, 8), BackgroundColor3 = c3(26, 36, 58), BackgroundTransparency = 0.15, BorderSizePixel = 0, Text = "▲", Font = Enum.Font.GothamBold, TextSize = 10, TextColor3 = c3(195, 235, 255), ZIndex = 10003 }, exp)
+local colBtn = mk("TextButton", { Size = u2(0, 68, 0, 24), Position = u2(1, -80, 0, 10), BackgroundColor3 = c3(24, 34, 58), BackgroundTransparency = 0.12, BorderSizePixel = 0, Text = "Thu gọn ▲", Font = Enum.Font.GothamBold, TextSize = 9.5, TextColor3 = c3(205, 238, 255), ZIndex = 10003 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, colBtn)
-mk("UIStroke", { Thickness = 1, Color = c3(120, 200, 255), Transparency = 0.35 }, colBtn)
+mk("UIStroke", { Thickness = 1, Color = c3(120, 200, 255), Transparency = 0.32 }, colBtn)
 
 local ISLAND_CYCLE_STATES = {
 {
 text = "Đang rảnh",
 icon = "⚡",
-stroke = c3(55, 210, 255),
-bg = c3(18, 30, 54),
+dot = c3(65, 245, 155),
+stroke = c3(75, 210, 255),
 grad = ColorSequence.new({
-csk(0.00, c3(65, 155, 255)),
-csk(0.35, c3(22, 42, 78)),
-csk(1.00, c3(12, 20, 38))
+csk(0.00, c3(55, 135, 235)),
+csk(0.45, c3(22, 42, 78)),
+csk(1.00, c3(14, 22, 42))
 })
 },
 {
 text = "Tự động cướp",
 icon = "🔥",
-stroke = c3(255, 110, 45),
-bg = c3(48, 20, 22),
+dot = c3(255, 135, 55),
+stroke = c3(255, 120, 55),
 grad = ColorSequence.new({
-csk(0.00, c3(245, 80, 45)),
-csk(0.35, c3(78, 24, 26)),
-csk(1.00, c3(28, 12, 16))
+csk(0.00, c3(225, 78, 48)),
+csk(0.45, c3(74, 24, 28)),
+csk(1.00, c3(28, 12, 18))
 })
 },
 {
 text = "Hoàn thành",
 icon = "✅",
-stroke = c3(50, 255, 145),
-bg = c3(16, 46, 30),
+dot = c3(55, 255, 145),
+stroke = c3(65, 245, 155),
 grad = ColorSequence.new({
-csk(0.00, c3(45, 210, 120)),
-csk(0.35, c3(18, 62, 40)),
+csk(0.00, c3(42, 195, 115)),
+csk(0.45, c3(18, 58, 38)),
 csk(1.00, c3(10, 26, 18))
 })
 }
@@ -1966,17 +1995,17 @@ csk(1.00, c3(10, 26, 18))
 
 local curIslandStateIdx = 1
 local miniIslandAnimToken = 0
-local taskBox = mk("TextButton", { Name = "IslandTaskCycleBtn", Size = u2(1, -20, 0, 25), Position = u2(0, 10, 0, 36), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.05, BorderSizePixel = 0, Text = "", AutoButtonColor = false, ZIndex = 10001 }, exp)
+local taskBox = mk("TextButton", { Name = "IslandTaskCycleBtn", Size = u2(1, -24, 0, 28), Position = u2(0, 12, 0, 42), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.04, BorderSizePixel = 0, Text = "", AutoButtonColor = false, ZIndex = 10001 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, taskBox)
 local taskBoxGrad = mk("UIGradient", {
 Name = "TaskBoxStateGrad",
 Rotation = 90,
 Color = ISLAND_CYCLE_STATES[1].grad
 }, taskBox)
-local taskBoxStroke = mk("UIStroke", { Thickness = 1.3, Color = c3(55, 210, 255), Transparency = 0.16, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, taskBox)
-expTaskLbl = mk("TextLabel", { Size = u2(1, -16, 1, 0), Position = u2(0, 8, 0, 0), BackgroundTransparency = 1, Text = "⚡ " .. (statusLbl.Text or "Đang rảnh"), Font = Enum.Font.GothamBold, TextSize = 10.8, TextColor3 = Color3.new(1, 1, 1), TextTruncate = Enum.TextTruncate.AtEnd, ZIndex = 10002 }, taskBox)
+local taskBoxStroke = mk("UIStroke", { Thickness = 1.2, Color = c3(75, 210, 255), Transparency = 0.20, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, taskBox)
+expTaskLbl = mk("TextLabel", { Size = u2(1, -20, 1, 0), Position = u2(0, 10, 0, 0), BackgroundTransparency = 1, Text = "⚡ Trạng thái: " .. (statusLbl.Text or "Đang rảnh"), Font = Enum.Font.GothamBold, TextSize = 10.8, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left, TextTruncate = Enum.TextTruncate.AtEnd, ZIndex = 10002 }, taskBox)
+mk("TextLabel", { Name = "BadgeTxt", AnchorPoint = v2(1, 0.5), Position = u2(1, -10, 0.5, 0), Size = u2(0, 68, 0, 16), BackgroundTransparency = 1, Text = "Chạm đổi •", Font = Enum.Font.GothamBold, TextSize = 9.2, TextColor3 = c3(195, 228, 255), TextXAlignment = Enum.TextXAlignment.Right, ZIndex = 10002 }, taskBox)
 
--- Hàm chuyển đổi trạng thái Dynamic Island (Tween 0.12s siêu nhanh, đổi viền phát sáng, cập nhật trạng thái rồi tự thu nhỏ)
 local function cycleMiniIslandState()
 playIslandSfx("tap")
 curIslandStateIdx = (curIslandStateIdx % #ISLAND_CYCLE_STATES) + 1
@@ -1986,78 +2015,56 @@ local myToken = miniIslandAnimToken
 State.MorphingMiniIsland = true
 
 if expTaskLbl and expTaskLbl.Parent then
-expTaskLbl.Text = st.icon .. " " .. st.text
+expTaskLbl.Text = st.icon .. " Trạng thái: " .. st.text
 end
 if statusLbl and statusLbl.Parent then
 statusLbl:SetAttribute("__Updating", true)
-statusLbl.Text = st.icon .. " " .. st.text
+statusLbl.Text = st.text
 statusLbl:SetAttribute("__Updating", false)
 end
+if liveDot and liveDot.Parent then
+liveDot.BackgroundColor3 = st.dot
+end
 
-local fastExpandInfo = TweenInfo.new(0.12, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-if glassGrad and glassGrad.Parent then
-glassGrad.Color = st.grad
-end
-if pill and pill.Parent then
-TweenService:Create(pill, fastExpandInfo, { Size = u2(0, 42, 0, 44) }):Play()
-end
-if pad and pad.Parent then
-TweenService:Create(pad, fastExpandInfo, { PaddingLeft = UDim.new(0, 22), PaddingRight = UDim.new(0, 22) }):Play()
+local fastExpandInfo = TweenInfo.new(0.14, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+if pillScale and pillScale.Parent then
+TweenService:Create(pillScale, fastExpandInfo, { Scale = 1.06 }):Play()
 end
 if ps and ps.Parent then
-TweenService:Create(ps, fastExpandInfo, { Color = st.stroke, Thickness = 2.5, Transparency = 0 }):Play()
-end
-if leftBadge and leftBadge.Parent then
-TweenService:Create(leftBadge, fastExpandInfo, { Size = u2(0, 31, 0, 31) }):Play()
+TweenService:Create(ps, fastExpandInfo, { Color = st.stroke, Thickness = 2.0, Transparency = 0.02 }):Play()
 end
 if lbStroke and lbStroke.Parent then
-TweenService:Create(lbStroke, fastExpandInfo, { Color = st.stroke, Thickness = 1.8 }):Play()
+TweenService:Create(lbStroke, fastExpandInfo, { Color = st.stroke, Thickness = 1.7 }):Play()
 end
-if hStroke and hStroke.Parent then
-TweenService:Create(hStroke, fastExpandInfo, { Color = st.stroke, Transparency = 0.08 }):Play()
-end
-
 if taskBoxGrad and taskBoxGrad.Parent then
 taskBoxGrad.Color = st.grad
 end
-if taskBox and taskBox.Parent then
-TweenService:Create(taskBox, fastExpandInfo, { Size = u2(1, -10, 0, 29), Position = u2(0, 5, 0, 34), BackgroundTransparency = 0 }):Play()
-end
 if taskBoxStroke and taskBoxStroke.Parent then
-TweenService:Create(taskBoxStroke, fastExpandInfo, { Color = st.stroke, Thickness = 2.3, Transparency = 0 }):Play()
+TweenService:Create(taskBoxStroke, fastExpandInfo, { Color = st.stroke, Thickness = 1.8, Transparency = 0.04 }):Play()
 end
 if expStroke and expStroke.Parent then
-TweenService:Create(expStroke, fastExpandInfo, { Color = st.stroke, Thickness = 2.1, Transparency = 0.02 }):Play()
+TweenService:Create(expStroke, fastExpandInfo, { Color = st.stroke, Thickness = 1.9, Transparency = 0.06 }):Play()
 end
 
-task.delay(0.28, function()
+task.delay(0.22, function()
 if not isAlive() or myToken ~= miniIslandAnimToken then return end
-local fastShrinkInfo = TweenInfo.new(0.12, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-if pill and pill.Parent then
-TweenService:Create(pill, fastShrinkInfo, { Size = u2(0, 0, 0, 38) }):Play()
-end
-if pad and pad.Parent then
-TweenService:Create(pad, fastShrinkInfo, { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }):Play()
+local fastShrinkInfo = TweenInfo.new(0.16, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+if pillScale and pillScale.Parent then
+TweenService:Create(pillScale, fastShrinkInfo, { Scale = 1.0 }):Play()
 end
 if ps and ps.Parent then
-TweenService:Create(ps, fastShrinkInfo, { Color = st.stroke, Thickness = 1.6, Transparency = 0.12 }):Play()
-end
-if leftBadge and leftBadge.Parent then
-TweenService:Create(leftBadge, fastShrinkInfo, { Size = u2(0, 28, 0, 28) }):Play()
+TweenService:Create(ps, fastShrinkInfo, { Color = st.stroke, Thickness = 1.5, Transparency = 0.14 }):Play()
 end
 if lbStroke and lbStroke.Parent then
-TweenService:Create(lbStroke, fastShrinkInfo, { Color = st.stroke, Thickness = 1.2 }):Play()
-end
-if taskBox and taskBox.Parent then
-TweenService:Create(taskBox, fastShrinkInfo, { Size = u2(1, -20, 0, 25), Position = u2(0, 10, 0, 36), BackgroundTransparency = 0.05 }):Play()
+TweenService:Create(lbStroke, fastShrinkInfo, { Color = st.stroke, Thickness = 1.3 }):Play()
 end
 if taskBoxStroke and taskBoxStroke.Parent then
-TweenService:Create(taskBoxStroke, fastShrinkInfo, { Color = st.stroke, Thickness = 1.3, Transparency = 0.16 }):Play()
+TweenService:Create(taskBoxStroke, fastShrinkInfo, { Color = st.stroke, Thickness = 1.2, Transparency = 0.20 }):Play()
 end
 if expStroke and expStroke.Parent then
-TweenService:Create(expStroke, fastShrinkInfo, { Color = st.stroke, Thickness = 1.6, Transparency = 0.14 }):Play()
+TweenService:Create(expStroke, fastShrinkInfo, { Color = st.stroke, Thickness = 1.6, Transparency = 0.16 }):Play()
 end
-task.delay(0.14, function()
+task.delay(0.16, function()
 if myToken == miniIslandAnimToken then
 State.MorphingMiniIsland = false
 end
@@ -2068,50 +2075,50 @@ end
 taskBox.MouseButton1Click:Connect(cycleMiniIslandState)
 
 -- THANH CHUYỂN ĐỔI NGÔN NGỮ HIỆN ĐẠI (LIQUID GLASS CAPSULE)
-local cap = mk("Frame", { Size = u2(1, -20, 0, 28), Position = u2(0, 10, 0, 65), BackgroundColor3 = c3(18, 24, 38), BackgroundTransparency = 0.12, BorderSizePixel = 0, ZIndex = 10001 }, exp)
+local cap = mk("Frame", { Size = u2(1, -24, 0, 28), Position = u2(0, 12, 0, 74), BackgroundColor3 = c3(14, 19, 32), BackgroundTransparency = 0.08, BorderSizePixel = 0, ZIndex = 10001 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cap)
-mk("UIStroke", { Thickness = 1, Color = c3(90, 145, 225), Transparency = 0.42 }, cap)
+mk("UIStroke", { Thickness = 1, Color = c3(85, 145, 225), Transparency = 0.45 }, cap)
 local sld = mk("Frame", { Size = u2(0.5, -4, 1, -4), Position = (State.Language == "VI" and u2(0, 2, 0, 2) or u2(0.5, 2, 0, 2)), BackgroundColor3 = Color3.new(1, 1, 1), BorderSizePixel = 0, ZIndex = 10002 }, cap)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, sld)
 mk("UIGradient", {
 Rotation = 90,
 Color = ColorSequence.new({
-csk(0.00, c3(95, 145, 255)),
-csk(1.00, c3(65, 95, 225))
+csk(0.00, c3(75, 135, 245)),
+csk(1.00, c3(55, 88, 215))
 })
 }, sld)
 local bVI = mk("TextButton", { Size = u2(0.5, 0, 1, 0), BackgroundTransparency = 1, Text = "🇻🇳 TIẾNG VIỆT", Font = Enum.Font.GothamBold, TextSize = 10.2, TextColor3 = (State.Language == "VI" and Color3.new(1, 1, 1) or c3(160, 180, 210)), ZIndex = 10003 }, cap)
 local bEN = mk("TextButton", { Size = u2(0.5, 0, 1, 0), Position = u2(0.5, 0, 0, 0), BackgroundTransparency = 1, Text = "🌐 ENGLISH", Font = Enum.Font.GothamBold, TextSize = 10.2, TextColor3 = (State.Language == "EN" and Color3.new(1, 1, 1) or c3(160, 180, 210)), ZIndex = 10003 }, cap)
 
--- NÚT KÍCH HOẠT CONFIG SETTING AUTO FARM (LIQUID GLASS GOLD-BLUE)
-local cfgBtn = mk("TextButton", { Name = "AutoFarmConfigBtn", Size = u2(1, -20, 0, 30), Position = u2(0, 10, 0, 97), BackgroundColor3 = c3(22, 26, 42), BackgroundTransparency = 0.06, BorderSizePixel = 0, Text = "⚡ CONFIG SETTING AUTO FARM", Font = Enum.Font.GothamBlack, TextSize = 10.4, TextColor3 = c3(255, 232, 115), ZIndex = 10003 }, exp)
+-- NÚT KÍCH HOẠT CONFIG SETTING AUTO FARM (LUXURY GOLD-NAVY CAPSULE)
+local cfgBtn = mk("TextButton", { Name = "AutoFarmConfigBtn", Size = u2(1, -24, 0, 32), Position = u2(0, 12, 0, 106), BackgroundColor3 = c3(24, 28, 46), BackgroundTransparency = 0.04, BorderSizePixel = 0, Text = "⚡ CONFIG SETTING AUTO FARM", Font = Enum.Font.GothamBlack, TextSize = 10.5, TextColor3 = c3(255, 232, 125), ZIndex = 10003 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cfgBtn)
-mk("UIStroke", { Thickness = 1.3, Color = c3(245, 195, 75), Transparency = 0.16, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, cfgBtn)
+mk("UIStroke", { Thickness = 1.3, Color = c3(245, 195, 75), Transparency = 0.18, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, cfgBtn)
 cfgBtn.MouseButton1Click:Connect(function() playIslandSfx("action") runAutoFarmMacro(venyxGui, cfgBtn) end)
 
--- NÚT MỞ/ĐÓNG GHI CHÚ SETTING AUTO FARM VIP 24/7 (LIQUID GLASS)
-local noteBtn = mk("TextButton", { Name = "SettingNoteToggleBtn", Size = u2(1, -20, 0, 25), Position = u2(0, 10, 0, 132), BackgroundColor3 = c3(20, 28, 46), BackgroundTransparency = 0.12, BorderSizePixel = 0, Text = "", AutoButtonColor = true, ZIndex = 10003 }, exp)
+-- NÚT MỞ/ĐÓNG GHI CHÚ SETTING AUTO FARM VIP 24/7
+local noteBtn = mk("TextButton", { Name = "SettingNoteToggleBtn", Size = u2(1, -24, 0, 26), Position = u2(0, 12, 0, 142), BackgroundColor3 = c3(18, 25, 42), BackgroundTransparency = 0.10, BorderSizePixel = 0, Text = "", AutoButtonColor = true, ZIndex = 10003 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, noteBtn)
-mk("UIStroke", { Thickness = 1, Color = c3(85, 145, 225), Transparency = 0.30, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, noteBtn)
-local noteBadge = mk("Frame", { Name = "NoteNewBadge", AnchorPoint = v2(0, 0.5), Position = u2(0, 6, 0.5, 0), Size = u2(0, 54, 0, 17), BackgroundColor3 = c3(32, 22, 56), BorderSizePixel = 0, Active = false, ZIndex = 10004 }, noteBtn)
+mk("UIStroke", { Thickness = 1, Color = c3(85, 145, 225), Transparency = 0.35, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, noteBtn)
+local noteBadge = mk("Frame", { Name = "NoteNewBadge", AnchorPoint = v2(0, 0.5), Position = u2(0, 6, 0.5, 0), Size = u2(0, 54, 0, 18), BackgroundColor3 = c3(32, 22, 56), BorderSizePixel = 0, Active = false, ZIndex = 10004 }, noteBtn)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, noteBadge)
 mk("UIStroke", { Thickness = 1, Color = c3(245, 195, 75), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, noteBadge)
 mk("TextLabel", { Name = "BadgeTxt", Size = u2s(1, 1), BackgroundTransparency = 1, Font = Enum.Font.GothamBlack, TextSize = 8.5, TextColor3 = c3(255, 230, 95), Text = "👑 MỚI", Active = false, ZIndex = 10005 }, noteBadge)
 local noteSmallLbl = mk("TextLabel", { Name = "NoteSmallTitle", Size = u2(1, -86, 1, 0), Position = u2(0, 66, 0, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextSize = 9.6, TextColor3 = c3(215, 235, 255), TextXAlignment = Enum.TextXAlignment.Left, Text = "Setting Auto Farm (Bấm xem note)", Active = false, ZIndex = 10004 }, noteBtn)
 local noteArrowLbl = mk("TextLabel", { Name = "NoteArrow", Size = u2(0, 18, 1, 0), Position = u2(1, -22, 0, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamBlack, TextSize = 10, TextColor3 = c3(165, 225, 255), Text = "▼", Active = false, ZIndex = 10004 }, noteBtn)
-local noteDrawer = mk("Frame", { Name = "SettingNoteDrawer", Size = u2(1, -20, 0, 96), Position = u2(0, 10, 0, 161), BackgroundColor3 = c3(14, 18, 30), BackgroundTransparency = 0.06, BorderSizePixel = 0, Visible = false, ClipsDescendants = true, ZIndex = 10003 }, exp)
-mk("UICorner", { CornerRadius = UDim.new(0, 12) }, noteDrawer)
-mk("UIStroke", { Thickness = 1.1, Color = c3(80, 130, 205), Transparency = 0.22, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, noteDrawer)
+local noteDrawer = mk("Frame", { Name = "SettingNoteDrawer", Size = u2(1, -24, 0, 94), Position = u2(0, 12, 0, 172), BackgroundColor3 = c3(12, 16, 28), BackgroundTransparency = 0.04, BorderSizePixel = 0, Visible = false, ClipsDescendants = true, ZIndex = 10003 }, exp)
+mk("UICorner", { CornerRadius = UDim.new(0, 14) }, noteDrawer)
+mk("UIStroke", { Thickness = 1.1, Color = c3(80, 130, 205), Transparency = 0.28, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, noteDrawer)
 mk("TextLabel", { Size = u2(1, -96, 0, 18), Position = u2(0, 10, 0, 4), BackgroundTransparency = 1, Font = Enum.Font.GothamBlack, TextSize = 9.5, TextColor3 = c3(255, 225, 95), TextXAlignment = Enum.TextXAlignment.Left, Text = "⚡ SETTING AUTO FARM", ZIndex = 10004 }, noteDrawer)
 local vipBadge = mk("Frame", { AnchorPoint = v2(1, 0), Position = u2(1, -8, 0, 4), Size = u2(0, 82, 0, 16), BackgroundColor3 = c3(20, 34, 28), BorderSizePixel = 0, ZIndex = 10004 }, noteDrawer)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, vipBadge)
 mk("UIStroke", { Thickness = 1, Color = c3(85, 255, 165), Transparency = 0.2 }, vipBadge)
 mk("TextLabel", { Name = "BadgeTxt", Size = u2s(1, 1), BackgroundTransparency = 1, Font = Enum.Font.GothamBlack, TextSize = 8.0, TextColor3 = c3(110, 255, 175), Text = "🛡️ VIP 24/7", ZIndex = 10005 }, vipBadge)
-local l1 = mk("TextLabel", { Size = u2(1, -14, 0, 18), Position = u2(0, 7, 0, 23), BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextSize = 8.2, TextScaled = true, TextColor3 = c3(235, 245, 255), TextXAlignment = Enum.TextXAlignment.Left, Text = "+ Tự động săn trứng Secret 1B+ (phù hợp cho tất cả thiết bị, người chơi)", ZIndex = 10004 }, noteDrawer)
+local l1 = mk("TextLabel", { Size = u2(1, -14, 0, 18), Position = u2(0, 8, 0, 22), BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextSize = 8.2, TextScaled = true, TextColor3 = c3(235, 245, 255), TextXAlignment = Enum.TextXAlignment.Left, Text = "+ Tự động săn trứng Secret 1B+ (phù hợp cho tất cả thiết bị, người chơi)", ZIndex = 10004 }, noteDrawer)
 mk("UITextSizeConstraint", { MaxTextSize = 8.5, MinTextSize = 6.5 }, l1)
-mk("TextLabel", { Size = u2(1, -14, 0, 17), Position = u2(0, 7, 0, 41), BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextSize = 8.8, TextColor3 = c3(220, 235, 255), TextXAlignment = Enum.TextXAlignment.Left, Text = "+ Tự động làm tất cả nhiệm vụ sự kiện (A-Z)", ZIndex = 10004 }, noteDrawer)
-mk("TextLabel", { Size = u2(1, -14, 0, 17), Position = u2(0, 7, 0, 59), BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextSize = 8.8, TextColor3 = c3(255, 230, 145), TextXAlignment = Enum.TextXAlignment.Left, Text = "+ Chạy máy chạy bộ và bán pet dưới 1B", ZIndex = 10004 }, noteDrawer)
-mk("TextLabel", { Size = u2(1, -14, 0, 17), Position = u2(0, 7, 0, 76), BackgroundTransparency = 1, Font = Enum.Font.GothamBlack, TextSize = 9.0, TextColor3 = c3(95, 255, 165), TextXAlignment = Enum.TextXAlignment.Left, Text = "+++ Setting treo 24/7 không văng", ZIndex = 10004 }, noteDrawer)
+mk("TextLabel", { Size = u2(1, -14, 0, 17), Position = u2(0, 8, 0, 40), BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextSize = 8.8, TextColor3 = c3(220, 235, 255), TextXAlignment = Enum.TextXAlignment.Left, Text = "+ Tự động làm tất cả nhiệm vụ sự kiện (A-Z)", ZIndex = 10004 }, noteDrawer)
+mk("TextLabel", { Size = u2(1, -14, 0, 17), Position = u2(0, 8, 0, 57), BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextSize = 8.8, TextColor3 = c3(255, 230, 145), TextXAlignment = Enum.TextXAlignment.Left, Text = "+ Chạy máy chạy bộ và bán pet dưới 1B", ZIndex = 10004 }, noteDrawer)
+mk("TextLabel", { Size = u2(1, -14, 0, 17), Position = u2(0, 8, 0, 74), BackgroundTransparency = 1, Font = Enum.Font.GothamBlack, TextSize = 9.0, TextColor3 = c3(95, 255, 165), TextXAlignment = Enum.TextXAlignment.Left, Text = "+++ Setting treo 24/7 không văng", ZIndex = 10004 }, noteDrawer)
 
 local noteOpen = false
 noteBtn.MouseButton1Click:Connect(function()
@@ -2121,11 +2128,11 @@ if noteOpen then
 noteDrawer.Visible = true
 noteArrowLbl.Text = "▲"
 noteSmallLbl.Text = "Setting Auto Farm (Bấm thu gọn)"
-TweenService:Create(exp, TweenInfo.new(0.12, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Size = u2(0, 312, 0, OPEN_NOTE_EXP_H) }):Play()
+TweenService:Create(exp, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Size = u2(0, EXP_W, 0, OPEN_NOTE_EXP_H) }):Play()
 else
 noteArrowLbl.Text = "▼"
 noteSmallLbl.Text = "Setting Auto Farm (Bấm xem note)"
-local nTw = TweenService:Create(exp, TweenInfo.new(0.12, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Size = u2(0, 312, 0, COLLAPSED_EXP_H) })
+local nTw = TweenService:Create(exp, TweenInfo.new(0.16, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Size = u2(0, EXP_W, 0, COLLAPSED_EXP_H) })
 nTw:Play()
 nTw.Completed:Connect(function()
 if not noteOpen then noteDrawer.Visible = false end
@@ -2153,7 +2160,7 @@ playIslandSfx("tap")
 if State.Language == l then return end
 State.Language = l
 if writefile then pcall(writefile, LANG_FILE, l) end
-TweenService:Create(sld, TweenInfo.new(0.12, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Position = (l == "VI" and u2(0, 2, 0, 2) or u2(0.5, 2, 0, 2)) }):Play()
+TweenService:Create(sld, TweenInfo.new(0.16, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Position = (l == "VI" and u2(0, 2, 0, 2) or u2(0.5, 2, 0, 2)) }):Play()
 bVI.TextColor3 = l == "VI" and Color3.new(1, 1, 1) or c3(160, 180, 210)
 bEN.TextColor3 = l == "EN" and Color3.new(1, 1, 1) or c3(160, 180, 210)
 refreshAllTexts()
@@ -2163,24 +2170,29 @@ bEN.MouseButton1Click:Connect(function() setLang("EN") end)
 
 local open, lastToggleClock = false, -10
 local function toggle()
-if os.clock() - lastToggleClock < 0.12 then return end
+if os.clock() - lastToggleClock < 0.14 then return end
 lastToggleClock = os.clock()
 open = not open
 playIslandSfx(open and "open" or "close")
 if open then
 exp.Position = pill.Position
 local targetH = noteOpen and OPEN_NOTE_EXP_H or COLLAPSED_EXP_H
-exp.Size = u2(0, 240, 0, 36)
+exp.Size = u2(0, 220, 0, 40)
+expScale.Scale = 0.94
 exp.Visible = true
 pill.Visible = false
-TweenService:Create(exp, TweenInfo.new(0.12, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Size = u2(0, 312, 0, targetH) }):Play()
+TweenService:Create(expScale, TweenInfo.new(0.20, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1.0 }):Play()
+TweenService:Create(exp, TweenInfo.new(0.20, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Size = u2(0, EXP_W, 0, targetH) }):Play()
 else
-local tw = TweenService:Create(exp, TweenInfo.new(0.12, Enum.EasingStyle.Quart, Enum.EasingDirection.In), { Size = u2(0, 240, 0, 36) })
+TweenService:Create(expScale, TweenInfo.new(0.14, Enum.EasingStyle.Quart, Enum.EasingDirection.In), { Scale = 0.94 }):Play()
+local tw = TweenService:Create(exp, TweenInfo.new(0.14, Enum.EasingStyle.Quart, Enum.EasingDirection.In), { Size = u2(0, 210, 0, 38) })
 tw:Play()
 tw.Completed:Connect(function()
 if not open then
 exp.Visible = false
+pillScale.Scale = 0.95
 pill.Visible = true
+TweenService:Create(pillScale, TweenInfo.new(0.16, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1.0 }):Play()
 end
 end)
 end
@@ -2218,7 +2230,7 @@ if upConn then upConn:Disconnect() end
 if chgConn then chgConn:Disconnect() end
 task.delay(0.05, function() State.DraggingIsland = false end)
 if not hasMoved and not open then
-cycleMiniIslandState()
+toggle()
 end
 end
 dragConn = UserInputService.InputChanged:Connect(function(im)
@@ -2251,6 +2263,7 @@ end
 pill.InputBegan:Connect(onIn)
 statusLbl.InputBegan:Connect(onIn)
 if leftBadge then leftBadge.InputBegan:Connect(onIn) end
+return true
 end
 
 local function killVxLogo(d)
@@ -3633,12 +3646,14 @@ break
 end
 end
 end
-local isStatus = d:IsA("TextLabel") and (not isFpsTxt(txt)) and (not gui:GetAttribute("__IslandLocked")) and (not d:FindFirstAncestorOfClass("ScrollingFrame")) and d.Parent and (not d.Parent:FindFirstChildOfClass("TextBox")) and (not titleLbl:IsDescendantOf(d.Parent)) and math.abs(d.AbsolutePosition.Y - hy) < 35 and d.AbsolutePosition.X > titleLbl.AbsolutePosition.X + 60 and (hasDot or txt:lower():find("idle", 1, true) or txt == "Đang rảnh") and not txt:find("v1.", 1, true)
+local isStatus = d:IsA("TextLabel") and (not isFpsTxt(txt)) and (not gui:GetAttribute("__IslandLocked")) and (not d:FindFirstAncestorOfClass("ScrollingFrame")) and d.Parent and (not d.Parent:FindFirstChildOfClass("TextBox")) and (not titleLbl:IsDescendantOf(d.Parent)) and math.abs(d.AbsolutePosition.Y - hy) < 38 and d.AbsolutePosition.X > titleLbl.AbsolutePosition.X + 50 and (hasDot or txt:lower():find("idle", 1, true) or txt:find("Đang rảnh", 1, true) or txt:find("Tự động", 1, true)) and not txt:find("v1.", 1, true)
 if isFpsTxt(txt) then
 pcall(hookFps, d)
 elseif isStatus or (d:IsA("TextLabel") and d:GetAttribute("__IslandDone")) then
+local okIsl, resIsl = pcall(setupIsland, d, gui)
+if okIsl and resIsl then
 gui:SetAttribute("__IslandLocked", true)
-pcall(setupIsland, d, gui)
+end
 elseif d:GetAttribute("__TransHookSession") ~= SID then
 queue[#queue + 1] = d
 end
@@ -6394,6 +6409,16 @@ end
 if not nd:IsA("TextBox") and isFpsTxt(nd.Text) then
 pcall(hookFps, nd)
 else
+if nd:IsA("TextLabel") and State.ActiveVenyxGui and not State.ActiveVenyxGui:GetAttribute("__IslandLocked") and not nd:FindFirstAncestorOfClass("ScrollingFrame") then
+local nt = (nd.Text or ""):lower()
+if nt:find("idle", 1, true) or (nd.Text or ""):find("Đang rảnh", 1, true) then
+local okI, resI = pcall(setupIsland, nd, State.ActiveVenyxGui)
+if okI and resI then
+State.ActiveVenyxGui:SetAttribute("__IslandLocked", true)
+return
+end
+end
+end
 pcall(hookTrans, nd)
 end
 end)
