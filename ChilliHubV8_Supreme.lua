@@ -68,7 +68,11 @@ end
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 local Stats = game:GetService("Stats")
-
+local SoundService = game:GetService("SoundService")
+local HttpService = game:GetService("HttpService")
+local TeleportService = game:GetService("TeleportService")
+local GuiService = game:GetService("GuiService")
+local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 
 local function getScanRoots()
@@ -121,26 +125,15 @@ end
 
 local function isVenyxUiPresent()
 for _, root in ipairs(getScanRoots()) do
-for _, ch in ipairs(root:GetChildren()) do
-if ch:IsA("ScreenGui") and not IGNORED_GUIS[ch.Name] and ch.Enabled ~= false then
+local list = root:IsA("ScreenGui") and { root } or root:GetChildren()
+for _, ch in ipairs(list) do
+if ch:IsA("ScreenGui") and not IGNORED_GUIS[ch.Name] then
 for _, d in ipairs(ch:GetDescendants()) do
 if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Name ~= "ChilliUltraTitleBadge" and d.Name ~= "ChilliIslandTitle" and not d:FindFirstAncestor("ChilliV5_ExpandedIsland") then
 local t = d.Text
 if (t == "VENYX" or t == NEW_TITLE or t == "Chilli Hub Ultra" or t == "Chilli Hub V5" or t == "Chilli V5 |") and not d:FindFirstAncestorOfClass("ScrollingFrame") then
-local top = d
-while top.Parent and top.Parent ~= ch do top = top.Parent end
-local isBrokenOldRun = false
-for _, subD in ipairs(ch:GetDescendants()) do
-if (subD.Name == "ChilliSenaSquircle" and subD:FindFirstAncestorOfClass("ScrollingFrame")) or (subD.Name == "ChilliMainChilliLogo" and subD.Parent ~= top) or (subD.Name == "ChilliHeaderBottomGlow" and not ch:FindFirstChild("ChilliSenaSquircle", true)) then
-isBrokenOldRun = true
-break
-end
-end
-if isBrokenOldRun or (top and (top:GetAttribute("__SizeLockedV5Pro") or top:FindFirstChild("ChilliCircleDisc"))) then
-pcall(function() ch:Destroy() end)
-else
+pcall(function() ch.Enabled = true end)
 return true
-end
 end
 end
 end
@@ -1614,10 +1607,12 @@ State.MacroBusy = false
 end)
 end
 -- DYNAMIC ISLAND V7 (KHÔNG GẮN HUY HIỆU Ở DYNAMIC ISLAND, CHỈ DÙNG NÚT MŨI TÊN GỌN GÀNG "▾")
+local playIslandSfx, setupIsland, cleanupStrayLogos, setupCircleLogo, applySenaV7Architecture, setupBubbleToggle
+local venyxGuiLocked = nil
+do
 -- ============================================================================
 -- [PHẦN 3] DYNAMIC ISLAND V8 SUPREME & HỆ THỐNG ÂM THANH TƯƠNG TÁC (0MS LATENCY)
 -- ============================================================================
-local SoundService = game:GetService("SoundService")
 local ISLAND_SFX_CFG = {
 open = { id = "rbxassetid://6895079853", vol = 0.75, spd = 1.06 },
 close = { id = "rbxassetid://6895079853", vol = 0.55, spd = 0.86 },
@@ -1645,7 +1640,7 @@ pcall(function()
 for k in pairs(ISLAND_SFX_CFG) do getIslandSound(k) end
 end)
 end)
-local function playIslandSfx(mode)
+playIslandSfx = function(mode)
 pcall(function()
 local snd = getIslandSound(mode)
 snd.TimePosition = 0
@@ -1655,7 +1650,7 @@ end
 pcall(function() snd:Play() end)
 end)
 end
-local function setupIsland(statusLbl, venyxGui)
+setupIsland = function(statusLbl, venyxGui)
 local pill = statusLbl and statusLbl.Parent
 if not (pill and pill:IsA("GuiObject")) then return false end
 if isFpsTxt(statusLbl.Text) then return false end
@@ -2305,7 +2300,7 @@ end
 end
 end
 
-local function cleanupStrayLogos(gui, win)
+cleanupStrayLogos = function(gui, win)
 if not gui then return end
 pcall(function()
 if win then
@@ -2326,7 +2321,7 @@ end
 end)
 end
 
-local function setupCircleLogo(obj, win)
+setupCircleLogo = function(obj, win)
 if not obj or not obj:IsA("GuiObject") or obj == win then return end
 if obj.Name == "ChilliV5_ExpandedIsland" or obj:FindFirstChild("IslandExpandHint") or obj:FindFirstChild("IslandLogoBadge") then return end
 local isBtn = obj:IsA("GuiButton") or obj:FindFirstChildOfClass("GuiButton") ~= nil
@@ -2520,7 +2515,7 @@ local function detectActiveTabIndexFromDom(win, hy, winX)
 	return nil
 end
 
-local function applySenaV7Architecture(win, titleLbl)
+applySenaV7Architecture = function(win, titleLbl)
 	if not win or not titleLbl then return end
 
 	-- Xoá sạch toàn bộ các thanh ngang dọc cầu vồng dài/nhỏ & viền gradient gây rối mắt và gây lag
@@ -2844,24 +2839,15 @@ local function applySenaV7Architecture(win, titleLbl)
 			mainBg:GetPropertyChangedSignal("BackgroundTransparency"):Connect(syncWindowVisibilityInstant)
 		end
 
+		-- Vô hiệu hóa nút "-" gốc của Venyx (vốn là Frame làm thu nhỏ menu về góc trái rồi tự bung lại) và đặt nút "-" chuẩn của Chilli Hub V8
 		for _, d in ipairs(win:GetDescendants()) do
-			if d:IsA("TextButton") or d:IsA("ImageButton") or d:IsA("TextLabel") then
-				local dTxt = ((d:IsA("TextButton") or d:IsA("TextLabel")) and (d.Text or "") or ""):match("^%s*(.-)%s*$")
-				local isHeaderRow = math.abs(d.AbsolutePosition.Y - hy) < 18 and (d.AbsolutePosition.Y - win.AbsolutePosition.Y) < 34
-				local isMinusBtn = isHeaderRow and (dTxt == "-" or dTxt == "—" or (dTxt == "" and d.AbsolutePosition.X > win.AbsolutePosition.X + win.AbsoluteSize.X - 42 and d.AbsoluteSize.X <= 36 and d.AbsoluteSize.Y <= 36))
-				if isMinusBtn then
-					local btn = (d:IsA("TextButton") or d:IsA("ImageButton")) and d or d.Parent
-					if btn and (btn:IsA("TextButton") or btn:IsA("ImageButton")) and btn:GetAttribute("__CloseSyncHooked") ~= SID then
-						btn:SetAttribute("__CloseSyncHooked", SID)
-						btn.MouseButton1Down:Connect(function()
-							if State.AnimateCloseFn then
-								pcall(State.AnimateCloseFn)
-							else
-								State.CloseHideUntil = os.clock() + 0.42
-								if winStroke then winStroke.Enabled = false end
-								if wp then wp.Visible = false end
-							end
-						end)
+			if d:IsA("GuiObject") and not d.Name:find("^Chilli") and not d:FindFirstAncestorOfClass("ScrollingFrame") then
+				local relX = d.AbsolutePosition.X - win.AbsolutePosition.X
+				local relY = d.AbsolutePosition.Y - win.AbsolutePosition.Y
+				if relY >= 0 and relY < 32 and relX > (win.AbsoluteSize.X - 38) and d.AbsoluteSize.X <= 34 and d.AbsoluteSize.Y <= 32 then
+					d.Active = false
+					if d:IsA("GuiButton") or d:IsA("Frame") then
+						d.Visible = false
 					end
 				end
 			end
@@ -3152,13 +3138,12 @@ local function applySenaV7Architecture(win, titleLbl)
 end
 
 -- 9. BỘ QUÉT SỰ KIỆN ZERO-LAG
-local venyxGuiLocked = nil
 
 -- ============================================================================
 -- [1 NÚT NỔI DUY NHẤT: ĐÓNG MENU = BONG BÓNG (91322208361913) | BẤM MỞ MENU = AVATAR ỚT (74441610995894)]
 -- CƠ CHẾ CHỐNG LAG ZERO-DELAY: DÙNG UIScale MỞ/ĐÓNG 0.16s, KHÔNG QUÉT LẠI DOM, KHÔNG CHẠY HEARTBEAT
 -- ============================================================================
-local function setupBubbleToggle(gui, win, titleLbl)
+setupBubbleToggle = function(gui, win, titleLbl)
 	if not gui or not win then return end
 	if win:GetAttribute("__ChilliBubbleHooked") == SID then return end
 	win:SetAttribute("__ChilliBubbleHooked", SID)
@@ -3172,27 +3157,39 @@ local function setupBubbleToggle(gui, win, titleLbl)
 	local UserInputSvc = game:GetService("UserInputService")
 	State.IsBubbleAnimating = false
 
-	for _, ch in ipairs(gui:GetChildren()) do
-		if ch:IsA("GuiObject") and ch ~= win and ch.Name ~= "ChilliV5_ExpandedIsland" and not ch:FindFirstChild("IslandExpandHint") and ch.Name ~= "ChilliCrystalBubble" then
-			ch.Visible = false
+	local function hideNativeVxToggleOnly(ch)
+		if not ch or not ch:IsA("GuiObject") or ch == win or ch.Name == "ChilliV5_ExpandedIsland" or ch:FindFirstChild("IslandExpandHint") or ch.Name == "ChilliCrystalBubble" then
+			return
+		end
+		local isVxToggle = false
+		if ch.AbsoluteSize.X > 0 and ch.AbsoluteSize.X <= 75 and ch.AbsoluteSize.Y > 0 and ch.AbsoluteSize.Y <= 75 then
 			for _, d in ipairs(ch:GetDescendants()) do
 				if d:IsA("TextLabel") or d:IsA("TextButton") then
-					d.Text = ""
-					d.TextTransparency = 1
-					d.Visible = false
+					local t = (d.Text or ""):lower():match("^%s*(.-)%s*$")
+					if t == "vx" or t == "v" or t == "" then
+						isVxToggle = true
+						break
+					end
 				end
 			end
-			pcall(function() ch:Destroy() end)
+		end
+		if isVxToggle then
+			ch.Position = UDim2.new(0, -9999, 0, -9999)
+			ch.BackgroundTransparency = 1
+			ch.Visible = false
 		end
 	end
 
-	if not gui:GetAttribute("__ChilliChildAddedHooked") then
-		gui:SetAttribute("__ChilliChildAddedHooked", true)
+	for _, ch in ipairs(gui:GetChildren()) do
+		pcall(hideNativeVxToggleOnly, ch)
+	end
+
+	if gui:GetAttribute("__ChilliChildAddedHooked") ~= SID then
+		gui:SetAttribute("__ChilliChildAddedHooked", SID)
 		gui.ChildAdded:Connect(function(ch)
-			if ch:IsA("GuiObject") and ch ~= win and ch.Name ~= "ChilliV5_ExpandedIsland" and not ch:FindFirstChild("IslandExpandHint") and ch.Name ~= "ChilliCrystalBubble" then
-				ch.Visible = false
-				pcall(function() ch:Destroy() end)
-			end
+			task.defer(function()
+				pcall(hideNativeVxToggleOnly, ch)
+			end)
 		end)
 	end
 
@@ -3541,21 +3538,43 @@ local function setupBubbleToggle(gui, win, titleLbl)
 		end)
 	end
 
-	for _, d in ipairs(win:GetDescendants()) do
-		if d:IsA("TextButton") or d:IsA("ImageButton") or d:IsA("TextLabel") then
-			local dTxt = ((d:IsA("TextButton") or d:IsA("TextLabel")) and (d.Text or "") or ""):match("^%s*(.-)%s*$")
-			local isHeaderRow = math.abs(d.AbsolutePosition.Y - hy) < 18 and (d.AbsolutePosition.Y - win.AbsolutePosition.Y) < 34
-			local isMinusBtn = isHeaderRow and (dTxt == "-" or dTxt == "—" or (dTxt == "" and d.AbsolutePosition.X > win.AbsolutePosition.X + win.AbsoluteSize.X - 42 and d.AbsoluteSize.X <= 36 and d.AbsoluteSize.Y <= 36))
-			if isMinusBtn then
-				local btn = (d:IsA("TextButton") or d:IsA("ImageButton")) and d or d.Parent
-				if btn and (btn:IsA("TextButton") or btn:IsA("ImageButton")) and btn:GetAttribute("__ChilliCloseBubbleHooked") ~= SID then
-					btn:SetAttribute("__ChilliCloseBubbleHooked", SID)
-					btn.MouseButton1Click:Connect(function()
-						closeMenuAnimated()
-					end)
-				end
-			end
+	-- Tạo nút thu nhỏ "—" độc lập ở góc trên bên phải của Header (ZIndex = 9999) để khi bấm luôn đóng menu về Bong Bóng 100%, không bao giờ bị tự mở lại!
+	local customMinusBtn = win:FindFirstChild("ChilliCustomMinusBtn")
+	if not customMinusBtn then
+		customMinusBtn = mk("TextButton", {
+			Name = "ChilliCustomMinusBtn",
+			AnchorPoint = Vector2.new(1, 0),
+			Position = UDim2.new(1, -7, 0, 7),
+			Size = UDim2.new(0, 24, 0, 24),
+			BackgroundColor3 = Color3.fromRGB(24, 28, 42),
+			BackgroundTransparency = 0.10,
+			BorderSizePixel = 0,
+			Text = "—",
+			Font = Enum.Font.GothamBlack,
+			TextSize = 12,
+			TextColor3 = Color3.fromRGB(210, 222, 245),
+			AutoButtonColor = true,
+			Active = true,
+			ZIndex = 9999
+		}, win)
+		mk("UICorner", { CornerRadius = UDim.new(0, 6) }, customMinusBtn)
+		mk("UIStroke", { Thickness = 1, Color = Color3.fromRGB(70, 90, 135), Transparency = 0.35 }, customMinusBtn)
+	else
+		customMinusBtn.Visible = true
+		customMinusBtn.ZIndex = 9999
+	end
+
+	if customMinusBtn:GetAttribute("__MinusHooked") ~= SID then
+		customMinusBtn:SetAttribute("__MinusHooked", SID)
+		local lastMinusClick = 0
+		local function triggerMinusClose()
+			local now = os.clock()
+			if now - lastMinusClick < 0.20 then return end
+			lastMinusClick = now
+			closeMenuAnimated()
 		end
+		customMinusBtn.MouseButton1Click:Connect(triggerMinusClose)
+		customMinusBtn.Activated:Connect(triggerMinusClose)
 	end
 
 	win:GetPropertyChangedSignal("Visible"):Connect(function()
@@ -3566,6 +3585,8 @@ local function setupBubbleToggle(gui, win, titleLbl)
 	end)
 
 	syncBubbleIconState(win.Visible, false)
+end
+
 end
 
 local function patchVenyxGui(gui, titleLbl)
@@ -3602,12 +3623,7 @@ local function patchVenyxGui(gui, titleLbl)
 		pcall(setupBubbleToggle, gui, win, titleLbl)
 	end
 
-	for _, tc in ipairs(gui:GetChildren()) do
-		if tc:IsA("GuiObject") and tc ~= win and tc.Name ~= "ChilliV5_ExpandedIsland" and not tc:FindFirstChild("IslandExpandHint") and tc.Name ~= "ChilliCrystalBubble" then
-			tc.Visible = false
-			pcall(function() tc:Destroy() end)
-		end
-	end
+	-- Giữ nguyên toàn bộ Quick Bars, Dropdown và thông báo của Venyx để không mất bất kỳ chức năng nào
 
 pcall(function()
 for _, ch in ipairs(gui:GetChildren()) do
@@ -3676,10 +3692,6 @@ end
 -- ============================================================================
 -- [PHẦN 5] CHILLI FINDER FREE (VIỆT HÓA 100%, ĐỔI SERVER ÍT NGƯỜI & SIÊU MƯỢT 0 LAG)
 -- ============================================================================
-local HttpService = game:GetService("HttpService")
-local TeleportService = game:GetService("TeleportService")
-local GuiService = game:GetService("GuiService")
-local UserInputService = game:GetService("UserInputService")
 
 local FINDER_BORDER_NEON_GRAD = ColorSequence.new({
 csk(0.00, c3(255, 65, 125)),
