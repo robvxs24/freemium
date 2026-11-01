@@ -1,4 +1,7 @@
-﻿if not math.clamp then math.clamp = function(v, a, b) return math.max(a, math.min(b, v)) end end
+if not game:IsLoaded() then
+	pcall(function() game.Loaded:Wait() end)
+end
+if not math.clamp then math.clamp = function(v, a, b) return math.max(a, math.min(b, v)) end end
 -- ============================================================================
 -- CHILLI HUB V8 SUPREME | ZERO-LAG EDITION (100% LUAU STUDIO STANDARD)
 -- [PHẦN 1] KHỞI TẠO CẤU HÌNH, TỐI ƯU ĐỒ HỌA & QUẢN LÝ PHIÊN LÀM VIỆC (ZERO ERRORS)
@@ -78,17 +81,19 @@ end)
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 if not LocalPlayer then
-	task.spawn(function()
-		local count = 0
-		while not LocalPlayer and count < 50 do
-			task.wait(0.2)
-			LocalPlayer = Players.LocalPlayer
-			count = count + 1
-		end
-	end)
+	local startWait = os.clock()
+	while not LocalPlayer and (os.clock() - startWait < 8) do
+		task.wait(0.1)
+		LocalPlayer = Players.LocalPlayer
+	end
 end
 local TweenService = game:GetService("TweenService")
-local CoreGui = game:GetService("CoreGui")
+local CoreGui = (function()
+	local v = nil
+	pcall(function() v = game:GetService("CoreGui") end)
+	if v == nil and gethui then pcall(function() v = gethui() end) end
+	return v
+end)()
 local Stats = game:GetService("Stats")
 local function getScanRoots()
 	local r, seen = {}, {}
@@ -221,11 +226,27 @@ local function launchVenyxBase()
 	env.__VenyxLaunchingNow = true
 	env.__VenyxLaunchClock = os.clock()
 	task.spawn(function()
-		local rawCode = safeHttpGet(VENYX_URL)
-		if rawCode and #rawCode > 10 then
-			local fn = loadstring(rawCode)
-			if type(fn) == "function" then
-				pcall(fn)
+		if not game:IsLoaded() then pcall(function() game.Loaded:Wait() end) end
+		local okLaunch = false
+		-- Uu tien 1: Tai truc tiep tu GitHub raw napun67 (540KB) giup Arceus X mo script 100% khong bi chan Luarmor
+		if MY_URL and #MY_URL > 5 then
+			local rawMy = safeHttpGet(MY_URL)
+			if rawMy and #rawMy > 200 then
+				local fnMy = loadstring(rawMy)
+				if type(fnMy) == "function" then
+					local sOk = pcall(fnMy)
+					if sOk then okLaunch = true end
+				end
+			end
+		end
+		-- Uu tien 2: Du phong VENYX_URL neu can
+		if not okLaunch and not isVenyxUiPresent() and VENYX_URL and #VENYX_URL > 5 then
+			local rawVenyx = safeHttpGet(VENYX_URL)
+			if rawVenyx and #rawVenyx > 10 then
+				local fnVenyx = loadstring(rawVenyx)
+				if type(fnVenyx) == "function" then
+					pcall(fnVenyx)
+				end
 			end
 		end
 		env.__VenyxLaunchingNow = false
@@ -1493,6 +1514,7 @@ end
 end
 State.AllowMenuCloseNow = false
 State.IsMenuAuthorizedClosed = false
+State.UserMinimized = false
 if State.ActiveMainWin and State.ActiveMainWin.Parent and not State.ActiveMainWin.Visible then
 if State.AnimateOpenFn then
 pcall(State.AnimateOpenFn)
@@ -2826,7 +2848,7 @@ local function applySenaV7Architecture(win, titleLbl)
 		local isOffscreen = (win.AbsolutePosition.X < -500 or win.AbsolutePosition.Y < -500)
 		local isSizeZero = (win.AbsoluteSize.X < 80 or win.AbsoluteSize.Y < 60)
 		local isHdrHidden = (headerBar ~= nil) and (not headerBar.Visible)
-		local isForceClosing = (State.CloseHideUntil ~= nil) and (os.clock() < State.CloseHideUntil)
+		local isForceClosing = ((State.CloseHideUntil ~= nil) and (os.clock() < State.CloseHideUntil)) or (State.UserMinimized == true)
 		local isRealBgHidden = (mainBg ~= win) and (mainBg.BackgroundTransparency >= 0.99)
 
 		local isClosed = (not win.Visible) or isOffscreen or isSizeZero or isHdrHidden or isForceClosing or isRealBgHidden
@@ -2862,6 +2884,7 @@ local function applySenaV7Architecture(win, titleLbl)
 						btn.MouseButton1Down:Connect(function()
 							State.AllowMenuCloseNow = true
 							State.IsMenuAuthorizedClosed = true
+							State.UserMinimized = true
 							if State.AnimateCloseFn then
 								pcall(State.AnimateCloseFn)
 							else
@@ -3475,8 +3498,10 @@ local function setupBubbleToggle(gui, win, titleLbl)
 	local function openMenuAnimated()
 		if State.IsBubbleAnimating then return end
 		State.IsBubbleAnimating = true
+		State.UserMinimized = false
 		State.AllowMenuCloseNow = false
 		State.IsMenuAuthorizedClosed = false
+		State.UserMinimized = false
 
 		playToggleSound("rbxassetid://6895079853", 0.75, 1.05)
 		syncBubbleIconState(true, true)
@@ -3520,10 +3545,10 @@ local function setupBubbleToggle(gui, win, titleLbl)
 			Scale = 0.92
 		})
 		closeTween.Completed:Connect(function()
-			if State.IsMenuAuthorizedClosed then
+			if State.IsMenuAuthorizedClosed or State.UserMinimized then
 				win.Visible = false
 				winScale.Scale = 0.92
-			else
+			elseif not State.UserMinimized then
 				win.Visible = true
 				winScale.Scale = 1.0
 			end
@@ -3576,6 +3601,7 @@ local function setupBubbleToggle(gui, win, titleLbl)
 					btn.MouseButton1Click:Connect(function()
 						State.AllowMenuCloseNow = true
 						State.IsMenuAuthorizedClosed = true
+						State.UserMinimized = true
 						closeMenuAnimated()
 					end)
 				end
@@ -3585,7 +3611,7 @@ local function setupBubbleToggle(gui, win, titleLbl)
 
 	-- Chặn triệt để lỗi tự đóng menu khi bấm vào "Cấu Hình" hoặc khi chạy Auto Config
 	win:GetPropertyChangedSignal("Visible"):Connect(function()
-		if not win.Visible and not State.AllowMenuCloseNow and not State.IsMenuAuthorizedClosed then
+		if not win.Visible and not State.AllowMenuCloseNow and not State.IsMenuAuthorizedClosed and not State.UserMinimized then
 			win.Visible = true
 			winScale.Scale = 1.0
 			syncBubbleIconState(true, false)
@@ -4167,7 +4193,7 @@ end
 local function showTeleportTransitionOverlay(statusText, subText)
 local targetRoot = nil
 if gethui then pcall(function() targetRoot = gethui() end) end
-if not targetRoot then targetRoot = CoreGui:FindFirstChild("RobloxGui") or CoreGui end
+if not targetRoot and CoreGui then targetRoot = CoreGui:FindFirstChild("RobloxGui") or CoreGui end
 local oldOverlay = targetRoot:FindFirstChild("ChilliTeleportTransitionOverlay")
 if oldOverlay then pcall(oldOverlay.Destroy, oldOverlay) end
 
@@ -4560,6 +4586,17 @@ local function VerifyChilliV7Key(rawInput)
 	return false
 end
 
+local function chilliParentSg(sg)
+	if gethui then pcall(function() sg.Parent = gethui() end) end
+	if not sg.Parent and CoreGui then pcall(function() sg.Parent = CoreGui end) end
+	if (not sg.Parent) or (not sg:IsDescendantOf(game)) then
+		local lp = Players.LocalPlayer
+		local pg = lp and lp:FindFirstChildOfClass("PlayerGui") or nil
+		if pg then pcall(function() sg.Parent = pg end) end
+	end
+	return sg.Parent ~= nil
+end
+
 local function ApplyScreenLockdown()
 	local Lighting = game:GetService("Lighting")
 	if not ActiveBlurEffect then
@@ -4575,10 +4612,7 @@ local function ApplyScreenLockdown()
 		InputBlockerScreen.IgnoreGuiInset = true
 		InputBlockerScreen.ResetOnSpawn = false
 		InputBlockerScreen.DisplayOrder = 999990
-		pcall(function() InputBlockerScreen.Parent = CoreGui end)
-		if not InputBlockerScreen.Parent and LocalPlayer then
-			InputBlockerScreen.Parent = LocalPlayer:FindFirstChildOfClass("PlayerGui")
-		end
+		chilliParentSg(InputBlockerScreen)
 
 		local shield = Instance.new("TextButton")
 		shield.Size = UDim2.new(1, 0, 1, 0)
@@ -4733,7 +4767,7 @@ local function PlaySpringButton(btn)
 	local shrinkPos = UDim2.new(origPos.X.Scale, origPos.X.Offset + 2, origPos.Y.Scale, origPos.Y.Offset + 1)
 
 	local t1 = TweenService:Create(btn, TweenInfo.new(0.07, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = shrinkSize, Position = shrinkPos })
-	local t2 = TweenService:Create(btn, TweenInfo.new(0.14, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Size = origSize, Position = origPos })
+	local t2 = TweenService:Create(btn, TweenInfo.new(0.14, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Size = origSize, Position = origPos })
 	t1:Play()
 	t1.Completed:Connect(function() t2:Play() end)
 end
@@ -4751,9 +4785,10 @@ OpenKeySystemUI = function()
 	ScreenGui.ResetOnSpawn = false
 	ScreenGui.DisplayOrder = 999995
 	ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-	pcall(function() ScreenGui.Parent = CoreGui end)
-	if not ScreenGui.Parent and LocalPlayer then
-		ScreenGui.Parent = LocalPlayer:FindFirstChildOfClass("PlayerGui")
+	if not chilliParentSg(ScreenGui) then
+		task.defer(function()
+			if ScreenGui and not ScreenGui.Parent then chilliParentSg(ScreenGui) end
+		end)
 	end
 	MainScreenGui = ScreenGui
 
@@ -5564,7 +5599,7 @@ OpenKeySystemUI = function()
 			TweenService:Create(chosenMask, TweenInfo.new(0.06, Enum.EasingStyle.Quad), { Rotation = angle }):Play()
 			task.wait(0.065)
 		end
-		TweenService:Create(chosenMask, TweenInfo.new(0.08, Enum.EasingStyle.Back), { Rotation = 0 }):Play()
+		TweenService:Create(chosenMask, TweenInfo.new(0.08, Enum.EasingStyle.Quart), { Rotation = 0 }):Play()
 		task.wait(0.2)
 
 		local roll = math.random(1, 100)
@@ -5787,7 +5822,7 @@ OpenKeySystemUI = function()
 	MainFrame.BackgroundTransparency = 1
 	MainScale.Scale = 0.88
 	TweenService:Create(MainFrame, TweenInfo.new(0.22, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { BackgroundTransparency = 0 }):Play()
-	TweenService:Create(MainScale, TweenInfo.new(0.26, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 0.95 }):Play()
+	TweenService:Create(MainScale, TweenInfo.new(0.26, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Scale = 0.95 }):Play()
 end
 
 local function extractFinderPetNameFromJoinBtn(joinLbl)
