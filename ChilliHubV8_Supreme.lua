@@ -3710,27 +3710,33 @@ local FINDER_STATE_MAP={
 }
 local function getFinderWindowFromObj(obj)
 if not obj or not obj.Parent then return nil end
-local winFrame=nil
 local curr=obj.Parent
 for _=1,8 do
 if not curr or curr:IsA("ScreenGui")or curr==game then break end
+if curr:GetAttribute("__IsChilliFinderContainer")or curr:FindFirstChild("ChillFinderRainbowBorder")then
+return curr
+end
 if curr:IsA("GuiObject")then
 local aw,ah=curr.AbsoluteSize.X,curr.AbsoluteSize.Y
 local sw,sh=curr.Size.X.Offset,curr.Size.Y.Offset
-if(aw>=190 and ah>=165)or(sw>=190 and sh>=165)then
-if aw<1400 and ah<950 then
-winFrame=curr
-end
-elseif curr:FindFirstChild("ChillFinderRainbowBorder")then
-winFrame=curr
+if(aw>=190 and ah>=165 and aw<=480 and ah<=580)or(sw>=190 and sh>=165 and sw<=480 and sh<=580)then
+return curr
 end
 end
 curr=curr.Parent
 end
-if not winFrame and obj.Parent and obj.Parent.Parent and obj.Parent.Parent:IsA("GuiObject")and not obj.Parent.Parent:IsA("ScreenGui")then
-winFrame=obj.Parent.Parent
+curr=obj.Parent
+for _=1,6 do
+if not curr or curr:IsA("ScreenGui")or curr==game then break end
+if curr:IsA("GuiObject")then
+local aw,ah=curr.AbsoluteSize.X,curr.AbsoluteSize.Y
+if(aw>=190 and ah>=165 and aw<900 and ah<700)then
+return curr
 end
-return winFrame
+end
+curr=curr.Parent
+end
+return obj.Parent and obj.Parent.Parent and obj.Parent.Parent:IsA("GuiObject")and obj.Parent.Parent or nil
 end
 local function styleMasterChillFinderFree(titleObj)
 if not titleObj or not titleObj.Parent then return end
@@ -3780,9 +3786,6 @@ local function isInsideChilliFinder(inst)
 if not inst or not inst.Parent then return false end
 if inst:GetAttribute("__IsFinderHudElement")then return true end
 if inst:FindFirstAncestor("ChilliV5_ExpandedIsland")or inst:FindFirstAncestor("ChilliHeaderOverlay")then
-return false
-end
-if State.ActiveMainWin and State.ActiveMainWin.Parent and inst:IsDescendantOf(State.ActiveMainWin)then
 return false
 end
 if State.ActiveFinderWin and State.ActiveFinderWin.Parent and inst:IsDescendantOf(State.ActiveFinderWin)then
@@ -5675,7 +5678,6 @@ local function isFinderJoinLabel(inst)
 if not inst or not inst.Parent then return false end
 if inst.Name=="ChilliFinderJoinInterceptor" then return false end
 if inst:FindFirstAncestor("ChilliV5_ExpandedIsland")or inst:FindFirstAncestor("ChilliHeaderOverlay")then return false end
-if State.ActiveMainWin and State.ActiveMainWin.Parent and inst:IsDescendantOf(State.ActiveMainWin)then return false end
 local txtObj=inst
 if not(inst:IsA("TextButton")or inst:IsA("TextLabel"))then
 local c=inst:FindFirstChildWhichIsA("TextLabel")or inst:FindFirstChildWhichIsA("TextButton")
@@ -5884,7 +5886,6 @@ local scanChilliFinderButtons=nil
 watchFinderHudButton=function(lbl)
 if not lbl or not(lbl:IsA("TextLabel")or lbl:IsA("TextButton"))then return end
 if lbl.Name=="ChilliFinderJoinInterceptor" or lbl:FindFirstAncestor("ChilliV5_ExpandedIsland")or lbl:FindFirstAncestor("ChilliHeaderOverlay")then return end
-if State.ActiveMainWin and State.ActiveMainWin.Parent and lbl:IsDescendantOf(State.ActiveMainWin)then return end
 local raw=stripRichTags(lbl:GetAttribute("OrigFinderStateText")or lbl.Text or "")
 if raw=="" or raw:find("⏳",1,true)then return end
 local low=raw:lower()
@@ -5969,7 +5970,6 @@ end
 watchFinderTextObj=function(d)
 if not d or not(d:IsA("TextButton")or d:IsA("TextLabel"))then return end
 if d.Name=="ChilliFinderJoinInterceptor" then return end
-if State.ActiveMainWin and State.ActiveMainWin.Parent and d:IsDescendantOf(State.ActiveMainWin)then return end
 pcall(sanitizeChillFinderFreeObj,d)
 pcall(watchFinderHudButton,d)
 local checkT=stripRichTags(d.Text):lower()
