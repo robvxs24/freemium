@@ -1485,22 +1485,9 @@ statusLbl.TextTransparency=0
 end
 end)
 statusLbl:GetPropertyChangedSignal("Text"):Connect(function()
-if not isAlive()or statusLbl:GetAttribute("__Updating")then return end
-local now=os.clock()
-if now-(statusLbl:GetAttribute("__LastStatusTick")or 0)<0.12 then
-if statusLbl:GetAttribute("__StatusPending")then return end
-statusLbl:SetAttribute("__StatusPending",true)
-task.delay(0.12,function()
-statusLbl:SetAttribute("__StatusPending",false)
-if isAlive()and statusLbl and statusLbl.Parent and not statusLbl:GetAttribute("__Updating")then
-statusLbl:SetAttribute("__LastStatusTick",os.clock())
+if isAlive()and not statusLbl:GetAttribute("__Updating")then
 syncStatus(false)
 end
-end)
-return
-end
-statusLbl:SetAttribute("__LastStatusTick",now)
-syncStatus(false)
 end)
 end
 local stStroke=statusLbl:FindFirstChildOfClass("UIStroke")or mk("UIStroke",{Thickness=1.15,Color=c3(8,12,22),Transparency=0.22},statusLbl)
@@ -2390,7 +2377,7 @@ if win.AbsoluteSize.X>=200 and win.AbsoluteSize.Y>=140 then
 State.SavedFullWinSize=win.Size
 end
 local function syncWindowVisibilityInstant()
-if not win or not win.Parent or State.IsBubbleAnimating then return end
+if not isAlive()or not win or not win.Parent or State.IsBubbleAnimating then return end
 if win.Visible and win.AbsoluteSize.X>=200 and win.AbsoluteSize.Y>=140 then
 State.SavedFullWinSize=win.Size
 end
@@ -2712,20 +2699,14 @@ local function hideNativeVxToggleOnly(ch)
 if not ch or not ch:IsA("GuiObject")or ch==win or ch.Name=="ChilliV5_ExpandedIsland" or ch:FindFirstChild("IslandExpandHint")or ch.Name=="ChilliCrystalBubble" then
 return
 end
-local isVxToggle=false
-if ch.AbsoluteSize.X>0 and ch.AbsoluteSize.X<=75 and ch.AbsoluteSize.Y>0 and ch.AbsoluteSize.Y<=75 then
-for _,d in ipairs(ch:GetDescendants())do
-if d:IsA("TextLabel")or d:IsA("TextButton")then
-local t=(d.Text or ""):lower():match("^%s*(.-)%s*$")
-if t=="vx" or t=="v" or t=="" then
-isVxToggle=true
-break
-end
-end
-end
-end
-if isVxToggle then
+local aw,ah=ch.AbsoluteSize.X,ch.AbsoluteSize.Y
+local sw,sh=ch.Size.X.Offset,ch.Size.Y.Offset
+local isSmallCircle=((aw>0 and aw<=90 and ah>0 and ah<=90)or(sw>0 and sw<=90 and sh>0 and sh<=90))
+if isSmallCircle then
+ch.Position=u2(0,-9999,0,-9999)
 ch.BackgroundTransparency=1
+if ch:IsA("ImageLabel")or ch:IsA("ImageButton")then ch.ImageTransparency=1 end
+if ch:IsA("TextLabel")or ch:IsA("TextButton")then ch.TextTransparency=1 end
 for _,sub in ipairs(ch:GetDescendants())do
 if sub:IsA("TextLabel")or sub:IsA("TextButton")then
 sub.TextTransparency=1
@@ -2752,10 +2733,16 @@ pcall(hideNativeVxToggleOnly,ch)
 end)
 end)
 end
+for _,oldCh in ipairs(gui:GetChildren())do
+if oldCh.Name=="ChilliCrystalBubble" and oldCh:GetAttribute("__BubbleSession")~=SID then
+pcall(function()oldCh:Destroy()end)
+end
+end
 local bubble=gui:FindFirstChild("ChilliCrystalBubble")
 if not bubble then
 bubble=Instance.new("ImageButton")
 bubble.Name="ChilliCrystalBubble"
+bubble:SetAttribute("__BubbleSession",SID)
 bubble.AnchorPoint=v2(0.5,0.5)
 bubble.Position=u2(0,36,0.5,-20)
 bubble.Size=u2(0,56,0,56)
@@ -2924,21 +2911,18 @@ if shimmerImg then shimmerImg.ImageTransparency=0.25 end
 end
 end
 end
-local dragging,dragInput,dragStart,startPos=false,nil,nil,nil
-local pressedInsideBubble=false
-local totalDragDist=0
-local function isPointInsideGui(guiObj,pt)
-if not guiObj or not guiObj.Visible then return false end
-local gp,gs=guiObj.AbsolutePosition,guiObj.AbsoluteSize
-return pt.X>=(gp.X-4)and pt.X<=(gp.X+gs.X+4)and pt.Y>=(gp.Y-4)and pt.Y<=(gp.Y+gs.Y+4)
+if env.__ChilliBubbleDragConn then
+pcall(function()env.__ChilliBubbleDragConn:Disconnect()end)
+env.__ChilliBubbleDragConn=nil
 end
+local dragging,dragInput,dragStart,startPos=false,nil,nil,nil
+local totalDragDist=0
 if bubble:GetAttribute("__DragHooked")~=SID then
 bubble:SetAttribute("__DragHooked",SID)
 bubble.InputBegan:Connect(function(inp)
+if not isAlive()then return end
 if inp.UserInputType==EUIT.MouseButton1 or inp.UserInputType==EUIT.Touch then
-if not isPointInsideGui(bubble,inp.Position)then return end
 dragging=true
-pressedInsideBubble=true
 dragStart=inp.Position
 startPos=bubble.Position
 totalDragDist=0
@@ -2954,11 +2938,12 @@ if inp.UserInputType==EUIT.MouseMovement or inp.UserInputType==EUIT.Touch then
 dragInput=inp
 end
 end)
-UserInputSvc.InputChanged:Connect(function(inp)
+env.__ChilliBubbleDragConn=UserInputSvc.InputChanged:Connect(function(inp)
+if not isAlive()then return end
 if inp==dragInput and dragging and dragStart and startPos then
 local delta=inp.Position-dragStart
 totalDragDist=delta.Magnitude
-if totalDragDist>6 then
+if totalDragDist>8 then
 bubble.Position=u2(
 startPos.X.Scale,startPos.X.Offset+delta.X,
 startPos.Y.Scale,startPos.Y.Offset+delta.Y
@@ -3062,14 +3047,11 @@ if bubble:GetAttribute("__TapHooked")~=SID then
 bubble:SetAttribute("__TapHooked",SID)
 local lastTapClock=0
 local function handleBubbleTap()
-if totalDragDist>12 then
-pressedInsideBubble=false
-return
-end
+if not isAlive()then return end
+if totalDragDist>10 then return end
 local now=os.clock()
 if now-lastTapClock<0.25 then return end
 lastTapClock=now
-pressedInsideBubble=false
 if State.IsBubbleAnimating then return end
 if win.Visible then
 closeMenuAnimated()
@@ -3078,14 +3060,11 @@ openMenuAnimated()
 end
 end
 bubble.MouseButton1Click:Connect(handleBubbleTap)
-bubble.InputEnded:Connect(function(inp)
-if inp.UserInputType==EUIT.MouseButton1 or inp.UserInputType==EUIT.Touch then
-if pressedInsideBubble and isPointInsideGui(bubble,inp.Position)then
-handleBubbleTap()
+bubble.Activated:Connect(handleBubbleTap)
 end
-pressedInsideBubble=false
-end
-end)
+local oldMinus=win:FindFirstChild("ChilliCustomMinusBtn")
+if oldMinus and oldMinus:GetAttribute("__MinusSession")~=SID then
+pcall(function()oldMinus:Destroy()end)
 end
 local customMinusBtn=win:FindFirstChild("ChilliCustomMinusBtn")
 if not customMinusBtn then
@@ -3105,18 +3084,17 @@ AutoButtonColor=true,
 Active=true,
 ZIndex=9999
 },win)
+customMinusBtn:SetAttribute("__MinusSession",SID)
 mk("UICorner",{CornerRadius=UDim.new(0,6)},customMinusBtn)
 mk("UIStroke",{Thickness=1,Color=c3(70,90,135),Transparency=0.35},customMinusBtn)
-else
-customMinusBtn.Visible=true
-customMinusBtn.ZIndex=9999
 end
 if customMinusBtn:GetAttribute("__MinusHooked")~=SID then
 customMinusBtn:SetAttribute("__MinusHooked",SID)
 local lastMinusClick=0
 local function triggerMinusClose()
+if not isAlive()then return end
 local now=os.clock()
-if now-lastMinusClick<0.20 then return end
+if now-lastMinusClick<0.25 then return end
 lastMinusClick=now
 closeMenuAnimated()
 end
@@ -3124,6 +3102,7 @@ customMinusBtn.MouseButton1Click:Connect(triggerMinusClose)
 customMinusBtn.Activated:Connect(triggerMinusClose)
 end
 win:GetPropertyChangedSignal("Visible"):Connect(function()
+if not isAlive()then return end
 if not State.IsBubbleAnimating then
 syncBubbleIconState(win.Visible,true)
 if State.SyncWindowFn then pcall(State.SyncWindowFn)end
@@ -3200,13 +3179,16 @@ break
 end
 end
 end
-local isStatus=d:IsA("TextLabel")and(not isFpsTxt(txt))and(not gui:GetAttribute("__IslandLocked"))and(not d:FindFirstAncestorOfClass("ScrollingFrame"))and d.Parent and(not d.Parent:FindFirstChildOfClass("TextBox"))and(not titleLbl:IsDescendantOf(d.Parent))and math.abs(d.AbsolutePosition.Y-hy)<38 and d.AbsolutePosition.X>titleLbl.AbsolutePosition.X+50 and(hasDot or txt:lower():find("idle",1,true)or txt:find("Đang rảnh",1,true)or txt:find("Tự động",1,true))and not txt:find("v1.",1,true)
+local cleanStatusTxt=(txt:gsub("●",""):gsub("•",""):match("^%s*(.-)%s*$")or ""):lower()
+local isExactIdleText=(cleanStatusTxt=="idle" or cleanStatusTxt=="đang rảnh" or txt:find("Đang rảnh",1,true)~=nil)
+local isPosNearHeader=(math.abs(d.AbsolutePosition.Y-hy)<42 and d.AbsolutePosition.X>titleLbl.AbsolutePosition.X+40)
+local isStatus=d:IsA("TextLabel")and(not isFpsTxt(txt))and(gui:GetAttribute("__IslandLocked")~=SID)and(not d:FindFirstAncestorOfClass("ScrollingFrame"))and(not d:FindFirstAncestor("ChilliV5_ExpandedIsland"))and d.Parent and(not d.Parent:FindFirstChildOfClass("TextBox"))and(not titleLbl:IsDescendantOf(d.Parent))and(isExactIdleText or(isPosNearHeader and(hasDot or txt:find("Tự động",1,true))))and not txt:find("v1.",1,true)
 if isFpsTxt(txt)then
 pcall(hookFps,d)
-elseif isStatus or(d:IsA("TextLabel")and d:GetAttribute("__IslandDone"))then
+elseif isStatus or(d:IsA("TextLabel")and d:GetAttribute("__IslandDone")and gui:GetAttribute("__IslandLocked")~=SID)then
 local okIsl,resIsl=pcall(setupIsland,d,gui)
 if okIsl and resIsl then
-gui:SetAttribute("__IslandLocked",true)
+gui:SetAttribute("__IslandLocked",SID)
 end
 elseif d:GetAttribute("__TransHookSession")~=SID then
 queue[#queue+1]=d
@@ -5262,12 +5244,12 @@ end
 if not nd:IsA("TextBox")and isFpsTxt(nd.Text)then
 pcall(hookFps,nd)
 else
-if nd:IsA("TextLabel")and State.ActiveVenyxGui and not State.ActiveVenyxGui:GetAttribute("__IslandLocked")and not nd:FindFirstAncestorOfClass("ScrollingFrame")then
+if nd:IsA("TextLabel")and State.ActiveVenyxGui and State.ActiveVenyxGui:GetAttribute("__IslandLocked")~=SID and not nd:FindFirstAncestorOfClass("ScrollingFrame")and not nd:FindFirstAncestor("ChilliV5_ExpandedIsland")then
 local nt=(nd.Text or ""):lower()
 if nt:find("idle",1,true)or(nd.Text or ""):find("Đang rảnh",1,true)then
 local okI,resI=pcall(setupIsland,nd,State.ActiveVenyxGui)
 if okI and resI then
-State.ActiveVenyxGui:SetAttribute("__IslandLocked",true)
+State.ActiveVenyxGui:SetAttribute("__IslandLocked",SID)
 return
 end
 end
