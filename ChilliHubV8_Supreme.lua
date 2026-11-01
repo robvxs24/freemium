@@ -19,36 +19,20 @@ pcall(function()
 if isfile(AUTO_FILE) then delfile(AUTO_FILE) end
 end)
 end
-task.spawn(function()
-pcall(function()
-if setfpscap then pcall(setfpscap, 120) end
-pcall(function() game:GetService("RunService"):Set3dRenderingEnabled(true) end)
-local lgt = game:GetService("Lighting")
-lgt.GlobalShadows = false
-lgt.FogEnd = 9e9
-settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
-end)
-pcall(function()
-local cp = game:GetService("ContentProvider")
-local pre = {}
-for _, id in ipairs({ LOGO_ID, HEADER_BAR_IMG_ID, STEAL_TAB_ICON_ID, WALLPAPER_IMAGE_ID, "rbxassetid://91322208361913" }) do
-local im = Instance.new("ImageLabel")
-im.Image = id
-table.insert(pre, im)
-end
-cp:PreloadAsync(pre)
-for _, im in ipairs(pre) do im:Destroy() end
-end)
-end)
 local function safeHttpGet(url)
+for attempt = 1, 2 do
 local ok1, res1 = pcall(function() return game:HttpGet(url) end)
 if ok1 and type(res1) == "string" and #res1 > 10 then return res1 end
 local ok2, res2 = pcall(function() return game:HttpGet(url, true) end)
 if ok2 and type(res2) == "string" and #res2 > 10 then return res2 end
-local req = (syn and syn.request) or (http and http.request) or http_request or request or (fluxus and fluxus.request)
+local ok3, res3 = pcall(function() return game:HttpGetAsync(url) end)
+if ok3 and type(res3) == "string" and #res3 > 10 then return res3 end
+local req = request or http_request or (http and http.request) or (syn and syn.request) or (fluxus and fluxus.request) or (delta and delta.request) or (arceus and arceus.request) or (codex and codex.request)
 if req then
 local rOk, rRes = pcall(req, { Url = url, Method = "GET" })
-if rOk and rRes and type(rRes.Body) == "string" and #rRes.Body > 10 then return rRes.Body end
+if rOk and type(rRes) == "table" and type(rRes.Body) == "string" and #rRes.Body > 10 then return rRes.Body end
+end
+if attempt == 1 then task.wait(0.25) end
 end
 return nil
 end
@@ -76,10 +60,17 @@ if s == "EN" or s == "VI" then State.Language = s end
 end
 end)
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
+local LocalPlayer = Players.LocalPlayer
+if not LocalPlayer then
+pcall(function() LocalPlayer = Players:GetPropertyChangedSignal("LocalPlayer"):Wait() end)
+LocalPlayer = Players.LocalPlayer
+end
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 local Stats = game:GetService("Stats")
+
+local RunService = game:GetService("RunService")
+
 local function getScanRoots()
 local r, seen = {}, {}
 local function addRoot(inst)
@@ -91,8 +82,8 @@ end
 if gethui then
 pcall(function() addRoot(gethui()) end)
 end
-addRoot(CoreGui)
-local pg = LocalPlayer and LocalPlayer:FindFirstChildOfClass("PlayerGui")
+pcall(function() addRoot(CoreGui) end)
+local pg = LocalPlayer and (LocalPlayer:FindFirstChildOfClass("PlayerGui") or LocalPlayer:FindFirstChild("PlayerGui"))
 addRoot(pg)
 return r
 end
@@ -396,6 +387,8 @@ local FastCache = {}
 local function hasVi(s)
 return type(s) == "string" and s ~= "" and (s:find("\225[\186\187][\128-\191]") ~= nil or s:find("\195[\128-\191]") ~= nil or s:find("\196[\130\131\144\145\168\169]") ~= nil or s:find("\197[\168\169\175\176]") ~= nil)
 end
+local translateText, stripRichTags, applyTrans, hookTrans, refreshAllTexts
+do
 -- ============================================================================
 -- [PHẦN 2] BỘ TỪ ĐIỂN & ĐỘNG CƠ DỊCH THUẬT TIẾNG VIỆT THỜI GIAN THỰC
 -- ============================================================================
@@ -1010,7 +1003,7 @@ out = applyWords(applyPhrases(out)):gsub("%s+", " "):match("^%s*(.-)%s*$") or ou
 FastCache[ck] = out
 return out
 end
-local function translateText(raw)
+translateText = function(raw)
 if not raw or raw == "" then return raw end
 local ck = State.Language .. "|" .. raw
 if FastCache[ck] then return FastCache[ck] end
@@ -1081,7 +1074,7 @@ end
 FastCache[ck] = raw
 return raw
 end
-local function stripRichTags(s)
+stripRichTags = function(s)
 if type(s) ~= "string" then return "" end
 return (s:gsub("<[^>]+>", ""):match("^%s*(.-)%s*$") or "")
 end
@@ -1093,7 +1086,7 @@ local hookLoginFrameTrigger = nil
 local translateFinderHudState = nil
 local scanChilliFinderButtons = nil
 
-local function applyTrans(inst)
+applyTrans = function(inst)
 if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
 if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__FpsHookSession") or inst:GetAttribute("__HiddenVxLogo")
 or inst.Name == "IslandExpandHint" or inst.Name == "ChilliUltraTitleBadge" or inst.Name == "ChilliIslandTitle" or inst.Name == "BadgeTxt" or inst.Name == "ChilliTabCaption" or inst.Name == "ChilliTabCaptionEn" or inst.Name == "ChilliFakeFpsOverlay" or inst.Name == "NeonFpsText"
@@ -1184,7 +1177,7 @@ elseif watchFinderTextObj and (checkLow == "chilli finder" or checkLow:find("chi
 pcall(watchFinderTextObj, inst)
 end
 end
-local function hookTrans(inst)
+hookTrans = function(inst)
 if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
 if inst.Name == "ChilliFakeFpsOverlay" or inst:GetAttribute("__IslandDone") or inst:GetAttribute("__HiddenVxLogo") or inst.Name == "IslandExpandHint"
 or inst.Name == "ChilliUltraTitleBadge" or inst.Name == "ChilliIslandTitle" or inst.Name == "BadgeTxt" or inst.Name == "ChilliTabCaption" or inst.Name == "ChilliTabCaptionEn" or inst.Name == "ChilliFakeFpsOverlay" or inst.Name == "NeonFpsText"
@@ -1221,7 +1214,7 @@ end
 end)
 end
 
-local function refreshAllTexts()
+refreshAllTexts = function()
 if not isAlive() then return end
 table.clear(FastCache)
 for i = #State.TrackedTexts, 1, -1 do
@@ -1238,6 +1231,8 @@ if State.RefreshSidebarTabsCallback then pcall(State.RefreshSidebarTabsCallback)
 if State.ActiveFinderWin and State.ActiveFinderWin.Parent then
 pcall(scanChilliFinderButtons)
 end
+end
+
 end
 
 -- 5. NẠP CONFIG CHUẨN V5 (MỞ THẲNG HỆ THỐNG -> CẤU HÌNH, CUỘN XUỐNG NÚT NHẬP, DÁN JSON & CLICK AN TOÀN)
@@ -1281,6 +1276,7 @@ end
 end
 end)
 end
+if not fired then
 pcall(function()
 for _, uType in ipairs({ Enum.UserInputType.MouseButton1, Enum.UserInputType.Touch }) do
 local changedCbs = {}
@@ -1329,6 +1325,7 @@ end
 end
 end
 end)
+end
 end
 if firesignal and (targetObj:IsA("TextButton") or targetObj:IsA("ImageButton")) then
 pcall(function()
@@ -2837,13 +2834,13 @@ local function applySenaV7Architecture(win, titleLbl)
 		for _, d in ipairs(win:GetDescendants()) do
 			if d:IsA("TextButton") or d:IsA("ImageButton") or d:IsA("TextLabel") then
 				local dTxt = ((d:IsA("TextButton") or d:IsA("TextLabel")) and (d.Text or "") or ""):match("^%s*(.-)%s*$")
-				if (dTxt == "-" or dTxt == "—") and math.abs(d.AbsolutePosition.Y - hy) < 22 then
+				local isHeaderRow = math.abs(d.AbsolutePosition.Y - hy) < 18 and (d.AbsolutePosition.Y - win.AbsolutePosition.Y) < 34
+				local isMinusBtn = isHeaderRow and (dTxt == "-" or dTxt == "—" or (dTxt == "" and d.AbsolutePosition.X > win.AbsolutePosition.X + win.AbsoluteSize.X - 42 and d.AbsoluteSize.X <= 36 and d.AbsoluteSize.Y <= 36))
+				if isMinusBtn then
 					local btn = (d:IsA("TextButton") or d:IsA("ImageButton")) and d or d.Parent
 					if btn and (btn:IsA("TextButton") or btn:IsA("ImageButton")) and btn:GetAttribute("__CloseSyncHooked") ~= SID then
 						btn:SetAttribute("__CloseSyncHooked", SID)
 						btn.MouseButton1Down:Connect(function()
-							State.AllowMenuCloseNow = true
-							State.IsMenuAuthorizedClosed = true
 							if State.AnimateCloseFn then
 								pcall(State.AnimateCloseFn)
 							else
@@ -3450,15 +3447,10 @@ local function setupBubbleToggle(gui, win, titleLbl)
 		end
 	end
 
-	State.AllowMenuCloseNow = false
-	State.IsMenuAuthorizedClosed = not win.Visible
-
 	-- 1. MỞ MENU (SIÊU MƯỢT 0MS, KHÔNG QUÉT LẠI DOM)
 	local function openMenuAnimated()
 		if State.IsBubbleAnimating then return end
 		State.IsBubbleAnimating = true
-		State.AllowMenuCloseNow = false
-		State.IsMenuAuthorizedClosed = false
 
 		playToggleSound("rbxassetid://6895079853", 0.75, 1.05)
 		syncBubbleIconState(true, true)
@@ -3483,17 +3475,15 @@ local function setupBubbleToggle(gui, win, titleLbl)
 		openTween:Play()
 	end
 
-	-- 2. ĐÓNG MENU (CHỈ ĐÓNG KHI BẤM NÚT BONG BÓNG HOẶC NÚT "-" TRÊN HEADER)
+	-- 2. ĐÓNG MENU (KHI BẤM NÚT BONG BÓNG HOẶC NÚT "-" TRÊN HEADER: ĐÓNG DỨT KHOÁT, KHÔNG BAO GIỜ TỰ MỞ LẠI)
 	local function closeMenuAnimated()
-		if not State.AllowMenuCloseNow and State.MacroBusy then return end
+		if State.MacroBusy then return end
 		if State.IsBubbleAnimating then return end
 		if not win.Visible then
 			syncBubbleIconState(false, true)
 			return
 		end
 		State.IsBubbleAnimating = true
-		State.AllowMenuCloseNow = true
-		State.IsMenuAuthorizedClosed = true
 
 		playToggleSound("rbxassetid://6895079853", 0.65, 1.25)
 		syncBubbleIconState(false, true)
@@ -3502,15 +3492,9 @@ local function setupBubbleToggle(gui, win, titleLbl)
 			Scale = 0.92
 		})
 		closeTween.Completed:Connect(function()
-			if State.IsMenuAuthorizedClosed then
-				win.Visible = false
-				winScale.Scale = 0.92
-			else
-				win.Visible = true
-				winScale.Scale = 1.0
-			end
+			win.Visible = false
+			winScale.Scale = 0.92
 			State.IsBubbleAnimating = false
-			State.AllowMenuCloseNow = false
 			if State.SyncWindowFn then pcall(State.SyncWindowFn) end
 		end)
 		closeTween:Play()
@@ -3529,12 +3513,8 @@ local function setupBubbleToggle(gui, win, titleLbl)
 			lastTapClock = now
 			if State.IsBubbleAnimating then return end
 			if win.Visible then
-				State.AllowMenuCloseNow = true
-				State.IsMenuAuthorizedClosed = true
 				closeMenuAnimated()
 			else
-				State.AllowMenuCloseNow = false
-				State.IsMenuAuthorizedClosed = false
 				openMenuAnimated()
 			end
 		end
@@ -3551,13 +3531,13 @@ local function setupBubbleToggle(gui, win, titleLbl)
 	for _, d in ipairs(win:GetDescendants()) do
 		if d:IsA("TextButton") or d:IsA("ImageButton") or d:IsA("TextLabel") then
 			local dTxt = ((d:IsA("TextButton") or d:IsA("TextLabel")) and (d.Text or "") or ""):match("^%s*(.-)%s*$")
-			if (dTxt == "-" or dTxt == "—") and math.abs(d.AbsolutePosition.Y - hy) < 22 then
+			local isHeaderRow = math.abs(d.AbsolutePosition.Y - hy) < 18 and (d.AbsolutePosition.Y - win.AbsolutePosition.Y) < 34
+			local isMinusBtn = isHeaderRow and (dTxt == "-" or dTxt == "—" or (dTxt == "" and d.AbsolutePosition.X > win.AbsolutePosition.X + win.AbsoluteSize.X - 42 and d.AbsoluteSize.X <= 36 and d.AbsoluteSize.Y <= 36))
+			if isMinusBtn then
 				local btn = (d:IsA("TextButton") or d:IsA("ImageButton")) and d or d.Parent
 				if btn and (btn:IsA("TextButton") or btn:IsA("ImageButton")) and btn:GetAttribute("__ChilliCloseBubbleHooked") ~= SID then
 					btn:SetAttribute("__ChilliCloseBubbleHooked", SID)
 					btn.MouseButton1Click:Connect(function()
-						State.AllowMenuCloseNow = true
-						State.IsMenuAuthorizedClosed = true
 						closeMenuAnimated()
 					end)
 				end
@@ -3565,17 +3545,10 @@ local function setupBubbleToggle(gui, win, titleLbl)
 		end
 	end
 
-	-- Chặn triệt để lỗi tự đóng menu khi bấm vào "Cấu Hình" hoặc khi chạy Auto Config
 	win:GetPropertyChangedSignal("Visible"):Connect(function()
-		if not win.Visible and not State.AllowMenuCloseNow and not State.IsMenuAuthorizedClosed then
-			win.Visible = true
-			winScale.Scale = 1.0
-			syncBubbleIconState(true, false)
-			if State.SyncWindowFn then pcall(State.SyncWindowFn) end
-			return
-		end
 		if not State.IsBubbleAnimating then
 			syncBubbleIconState(win.Visible, true)
+			if State.SyncWindowFn then pcall(State.SyncWindowFn) end
 		end
 	end)
 
@@ -3677,12 +3650,12 @@ task.spawn(function()
 for i = 1, #queue do
 if not isAlive() then break end
 if queue[i] and queue[i].Parent then pcall(hookTrans, queue[i]) if watchFinderTextObj then pcall(watchFinderTextObj, queue[i]) end end
-if i % 350 == 0 then task.wait() end
+if i % 50 == 0 then task.wait() end
 end
 gui:SetAttribute("__BatchTranslating", false)
 end)
 end
-return (win ~= nil and gui:GetAttribute("__IslandLocked") == true)
+return (win ~= nil)
 end
 
 -- ============================================================================
@@ -4301,6 +4274,10 @@ end
 end)
 end
 
+local GetKeyRemainingTime = nil
+local ApplyScreenLockdown = nil
+local OpenKeySystemUI = nil
+do
 -- =========================================================================
 --   🌶️ CHILLI HUB V8 FINDER • KEY SYSTEM - STEAL AN EGG 🥚
 --   HIỆN MENU GETKEY KHI BẤM VÀO NÚT "VÀO NGAY" CỦA CHILLI FINDER FREE
@@ -4319,21 +4296,9 @@ local VaultAttributeName = "RBX_Engine_State_V7"
 local ActiveBlurEffect = nil
 local InputBlockerScreen = nil
 local MainScreenGui = nil
-local OpenKeySystemUI = nil
 
-task.spawn(function()
-	pcall(function()
-		local cp = game:GetService("ContentProvider")
-		local pre = {}
-		for _, id in ipairs({ GiftBoxAssetId, ChilliAvatarId }) do
-			local im = Instance.new("ImageLabel")
-			im.Image = id
-			table.insert(pre, im)
-		end
-		cp:PreloadAsync(pre)
-		for _, im in ipairs(pre) do im:Destroy() end
-	end)
-end)
+
+
 
 local CIPHER_KEY = 139
 
@@ -4500,7 +4465,7 @@ local function SaveSpinResult(bonusHours, claimed)
 	SaveMasterVault(v)
 end
 
-local function GetKeyRemainingTime()
+GetKeyRemainingTime = function()
 	local v = LoadMasterVault()
 	if v.KeyExpire and v.KeyExpire > os.time() then
 		return v.KeyExpire - os.time()
@@ -4542,7 +4507,7 @@ local function VerifyChilliV7Key(rawInput)
 	return false
 end
 
-local function ApplyScreenLockdown()
+ApplyScreenLockdown = function()
 	local Lighting = game:GetService("Lighting")
 	if not ActiveBlurEffect then
 		ActiveBlurEffect = Instance.new("BlurEffect")
@@ -5808,6 +5773,8 @@ local function extractFinderPetNameFromJoinBtn(joinLbl)
 	return bestName
 end
 
+end
+
 executeRawHopToLeastPlayersServer = function(joinLbl)
 if State.JoiningLeastServerBusy and (os.clock() - (State.LastJoinHopClock or 0) < 2.0) then return end
 State.JoiningLeastServerBusy = true
@@ -6016,13 +5983,13 @@ end
 end
 for _, tObj in ipairs(targets) do
 pcall(function() tObj.Active = true end)
-if getconnections then
-for _, sigName in ipairs({"MouseButton1Click", "Activated", "MouseButton1Down", "InputBegan"}) do
+if getconnections and (tObj:IsA("TextButton") or tObj:IsA("ImageButton")) then
+for _, sigName in ipairs({"MouseButton1Click", "Activated"}) do
 pcall(function()
 local sig = tObj[sigName]
 if sig then
 for _, conn in ipairs(getconnections(sig)) do
-if conn.Disable then pcall(conn.Disable, conn) end
+if conn.Function and conn.Disable then pcall(conn.Disable, conn) end
 end
 end
 end)
@@ -6438,6 +6405,9 @@ local function scanOnce(forcePass)
 if not isAlive() then return false end
 for _, root in ipairs(getScanRoots()) do
 local guis = {}
+if root:IsA("ScreenGui") and not ROBLOX_CORE_SUBFOLDERS[root.Name] then
+table.insert(guis, root)
+end
 for _, ch in ipairs(root:GetChildren()) do
 if ch.Name == "RobloxGui" then
 bindGuiEvents(ch)
@@ -6516,9 +6486,13 @@ end)
 local function tryBootPass(attempt)
 if not isAlive() then return end
 if not venyxGuiLocked then
+if attempt == 14 or attempt == 28 then
+env.__VenyxLaunchingNow = false
+pcall(launchVenyxBase)
+end
 pcall(scanOnce, false)
 pcall(findAndStyleFinderNow)
-if not venyxGuiLocked and attempt < 40 then
+if not venyxGuiLocked and attempt < 45 then
 task.delay(0.25, function()
 tryBootPass(attempt + 1)
 end)
