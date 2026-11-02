@@ -79,10 +79,7 @@ pcall(function()
 				if low == "chilli finder" or low == "chill finder free" or low == "chilli finder free" then
 					if typeof(t) == "Instance" and (t:IsA("TextLabel") or t:IsA("TextButton")) then
 						if not t:FindFirstAncestorOfClass("ScrollingFrame") then
-							local pos = t.Position
-							if pos.Y.Scale <= 0.15 and pos.Y.Offset <= 50 then
-								return oldNewIndex(t, k, "Chilli Finder Freemium")
-							end
+							return oldNewIndex(t, k, "Chilli Finder Freemium")
 						end
 					end
 				end
@@ -892,6 +889,9 @@ local VI_TO_EN = {
 ["huyền thoại"] = "Legendary", ["sử thi"] = "Epic", ["hiếm"] = "Rare",
 ["thường"] = "Common", ["tắt"] = "Off", ["bật"] = "On", ["tất cả"] = "All",
 ["tìm trứng"] = "Finder", ["đang rảnh"] = "Idle", ["vào ngay"] = "Join",
+["chilli finder"] = "Chilli Finder Freemium",
+["chill finder free"] = "Chilli Finder Freemium",
+["chilli finder freemium"] = "Chilli Finder Freemium",
 ["tự vào sau"] = "Force join", ["độ hiếm"] = "Rarity", ["tài khoản"] = "Account",
 ["miễn phí"] = "Free", ["ẩn"] = "Hide", ["hiện"] = "Show",
 ["tự động: tắt"] = "AUTO OFF", ["tự động: bật"] = "AUTO ON",
@@ -1037,6 +1037,13 @@ local function translateText(raw)
 if not raw or raw == "" then return raw end
 local ck = State.Language .. "|" .. raw
 if FastCache[ck] then return FastCache[ck] end
+
+local normRaw = (raw:match("^%s*(.-)%s*$") or raw)
+local lowNorm = normRaw:lower()
+if lowNorm == "chilli finder" or lowNorm == "chill finder free" or lowNorm == "chilli finder free" or lowNorm == "chilli finder freemium" then
+	FastCache[ck] = "Chilli Finder Freemium"
+	return "Chilli Finder Freemium"
+end
 if raw:find("Venyx SAE", 1, true) then
 raw = raw:gsub("Venyx SAE", "Chilli SAE")
 elseif raw == "VENYX" or raw == "Chilli Hub V5" or raw == "Chilli V5 |" then
@@ -1118,6 +1125,29 @@ local scanChilliFinderButtons = nil
 
 local function applyTrans(inst)
 if not (inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox")) then return end
+
+-- BẢO ĐẢM TIÊU ĐỀ LUÔN LÀ "CHILLI FINDER FREEMIUM" KỂ CẢ KHI Ở CHẾ ĐỘ TIẾNG ANH (EN) HOẶC TIẾNG VIỆT (VI)
+local preRaw = inst:GetAttribute("OrigRawText") or inst.Text or ""
+local preLow = stripRichTags(preRaw):lower():match("^%s*(.-)%s*$")
+if preLow == "chilli finder" or preLow == "chill finder free" or preLow == "chilli finder free" or preLow == "chilli finder freemium" then
+	if not inst:FindFirstAncestorOfClass("ScrollingFrame") and not preLow:find("account") and not preLow:find("pro") then
+		inst:SetAttribute("__IsTranslating", true)
+		inst:SetAttribute("OrigRawText", "Chilli Finder Freemium")
+		inst:SetAttribute("OrigFinderStateText", "Chilli Finder Freemium")
+		inst:SetAttribute("__LastTranslated", "Chilli Finder Freemium")
+		if inst.Text ~= "Chilli Finder Freemium" then
+			pcall(function()
+				inst.Text = "Chilli Finder Freemium"
+				inst.TextColor3 = Color3.fromRGB(255, 255, 255)
+			end)
+		end
+		inst:SetAttribute("__IsTranslating", false)
+		if applyFreemiumTitleOverlay then pcall(applyFreemiumTitleOverlay, inst) end
+		local w = getFinderWindowFromObj and getFinderWindowFromObj(inst)
+		if w and instantStyleFinder then pcall(instantStyleFinder, w) end
+		return
+	end
+end
 if inst:GetAttribute("__IslandDone") or inst:GetAttribute("__FpsHookSession") or inst:GetAttribute("__HiddenVxLogo")
 or inst.Name == "IslandExpandHint" or inst.Name == "ChilliUltraTitleBadge" or inst.Name == "ChilliIslandTitle" or inst.Name == "BadgeTxt" or inst.Name == "ChilliTabCaption" or inst.Name == "ChilliTabCaptionEn" or inst.Name == "ChilliFakeFpsOverlay" or inst.Name == "NeonFpsText"
 or inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliHeaderOverlay") or inst:FindFirstAncestor("ChilliSenaBottomBar")
@@ -3798,29 +3828,33 @@ local function isFinderHeaderTitle(d, win)
 	if not (d:IsA("TextLabel") or d:IsA("TextButton")) then return false end
 	if d:FindFirstAncestorOfClass("ScrollingFrame") then return false end
 
+	local raw = stripRichTags(d.Text or ""):match("^%s*(.-)%s*$")
+	local low = raw:lower()
+
+	-- Tuyệt đối không phải footer, link web, phụ đề hay nút thao tác
+	if low:find("chillihub.pro", 1, true) or low:find("create your account", 1, true)
+	   or low:find("get chilli finder", 1, true) or low:find("top 5", 1, true)
+	   or low:find("sign in", 1, true) or low:find("booking", 1, true)
+	   or low:find("copy", 1, true) or low:find("join", 1, true)
+	   or low:find("rarity", 1, true) or low:find("force", 1, true) then
+		return false
+	end
+
+	-- Kiểm tra vị trí: chỉ loại bỏ nếu rõ ràng nằm ở nửa dưới của cửa sổ (relY > 110px)
 	local parentWin = win or getFinderWindowFromObj(d)
-	if not parentWin then return false end
-
-	-- BẮT BUỘC nằm ở thanh trên cùng (Y offset <= 50px từ đỉnh khung)
-	if d.AbsolutePosition.Y > 0 and parentWin.AbsolutePosition.Y > 0 then
+	if parentWin and parentWin:IsA("GuiObject") and parentWin.AbsolutePosition.Y > 0 and d.AbsolutePosition.Y > 0 then
 		local relY = d.AbsolutePosition.Y - parentWin.AbsolutePosition.Y
-		if relY > 50 then return false end
-	end
-	if d.Position.Y.Scale > 0.15 or (d.Position.Y.Scale == 0 and d.Position.Y.Offset > 50) then
-		return false
+		if relY > 110 then return false end
 	end
 
-	-- Tuyệt đối không phải là phụ đề, footer, link chillihub.pro hay nút thao tác
-	local raw = stripRichTags(d.Text or ""):lower()
-	if raw:find("chillihub.pro", 1, true) or raw:find("create your account", 1, true)
-	   or raw:find("get chilli finder", 1, true) or raw:find("top 5", 1, true)
-	   or raw:find("sign in", 1, true) or raw:find("booking", 1, true)
-	   or raw:find("copy", 1, true) or raw:find("join", 1, true)
-	   or raw:find("rarity", 1, true) or raw:find("force", 1, true) then
-		return false
+	-- Nhận diện đúng text tiêu đề chính
+	if low == "chilli finder" or low == "chill finder free" or low == "chilli finder free"
+	   or low == "chilli finder freemium" or raw == "⚡ Chilli Finder Freemium"
+	   or (low:find("finder", 1, true) and not low:find("auto")) then
+		return true
 	end
 
-	return true
+	return false
 end
 
 -- HỆ THỐNG OVERLAY TIÊU ĐỀ BẤT KHẢ XÂM PHẠM (CHỈ GẮN VÀO TIÊU ĐỀ CHÍNH Ở HEADER)
@@ -6526,26 +6560,19 @@ local function instantStyleFinder(win)
 		end
 	end
 
-	-- 3. CHỈ ÁP DỤNG TIÊU ĐỀ DUY NHẤT Ở THANH HEADER TRÊN CÙNG
-	local headerTitleObj = nil
+	-- 3. ĐỔI TIÊU ĐỀ THÀNH "Chilli Finder Freemium" DUY NHẤT Ở THANH HEADER
 	for _, d in ipairs(win:GetDescendants()) do
 		if isFinderHeaderTitle(d, win) then
-			local t = stripRichTags(d.Text or ""):lower():match("^%s*(.-)%s*$")
-			if t == "chilli finder" or t == "chill finder free" or t == "chilli finder free" or t == "chilli finder freemium" or t:find("finder", 1, true) then
-				headerTitleObj = d
-				break
-			end
-		end
-	end
-
-	if headerTitleObj then
-		pcall(applyFreemiumTitleOverlay, headerTitleObj)
-		if headerTitleObj.Text ~= "Chilli Finder Freemium" then
+			pcall(applyFreemiumTitleOverlay, d)
+			d:SetAttribute("__IsTranslating", true)
+			d:SetAttribute("OrigRawText", "Chilli Finder Freemium")
+			d:SetAttribute("OrigFinderStateText", "Chilli Finder Freemium")
+			d:SetAttribute("__LastTranslated", "Chilli Finder Freemium")
 			pcall(function()
-				headerTitleObj:SetAttribute("__IsTranslating", true)
-				headerTitleObj.Text = "Chilli Finder Freemium"
-				headerTitleObj:SetAttribute("__IsTranslating", false)
+				d.Text = "Chilli Finder Freemium"
+				d.TextColor3 = Color3.fromRGB(255, 255, 255)
 			end)
+			d:SetAttribute("__IsTranslating", false)
 		end
 	end
 
