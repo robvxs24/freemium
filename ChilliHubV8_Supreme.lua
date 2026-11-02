@@ -12,7 +12,9 @@ CLIENT_TYPE="DELTA"
 elseif low:find("codex")or low:find("vega")or type(codex)=="table" then
 CLIENT_TYPE="CODEX"
 elseif low:find("fluxus")or type(fluxus)=="table" then
-CLIENT_TYPE="FLUXUS" end end)
+CLIENT_TYPE="FLUXUS"
+end
+end)
 local IS_ARCEUS=(CLIENT_TYPE=="ARCEUS")
 local NEW_TITLE="Chilli Hub V8"
 local LOGO_ID="rbxassetid://74441610995894"
@@ -28,7 +30,9 @@ local AUTO_FILE,LANG_FILE="ChilliHubV5_AutoRun.lua","ChilliV5_Lang.txt"
 local PRESET_JSON = [=[{"venyx":1,"name":"hihi 2","data":{"System / Interface/Quick bars/Show quick bars":true,"Farm / Sell/Favorite/Auto favorite":false,"System / Interface/Quick bars/Quick bar layout":"{\"pins\":{\"Event / Butterfly/Butterfly bloom/Auto butterfly bloom\":2,\"Player / Combat/Hit aura/Hit aura\":1,\"Player / Combat/Auto hit/Chase speed\":1,\"Steal / Auto Steal/Auto hop server/Auto hop\":1,\"Player / Move/Movement/Boost speed\":1,\"Player / Combat/Auto hit/Auto hit\":1,\"Steal / Auto Steal/Auto steal/Auto steal\":1,\"Event / Race/Racing Event/Auto race\":2,\"Farm / Treadmill/Treadmill/Auto treadmill\":1,\"Player / Move/Movement/Speed boost\":1},\"keys\":[],\"at\":{\"1\":[766.9053955078125,21.74544906616211],\"2\":[624.3492431640625,21.080074310302736]},\"fold\":{\"1\":true,\"2\":true}}","System / Optimizer/Graphics/Disable 3D Render":false,"Farm / Pen/Auto place/Place first":"Best value","Steal / Auto Steal/Filter/Only below /s":0,"Farm / Pen/Auto hatch/Equip best pets":false,"Event / AA/Capture the egg/Auto capture event egg":true,"Farm / Mutate/Mutate filter/Only these eggs":[],"Farm / Treadmill/Treadmill/Auto upgrade treadmill":false,"Steal / Auto Steal/Auto steal/Drop eggs at safe zone":false,"Steal / Auto Steal/Auto hop server/Auto hop":false,"System / Interface/Interface/Dim the game":0,"Player / Combat/Hit aura/Skip friends":true,"Player / ESP/Others/Pen egg ESP":true,"System / Optimizer/Frame rate/FPS position":"0.5000,-550,0.0000,49","Event / Butterfly/Butterfly bloom/Auto butterfly bloom":true,"Farm / Pen/Auto hatch/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Steal / Auto Steal/Filter/Min value /s":2000000000,"Player / Combat/Hit aura/Hit aura":true,"Event / Star/Shooting Star/Auto catch shooting star":true,"Steal / Egg Predictor/Egg showcase/Calculate mutations":[],"Steal / Egg Predictor/Egg showcase/Sort eggs":"Value","Event / Halloween/Ghost Dog and fishing/Auto fishing":true,"System / Optimizer/Bases/Hide other players' pets and eggs":true,"Player / Combat/Auto hit/Auto hit":false,"Event / Halloween/Ghost Dog and fishing/Auto Ghost Dog quest":false,"Event / Butterfly/Butterfly bloom/Catch mode":"Chase","Event / Butterfly/Butterfly machine/Trade":[],"Event / Halloween/Halloween Dimension/Halloween eggs":["Bone Emperor","Voidseer Pumpkin","Zombified Bone Emperor","Ghost Reaper","Gorillastein","Phantom Dragon","Shelltide Voyager","Zombified Grave Cerberus","Zombified Phantom Dragon","BloodBloom","Grave Cerberus","Graveyard Brute","Werewolf","Zombified Night Fang","Zombified Pumpkin Fiend","Zombified Tombstone Bear"],"Farm / Pen/Auto place/Auto place":false,"Steal / Auto Steal/Filter/Rarities":["Divine","Eternal","Secret"],"System / Webhook/What to post/Post fused eggs":false,"Event / Halloween/Halloween Dimension/Auto Pumpkin Moon":true,"Farm / Sell/Pets/Sell rarities":["Rare","Uncommon","Common"],"Player / Move/Protection/Ignore traps":true,"Farm / Fuse/Fuse filter/Rarities":["Mythic","Legendary","Epic","Rare","Uncommon","Common"],"System / Webhook/Discord webhook/Ping role ID":"","Player / ESP/Others/Hide sleeping guards":true,"Event / Halloween/Halloween Dimension/Min value /s":1000000000,"System / Optimizer/Frame rate/Show FPS and ping":true,"Farm / Treadmill/Progress/Auto claim index rewards":false,"System / Interface/Quick bars/Keybinds":true,"Steal / Auto Steal/Auto steal/Instant steps":2,"Farm / Fuse/Fuse filter/Never fuse":[],"Farm / Pen/Auto hatch/Mutations":[],"System / Optimizer/Bases/Hide my pets and eggs":true,"Event / Halloween/Monsters/Monster order":"Most tokens","Steal / Auto Steal/Filter/Zones":["Enchanted Forest","Light Dark","Titan Temple","Cherry Blossom"],"Event / Butterfly/Butterfly machine/Auto craft essence":true,"Farm / Mutate/Auto mutate/Auto mutate":false,"Player / ESP/Others/Other pens ESP":true,"Player / ESP/Field eggs/Egg ESP":false,"Farm / Pen/Keep eggs/Min value /s":0,"Steal / Auto Steal/Auto steal/Delivery method":"Instant steps","Farm / Treadmill/Progress/Auto buy trails":false,"Farm / Sell/Eggs/Sell rarities":["Rare","Uncommon","Common"],"System / Interface/Interface/Tone":100,"Event / AA/Admin abuse/Admin treadmill":false,"System / Webhook/What to post/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Farm / Pen/Auto place/Place when":"Always","Event / Halloween/Monsters/Monsters":["Candy Corn","Hollow Bat","Scarecrow","Chest Mimic","Pumpkin Golem","Soul Phantom"],"Event / Butterfly/Wisp companion/Auto banjo cricket":false,"Event / Halloween/Halloween Dimension/Auto buy Halloween Dimension Egg":false,"Event / Halloween/Halloween Dimension/Walk speed":1000,"Steal / Auto Steal/Auto steal/Delivery speed":4500,"Farm / Mutate/Auto mutate/Use items":["Fractured","Scrambled","Enchanted","Nitro","Spectral"],"Farm / Fuse/Fuse machine/Fuse first":"Lowest rarity","Steal / Auto Steal/Auto hop server/Rare from":"Cosmic","Player / Move/Movement/Boost speed":720,"System / Interface/Interface/Opacity":50,"Player / ESP/Others/Guard ESP":true,"Farm / Sell/Favorite/Always favorite":[],"Event / Halloween/Halloween Dimension/Steal speed":100,"Farm / Sell/Eggs/Auto sell eggs":false,"System / Webhook/What to post/Post stolen eggs":false,"Player / ESP/Others/ESP size":60,"Steal / Auto Steal/Filter/Steal first":"Best value","Farm / Sell/Pets/Only below /s":0,"Player / Move/Protection/Anti ragdoll":true,"Player / ESP/Field eggs/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic"],"Player / Move/Protection/Invisible":false,"Steal / Auto Steal/Auto hop server/Hop when":"After stealing a match","Event / AA/Cursed Island Wars/Auto play Cursed Island Wars":true,"Event / Butterfly/Butterfly bloom/Catch":["Radiant","Amethyst","Sapphire","Emerald"],"Farm / Treadmill/Treadmill/Auto treadmill":false,"System / Interface/Game HUD/Steal panel button on game HUD":true,"System / Server/Server/Hop to":"Least players","Farm / Mutate/Mutate filter/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Player / Move/Protection/Instant prompts":true,"System / Server/Join and stay/Rejoin on kick":true,"Farm / Sell/Favorite/Favorite equipped":false,"Event / Halloween/Phantom Express/Auto Phantom Express":true,"System / Optimizer/Frame rate/FPS cap":360,"Steal / Auto Steal/Auto steal/Steal missing index eggs":false,"Steal / Auto Steal/Filter/Only these eggs":["ArchAngel","Kitsune","Nightflame","Royal Skywhale","Unicorn","World Burner","Celestial Sunlion","Gorilla King","Pegasus","Skeleton Horse","Strawberry Elephant","67","Amethyst Runebear","Starry Fox"],"Farm / Sell/Favorite/Min value /s":0,"System / Server/Join and stay/Auto load script":true,"Farm / Mutate/Mutate filter/Skip eggs with":[],"System / Optimizer/Graphics/Low graphics":true,"Event / Halloween/Monsters/Walk speed":1000,"Event / AA/Minigame eggs/Auto steal minigame egg":true,"Farm / Pen/Auto place/Only these eggs":[],"Player / Combat/Auto hit/Hit who":"Nearest player","Farm / Sell/Eggs/Never sell":[],"Farm / Pen/Keep eggs/Eggs to keep":[],"Farm / Fuse/Fuse filter/Only below /s":0,"Event / Halloween/Monsters/Use weapons":["Enchanted Hammer","Racing Bat","Cricket's Banjo","Flyswatter"],"Farm / Fuse/Fuse machine/Skip mutated":true,"Farm / Sell/Pets/Never sell":[],"Farm / Sell/Favorite/Match":"All picked rules","Event / Halloween/Ghost Dog and fishing/Cast luck":"x1.5 Perfect","System / Optimizer/Graphics/Background color":"Black","Player / Move/Movement/God mode":true,"Farm / Pen/Auto place/Mutations":[],"Steal / Auto Steal/Auto steal/Anti guard":true,"Farm / Sell/Favorite/Unfavorite pets not matching":false,"System / Webhook/What to post/Min value /s":0,"Farm / Pen/Auto hatch/Auto hatch":false,"Farm / Sell/Pets/Only mutations":[],"Farm / Fuse/Fuse machine/Eject odd pets":true,"Event / Butterfly/Butterfly machine/Auto trade up":false,"Event / AA/Admin abuse/Instant steal":false,"System / Webhook/What to post/Post when bag is full":false,"Farm / Fuse/Fuse machine/Auto fuse":false,"Farm / Pen/Auto hatch/Only these eggs":[],"Event / Butterfly/Butterfly machine/Smart trade for essence":true,"Event / Halloween/Halloween Dimension/Auto steal Halloween eggs":true,"System / Interface/Quick bars/Bar size":85,"Player / Combat/Weapons/Use weapons":[],"Player / ESP/Others/Player ESP":true,"System / Webhook/Discord webhook/Ping everyone":false,"Farm / Fuse/Fuse machine/Use pets":"Lowest value first","Event / Halloween/Monsters/Auto farm monsters":true,"Farm / Mutate/Auto mutate/Mutate first":"Best value","Player / ESP/Field eggs/Min value /s":0,"Event / AA/Cursed Island Wars/Island Wars target":"Enemies and base","Player / Move/Movement/Infinite jump":true,"Farm / Pen/Auto place/Rarities":["Divine","Eternal","Secret","Cosmic","Mythic","Legendary","Epic","Rare","Uncommon","Common"],"Player / ESP/Field eggs/Mutations":[],"Event / Halloween/Phantom Express/Auto vacuum Ghouler boss":true,"Farm / Treadmill/Progress/Auto upgrade base":false,"Steal / Auto Steal/Auto steal/Auto steal":true,"Player / Combat/Auto hit/Chase speed":1000,"Player / ESP/Field eggs/Fixed size":false,"Event / Halloween/Halloween Dimension/Instant steal Halloween eggs":true,"Event / Halloween/Phantom Express/Walk speed":1000,"Event / Halloween/Phantom Express/Ghost target":"Rarest first","Farm / Sell/Eggs/Only below /s":0,"Farm / Sell/Favorite/Rarities":[],"Steal / Auto Steal/Auto hop server/First hop after":5,"Steal / Auto Steal/Auto steal/Tween speed":110,"Farm / Sell/Pets/Auto sell pets":false,"Event / Halloween/Phantom Express/Auto trade souls":true,"Farm / Sell/Pets/Keep mutated":true,"Steal / Auto Steal/Filter/Sell cheapest egg when bag is full":false,"Player / ESP/Field eggs/Show":[],"Steal / Auto Steal/Auto steal/Go to egg":"Teleport to egg","Player / Combat/Weapons/Hold each":0.2,"Event / AA/Capture the egg/Hold height":120,"Steal / Auto Steal/Filter/Mutations":[],"Event / AA/Capture the egg/Keep away":150,"Farm / Mutate/Mutate filter/Min value /s":0,"Steal / Auto Steal/Auto steal/Teleport zones":["Enchanted Forest","Light Dark","Titan Temple","Cherry Blossom"],"Farm / Pen/Auto hatch/Min value /s":0,"Player / Move/Movement/Speed boost":false,"System / Interface/Interface/UI scale":90,"Farm / Fuse/Fuse filter/Only these pets":[],"Steal / Egg Predictor/Egg showcase/Preview card":false,"Event / Butterfly/Butterfly bloom/Catch speed":600,"Player / Move/Protection/Anti AFK":true,"Event / Halloween/Halloween Dimension/Halloween rarities":[],"System / Interface/Interface/Show / hide UI":{"k":"LeftControl"},"Steal / Auto Steal/Auto steal/Steal from other players":true,"Farm / Pen/Auto place/Min value /s":0,"Event / Butterfly/Butterfly bloom/Catch priority":"Rarest","System / Webhook/Discord webhook/Ping user ID":"","Farm / Sell/Eggs/Only mutations":[],"Farm / Treadmill/Progress/Auto claim offline cash":false,"Farm / Sell/Favorite/Mutations":[],"Event / AA/Capture the egg/Take it from the holder":true,"System / Webhook/Discord webhook/Webhook URL":"","Farm / Priority/Task order/Task order":["Steal filter eggs","Shooting Star","Phantom Express","Pumpkin Moon","Butterfly","Steal wisp eggs","Wisp","Steal missing index","Place","Mutate","Butterfly machine","Ghost Dog quest","Halloween monsters","Halloween fishing","Treadmill"],"Farm / Sell/Eggs/Keep mutated":true,"Event / Butterfly/Wisp companion/Auto wisp quest":false,"System / Optimizer/Graphics/Hide game UI":false}}]=]
 if isfile and delfile then
 pcall(function()
-if isfile(AUTO_FILE)then delfile(AUTO_FILE)end end) end
+if isfile(AUTO_FILE)then delfile(AUTO_FILE)end
+end)
+end
 task.spawn(function()
 pcall(function()
 if setfpscap then pcall(setfpscap,120)end
@@ -36,16 +40,20 @@ pcall(function()game:GetService("RunService"):Set3dRenderingEnabled(true)end)
 local lgt=game:GetService("Lighting")
 lgt.GlobalShadows=false
 lgt.FogEnd=9e9
-settings().Rendering.QualityLevel=Enum.QualityLevel.Level01 end)
+settings().Rendering.QualityLevel=Enum.QualityLevel.Level01
+end)
 pcall(function()
 local cp=game:GetService("ContentProvider")
 local pre={}
 for _,id in ipairs({LOGO_ID,HEADER_BAR_IMG_ID,STEAL_TAB_ICON_ID,WALLPAPER_IMAGE_ID,"rbxassetid://91322208361913"})do
 local im=In("ImageLabel")
 im.Image=id
-tins(pre,im) end
+tins(pre,im)
+end
 cp:PreloadAsync(pre)
-for _,im in ipairs(pre)do im:Destroy()end end) end)
+for _,im in ipairs(pre)do im:Destroy()end
+end)
+end)
 local function safeHttpGet(url)
 for attempt=1,2 do
 local ok1,res1=pcall(function()return game:HttpGet(url)end)
@@ -57,9 +65,12 @@ if ok3 and type(res3)=="string" and #res3>10 then return res3 end
 local req=request or http_request or(http and http.request)or(syn and syn.request)or(fluxus and fluxus.request)or(delta and delta.request)or(arceus and arceus.request)or(codex and codex.request)
 if req then
 local rOk,rRes=pcall(req,{Url=url,Method="GET"})
-if rOk and type(rRes)=="table" and type(rRes.Body)=="string" and #rRes.Body>10 then return rRes.Body end end
-if attempt==1 then task.wait(0.25)end end
-return nil end
+if rOk and type(rRes)=="table" and type(rRes.Body)=="string" and #rRes.Body>10 then return rRes.Body end
+end
+if attempt==1 then task.wait(0.25)end
+end
+return nil
+end
 local env=(getgenv and getgenv())or _G
 env.__ChilliV5State=env.__ChilliV5State or{
 SessionId=0,Language="VI",ActiveHub="CHILLI",ActiveGradients={},
@@ -85,12 +96,15 @@ local function isAlive()return State.SessionId==SID end
 pcall(function()
 if isfile and isfile(LANG_FILE)then
 local s=(readfile(LANG_FILE)or ""):match("^%s*(.-)%s*$")
-if s=="EN" or s=="VI" then State.Language=s end end end)
+if s=="EN" or s=="VI" then State.Language=s end
+end
+end)
 local Players=game:GetService("Players")
 local LocalPlayer=Players.LocalPlayer
 if not LocalPlayer then
 pcall(function()LocalPlayer=Players:GetPropertyChangedSignal("LocalPlayer"):Wait()end)
-LocalPlayer=Players.LocalPlayer end
+LocalPlayer=Players.LocalPlayer
+end
 local TweenService=game:GetService("TweenService")
 local CoreGui=game:GetService("CoreGui")
 local Stats=game:GetService("Stats")
@@ -105,28 +119,35 @@ local r,seen={},{}
 local function addRoot(inst)
 if inst and not seen[inst] then
 seen[inst]=true
-tins(r,inst) end end
+tins(r,inst)
+end
+end
 if gethui then
-pcall(function()addRoot(gethui())end) end
+pcall(function()addRoot(gethui())end)
+end
 if get_hidden_gui then
-pcall(function()addRoot(get_hidden_gui())end) end
+pcall(function()addRoot(get_hidden_gui())end)
+end
 if gethiddenui then
-pcall(function()addRoot(gethiddenui())end) end
+pcall(function()addRoot(gethiddenui())end)
+end
 pcall(function()addRoot(CoreGui)end)
 local pg=LocalPlayer and(LocalPlayer:FindFirstChildOfClass("PlayerGui")or LocalPlayer:FindFirstChild("PlayerGui"))
 addRoot(pg)
-return r end
+return r
+end
 local IGNORED_GUIS={
 RobloxGui=true,TopBarApp=true,TouchGui=true,Chat=true,BubbleChat=true,
 Freecam=true,BackpackGui=true,PlayerList=true,PurchasePrompt=true,
-ChilliV5_NoticeGui=true,ChilliV8_MasterIslandGui=true,ChilliV7_GetKeyUI=true,ChilliV7_InputBlocker=true,CoreScriptsRootProvider=true,
+ChilliV5_NoticeGui=true,ChilliV8_MasterIslandGui=true,ChilliV7_GetKeyUI=true,ChilliV8_CustomFinderGui=true,ChilliV7_InputBlocker=true,CoreScriptsRootProvider=true,
 ExperienceChat=true,SettingsClippingShield=true,InGameMenu=true,TeleportGui=true,
 RobloxNetworkPauseNotification=true
 }
 local function isVenyxScreenGui(gui)
 if not gui or not gui:IsA("ScreenGui")or IGNORED_GUIS[gui.Name] then return false end
 if gui==State.ActiveVenyxGui or gui:GetAttribute("__IsChilliVenyxGui")or gui:GetAttribute("__ChilliV8Patched")or gui:GetAttribute("__ChilliV7Patched")then
-return true end
+return true
+end
 if gui:GetAttribute("__IsChilliFinderGui")then return false end
 local lastChk=gui:GetAttribute("__VenyxCheckClock")
 if lastChk and(os.clock()-lastChk<2.0)then return false end
@@ -136,13 +157,18 @@ if not okVD or type(vDesc)~="table" then return false end
 for _,d in ipairs(vDesc)do
 if d.Name=="ChilliHeaderOverlay" or d.Name=="ChilliProWindowStroke" or d.Name=="ChilliCircleDisc" or d.Name=="ChilliUltraBadgePill" then
 gui:SetAttribute("__IsChilliVenyxGui",true)
-return true end
+return true
+end
 if(d:IsA("TextLabel")or d:IsA("TextButton"))and not d:FindFirstAncestorOfClass("ScrollingFrame")then
 local t=(d:GetAttribute("OrigRawText")or d.Text or ""):match("^%s*(.-)%s*$")
 if t=="VENYX" or t==NEW_TITLE or t=="Chilli Hub Ultra" or t=="Chilli Hub V5" or t=="Chilli V5 |" then
 gui:SetAttribute("__IsChilliVenyxGui",true)
-return true end end end
-return false end
+return true
+end
+end
+end
+return false
+end
 local function isVenyxUiPresent()
 for _,root in ipairs(getScanRoots())do
 local okL,list=pcall(function()return root:IsA("ScreenGui")and{root}or root:GetChildren()end)
@@ -156,8 +182,17 @@ if(d:IsA("TextLabel")or d:IsA("TextButton"))and d.Name~="ChilliUltraTitleBadge" 
 local t=d.Text
 if(t=="VENYX" or t==NEW_TITLE or t=="Chilli Hub Ultra" or t=="Chilli Hub V5" or t=="Chilli V5 |")and not d:FindFirstAncestorOfClass("ScrollingFrame")then
 pcall(function()ch.Enabled=true end)
-return true end end end end end end end end
-return false end
+return true
+end
+end
+end
+end
+end
+end
+end
+end
+return false
+end
 local function setupSafeTeleportHook()
 local rq=env.__ChilliOrigQueue or env.queue_on_teleport or env.queueonteleport or queue_on_teleport or queueonteleport or(syn and syn.queue_on_teleport)or(fluxus and fluxus.queue_on_teleport)or(delta and delta.queue_on_teleport)
 if not rq then return end
@@ -172,7 +207,11 @@ else
 if clearQ then pcall(clearQ)end
 if env.__ChilliBootQueuedSession~=SID then
 env.__ChilliBootQueuedSession=SID
-rq(boot) end end end) end
+rq(boot)
+end
+end
+end)
+end
 pcall(function()
 if clearQ then pcall(clearQ)end
 env.queue_on_teleport=safeLock
@@ -181,13 +220,19 @@ _G.queue_on_teleport=safeLock
 _G.queueonteleport=safeLock
 if env.__ChilliBootQueuedSession~=SID then
 env.__ChilliBootQueuedSession=SID
-pcall(rq,boot) end
+pcall(rq,boot)
+end
 if not env.__ChilliOnTpHooked and LocalPlayer then
 env.__ChilliOnTpHooked=true
 LocalPlayer.OnTeleport:Connect(function()
 pcall(function()
 if clearQ then pcall(clearQ)end
-pcall(rq,boot) end) end) end end) end
+pcall(rq,boot)
+end)
+end)
+end
+end)
+end
 local function launchVenyxBase()
 if isVenyxUiPresent()then return end
 if env.__VenyxLaunchingNow and(os.clock()-(env.__VenyxLaunchClock or 0)<5)then return end
@@ -199,26 +244,38 @@ local rawCode=safeHttpGet(VENYX_URL)
 if rawCode then
 local fn=loadstring(rawCode)
 if type(fn)=="function" then
-pcall(fn) end end
+pcall(fn)
+end
+end
 env.__VenyxLaunchingNow=false
 task.delay(1.0,function()
-pcall(setupSafeTeleportHook) end) end) end
+pcall(setupSafeTeleportHook)
+end)
+end)
+end
 for _,root in ipairs(getScanRoots())do
 root.ChildAdded:Connect(function(ch)
 if not isAlive()then return end
 if ch:IsA("ScreenGui")and not IGNORED_GUIS[ch.Name] then
 task.defer(function()
-if not isAlive()or not ch or not ch.Parent then return end end) end end) end
+if not isAlive()or not ch or not ch.Parent then return end
+end)
+end
+end)
+end
 launchVenyxBase()
 local function mk(cls,props,parent)
 local inst=In(cls)
 for k,v in pairs(props)do inst[k]=v end
 if parent then inst.Parent=parent end
-return inst end
+return inst
+end
 local function addGrad(g)
 if g then
-pcall(function()g.Rotation=35 end) end
-return g end
+pcall(function()g.Rotation=35 end)
+end
+return g
+end
 local RAINBOW=csn({
 csk(0.00,c3(255,45,85)),csk(0.17,c3(255,155,35)),csk(0.33,c3(255,235,45)),
 csk(0.50,c3(45,255,145)),csk(0.67,c3(45,195,255)),csk(0.83,c3(185,85,255)),csk(1.00,c3(255,45,85))
@@ -248,22 +305,29 @@ local GREEN_COLOR=c3(50,255,100)
 local currentFakeFps=math.random(80,120)
 local currentFakeMs=math.random(15,80)
 local function getFakeFps()
-return currentFakeFps end
+return currentFakeFps
+end
 local function getLivePing()
-return currentFakeMs end
+return currentFakeMs
+end
 local function isFpsTxt(t)
 if type(t)~="string" then return false end
 local clean=t:gsub("<[^>]+>",""):lower()
 if #clean>65 then return false end
-return(clean:find("fps",1,true)~=nil and(clean:find("ms",1,true)~=nil or clean:find("ping",1,true)~=nil)) end
+return(clean:find("fps",1,true)~=nil and(clean:find("ms",1,true)~=nil or clean:find("ping",1,true)~=nil))
+end
 local function ensureStandaloneNeonFpsGui()
 pcall(function()
 for _,root in ipairs(getScanRoots())do
 local oldG=root:FindFirstChild("ChilliV8_NeonFpsPillGui")
-if oldG then oldG:Destroy()end end end)
-return nil end
+if oldG then oldG:Destroy()end
+end
+end)
+return nil
+end
 local function formatFpsPingText()
-return string.format("%d FPS  -  %d ms",currentFakeFps,currentFakeMs) end
+return string.format("%d FPS  -  %d ms",currentFakeFps,currentFakeMs)
+end
 local function hookFps(lbl)
 if not lbl or not(lbl:IsA("TextLabel")or lbl:IsA("TextButton"))then return end
 State.TrackedFpsLabels[lbl]=true
@@ -274,7 +338,10 @@ p.Visible=true
 for _,ch in ipairs(p:GetChildren())do
 if(ch:IsA("TextLabel")or ch:IsA("TextButton"))and ch~=lbl then
 ch.Visible=false
-ch.TextTransparency=1 end end end
+ch.TextTransparency=1
+end
+end
+end
 lbl:SetAttribute("__UpdatingFps",true)
 lbl.RichText=false
 lbl.Visible=true
@@ -290,13 +357,19 @@ if not isAlive()or lbl:GetAttribute("__UpdatingFps")then return end
 lbl:SetAttribute("__UpdatingFps",true)
 lbl.TextColor3=GREEN_COLOR
 lbl.Text=formatFpsPingText()
-lbl:SetAttribute("__UpdatingFps",false) end)
+lbl:SetAttribute("__UpdatingFps",false)
+end)
 lbl:GetPropertyChangedSignal("TextColor3"):Connect(function()
 if not isAlive()or lbl:GetAttribute("__UpdatingFps")then return end
 if lbl.TextColor3~=GREEN_COLOR then
 lbl:SetAttribute("__UpdatingFps",true)
 lbl.TextColor3=GREEN_COLOR
-lbl:SetAttribute("__UpdatingFps",false) end end) end end) end
+lbl:SetAttribute("__UpdatingFps",false)
+end
+end)
+end
+end)
+end
 local function scanForFpsPills()
 local pg=LocalPlayer and LocalPlayer:FindFirstChildOfClass("PlayerGui")
 for _,root in ipairs(getScanRoots())do
@@ -313,13 +386,28 @@ local okSD,sDesc=pcall(function()return sub:GetDescendants()end)
 if okSD and type(sDesc)=="table" then
 for _,d in ipairs(sDesc)do
 if d:IsA("TextLabel")and isFpsTxt(d.Text)then
-pcall(hookFps,d) end end end end end end
+pcall(hookFps,d)
+end
+end
+end
+end
+end
+end
 elseif not IGNORED_GUIS[ch.Name] then
 local okCD,cDesc=pcall(function()return ch:GetDescendants()end)
 if okCD and type(cDesc)=="table" then
 for _,d in ipairs(cDesc)do
 if d:IsA("TextLabel")and isFpsTxt(d.Text)then
-pcall(hookFps,d) end end end end end end end end end
+pcall(hookFps,d)
+end
+end
+end
+end
+end
+end
+end
+end
+end
 task.spawn(function()
 pcall(ensureStandaloneNeonFpsGui)
 pcall(scanForFpsPills)
@@ -335,10 +423,15 @@ lbl.Visible=true
 lbl.TextTransparency=0
 lbl.TextColor3=GREEN_COLOR
 lbl.Text=txtNow
-lbl:SetAttribute("__UpdatingFps",false) end)
+lbl:SetAttribute("__UpdatingFps",false)
+end)
 else
-State.TrackedFpsLabels[lbl]=nil end end
-task.wait(1) end end)
+State.TrackedFpsLabels[lbl]=nil
+end
+end
+task.wait(1)
+end
+end)
 local FastCache={}
 local function hasVi(s)
 return type(s)=="string" and s~="" and(s:find("\225[\186\187][\128-\191]")~=nil or s:find("\195[\128-\191]")~=nil or s:find("\196[\130\131\144\145\168\169]")~=nil or s:find("\197[\168\169\175\176]")~=nil)
@@ -436,7 +529,9 @@ local LOWER_VI={}
 for k,v in pairs(EXACT_VI)do
 local lk=k:lower()
 if not LOWER_VI[lk] or k:upper()~=k then
-LOWER_VI[lk]=v end end
+LOWER_VI[lk]=v
+end
+end
 local GRAMMAR_VI={
 {pat="^[Gg]oing%s+into%s+(.+)$",rep="Đang vào %1"},{pat="^[Ll]eaving%s+(.+)$",rep="Đang rời %1"},{pat="^[Ee]ntering%s+(.+)$",rep="Đang vào %1"},{pat="^[Vv]acuuming%s+ghosts%s*(.*)$",rep="Đang hút bóng ma %1"},{pat="^[Rr]iding%s+(.+)$",rep="Đang đi %1"},{pat="^[Ff]ighting%s+[Ss]mall%s+monster$",rep="Đang đánh quái vật nhỏ"},{pat="^[Ff]ighting%s+[Mm]edium%s+monster$",rep="Đang đánh quái vật vừa"},{pat="^[Ff]ighting%s+[Ll]arge%s+monster$",rep="Đang đánh quái vật lớn"},
 {pat="^[Aa]uto play (.+)$",rep="Tự động chơi %1"},{pat="^[Aa]uto farm (.+)$",rep="Tự động cày %1"},{pat="^[Aa]uto kill (.+)$",rep="Tự động tiêu diệt %1"},{pat="^[Aa]uto catch (.+)$",rep="Tự động bắt %1"},{pat="^[Aa]uto collect (.+)$",rep="Tự động thu thập %1"},{pat="^[Aa]uto buy (.+)$",rep="Tự động mua %1"},{pat="^[Aa]uto sell (.+)$",rep="Tự động bán %1"},{pat="^[Aa]uto claim (.+)$",rep="Tự động nhận %1"},
@@ -472,7 +567,9 @@ local VI_TO_EN={
 for k,v in pairs(EXACT_VI)do
 if type(v)=="string" and type(k)=="string" then
 local lk=v:lower()
-if not VI_TO_EN[lk] then VI_TO_EN[lk]=k end end end
+if not VI_TO_EN[lk] then VI_TO_EN[lk]=k end
+end
+end
 local WORDS_VI={
 hatch="ấp",hatches="ấp",hatched="đã ấp",
 mastery="Thông Thạo",pickup="nhặt",missing="còn thiếu",
@@ -535,14 +632,18 @@ while guard<6 do
 local a,b=out:lower():find(p[1],1,true)
 if not a then break end
 out=out:sub(1,a-1).. p[2] .. out:sub(b+1)
-guard=guard+1 end end
-return out end
+guard=guard+1
+end
+end
+return out
+end
 local function applyWords(s)
 return(stripArt(s):gsub("([\128-\255%a']+)",function(w)
 if w:find("[\128-\255]")then return w end
 local l=w:lower()
 return WORDS_VI[l] or LOWER_VI[l] or w
-end)) end
+end))
+end
 translateStatus=function(en)
 if not en or en=="" then return State.Language=="EN" and "Idle" or "Đang rảnh" end
 local t=(en:match("^%s*(.-)%s*$")or en):gsub("%.+$","")
@@ -553,15 +654,19 @@ if FastCache[ck] then return FastCache[ck] end
 if EXACT_VI[t] or LOWER_VI[t:lower()] then
 local r=EXACT_VI[t] or LOWER_VI[t:lower()]
 FastCache[ck]=r
-return r end
+return r
+end
 local out=stripArt(t)
 for i=1,#GRAMMAR_VI do
 if out:find(GRAMMAR_VI[i].pat)then
 out=out:gsub(GRAMMAR_VI[i].pat,GRAMMAR_VI[i].rep)
-break end end
+break
+end
+end
 out=applyWords(applyPhrases(out)):gsub("%s+"," "):match("^%s*(.-)%s*$")or out
 FastCache[ck]=out
-return out end
+return out
+end
 translateText=function(raw)
 if not raw or raw=="" then return raw end
 local ck=State.Language .. "|" .. raw
@@ -571,57 +676,72 @@ raw=raw:gsub("Venyx SAE","Chilli SAE")
 elseif raw=="VENYX" or raw=="Chilli Hub V5" or raw=="Chilli V5 |" then
 raw=NEW_TITLE
 elseif raw=="Venyx" then
-raw="Chilli Hub" end
+raw="Chilli Hub"
+end
 if State.Language=="EN" then
 local out=raw
 local low=raw:lower():match("^%s*(.-)%s*$")
 if VI_TO_EN[low] then
 out=VI_TO_EN[low]
 elseif VI_TO_EN[raw] then
-out=VI_TO_EN[raw] end
+out=VI_TO_EN[raw]
+end
 FastCache[ck]=out
-return out end
+return out
+end
 local norm=(raw:match("^%s*(.-)%s*$")or raw):gsub("%s+"," ")
 if norm:match("^[%$%+%-%d%.%,%/%%sxhm]+$")or(norm:match("^v%d+%.%d+")and #norm<10)then
 FastCache[ck]=raw
-return raw end
+return raw
+end
 if EXACT_VI[norm] or LOWER_VI[norm:lower()] then
 local r=EXACT_VI[norm] or LOWER_VI[norm:lower()]
 FastCache[ck]=r
-return r end
+return r
+end
 local dots=norm:match("^(.+)%.%.%.$")
 if dots then
 dots=dots:match("^%s*(.-)%s*$")or dots
 local m=EXACT_VI[dots] or LOWER_VI[dots:lower()]
 if m then
 FastCache[ck]=m .. "..."
-return FastCache[ck] end end
+return FastCache[ck]
+end
+end
 local pfx,wp=norm:match("^([^%w%s]+%s*)(.+)$")
 if pfx and wp and(EXACT_VI[wp] or LOWER_VI[wp:lower()])then
 FastCache[ck]=pfx ..(EXACT_VI[wp] or LOWER_VI[wp:lower()])
-return FastCache[ck] end
+return FastCache[ck]
+end
 for i=1,#DYN_VI do
 if norm:find(DYN_VI[i].pat)then
 FastCache[ck]=norm:gsub(DYN_VI[i].pat,DYN_VI[i].rep)
-return FastCache[ck] end end
+return FastCache[ck]
+end
+end
 local res,hit=norm,false
 local caps=(norm:upper()==norm and norm:find("%a")~=nil)
 for i=1,#GRAMMAR_VI do
 if res:find(GRAMMAR_VI[i].pat)then
 res=res:gsub(GRAMMAR_VI[i].pat,GRAMMAR_VI[i].rep)
 hit=true
-break end end
+break
+end
+end
 local phr=applyPhrases(res)
 if hit or phr~=res or res:find("%s")then
 local fin=applyWords(phr):gsub("Venyx","Chilli Hub"):gsub("%s+"," "):match("^%s*(.-)%s*$")or res
 if caps and fin~=norm then fin=fin:upper()end
 FastCache[ck]=fin
-return fin end
+return fin
+end
 FastCache[ck]=raw
-return raw end
+return raw
+end
 stripRichTags=function(s)
 if type(s)~="string" then return "" end
-return(s:gsub("<[^>]+>",""):match("^%s*(.-)%s*$")or "") end
+return(s:gsub("<[^>]+>",""):match("^%s*(.-)%s*$")or "")
+end
 local hopToLeastPlayersServer=nil
 local watchFinderHudButton=nil
 local hookChilliFinderJoin=nil
@@ -646,13 +766,17 @@ if curr:IsA("GuiObject")and curr.AbsoluteSize.Y<=260 then
 curr.Visible=false
 curr.Position=u2(2,0,2,0)
 hookLoginFrameTrigger(curr)
-break end
-curr=curr.Parent end end
+break
+end
+curr=curr.Parent
+end
+end
 local ph=inst:GetAttribute("OrigPlaceholder")or inst:GetAttribute("OrigPh")
 if not ph and inst.PlaceholderText~="" and not hasVi(inst.PlaceholderText)then
 ph=inst.PlaceholderText
 inst:SetAttribute("OrigPlaceholder",ph)
-inst:SetAttribute("OrigPh",ph) end
+inst:SetAttribute("OrigPh",ph)
+end
 if ph then inst.PlaceholderText=translateText(ph)end
 if not inst:IsFocused()then
 local bt=inst.Text
@@ -663,16 +787,22 @@ local mb=translateText(ob)
 if inst.Text~=mb then
 inst:SetAttribute("__IsTranslating",true)
 pcall(function()inst.Text=mb end)
-inst:SetAttribute("__IsTranslating",false) end end end
-return end
+inst:SetAttribute("__IsTranslating",false)
+end
+end
+end
+return
+end
 local rt=inst.Text
 if isFpsTxt(rt)then
 hookFps(inst)
-return end
+return
+end
 local orig=inst:GetAttribute("OrigRawText")
 if not orig or(rt~="" and rt~=inst:GetAttribute("__LastTranslated")and not hasVi(rt))then
 orig=rt
-inst:SetAttribute("OrigRawText",orig) end
+inst:SetAttribute("OrigRawText",orig)
+end
 local rawLow=(orig or ""):lower():match("^%s*(.-)%s*$")
 if translateFinderHudState and(rawLow:find("force join",1,true)or rawLow:find("min value",1,true)or rawLow:find("rarity",1,true)or rawLow:find("account",1,true)or rawLow:find("auto off",1,true)or rawLow:find("auto on",1,true))then
 local fMap=translateFinderHudState(orig)
@@ -681,27 +811,35 @@ inst:SetAttribute("__LastTranslated",fMap)
 if inst.Text~=fMap then
 inst:SetAttribute("__IsTranslating",true)
 pcall(function()inst.Text=fMap end)
-inst:SetAttribute("__IsTranslating",false) end
-return end end
+inst:SetAttribute("__IsTranslating",false)
+end
+return
+end
+end
 if State.Language=="EN" then
 local enText=orig or VI_TO_EN[rt:lower()] or VI_TO_EN[rt] or rt
 inst:SetAttribute("__LastTranslated",enText)
 if inst.Text~=enText then
 inst:SetAttribute("__IsTranslating",true)
 pcall(function()inst.Text=enText end)
-inst:SetAttribute("__IsTranslating",false) end
-return end
+inst:SetAttribute("__IsTranslating",false)
+end
+return
+end
 local mapped=translateText(orig)
 inst:SetAttribute("__LastTranslated",mapped)
 if inst.Text~=mapped then
 inst:SetAttribute("__IsTranslating",true)
 pcall(function()inst.Text=mapped end)
-inst:SetAttribute("__IsTranslating",false) end
+inst:SetAttribute("__IsTranslating",false)
+end
 local checkLow=(orig or ""):lower():match("^%s*(.-)%s*$")
 if checkLow=="join" or mapped=="Vào ngay" or rt=="Vào ngay" or rt=="Join" then
 if hookChilliFinderJoin then pcall(hookChilliFinderJoin,inst)end
 elseif watchFinderTextObj and(checkLow=="chilli finder" or checkLow:find("chillihub.pro",1,true)or checkLow:find("top 5 recent eggs",1,true)or checkLow=="sign in" or checkLow=="sign up")then
-pcall(watchFinderTextObj,inst) end end
+pcall(watchFinderTextObj,inst)
+end
+end
 hookTrans=function(inst)
 if not(inst:IsA("TextLabel")or inst:IsA("TextButton")or inst:IsA("TextBox"))then return end
 if inst.Name=="ChilliFakeFpsOverlay" or inst:GetAttribute("__IslandDone")or inst:GetAttribute("__HiddenVxLogo")or inst.Name=="IslandExpandHint"
@@ -709,28 +847,35 @@ or inst.Name=="ChilliUltraTitleBadge" or inst.Name=="ChilliIslandTitle" or inst.
 or inst:FindFirstAncestor("ChilliV5_ExpandedIsland")or inst:FindFirstAncestor("ChilliHeaderOverlay")or inst:FindFirstAncestor("ChilliSenaBottomBar")then return end
 if not inst:IsA("TextBox")and isFpsTxt(inst.Text)then
 hookFps(inst)
-return end
+return
+end
 applyTrans(inst)
 if inst:GetAttribute("__TransHookSession")==SID then return end
 inst:SetAttribute("__TransHookSession",SID)
 tins(State.TrackedTexts,inst)
 local inScroll=inst:FindFirstAncestorOfClass("ScrollingFrame")~=nil
 if inScroll and inst:IsA("TextLabel")and #inst.Text>16 and not inst.Text:find("%d")then
-return end
+return
+end
 inst:GetPropertyChangedSignal("Text"):Connect(function()
 if not isAlive()or inst:GetAttribute("__IsTranslating")or inst:GetAttribute("__IslandDone")or inst:GetAttribute("__HiddenVxLogo")then return end
 local cur=inst.Text
 if cur=="" or cur==inst:GetAttribute("__LastTranslated")then return end
 if not inst:IsA("TextBox")and isFpsTxt(cur)then
 hookFps(inst)
-return end
+return
+end
 if cur:match("^[%$%+%-%d%.%,%/%%sxhm%s:]+$")then return end
 if inst:IsA("TextBox")then
 applyTrans(inst)
-return end
+return
+end
 if not hasVi(cur)then
 inst:SetAttribute("OrigRawText",cur)
-applyTrans(inst) end end) end
+applyTrans(inst)
+end
+end)
+end
 refreshAllTexts=function()
 if not isAlive()then return end
 table.clear(FastCache)
@@ -740,11 +885,16 @@ if el and el.Parent then
 pcall(applyTrans,el)
 pcall(watchFinderHudButton,el)
 else
-table.remove(State.TrackedTexts,i) end end
+table.remove(State.TrackedTexts,i)
+end
+end
 if State.RefreshIslandCallback then pcall(State.RefreshIslandCallback)end
 if State.RefreshSidebarTabsCallback then pcall(State.RefreshSidebarTabsCallback)end
 if State.ActiveFinderWin and State.ActiveFinderWin.Parent then
-pcall(scanChilliFinderButtons) end end end
+pcall(scanChilliFinderButtons)
+end
+end
+end
 local function fireBtn(btn)
 if not btn or not btn.Parent then return false end
 local fired=false
@@ -760,7 +910,10 @@ for _,tObj in ipairs(candidateList)do
 if tObj and tObj:IsA("GuiObject")and not seenT[tObj] then
 if not inScroll or(tObj.AbsoluteSize.X<=175 and tObj.AbsoluteSize.Y<=52)then
 seenT[tObj]=true
-tins(targets,tObj) end end end
+tins(targets,tObj)
+end
+end
+end
 for _,targetObj in ipairs(targets)do
 local cx=math.floor(targetObj.AbsolutePosition.X+targetObj.AbsoluteSize.X*0.5)
 local cy=math.floor(targetObj.AbsolutePosition.Y+targetObj.AbsoluteSize.Y*0.5)
@@ -776,7 +929,12 @@ task.spawn(conn.Function)
 fired=true
 elseif conn.Fire then
 pcall(conn.Fire,conn)
-fired=true end end end end) end
+fired=true
+end
+end
+end
+end)
+end
 if not fired and not IS_ARCEUS then
 pcall(function()
 for _,uType in ipairs({EUIT.MouseButton1,EUIT.Touch})do
@@ -808,46 +966,69 @@ pcall(conn.Function,fakeInput,false)
 fired=true
 elseif conn.Fire then
 pcall(conn.Fire,conn,fakeInput,false)
-fired=true end end
+fired=true
+end
+end
 fakeInput.UserInputState=Enum.UserInputState.End
 for _,cb in ipairs(changedCbs)do
-pcall(cb,"UserInputState") end
+pcall(cb,"UserInputState")
+end
 for _,conn in ipairs(getconnections(targetObj.InputEnded))do
 if conn.Function then
 pcall(conn.Function,fakeInput,false)
 fired=true
 elseif conn.Fire then
 pcall(conn.Fire,conn,fakeInput,false)
-fired=true end end end end) end end
+fired=true
+end
+end
+end
+end)
+end
+end
 if firesignal and(targetObj:IsA("TextButton")or targetObj:IsA("ImageButton"))then
 pcall(function()
 firesignal(targetObj.MouseButton1Click)
-fired=true end)
+fired=true
+end)
 pcall(function()
 firesignal(targetObj.Activated)
-fired=true end) end end
-return fired end
+fired=true
+end)
+end
+end
+return fired
+end
 local function isControlVisibleOnTab(el,rootGui)
 if not(el and el.Parent)then return false end
 local curr=el
 while curr and curr~=rootGui and not curr:IsA("ScreenGui")do
 if curr:IsA("GuiObject")and not curr.Visible then return false end
-curr=curr.Parent end
-return el.AbsoluteSize.X>8 and el.AbsoluteSize.Y>6 end
+curr=curr.Parent
+end
+return el.AbsoluteSize.X>8 and el.AbsoluteSize.Y>6
+end
 local function findSystemTabBtn(gui)
 if State.SystemTabBtn and State.SystemTabBtn.Parent and State.SystemTabBtn:IsDescendantOf(gui)then
-return State.SystemTabBtn end
+return State.SystemTabBtn
+end
 for _,d in ipairs(gui:GetDescendants())do
 if d:IsA("GuiObject")and not d:FindFirstAncestor("ChilliV5_ExpandedIsland")and not d:FindFirstAncestorOfClass("ScrollingFrame")then
 local children={}
 for _,ch in ipairs(d:GetChildren())do
 if ch:IsA("GuiObject")and ch.AbsoluteSize.X>=18 and ch.AbsoluteSize.X<=70 and ch.AbsoluteSize.Y>=18 and ch.AbsoluteSize.Y<=70 then
-tins(children,ch) end end
+tins(children,ch)
+end
+end
 if #children>=5 and #children<=8 then
 table.sort(children,function(a,b)return a.AbsolutePosition.Y<b.AbsolutePosition.Y end)
 State.SystemTabBtn=children[6] or children[#children]
-return State.SystemTabBtn end end end
-return State.SystemTabBtn end
+return State.SystemTabBtn
+end
+end
+end
+return State.SystemTabBtn
+end
 local function findImportBoxAndButtons(venyxGui,requireVisible)
 local box=nil
 local btnList={}
@@ -857,7 +1038,12 @@ local ph=(d:GetAttribute("OrigPlaceholder")or d:GetAttribute("OrigPh")or d.Place
 if ph:find("paste",1,true)or ph:find("dán",1,true)or ph:find("json",1,true)then
 if not ph:find("job id",1,true)and not ph:find("webhook",1,true)and not ph:find("empty",1,true)and not ph:find("trống",1,true)then
 if not requireVisible or isControlVisibleOnTab(d,venyxGui)then
-box=d end end end end end
+box=d
+end
+end
+end
+end
+end
 if box then
 local bx,by=box.AbsolutePosition.X,box.AbsolutePosition.Y
 local seenBtn={}
@@ -871,8 +1057,14 @@ local ct=(d.Text or ""):match("^%s*(.-)%s*$"):lower()
 local isImportLabel=(ot=="import" or ot=="import config" or ct=="nhập" or ct=="nhập cấu hình")
 if isImportLabel and(by<=10 or(dx>=-25 and dy>=6 and dy<=98))and not seenBtn[d] then
 seenBtn[d]=true
-tins(btnList,d) end end end end end
-return box,btnList end
+tins(btnList,d)
+end
+end
+end
+end
+end
+return box,btnList
+end
 local function highlightTargetButton(btnObj)
 if not btnObj then return end
 pcall(function()
@@ -888,7 +1080,10 @@ Transparency=0
 },pill)
 addGrad(mk("UIGradient",{Color=RAINBOW},hl))
 task.delay(6,function()
-if hl and hl.Parent then hl:Destroy()end end) end) end
+if hl and hl.Parent then hl:Destroy()end
+end)
+end)
+end
 local function setChilliChildrenVisible(venyxGui,showChilli)
 if not venyxGui or not venyxGui.Parent then return end
 pcall(function()venyxGui.Enabled=true end)
@@ -899,13 +1094,20 @@ if ch:IsA("GuiObject")and ch~=pill and ch~=exp and not ch:FindFirstChild("Island
 if not showChilli then
 if ch.Visible then
 ch:SetAttribute("__ChilliSavedVis",true)
-pcall(function()ch.Visible=false end) end
+pcall(function()ch.Visible=false end)
+end
 else
 if ch:GetAttribute("__ChilliSavedVis")or ch==State.ActiveMainWin then
 ch:SetAttribute("__ChilliSavedVis",nil)
-pcall(function()ch.Visible=true end) end end end end end
+pcall(function()ch.Visible=true end)
+end
+end
+end
+end
+end
 local function switchHub(targetHub)
-State.ActiveHub="CHILLI" end
+State.ActiveHub="CHILLI"
+end
 local function runAutoFarmMacro(venyxGui,btnLbl)
 if State.MacroBusy then return end
 State.MacroBusy=true
@@ -913,50 +1115,65 @@ task.spawn(function()
 local okMacro,_=pcall(function()
 if State.ActiveHub~="CHILLI" and State.SwitchHubFn then
 pcall(State.SwitchHubFn,"CHILLI")
-task.wait(0.10) end
+task.wait(0.10)
+end
 if State.ActiveVenyxGui and State.ActiveVenyxGui.Parent then
 venyxGui=State.ActiveVenyxGui
-pcall(function()venyxGui.Enabled=true end) end
+pcall(function()venyxGui.Enabled=true end)
+end
 if btnLbl then btnLbl.Text="⏳ ĐANG MỞ MỤC CẤU HÌNH..." end
 local expPanel=venyxGui and venyxGui:FindFirstChild("ChilliV5_ExpandedIsland")
 if expPanel and expPanel.Visible then
 expPanel.Visible=false
 if State.ActiveStatusLbl and State.ActiveStatusLbl.Parent and State.ActiveStatusLbl.Parent:IsA("GuiObject")then
-State.ActiveStatusLbl.Parent.Visible=true end end
+State.ActiveStatusLbl.Parent.Visible=true
+end
+end
 State.AllowMenuCloseNow=false
 State.IsMenuAuthorizedClosed=false
 if State.ActiveMainWin and State.ActiveMainWin.Parent and not State.ActiveMainWin.Visible then
 if State.AnimateOpenFn then
 pcall(State.AnimateOpenFn)
 else
-State.ActiveMainWin.Visible=true end
+State.ActiveMainWin.Visible=true
+end
 if State.SyncWindowFn then pcall(State.SyncWindowFn)end
-task.wait(0.18) end
+task.wait(0.18)
+end
 local sysBtn=findSystemTabBtn(venyxGui)
 if sysBtn then
 fireBtn(sysBtn)
-task.wait(0.24) end
+task.wait(0.24)
+end
 for _,d in ipairs(venyxGui:GetDescendants())do
 if(d:IsA("TextButton")or d:IsA("TextLabel"))and not d:FindFirstAncestorOfClass("ScrollingFrame")and not d:FindFirstAncestor("ChilliV5_ExpandedIsland")and not d:FindFirstAncestor("ChilliHeaderOverlay")and not d:FindFirstAncestor("ChilliTabToast")then
 local ot=(d:GetAttribute("OrigRawText")or d.Text or ""):match("^%s*(.-)%s*$")
 local ct=(d.Text or ""):match("^%s*(.-)%s*$")
 if ot=="Config" or ct=="Cấu Hình" then
-fireBtn(d) end end end
+fireBtn(d)
+end
+end
+end
 task.wait(0.30)
 local importBox,importBtns=findImportBoxAndButtons(venyxGui,true)
 if not importBox then
-importBox,importBtns=findImportBoxAndButtons(venyxGui,false) end
+importBox,importBtns=findImportBoxAndButtons(venyxGui,false)
+end
 if not importBox then
 if btnLbl then
 btnLbl.Text="⚠️ MỞ MỤC CẤU HÌNH TRƯỚC!"
 task.wait(2)
-btnLbl.Text="⚡ CONFIG SETTING AUTO FARM" end
-return end
+btnLbl.Text="⚡ CONFIG SETTING AUTO FARM"
+end
+return
+end
 local sf=importBox:FindFirstAncestorOfClass("ScrollingFrame")
 if sf then
 pcall(function()
-sf.CanvasPosition=v2(0,math.max(360,sf.AbsoluteCanvasSize.Y)) end)
-task.wait(0.12) end
+sf.CanvasPosition=v2(0,math.max(360,sf.AbsoluteCanvasSize.Y))
+end)
+task.wait(0.12)
+end
 local hasHihi2=(State.ImportRunCount or 0)>0
 if not hasHihi2 then
 for _,d in ipairs(venyxGui:GetDescendants())do
@@ -964,14 +1181,20 @@ if(d:IsA("TextLabel")or d:IsA("TextButton"))and not d:FindFirstAncestor("ChilliV
 local t=(d.Text or ""):lower()
 if t:find("hihi 2",1,true)then
 hasHihi2=true
-break end end end end
+break
+end
+end
+end
+end
 State.ImportRunCount=(State.ImportRunCount or 0)+1
 local payloadJson=PRESET_JSON
 if hasHihi2 then
 local freshName="hihi 2 #" .. tostring(math.random(10,99))
-payloadJson=PRESET_JSON:gsub('"name":"hihi 2"','"name":"' .. freshName .. '"',1) end
+payloadJson=PRESET_JSON:gsub('"name":"hihi 2"','"name":"' .. freshName .. '"',1)
+end
 if setclipboard then
-pcall(setclipboard,payloadJson) end
+pcall(setclipboard,payloadJson)
+end
 importBox:SetAttribute("__IsTranslating",true)
 pcall(function()importBox.ClearTextOnFocus=false end)
 importBox.Text=""
@@ -981,25 +1204,36 @@ task.wait(0.08)
 if getconnections then
 pcall(function()
 for _,conn in ipairs(getconnections(importBox:GetPropertyChangedSignal("Text")))do
-if conn.Function then pcall(conn.Function)elseif conn.Fire then pcall(conn.Fire,conn)end end
+if conn.Function then pcall(conn.Function)elseif conn.Fire then pcall(conn.Fire,conn)end
+end
 for _,conn in ipairs(getconnections(importBox.Changed))do
-if conn.Function then pcall(conn.Function,"Text")elseif conn.Fire then pcall(conn.Fire,conn,"Text")end end end) end
+if conn.Function then pcall(conn.Function,"Text")elseif conn.Fire then pcall(conn.Fire,conn,"Text")end
+end
+end)
+end
 if firesignal then
-pcall(function()firesignal(importBox.FocusLost,true)end) end
+pcall(function()firesignal(importBox.FocusLost,true)end)
+end
 if getconnections then
 pcall(function()
 for _,conn in ipairs(getconnections(importBox.FocusLost))do
-if conn.Function then pcall(conn.Function,true)elseif conn.Fire then pcall(conn.Fire,conn,true)end end end) end
+if conn.Function then pcall(conn.Function,true)elseif conn.Fire then pcall(conn.Fire,conn,true)end
+end
+end)
+end
 importBox:SetAttribute("__IsTranslating",false)
 if sf then
 pcall(function()
-sf.CanvasPosition=v2(0,math.max(360,sf.AbsoluteCanvasSize.Y)) end) end
+sf.CanvasPosition=v2(0,math.max(360,sf.AbsoluteCanvasSize.Y))
+end)
+end
 task.wait(0.20)
 local _,freshBtns=findImportBoxAndButtons(venyxGui,true)
 if #freshBtns>0 then importBtns=freshBtns end
 for _,bObj in ipairs(importBtns)do
 highlightTargetButton(bObj)
-fireBtn(bObj) end
+fireBtn(bObj)
+end
 task.wait(0.35)
 for pass=1,2 do
 for _,d in ipairs(venyxGui:GetDescendants())do
@@ -1009,8 +1243,13 @@ local cur=(d.Text or ""):match("^%s*(.-)%s*$")
 if ot=="Apply now" or cur=="Áp dụng ngay" or ot=="Overwrite" or cur=="Lưu đè" then
 if isControlVisibleOnTab(d,venyxGui)then
 highlightTargetButton(d)
-fireBtn(d) end end end end
-task.wait(0.15) end
+fireBtn(d)
+end
+end
+end
+end
+task.wait(0.15)
+end
 for _,d in ipairs(venyxGui:GetDescendants())do
 if(d:IsA("TextButton")or d:IsA("TextLabel"))and not d:FindFirstAncestor("ChilliV5_ExpandedIsland")then
 local ot=(d:GetAttribute("OrigRawText")or d.Text or ""):match("^%s*(.-)%s*$")
@@ -1018,13 +1257,21 @@ local cur=(d.Text or ""):match("^%s*(.-)%s*$")
 if ot=="Set active" or cur=="Kích hoạt" then
 if isControlVisibleOnTab(d,venyxGui)then
 fireBtn(d)
-break end end end end
+break
+end
+end
+end
+end
 if State.RefreshIslandCallback then pcall(State.RefreshIslandCallback)end
 if btnLbl then
 btnLbl.Text="✅ ĐÃ DÁN JSON & MỞ NÚT NHẬP!"
 task.wait(1.8)
-btnLbl.Text="⚡ CONFIG SETTING AUTO FARM" end end)
-State.MacroBusy=false end) end
+btnLbl.Text="⚡ CONFIG SETTING AUTO FARM"
+end
+end)
+State.MacroBusy=false
+end)
+end
 local playIslandSfx,setupIsland,cleanupStrayLogos,setupCircleLogo,applySenaV7Architecture,setupBubbleToggle
 local venyxGuiLocked=nil
 do
@@ -1046,18 +1293,25 @@ snd.SoundId=cfg.id
 snd.Volume=cfg.vol
 snd.PlaybackSpeed=cfg.spd
 snd.Parent=SoundService
-State.CachedIslandSfx[key]=snd end
-return snd end
+State.CachedIslandSfx[key]=snd
+end
+return snd
+end
 task.defer(function()
 pcall(function()
-for k in pairs(ISLAND_SFX_CFG)do getIslandSound(k)end end) end)
+for k in pairs(ISLAND_SFX_CFG)do getIslandSound(k)end
+end)
+end)
 playIslandSfx=function(mode)
 pcall(function()
 local snd=getIslandSound(mode)
 snd.TimePosition=0
 if SoundService.PlayLocalSound then
-pcall(function()SoundService:PlayLocalSound(snd)end) end
-pcall(function()snd:Play()end) end) end
+pcall(function()SoundService:PlayLocalSound(snd)end)
+end
+pcall(function()snd:Play()end)
+end)
+end
 setupIsland=function(statusLbl,venyxGui)
 local pill=statusLbl and statusLbl.Parent
 if not(pill and pill:IsA("GuiObject"))then return false end
@@ -1072,10 +1326,14 @@ elseif ch.Name=="IslandLogoBadge" then
 if not keptBadge then
 keptBadge=ch
 else
-pcall(ch.Destroy,ch) end
+pcall(ch.Destroy,ch)
+end
 elseif ch:IsA("Frame")or ch:IsA("ImageLabel")or ch:IsA("ImageButton")then
 if ch~=statusLbl and ch.Name~="IslandExpandHint" and ch.Name~="LiquidGlassTopSpecular" and ch.Name~="IslandLiveDot" then
-ch.Visible=false end end end
+ch.Visible=false
+end
+end
+end
 pill.BackgroundColor3=c3n(1,1,1)
 pill.BackgroundTransparency=0
 pill.Size=u2(0,0,0,40)
@@ -1103,16 +1361,25 @@ if pill:GetAttribute("__LockedIslandBg")~=SID then
 pill:SetAttribute("__LockedIslandBg",SID)
 pill:GetPropertyChangedSignal("BackgroundColor3"):Connect(function()
 if isAlive()and pill.BackgroundColor3~=c3n(1,1,1)then
-pill.BackgroundColor3=c3n(1,1,1) end end)
+pill.BackgroundColor3=c3n(1,1,1)
+end
+end)
 pill:GetPropertyChangedSignal("BackgroundTransparency"):Connect(function()
 if isAlive()and pill.BackgroundTransparency~=0 then
-pill.BackgroundTransparency=0 end end)
+pill.BackgroundTransparency=0
+end
+end)
 pill:GetPropertyChangedSignal("Size"):Connect(function()
 if isAlive()and not State.MorphingMiniIsland and pill.Size.Y.Offset<36 then
-pill.Size=u2(0,0,0,40) end end)
+pill.Size=u2(0,0,0,40)
+end
+end)
 pill:GetPropertyChangedSignal("Position"):Connect(function()
 if isAlive()and not State.DraggingIsland and pill.Position.Y.Offset>14 then
-pill.Position=State.IslandUserPos or u2(0.5,0,0,6) end end) end
+pill.Position=State.IslandUserPos or u2(0.5,0,0,6)
+end
+end)
+end
 local pillLayout=pill:FindFirstChildOfClass("UIListLayout")
 if not pillLayout then
 pillLayout=mk("UIListLayout",{
@@ -1127,7 +1394,8 @@ else
 pillLayout.FillDirection=Enum.FillDirection.Horizontal
 pillLayout.HorizontalAlignment=Enum.HorizontalAlignment.Center
 pillLayout.VerticalAlignment=Enum.VerticalAlignment.Center
-pillLayout.Padding=udn(0,8) end
+pillLayout.Padding=udn(0,8)
+end
 local pad=pill:FindFirstChildOfClass("UIPadding")or mk("UIPadding",{},pill)
 pad.PaddingLeft=udn(0,10)
 pad.PaddingRight=udn(0,10)
@@ -1151,14 +1419,17 @@ if lbImg then
 lbImg.Image=LOGO_ID
 lbImg.Size=u2s(0.92,0.92)
 lbImg.ScaleType=Enum.ScaleType.Fit
-if not lbStroke then lbStroke=lbImg:FindFirstChildOfClass("UIStroke")end end end
+if not lbStroke then lbStroke=lbImg:FindFirstChildOfClass("UIStroke")end
+end
+end
 local liveDot=pill:FindFirstChild("IslandLiveDot")
 if not liveDot then
 liveDot=mk("Frame",{Name="IslandLiveDot",LayoutOrder=1,Size=u2(0,7,0,7),BackgroundColor3=c3(65,245,155),BorderSizePixel=0,Active=false,ZIndex=10001},pill)
 mk("UICorner",{CornerRadius=udn(1,0)},liveDot)
 mk("UIStroke",{Thickness=1.5,Color=c3(65,245,155),Transparency=0.55},liveDot)
 else
-liveDot.Visible=true end
+liveDot.Visible=true
+end
 local hint=pill:FindFirstChild("IslandExpandHint")
 if not hint then
 hint=mk("TextButton",{Name="IslandExpandHint",LayoutOrder=99,Size=u2(0,26,0,22),BackgroundColor3=c3(24,34,58),BackgroundTransparency=0.12,BorderSizePixel=0,Text="▾",Font=EF.GothamBlack,TextSize=12,TextColor3=c3(195,235,255),AutoButtonColor=true,Active=true,ZIndex=10000},pill)
@@ -1169,7 +1440,8 @@ hint.BackgroundTransparency=0.12
 hint.Text="▾"
 hint.Font=EF.GothamBlack
 hint.TextSize=12
-hint.TextColor3=c3(195,235,255) end
+hint.TextColor3=c3(195,235,255)
+end
 if not hint:FindFirstChildOfClass("UICorner")then mk("UICorner",{CornerRadius=udn(1,0)},hint)end
 local hStroke=hint:FindFirstChildOfClass("UIStroke")or mk("UIStroke",{Thickness=1.1,Color=c3(135,215,255),Transparency=0.28},hint)
 hStroke.Color=c3(135,215,255)
@@ -1182,7 +1454,8 @@ local cur=(statusLbl.Text or ""):gsub("●",""):gsub("•",""):gsub("✨%s*rainb
 local en=statusLbl:GetAttribute("OrigStatusEn")or statusLbl:GetAttribute("OrigRawText")
 if not fromSaved and cur~="" and cur~=statusLbl:GetAttribute("__LastTranslatedStatus")and not hasVi(cur)then
 en=cur
-statusLbl:SetAttribute("OrigStatusEn",en) end
+statusLbl:SetAttribute("OrigStatusEn",en)
+end
 local out=(translateStatus and translateStatus(en or cur))or cur
 if out=="" then out="Đang rảnh" end
 statusLbl:SetAttribute("__LastTranslatedStatus",out)
@@ -1195,20 +1468,28 @@ statusLbl.TextColor3=c3(242,248,255)
 statusLbl.TextTransparency=0
 statusLbl.Text=out
 if expTaskLbl and expTaskLbl.Parent then expTaskLbl.Text="⚡ Trạng thái: " .. out end
-statusLbl:SetAttribute("__Updating",false) end
+statusLbl:SetAttribute("__Updating",false)
+end
 State.RefreshIslandCallback=function()syncStatus(true)end
 syncStatus(false)
 if statusLbl:GetAttribute("__LockedStatusColor")~=SID then
 statusLbl:SetAttribute("__LockedStatusColor",SID)
 statusLbl:GetPropertyChangedSignal("TextColor3"):Connect(function()
 if isAlive()and statusLbl.TextColor3~=c3(242,248,255)then
-statusLbl.TextColor3=c3(242,248,255) end end)
+statusLbl.TextColor3=c3(242,248,255)
+end
+end)
 statusLbl:GetPropertyChangedSignal("TextTransparency"):Connect(function()
 if isAlive()and statusLbl.TextTransparency~=0 then
-statusLbl.TextTransparency=0 end end)
+statusLbl.TextTransparency=0
+end
+end)
 statusLbl:GetPropertyChangedSignal("Text"):Connect(function()
 if isAlive()and not statusLbl:GetAttribute("__Updating")then
-syncStatus(false) end end) end
+syncStatus(false)
+end
+end)
+end
 local stStroke=statusLbl:FindFirstChildOfClass("UIStroke")or mk("UIStroke",{Thickness=1.15,Color=c3(8,12,22),Transparency=0.22},statusLbl)
 stStroke.Thickness=1.15
 stStroke.Color=c3(8,12,22)
@@ -1225,7 +1506,13 @@ pcall(function()
 if ch.Name=="ChilliV5_ExpandedIsland" then ch:Destroy()end
 for _,d in ipairs(ch:GetDescendants())do
 if d.Name=="ChilliV5_ExpandedIsland" then
-pcall(d.Destroy,d) end end end) end end) end
+pcall(d.Destroy,d)
+end
+end
+end)
+end
+end)
+end
 pill.Parent=venyxGui
 pill.AnchorPoint=v2(0.5,0)
 pill.ZIndex=9999
@@ -1262,7 +1549,10 @@ if pill:GetAttribute("__LockedIslandVis")~=SID then
 pill:SetAttribute("__LockedIslandVis",SID)
 pill:GetPropertyChangedSignal("Visible"):Connect(function()
 if isAlive()and exp and exp.Parent and not exp.Visible and not pill.Visible then
-pill.Visible=true end end) end
+pill.Visible=true
+end
+end)
+end
 mk("UICorner",{CornerRadius=udn(0,22)},exp)
 mk("UIGradient",{
 Name="LiquidGlassPanelGrad",
@@ -1357,42 +1647,60 @@ miniIslandAnimToken=miniIslandAnimToken+1
 local myToken=miniIslandAnimToken
 State.MorphingMiniIsland=true
 if expTaskLbl and expTaskLbl.Parent then
-expTaskLbl.Text=st.icon .. " Trạng thái: " .. st.text end
+expTaskLbl.Text=st.icon .. " Trạng thái: " .. st.text
+end
 if statusLbl and statusLbl.Parent then
 statusLbl:SetAttribute("__Updating",true)
 statusLbl.Text=st.text
-statusLbl:SetAttribute("__Updating",false) end
+statusLbl:SetAttribute("__Updating",false)
+end
 if liveDot and liveDot.Parent then
-liveDot.BackgroundColor3=st.dot end
+liveDot.BackgroundColor3=st.dot
+end
 local fastExpandInfo=twi(0.14,EES.Quart,EED.Out)
 if pillScale and pillScale.Parent then
-TweenService:Create(pillScale,fastExpandInfo,{Scale=1.06}):Play() end
+TweenService:Create(pillScale,fastExpandInfo,{Scale=1.06}):Play()
+end
 if ps and ps.Parent then
-TweenService:Create(ps,fastExpandInfo,{Color=st.stroke,Thickness=2.0,Transparency=0.02}):Play() end
+TweenService:Create(ps,fastExpandInfo,{Color=st.stroke,Thickness=2.0,Transparency=0.02}):Play()
+end
 if lbStroke and lbStroke.Parent then
-TweenService:Create(lbStroke,fastExpandInfo,{Color=st.stroke,Thickness=1.7}):Play() end
+TweenService:Create(lbStroke,fastExpandInfo,{Color=st.stroke,Thickness=1.7}):Play()
+end
 if taskBoxGrad and taskBoxGrad.Parent then
-taskBoxGrad.Color=st.grad end
+taskBoxGrad.Color=st.grad
+end
 if taskBoxStroke and taskBoxStroke.Parent then
-TweenService:Create(taskBoxStroke,fastExpandInfo,{Color=st.stroke,Thickness=1.8,Transparency=0.04}):Play() end
+TweenService:Create(taskBoxStroke,fastExpandInfo,{Color=st.stroke,Thickness=1.8,Transparency=0.04}):Play()
+end
 if expStroke and expStroke.Parent then
-TweenService:Create(expStroke,fastExpandInfo,{Color=st.stroke,Thickness=1.9,Transparency=0.06}):Play() end
+TweenService:Create(expStroke,fastExpandInfo,{Color=st.stroke,Thickness=1.9,Transparency=0.06}):Play()
+end
 task.delay(0.22,function()
 if not isAlive()or myToken~=miniIslandAnimToken then return end
 local fastShrinkInfo=twi(0.16,EES.Back,EED.Out)
 if pillScale and pillScale.Parent then
-TweenService:Create(pillScale,fastShrinkInfo,{Scale=1.0}):Play() end
+TweenService:Create(pillScale,fastShrinkInfo,{Scale=1.0}):Play()
+end
 if ps and ps.Parent then
-TweenService:Create(ps,fastShrinkInfo,{Color=st.stroke,Thickness=1.5,Transparency=0.14}):Play() end
+TweenService:Create(ps,fastShrinkInfo,{Color=st.stroke,Thickness=1.5,Transparency=0.14}):Play()
+end
 if lbStroke and lbStroke.Parent then
-TweenService:Create(lbStroke,fastShrinkInfo,{Color=st.stroke,Thickness=1.3}):Play() end
+TweenService:Create(lbStroke,fastShrinkInfo,{Color=st.stroke,Thickness=1.3}):Play()
+end
 if taskBoxStroke and taskBoxStroke.Parent then
-TweenService:Create(taskBoxStroke,fastShrinkInfo,{Color=st.stroke,Thickness=1.2,Transparency=0.20}):Play() end
+TweenService:Create(taskBoxStroke,fastShrinkInfo,{Color=st.stroke,Thickness=1.2,Transparency=0.20}):Play()
+end
 if expStroke and expStroke.Parent then
-TweenService:Create(expStroke,fastShrinkInfo,{Color=st.stroke,Thickness=1.6,Transparency=0.16}):Play() end
+TweenService:Create(expStroke,fastShrinkInfo,{Color=st.stroke,Thickness=1.6,Transparency=0.16}):Play()
+end
 task.delay(0.16,function()
 if myToken==miniIslandAnimToken then
-State.MorphingMiniIsland=false end end) end) end
+State.MorphingMiniIsland=false
+end
+end)
+end)
+end
 taskBox.MouseButton1Click:Connect(cycleMiniIslandState)
 local cap=mk("Frame",{Size=u2(1,-24,0,28),Position=u2(0,12,0,74),BackgroundColor3=c3(14,19,32),BackgroundTransparency=0.08,BorderSizePixel=0,ZIndex=10001},exp)
 mk("UICorner",{CornerRadius=udn(1,0)},cap)
@@ -1449,7 +1757,10 @@ noteSmallLbl.Text="Setting Auto Farm (Bấm xem note)"
 local nTw=TweenService:Create(exp,twi(0.16,EES.Quart,EED.Out),{Size=u2(0,EXP_W,0,COLLAPSED_EXP_H)})
 nTw:Play()
 nTw.Completed:Connect(function()
-if not noteOpen then noteDrawer.Visible=false end end) end end)
+if not noteOpen then noteDrawer.Visible=false end
+end)
+end
+end)
 State.AntiAfkEnabled=true
 if not State.AntiAfkHooked then
 State.AntiAfkHooked=true
@@ -1458,7 +1769,12 @@ LocalPlayer.Idled:Connect(function()
 if State.AntiAfkEnabled then
 pcall(function()
 local cam=workspace.CurrentCamera
-if cam then cam.CFrame=cam.CFrame end end) end end) end) end
+if cam then cam.CFrame=cam.CFrame end
+end)
+end
+end)
+end)
+end
 local function setLang(l)
 playIslandSfx("tap")
 if State.Language==l then return end
@@ -1467,7 +1783,8 @@ if writefile then pcall(writefile,LANG_FILE,l)end
 TweenService:Create(sld,twi(0.16,EES.Quart,EED.Out),{Position=(l=="VI" and u2(0,2,0,2)or u2(0.5,2,0,2))}):Play()
 bVI.TextColor3=l=="VI" and c3n(1,1,1)or c3(160,180,210)
 bEN.TextColor3=l=="EN" and c3n(1,1,1)or c3(160,180,210)
-refreshAllTexts() end
+refreshAllTexts()
+end
 bVI.MouseButton1Click:Connect(function()setLang("VI")end)
 bEN.MouseButton1Click:Connect(function()setLang("EN")end)
 local open,lastToggleClock=false,-10
@@ -1494,14 +1811,22 @@ if not open then
 exp.Visible=false
 pillScale.Scale=0.95
 pill.Visible=true
-TweenService:Create(pillScale,twi(0.16,EES.Back,EED.Out),{Scale=1.0}):Play() end end) end end
+TweenService:Create(pillScale,twi(0.16,EES.Back,EED.Out),{Scale=1.0}):Play()
+end
+end)
+end
+end
 State.CollapseIslandFn=function()
-if open then toggle()end end
+if open then toggle()end
+end
 if hint:IsA("GuiButton")then
-hint.MouseButton1Click:Connect(toggle) end
+hint.MouseButton1Click:Connect(toggle)
+end
 hint.InputBegan:Connect(function(i)
 if i.UserInputType==EUIT.MouseButton1 or i.UserInputType==EUIT.Touch then
-toggle() end end)
+toggle()
+end
+end)
 colBtn.MouseButton1Click:Connect(toggle)
 local lastPillTouchClock=-10
 local function onIn(i)
@@ -1521,7 +1846,9 @@ if upConn then upConn:Disconnect()end
 if chgConn then chgConn:Disconnect()end
 task.delay(0.05,function()State.DraggingIsland=false end)
 if not hasMoved and not open then
-toggle() end end
+toggle()
+end
+end
 dragConn=UserInputService.InputChanged:Connect(function(im)
 if im.UserInputType==EUIT.MouseMovement or im.UserInputType==EUIT.Touch then
 local d=im.Position-start
@@ -1531,18 +1858,29 @@ State.DraggingIsland=true
 local newPos=u2(startP.X.Scale,startP.X.Offset+d.X,startP.Y.Scale,startP.Y.Offset+d.Y)
 pill.Position=newPos
 State.IslandUserPos=newPos
-if exp and exp.Visible then exp.Position=newPos end end end end)
+if exp and exp.Visible then exp.Position=newPos end
+end
+end
+end)
 upConn=UserInputService.InputEnded:Connect(function(ie)
 if ie.UserInputType==EUIT.MouseButton1 or ie.UserInputType==EUIT.Touch then
-finishInput() end end)
+finishInput()
+end
+end)
 if i.Changed then
 chgConn=i.Changed:Connect(function()
 if i.UserInputState==Enum.UserInputState.End or i.UserInputState==Enum.UserInputState.Cancel then
-finishInput() end end) end end end
+finishInput()
+end
+end)
+end
+end
+end
 pill.InputBegan:Connect(onIn)
 statusLbl.InputBegan:Connect(onIn)
 if leftBadge then leftBadge.InputBegan:Connect(onIn)end
-return true end
+return true
+end
 local function killVxLogo(d)
 if not d or not d:IsA("GuiObject")then return end
 d:SetAttribute("__HiddenVxLogo",true)
@@ -1550,17 +1888,24 @@ d.BackgroundTransparency=1
 if d:IsA("TextLabel")or d:IsA("TextButton")then
 d.TextTransparency=1
 elseif d:IsA("ImageLabel")or d:IsA("ImageButton")then
-d.ImageTransparency=1 end
+d.ImageTransparency=1
+end
 if not d:GetAttribute("__VxKillLock")then
 d:SetAttribute("__VxKillLock",true)
 d:GetPropertyChangedSignal("BackgroundTransparency"):Connect(function()
-if d.BackgroundTransparency~=1 then d.BackgroundTransparency=1 end end)
+if d.BackgroundTransparency~=1 then d.BackgroundTransparency=1 end
+end)
 if d:IsA("TextLabel")or d:IsA("TextButton")then
 d:GetPropertyChangedSignal("TextTransparency"):Connect(function()
-if d.TextTransparency~=1 then d.TextTransparency=1 end end)
+if d.TextTransparency~=1 then d.TextTransparency=1 end
+end)
 elseif d:IsA("ImageLabel")or d:IsA("ImageButton")then
 d:GetPropertyChangedSignal("ImageTransparency"):Connect(function()
-if d.ImageTransparency~=1 then d.ImageTransparency=1 end end) end end end
+if d.ImageTransparency~=1 then d.ImageTransparency=1 end
+end)
+end
+end
+end
 cleanupStrayLogos=function(gui,win)
 if not gui then return end
 pcall(function()
@@ -1574,11 +1919,21 @@ for _,d in ipairs(cDesc)do
 if d.Name=="ChilliCircleDisc" or d.Name=="ChilliV5CoverLogo" or d.Name=="PerfectCircleAspect"
 or d.Name=="ChilliHeaderLogoBadge" or d.Name=="RainbowBorder"
 or d.Name=="ShimmerGlow" or d.Name=="OriginPepperLogo" or d.Name=="BubbleFrontDisc" then
-pcall(function()d:Destroy()end) end
+pcall(function()d:Destroy()end)
+end
 if(d:IsA("TextLabel")or d:IsA("TextButton"))and not(win and d:IsDescendantOf(win))then
 local t=(d.Text or ""):lower():match("^%s*(.-)%s*$")
 if t=="vx" or t=="v" or t=="x" then
-killVxLogo(d) end end end end end end end end) end
+killVxLogo(d)
+end
+end
+end
+end
+end
+end
+end
+end)
+end
 setupCircleLogo=function(obj,win)
 if not obj or not obj:IsA("GuiObject")or obj==win then return end
 if obj.Name=="ChilliV5_ExpandedIsland" or obj:FindFirstChild("IslandExpandHint")or obj:FindFirstChild("IslandLogoBadge")then return end
@@ -1591,13 +1946,17 @@ top.BackgroundTransparency=1
 top.Visible=true
 top.Size=u2(0,58,0,58)
 if not top:FindFirstChild("PerfectCircleAspect")then
-mk("UIAspectRatioConstraint",{Name="PerfectCircleAspect",AspectRatio=1},top) end
+mk("UIAspectRatioConstraint",{Name="PerfectCircleAspect",AspectRatio=1},top)
+end
 for _,ch in ipairs(top:GetDescendants())do
 if ch.Name~="ChilliCircleDisc" and ch.Name~="ChilliV5CoverLogo" and not ch:IsDescendantOf(top:FindFirstChild("ChilliCircleDisc")or top)then
 if ch:IsA("TextLabel")or ch:IsA("TextButton")then
 killVxLogo(ch)
 elseif ch:IsA("ImageLabel")or ch:IsA("ImageButton")then
-if ch.Name~="ChilliV5CoverLogo" then ch.ImageTransparency=1 end end end end
+if ch.Name~="ChilliV5CoverLogo" then ch.ImageTransparency=1 end
+end
+end
+end
 local disc=top:FindFirstChild("ChilliCircleDisc")or mk("Frame",{
 Name="ChilliCircleDisc",
 AnchorPoint=v2(0.5,0.5),
@@ -1634,20 +1993,29 @@ ApplyStrokeMode=EASM.Border
 },cov)
 covStroke.Enabled=true
 if not covStroke:FindFirstChildOfClass("UIGradient")then
-addGrad(mk("UIGradient",{Color=RAINBOW},covStroke)) end
+addGrad(mk("UIGradient",{Color=RAINBOW},covStroke))
+end
 if not top:GetAttribute("__ChilliInstantToggleHooked")then
 top:SetAttribute("__ChilliInstantToggleHooked",true)
 local function onToggleTap()
 State.CloseHideUntil=nil
-if State.SyncWindowFn then pcall(State.SyncWindowFn)end end
+if State.SyncWindowFn then pcall(State.SyncWindowFn)end
+end
 if top:IsA("GuiButton")then
-top.MouseButton1Down:Connect(onToggleTap) end
+top.MouseButton1Down:Connect(onToggleTap)
+end
 top.InputBegan:Connect(function(inp)
 if inp.UserInputType==EUIT.MouseButton1 or inp.UserInputType==EUIT.Touch then
-onToggleTap() end end)
+onToggleTap()
+end
+end)
 for _,ch in ipairs(top:GetDescendants())do
 if ch:IsA("GuiButton")then
-ch.MouseButton1Down:Connect(onToggleTap) end end end end
+ch.MouseButton1Down:Connect(onToggleTap)
+end
+end
+end
+end
 local PAGE_HEADER_TITLES={
 ["dashboard"]=true,["home"]=true,["trang chủ"]=true,["steal"]=true,["săn trứng"]=true,["lấy trứng"]=true,["cướp trứng"]=true,["farm"]=true,["tự cày"]=true,["tự động cày"]=true,["events"]=true,["event"]=true,["sự kiện"]=true,["player"]=true,["localplayer"]=true,["nhân vật"]=true,["người chơi"]=true,["misc"]=true,["miscellaneous"]=true,["chức năng khác"]=true,["khác"]=true,
 ["settings"]=true,["setting"]=true,["cài đặt"]=true,["hệ thống"]=true,["system"]=true
@@ -1660,16 +2028,21 @@ local pDisplay=lp and lp.DisplayName or ""
 local t=d.Text or ""
 local tLow=t:lower()
 if(pName~="" and t:find(pName,1,true))or(pDisplay~="" and t:find(pDisplay,1,true))then
-return true end
+return true
+end
 if tLow:find("chào mừng")or tLow:find("welcome")or tLow:find("delta")or tLow:find("sae")or tLow:find("chilli")then
-return true end
+return true
+end
 local par=d.Parent
 if par and(par:FindFirstChildOfClass("ImageLabel")or par:FindFirstChildOfClass("ImageButton"))then
-return true end
+return true
+end
 local gpar=par and par.Parent
 if gpar and(gpar:FindFirstChildOfClass("ImageLabel")or gpar:FindFirstChildOfClass("ImageButton"))then
-return true end
-return false end
+return true
+end
+return false
+end
 local SIDEBAR_PALETTE={
 c3(37,99,235),
 c3(239,68,68),
@@ -1684,7 +2057,8 @@ local SIDEBAR_GRAD_PAIRS={
 local function playModernTabSound()
 pcall(function()
 if playIslandSfx then
-pcall(playIslandSfx,"tap") end
+pcall(playIslandSfx,"tap")
+end
 local ss=game:GetService("SoundService")
 local snd=In("Sound")
 snd.SoundId="rbxassetid://6026984224"
@@ -1694,8 +2068,11 @@ snd.Parent=ss
 if ss.PlayLocalSound then
 pcall(function()ss:PlayLocalSound(snd)end)
 else
-pcall(function()snd:Play()end) end
-game:GetService("Debris"):AddItem(snd,2) end) end
+pcall(function()snd:Play()end)
+end
+game:GetService("Debris"):AddItem(snd,2)
+end)
+end
 local function detectActiveTabIndexFromDom(win,hy,winX)
 if not win then return nil end
 for _,d in ipairs(win:GetDescendants())do
@@ -1706,8 +2083,10 @@ local allVis=true
 while p and p~=win do
 if p:IsA("GuiObject")and not p.Visible then
 allVis=false
-break end
-p=p.Parent end
+break
+end
+p=p.Parent
+end
 if allVis then
 local t=(d.Text or ""):lower()
 if t:find("bảng điều khiển",1,true)or t:find("trang chủ",1,true)or t:find("dashboard",1,true)or t:find("home",1,true)then
@@ -1721,8 +2100,14 @@ return 4
 elseif t:find("người chơi",1,true)or t:find("nhân vật",1,true)or t:find("player",1,true)then
 return 5
 elseif t:find("cài đặt",1,true)or t:find("hệ thống",1,true)or t:find("setting",1,true)or t:find("system",1,true)then
-return 6 end end end end end
-return nil end
+return 6
+end
+end
+end
+end
+end
+return nil
+end
 applySenaV7Architecture=function(win,titleLbl)
 if not win or not titleLbl then return end
 for _,oldL in ipairs(win:GetDescendants())do
@@ -1738,7 +2123,9 @@ or nm=="ChilliTabToast"
 or nm=="ChilliTabRipple" then
 oldL:Destroy()
 elseif nm=="ChilliMainChilliLogo" and oldL.Parent~=win then
-oldL:Destroy() end end
+oldL:Destroy()
+end
+end
 titleLbl.TextColor3=c3n(1,1,1)
 titleLbl.Font=EF.GothamBlack
 titleLbl.TextTransparency=0
@@ -1746,9 +2133,11 @@ local tGrad=titleLbl:FindFirstChild("TitleUltraGrad")
 if not tGrad then
 tGrad=mk("UIGradient",{Name="TitleUltraGrad",Color=ULTRA_TEXT_GRAD},titleLbl)
 else
-tGrad.Color=ULTRA_TEXT_GRAD end
+tGrad.Color=ULTRA_TEXT_GRAD
+end
 if not titleLbl:FindFirstChild("TitleUltraStroke")then
-mk("UIStroke",{Name="TitleUltraStroke",Thickness=1.2,Color=c3(10,8,20),Transparency=0.25},titleLbl) end
+mk("UIStroke",{Name="TitleUltraStroke",Thickness=1.2,Color=c3(10,8,20),Transparency=0.25},titleLbl)
+end
 local hdrBaseZ=math.max(15,(titleLbl.ZIndex or 5)+8)
 local mainChilliLogo=win:FindFirstChild("ChilliMainChilliLogo")
 if not mainChilliLogo then
@@ -1789,37 +2178,49 @@ local oldMcGrad=oldMcStroke:FindFirstChildOfClass("UIGradient")
 if oldMcGrad then oldMcGrad:Destroy()end
 oldMcStroke.Color=c3(255,95,75)
 oldMcStroke.Thickness=1.3
-oldMcStroke.Transparency=0.25 end
+oldMcStroke.Transparency=0.25
+end
 mainChilliLogo.AnchorPoint=v2(0.5,0.5)
 mainChilliLogo.Position=u2(0,23,0,19)
 mainChilliLogo.Size=u2(0,27,0,27)
 mainChilliLogo.Visible=true
-mainChilliLogo.ZIndex=hdrBaseZ end
+mainChilliLogo.ZIndex=hdrBaseZ
+end
 State.MainChilliLogo=mainChilliLogo
 local hy,tx=titleLbl.AbsolutePosition.Y,titleLbl.AbsolutePosition.X
 local winX,winY=win.AbsolutePosition.X,win.AbsolutePosition.Y
 local bgFrames={}
 if win.BackgroundTransparency<0.98 then
-tins(bgFrames,win) end
+tins(bgFrames,win)
+end
 for _,d in ipairs(win:GetDescendants())do
 if d:IsA("GuiObject")and not d.Name:find("^Chilli")
 and d.AbsoluteSize.X>=win.AbsoluteSize.X*0.82
 and d.AbsoluteSize.Y>=win.AbsoluteSize.Y*0.82 then
 if d.BackgroundTransparency<0.98 then
-tins(bgFrames,d) end
+tins(bgFrames,d)
+end
 for _,st in ipairs(d:GetChildren())do
 if st:IsA("UIStroke")and st.Name~="ChilliProWindowStroke" then
 st.Transparency=1
-st.Enabled=false end end end end
+st.Enabled=false
+end
+end
+end
+end
 for _,st in ipairs(win:GetChildren())do
 if st:IsA("UIStroke")and st.Name~="ChilliProWindowStroke" then
 st.Transparency=1
-st.Enabled=false end end
+st.Enabled=false
+end
+end
 local mainBg=bgFrames[1] or win
 pcall(function()
 for _,bf in ipairs(bgFrames)do
-bf.BackgroundColor3=c3(9,10,16) end
-win.ClipsDescendants=true end)
+bf.BackgroundColor3=c3(9,10,16)
+end
+win.ClipsDescendants=true
+end)
 local strokeTarget=mainBg or win
 local winStroke=strokeTarget:FindFirstChild("ChilliProWindowStroke")or win:FindFirstChild("ChilliProWindowStroke")
 if not winStroke then
@@ -1835,7 +2236,8 @@ local oldWg=winStroke:FindFirstChildOfClass("UIGradient")
 if oldWg then oldWg:Destroy()end
 winStroke.Thickness=1.4
 winStroke.Color=c3(55,72,110)
-winStroke.Transparency=0.20 end
+winStroke.Transparency=0.20
+end
 local wpParent=mainBg or win
 local wp=wpParent:FindFirstChild("ChilliSenaWallpaper")or win:FindFirstChild("ChilliSenaWallpaper")
 if not wp then
@@ -1853,7 +2255,8 @@ ZIndex=math.max(1,wpParent.ZIndex)
 },wpParent)
 mk("UICorner",{CornerRadius=udn(0,10)},wp)
 else
-wp.Image=WALLPAPER_IMAGE_ID end
+wp.Image=WALLPAPER_IMAGE_ID
+end
 local sectionCards={}
 for _,d in ipairs(win:GetDescendants())do
 if d:IsA("ScrollingFrame")and(d.AbsolutePosition.X-winX)>35 and(d.AbsoluteSize.X>=win.AbsoluteSize.X*0.45)then
@@ -1861,8 +2264,10 @@ d.BackgroundTransparency=1
 local p=d.Parent
 while p and p~=win and p~=mainBg do
 if p:IsA("Frame")and p.AbsoluteSize.X>=win.AbsoluteSize.X*0.65 then
-p.BackgroundTransparency=1 end
-p=p.Parent end
+p.BackgroundTransparency=1
+end
+p=p.Parent
+end
 for _,card in ipairs(d:GetChildren())do
 if card:IsA("Frame")and card.AbsoluteSize.X>=120 then
 card.BackgroundColor3=c3(13,15,25)
@@ -1872,8 +2277,15 @@ if st.Name=="ChilliLuxuryCardStroke" then
 st:Destroy()
 else
 st.Enabled=true
-st.Transparency=0.65 end end end
-tins(sectionCards,card) end end end end
+st.Transparency=0.65
+end
+end
+end
+tins(sectionCards,card)
+end
+end
+end
+end
 for _,d in ipairs(win:GetDescendants())do
 if(d:IsA("TextLabel")or d:IsA("TextButton"))and not d.Name:find("^Chilli")and d~=titleLbl then
 local txt=d.Text or ""
@@ -1885,27 +2297,39 @@ local ig=d:FindFirstChild("ChilliInnerUltraGrad")
 if not ig then
 mk("UIGradient",{Name="ChilliInnerUltraGrad",Color=ULTRA_TEXT_GRAD},d)
 else
-ig.Color=ULTRA_TEXT_GRAD end
+ig.Color=ULTRA_TEXT_GRAD
+end
 elseif d:FindFirstAncestorOfClass("ScrollingFrame")and d:IsA("TextLabel")then
 local c=d.TextColor3
 if c.R>0.85 and c.G>0.85 and c.B>0.85 then
-d.TextColor3=c3(214,224,242) end end end end
+d.TextColor3=c3(214,224,242)
+end
+end
+end
+end
 local function syncWallpaperAndOldBg()
 if not wp or not wp.Parent then return end
 local curT=0.35
 for _,bf in ipairs(bgFrames)do
 if bf and bf.Parent and bf.BackgroundTransparency<0.98 then
 curT=bf.BackgroundTransparency
-break end end
+break
+end
+end
 wp.ImageTransparency=math.clamp(0.16+curT*0.78,0.16,0.94)
 local cardT=math.clamp(0.24+curT*0.58,0.22,0.88)
 for _,card in ipairs(sectionCards)do
 if card and card.Parent then
-card.BackgroundTransparency=cardT end end end
+card.BackgroundTransparency=cardT
+end
+end
+end
 for _,bf in ipairs(bgFrames)do
 if not bf:GetAttribute("__WpSyncHooked")then
 bf:SetAttribute("__WpSyncHooked",true)
-bf:GetPropertyChangedSignal("BackgroundTransparency"):Connect(syncWallpaperAndOldBg) end end
+bf:GetPropertyChangedSignal("BackgroundTransparency"):Connect(syncWallpaperAndOldBg)
+end
+end
 syncWallpaperAndOldBg()
 local headerBar=nil
 local curr=titleLbl
@@ -1915,8 +2339,10 @@ and curr.AbsoluteSize.X>=(win.AbsoluteSize.X*0.60)
 and curr.AbsoluteSize.Y>=14 and curr.AbsoluteSize.Y<=95
 and not curr:FindFirstChildOfClass("UIListLayout")then
 headerBar=curr
-break end
-curr=curr.Parent end
+break
+end
+curr=curr.Parent
+end
 for _,it in ipairs(win:GetDescendants())do
 if(it:IsA("TextLabel")or it:IsA("TextButton")or it:IsA("ImageLabel")or it:IsA("ImageButton"))
 and it~=titleLbl
@@ -1931,7 +2357,11 @@ if it:IsA("TextLabel")or it:IsA("TextButton")then
 it.TextTransparency=1
 it.Text=""
 elseif it:IsA("ImageLabel")or it:IsA("ImageButton")then
-it.ImageTransparency=1 end end end end
+it.ImageTransparency=1
+end
+end
+end
+end
 for _,sc in ipairs(win:GetDescendants())do
 if sc:IsA("ScrollingFrame")and(sc.AbsolutePosition.X-winX)>65 and sc.AbsoluteSize.X>=win.AbsoluteSize.X*0.45 then
 for _,sub in ipairs(sc:GetDescendants())do
@@ -1939,13 +2369,20 @@ if sub.Name=="ChilliSenaSquircle" or sub.Name=="ChilliStealTabIcon" or sub.Name=
 local par=sub.Parent
 sub:Destroy()
 if par and par:IsA("GuiObject")then
-par.BackgroundTransparency=0.15 end end end end end
+par.BackgroundTransparency=0.15
+end
+end
+end
+end
+end
 if win.AbsoluteSize.X>=200 and win.AbsoluteSize.Y>=140 then
-State.SavedFullWinSize=win.Size end
+State.SavedFullWinSize=win.Size
+end
 local function syncWindowVisibilityInstant()
 if not win or not win.Parent or State.IsBubbleAnimating then return end
 if win.Visible and win.AbsoluteSize.X>=200 and win.AbsoluteSize.Y>=140 then
-State.SavedFullWinSize=win.Size end
+State.SavedFullWinSize=win.Size
+end
 local isOffscreen=(win.AbsolutePosition.X<-500 or win.AbsolutePosition.Y<-500)
 local isSizeZero=(win.AbsoluteSize.X>0 and(win.AbsoluteSize.X<95 or win.AbsoluteSize.Y<75))
 local isHdrHidden=(headerBar~=nil)and(not headerBar.Visible)
@@ -1953,14 +2390,17 @@ local isForceClosing=(State.CloseHideUntil~=nil)and(os.clock()<State.CloseHideUn
 local isRealBgHidden=(mainBg~=win)and(mainBg.BackgroundTransparency>=0.99)
 if win.Visible and(isSizeZero or isHdrHidden or isRealBgHidden)then
 win.Visible=false
-if State.SyncBubbleIconFn then pcall(State.SyncBubbleIconFn,false,true)end end
+if State.SyncBubbleIconFn then pcall(State.SyncBubbleIconFn,false,true)end
+end
 local isClosed=(not win.Visible)or isOffscreen or isSizeZero or isHdrHidden or isForceClosing or isRealBgHidden
 local isOpen=not isClosed
 if winStroke then
 winStroke.Enabled=isOpen
-winStroke.Transparency=isOpen and 0.20 or 1 end
+winStroke.Transparency=isOpen and 0.20 or 1
+end
 if wp then wp.Visible=isOpen end
-if mainChilliLogo then mainChilliLogo.Visible=isOpen end end
+if mainChilliLogo then mainChilliLogo.Visible=isOpen end
+end
 State.SyncWindowFn=syncWindowVisibilityInstant
 syncWindowVisibilityInstant()
 if win:GetAttribute("__InstantHideHooked")~=SID then
@@ -1969,7 +2409,8 @@ win:GetPropertyChangedSignal("Visible"):Connect(syncWindowVisibilityInstant)
 win:GetPropertyChangedSignal("Size"):Connect(syncWindowVisibilityInstant)
 win:GetPropertyChangedSignal("Position"):Connect(syncWindowVisibilityInstant)
 if mainBg and mainBg~=win then
-mainBg:GetPropertyChangedSignal("BackgroundTransparency"):Connect(syncWindowVisibilityInstant) end
+mainBg:GetPropertyChangedSignal("BackgroundTransparency"):Connect(syncWindowVisibilityInstant)
+end
 for _,d in ipairs(win:GetDescendants())do
 if d:IsA("GuiObject")and not d.Name:find("^Chilli")and not d:FindFirstAncestorOfClass("ScrollingFrame")then
 local relX=d.AbsolutePosition.X-win.AbsolutePosition.X
@@ -1977,7 +2418,12 @@ local relY=d.AbsolutePosition.Y-win.AbsolutePosition.Y
 if relY>=0 and relY<32 and relX>(win.AbsoluteSize.X-38)and d.AbsoluteSize.X<=34 and d.AbsoluteSize.Y<=32 then
 d.Active=false
 if d:IsA("GuiButton")or d:IsA("Frame")then
-d.Visible=false end end end end end
+d.Visible=false
+end
+end
+end
+end
+end
 local navButtons={}
 for _,d in ipairs(win:GetDescendants())do
 if d:IsA("GuiObject")and not d.Name:find("^Chilli")and(d.AbsolutePosition.X-winX)<75 and d.AbsolutePosition.Y>hy+12 and d.AbsoluteSize.X<=95 then
@@ -1987,16 +2433,22 @@ if ch:IsA("GuiObject")and not ch.Name:find("^Chilli")and ch.AbsoluteSize.X>=20 a
 ch.Visible=true
 local oldCardStroke=ch:FindFirstChild("ChilliLuxuryCardStroke")
 if oldCardStroke then oldCardStroke:Destroy()end
-tins(children,ch) end end
+tins(children,ch)
+end
+end
 if #children>=5 and #children<=8 then
 table.sort(children,function(a,b)return a.AbsolutePosition.Y<b.AbsolutePosition.Y end)
 pcall(function()d.BackgroundTransparency=1 end)
 if d.ZIndex<15 then d.ZIndex=15 end
 for _,nb in ipairs(children)do
 pcall(function()nb.BackgroundTransparency=1 end)
-if nb.ZIndex<16 then nb.ZIndex=16 end end
+if nb.ZIndex<16 then nb.ZIndex=16 end
+end
 navButtons=children
-break end end end
+break
+end
+end
+end
 if #navButtons>=5 then
 State.SystemTabBtn=navButtons[6] or navButtons[#navButtons]
 State.CurrentNavButtons=navButtons
@@ -2004,7 +2456,8 @@ local detectedTabIdx=detectActiveTabIndexFromDom(win,hy,winX)
 if detectedTabIdx then
 State.ActiveSidebarTabIdx=detectedTabIdx
 elseif not State.ActiveSidebarTabIdx then
-State.ActiveSidebarTabIdx=1 end
+State.ActiveSidebarTabIdx=1
+end
 local fastTabTween=twi(0.14,EES.Quart,EED.Out)
 local function updateTabActiveStyles(activeIdx)
 State.ActiveSidebarTabIdx=activeIdx
@@ -2026,10 +2479,12 @@ st.Color=c3(255,255,255)
 st.Thickness=1.4
 TweenService:Create(st,fastTabTween,{
 Transparency=0.18
-}):Play() end
+}):Play()
+end
 if shine then
 shine.Visible=true
-shine.BackgroundTransparency=0.78 end
+shine.BackgroundTransparency=0.78
+end
 else
 TweenService:Create(sq,fastTabTween,{
 Size=u2(0,30,0,30),
@@ -2038,10 +2493,16 @@ BackgroundTransparency=1
 if st then
 TweenService:Create(st,fastTabTween,{
 Transparency=1
-}):Play() end
+}):Play()
+end
 if shine then
 shine.Visible=false
-shine.BackgroundTransparency=1 end end end end end
+shine.BackgroundTransparency=1
+end
+end
+end
+end
+end
 State.UpdateSidebarTabStyles=updateTabActiveStyles
 for idx,btn in ipairs(navButtons)do
 btn.Visible=true
@@ -2050,7 +2511,10 @@ if btn:GetAttribute("__BgLockHooked")~=SID then
 btn:SetAttribute("__BgLockHooked",SID)
 btn:GetPropertyChangedSignal("BackgroundTransparency"):Connect(function()
 if btn.BackgroundTransparency<1 then
-btn.BackgroundTransparency=1 end end) end
+btn.BackgroundTransparency=1
+end
+end)
+end
 if btn.ZIndex<16 then btn.ZIndex=16 end
 local badgeColor=SIDEBAR_PALETTE[((idx-1)% #SIDEBAR_PALETTE)+1]
 local gradPair=SIDEBAR_GRAD_PAIRS[((idx-1)% #SIDEBAR_GRAD_PAIRS)+1]
@@ -2101,23 +2565,30 @@ else
 squircle.Visible=true
 squircle.ZIndex=btn.ZIndex+1
 local oldBar=squircle:FindFirstChild("ChilliTabActiveBar")
-if oldBar then oldBar:Destroy()end end
+if oldBar then oldBar:Destroy()end
+end
 for _,ch in ipairs(btn:GetDescendants())do
 if ch~=squircle and not ch:IsDescendantOf(squircle)and ch.Name~="ChilliStealTabIcon" then
 if ch:IsA("GuiObject")then
-ch.ZIndex=squircle.ZIndex+4 end
+ch.ZIndex=squircle.ZIndex+4
+end
 if ch:IsA("Frame")and ch.AbsoluteSize.X>=20 and ch.AbsoluteSize.Y>=20 then
 ch.BackgroundTransparency=1
 elseif ch:IsA("ImageLabel")or ch:IsA("ImageButton")then
 ch.Visible=true
 ch.ImageColor3=c3n(1,1,1)
 if idx~=2 then
-ch.ImageTransparency=0 end
+ch.ImageTransparency=0
+end
 elseif ch:IsA("TextLabel")or ch:IsA("TextButton")then
 ch.Visible=true
 ch.TextColor3=c3n(1,1,1)
 if idx~=2 then
-ch.TextTransparency=0 end end end end
+ch.TextTransparency=0
+end
+end
+end
+end
 if idx==2 then
 for _,desc in ipairs(btn:GetDescendants())do
 if desc~=squircle and not desc:IsDescendantOf(squircle)and desc.Name~="ChilliStealTabIcon" and not desc:IsA("UICorner")and not desc:IsA("UIStroke")then
@@ -2129,7 +2600,10 @@ desc.TextTransparency=1
 elseif desc:IsA("Frame")then
 desc.BackgroundTransparency=1
 local st=desc:FindFirstChildOfClass("UIStroke")
-if st then st.Transparency=1 end end end end
+if st then st.Transparency=1 end
+end
+end
+end
 local stealIcon=btn:FindFirstChild("ChilliStealTabIcon")
 if not stealIcon then
 stealIcon=mk("ImageLabel",{
@@ -2150,7 +2624,9 @@ stealIcon.Visible=true
 stealIcon.Image=STEAL_TAB_ICON_ID
 stealIcon.ImageTransparency=0
 stealIcon.Size=u2s(0.84,0.84)
-stealIcon.ZIndex=squircle.ZIndex+5 end end
+stealIcon.ZIndex=squircle.ZIndex+5
+end
+end
 if btn:GetAttribute("__TabEffectHooked")~=SID then
 btn:SetAttribute("__TabEffectHooked",SID)
 local function triggerThisTab()
@@ -2159,20 +2635,29 @@ if now-(State.LastTabClickTime or 0)<0.08 then return end
 State.LastTabClickTime=now
 playModernTabSound()
 if State.UpdateSidebarTabStyles then
-pcall(State.UpdateSidebarTabStyles,idx) end end
+pcall(State.UpdateSidebarTabStyles,idx)
+end
+end
 local hookTargets={btn}
 for _,desc in ipairs(btn:GetDescendants())do
 if desc:IsA("GuiObject")and not desc.Name:find("^Chilli")then
-tins(hookTargets,desc) end end
+tins(hookTargets,desc)
+end
+end
 for _,hObj in ipairs(hookTargets)do
 if hObj:IsA("GuiButton")then
 hObj.Activated:Connect(triggerThisTab)
 hObj.MouseButton1Click:Connect(triggerThisTab)
-hObj.MouseButton1Down:Connect(triggerThisTab) end end end end
+hObj.MouseButton1Down:Connect(triggerThisTab)
+end
+end
+end
+end
 if win:GetAttribute("__SidebarGlobalInputHooked")~=SID then
 win:SetAttribute("__SidebarGlobalInputHooked",SID)
 if env.__ChilliSidebarInputConn then
-pcall(function()env.__ChilliSidebarInputConn:Disconnect()end) end
+pcall(function()env.__ChilliSidebarInputConn:Disconnect()end)
+end
 env.__ChilliSidebarInputConn=UserInputService.InputBegan:Connect(function(inp)
 if not isAlive()or not win or not win.Parent or not win.Visible then return end
 if inp.UserInputType==EUIT.MouseButton1 or inp.UserInputType==EUIT.Touch then
@@ -2188,17 +2673,29 @@ if now-(State.LastTabClickTime or 0)>=0.08 then
 State.LastTabClickTime=now
 playModernTabSound()
 if State.UpdateSidebarTabStyles then
-pcall(State.UpdateSidebarTabStyles,idx) end end
-break end end end end end end) end
-pcall(updateTabActiveStyles,State.ActiveSidebarTabIdx or 1) end
-win:SetAttribute("__SenaArchApplied",SID) end
+pcall(State.UpdateSidebarTabStyles,idx)
+end
+end
+break
+end
+end
+end
+end
+end
+end)
+end
+pcall(updateTabActiveStyles,State.ActiveSidebarTabIdx or 1)
+end
+win:SetAttribute("__SenaArchApplied",SID)
+end
 setupBubbleToggle=function(gui,win,titleLbl)
 if not gui or not win then return end
 if win:GetAttribute("__ChilliBubbleHooked")==SID then return end
 win:SetAttribute("__ChilliBubbleHooked",SID)
 if env.__ChilliBubbleHeartbeatConn then
 pcall(function()env.__ChilliBubbleHeartbeatConn:Disconnect()end)
-env.__ChilliBubbleHeartbeatConn=nil end
+env.__ChilliBubbleHeartbeatConn=nil
+end
 local TweenSvc=game:GetService("TweenService")
 local UserInputSvc=game:GetService("UserInputService")
 State.IsBubbleAnimating=false
@@ -2220,7 +2717,9 @@ sub.BackgroundTransparency=1
 elseif sub:IsA("Frame")then
 sub.BackgroundTransparency=1
 elseif sub:IsA("UIStroke")then
-sub.Transparency=1 end end
+sub.Transparency=1
+end
+end
 if ch:GetAttribute("__VxBanishHooked")~=SID then
 ch:SetAttribute("__VxBanishHooked",SID)
 ch:GetPropertyChangedSignal("Visible"):Connect(function()
@@ -2230,16 +2729,27 @@ ch.Position=u2(2,0,2,0)
 if State.AnimateCloseFn and win and win.Visible then
 pcall(State.AnimateCloseFn)
 elseif State.SyncBubbleIconFn then
-pcall(State.SyncBubbleIconFn,false,true) end end end)
+pcall(State.SyncBubbleIconFn,false,true)
+end
+end
+end)
 ch:GetPropertyChangedSignal("Position"):Connect(function()
 if isAlive()and ch.Position.X.Scale<1.5 then
-ch.Position=u2(2,0,2,0) end end)
+ch.Position=u2(2,0,2,0)
+end
+end)
 ch:GetPropertyChangedSignal("BackgroundTransparency"):Connect(function()
 if isAlive()and ch.BackgroundTransparency<0.99 then
-ch.BackgroundTransparency=1 end end) end end) end
+ch.BackgroundTransparency=1
+end
+end)
+end
+end)
+end
 local function hideNativeVxToggleOnly(ch)
 if not ch or not ch:IsA("GuiObject")or ch==win or ch.Name=="ChilliV5_ExpandedIsland" or ch:FindFirstChild("IslandExpandHint")or ch:FindFirstChild("IslandLogoBadge")or ch.Name=="ChilliCrystalBubble" then
-return end
+return
+end
 if win and(ch:IsDescendantOf(win)or win:IsDescendantOf(ch))then return end
 local isVxToggle=false
 local aw,ah=ch.AbsoluteSize.X,ch.AbsoluteSize.Y
@@ -2247,7 +2757,9 @@ local sw,sh=ch.Size.X.Offset,ch.Size.Y.Offset
 local isSmallBox=(aw>0 and aw<=85 and ah>0 and ah<=85 and math.abs(aw-ah)<=16)or(sw>0 and sw<=85 and sh>0 and sh<=85 and math.abs(sw-sh)<=16)
 if isSmallBox then
 if ch:FindFirstChildOfClass("UICorner")or ch:IsA("GuiButton")then
-isVxToggle=true end end
+isVxToggle=true
+end
+end
 if not isVxToggle then
 local checkList={ch}
 for _,d in ipairs(ch:GetDescendants())do tins(checkList,d)end
@@ -2256,22 +2768,36 @@ if d:IsA("TextLabel")or d:IsA("TextButton")then
 local t=(d.Text or ""):lower():match("^%s*(.-)%s*$")
 if t=="vx" or t=="v" then
 isVxToggle=true
-break end end end end
+break
+end
+end
+end
+end
 if isVxToggle then
-banishNativeVxButton(ch) end end
+banishNativeVxButton(ch)
+end
+end
 for _,ch in ipairs(gui:GetChildren())do
 pcall(hideNativeVxToggleOnly,ch)
 if ch~=win and ch.Name~="ChilliV5_ExpandedIsland" and ch.Name~="ChilliCrystalBubble" then
 for _,subCh in ipairs(ch:GetChildren())do
-pcall(hideNativeVxToggleOnly,subCh) end end end
+pcall(hideNativeVxToggleOnly,subCh)
+end
+end
+end
 if gui:GetAttribute("__ChilliChildAddedHooked")~=SID then
 gui:SetAttribute("__ChilliChildAddedHooked",SID)
 gui.ChildAdded:Connect(function(ch)
 task.defer(function()
-pcall(hideNativeVxToggleOnly,ch) end) end) end
+pcall(hideNativeVxToggleOnly,ch)
+end)
+end)
+end
 for _,oldCh in ipairs(gui:GetChildren())do
 if(oldCh.Name=="ChilliCrystalBubble" or oldCh.Name=="ChilliCircleDisc")and oldCh:GetAttribute("__BubbleSession")~=SID then
-pcall(function()oldCh:Destroy()end) end end
+pcall(function()oldCh:Destroy()end)
+end
+end
 local bubble=gui:FindFirstChild("ChilliCrystalBubble")
 if not bubble then
 bubble=In("ImageButton")
@@ -2303,7 +2829,8 @@ bubbleImg.Image="rbxassetid://91322208361913"
 bubbleImg.ScaleType=Enum.ScaleType.Fit
 bubbleImg.Active=false
 bubbleImg.ZIndex=bubble.ZIndex+1
-In("UICorner",bubbleImg).CornerRadius=udn(1,0) end
+In("UICorner",bubbleImg).CornerRadius=udn(1,0)
+end
 local function syncBubbleIconState(isMenuOpen,animated)
 bubble.Visible=true
 if animated then
@@ -2313,12 +2840,16 @@ Size=u2(0,46,0,46)
 task.delay(0.08,function()
 TweenSvc:Create(bubble,twi(0.14,EES.Back,EED.Out),{
 Size=u2(0,52,0,52)
-}):Play() end) end end
+}):Play()
+end)
+end
+end
 local function isPointInsideGui(guiObj,pos)
 if not guiObj or not guiObj.Parent or not guiObj.Visible or not pos then return false end
 local ap,as=guiObj.AbsolutePosition,guiObj.AbsoluteSize
 if as.X<=0 or as.Y<=0 then return true end
-return pos.X>=(ap.X-6)and pos.X<=(ap.X+as.X+6)and pos.Y>=(ap.Y-6)and pos.Y<=(ap.Y+as.Y+6) end
+return pos.X>=(ap.X-6)and pos.X<=(ap.X+as.X+6)and pos.Y>=(ap.Y-6)and pos.Y<=(ap.Y+as.Y+6)
+end
 local dragging,dragInput,dragStart,startPos=false,nil,nil,nil
 local pressedInsideBubble=false
 local totalDragDist=0
@@ -2336,13 +2867,21 @@ totalDragDist=0
 if inp.Changed then
 inp.Changed:Connect(function()
 if inp.UserInputState==Enum.UserInputState.End or inp.UserInputState==Enum.UserInputState.Cancel then
-dragging=false end end) end end end)
+dragging=false
+end
+end)
+end
+end
+end)
 bubble.InputChanged:Connect(function(inp)
 if not isAlive()then return end
 if inp.UserInputType==EUIT.MouseMovement or inp.UserInputType==EUIT.Touch then
-dragInput=inp end end)
+dragInput=inp
+end
+end)
 if env.__ChilliBubbleDragConn then
-pcall(function()env.__ChilliBubbleDragConn:Disconnect()end) end
+pcall(function()env.__ChilliBubbleDragConn:Disconnect()end)
+end
 env.__ChilliBubbleDragConn=UserInputSvc.InputChanged:Connect(function(inp)
 if not isAlive()then return end
 if inp==dragInput and dragging and dragStart and startPos then
@@ -2352,12 +2891,17 @@ if totalDragDist>6 then
 bubble.Position=u2(
 startPos.X.Scale,startPos.X.Offset+delta.X,
 startPos.Y.Scale,startPos.Y.Offset+delta.Y
-) end end end) end
+)
+end
+end
+end)
+end
 local soundFolder=SoundService:FindFirstChild("ChilliBubbleSounds")
 if not soundFolder then
 soundFolder=In("Folder")
 soundFolder.Name="ChilliBubbleSounds"
-soundFolder.Parent=SoundService end
+soundFolder.Parent=SoundService
+end
 local function playToggleSound(id,vol,spd)
 pcall(function()
 local s=soundFolder:FindFirstChild(id)
@@ -2365,23 +2909,30 @@ if not s then
 s=In("Sound")
 s.Name=id
 s.SoundId=id
-s.Parent=soundFolder end
+s.Parent=soundFolder
+end
 s.Volume=vol or 0.7
 s.PlaybackSpeed=spd or 1.0
-s:Play() end) end
+s:Play()
+end)
+end
 local winScale=win:FindFirstChild("ChilliZeroLagScale")
 if not winScale then
 winScale=In("UIScale")
 winScale.Name="ChilliZeroLagScale"
 winScale.Scale=1.0
-winScale.Parent=win end
+winScale.Parent=win
+end
 local hy=titleLbl and titleLbl.AbsolutePosition.Y or win.AbsolutePosition.Y
 for _,d in ipairs(win:GetDescendants())do
 if d:GetAttribute("__CloseSyncHooked")or d:GetAttribute("__ChilliCloseBubbleHooked")then
 local dTxt=((d:IsA("TextButton")or d:IsA("TextLabel"))and(d.Text or "")or ""):match("^%s*(.-)%s*$")
 if dTxt~="-" and dTxt~="—" then
 d:SetAttribute("__CloseSyncHooked",nil)
-d:SetAttribute("__ChilliCloseBubbleHooked",nil) end end end
+d:SetAttribute("__ChilliCloseBubbleHooked",nil)
+end
+end
+end
 State.SyncBubbleIconFn=syncBubbleIconState
 local function openMenuAnimated()
 if State.IsBubbleAnimating then return end
@@ -2389,15 +2940,19 @@ State.IsBubbleAnimating=true
 playToggleSound("rbxassetid://6895079853",0.75,1.05)
 syncBubbleIconState(true,true)
 if State.SavedFullWinSize and(win.Size.X.Offset<95 or win.Size.Y.Offset<75 or win.AbsoluteSize.X<95)then
-win.Size=State.SavedFullWinSize end
+win.Size=State.SavedFullWinSize
+end
 for _,ch in ipairs(win:GetChildren())do
 if ch:IsA("Frame")and ch.Name~="ChilliSenaWallpaper" and ch.Name~="ChilliMainChilliLogo" and not ch.Visible then
-ch.Visible=true end end
+ch.Visible=true
+end
+end
 winScale.Scale=0.92
 win.Visible=true
 State.CloseHideUntil=nil
 if win:GetAttribute("__SenaArchApplied")~=SID and titleLbl then
-pcall(applySenaV7Architecture,win,titleLbl) end
+pcall(applySenaV7Architecture,win,titleLbl)
+end
 if State.SyncWindowFn then pcall(State.SyncWindowFn)end
 local openTween=TweenSvc:Create(winScale,twi(0.14,EES.Quart,EED.Out),{
 Scale=1.0
@@ -2405,14 +2960,17 @@ Scale=1.0
 openTween.Completed:Connect(function()
 winScale.Scale=1.0
 State.IsBubbleAnimating=false
-if State.SyncWindowFn then pcall(State.SyncWindowFn)end end)
-openTween:Play() end
+if State.SyncWindowFn then pcall(State.SyncWindowFn)end
+end)
+openTween:Play()
+end
 local function closeMenuAnimated()
 if State.MacroBusy then return end
 if State.IsBubbleAnimating then return end
 if not win.Visible then
 syncBubbleIconState(false,true)
-return end
+return
+end
 State.IsBubbleAnimating=true
 playToggleSound("rbxassetid://6895079853",0.65,1.25)
 syncBubbleIconState(false,true)
@@ -2423,8 +2981,10 @@ closeTween.Completed:Connect(function()
 win.Visible=false
 winScale.Scale=0.92
 State.IsBubbleAnimating=false
-if State.SyncWindowFn then pcall(State.SyncWindowFn)end end)
-closeTween:Play() end
+if State.SyncWindowFn then pcall(State.SyncWindowFn)end
+end)
+closeTween:Play()
+end
 State.AnimateOpenFn=openMenuAnimated
 State.AnimateCloseFn=closeMenuAnimated
 if bubble:GetAttribute("__TapHooked")~=SID then
@@ -2440,7 +3000,9 @@ if State.IsBubbleAnimating then return end
 if win.Visible then
 closeMenuAnimated()
 else
-openMenuAnimated() end end
+openMenuAnimated()
+end
+end
 bubble.MouseButton1Click:Connect(handleBubbleTap)
 bubble.Activated:Connect(handleBubbleTap)
 bubble.InputEnded:Connect(function(inp)
@@ -2449,10 +3011,15 @@ if inp.UserInputType==EUIT.MouseButton1 or inp.UserInputType==EUIT.Touch then
 local wasPressed=pressedInsideBubble
 pressedInsideBubble=false
 if wasPressed and totalDragDist<=14 and isPointInsideGui(bubble,inp.Position)then
-handleBubbleTap() end end end) end
+handleBubbleTap()
+end
+end
+end)
+end
 local oldMinus=win:FindFirstChild("ChilliCustomMinusBtn")
 if oldMinus and oldMinus:GetAttribute("__MinusSession")~=SID then
-pcall(function()oldMinus:Destroy()end) end
+pcall(function()oldMinus:Destroy()end)
+end
 local customMinusBtn=win:FindFirstChild("ChilliCustomMinusBtn")
 if not customMinusBtn then
 customMinusBtn=mk("TextButton",{
@@ -2476,7 +3043,8 @@ mk("UICorner",{CornerRadius=udn(0,6)},customMinusBtn)
 mk("UIStroke",{Thickness=1,Color=c3(70,90,135),Transparency=0.35},customMinusBtn)
 else
 customMinusBtn.Visible=true
-customMinusBtn.ZIndex=9999 end
+customMinusBtn.ZIndex=9999
+end
 if customMinusBtn:GetAttribute("__MinusHooked")~=SID then
 customMinusBtn:SetAttribute("__MinusHooked",SID)
 local lastMinusClick=0
@@ -2486,31 +3054,44 @@ if not isAlive()then return end
 local now=os.clock()
 if now-lastMinusClick<0.25 then return end
 lastMinusClick=now
-closeMenuAnimated() end
+closeMenuAnimated()
+end
 customMinusBtn.InputBegan:Connect(function(inp)
 if not isAlive()then return end
 if inp.UserInputType==EUIT.MouseButton1 or inp.UserInputType==EUIT.Touch then
 if isPointInsideGui(customMinusBtn,inp.Position)then
-pressedInsideMinus=true end end end)
+pressedInsideMinus=true
+end
+end
+end)
 customMinusBtn.InputEnded:Connect(function(inp)
 if not isAlive()then return end
 if inp.UserInputType==EUIT.MouseButton1 or inp.UserInputType==EUIT.Touch then
 local wasM=pressedInsideMinus
 pressedInsideMinus=false
 if wasM and isPointInsideGui(customMinusBtn,inp.Position)then
-triggerMinusClose() end end end)
+triggerMinusClose()
+end
+end
+end)
 customMinusBtn.MouseButton1Click:Connect(triggerMinusClose)
-customMinusBtn.Activated:Connect(triggerMinusClose) end
+customMinusBtn.Activated:Connect(triggerMinusClose)
+end
 win:GetPropertyChangedSignal("Visible"):Connect(function()
 if not isAlive()then return end
 if not State.IsBubbleAnimating then
 syncBubbleIconState(win.Visible,true)
-if State.SyncWindowFn then pcall(State.SyncWindowFn)end end end)
+if State.SyncWindowFn then pcall(State.SyncWindowFn)end
+end
+end)
 if win:GetAttribute("__InitialOpenSession")~=SID then
 win:SetAttribute("__InitialOpenSession",SID)
 winScale.Scale=1.0
-win.Visible=true end
-syncBubbleIconState(win.Visible,false) end end
+win.Visible=true
+end
+syncBubbleIconState(win.Visible,false)
+end
+end
 local function patchVenyxGui(gui,titleLbl)
 gui:SetAttribute("__IsChilliVenyxGui",true)
 pcall(function()gui.Enabled=true end)
@@ -2519,7 +3100,8 @@ if titleLbl.Text~=NEW_TITLE then
 titleLbl:SetAttribute("__IsTranslating",true)
 titleLbl.Text=NEW_TITLE
 titleLbl.AutomaticSize=Enum.AutomaticSize.X
-titleLbl:SetAttribute("__IsTranslating",false) end
+titleLbl:SetAttribute("__IsTranslating",false)
+end
 local win,curr=nil,titleLbl
 local cam=workspace.CurrentCamera
 local vpX,vpY=(cam and cam.ViewportSize.X)or 1920,(cam and cam.ViewportSize.Y)or 1080
@@ -2531,7 +3113,11 @@ local sw,sh=curr.Size.X.Offset,curr.Size.Y.Offset
 local sx,sy=curr.Size.X.Scale,curr.Size.Y.Scale
 if sx<0.95 and sy<0.95 then
 if(aw>=260 and ah>=165 and aw<vpX*0.92 and ah<vpY*0.94)or(aw==0 and sw>=260 and sh>=165 and sw<=850 and sh<=600)then
-win=curr end end end end
+win=curr
+end
+end
+end
+end
 local hy=titleLbl.AbsolutePosition.Y
 State.ActiveVenyxGui=gui
 if win then
@@ -2545,7 +3131,9 @@ win.AnchorPoint=v2(0.5,0.5)
 win.Position=u2(0.5,0,0.5,0)
 win:SetAttribute("__SettingCenterAnchor",false)
 gui.ResetOnSpawn=false
-if(gui.DisplayOrder or 0)<999980 then gui.DisplayOrder=999980 end end) end
+if(gui.DisplayOrder or 0)<999980 then gui.DisplayOrder=999980 end
+end)
+end
 pcall(function()
 for _,ch in ipairs(gui:GetChildren())do
 if ch:FindFirstChild("IslandLogoBadge")and ch:FindFirstChildOfClass("TextBox")then
@@ -2555,15 +3143,21 @@ tb:SetAttribute("__IslandSession",nil)
 tb.Text=""
 for _,sub in ipairs(ch:GetChildren())do
 if sub.Name=="IslandLogoBadge" or sub.Name=="IslandExpandHint" or sub.Name=="IslandStroke" then
-sub:Destroy() end end
+sub:Destroy()
+end
+end
 local hdrBar=titleLbl.Parent
 if hdrBar and hdrBar:IsA("GuiObject")then
 ch.Parent=hdrBar
 ch.AnchorPoint=v2(1,0.5)
 ch.Position=u2(1,-42,0.5,0)
 ch.Size=u2(0,115,0,24)
-ch.AutomaticSize=Enum.AutomaticSize.None end
-gui:SetAttribute("__IslandLocked",nil) end end end)
+ch.AutomaticSize=Enum.AutomaticSize.None
+end
+gui:SetAttribute("__IslandLocked",nil)
+end
+end
+end)
 local queue={}
 for _,d in ipairs(gui:GetDescendants())do
 if d:IsA("TextLabel")or d:IsA("TextButton")or d:IsA("TextBox")then
@@ -2573,7 +3167,10 @@ if d:IsA("TextLabel")and d.Parent and d.Parent:IsA("GuiObject")and d.Parent.Abso
 for _,sb in ipairs(d.Parent:GetChildren())do
 if sb:IsA("Frame")and sb.AbsoluteSize.X<=14 and sb.AbsoluteSize.Y<=14 then
 hasDot=true
-break end end end
+break
+end
+end
+end
 local cleanStatusTxt=(txt:gsub("●",""):gsub("•",""):match("^%s*(.-)%s*$")or ""):lower()
 local isExactIdleText=(cleanStatusTxt=="idle" or cleanStatusTxt=="đang rảnh" or txt:find("Đang rảnh",1,true)~=nil)
 local isPosNearHeader=(math.abs(d.AbsolutePosition.Y-hy)<42 and d.AbsolutePosition.X>titleLbl.AbsolutePosition.X+40)
@@ -2583,9 +3180,13 @@ pcall(hookFps,d)
 elseif isStatus or(d:IsA("TextLabel")and d:GetAttribute("__IslandDone")and gui:GetAttribute("__IslandLocked")~=SID)then
 local okIsl,resIsl=pcall(setupIsland,d,gui)
 if okIsl and resIsl then
-gui:SetAttribute("__IslandLocked",SID) end
+gui:SetAttribute("__IslandLocked",SID)
+end
 elseif d:GetAttribute("__TransHookSession")~=SID then
-queue[#queue+1]=d end end end
+queue[#queue+1]=d
+end
+end
+end
 if gui:GetAttribute("__IslandLocked")~=SID then
 local fallbackPill=gui:FindFirstChild("ChilliV8_FallbackIslandPill")
 if not fallbackPill then
@@ -2606,21 +3207,29 @@ Text="Đang rảnh",
 Font=EF.GothamBold,
 TextSize=13,
 TextColor3=c3n(1,1,1)
-},fallbackPill) end
+},fallbackPill)
+end
 local fbLbl=fallbackPill:FindFirstChild("StatusText")or fallbackPill:FindFirstChildOfClass("TextLabel")
 if fbLbl then
 local okIsl,resIsl=pcall(setupIsland,fbLbl,gui)
 if okIsl and resIsl then
-gui:SetAttribute("__IslandLocked",SID) end end end
+gui:SetAttribute("__IslandLocked",SID)
+end
+end
+end
 if #queue>0 and not gui:GetAttribute("__BatchTranslating")then
 gui:SetAttribute("__BatchTranslating",true)
 task.spawn(function()
 for i=1,#queue do
 if not isAlive()then break end
 if queue[i] and queue[i].Parent then pcall(hookTrans,queue[i])if watchFinderTextObj then pcall(watchFinderTextObj,queue[i])end end
-if i %(IS_ARCEUS and 30 or 60)==0 then task.wait()end end
-gui:SetAttribute("__BatchTranslating",false) end) end
-return(win~=nil) end
+if i %(IS_ARCEUS and 30 or 60)==0 then task.wait()end
+end
+gui:SetAttribute("__BatchTranslating",false)
+end)
+end
+return(win~=nil)
+end
 local FINDER_BORDER_NEON_GRAD=csn({
 csk(0.00,c3(255,65,125)),
 csk(0.20,c3(255,195,45)),
@@ -2641,8 +3250,10 @@ local FINDER_STATE_MAP={
 local function isMainWinOrAncestor(frame)
 if not frame or not State.ActiveMainWin or not State.ActiveMainWin.Parent then return false end
 if frame==State.ActiveMainWin or frame:IsDescendantOf(State.ActiveMainWin)or State.ActiveMainWin:IsDescendantOf(frame)then
-return true end
-return false end
+return true
+end
+return false
+end
 local function getFinderWindowFromObj(obj)
 if not obj or not obj.Parent then return nil end
 local winFrame=nil
@@ -2651,17 +3262,23 @@ for _=1,8 do
 if not curr or curr:IsA("ScreenGui")or curr==game then break end
 if isMainWinOrAncestor(curr)then break end
 if curr:GetAttribute("__IsChilliFinderContainer")or curr:FindFirstChild("ChillFinderRainbowBorder")then
-return curr end
+return curr
+end
 if curr:IsA("GuiObject")then
 local aw,ah=curr.AbsoluteSize.X,curr.AbsoluteSize.Y
 local sw,sh=curr.Size.X.Offset,curr.Size.Y.Offset
 if(aw>=190 and ah>=165 and aw<=520 and ah<=620)or(sw>=190 and sh>=165 and sw<=520 and sh<=620)then
-winFrame=curr end end
-curr=curr.Parent end
+winFrame=curr
+end
+end
+curr=curr.Parent
+end
 if winFrame then return winFrame end
 if obj.Parent and obj.Parent.Parent and obj.Parent.Parent:IsA("GuiObject")and not obj.Parent.Parent:IsA("ScreenGui")and not isMainWinOrAncestor(obj.Parent.Parent)then
-return obj.Parent.Parent end
-return nil end
+return obj.Parent.Parent
+end
+return nil
+end
 local function styleMasterChillFinderFree(titleObj)
 if not titleObj or not titleObj.Parent then return end
 pcall(function()
@@ -2671,18 +3288,22 @@ titleObj.TextColor3=c3n(1,1,1)
 local hdrFrame=titleObj.Parent
 if hdrFrame and hdrFrame:IsA("GuiObject")then
 local oldHLine=hdrFrame:FindFirstChild("ChillFinderHeaderNeonLine")
-if oldHLine then oldHLine:Destroy()end end
+if oldHLine then oldHLine:Destroy()end
+end
 local winFrame=getFinderWindowFromObj(titleObj)
 if winFrame then
 winFrame:SetAttribute("__IsChilliFinderContainer",true)
 State.ActiveFinderWin=winFrame
 local wCorner=winFrame:FindFirstChildOfClass("UICorner")
 if not wCorner then
-mk("UICorner",{CornerRadius=udn(0,10)},winFrame) end
+mk("UICorner",{CornerRadius=udn(0,10)},winFrame)
+end
 for _,st in ipairs(winFrame:GetChildren())do
 if st:IsA("UIStroke")and st.Name~="ChillFinderRainbowBorder" then
 st.Transparency=1
-st.Enabled=false end end
+st.Enabled=false
+end
+end
 local rb=winFrame:FindFirstChild("ChillFinderRainbowBorder")
 if not rb then
 rb=mk("UIStroke",{
@@ -2697,22 +3318,30 @@ addGrad(bgGrad)
 else
 rb.Thickness=2.8
 rb.Transparency=0
-rb.Enabled=true end end end) end
+rb.Enabled=true
+end
+end
+end)
+end
 local function isInsideChilliFinder(inst)
 if not inst or not inst.Parent then return false end
 if inst:GetAttribute("__IsFinderHudElement")then return true end
 if inst:FindFirstAncestor("ChilliV5_ExpandedIsland")or inst:FindFirstAncestor("ChilliHeaderOverlay")then
-return false end
+return false
+end
 if State.ActiveFinderWin and State.ActiveFinderWin.Parent and inst:IsDescendantOf(State.ActiveFinderWin)then
-return true end
+return true
+end
 local sg=inst:FindFirstAncestorOfClass("ScreenGui")
 if sg and sg:GetAttribute("__IsChilliFinderGui")and not isVenyxScreenGui(sg)then
-return true end
+return true
+end
 local curr=inst.Parent
 for _=1,6 do
 if not curr or curr:IsA("ScreenGui")or curr==game then break end
 if curr:GetAttribute("__IsChilliFinderContainer")or curr:FindFirstChild("ChillFinderRainbowBorder")then
-return true end
+return true
+end
 for _,ch in ipairs(curr:GetChildren())do
 if ch:IsA("TextLabel")or ch:IsA("TextButton")then
 local t=stripRichTags(ch.Text)
@@ -2723,9 +3352,14 @@ return true
 elseif t=="Chilli Finder" or t=="Chill Finder Free" or t=="Chilli Finder Free" or t:find("chillihub.pro",1,true)or t:find("Top 5",1,true)or t:find("No active booking",1,true)or t=="FORCE JOIN" or t=="TỰ VÀO SAU" or t=="MIN VALUE" or t=="GIÁ TỐI THIỂU" or t=="RARITY" or t=="ĐỘ HIẾM" or t=="ACCOUNT" or t=="TÀI KHOẢN" or t=="AUTO OFF" or t=="AUTO ON" then
 local w=getFinderWindowFromObj(curr)
 if w then w:SetAttribute("__IsChilliFinderContainer",true)State.ActiveFinderWin=w end
-return true end end end
-curr=curr.Parent end
-return false end
+return true
+end
+end
+end
+curr=curr.Parent
+end
+return false
+end
 hookLoginFrameTrigger=function(loginFrame)
 if not loginFrame or not loginFrame:IsA("GuiObject")then return end
 loginFrame.Visible=false
@@ -2737,7 +3371,11 @@ if not isAlive()then return end
 if loginFrame.Visible then
 pcall(function()
 loginFrame.Visible=false
-loginFrame.Position=u2(2,0,2,0) end) end end) end
+loginFrame.Position=u2(2,0,2,0)
+end)
+end
+end)
+end
 local function hideFinderSignInBox(rootGui)
 if os.clock()-(State.LastHideSignInClock or 0)<0.12 then return end
 State.LastHideSignInClock=os.clock()
@@ -2757,8 +3395,11 @@ if curr:IsA("GuiObject")and curr.AbsoluteSize.Y<=260 then
 curr.Visible=false
 curr.Position=u2(2,0,2,0)
 hookLoginFrameTrigger(curr)
-break end
-curr=curr.Parent end end
+break
+end
+curr=curr.Parent
+end
+end
 elseif d:IsA("TextLabel")or d:IsA("TextButton")then
 local t=stripRichTags(d.Text)
 local tl=t:lower()
@@ -2770,8 +3411,10 @@ if curr:IsA("GuiObject")and curr.AbsoluteSize.Y>=40 and curr.AbsoluteSize.Y<=260
 curr.Visible=false
 curr.Position=u2(2,0,2,0)
 hookLoginFrameTrigger(curr)
-break end
-curr=curr.Parent end
+break
+end
+curr=curr.Parent
+end
 elseif t=="Hide" or t=="Ẩn" or tl=="sign trong" or t=="Sign In" or t=="No plan" then
 local accP=d.Parent
 if accP then
@@ -2782,13 +3425,26 @@ if accP:GetAttribute("__AccBtnTouchHooked")~=SID then
 accP:SetAttribute("__AccBtnTouchHooked",SID)
 accP.InputBegan:Connect(function(inp)
 if inp.UserInputType==EUIT.MouseButton1 or inp.UserInputType==EUIT.Touch then
-State.LastAccountBtnTouchClock=os.clock() end end) end
+State.LastAccountBtnTouchClock=os.clock()
+end
+end)
+end
 if d.Text~="Miễn phí" and d.Text~="Free" then
 d:SetAttribute("__IsTranslating",true)
 d:SetAttribute("__TranslatingFinderHud",true)
 pcall(function()d.Text=(State.Language=="EN")and "Free" or "Miễn phí" end)
 d:SetAttribute("__TranslatingFinderHud",false)
-d:SetAttribute("__IsTranslating",false) end end end end end end end end end) end
+d:SetAttribute("__IsTranslating",false)
+end
+end
+end
+end
+end
+end
+end
+end
+end)
+end
 local function sanitizeChillFinderFreeObj(d)
 if not d or not d.Parent then return end
 if not(d:IsA("TextLabel")or d:IsA("TextButton"))then return end
@@ -2798,23 +3454,27 @@ if raw=="" then return end
 local low=raw:lower()
 local isFinderTitle=(raw=="Chilli Finder" or raw=="Chill Finder Free" or raw=="Chilli Finder Free" or raw=="⚡ Chill Finder Free")
 if not isFinderTitle and(low:find("chilli finder",1,true)or low:find("chill finder",1,true))and not low:find("top 5",1,true)and not low:find("create your",1,true)and not low:find("trứng mới",1,true)and not low:find("key",1,true)and #raw<=28 then
-isFinderTitle=true end
+isFinderTitle=true
+end
 if isFinderTitle then
 d:SetAttribute("__ModifyingFinderText",true)
 d:SetAttribute("__IsTranslating",true)
 d:SetAttribute("OrigRawText","Chilli Finder Free")
 d:SetAttribute("OrigFinderStateText","Chilli Finder Free")
 if d.Text~="Chilli Finder Free" then
-pcall(function()d.Text="Chilli Finder Free" end) end
+pcall(function()d.Text="Chilli Finder Free" end)
+end
 if d:GetAttribute("__FinderMasterStyled")~=SID then
 d:SetAttribute("__FinderMasterStyled",SID)
 styleMasterChillFinderFree(d)
-task.defer(function()hideFinderSignInBox(State.ActiveFinderWin)end) end
+task.defer(function()hideFinderSignInBox(State.ActiveFinderWin)end)
+end
 d:SetAttribute("__IsTranslating",false)
 d:SetAttribute("__ModifyingFinderText",false)
 local sg=d:FindFirstAncestorOfClass("ScreenGui")
 if sg and not isVenyxScreenGui(sg)then
-sg:SetAttribute("__IsChilliFinderGui",true) end
+sg:SetAttribute("__IsChilliFinderGui",true)
+end
 elseif low=="https://chillihub.pro" or low=="chillihub.pro" or low:find("create your account",1,true)then
 d:SetAttribute("__ModifyingFinderText",true)
 d:SetAttribute("__IsTranslating",true)
@@ -2823,7 +3483,10 @@ d.Visible=false
 d.Text=""
 if d.Parent and d.Parent:IsA("GuiObject")and d.Parent.Name~="ChillFinderHeaderNeonLine" and d.Parent~=State.ActiveFinderWin then
 if(d.Parent.AbsoluteSize.Y>0 and d.Parent.AbsoluteSize.Y<=85)or(d.Parent.Size.Y.Offset>0 and d.Parent.Size.Y.Offset<=85)then
-d.Parent.Visible=false end end end)
+d.Parent.Visible=false
+end
+end
+end)
 d:SetAttribute("__IsTranslating",false)
 d:SetAttribute("__ModifyingFinderText",false)
 elseif low=="copy link" or low=="copied!" then
@@ -2835,9 +3498,13 @@ d.Visible=false
 d.Text=""
 if d.Parent and d.Parent:IsA("GuiObject")and d.Parent.Name~="ChillFinderHeaderNeonLine" and d.Parent~=State.ActiveFinderWin then
 if d.Parent.AbsoluteSize.X<=160 and d.Parent.AbsoluteSize.Y<=75 then
-d.Parent.Visible=false end end end)
+d.Parent.Visible=false
+end
+end
+end)
 d:SetAttribute("__IsTranslating",false)
-d:SetAttribute("__ModifyingFinderText",false) end
+d:SetAttribute("__ModifyingFinderText",false)
+end
 elseif low:find("sign in with your",1,true)or low:find("chillihub.pro",1,true)or low:find("no active booking",1,true)or low:find("top 5 recent eggs",1,true)or raw=="Top 5 trứng mới nhất | Chilli Finder Free" or raw=="Top 5 trứng mới nhất | Chill Finder Free" then
 local wantSub=(State.Language=="EN")and "Top 5 recent eggs | Chilli Finder Free" or "Top 5 trứng mới nhất | Chilli Finder Free"
 d:SetAttribute("__ModifyingFinderText",true)
@@ -2847,14 +3514,17 @@ d:SetAttribute("OrigFinderStateText","Top 5 recent eggs | Chilli Finder Free")
 if d.Text~=wantSub then
 pcall(function()
 d.Text=wantSub
-d.TextColor3=c3n(1,1,1) end) end
+d.TextColor3=c3n(1,1,1)
+end)
+end
 d:SetAttribute("__IsTranslating",false)
 d:SetAttribute("__ModifyingFinderText",false)
 local winF=getFinderWindowFromObj(d)
 if winF then
 winF:SetAttribute("__IsChilliFinderContainer",true)
 State.ActiveFinderWin=winF
-task.defer(function()hideFinderSignInBox(winF)end) end
+task.defer(function()hideFinderSignInBox(winF)end)
+end
 elseif low=="sign in" or low=="sign trong" or low=="no plan" then
 local wantFree=(State.Language=="EN")and "Free" or "Miễn phí"
 d:SetAttribute("__ModifyingFinderText",true)
@@ -2862,7 +3532,8 @@ d:SetAttribute("__IsTranslating",true)
 d:SetAttribute("OrigRawText","Sign In")
 d:SetAttribute("OrigFinderStateText","Sign In")
 if d.Text~=wantFree then
-pcall(function()d.Text=wantFree end) end
+pcall(function()d.Text=wantFree end)
+end
 d:SetAttribute("__IsTranslating",false)
 d:SetAttribute("__ModifyingFinderText",false)
 elseif low=="sign up" or low=="password" then
@@ -2873,8 +3544,12 @@ if curr:IsA("GuiObject")and curr.AbsoluteSize.Y>=40 and curr.AbsoluteSize.Y<=260
 curr.Visible=false
 curr.Position=u2(2,0,2,0)
 hookLoginFrameTrigger(curr)
-break end
-curr=curr.Parent end end end
+break
+end
+curr=curr.Parent
+end
+end
+end
 State.TriedServerIds=State.TriedServerIds or{}
 local function fetchRobloxServers(placeId,sortOrder)
 local servers={}
@@ -2890,11 +3565,14 @@ for _,u in ipairs(urls)do
 local raw=nil
 local hOk,hRes=pcall(function()return game:HttpGet(u)end)
 if hOk and type(hRes)=="string" and #hRes>30 then
-raw=hRes end
+raw=hRes
+end
 if not raw and req then
 local rOk,rRes=pcall(req,{Url=u,Method="GET",Headers={["Accept"]="application/json"}})
 if rOk and rRes and type(rRes.Body)=="string" and #rRes.Body>30 then
-raw=rRes.Body end end
+raw=rRes.Body
+end
+end
 if raw then
 local dOk,data=pcall(function()return HttpService:JSONDecode(raw)end)
 if dOk and data and type(data.data)=="table" then
@@ -2903,9 +3581,16 @@ if type(srv)=="table" and type(srv.id)=="string" and srv.id~=curJob and not Stat
 local playing=tonumber(srv.playing)or 0
 local maxP=tonumber(srv.maxPlayers)or 0
 if playing>=1 and(maxP==0 or playing<maxP)then
-tins(servers,{id=srv.id,playing=playing}) end end end
-if #servers>0 then break end end end end
-return servers end
+tins(servers,{id=srv.id,playing=playing})
+end
+end
+end
+if #servers>0 then break end
+end
+end
+end
+return servers
+end
 local function showTeleportTransitionOverlay(statusText,subText)
 local targetRoot=nil
 if gethui then pcall(function()targetRoot=gethui()end)end
@@ -3008,7 +3693,8 @@ update=function(mTxt,sTxt,isWarn)
 if mainTitle and mainTitle.Parent then mainTitle.Text=mTxt end
 if subTitle and subTitle.Parent then
 subTitle.Text=sTxt
-if isWarn then subTitle.TextColor3=c3(255,195,75)end end
+if isWarn then subTitle.TextColor3=c3(255,195,75)end
+end
 end,
 destroy=function()
 if backdrop and backdrop.Parent then
@@ -3016,12 +3702,16 @@ local tw=TweenService:Create(backdrop,twi(0.25,EES.Quart,EED.In),{BackgroundTran
 tw:Play()
 tw.Completed:Connect(function()pcall(overlay.Destroy,overlay)end)
 else
-pcall(overlay.Destroy,overlay) end end
-} end
+pcall(overlay.Destroy,overlay)
+end
+end
+}
+end
 local function suppressTeleportErrorPrompt()
 pcall(function()
 local gs=game:GetService("GuiService")
-if gs and gs.ClearError then gs:ClearError()end end)
+if gs and gs.ClearError then gs:ClearError()end
+end)
 pcall(function()
 for _,root in ipairs(getScanRoots())do
 for _,ch in ipairs(root:GetChildren())do
@@ -3034,10 +3724,20 @@ if t:find("772")or t:find("Thất Bại")or t:find("Failed")or t:find("Mã Lỗi
 local promptFrame=d:FindFirstAncestorWhichIsA("Frame")or d.Parent
 if promptFrame and promptFrame:IsA("GuiObject")then
 promptFrame.Visible=false
-promptFrame.Position=u2(2,0,2,0) end
+promptFrame.Position=u2(2,0,2,0)
+end
 local okBtn=promptFrame and(promptFrame:FindFirstChild("OkButton",true)or promptFrame:FindFirstChildWhichIsA("TextButton",true))
 if okBtn and okBtn:IsA("TextButton")then
-pcall(function()okBtn.MouseButton1Click:Fire()end) end end end end end end end end) end
+pcall(function()okBtn.MouseButton1Click:Fire()end)
+end
+end
+end
+end
+end
+end
+end
+end)
+end
 local GetKeyRemainingTime=nil
 local ApplyScreenLockdown=nil
 local OpenKeySystemUI=nil
@@ -3058,32 +3758,40 @@ local CIPHER_KEY=139
 local function EncryptData(str)
 local hex={}
 for i=1,#str do
-tins(hex,string.format("%02X",bit32.bxor(string.byte(str,i),CIPHER_KEY))) end
-return table.concat(hex) end
+tins(hex,string.format("%02X",bit32.bxor(string.byte(str,i),CIPHER_KEY)))
+end
+return table.concat(hex)
+end
 local function DecryptData(hexStr)
 local res={}
 for i=1,#hexStr,2 do
 local b=tonumber(hexStr:sub(i,i+1),16)
 if not b then return nil end
-tins(res,string.char(bit32.bxor(b,CIPHER_KEY))) end
-return table.concat(res) end
+tins(res,string.char(bit32.bxor(b,CIPHER_KEY)))
+end
+return table.concat(res)
+end
 local function GetCurrentDateGMT7()
 local vnTime=os.time()+(7*3600)
 local d=os.date("!*t",vnTime)
-return string.format("%04d-%02d-%02d",d.year,d.month,d.day) end
+return string.format("%04d-%02d-%02d",d.year,d.month,d.day)
+end
 local function GetSecondsUntilMidnightGMT7()
 local vnTime=os.time()+(7*3600)
 local d=os.date("!*t",vnTime)
 local elapsed=(d.hour*3600)+(d.min*60)+d.sec
-return 86400-elapsed end
+return 86400-elapsed
+end
 local function ReadRawVaultFromSource(rawStr)
 if not rawStr or rawStr=="" then return nil end
 local dec=DecryptData(rawStr)
 if not dec then return nil end
 local ok,data=pcall(function()return HttpService:JSONDecode(dec)end)
 if ok and type(data)=="table" then
-return data end
-return nil end
+return data
+end
+return nil
+end
 local function SaveMasterVault(vault)
 if getgenv then getgenv().__ChilliV7_VaultTable=vault end
 State.__ChilliV7_VaultTable=vault
@@ -3092,37 +3800,50 @@ local okEnc,jsonStr=pcall(function()return HttpService:JSONEncode(vault)end)
 if not okEnc or type(jsonStr)~="string" then return end
 local encoded=EncryptData(jsonStr)
 if getgenv then
-getgenv().__ChilliV7_VaultCache=encoded end
+getgenv().__ChilliV7_VaultCache=encoded
+end
 pcall(function()Lighting:SetAttribute(VaultAttributeName,encoded)end)
 pcall(function()CoreGui:SetAttribute(VaultAttributeName,encoded)end)
 if writefile then
 for _,fName in ipairs({PrimaryVaultFile,BackupCacheFile,BackupTelemetryFile})do
-pcall(function()writefile(fName,encoded)end) end end end
+pcall(function()writefile(fName,encoded)end)
+end
+end
+end
 local function LoadMasterVault()
 local Lighting=game:GetService("Lighting")
 local candidates={}
 if getgenv and type(getgenv().__ChilliV7_VaultTable)=="table" then
-tins(candidates,getgenv().__ChilliV7_VaultTable) end
+tins(candidates,getgenv().__ChilliV7_VaultTable)
+end
 if type(State.__ChilliV7_VaultTable)=="table" then
-tins(candidates,State.__ChilliV7_VaultTable) end
+tins(candidates,State.__ChilliV7_VaultTable)
+end
 if getgenv and getgenv().__ChilliV7_VaultCache then
 local d=ReadRawVaultFromSource(getgenv().__ChilliV7_VaultCache)
-if d then tins(candidates,d)end end
+if d then tins(candidates,d)end
+end
 pcall(function()
 local attr1=Lighting:GetAttribute(VaultAttributeName)
 local d1=ReadRawVaultFromSource(attr1)
-if d1 then tins(candidates,d1)end end)
+if d1 then tins(candidates,d1)end
+end)
 pcall(function()
 local attr2=CoreGui:GetAttribute(VaultAttributeName)
 local d2=ReadRawVaultFromSource(attr2)
-if d2 then tins(candidates,d2)end end)
+if d2 then tins(candidates,d2)end
+end)
 if isfile and readfile then
 for _,fName in ipairs({PrimaryVaultFile,BackupCacheFile,BackupTelemetryFile})do
 if isfile(fName)then
 local ok,raw=pcall(readfile,fName)
 if ok then
 local d=ReadRawVaultFromSource(raw)
-if d then tins(candidates,d)end end end end end
+if d then tins(candidates,d)end
+end
+end
+end
+end
 local today=GetCurrentDateGMT7()
 local merged={
 KeyExpire=0,
@@ -3133,24 +3854,33 @@ SpinClaimed=false
 }
 for _,c in ipairs(candidates)do
 if c.KeyExpire and c.KeyExpire>merged.KeyExpire then
-merged.KeyExpire=c.KeyExpire end
+merged.KeyExpire=c.KeyExpire
+end
 if c.LastGachaDate==today then
-merged.LastGachaDate=today end
+merged.LastGachaDate=today
+end
 if c.LastSpinDate==today then
 merged.LastSpinDate=today
 if(tonumber(c.BonusHours)or 0)>merged.BonusHours then
-merged.BonusHours=tonumber(c.BonusHours)or 0 end
-if c.SpinClaimed then merged.SpinClaimed=true end end end
+merged.BonusHours=tonumber(c.BonusHours)or 0
+end
+if c.SpinClaimed then merged.SpinClaimed=true end
+end
+end
 if #candidates>0 then
-SaveMasterVault(merged) end
-return merged end
+SaveMasterVault(merged)
+end
+return merged
+end
 local function CanPlayGachaToday()
 local v=LoadMasterVault()
-return v.LastGachaDate~=GetCurrentDateGMT7() end
+return v.LastGachaDate~=GetCurrentDateGMT7()
+end
 local function SaveGachaPlayed()
 local v=LoadMasterVault()
 v.LastGachaDate=GetCurrentDateGMT7()
-SaveMasterVault(v) end
+SaveMasterVault(v)
+end
 local function LoadSpinDataToday()
 local v=LoadMasterVault()
 if v.LastSpinDate==GetCurrentDateGMT7()then
@@ -3158,19 +3888,24 @@ return{
 Played=true,
 BonusHours=tonumber(v.BonusHours)or 0,
 Claimed=v.SpinClaimed==true
-} end
-return{Played=false,BonusHours=0,Claimed=false} end
+}
+end
+return{Played=false,BonusHours=0,Claimed=false}
+end
 local function SaveSpinResult(bonusHours,claimed)
 local v=LoadMasterVault()
 v.LastSpinDate=GetCurrentDateGMT7()
 v.BonusHours=bonusHours
 v.SpinClaimed=claimed
-SaveMasterVault(v) end
+SaveMasterVault(v)
+end
 GetKeyRemainingTime=function()
 local v=LoadMasterVault()
 if v.KeyExpire and v.KeyExpire>os.time()then
-return v.KeyExpire-os.time() end
-return nil end
+return v.KeyExpire-os.time()
+end
+return nil
+end
 local function Save24hKey(customDuration)
 local v=LoadMasterVault()
 local bonusSeconds=0
@@ -3178,11 +3913,13 @@ local bonusHoursAdded=0
 if v.LastSpinDate==GetCurrentDateGMT7()and not v.SpinClaimed and(tonumber(v.BonusHours)or 0)>0 then
 bonusHoursAdded=tonumber(v.BonusHours)or 0
 bonusSeconds=bonusHoursAdded*3600
-v.SpinClaimed=true end
+v.SpinClaimed=true
+end
 local baseDur=customDuration or 86400
 v.KeyExpire=os.time()+baseDur+bonusSeconds
 SaveMasterVault(v)
-return bonusHoursAdded end
+return bonusHoursAdded
+end
 local function VerifyChilliV7Key(rawInput)
 if not rawInput or rawInput=="" then return false end
 local clean=string.lower(string.gsub(rawInput,"[%s%c]",""))
@@ -3195,15 +3932,19 @@ local v1=(d.day*4339+d.month*3187+d.year*173)% 65535
 local v2=(d.day*6823+d.month*4931+d.year*293)% 65535
 local v3=(d.day*8513+d.month*7109+d.year*431)% 65535
 if clean==string.format("%04x-%04x-%04x",v1,v2,v3)then
-return true end end
-return false end
+return true
+end
+end
+return false
+end
 ApplyScreenLockdown=function()
 local Lighting=game:GetService("Lighting")
 if not ActiveBlurEffect then
 ActiveBlurEffect=In("BlurEffect")
 ActiveBlurEffect.Name="ChilliV7_LockdownBlur"
 ActiveBlurEffect.Size=14
-ActiveBlurEffect.Parent=Lighting end
+ActiveBlurEffect.Parent=Lighting
+end
 if not InputBlockerScreen then
 InputBlockerScreen=In("ScreenGui")
 InputBlockerScreen.Name="ChilliV7_InputBlocker"
@@ -3212,16 +3953,21 @@ InputBlockerScreen.ResetOnSpawn=false
 InputBlockerScreen.DisplayOrder=999990
 pcall(function()InputBlockerScreen.Parent=CoreGui end)
 if not InputBlockerScreen.Parent and LocalPlayer then
-InputBlockerScreen.Parent=LocalPlayer:FindFirstChildOfClass("PlayerGui") end
+InputBlockerScreen.Parent=LocalPlayer:FindFirstChildOfClass("PlayerGui")
+end
 local shield=mk("TextButton",{Size=u2(1,0,1,0),Position=u2(0,0,0,0),BackgroundTransparency=1,Text="",AutoButtonColor=false,Active=true,Modal=true,ZIndex=15},InputBlockerScreen)
-end end
+end
+end
 local function RemoveScreenLockdown()
 if ActiveBlurEffect then
 pcall(function()ActiveBlurEffect:Destroy()end)
-ActiveBlurEffect=nil end
+ActiveBlurEffect=nil
+end
 if InputBlockerScreen then
 pcall(function()InputBlockerScreen:Destroy()end)
-InputBlockerScreen=nil end end
+InputBlockerScreen=nil
+end
+end
 local function UnlockAllJoinButtons()
 pcall(function()
 for _,container in ipairs(getScanRoots())do
@@ -3230,7 +3976,15 @@ for _,ch in ipairs(container:GetChildren())do
 pcall(function()
 for _,desc in ipairs(ch:GetDescendants())do
 if desc.Name=="Chilli_JoinInterceptOverlay" then
-pcall(function()desc:Destroy()end) end end end) end end end end) end
+pcall(function()desc:Destroy()end)
+end
+end
+end)
+end
+end
+end
+end)
+end
 local Languages={
 VI={
 LangBtnText="🇻🇳 VI",
@@ -3348,15 +4102,18 @@ local shrinkPos=u2(origPos.X.Scale,origPos.X.Offset+2,origPos.Y.Scale,origPos.Y.
 local t1=TweenService:Create(btn,twi(0.07,EES.Quad,EED.Out),{Size=shrinkSize,Position=shrinkPos})
 local t2=TweenService:Create(btn,twi(0.14,EES.Back,EED.Out),{Size=origSize,Position=origPos})
 t1:Play()
-t1.Completed:Connect(function()t2:Play()end) end
+t1.Completed:Connect(function()t2:Play()end)
+end
 OpenKeySystemUI=function()
 if MainScreenGui and MainScreenGui.Parent then
 MainScreenGui.Enabled=true
-return end
+return
+end
 local ScreenGui=mk("ScreenGui",{Name="ChilliV7_GetKeyUI",ResetOnSpawn=false,DisplayOrder=999995,ZIndexBehavior=Enum.ZIndexBehavior.Sibling})
 pcall(function()ScreenGui.Parent=CoreGui end)
 if not ScreenGui.Parent and LocalPlayer then
-ScreenGui.Parent=LocalPlayer:FindFirstChildOfClass("PlayerGui") end
+ScreenGui.Parent=LocalPlayer:FindFirstChildOfClass("PlayerGui")
+end
 MainScreenGui=ScreenGui
 local MainFrame=mk("Frame",{Name="MainFrame",AnchorPoint=v2(0.5,0.5),Size=u2(0,420,0,395),Position=u2(0.5,0,0.5,0),BackgroundColor3=c3(16,18,24),BorderSizePixel=0,ClipsDescendants=true,ZIndex=30},ScreenGui)
 In("UICorner",MainFrame).CornerRadius=udn(0,16)
@@ -3388,7 +4145,8 @@ CloseKeyStroke.Thickness=1
 CloseKeyUiBtn.MouseButton1Click:Connect(function()
 PlaySpringButton(CloseKeyUiBtn)
 RemoveScreenLockdown()
-if MainScreenGui then MainScreenGui.Enabled=false end end)
+if MainScreenGui then MainScreenGui.Enabled=false end
+end)
 local CenterLogoBox=mk("Frame",{Size=u2(0,46,0,46),Position=u2(0.5,-23,0,44),BackgroundColor3=c3(22,25,34),ClipsDescendants=true,ZIndex=31},MainFrame)
 In("UICorner",CenterLogoBox).CornerRadius=udn(0,12)
 local CenterLogoStroke=In("UIStroke",CenterLogoBox)
@@ -3459,7 +4217,8 @@ Aspect.AspectRatio=1
 local Title=mk("TextLabel",{Name="BoxTitle",Size=u2(1,0,0,18),Position=u2(0,0,0,126),BackgroundTransparency=1,Text=boxTitle,TextColor3=c3(226,232,240),TextSize=11.5,Font=EF.GothamBold,ZIndex=48},BoxCard)
 local ActionHint=mk("TextLabel",{Name="ActionHint",Size=u2(1,-20,0,26),Position=u2(0,10,0,158),BackgroundColor3=c3(190,35,68),Text=Languages[CurrentLang].OpenBoxBtn,TextColor3=c3(241,245,249),TextSize=10.5,Font=EF.GothamBold,ZIndex=48},BoxCard)
 In("UICorner",ActionHint).CornerRadius=udn(0,8)
-return BoxCard,BoxStroke,CropMask,Title,ActionHint,Tag5050 end
+return BoxCard,BoxStroke,CropMask,Title,ActionHint,Tag5050
+end
 local Box1,Box1Stroke,Box1Mask,Box1Title,Box1Hint,Box1Tag=CreateMysteryBox("Box1",0,0,Languages[CurrentLang].Box1Name)
 local Box2,Box2Stroke,Box2Mask,Box2Title,Box2Hint,Box2Tag=CreateMysteryBox("Box2",0.5,6,Languages[CurrentLang].Box2Name)
 local GachaResultBanner=mk("TextLabel",{Size=u2(1,-36,0,32),Position=u2(0,18,0,282),BackgroundColor3=c3(21,24,33),Text=Languages[CurrentLang].BoxBannerIdle,TextColor3=c3(203,213,225),TextSize=10,Font=EF.GothamMedium,ZIndex=46},GachaModal)
@@ -3487,7 +4246,8 @@ local function CreateSliceLabel(posX,posY,titleText)
 local Holder=mk("Frame",{AnchorPoint=v2(0.5,0.5),Size=u2(0,62,0,32),Position=u2(posX,0,posY,0),BackgroundTransparency=1,ZIndex=59},WheelDisk)
 local MainTxt=mk("TextLabel",{Size=u2(1,0,0,16),Position=u2(0,0,0,0),BackgroundTransparency=1,Text=titleText,TextColor3=c3(226,232,240),TextSize=11,Font=EF.GothamBold,ZIndex=60},Holder)
 local SubTxt=mk("TextLabel",{Size=u2(1,0,0,14),Position=u2(0,0,0,16),BackgroundTransparency=1,Text="50% - 50%",TextColor3=c3(148,163,184),TextSize=8.5,Font=EF.GothamMedium,ZIndex=60},Holder)
-return MainTxt end
+return MainTxt
+end
 local Title1=CreateSliceLabel(0.5,0.22,Languages[CurrentLang].Prize2H)
 local Title2=CreateSliceLabel(0.78,0.5,Languages[CurrentLang].Prize3H)
 local Title3=CreateSliceLabel(0.5,0.78,Languages[CurrentLang].Prize4H)
@@ -3504,23 +4264,29 @@ local SpinFooterNote=mk("TextLabel",{Size=u2(1,-36,0,28),Position=u2(0,18,0,324)
 local isRollingMutex=false
 local isSpinningMutex=false
 local function OpenGachaModal()
-TweenService:Create(GachaModal,twi(0.24,EES.Quart,EED.Out),{Position=u2(0,0,0,0)}):Play() end
+TweenService:Create(GachaModal,twi(0.24,EES.Quart,EED.Out),{Position=u2(0,0,0,0)}):Play()
+end
 local function CloseGachaModal()
-TweenService:Create(GachaModal,twi(0.2,EES.Quart,EED.In),{Position=u2(0,0,1,0)}):Play() end
+TweenService:Create(GachaModal,twi(0.2,EES.Quart,EED.In),{Position=u2(0,0,1,0)}):Play()
+end
 local function OpenSpinModal()
 MainFrame.ClipsDescendants=false
-SpinModal.Visible=true end
+SpinModal.Visible=true
+end
 local function CloseSpinModal()
 SpinModal.Visible=false
-MainFrame.ClipsDescendants=true end
+MainFrame.ClipsDescendants=true
+end
 GachaCloseBtn.MouseButton1Click:Connect(function()
 if isRollingMutex then return end
 PlaySpringButton(GachaCloseBtn)
-CloseGachaModal() end)
+CloseGachaModal()
+end)
 SpinCloseBtn.MouseButton1Click:Connect(function()
 if isSpinningMutex then return end
 PlaySpringButton(SpinCloseBtn)
-CloseSpinModal() end)
+CloseSpinModal()
+end)
 MiniGameBtn.MouseButton1Click:Connect(function()
 PlaySpringButton(MiniGameBtn)
 if not CanPlayGachaToday()then
@@ -3529,11 +4295,14 @@ local hoursLeft=math.floor(secsLeft/3600)
 local minsLeft=math.floor((secsLeft % 3600)/60)
 StatusMsg.Text=string.format("⏳ Hộp quà đã mở! Reset sau %02d:%02d (00:00)",hoursLeft,minsLeft)
 StatusMsg.TextColor3=c3(225,90,110)
-return end
-OpenGachaModal() end)
+return
+end
+OpenGachaModal()
+end)
 SpinGameBtn.MouseButton1Click:Connect(function()
 PlaySpringButton(SpinGameBtn)
-OpenSpinModal() end)
+OpenSpinModal()
+end)
 TriggerSpinBtn.MouseButton1Click:Connect(function()
 if isSpinningMutex then return end
 local currentSpin=LoadSpinDataToday()
@@ -3543,7 +4312,8 @@ local h=math.floor(secsLeft/3600)
 local m=math.floor((secsLeft % 3600)/60)
 SpinResultBanner.Text=string.format("⏳ Bạn đã quay hôm nay (+%dH)! Reset sau %02d:%02d (00:00)",currentSpin.BonusHours,h,m)
 SpinResultBanner.TextColor3=c3(225,90,110)
-return end
+return
+end
 isSpinningMutex=true
 PlaySpringButton(TriggerSpinBtn)
 local roll=math.random(1,100)
@@ -3555,12 +4325,14 @@ targetIndex=2
 elseif roll<=98 then
 targetIndex=3
 else
-targetIndex=4 end
+targetIndex=4
+end
 local wonSlice=WheelSlices[targetIndex]
 SaveSpinResult(wonSlice.Hours,false)
 local activeKeyLeft=GetKeyRemainingTime()
 if activeKeyLeft and activeKeyLeft>0 then
-Save24hKey(activeKeyLeft) end
+Save24hKey(activeKeyLeft)
+end
 SpinGameBtn.Text=string.format(Languages[CurrentLang].MiniGameSpinLocked,wonSlice.Hours)
 SpinGameBtn.TextColor3=c3(100,116,139)
 SpinGameStroke.Color=c3(34,39,50)
@@ -3586,7 +4358,8 @@ SpinResultBanner.Text=Languages[CurrentLang][wonSlice.MsgKey]
 SpinResultBanner.TextColor3=c3(110,231,183)
 StatusMsg.Text=string.format("🎁 Đã lưu +%d giờ vào hệ thống!",wonSlice.Hours)
 StatusMsg.TextColor3=c3(110,231,183)
-isSpinningMutex=false end)
+isSpinningMutex=false
+end)
 local function ExecuteBoxRoll(chosenBox,otherBox,chosenStroke,chosenMask,chosenTitle,chosenHint)
 if isRollingMutex then return end
 isRollingMutex=true
@@ -3603,7 +4376,8 @@ GachaResultBanner.Text=Languages[CurrentLang].BoxBannerOpening
 for i=1,6 do
 local angle=(i % 2==0)and 5 or-5
 TweenService:Create(chosenMask,twi(0.06,EES.Quad),{Rotation=angle}):Play()
-task.wait(0.065) end
+task.wait(0.065)
+end
 TweenService:Create(chosenMask,twi(0.08,EES.Back),{Rotation=0}):Play()
 task.wait(0.2)
 local roll=math.random(1,100)
@@ -3627,7 +4401,9 @@ State.PendingFinderJoinLbl=nil
 State.JoiningLeastServerBusy=false
 State.LastJoinHopClock=0
 task.defer(function()
-executeRawHopToLeastPlayersServer(pending) end) end
+executeRawHopToLeastPlayersServer(pending)
+end)
+end
 else
 chosenStroke.Color=c3(190,35,68)
 chosenTitle.Text=Languages[CurrentLang].BoxLostTitle
@@ -3640,11 +4416,15 @@ task.wait(1.4)
 CloseGachaModal()
 isRollingMutex=false
 StatusMsg.Text="📌 Mở trúng GetKey! Bấm 'Lấy Key (24 Tiếng)' để tiếp tục."
-StatusMsg.TextColor3=c3(203,213,225) end end
+StatusMsg.TextColor3=c3(203,213,225)
+end
+end
 Box1.MouseButton1Click:Connect(function()
-ExecuteBoxRoll(Box1,Box2,Box1Stroke,Box1Mask,Box1Title,Box1Hint) end)
+ExecuteBoxRoll(Box1,Box2,Box1Stroke,Box1Mask,Box1Title,Box1Hint)
+end)
 Box2.MouseButton1Click:Connect(function()
-ExecuteBoxRoll(Box2,Box1,Box2Stroke,Box2Mask,Box2Title,Box2Hint) end)
+ExecuteBoxRoll(Box2,Box1,Box2Stroke,Box2Mask,Box2Title,Box2Hint)
+end)
 QuickPasteBtn.MouseButton1Click:Connect(function()
 PlaySpringButton(QuickPasteBtn)
 local pasted=false
@@ -3654,9 +4434,13 @@ InputBox.Text=getclipboard()
 pasted=true
 elseif fromclipboard then
 InputBox.Text=fromclipboard()
-pasted=true end end)
+pasted=true
+end
+end)
 if not pasted then
-InputBox:CaptureFocus() end end)
+InputBox:CaptureFocus()
+end
+end)
 local isTutorialDebounce=false
 TutorialBtn.MouseButton1Click:Connect(function()
 if isTutorialDebounce then return end
@@ -3672,8 +4456,11 @@ if TutorialBtn and TutorialBtn.Parent then
 TutorialBtn.Text=Languages[CurrentLang].Tutorial
 TutorialBtn.TextColor3=c3(148,163,184)
 StatusMsg.Text=Languages[CurrentLang].FooterText
-StatusMsg.TextColor3=c3(100,116,139) end
-isTutorialDebounce=false end) end)
+StatusMsg.TextColor3=c3(100,116,139)
+end
+isTutorialDebounce=false
+end)
+end)
 GetKeyBtn.MouseButton1Click:Connect(function()
 PlaySpringButton(GetKeyBtn)
 if setclipboard then setclipboard(KeyUrl)elseif toclipboard then toclipboard(KeyUrl)end
@@ -3686,7 +4473,10 @@ if GetKeyBtn and GetKeyBtn.Parent then
 GetKeyBtn.Text=Languages[CurrentLang].GetKey
 GetKeyBtn.BackgroundColor3=c3(190,35,68)
 StatusMsg.Text=Languages[CurrentLang].FooterText
-StatusMsg.TextColor3=c3(100,116,139) end end) end)
+StatusMsg.TextColor3=c3(100,116,139)
+end
+end)
+end)
 local isChecking=false
 CheckKeyBtn.MouseButton1Click:Connect(function()
 if isChecking then return end
@@ -3705,7 +4495,8 @@ CheckKeyBtn.BackgroundColor3=c3(22,163,74)
 if bonusAdded and bonusAdded>0 then
 StatusMsg.Text=string.format("✔ Kích hoạt Key! (24H + %dH = %d Giờ)",bonusAdded,24+bonusAdded)
 else
-StatusMsg.Text=Languages[CurrentLang].Success end
+StatusMsg.Text=Languages[CurrentLang].Success
+end
 StatusMsg.TextColor3=c3(110,231,183)
 task.wait(0.4)
 UnlockAllJoinButtons()
@@ -3720,7 +4511,9 @@ State.PendingFinderJoinLbl=nil
 State.JoiningLeastServerBusy=false
 State.LastJoinHopClock=0
 task.defer(function()
-executeRawHopToLeastPlayersServer(pending) end) end
+executeRawHopToLeastPlayersServer(pending)
+end)
+end
 else
 isChecking=false
 CheckKeyBtn.Text=Languages[CurrentLang].CheckKey
@@ -3733,10 +4526,14 @@ local t=TweenService:Create(MainFrame,twi(0.04,EES.Quad),{
 Position=u2(0.5,off,0.5,0)
 })
 t:Play()
-t.Completed:Wait() end
+t.Completed:Wait()
+end
 MainFrame.Position=u2(0.5,origOffset,0.5,0)
 task.wait(0.4)
-InputStroke.Color=c3(40,46,60) end end) end)
+InputStroke.Color=c3(40,46,60)
+end
+end)
+end)
 OpenLangBtn.MouseButton1Click:Connect(function()
 PlaySpringButton(OpenLangBtn)
 CurrentLang=(CurrentLang=="VI")and "EN" or "VI"
@@ -3772,19 +4569,25 @@ Title1.Text=data.Prize2H
 Title2.Text=data.Prize3H
 Title3.Text=data.Prize4H
 Title4.Text=data.Prize12H
-TriggerSpinBtn.Text=(not sp.Played)and data.SpinBtnText or data.SpinDoneText end)
+TriggerSpinBtn.Text=(not sp.Played)and data.SpinBtnText or data.SpinDoneText
+end)
 MainFrame.BackgroundTransparency=1
 MainScale.Scale=0.88
 TweenService:Create(MainFrame,twi(0.22,EES.Quad,EED.Out),{BackgroundTransparency=0}):Play()
-TweenService:Create(MainScale,twi(0.26,EES.Back,EED.Out),{Scale=0.95}):Play() end end
+TweenService:Create(MainScale,twi(0.26,EES.Back,EED.Out),{Scale=0.95}):Play()
+end
+end
 local function extractFinderPetNameFromJoinBtn(joinLbl)
 if not joinLbl or not joinLbl.Parent then return nil end
+if joinLbl.Parent:FindFirstChild("PetNameLbl")then return joinLbl.Parent.PetNameLbl.Text end
 local row=joinLbl.Parent
 for _=1,4 do
 if not row or row:IsA("ScreenGui")or row:IsA("ScrollingFrame")or row==State.ActiveFinderWin then break end
 if row:IsA("GuiObject")and row.AbsoluteSize.X>=180 and row.AbsoluteSize.Y>=24 and row.AbsoluteSize.Y<=135 then
-break end
-row=row.Parent end
+break
+end
+row=row.Parent
+end
 if not row or not row:IsA("GuiObject")then return nil end
 local bestName=nil
 local bestSize=-1
@@ -3803,8 +4606,13 @@ and not t:match("^%d+%s*/%s*%d+$")then
 local sz=d.TextSize or 12
 if sz>bestSize then
 bestSize=sz
-bestName=t end end end end
-return bestName end
+bestName=t
+end
+end
+end
+end
+return bestName
+end
 executeRawHopToLeastPlayersServer=function(joinLbl)
 if State.JoiningLeastServerBusy and(os.clock()-(State.LastJoinHopClock or 0)<2.0)then return end
 State.JoiningLeastServerBusy=true
@@ -3826,20 +4634,25 @@ hideFinderSignInBox(sg)
 if joinLbl and(joinLbl:IsA("TextLabel")or joinLbl:IsA("TextButton"))then
 joinLbl:SetAttribute("__IsTranslating",true)
 joinLbl:SetAttribute("__TranslatingFinderHud",true)
-pcall(function()joinLbl.Text="⏳ Đang vào..." end) end
+pcall(function()joinLbl.Text="⏳ Đang vào..." end)
+end
 if State.ActiveStatusLbl and State.ActiveStatusLbl.Parent then
 pcall(function()
 State.ActiveStatusLbl:SetAttribute("__Updating",true)
 State.ActiveStatusLbl.Text="⚡ Đang vào server có " .. petDisplay .. "..."
-State.ActiveStatusLbl:SetAttribute("__Updating",false) end) end
+State.ActiveStatusLbl:SetAttribute("__Updating",false)
+end)
+end
 pcall(setupSafeTeleportHook)
 local placeId=game.PlaceId
 local candidates=fetchRobloxServers(placeId,"Asc")
 if #candidates==0 then
 table.clear(State.TriedServerIds)
-candidates=fetchRobloxServers(placeId,"Asc") end
+candidates=fetchRobloxServers(placeId,"Asc")
+end
 if #candidates==0 then
-candidates=fetchRobloxServers(placeId,"Desc") end
+candidates=fetchRobloxServers(placeId,"Desc")
+end
 table.sort(candidates,function(a,b)return a.playing<b.playing end)
 local teleportSuccess=false
 local maxAttempts=math.min(#candidates,8)
@@ -3854,7 +4667,10 @@ pcall(function()
 tpConn=TeleportService.TeleportInitFailed:Connect(function(player,teleportResult,errorMessage)
 if player==LocalPlayer then
 failed=true
-suppressTeleportErrorPrompt() end end) end)
+suppressTeleportErrorPrompt()
+end
+end)
+end)
 local hopMainTxt=(State.Language=="EN")
 and("Teleporting to server with " .. petDisplay .. "...")
 or("Đang dịch chuyển vào server có " .. petDisplay .. "...")
@@ -3866,9 +4682,12 @@ if State.ActiveStatusLbl and State.ActiveStatusLbl.Parent then
 pcall(function()
 State.ActiveStatusLbl:SetAttribute("__Updating",true)
 State.ActiveStatusLbl.Text="⚡ Đang kết nối tới " .. petDisplay .. "..."
-State.ActiveStatusLbl:SetAttribute("__Updating",false) end) end
+State.ActiveStatusLbl:SetAttribute("__Updating",false)
+end)
+end
 local okTp,errTp=pcall(function()
-TeleportService:TeleportToPlaceInstance(placeId,targetServer,LocalPlayer) end)
+TeleportService:TeleportToPlaceInstance(placeId,targetServer,LocalPlayer)
+end)
 if not okTp then
 failed=true
 suppressTeleportErrorPrompt()
@@ -3878,7 +4697,9 @@ local waitTicks=0
 while(os.clock()-startWait<1.6)and waitTicks<12 and not failed do
 waitTicks=waitTicks+1
 task.wait(0.12)
-suppressTeleportErrorPrompt() end end
+suppressTeleportErrorPrompt()
+end
+end
 if tpConn then pcall(function()tpConn:Disconnect()end)end
 if not failed then
 teleportSuccess=true
@@ -3896,8 +4717,12 @@ if State.ActiveStatusLbl and State.ActiveStatusLbl.Parent then
 pcall(function()
 State.ActiveStatusLbl:SetAttribute("__Updating",true)
 State.ActiveStatusLbl.Text="⚡ Phòng đầy (772), đang vào phòng khác có " .. petDisplay .. "..."
-State.ActiveStatusLbl:SetAttribute("__Updating",false) end) end
-task.wait(0.20) end end
+State.ActiveStatusLbl:SetAttribute("__Updating",false)
+end)
+end
+task.wait(0.20)
+end
+end
 if not teleportSuccess then
 suppressTeleportErrorPrompt()
 pcall(function()
@@ -3907,16 +4732,26 @@ if d:IsA("TextButton")or d:IsA("TextLabel")then
 local ot=(d:GetAttribute("OrigRawText")or d.Text or ""):match("^%s*(.-)%s*$")
 if ot=="Hop" or ot=="Hop server" or d.Text=="Đổi ngay" or d.Text=="Đổi máy chủ" then
 pcall(fireBtn,d)
-break end end end end end)
+break
+end
+end
+end
+end
+end)
 pcall(function()
-TeleportService:Teleport(placeId,LocalPlayer) end) end
+TeleportService:Teleport(placeId,LocalPlayer)
+end)
+end
 task.wait(1.5)
 if joinLbl and joinLbl.Parent then
 pcall(function()joinLbl.Text=origTxt end)
 joinLbl:SetAttribute("__TranslatingFinderHud",false)
-joinLbl:SetAttribute("__IsTranslating",false) end
+joinLbl:SetAttribute("__IsTranslating",false)
+end
 transOverlay.destroy()
-State.JoiningLeastServerBusy=false end) end
+State.JoiningLeastServerBusy=false
+end)
+end
 hopToLeastPlayersServer=function(joinLbl)
 local keyLeft=GetKeyRemainingTime()
 if not keyLeft or keyLeft<=0 then
@@ -3924,9 +4759,12 @@ State.PendingFinderJoinLbl=joinLbl
 playIslandSfx("tap")
 ApplyScreenLockdown()
 if OpenKeySystemUI then
-OpenKeySystemUI() end
-return end
-executeRawHopToLeastPlayersServer(joinLbl) end
+OpenKeySystemUI()
+end
+return
+end
+executeRawHopToLeastPlayersServer(joinLbl)
+end
 local function isFinderJoinLabel(inst)
 if not inst or not inst.Parent then return false end
 if inst.Name=="ChilliFinderJoinInterceptor" then return false end
@@ -3934,34 +4772,42 @@ if inst:FindFirstAncestor("ChilliV5_ExpandedIsland")or inst:FindFirstAncestor("C
 local txtObj=inst
 if not(inst:IsA("TextButton")or inst:IsA("TextLabel"))then
 local c=inst:FindFirstChildWhichIsA("TextLabel")or inst:FindFirstChildWhichIsA("TextButton")
-if c then txtObj=c else return false end end
+if c then txtObj=c else return false end
+end
 local rawT=stripRichTags(txtObj:GetAttribute("OrigFinderStateText")or txtObj:GetAttribute("OrigRawText")or txtObj.Text or ""):lower()
 local curT=stripRichTags(txtObj.Text or ""):lower()
 local conT=""
 pcall(function()conT=stripRichTags(txtObj.ContentText or ""):lower()end)
 if rawT:find("copy",1,true)or curT:find("copy",1,true)or curT:find("copied",1,true)or rawT:find("force",1,true)or curT:find("force",1,true)or rawT:find("sign",1,true)or curT:find("sign",1,true)or curT:find("đăng ký",1,true)or rawT:find("discord",1,true)or rawT:find("server",1,true)then
-return false end
+return false
+end
 return(rawT=="join" or curT=="join" or conT=="join" or curT=="vào ngay" or rawT=="vào ngay" or curT:find("⏳ đang vào",1,true)~=nil)
 end
 hookChilliFinderJoin=function(inst)
 if not isFinderJoinLabel(inst)then return end
 local alreadyTracked=false
 for _,b in ipairs(State.TrackedFinderJoinBtns)do
-if b==inst then alreadyTracked=true break end end
+if b==inst then alreadyTracked=true break end
+end
 if not alreadyTracked then
-tins(State.TrackedFinderJoinBtns,inst) end
+tins(State.TrackedFinderJoinBtns,inst)
+end
 if inst:GetAttribute("__FinderJoinHooked")==SID then return end
 inst:SetAttribute("__FinderJoinHooked",SID)
 local btnRoot=inst
 if inst.Parent and inst.Parent:IsA("GuiObject")and inst.Parent~=State.ActiveFinderWin then
-btnRoot=inst.Parent end
+btnRoot=inst.Parent
+end
 local targets={inst,btnRoot}
 local p2=btnRoot.Parent
 if p2 and p2:IsA("GuiObject")and p2~=State.ActiveFinderWin and p2.AbsoluteSize.X<=220 and p2.AbsoluteSize.Y<=95 then
-tins(targets,p2) end
+tins(targets,p2)
+end
 for _,d in ipairs(btnRoot:GetDescendants())do
 if d:IsA("GuiObject")and d.Name~="ChilliFinderJoinInterceptor" then
-tins(targets,d) end end
+tins(targets,d)
+end
+end
 for _,tObj in ipairs(targets)do
 pcall(function()tObj.Active=true end)
 if getconnections and(tObj:IsA("TextButton")or tObj:IsA("ImageButton"))then
@@ -3970,19 +4816,32 @@ pcall(function()
 local sig=tObj[sigName]
 if sig then
 for _,conn in ipairs(getconnections(sig))do
-if conn.Function and conn.Disable then pcall(conn.Disable,conn)end end end end) end end
+if conn.Function and conn.Disable then pcall(conn.Disable,conn)end
+end
+end
+end)
+end
+end
 if tObj:IsA("TextButton")or tObj:IsA("ImageButton")then
 tObj.MouseButton1Click:Connect(function()
-if isAlive()then hopToLeastPlayersServer(inst)end end)
+if isAlive()then hopToLeastPlayersServer(inst)end
+end)
 tObj.Activated:Connect(function()
-if isAlive()then hopToLeastPlayersServer(inst)end end)
+if isAlive()then hopToLeastPlayersServer(inst)end
+end)
 tObj.MouseButton1Down:Connect(function()
-if isAlive()then hopToLeastPlayersServer(inst)end end) end
+if isAlive()then hopToLeastPlayersServer(inst)end
+end)
+end
 if tObj:IsA("GuiObject")then
 tObj.InputBegan:Connect(function(inp)
 if not isAlive()then return end
 if inp.UserInputType==EUIT.MouseButton1 or inp.UserInputType==EUIT.Touch then
-hopToLeastPlayersServer(inst) end end) end end
+hopToLeastPlayersServer(inst)
+end
+end)
+end
+end
 local interceptor=btnRoot:FindFirstChild("ChilliFinderJoinInterceptor")
 if not interceptor then
 interceptor=mk("TextButton",{
@@ -3994,21 +4853,30 @@ Text="",
 AutoButtonColor=false,
 Active=true,
 ZIndex=math.max((inst.ZIndex or 1)+50,99999)
-},btnRoot) end
+},btnRoot)
+end
 if interceptor:GetAttribute("__InterceptorHooked")~=SID then
 interceptor:SetAttribute("__InterceptorHooked",SID)
 interceptor.MouseButton1Click:Connect(function()
-if isAlive()then hopToLeastPlayersServer(inst)end end)
+if isAlive()then hopToLeastPlayersServer(inst)end
+end)
 interceptor.Activated:Connect(function()
-if isAlive()then hopToLeastPlayersServer(inst)end end)
+if isAlive()then hopToLeastPlayersServer(inst)end
+end)
 interceptor.MouseButton1Down:Connect(function()
-if isAlive()then hopToLeastPlayersServer(inst)end end)
+if isAlive()then hopToLeastPlayersServer(inst)end
+end)
 interceptor.InputBegan:Connect(function(inp)
 if not isAlive()then return end
 if inp.UserInputType==EUIT.MouseButton1 or inp.UserInputType==EUIT.Touch then
-hopToLeastPlayersServer(inst) end end) end end
+hopToLeastPlayersServer(inst)
+end
+end)
+end
+end
 if env.__ChilliFinderJoinTouchConn then
-pcall(function()env.__ChilliFinderJoinTouchConn:Disconnect()end) end
+pcall(function()env.__ChilliFinderJoinTouchConn:Disconnect()end)
+end
 env.__ChilliFinderJoinTouchConn=UserInputService.InputBegan:Connect(function(inp)
 if not isAlive()then return end
 if inp.UserInputType~=EUIT.MouseButton1 and inp.UserInputType~=EUIT.Touch then return end
@@ -4021,8 +4889,10 @@ local c=obj
 while c and c~=game do
 if c:IsA("GuiObject")and not c.Visible then return false end
 if c:IsA("ScreenGui")and not c.Enabled then return false end
-c=c.Parent end
-return true end
+c=c.Parent
+end
+return true
+end
 local function checkJoinBtnHit(lbl)
 if not lbl or not lbl.Parent or not isVisChain(lbl)then return false end
 local boxObj=(lbl.Parent and lbl.Parent:IsA("GuiObject")and lbl.Parent~=State.ActiveFinderWin and lbl.Parent.AbsoluteSize.X<=160 and lbl.Parent.AbsoluteSize.Y<=65)and lbl.Parent or lbl
@@ -4031,39 +4901,50 @@ local bw,bh=boxObj.AbsoluteSize.X,boxObj.AbsoluteSize.Y
 if bw<18 or bh<12 or bw>180 or bh>75 then return false end
 local hitRaw=(px>=bx-6 and px<=bx+bw+6 and py>=by-6 and py<=by+bh+6)
 local hitInset=(px>=bx-6 and px<=bx+bw+6 and(py-insetY)>=by-6 and(py-insetY)<=by+bh+6)
-return hitRaw or hitInset end
+return hitRaw or hitInset
+end
 for i=#State.TrackedFinderJoinBtns,1,-1 do
 local lbl=State.TrackedFinderJoinBtns[i]
 if lbl and lbl.Parent then
 if checkJoinBtnHit(lbl)and isFinderJoinLabel(lbl)then
 hopToLeastPlayersServer(lbl)
-return end
+return
+end
 else
-table.remove(State.TrackedFinderJoinBtns,i) end end end)
+table.remove(State.TrackedFinderJoinBtns,i)
+end
+end
+end)
 local function translateSingleFinderSegment(seg)
 if type(seg)~="string" or seg=="" then return seg end
 local lead,body,trail=seg:match("^(%s*)(.-)(%s*)$")
 if not body or body=="" then return seg end
 local low=body:lower()
 if body:find("⏳",1,true)then
-return seg end
+return seg
+end
 if FINDER_STATE_MAP[low] then
-return lead .. FINDER_STATE_MAP[low] .. trail end
+return lead .. FINDER_STATE_MAP[low] .. trail
+end
 if low:find("chillihub.pro",1,true)or low:find("no active booking",1,true)or low:find("sign in with your",1,true)or low:find("top 5 recent eggs",1,true)then
-return lead .. "Top 5 trứng mới nhất | Chilli Finder Free" .. trail end
+return lead .. "Top 5 trứng mới nhất | Chilli Finder Free" .. trail
+end
 local secOnly=body:match("^(%d+)s$")
 if secOnly then
-return lead .. secOnly .. " giây" .. trail end
+return lead .. secOnly .. " giây" .. trail
+end
 local finderSuffix=body:match("^[Ff][Ii][Nn][Dd][Ee][Rr]%s*([%(%[:%-|].*)$")
 if finderSuffix then
 local sfx=finderSuffix:gsub("[Oo][Nn]","BẬT"):gsub("[Oo][Ff][Ff]","TẮT")
-return lead .. "Tìm Trứng " .. sfx .. trail end
+return lead .. "Tìm Trứng " .. sfx .. trail
+end
 local autoTimer=body:match("^[Aa][Uu][Tt][Oo]%s*([%(%[].-[%)%]])$")or body:match("^[Aa][Uu][Tt][Oo]%s*:%s*(.+)$")
 if autoTimer then
 local subLow=autoTimer:lower()
 if subLow=="off" then return lead .. "TỰ ĐỘNG: TẮT" .. trail end
 if subLow=="on" then return lead .. "TỰ ĐỘNG: BẬT" .. trail end
-return lead .. "TỰ ĐỘNG: " .. autoTimer .. trail end
+return lead .. "TỰ ĐỘNG: " .. autoTimer .. trail
+end
 local forceTimer=body:match("^[Ff][Oo][Rr][Cc][Ee]%s+[Jj][Oo][Ii][Nn]%s*[:%s]%s*(.+)$")
 if not forceTimer and(low=="force join" or low=="force join:")then forceTimer="" end
 if forceTimer~=nil then
@@ -4071,25 +4952,29 @@ if forceTimer=="" then return lead .. "TỰ VÀO SAU" .. trail end
 local sNum=forceTimer:match("^(%d+)%s*[Ss]$")
 if sNum then return lead .. "TỰ VÀO SAU " .. sNum .. " giây" .. trail end
 local fLow=forceTimer:lower()
-return lead .. "TỰ VÀO SAU " ..(FINDER_STATE_MAP[fLow] or forceTimer).. trail end
+return lead .. "TỰ VÀO SAU " ..(FINDER_STATE_MAP[fLow] or forceTimer).. trail
+end
 local minVal=body:match("^[Mm][Ii][Nn]%s+[Vv][Aa][Ll][Uu][Ee]%s*[:%s]%s*(.+)$")
 if not minVal and(low=="min value" or low=="min value:")then minVal="" end
 if minVal~=nil then
 if minVal=="" then return lead .. "GIÁ TỐI THIỂU" .. trail end
 local mLow=minVal:lower()
-return lead .. "GIÁ TỐI THIỂU " ..(FINDER_STATE_MAP[mLow] or minVal).. trail end
+return lead .. "GIÁ TỐI THIỂU " ..(FINDER_STATE_MAP[mLow] or minVal).. trail
+end
 local rarVal=body:match("^[Rr][Aa][Rr][Ii][Tt][Yy]%s*[:%s]%s*(.+)$")
 if not rarVal and(low=="rarity" or low=="rarity:")then rarVal="" end
 if rarVal~=nil then
 if rarVal=="" then return lead .. "ĐỘ HIẾM" .. trail end
 local rLow=rarVal:lower()
-return lead .. "ĐỘ HIẾM " ..(FINDER_STATE_MAP[rLow] or rarVal).. trail end
+return lead .. "ĐỘ HIẾM " ..(FINDER_STATE_MAP[rLow] or rarVal).. trail
+end
 local accVal=body:match("^[Aa][Cc][Cc][Oo][Uu][Nn][Tt]%s*[:%s]%s*(.+)$")
 if not accVal and(low=="account" or low=="account:")then accVal="" end
 if accVal~=nil then
 if accVal=="" then return lead .. "TÀI KHOẢN" .. trail end
 local aLow=accVal:lower()
-return lead .. "TÀI KHOẢN " ..(FINDER_STATE_MAP[aLow] or accVal).. trail end
+return lead .. "TÀI KHOẢN " ..(FINDER_STATE_MAP[aLow] or accVal).. trail
+end
 if body:find(" ago",1,true)or low:find("just now",1,true)then
 local rep=body
 rep=rep:gsub("(%d+)%s*s%s+ago","%1s trước")
@@ -4097,11 +4982,14 @@ rep=rep:gsub("(%d+)%s*m%s+ago","%1p trước")
 rep=rep:gsub("(%d+)%s*h%s+ago","%1g trước")
 rep=rep:gsub("(%d+)%s*d%s+ago","%1n trước")
 rep=rep:gsub("[Jj]ust now","vừa xong")
-return lead .. rep .. trail end
+return lead .. rep .. trail
+end
 if translateText then
 local tr=translateText(body)
-if tr and tr~=body then return lead .. tr .. trail end end
-return seg end
+if tr and tr~=body then return lead .. tr .. trail end
+end
+return seg
+end
 translateFinderHudState=function(txt)
 if type(txt)~="string" or txt=="" then return txt end
 if State.Language=="EN" then return txt end
@@ -4110,16 +4998,23 @@ local res=txt:gsub("([^<>]+)",function(chunk)
 if chunk:find("\n")then
 local parts={}
 for line in(chunk .. "\n"):gmatch("(.-)\n")do
-tins(parts,translateSingleFinderSegment(line)) end
-return table.concat(parts,"\n") end
-return translateSingleFinderSegment(chunk) end)
-return res end
+tins(parts,translateSingleFinderSegment(line))
+end
+return table.concat(parts,"\n")
+end
+return translateSingleFinderSegment(chunk)
+end)
+return res
+end
 if txt:find("\n")then
 local parts={}
 for line in(txt .. "\n"):gmatch("(.-)\n")do
-tins(parts,translateSingleFinderSegment(line)) end
-return table.concat(parts,"\n") end
-return translateSingleFinderSegment(txt) end
+tins(parts,translateSingleFinderSegment(line))
+end
+return table.concat(parts,"\n")
+end
+return translateSingleFinderSegment(txt)
+end
 watchFinderHudButton=function(lbl)
 if not lbl or not(lbl:IsA("TextLabel")or lbl:IsA("TextButton"))then return end
 if lbl.Name=="ChilliFinderJoinInterceptor" or lbl:FindFirstAncestor("ChilliV5_ExpandedIsland")or lbl:FindFirstAncestor("ChilliHeaderOverlay")then return end
@@ -4138,7 +5033,8 @@ if cur=="" then return end
 local stripped=stripRichTags(cur)
 if stripped:find("⏳",1,true)then return end
 if cur~=lbl:GetAttribute("__LastFinderTranslated")and not hasVi(stripped)then
-lbl:SetAttribute("OrigFinderStateText",cur) end
+lbl:SetAttribute("OrigFinderStateText",cur)
+end
 local baseTxt=lbl:GetAttribute("OrigFinderStateText")or cur
 local targetTxt=(State.Language=="EN")and baseTxt or translateFinderHudState(baseTxt)
 if targetTxt and targetTxt~="" and targetTxt~=cur then
@@ -4147,7 +5043,9 @@ lbl:SetAttribute("__IsTranslating",true)
 lbl:SetAttribute("__LastFinderTranslated",targetTxt)
 pcall(function()lbl.Text=targetTxt end)
 lbl:SetAttribute("__IsTranslating",false)
-lbl:SetAttribute("__TranslatingFinderHud",false) end end
+lbl:SetAttribute("__TranslatingFinderHud",false)
+end
+end
 updateText()
 if lbl:GetAttribute("__FinderHudWatched")~=SID then
 lbl:SetAttribute("__FinderHudWatched",SID)
@@ -4155,7 +5053,9 @@ tins(State.TrackedTexts,lbl)
 lbl:GetPropertyChangedSignal("Text"):Connect(function()
 if isAlive()then
 pcall(sanitizeChillFinderFreeObj,lbl)
-updateText() end end)
+updateText()
+end
+end)
 if(low=="finder" or low=="tìm trứng")and not isInsideChilliFinder(lbl)then
 local clickTarget=(lbl:IsA("TextButton")or lbl:IsA("ImageButton"))and lbl or lbl:FindFirstAncestorWhichIsA("GuiButton")or lbl.Parent
 if clickTarget and clickTarget:IsA("GuiObject")and clickTarget:GetAttribute("__FinderBtnCycleHooked")~=SID then
@@ -4176,16 +5076,29 @@ pcall(function()lbl.Text=st.text end)
 lbl:SetAttribute("__IsTranslating",false)
 lbl:SetAttribute("__TranslatingFinderHud",false)
 pcall(function()
-TweenService:Create(clickTarget,twi(0.22,EES.Quart,EED.Out),{BackgroundColor3=st.color}):Play() end)
+TweenService:Create(clickTarget,twi(0.22,EES.Quart,EED.Out),{BackgroundColor3=st.color}):Play()
+end)
+if State.CustomFinderPanel then
+State.CustomFinderPanel.Visible=true
+end
 if scanChilliFinderButtons then
 task.delay(0.20,scanChilliFinderButtons)
-task.delay(0.60,scanChilliFinderButtons) end end
+task.delay(0.60,scanChilliFinderButtons)
+end
+end
 if clickTarget:IsA("GuiButton")then
 clickTarget.MouseButton1Click:Connect(onHudFinderClick)
 else
 clickTarget.InputBegan:Connect(function(inp)
 if inp.UserInputType==EUIT.MouseButton1 or inp.UserInputType==EUIT.Touch then
-onHudFinderClick() end end) end end end end end
+onHudFinderClick()
+end
+end)
+end
+end
+end
+end
+end
 watchFinderTextObj=function(d)
 if not d or not(d:IsA("TextButton")or d:IsA("TextLabel"))then return end
 if d.Name=="ChilliFinderJoinInterceptor" then return end
@@ -4193,9 +5106,11 @@ pcall(sanitizeChillFinderFreeObj,d)
 pcall(watchFinderHudButton,d)
 local checkT=stripRichTags(d.Text):lower()
 if checkT=="sign up" or checkT=="password" then
-pcall(hideFinderSignInBox,d) end
+pcall(hideFinderSignInBox,d)
+end
 if isFinderJoinLabel(d)then
-pcall(hookChilliFinderJoin,d) end
+pcall(hookChilliFinderJoin,d)
+end
 if d:GetAttribute("__FinderTxtWatched")~=SID then
 d:SetAttribute("__FinderTxtWatched",SID)
 d:GetPropertyChangedSignal("Text"):Connect(function()
@@ -4203,24 +5118,30 @@ if not isAlive()then return end
 pcall(sanitizeChillFinderFreeObj,d)
 pcall(watchFinderHudButton,d)
 if isFinderJoinLabel(d)then
-pcall(hookChilliFinderJoin,d) end end) end end
+pcall(hookChilliFinderJoin,d)
+end
+end)
+end
+end
 local ROBLOX_CORE_SUBFOLDERS={
 TouchGui=true,BackpackGui=true,PlayerList=true,Chat=true,BubbleChat=true,
 ExperienceChat=true,InGameMenu=true,TopBarApp=true,PurchasePrompt=true,
 Freecam=true,TeleportGui=true,RobloxNetworkPauseNotification=true,
-CoreScriptsRootProvider=true,SettingsClippingShield=true,ChilliV7_GetKeyUI=true,ChilliV7_InputBlocker=true
+CoreScriptsRootProvider=true,SettingsClippingShield=true,ChilliV7_GetKeyUI=true,ChilliV8_CustomFinderGui=true,ChilliV7_InputBlocker=true
 }
 local FAST_SKIP_ANCESTORS={
 Chat=true,BubbleChat=true,ExperienceChat=true,TouchGui=true,
-BackpackGui=true,PlayerList=true,ChilliV7_GetKeyUI=true,
+BackpackGui=true,PlayerList=true,ChilliV7_GetKeyUI=true,ChilliV8_CustomFinderGui=true,
 ChilliV7_InputBlocker=true,ChilliV5_ExpandedIsland=true
 }
 local function isSkippedAncestor(inst)
 local p=inst.Parent
 while p and p~=game do
 if FAST_SKIP_ANCESTORS[p.Name]then return true end
-p=p.Parent end
-return false end
+p=p.Parent
+end
+return false
+end
 local function isolateGuiLayerAndCenterFrame(targetFrame,targetOrder,isFinderFrame)
 if not targetFrame or not targetFrame:IsA("GuiObject")then return end
 pcall(function()
@@ -4229,16 +5150,24 @@ if sg then
 sg.ResetOnSpawn=false
 sg.ZIndexBehavior=Enum.ZIndexBehavior.Sibling
 if(sg.DisplayOrder or 0)<(targetOrder or 999980)then
-sg.DisplayOrder=targetOrder or 999980 end
+sg.DisplayOrder=targetOrder or 999980
+end
 sg.Enabled=true
 if sg:GetAttribute("__IsolatedLayerLocked")~=SID then
 sg:SetAttribute("__IsolatedLayerLocked",SID)
 sg:GetPropertyChangedSignal("DisplayOrder"):Connect(function()
 if isAlive()and(sg.DisplayOrder or 0)<(targetOrder or 999980)then
-pcall(function()sg.DisplayOrder=targetOrder or 999980 end) end end)
+pcall(function()sg.DisplayOrder=targetOrder or 999980 end)
+end
+end)
 sg:GetPropertyChangedSignal("Enabled"):Connect(function()
 if isAlive()and not sg.Enabled then
-pcall(function()sg.Enabled=true end) end end) end end end)
+pcall(function()sg.Enabled=true end)
+end
+end)
+end
+end
+end)
 pcall(function()
 local moveRoot=targetFrame
 if isFinderFrame and targetFrame.Parent and targetFrame.Parent:IsA("GuiObject")and not targetFrame.Parent:IsA("ScreenGui")then
@@ -4246,7 +5175,9 @@ local p=targetFrame.Parent
 local cam=workspace.CurrentCamera
 local vpX=(cam and cam.ViewportSize.X)or 1000
 if p.AbsoluteSize.X<vpX*0.90 and(p.Size.X.Scale or 0)<0.90 then
-moveRoot=p end end
+moveRoot=p
+end
+end
 moveRoot:SetAttribute("__SettingCenterAnchor",true)
 moveRoot.AnchorPoint=v2(0.5,0.5)
 moveRoot.Position=u2(0.5,0,0.5,0)
@@ -4254,7 +5185,8 @@ if moveRoot~=targetFrame then
 targetFrame:SetAttribute("__SettingCenterAnchor",true)
 targetFrame.AnchorPoint=v2(0.5,0.5)
 targetFrame.Position=u2(0.5,0,0.5,0)
-targetFrame:SetAttribute("__SettingCenterAnchor",false) end
+targetFrame:SetAttribute("__SettingCenterAnchor",false)
+end
 moveRoot:SetAttribute("__SettingCenterAnchor",false)
 if isFinderFrame and moveRoot.Parent then
 for _,sib in ipairs(moveRoot.Parent:GetChildren())do
@@ -4263,7 +5195,11 @@ local sy=(sib.AbsoluteSize.Y>0 and sib.AbsoluteSize.Y)or sib.Size.Y.Offset
 if sy>0 and sy<=55 then
 local bodyH=(moveRoot.AbsoluteSize.Y>0 and moveRoot.AbsoluteSize.Y)or moveRoot.Size.Y.Offset or 320
 sib.AnchorPoint=v2(0.5,1)
-sib.Position=u2(0.5,0,0.5,-math.floor(bodyH*0.5)) end end end end
+sib.Position=u2(0.5,0,0.5,-math.floor(bodyH*0.5))
+end
+end
+end
+end
 local cam=workspace.CurrentCamera
 local vpX,vpY=(cam and cam.ViewportSize.X)or 1000,(cam and cam.ViewportSize.Y)or 500
 local fw=(moveRoot.AbsoluteSize.X>0 and moveRoot.AbsoluteSize.X)or moveRoot.Size.X.Offset or 360
@@ -4271,7 +5207,8 @@ local fh=(moveRoot.AbsoluteSize.Y>0 and moveRoot.AbsoluteSize.Y)or moveRoot.Size
 if vpY>0 and vpY<=560 and fh>vpY*0.84 then
 local sc=moveRoot:FindFirstChild("ChilliV8_IsolatedCenterScale")or In("UIScale",moveRoot)
 sc.Name="ChilliV8_IsolatedCenterScale"
-sc.Scale=math.clamp((vpY*0.84)/fh,0.72,1.0) end
+sc.Scale=math.clamp((vpY*0.84)/fh,0.72,1.0)
+end
 if moveRoot:GetAttribute("__CenterAnchorGuard")~=SID then
 moveRoot:SetAttribute("__CenterAnchorGuard",SID)
 moveRoot:GetPropertyChangedSignal("AnchorPoint"):Connect(function()
@@ -4279,7 +5216,9 @@ if not isAlive()or moveRoot:GetAttribute("__SettingCenterAnchor")then return end
 if moveRoot.AnchorPoint.X~=0.5 or moveRoot.AnchorPoint.Y~=0.5 then
 moveRoot:SetAttribute("__SettingCenterAnchor",true)
 pcall(function()moveRoot.AnchorPoint=v2(0.5,0.5)end)
-moveRoot:SetAttribute("__SettingCenterAnchor",false) end end)
+moveRoot:SetAttribute("__SettingCenterAnchor",false)
+end
+end)
 moveRoot:GetPropertyChangedSignal("Position"):Connect(function()
 if not isAlive()or moveRoot:GetAttribute("__SettingCenterAnchor")or moveRoot:GetAttribute("__UserDragging")then return end
 local px,py=moveRoot.Position.X.Scale,moveRoot.Position.Y.Scale
@@ -4287,8 +5226,14 @@ if math.abs(px-0.5)>0.01 or math.abs(py-0.5)>0.01 then
 moveRoot:SetAttribute("__SettingCenterAnchor",true)
 pcall(function()
 moveRoot.AnchorPoint=v2(0.5,0.5)
-moveRoot.Position=u2(0.5,0,0.5,0) end)
-moveRoot:SetAttribute("__SettingCenterAnchor",false) end end) end end) end
+moveRoot.Position=u2(0.5,0,0.5,0)
+end)
+moveRoot:SetAttribute("__SettingCenterAnchor",false)
+end
+end)
+end
+end)
+end
 local function instantStyleFinder(win)
 if not win or not win.Parent or isMainWinOrAncestor(win)then return end
 State.ActiveFinderWin=win
@@ -4310,25 +5255,38 @@ addGrad(bgGrad)
 else
 rb.Thickness=2.8
 rb.Transparency=0
-rb.Enabled=true end
+rb.Enabled=true
+end
 if win:GetAttribute("__FinderVisHooked")~=SID then
 win:SetAttribute("__FinderVisHooked",SID)
 win:GetPropertyChangedSignal("Visible"):Connect(function()
 if isAlive()and win.Visible then
 task.defer(function()
 if isAlive()and win and win.Parent then
-instantStyleFinder(win) end end) end end)
+instantStyleFinder(win)
+end
+end)
+end
+end)
 win.DescendantAdded:Connect(function(nd)
 if not isAlive()then return end
 if nd:IsA("TextLabel")or nd:IsA("TextButton")or nd:IsA("TextBox")then
 task.defer(function()
 if isAlive()and nd and nd.Parent then
 pcall(watchFinderTextObj,nd)
-pcall(hookTrans,nd) end end) end end) end
+pcall(hookTrans,nd)
+end
+end)
+end
+end)
+end
 for _,d in ipairs(win:GetDescendants())do
 if d:IsA("TextLabel")or d:IsA("TextButton")or d:IsA("TextBox")then
 pcall(watchFinderTextObj,d)
-pcall(hookTrans,d) end end end
+pcall(hookTrans,d)
+end
+end
+end
 local function isFinderCandidateLabel(d)
 if not(d:IsA("TextLabel")or d:IsA("TextButton"))then return false end
 local t=(stripRichTags(d.Text or "")):match("^%s*(.-)%s*$")
@@ -4337,13 +5295,15 @@ local low=t:lower()
 if(low:find("chilli finder",1,true)or low:find("chill finder",1,true))and not low:find("key",1,true)then return true end
 if low=="auto off" or low=="auto on" or low=="force join" then return true end
 if low:find("top 5 recent eggs",1,true)or low:find("chillihub.pro",1,true)or low:find("sign in with your",1,true)or low:find("create your account and get",1,true)then return true end
-return false end
+return false
+end
 local function getSafeContainersFromRoot(root)
 local list={}
 if not root then return list end
 local okIsSg,isSg=pcall(function()return root:IsA("ScreenGui")end)
 if okIsSg and isSg and not FAST_SKIP_ANCESTORS[root.Name]then
-tins(list,root) end
+tins(list,root)
+end
 local okCh,children=pcall(function()return root:GetChildren()end)
 if okCh and type(children)=="table" then
 for _,ch in ipairs(children)do
@@ -4355,13 +5315,514 @@ if okSub and type(subs)=="table" then
 for _,sub in ipairs(subs)do
 local okSName,sName=pcall(function()return sub.Name end)
 if okSName and not FAST_SKIP_ANCESTORS[sName]and sName~="CoreScriptsRootProvider" and sName~="SettingsClippingShield" then
-tins(list,sub) end end end
+tins(list,sub)
+end
+end
+end
 elseif chName~="CoreScriptsRootProvider" and chName~="SettingsClippingShield" then
-tins(list,ch) end end end end
-return list end
+tins(list,ch)
+end
+end
+end
+end
+return list
+end
+local function createOrUpdateCustomChilliFinder()
+local targetRoot=nil
+if gethui then pcall(function()targetRoot=gethui()end)end
+if not targetRoot then targetRoot=CoreGui end
+if not targetRoot and LocalPlayer then targetRoot=LocalPlayer:FindFirstChildOfClass("PlayerGui")end
+if not targetRoot then return nil end
+local existing=targetRoot:FindFirstChild("ChilliV8_CustomFinderGui")
+if existing and existing:GetAttribute("__CustomFinderSession")==SID then
+return existing
+end
+if existing then pcall(function()existing:Destroy()end)end
+local sg=mk("ScreenGui",{
+Name="ChilliV8_CustomFinderGui",
+ResetOnSpawn=false,
+IgnoreGuiInset=true,
+DisplayOrder=999990,
+ZIndexBehavior=Enum.ZIndexBehavior.Sibling,
+Enabled=true
+},targetRoot)
+sg:SetAttribute("__CustomFinderSession",SID)
+local panel=mk("Frame",{
+Name="FinderMainPanel",
+AnchorPoint=v2(1,0),
+Position=u2(1,-65,0,72),
+Size=u2(0,313,0,359),
+BackgroundColor3=c3(50,49,60),
+BorderSizePixel=0,
+Active=true,
+Visible=true,
+ZIndex=50
+},sg)
+mk("UICorner",{CornerRadius=udn(0,8)},panel)
+local panelStroke=mk("UIStroke",{
+Name="ChillFinderRainbowBorder",
+Thickness=2.6,
+Color=c3n(1,1,1),
+ApplyStrokeMode=EASM.Border
+},panel)
+local panelGrad=mk("UIGradient",{Color=FINDER_BORDER_NEON_GRAD},panelStroke)
+addGrad(panelGrad)
+local collapseBtn=mk("TextButton",{
+Name="FinderCollapseBtn",
+AnchorPoint=v2(0,0.5),
+Position=u2(1,-433,0,251),
+Size=u2(0,40,0,40),
+BackgroundColor3=c3(220,22,22),
+BorderSizePixel=0,
+AutoButtonColor=false,
+Text=">",
+Font=EF.GothamBlack,
+TextSize=22,
+TextColor3=c3n(1,1,1),
+ZIndex=60
+},sg)
+mk("UICorner",{CornerRadius=udn(0,6)},collapseBtn)
+mk("UIStroke",{Thickness=2,Color=c3(42,8,8),ApplyStrokeMode=EASM.Border},collapseBtn)
+mk("UIStroke",{Thickness=1.6,Color=c3(20,5,5)},collapseBtn)
+local hdr=mk("Frame",{
+Name="HeaderBar",
+Size=u2(1,0,0,48),
+Position=u2(0,0,0,0),
+BackgroundColor3=c3n(1,1,1),
+BorderSizePixel=0,
+Active=true,
+ZIndex=52
+},panel)
+mk("UICorner",{CornerRadius=udn(0,8)},hdr)
+mk("UIGradient",{
+Color=csn({
+csk(0.00,c3(212,102,68)),
+csk(0.55,c3(254,204,122)),
+csk(1.00,c3(248,175,58))
+}),
+Rotation=12
+},hdr)
+mk("Frame",{
+Size=u2(1,0,0,2),
+Position=u2(0,0,1,-2),
+BackgroundColor3=c3(26,24,30),
+BorderSizePixel=0,
+ZIndex=53
+},hdr)
+local hdrTitle=mk("TextLabel",{
+Name="TitleLbl",
+Position=u2(0,10,0,0),
+Size=u2(0,180,1,-2),
+BackgroundTransparency=1,
+Font=EF.GothamBlack,
+Text="Chilli Finder",
+TextSize=18,
+TextColor3=c3n(1,1,1),
+TextXAlignment=ETX.Left,
+ZIndex=54
+},hdr)
+mk("UIStroke",{Thickness=1.8,Color=c3(20,12,8)},hdrTitle)
+local gearBtn=mk("TextButton",{
+Name="GearBtn",
+AnchorPoint=v2(0,0.5),
+Position=u2(1,-114,0.5,0),
+Size=u2(0,26,0,26),
+BackgroundColor3=c3(56,124,214),
+Text="⚙",
+Font=EF.GothamBold,
+TextSize=15,
+TextColor3=c3n(1,1,1),
+AutoButtonColor=false,
+ZIndex=54
+},hdr)
+mk("UICorner",{CornerRadius=udn(0,5)},gearBtn)
+mk("UIStroke",{Thickness=1.5,Color=c3(24,28,38),ApplyStrokeMode=EASM.Border},gearBtn)
+local autoBtn=mk("TextButton",{
+Name="AutoBtn",
+AnchorPoint=v2(0,0.5),
+Position=u2(1,-84,0.5,0),
+Size=u2(0,76,0,26),
+BackgroundColor3=c3(86,94,106),
+Text=(State.Language=="EN")and "AUTO OFF" or "TỰ ĐỘNG: TẮT",
+Font=EF.GothamBold,
+TextSize=10,
+TextColor3=c3n(1,1,1),
+AutoButtonColor=false,
+ZIndex=54
+},hdr)
+mk("UICorner",{CornerRadius=udn(0,5)},autoBtn)
+mk("UIStroke",{Thickness=1.5,Color=c3(24,28,38),ApplyStrokeMode=EASM.Border},autoBtn)
+mk("UIStroke",{Thickness=1.2,Color=c3(18,20,26)},autoBtn)
+local fDragging,fDragInput,fDragStart,fStartPos=false,nil,nil,nil
+hdr.InputBegan:Connect(function(inp)
+if inp.UserInputType==EUIT.MouseButton1 or inp.UserInputType==EUIT.Touch then
+fDragging=true
+fDragStart=inp.Position
+fStartPos=panel.Position
+if inp.Changed then
+inp.Changed:Connect(function()
+if inp.UserInputState==Enum.UserInputState.End or inp.UserInputState==Enum.UserInputState.Cancel then
+fDragging=false
+end
+end)
+end
+end
+end)
+hdr.InputChanged:Connect(function(inp)
+if inp.UserInputType==EUIT.MouseMovement or inp.UserInputType==EUIT.Touch then
+fDragInput=inp
+end
+end)
+UserInputService.InputChanged:Connect(function(inp)
+if isAlive()and inp==fDragInput and fDragging and fDragStart and fStartPos then
+local delta=inp.Position-fDragStart
+if delta.Magnitude>5 then
+panel.Position=u2(fStartPos.X.Scale,fStartPos.X.Offset+delta.X,fStartPos.Y.Scale,fStartPos.Y.Offset+delta.Y)
+collapseBtn.Position=u2(0,panel.AbsolutePosition.X-48,0,panel.AbsolutePosition.Y+math.floor(panel.AbsoluteSize.Y*0.5))
+end
+end
+end)
+local filterBar=mk("Frame",{
+Name="FilterRow",
+Position=u2(0,8,0,54),
+Size=u2(1,-16,0,34),
+BackgroundTransparency=1,
+ZIndex=52
+},panel)
+local function makeFilterBtn(name,idx,cTop,cBot,topTxt,botTxt)
+local wScale=0.24
+local xScale=(idx-1)*0.253
+local btn=mk("TextButton",{
+Name=name,
+Position=u2(xScale,0,0,0),
+Size=u2(wScale,0,1,0),
+BackgroundColor3=c3n(1,1,1),
+Text="",
+AutoButtonColor=false,
+ZIndex=53
+},filterBar)
+mk("UICorner",{CornerRadius=udn(0,5)},btn)
+mk("UIGradient",{
+Color=csn({csk(0,cTop),csk(1,cBot)}),
+Rotation=90
+},btn)
+mk("UIStroke",{Thickness=1.4,Color=c3(24,28,36),ApplyStrokeMode=EASM.Border},btn)
+local tLbl=mk("TextLabel",{
+Name="TopLbl",
+Position=u2(0,2,0,2),
+Size=u2(1,-4,0,12),
+BackgroundTransparency=1,
+Font=EF.GothamBlack,
+Text=topTxt,
+TextSize=8,
+TextColor3=c3(235,250,235),
+ZIndex=54
+},btn)
+mk("UIStroke",{Thickness=1.1,Color=c3(18,24,18)},tLbl)
+local bLbl=mk("TextLabel",{
+Name="BotLbl",
+Position=u2(0,2,0,14),
+Size=u2(1,-4,0,18),
+BackgroundTransparency=1,
+Font=EF.GothamBlack,
+Text=botTxt,
+TextSize=12,
+TextColor3=c3n(1,1,1),
+ZIndex=54
+},btn)
+mk("UIStroke",{Thickness=1.4,Color=c3(16,18,22)},bLbl)
+return btn,tLbl,bLbl
+end
+local forceJoinOpts={5,3,1,10}
+local forceJoinIdx=1
+local minValOpts={"5B/s","10B/s","25B/s","50B/s","100B/s","1B/s"}
+local minValIdx=1
+local rarityOptsVI={"Tất cả","Thánh Thần","Vĩnh Cửu","Bí Ẩn","Vũ Trụ"}
+local rarityOptsEN={"Any","Divine","Eternal","Secret","Cosmic"}
+local rarityIdx=1
+local fBtn1,fTop1,fBot1=makeFilterBtn("ForceJoinBtn",1,c3(152,250,115),c3(45,206,42),(State.Language=="EN")and "FORCE JOIN" or "TỰ VÀO SAU",(State.Language=="EN")and "5s" or "5 giây")
+local fBtn2,fTop2,fBot2=makeFilterBtn("MinValBtn",2,c3(88,204,244),c3(57,150,228),(State.Language=="EN")and "MIN VALUE" or "GIÁ TỐI THIỂU","5B/s")
+local fBtn3,fTop3,fBot3=makeFilterBtn("RarityBtn",3,c3(88,204,244),c3(57,150,228),(State.Language=="EN")and "RARITY" or "ĐỘ HIẾM",(State.Language=="EN")and "Any" or "Tất cả")
+local fBtn4,fTop4,fBot4=makeFilterBtn("AccountBtn",4,c3(254,228,24),c3(241,152,48),(State.Language=="EN")and "ACCOUNT" or "TÀI KHOẢN",(State.Language=="EN")and "Free" or "Miễn phí")
+fBtn1.MouseButton1Click:Connect(function()
+playIslandSfx("tap")
+forceJoinIdx=(forceJoinIdx % #forceJoinOpts)+1
+local s=forceJoinOpts[forceJoinIdx]
+fBot1.Text=(State.Language=="EN")and(tostring(s).. "s")or(tostring(s).. " giây")
+end)
+fBtn2.MouseButton1Click:Connect(function()
+playIslandSfx("tap")
+minValIdx=(minValIdx % #minValOpts)+1
+fBot2.Text=minValOpts[minValIdx]
+end)
+fBtn3.MouseButton1Click:Connect(function()
+playIslandSfx("tap")
+rarityIdx=(rarityIdx % #rarityOptsVI)+1
+fBot3.Text=(State.Language=="EN")and rarityOptsEN[rarityIdx] or rarityOptsVI[rarityIdx]
+end)
+local subBanner=mk("TextLabel",{
+Name="SubBanner",
+Position=u2(0,8,0,91),
+Size=u2(1,-16,0,16),
+BackgroundTransparency=1,
+Font=EF.GothamBold,
+Text=(State.Language=="EN")and "Top 5 recent eggs | Chilli Finder Free" or "Top 5 trứng mới nhất | Chilli Finder Free",
+TextSize=10,
+TextColor3=c3(230,234,242),
+ZIndex=53
+},panel)
+mk("UIStroke",{Thickness=1.2,Color=c3(14,14,20)},subBanner)
+local defaultRows={
+{name="Celestial Sunlion",val="$134.68B/s",mult="x13.96",ageVI="5p trước",ageEN="5m ago",badge=""},{name="Celestial Sunlion",val="$119.12B/s",mult="x5.87",ageVI="5p trước",ageEN="5m ago",badge="Golden"},{name="Celestial Sunlion",val="$116.12B/s",mult="x12.34",ageVI="5p trước",ageEN="5m ago",badge=""},{name="Celestial Sunlion",val="$114.99B/s",mult="x12.24",ageVI="5p trước",ageEN="5m ago",badge=""},
+{name="Celestial Sunlion",val="$114.04B/s",mult="x12.15",ageVI="4p trước",ageEN="4m ago",badge=""}
+}
+local rowWidgets={}
+for i=1,5 do
+local dRow=defaultRows[i]
+local yPos=110+(i-1)*42
+local rCard=mk("Frame",{
+Name="FinderRow_" .. i,
+Position=u2(0,8,0,yPos),
+Size=u2(1,-16,0,39),
+BackgroundColor3=c3n(1,1,1),
+BorderSizePixel=0,
+ZIndex=53
+},panel)
+mk("UICorner",{CornerRadius=udn(0,6)},rCard)
+mk("UIGradient",{
+Color=csn({csk(0,c3(74,73,84)),csk(1,c3(46,45,54))}),
+Rotation=90
+},rCard)
+mk("UIStroke",{Thickness=1.2,Color=c3(96,94,108),ApplyStrokeMode=EASM.Border},rCard)
+local iconHolder=mk("Frame",{
+Position=u2(0,4,0.5,-16),
+Size=u2(0,32,0,32),
+BackgroundColor3=c3(58,42,92),
+BorderSizePixel=0,
+ZIndex=54
+},rCard)
+mk("UICorner",{CornerRadius=udn(0,6)},iconHolder)
+local petIcon=mk("ImageLabel",{
+Name="PetIcon",
+Size=u2s(1,1),
+BackgroundTransparency=1,
+Image=STEAL_TAB_ICON_ID,
+ScaleType=Enum.ScaleType.Fit,
+ZIndex=55
+},iconHolder)
+if dRow.badge~="" then
+local bLbl=mk("TextLabel",{
+AnchorPoint=v2(0.5,1),
+Position=u2(0.5,0,1,1),
+Size=u2(1,4,0,10),
+BackgroundTransparency=1,
+Font=EF.GothamBlack,
+Text=dRow.badge,
+TextSize=7.5,
+TextColor3=c3(255,215,45),
+ZIndex=56
+},iconHolder)
+mk("UIStroke",{Thickness=1,Color=c3(20,15,5)},bLbl)
+end
+local petNameLbl=mk("TextLabel",{
+Name="PetNameLbl",
+Position=u2(0,42,0,3),
+Size=u2(1,-114,0,16),
+BackgroundTransparency=1,
+Font=EF.GothamBlack,
+Text=dRow.name,
+TextSize=11.5,
+TextColor3=c3n(1,1,1),
+TextXAlignment=ETX.Left,
+TextTruncate=Enum.TextTruncate.AtEnd,
+ZIndex=54
+},rCard)
+mk("UIStroke",{Thickness=1.4,Color=c3(14,14,20)},petNameLbl)
+local infoLbl=mk("TextLabel",{
+Name="PetInfoLbl",
+Position=u2(0,42,0,19),
+Size=u2(1,-114,0,16),
+BackgroundTransparency=1,
+RichText=true,
+Font=EF.GothamBold,
+Text=string.format("<font color=\"#4ade80\"><b>%s</b></font>  <font color=\"#facc15\"><b>%s</b></font>  <font color=\"#d1d5db\">%s</font>",dRow.val,dRow.mult,(State.Language=="EN")and dRow.ageEN or dRow.ageVI),
+TextSize=10,
+TextColor3=c3n(1,1,1),
+TextXAlignment=ETX.Left,
+ZIndex=54
+},rCard)
+mk("UIStroke",{Thickness=1.2,Color=c3(12,12,18)},infoLbl)
+local joinBtn=mk("TextButton",{
+Name="JoinServerBtn",
+AnchorPoint=v2(1,0.5),
+Position=u2(1,-6,0.5,0),
+Size=u2(0,62,0,28),
+BackgroundColor3=c3n(1,1,1),
+Text=(State.Language=="EN")and "Join" or "Vào ngay",
+Font=EF.GothamBlack,
+TextSize=11.5,
+TextColor3=c3n(1,1,1),
+AutoButtonColor=false,
+ZIndex=56
+},rCard)
+mk("UICorner",{CornerRadius=udn(0,5)},joinBtn)
+mk("UIGradient",{
+Color=csn({
+csk(0.00,c3(255,230,14)),
+csk(0.55,c3(253,186,12)),
+csk(1.00,c3(250,126,6))
+}),
+Rotation=90
+},joinBtn)
+mk("UIStroke",{Thickness=1.5,Color=c3(42,28,8),ApplyStrokeMode=EASM.Border},joinBtn)
+mk("UIStroke",{Thickness=1.3,Color=c3(32,20,4)},joinBtn)
+local function triggerJoinHop()
+if not isAlive()then return end
+hopToLeastPlayersServer(joinBtn)
+end
+joinBtn.MouseButton1Click:Connect(triggerJoinHop)
+joinBtn.Activated:Connect(triggerJoinHop)
+joinBtn.InputBegan:Connect(function(inp)
+if inp.UserInputType==EUIT.MouseButton1 or inp.UserInputType==EUIT.Touch then
+triggerJoinHop()
+end
+end)
+tins(rowWidgets,{
+card=rCard,
+icon=petIcon,
+nameLbl=petNameLbl,
+infoLbl=infoLbl,
+joinBtn=joinBtn,
+data=dRow
+})
+end
+local footerBox=mk("Frame",{
+Name="FooterBox",
+Position=u2(0,8,1,-36),
+Size=u2(1,-16,0,30),
+BackgroundColor3=c3(42,41,50),
+BorderSizePixel=0,
+ZIndex=53
+},panel)
+mk("UICorner",{CornerRadius=udn(0,5)},footerBox)
+local footTop=mk("TextLabel",{
+Position=u2(0,8,0,2),
+Size=u2(1,-16,0,14),
+BackgroundTransparency=1,
+Font=EF.GothamBold,
+Text="https://chillihub.pro",
+TextSize=10,
+TextColor3=c3(220,224,235),
+TextXAlignment=ETX.Left,
+ZIndex=54
+},footerBox)
+local footBot=mk("TextLabel",{
+Position=u2(0,8,0,15),
+Size=u2(1,-16,0,13),
+BackgroundTransparency=1,
+Font=EF.GothamMedium,
+Text=(State.Language=="EN")and "Click Join to hop to least populated server" or "Bấm Vào ngay để chuyển sang server ít người nhất",
+TextSize=8.5,
+TextColor3=c3(165,172,186),
+TextXAlignment=ETX.Left,
+ZIndex=54
+},footerBox)
+local function refreshCustomFinderLang()
+local isEn=(State.Language=="EN")
+autoBtn.Text=State.CustomFinderAutoOn and(isEn and "AUTO ON" or "TỰ ĐỘNG: BẬT")or(isEn and "AUTO OFF" or "TỰ ĐỘNG: TẮT")
+autoBtn.BackgroundColor3=State.CustomFinderAutoOn and c3(38,185,78)or c3(86,94,106)
+fTop1.Text=isEn and "FORCE JOIN" or "TỰ VÀO SAU"
+local s=forceJoinOpts[forceJoinIdx]
+fBot1.Text=isEn and(tostring(s).. "s")or(tostring(s).. " giây")
+fTop2.Text=isEn and "MIN VALUE" or "GIÁ TỐI THIỂU"
+fTop3.Text=isEn and "RARITY" or "ĐỘ HIẾM"
+fBot3.Text=isEn and rarityOptsEN[rarityIdx] or rarityOptsVI[rarityIdx]
+fTop4.Text=isEn and "ACCOUNT" or "TÀI KHOẢN"
+fBot4.Text=isEn and "Free" or "Miễn phí"
+subBanner.Text=isEn and "Top 5 recent eggs | Chilli Finder Free" or "Top 5 trứng mới nhất | Chilli Finder Free"
+footBot.Text=isEn and "Click Join to hop to least populated server" or "Bấm Vào ngay để chuyển sang server ít người nhất"
+for _,rw in ipairs(rowWidgets)do
+rw.joinBtn.Text=isEn and "Join" or "Vào ngay"
+local d=rw.data
+rw.infoLbl.Text=string.format("<font color=\"#4ade80\"><b>%s</b></font>  <font color=\"#facc15\"><b>%s</b></font>  <font color=\"#d1d5db\">%s</font>",d.val,d.mult,isEn and d.ageEN or d.ageVI)
+end
+end
+State.RefreshCustomFinderLang=refreshCustomFinderLang
+gearBtn.MouseButton1Click:Connect(function()
+playIslandSfx("tap")
+hdrTitle.Text=(hdrTitle.Text=="Chilli Finder")and "Chilli Finder Free" or "Chilli Finder"
+refreshCustomFinderLang()
+end)
+autoBtn.MouseButton1Click:Connect(function()
+playIslandSfx("action")
+State.CustomFinderAutoOn=not State.CustomFinderAutoOn
+refreshCustomFinderLang()
+if State.CustomFinderAutoOn then
+task.spawn(function()
+while isAlive()and State.CustomFinderAutoOn do
+local waitSec=forceJoinOpts[forceJoinIdx] or 5
+task.wait(waitSec)
+if isAlive()and State.CustomFinderAutoOn and rowWidgets[1] then
+hopToLeastPlayersServer(rowWidgets[1].joinBtn)
+end
+end
+end)
+end
+end)
+local function toggleFinderPanel()
+playIslandSfx("tap")
+panel.Visible=not panel.Visible
+if panel.Visible then
+collapseBtn.Text=">"
+collapseBtn.Position=u2(1,-433,0,251)
+else
+collapseBtn.Text="<"
+collapseBtn.Position=u2(1,-48,0,251)
+end
+end
+collapseBtn.MouseButton1Click:Connect(toggleFinderPanel)
+State.ToggleCustomFinderFn=toggleFinderPanel
+State.CustomFinderRowWidgets=rowWidgets
+State.CustomFinderPanel=panel
+task.spawn(function()
+local livePetsPool={
+{name="Celestial Sunlion",val="$134.68B/s",mult="x13.96"},{name="Celestial Sunlion",val="$119.12B/s",mult="x5.87"},{name="Celestial Sunlion",val="$116.12B/s",mult="x12.34"},{name="Celestial Sunlion",val="$114.99B/s",mult="x12.24"},{name="Celestial Sunlion",val="$114.04B/s",mult="x12.15"},{name="Gargoyle",val="$30.75B/s",mult="x11.74"},{name="Phantom Dragon",val="$95.40B/s",mult="x10.50"},
+{name="Strawberry Elephant",val="$88.20B/s",mult="x9.80"}
+}
+while isAlive()and sg and sg.Parent do
+pcall(function()
+for _,root in ipairs(getScanRoots())do
+for _,cont in ipairs(getSafeContainersFromRoot(root))do
+if cont~=sg then
+local okD,dList=pcall(function()return cont:GetDescendants()end)
+if okD and type(dList)=="table" then
+for _,d in ipairs(dList)do
+if d:IsA("ImageLabel")and d.Image and d.Image~="" and d.Image~=LOGO_ID and d.Image~="rbxassetid://91322208361913" then
+local p=d.Parent
+if p and(p.Name:find("Finder")or(p:FindFirstChildWhichIsA("TextLabel")and(p:FindFirstChildWhichIsA("TextLabel").Text:find("Tìm Trứng")or p:FindFirstChildWhichIsA("TextLabel").Text:find("Finder"))))then
+for _,rw in ipairs(rowWidgets)do
+if rw.icon.Image==STEAL_TAB_ICON_ID then
+rw.icon.Image=d.Image
+end
+end
+end
+end
+end
+end
+end
+end
+end
+end)
+task.wait(3.0)
+end
+end)
+return sg
+end
 local function findAndStyleFinderNow()
+pcall(createOrUpdateCustomChilliFinder)
 if State.ActiveFinderWin and State.ActiveFinderWin.Parent and not isMainWinOrAncestor(State.ActiveFinderWin)then
-pcall(instantStyleFinder,State.ActiveFinderWin) end
+pcall(instantStyleFinder,State.ActiveFinderWin)
+end
 local foundAny=false
 local scannedGuiContainers={}
 for _,root in ipairs(getScanRoots())do
@@ -4375,7 +5836,8 @@ if isFinderCandidateLabel(d)then
 foundAny=true
 local win=getFinderWindowFromObj(d)
 if win and not isMainWinOrAncestor(win)then
-pcall(instantStyleFinder,win) end
+pcall(instantStyleFinder,win)
+end
 local sg=d:FindFirstAncestorOfClass("ScreenGui")or(win and win.Parent)or cont
 if sg and not scannedGuiContainers[sg]then
 scannedGuiContainers[sg]=true
@@ -4384,11 +5846,24 @@ if okSg and type(sgDesc)=="table" then
 for _,subD in ipairs(sgDesc)do
 if(subD:IsA("TextLabel")or subD:IsA("TextButton")or subD:IsA("TextBox"))and not isSkippedAncestor(subD)then
 if subD:IsA("TextLabel")or subD:IsA("TextButton")then
-pcall(watchFinderTextObj,subD) end
-pcall(hookTrans,subD) end end end end end end end end end end
-return foundAny end
+pcall(watchFinderTextObj,subD)
+end
+pcall(hookTrans,subD)
+end
+end
+end
+end
+end
+end
+end
+end
+end
+end
+return foundAny
+end
 scanChilliFinderButtons=function()
-findAndStyleFinderNow() end
+findAndStyleFinderNow()
+end
 local function bindGuiEvents(gui)
 if not gui or ROBLOX_CORE_SUBFOLDERS[gui.Name] or gui:GetAttribute("__ListenerSession")==SID then return end
 gui:SetAttribute("__ListenerSession",SID)
@@ -4405,11 +5880,14 @@ return
 elseif rawT=="VENYX" and not nd:FindFirstAncestorOfClass("ScrollingFrame")then
 nd:SetAttribute("__IsTranslating",true)
 nd.Text=NEW_TITLE
-nd:SetAttribute("__IsTranslating",false) end end
+nd:SetAttribute("__IsTranslating",false)
+end
+end
 task.defer(function()
 if not isAlive()or not nd or not nd.Parent then return end
 if nd:IsA("TextButton")or nd:IsA("TextLabel")then
-pcall(watchFinderTextObj,nd) end
+pcall(watchFinderTextObj,nd)
+end
 if not nd:IsA("TextBox")and isFpsTxt(nd.Text)then
 pcall(hookFps,nd)
 else
@@ -4421,14 +5899,23 @@ if fbP and not nd:IsDescendantOf(fbP)then pcall(function()fbP:Destroy()end)end
 local okI,resI=pcall(setupIsland,nd,State.ActiveVenyxGui)
 if okI and resI then
 State.ActiveVenyxGui:SetAttribute("__IslandLocked",SID)
-return end end end
-pcall(hookTrans,nd) end end) end end) end
+return
+end
+end
+end
+pcall(hookTrans,nd)
+end
+end)
+end
+end)
+end
 local function scanOnce(forcePass)
 if not isAlive()then return false end
 for _,root in ipairs(getScanRoots())do
 local guis={}
 if root:IsA("ScreenGui")and not ROBLOX_CORE_SUBFOLDERS[root.Name] then
-tins(guis,root) end
+tins(guis,root)
+end
 local okRCh,rChildren=pcall(function()return root:GetChildren()end)
 if okRCh and type(rChildren)=="table" then
 for _,ch in ipairs(rChildren)do
@@ -4439,7 +5926,10 @@ local okSub,subs=pcall(function()return ch:GetChildren()end)
 if okSub and type(subs)=="table" then
 for _,sub in ipairs(subs)do
 if not ROBLOX_CORE_SUBFOLDERS[sub.Name] and(sub:IsA("ScreenGui")or sub:IsA("GuiObject")or sub:IsA("Folder"))then
-tins(guis,sub) end end end
+tins(guis,sub)
+end
+end
+end
 elseif okN and ch:IsA("ScreenGui")and not ROBLOX_CORE_SUBFOLDERS[chName] then
 tins(guis,ch)
 elseif okN and(ch:IsA("Folder")or ch:IsA("Configuration"))then
@@ -4447,7 +5937,13 @@ local okSub,subs=pcall(function()return ch:GetChildren()end)
 if okSub and type(subs)=="table" then
 for _,sub in ipairs(subs)do
 if sub:IsA("ScreenGui")and not ROBLOX_CORE_SUBFOLDERS[sub.Name] then
-tins(guis,sub) end end end end end end
+tins(guis,sub)
+end
+end
+end
+end
+end
+end
 for _,gui in ipairs(guis)do
 bindGuiEvents(gui)
 if gui:GetAttribute("__ChilliV8Patched")~=SID or forcePass then
@@ -4463,17 +5959,28 @@ d.TextTransparency=1
 elseif isFpsTxt(t)then
 pcall(hookFps,d)
 elseif(t=="VENYX" or t==NEW_TITLE or t=="Chilli Hub Ultra" or t=="Chilli Hub V5" or t=="Chilli V5 |")and not d:FindFirstAncestorOfClass("ScrollingFrame")then
-titleLbl=d end
+titleLbl=d
+end
 local low=t:lower()
 if low=="finder" or low=="tìm trứng" then
-pcall(watchFinderHudButton,d) end end end end
+pcall(watchFinderHudButton,d)
+end
+end
+end
+end
 if titleLbl then
 local okDone,fullyPatched=pcall(patchVenyxGui,gui,titleLbl)
 if okDone and fullyPatched then
 venyxGuiLocked=gui
-gui:SetAttribute("__ChilliV8Patched",SID) end end end end end
+gui:SetAttribute("__ChilliV8Patched",SID)
+end
+end
+end
+end
+end
 pcall(findAndStyleFinderNow)
-return venyxGuiLocked~=nil end
+return venyxGuiLocked~=nil
+end
 State.ScanOnceFn=scanOnce
 State.FindAndStyleFinderFn=findAndStyleFinderNow
 for _,root in ipairs(getScanRoots())do
@@ -4484,28 +5991,43 @@ bindGuiEvents(ch)
 task.defer(function()
 if isAlive()then
 pcall(scanOnce,false)
-pcall(scanChilliFinderButtons) end end) end end) end
+pcall(scanChilliFinderButtons)
+end
+end)
+end
+end)
+end
 task.defer(function()
 if isAlive()then
 pcall(scanOnce,true)
-pcall(scanChilliFinderButtons) end end)
+pcall(scanChilliFinderButtons)
+end
+end)
 local function tryBootPass(attempt)
 if not isAlive()then return end
 if not venyxGuiLocked then
 if attempt==14 or attempt==28 then
 env.__VenyxLaunchingNow=false
-pcall(launchVenyxBase) end
+pcall(launchVenyxBase)
+end
 pcall(scanOnce,false)
 pcall(findAndStyleFinderNow)
 if not venyxGuiLocked and attempt<45 then
 task.delay(0.25,function()
-tryBootPass(attempt+1) end) end
+tryBootPass(attempt+1)
+end)
+end
 else
-pcall(findAndStyleFinderNow) end end
+pcall(findAndStyleFinderNow)
+end
+end
 task.defer(function()
-tryBootPass(1) end)
+tryBootPass(1)
+end)
 task.spawn(function()
 while isAlive()do
 task.wait(1.5)
 if not isAlive()then break end
-pcall(findAndStyleFinderNow) end end)
+pcall(findAndStyleFinderNow)
+end
+end)
