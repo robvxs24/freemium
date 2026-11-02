@@ -1,4 +1,4 @@
-﻿if not math.clamp then math.clamp = function(v, a, b) return math.max(a, math.min(b, v)) end end
+if not math.clamp then math.clamp = function(v, a, b) return math.max(a, math.min(b, v)) end end
 -- ============================================================================
 -- CHILLI HUB V8 SUPREME | ZERO-LAG EDITION (100% LUAU STUDIO STANDARD)
 -- [PHẦN 1] KHỞI TẠO CẤU HÌNH, TỐI ƯU ĐỒ HỌA & QUẢN LÝ PHIÊN LÀM VIỆC (ZERO ERRORS)
@@ -243,14 +243,11 @@ csk(0.00, c3(255, 45, 85)), csk(0.17, c3(255, 155, 35)), csk(0.33, c3(255, 235, 
 csk(0.50, c3(45, 255, 145)), csk(0.67, c3(45, 195, 255)), csk(0.83, c3(185, 85, 255)), csk(1.00, c3(255, 45, 85))
 })
 local ULTRA_TEXT_GRAD = ColorSequence.new({
-	csk(0.00, c3(180, 100, 255)), -- TÃ­m Neon nháº¹ dá»‹u máº¯t
-	csk(0.50, c3(115, 160, 255)), -- Chuyá»ƒn tiáº¿p xanh tÃ­m sang trá»ng Ãªm máº¯t
-	csk(1.00, c3(50, 220, 255))   -- Xanh Ngá»c hiá»‡n Ä‘áº¡i khÃ´ng chÃ³i lÃ³a
+csk(0.00, c3(255, 255, 255)), csk(0.20, c3(125, 225, 255)), csk(0.45, c3(255, 95, 215)),
+csk(0.72, c3(175, 115, 255)), csk(1.00, c3(255, 215, 85))
 })
 local ULTRA_CARD_GRAD = ColorSequence.new({
-	csk(0.00, c3(180, 100, 255)),
-	csk(0.50, c3(115, 160, 255)),
-	csk(1.00, c3(50, 220, 255))
+csk(0.00, c3(70, 210, 255)), csk(0.50, c3(170, 95, 255)), csk(1.00, c3(255, 75, 195))
 })
 local LIQUID_TEXT_GRAD = ColorSequence.new({
 csk(0.00, c3(250, 253, 255)), csk(0.35, c3(185, 232, 255)),
@@ -2535,16 +2532,9 @@ local function applySenaV7Architecture(win, titleLbl)
 	titleLbl.TextColor3 = Color3.new(1, 1, 1)
 	titleLbl.Font = Enum.Font.GothamBlack
 	titleLbl.TextTransparency = 0
-	local titleStroke = titleLbl:FindFirstChild("TitleUltraStroke") or mk("UIStroke", {
-		Name = "TitleUltraStroke",
-		Thickness = 1.0, -- Viá»n má»ng tinh táº¿ chá»‘ng lÃ³a máº¯t
-		Color = Color3.fromRGB(18, 15, 28),
-		Transparency = 0.25,
-		ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	}, titleLbl)
-	titleStroke.Thickness = 1.0
-	titleStroke.Color = Color3.fromRGB(18, 15, 28)
-	titleStroke.Transparency = 0.25
+	if not titleLbl:FindFirstChild("TitleUltraStroke") then
+		mk("UIStroke", { Name = "TitleUltraStroke", Thickness = 1.2, Color = Color3.fromRGB(10, 8, 20), Transparency = 0.2 }, titleLbl)
+	end
 
 	-- Huy hiệu Quả Ớt tròn ở đỉnh cột Sidebar (X = 23, Y = 19) thay thế chữ V gốc
 	local hdrBaseZ = math.max(15, (titleLbl.ZIndex or 5) + 8)
@@ -2816,11 +2806,11 @@ local function applySenaV7Architecture(win, titleLbl)
 			if d:IsA("TextButton") or d:IsA("ImageButton") or d:IsA("TextLabel") then
 				local dTxt = (d:IsA("TextButton") or d:IsA("TextLabel")) and (d.Text or "") or ""
 				if math.abs(d.AbsolutePosition.Y - hy) < 42
-				   and (dTxt == "-" or dTxt == "â€”" or d.Name == "ChilliCustomCloseBtn") then
+				   and (dTxt == "-" or dTxt == "—" or d.AbsolutePosition.X > win.AbsolutePosition.X + win.AbsoluteSize.X - 65) then
 					local btn = (d:IsA("TextButton") or d:IsA("ImageButton")) and d or d.Parent
 					if btn and (btn:IsA("TextButton") or btn:IsA("ImageButton")) and not btn:GetAttribute("__CloseSyncHooked") then
 						btn:SetAttribute("__CloseSyncHooked", true)
-						btn.MouseButton1Click:Connect(function()
+						btn.MouseButton1Down:Connect(function()
 							if State.AnimateCloseFn then
 								pcall(State.AnimateCloseFn)
 							else
@@ -3284,38 +3274,53 @@ local function setupBubbleToggle(gui, win, titleLbl)
 	local shimmerImg = bubbleFrontDisc and bubbleFrontDisc:FindFirstChild("ShimmerGlow")
 	local centerLogo = bubbleFrontDisc and bubbleFrontDisc:FindFirstChild("BubbleLogo")
 
-		local function syncBubbleIconState(isMenuOpen, animated)
+	local function syncBubbleIconState(isMenuOpen, animated)
+		bubble.Visible = true
+		if not bubbleFrontDisc or not centerLogo then return end
 		if isMenuOpen then
-			-- Khi Menu má»Ÿ: áº¨n hoÃ n toÃ n bong bÃ³ng ngoÃ i mÃ n hÃ¬nh (theo Ä‘Ãºng yÃªu cáº§u)
 			if animated then
-				local hideTw = TweenSvc:Create(bubble, TweenInfo.new(0.12, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
-					Size = UDim2.new(0, 0, 0, 0)
+				TweenSvc:Create(bubble, TweenInfo.new(0.10, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+					Size = UDim2.new(0, 48, 0, 48)
+				}):Play()
+				task.delay(0.10, function()
+					TweenSvc:Create(bubble, TweenInfo.new(0.16, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+						Size = UDim2.new(0, 56, 0, 56)
+					}):Play()
+				end)
+				local tw = TweenSvc:Create(centerLogo, TweenInfo.new(0.14, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+					ImageTransparency = 1
 				})
-				hideTw.Completed:Connect(function()
+				TweenSvc:Create(bubbleFrontDisc, TweenInfo.new(0.14, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+					BackgroundTransparency = 1
+				}):Play()
+				if shimmerImg then
+					TweenSvc:Create(shimmerImg, TweenInfo.new(0.14, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+						ImageTransparency = 1
+					}):Play()
+				end
+				tw:Play()
+				tw.Completed:Connect(function()
 					if win and win.Visible then
-						bubble.Visible = false
-						bubble.Active = false
+						bubbleFrontDisc.Visible = false
 					end
 				end)
-				hideTw:Play()
 			else
-				bubble.Visible = false
-				bubble.Active = false
-				bubble.Size = UDim2.new(0, 0, 0, 0)
+				bubbleFrontDisc.Visible = false
+				bubbleFrontDisc.BackgroundTransparency = 1
+				centerLogo.ImageTransparency = 1
+				if shimmerImg then shimmerImg.ImageTransparency = 1 end
 			end
-			if bubbleFrontDisc then bubbleFrontDisc.Visible = false end
 		else
-			-- Khi Menu Ä‘Ã³ng: Hiá»‡n láº¡i quáº£ bÃ³ng bong bÃ³ng pha lÃª ngoÃ i mÃ n hÃ¬nh
-			bubble.Visible = true
-			bubble.Active = true
-			if not bubbleFrontDisc or not centerLogo then return end
 			bubbleFrontDisc.Visible = true
 			if animated then
-				bubble.Size = UDim2.new(0, 0, 0, 0)
-				local showTw = TweenSvc:Create(bubble, TweenInfo.new(0.16, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-					Size = UDim2.new(0, 56, 0, 56)
-				})
-				showTw:Play()
+				TweenSvc:Create(bubble, TweenInfo.new(0.10, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+					Size = UDim2.new(0, 48, 0, 48)
+				}):Play()
+				task.delay(0.10, function()
+					TweenSvc:Create(bubble, TweenInfo.new(0.16, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+						Size = UDim2.new(0, 56, 0, 56)
+					}):Play()
+				end)
 				TweenSvc:Create(bubbleFrontDisc, TweenInfo.new(0.14, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 					BackgroundTransparency = 0
 				}):Play()
@@ -3328,7 +3333,6 @@ local function setupBubbleToggle(gui, win, titleLbl)
 					}):Play()
 				end
 			else
-				bubble.Size = UDim2.new(0, 56, 0, 56)
 				bubbleFrontDisc.BackgroundTransparency = 0
 				centerLogo.ImageTransparency = 0
 				if shimmerImg then shimmerImg.ImageTransparency = 0.25 end
@@ -3401,7 +3405,7 @@ local function setupBubbleToggle(gui, win, titleLbl)
 		winScale.Parent = win
 	end
 
-	-- 1. Má»ž MENU (SIÃŠU MÆ¯á»¢T 0MS, BONG BÃ“NG áº¨N ÄI)
+	-- 1. MỞ MENU (SIÊU MƯỢT 0MS, KHÔNG QUÉT LẠI DOM)
 	local function openMenuAnimated()
 		if State.IsBubbleAnimating then return end
 		State.IsBubbleAnimating = true
@@ -3429,17 +3433,17 @@ local function setupBubbleToggle(gui, win, titleLbl)
 		openTween:Play()
 	end
 
-	-- 2. ÄÃ“NG MENU (CHá»ˆ KHI Báº¤M NÃšT Táº®T CLOSE BUTTON)
+	-- 2. ĐÓNG MENU (SIÊU MƯỢT 0MS, KHÔNG QUÉT LẠI DOM)
 	local function closeMenuAnimated()
 		if State.IsBubbleAnimating then return end
-		if not win or not win.Visible then
+		if not win.Visible then
 			syncBubbleIconState(false, true)
 			return
 		end
 		State.IsBubbleAnimating = true
-		State.CloseHideUntil = os.clock() + 0.50
 
 		playToggleSound("rbxassetid://6895079853", 0.65, 1.25)
+		syncBubbleIconState(false, true)
 
 		local closeTween = TweenSvc:Create(winScale, TweenInfo.new(0.12, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
 			Scale = 0.92
@@ -3448,7 +3452,6 @@ local function setupBubbleToggle(gui, win, titleLbl)
 			win.Visible = false
 			winScale.Scale = 0.92
 			State.IsBubbleAnimating = false
-			syncBubbleIconState(false, true)
 			if State.SyncWindowFn then pcall(State.SyncWindowFn) end
 		end)
 		closeTween:Play()
@@ -3463,13 +3466,12 @@ local function setupBubbleToggle(gui, win, titleLbl)
 		local function handleBubbleTap()
 			if totalDragDist > 12 then return end
 			local now = os.clock()
-			if now - lastTapClock < 0.25 then return end
+			if now - lastTapClock < 0.20 then return end
 			lastTapClock = now
 			if State.IsBubbleAnimating then return end
-			-- CHá»NG Tá»° Äá»˜NG Sáº¬P MENU:
-			-- Khi menu Ä‘ang má»Ÿ (win.Visible == true), bong bÃ³ng Ä‘Ã£ áº©n vÃ  TUYá»†T Äá»I KHÃ”NG ÄÃ“NG MENU!
-			-- Bong bÃ³ng chá»‰ dÃ¹ng Ä‘á»ƒ má»Ÿ menu khi Ä‘ang Ä‘Ã³ng!
-			if not win.Visible then
+			if win.Visible then
+				closeMenuAnimated()
+			else
 				openMenuAnimated()
 			end
 		end
@@ -3483,62 +3485,15 @@ local function setupBubbleToggle(gui, win, titleLbl)
 		end)
 	end
 
-	-- Táº O NÃšT Táº®T Äá»˜C Láº¬P CHUáº¨N XÃC (CHILLI CUSTOM CLOSE BUTTON)
-	-- Chá»‰ Ä‘Ã³ng khi ngÆ°á»i dÃ¹ng chá»§ Ä‘á»™ng báº¥m vÃ o Ä‘Ãºng nÃºt táº¯t nÃ y, tuyá»‡t Ä‘á»‘i khÃ´ng Ä‘Ã³ng khi cháº¡m ra ngoÃ i
-	local closeBtn = win:FindFirstChild("ChilliCustomCloseBtn")
-	if not closeBtn then
-		closeBtn = Instance.new("TextButton")
-		closeBtn.Name = "ChilliCustomCloseBtn"
-		closeBtn.AnchorPoint = Vector2.new(1, 0.5)
-		closeBtn.Position = UDim2.new(1, -12, 0, 19)
-		closeBtn.Size = UDim2.new(0, 26, 0, 24)
-		closeBtn.BackgroundColor3 = Color3.fromRGB(24, 28, 42)
-		closeBtn.BackgroundTransparency = 0.15
-		closeBtn.BorderSizePixel = 0
-		closeBtn.Text = "â€”"
-		closeBtn.TextColor3 = Color3.fromRGB(215, 225, 245)
-		closeBtn.TextSize = 13
-		closeBtn.Font = Enum.Font.GothamBold
-		closeBtn.AutoButtonColor = true
-		closeBtn.ZIndex = math.max(25, (titleLbl and titleLbl.ZIndex or 5) + 10)
-		closeBtn.Parent = win
-
-		local cBtnCorner = Instance.new("UICorner")
-		cBtnCorner.CornerRadius = UDim.new(0, 6)
-		cBtnCorner.Parent = closeBtn
-
-		local cBtnStroke = Instance.new("UIStroke")
-		cBtnStroke.Thickness = 1.0
-		cBtnStroke.Color = Color3.fromRGB(60, 75, 110)
-		cBtnStroke.Transparency = 0.35
-		cBtnStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		cBtnStroke.Parent = closeBtn
-	end
-
-	if not closeBtn:GetAttribute("__ChilliCloseBound") then
-		closeBtn:SetAttribute("__ChilliCloseBound", true)
-		closeBtn.MouseButton1Click:Connect(function()
-			closeMenuAnimated()
-		end)
-	end
-
-	-- Äá»“ng thá»i gáº¯n chuáº©n cho nÃºt '-' gá»‘c cá»§a thÆ° viá»‡n (náº¿u cÃ³)
 	local hy = win.AbsolutePosition.Y
 	for _, d in ipairs(win:GetDescendants()) do
 		if d:IsA("TextButton") or d:IsA("ImageButton") or d:IsA("TextLabel") then
 			local dTxt = (d:IsA("TextButton") or d:IsA("TextLabel")) and (d.Text or "") or ""
-			if (dTxt == "-" or dTxt == "â€”") and math.abs(d.AbsolutePosition.Y - hy) < 50 then
+			if (dTxt == "-" or dTxt == "—" or d.AbsolutePosition.X > win.AbsolutePosition.X + win.AbsoluteSize.X - 65)
+			   and math.abs(d.AbsolutePosition.Y - hy) < 50 then
 				local btn = (d:IsA("TextButton") or d:IsA("ImageButton")) and d or d.Parent
 				if btn and (btn:IsA("TextButton") or btn:IsA("ImageButton")) and not btn:GetAttribute("__ChilliCloseBubbleHooked") then
 					btn:SetAttribute("__ChilliCloseBubbleHooked", true)
-					if getconnections then
-						for _, conn in ipairs(getconnections(btn.MouseButton1Click)) do
-							if conn.Disable then pcall(conn.Disable, conn) end
-						end
-						for _, conn in ipairs(getconnections(btn.MouseButton1Down)) do
-							if conn.Disable then pcall(conn.Disable, conn) end
-						end
-					end
 					btn.MouseButton1Click:Connect(function()
 						closeMenuAnimated()
 					end)
@@ -6029,7 +5984,6 @@ hookChilliFinderJoin = function(inst)
 	end
 	if inst:GetAttribute("__FinderJoinHooked") == SID then return end
 	inst:SetAttribute("__FinderJoinHooked", SID)
-
 	local btnRoot = inst
 	local txtObj = inst
 	if inst:IsA("TextLabel") then
@@ -6123,6 +6077,7 @@ hookChilliFinderJoin = function(inst)
 		end)
 	end
 end
+
 local function translateSingleFinderSegment(seg)
 if type(seg) ~= "string" or seg == "" then return seg end
 local lead, body, trail = seg:match("^(%s*)(.-)(%s*)$")
@@ -6474,6 +6429,7 @@ local function instantStyleFinder(win)
 		end)
 	end
 end
+
 local function findAndStyleFinderNow()
 if State.ActiveFinderWin and State.ActiveFinderWin.Parent then
 instantStyleFinder(State.ActiveFinderWin)
@@ -6522,49 +6478,38 @@ end
 findAndStyleFinderNow()
 end
 
-local function isTemporaryTreadmillNoise(nd)
-	if not nd then return true end
-	if nd:IsA("BillboardGui") or nd:FindFirstAncestorOfClass("BillboardGui") or nd:FindFirstAncestorOfClass("SurfaceGui") then return true end
-	local nm = nd.Name:lower()
-	if nm:find("popup") or nm:find("damage") or nm:find("float") or nm:find("particle") or nm:find("coin") or nm:find("candy") or nm:find("reward") or nm:find("keo") or nm:find("exp") then return true end
-	local rawT = (nd:IsA("TextLabel") or nd:IsA("TextButton")) and nd.Text or ""
-	if rawT:match("^%s*[%+%-%$]") or rawT:match("^%s*%d") or rawT:find("Káº¹o") or rawT:find("Candy") then return true end
-	return false
-end
-
 local function bindGuiEvents(gui)
-	if not gui or ROBLOX_CORE_SUBFOLDERS[gui.Name] or gui:GetAttribute("__ListenerSession") == SID then return end
-	gui:SetAttribute("__ListenerSession", SID)
-	gui.DescendantAdded:Connect(function(nd)
-		if not isAlive() then return end
-		if isTemporaryTreadmillNoise(nd) then return end
-		if nd:FindFirstAncestor("Chat") or nd:FindFirstAncestor("TouchGui") or nd:FindFirstAncestor("InGameMenu") or nd:FindFirstAncestor("PlayerList") then return end
-		if nd:IsA("TextLabel") or nd:IsA("TextButton") or nd:IsA("TextBox") then
-			if not nd:IsA("TextBox") then
-				local rawT = (nd.Text or ""):match("^%s*(.-)%s*$")
-				if rawT == "Vx" or rawT == "VX" then
-					nd:SetAttribute("__HiddenVxLogo", true)
-					nd.TextTransparency = 1
-					return
-				elseif rawT == "VENYX" and not nd:FindFirstAncestorOfClass("ScrollingFrame") then
-					nd:SetAttribute("__IsTranslating", true)
-					nd.Text = NEW_TITLE
-					nd:SetAttribute("__IsTranslating", false)
-				end
-			end
-			task.defer(function()
-				if not isAlive() or not nd or not nd.Parent then return end
-				if nd:IsA("TextButton") or nd:IsA("TextLabel") then
-					pcall(watchFinderTextObj, nd)
-				end
-				if not nd:IsA("TextBox") and isFpsTxt(nd.Text) then
-					pcall(hookFps, nd)
-				else
-					pcall(hookTrans, nd)
-				end
-			end)
-		end
-	end)
+if not gui or ROBLOX_CORE_SUBFOLDERS[gui.Name] or gui:GetAttribute("__ListenerSession") == SID then return end
+gui:SetAttribute("__ListenerSession", SID)
+gui.DescendantAdded:Connect(function(nd)
+if not isAlive() then return end
+if nd:FindFirstAncestor("Chat") or nd:FindFirstAncestor("TouchGui") or nd:FindFirstAncestor("InGameMenu") or nd:FindFirstAncestor("PlayerList") then return end
+if nd:IsA("TextLabel") or nd:IsA("TextButton") or nd:IsA("TextBox") then
+if not nd:IsA("TextBox") then
+local rawT = (nd.Text or ""):match("^%s*(.-)%s*$")
+if rawT == "Vx" or rawT == "VX" then
+nd:SetAttribute("__HiddenVxLogo", true)
+nd.TextTransparency = 1
+return
+elseif rawT == "VENYX" and not nd:FindFirstAncestorOfClass("ScrollingFrame") then
+nd:SetAttribute("__IsTranslating", true)
+nd.Text = NEW_TITLE
+nd:SetAttribute("__IsTranslating", false)
+end
+end
+task.defer(function()
+if not isAlive() or not nd or not nd.Parent then return end
+if nd:IsA("TextButton") or nd:IsA("TextLabel") then
+pcall(watchFinderTextObj, nd)
+end
+if not nd:IsA("TextBox") and isFpsTxt(nd.Text) then
+pcall(hookFps, nd)
+else
+pcall(hookTrans, nd)
+end
+end)
+end
+end)
 end
 
 local function scanOnce(forcePass)
@@ -6624,75 +6569,43 @@ return venyxGuiLocked ~= nil
 end
 State.ScanOnceFn = scanOnce
 
-local lastChildAddedScanClock = 0
 for _, root in ipairs(getScanRoots()) do
-	root.ChildAdded:Connect(function(ch)
-		if not isAlive() then return end
-		if ROBLOX_CORE_SUBFOLDERS[ch.Name] then return end
-		if ch:IsA("BillboardGui") or ch:IsA("SurfaceGui") then return end
-		local nm = ch.Name:lower()
-		if nm:find("particle") or nm:find("popup") or nm:find("effect") or nm:find("damage") or nm:find("coin") then return end
-		local now = os.clock()
-		if now - lastChildAddedScanClock < 0.60 then return end
-		lastChildAddedScanClock = now
-		bindGuiEvents(ch)
-		task.delay(0.1, function()
-			if isAlive() then
-				if not venyxGuiLocked then pcall(scanOnce, false) end
-				pcall(scanChilliFinderButtons)
-			end
-		end)
-	end)
+root.ChildAdded:Connect(function(ch)
+if not isAlive() then return end
+if not ROBLOX_CORE_SUBFOLDERS[ch.Name] then
+bindGuiEvents(ch)
+task.defer(function()
+if isAlive() then
+pcall(scanOnce, false)
+pcall(scanChilliFinderButtons)
+end
+end)
+end
+end)
 end
 
 task.defer(function()
-	if isAlive() then
-		pcall(scanOnce, true)
-		pcall(scanChilliFinderButtons)
-	end
+if isAlive() then
+pcall(scanOnce, true)
+pcall(scanChilliFinderButtons)
+end
 end)
 
 local function tryBootPass(attempt)
-	if not isAlive() then return end
-	if not venyxGuiLocked then
-		pcall(scanOnce, false)
-		pcall(findAndStyleFinderNow)
-		if not venyxGuiLocked and attempt < 40 then
-			task.delay(0.25, function()
-				tryBootPass(attempt + 1)
-			end)
-		end
-	else
-		pcall(findAndStyleFinderNow)
-	end
+if not isAlive() then return end
+if not venyxGuiLocked then
+pcall(scanOnce, false)
+pcall(findAndStyleFinderNow)
+if not venyxGuiLocked and attempt < 40 then
+task.delay(0.25, function()
+tryBootPass(attempt + 1)
+end)
+end
+else
+pcall(findAndStyleFinderNow)
+end
 end
 task.defer(function()
-	tryBootPass(1)
+tryBootPass(1)
 end)
 
--- ============================================================================
--- [CHá»NG GIáº¬T LAG MÃY CHáº Y / TREADMILL ZERO-LAG PHYSICS DECOUPLING]
--- ============================================================================
-task.spawn(function()
-	while isAlive() do
-		task.wait(0.1) -- GiÃ£n cÃ¡ch 100ms, tÃ¡ch biá»‡t hoÃ n toÃ n khá»i physics loop cá»§a bÄƒng chuyá»n
-		pcall(function()
-			local char = LocalPlayer and LocalPlayer.Character
-			if char then
-				local hum = char:FindFirstChildOfClass("Humanoid")
-				local hrp = char:FindFirstChild("HumanoidRootPart")
-				if hrp and hum and hum.Health > 0 then
-					local vel = hrp.AssemblyLinearVelocity or hrp.Velocity
-					if vel and vel.Magnitude > 2000 then
-						local clamped = vel.Unit * 300
-						if hrp.AssemblyLinearVelocity then
-							hrp.AssemblyLinearVelocity = clamped
-						else
-							hrp.Velocity = clamped
-						end
-					end
-				end
-			end
-		end)
-	end
-end)
