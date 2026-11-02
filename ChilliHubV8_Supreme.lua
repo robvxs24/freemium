@@ -68,6 +68,22 @@ State.ScanningFinderBusy = false
 State.MacroBusy = false
 State.TrackedFinderJoinBtns = {}
 local SID = State.SessionId
+
+-- CƠ CHẾ CAN THIỆP METAMETHOD CẤP ĐỘ CAO (OUTSMART HOST ANTI-TAMPER)
+pcall(function()
+	if hookmetamethod and checkcaller then
+		local oldNewIndex
+		oldNewIndex = hookmetamethod(game, "__newindex", function(t, k, v)
+			if not checkcaller() and k == "Text" and type(v) == "string" then
+				local low = v:lower():match("^%s*(.-)%s*$")
+				if low == "chilli finder" or low == "chill finder free" or low == "chilli finder free" then
+					return oldNewIndex(t, k, "Chilli Finder Freemium")
+				end
+			end
+			return oldNewIndex(t, k, v)
+		end)
+	end
+end)
 local function isAlive() return State.SessionId == SID end
 pcall(function()
 if isfile and isfile(LANG_FILE) then
@@ -3768,6 +3784,78 @@ end
 return winFrame
 end
 
+
+-- HỆ THỐNG OVERLAY TIÊU ĐỀ BẤT KHẢ XÂM PHẠM (OUTSMARTS HOST SCRIPT SỬ DỤNG MASK OVERLAY)
+local function applyFreemiumTitleOverlay(titleObj)
+	if not titleObj or not titleObj.Parent then return end
+	pcall(function()
+		titleObj.TextTransparency = 1
+		titleObj.ClipsDescendants = false
+		if titleObj.Parent and titleObj.Parent:IsA("GuiObject") then
+			titleObj.Parent.ClipsDescendants = false
+		end
+		local overlay = titleObj:FindFirstChild("ChilliFreemiumTitleOverlay")
+		if not overlay then
+			overlay = mk("TextLabel", {
+				Name = "ChilliFreemiumTitleOverlay",
+				Size = UDim2.new(0, 260, 1, 0),
+				Position = UDim2.fromScale(0, 0),
+				BackgroundTransparency = 1,
+				Text = "Chilli Finder Freemium",
+				TextColor3 = Color3.fromRGB(255, 255, 255),
+				Font = titleObj.Font or Enum.Font.GothamBold,
+				TextSize = (titleObj.TextSize and titleObj.TextSize > 0) and titleObj.TextSize or 14,
+				TextXAlignment = titleObj.TextXAlignment or Enum.TextXAlignment.Left,
+				TextYAlignment = titleObj.TextYAlignment or Enum.TextYAlignment.Center,
+				ClipsDescendants = false,
+				TextTruncate = Enum.TextTruncate.None,
+				TextWrapped = false,
+				ZIndex = math.max((titleObj.ZIndex or 1) + 15, 60),
+				Active = false
+			}, titleObj)
+			local overlayStroke = mk("UIStroke", {
+				Name = "TitleOverlayStroke",
+				Thickness = 1.0,
+				Color = Color3.fromRGB(15, 12, 22),
+				Transparency = 0.45
+			}, overlay)
+		else
+			overlay.Text = "Chilli Finder Freemium"
+			overlay.Visible = true
+			overlay.TextTransparency = 0
+			overlay.ZIndex = math.max((titleObj.ZIndex or 1) + 15, 60)
+		end
+
+		if not titleObj:GetAttribute("__OverlayLockHooked") then
+			titleObj:SetAttribute("__OverlayLockHooked", true)
+			titleObj:GetPropertyChangedSignal("TextTransparency"):Connect(function()
+				if titleObj.TextTransparency < 1 then
+					titleObj.TextTransparency = 1
+				end
+			end)
+			titleObj:GetPropertyChangedSignal("Text"):Connect(function()
+				if titleObj.TextTransparency < 1 then
+					titleObj.TextTransparency = 1
+				end
+				local cur = titleObj:FindFirstChild("ChilliFreemiumTitleOverlay")
+				if cur then
+					cur.Visible = true
+					cur.TextTransparency = 0
+				else
+					applyFreemiumTitleOverlay(titleObj)
+				end
+			end)
+			titleObj.ChildRemoved:Connect(function(c)
+				if c and c.Name == "ChilliFreemiumTitleOverlay" then
+					task.defer(function()
+						applyFreemiumTitleOverlay(titleObj)
+					end)
+				end
+			end)
+		end
+	end)
+end
+
 local function styleMasterChillFinderFree(titleObj)
 if not titleObj or not titleObj.Parent then return end
 pcall(function()
@@ -3793,23 +3881,17 @@ st.Transparency = 1
 st.Enabled = false
 end
 end
-local rb = winFrame:FindFirstChild("ChillFinderRainbowBorder")
-if not rb then
-rb = mk("UIStroke", {
-Name = "ChillFinderRainbowBorder",
-Thickness = 2.8,
-Color = Color3.new(1, 1, 1),
-ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-Transparency = 0
-}, winFrame)
-local bgGrad = mk("UIGradient", { Name = "BorderNeonGrad", Color = FINDER_BORDER_NEON_GRAD }, rb)
-addGrad(bgGrad)
-else
-rb.Thickness = 2.8
-rb.Transparency = 0
-rb.Enabled = true
-end
-end
+local oldRb = winFrame:FindFirstChild("ChillFinderRainbowBorder")
+		if oldRb then pcall(function() oldRb:Destroy() end) end
+		local sleekBorder = winFrame:FindFirstChild("ChilliFinderSleekBorder") or mk("UIStroke", {
+			Name = "ChilliFinderSleekBorder",
+			Thickness = 1.0,
+			Color = Color3.fromRGB(38, 44, 58),
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			Transparency = 0.25
+		}, winFrame)
+		pcall(applyFreemiumTitleOverlay, titleObj)
+	end
 end)
 end
 
@@ -3953,15 +4035,16 @@ if not (d:IsA("TextLabel") or d:IsA("TextButton")) then return end
 if d:GetAttribute("__ModifyingFinderText") then return end
 local raw = stripRichTags(d.Text)
 if raw == "" then return end
-local low = raw:lower()
-if raw == "Chilli Finder" or raw == "Chilli Finder Freemium" or raw == "Chilli Finder Freemium" or raw == "⚡ Chilli Finder Freemium" then
-d:SetAttribute("__ModifyingFinderText", true)
-d:SetAttribute("__IsTranslating", true)
-d:SetAttribute("OrigRawText", "Chilli Finder Freemium")
-d:SetAttribute("OrigFinderStateText", "Chilli Finder Freemium")
-if d.Text ~= "Chilli Finder Freemium" then
-pcall(function() d.Text = "Chilli Finder Freemium" end)
-end
+local low = raw:lower():match("^%s*(.-)%s*$")
+if low == "chilli finder" or low == "chill finder free" or low == "chilli finder free" or low == "chilli finder freemium" or raw == "⚡ Chilli Finder Freemium" then
+	d:SetAttribute("__ModifyingFinderText", true)
+	d:SetAttribute("__IsTranslating", true)
+	d:SetAttribute("OrigRawText", "Chilli Finder Freemium")
+	d:SetAttribute("OrigFinderStateText", "Chilli Finder Freemium")
+	pcall(applyFreemiumTitleOverlay, d)
+	if d.Text ~= "Chilli Finder Freemium" then
+		pcall(function() d.Text = "Chilli Finder Freemium" end)
+	end
 if d:GetAttribute("__FinderMasterStyled") ~= SID then
 d:SetAttribute("__FinderMasterStyled", SID)
 styleMasterChillFinderFree(d)
@@ -6348,32 +6431,30 @@ local function instantStyleFinder(win)
 	local wCorner = win:FindFirstChildOfClass("UICorner") or mk("UICorner", { CornerRadius = UDim.new(0, 8) }, win)
 	wCorner.CornerRadius = UDim.new(0, 8)
 
-	-- ĐỒNG BỘ TIÊU ĐỀ "CHILLI FINDER FREEMIUM" & PHỤ ĐỀ (NHẸ NHÀNG, KHÔNG LAG)
+	-- ĐỒNG BỘ TIÊU ĐỀ "CHILLI FINDER FREEMIUM" & PHỤ ĐỀ (KỸ THUẬT OVERLAY MASK - CAO TAY HƠN KHÔNG BỊ CHẶN)
 	local isEn = (State.Language == "EN")
-	local wantSub = isEn and "Top 5 recent eggs | Chilli Finder Freemiummium" or "Top 5 trứng mới nhất | Chilli Finder Freemiummium"
-	for _, d in ipairs(win:GetChildren()) do
-		if d:IsA("GuiObject") then
-			for _, sub in ipairs(d:GetChildren()) do
-				if sub:IsA("TextLabel") then
-					local t = sub.Text or ""
-					local low = t:lower()
-					if t == "Chilli Finder" or low == "chilli finder freemiummium" or low:find("chilli finder", 1, true) then
-						if sub.Text ~= "Chilli Finder Freemiummium" then
-							pcall(function()
-								sub:SetAttribute("__IsTranslating", true)
-								sub.Text = "Chilli Finder Freemiummium"
-								sub:SetAttribute("__IsTranslating", false)
-							end)
-						end
-					elseif low:find("top 5", 1, true) or low:find("chillihub.pro", 1, true) or low:find("no active booking", 1, true) then
-						if sub.Text ~= wantSub then
-							pcall(function()
-								sub:SetAttribute("__IsTranslating", true)
-								sub.Text = wantSub
-								sub.TextColor3 = Color3.new(1, 1, 1)
-								sub:SetAttribute("__IsTranslating", false)
-							end)
-						end
+	local wantSub = isEn and "Top 5 recent eggs | Chilli Finder Freemium" or "Top 5 trứng mới nhất | Chilli Finder Freemium"
+	for _, d in ipairs(win:GetDescendants()) do
+		if d:IsA("TextLabel") and not d:FindFirstAncestorOfClass("ScrollingFrame") then
+			local t = stripRichTags(d.Text or ""):lower():match("^%s*(.-)%s*$")
+			if t == "chilli finder" or t == "chill finder free" or t == "chilli finder free" or t == "chilli finder freemium" or t:find("chilli finder", 1, true) or (t:find("finder", 1, true) and d.AbsolutePosition.Y < win.AbsolutePosition.Y + 70) then
+				pcall(applyFreemiumTitleOverlay, d)
+				if d.Text ~= "Chilli Finder Freemium" then
+					pcall(function()
+						d:SetAttribute("__IsTranslating", true)
+						d.Text = "Chilli Finder Freemium"
+						d:SetAttribute("__IsTranslating", false)
+					end)
+				end
+			elseif t:find("top 5", 1, true) or t:find("chillihub.pro", 1, true) or t:find("no active booking", 1, true) then
+				if d.AbsolutePosition.Y < win.AbsolutePosition.Y + 95 then
+					if d.Text ~= wantSub then
+						pcall(function()
+							d:SetAttribute("__IsTranslating", true)
+							d.Text = wantSub
+							d.TextColor3 = Color3.fromRGB(215, 225, 240)
+							d:SetAttribute("__IsTranslating", false)
+						end)
 					end
 				end
 			end
