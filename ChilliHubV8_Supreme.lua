@@ -5890,24 +5890,42 @@ end
 
 -- ============================================================================
 -- ============================================================================
--- TỐI ƯU HÓA NÚT VÀO NGAY / JOIN • TÍCH HỢP SERVER HOPPER IT NGƯỜI NHẤT
--- CĂN LỀ PHẢI (75x28px, CORNER 6px) • SONG NGỮ ĐỘNG (VI / EN) • MÀU HỔ PHÁCH SANG TRỌNG
--- GIỮ NGUYÊN TOÀN BỘ DỮ LIỆU GỐC CỦA CHILLI FINDER (PET, $/s, xMULT, TIME)
--- ============================================================================
+--------------------------------------------------------------------------------
+-- NÚT JOIN / VÀO NGAY HIỆU ỨNG LIQUID GLASSMORPHISM & TÍCH HỢP GET KEY + SERVER HOPPER
+--------------------------------------------------------------------------------
 local function playJoinBtnClickFx(btn)
 	if not btn or not btn.Parent then return end
 	pcall(function()
 		local origSize = UDim2.new(0, 75, 0, 28)
-		local pressSize = UDim2.new(0, 70, 0, 26)
+		local pressSize = UDim2.new(0, 71, 0, 26)
+		local stroke = btn:FindFirstChild("ChilliJoinStroke")
+		local origStrokeTrans = stroke and stroke.Transparency or 0.55
+
+		if stroke then
+			TweenService:Create(stroke, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				Transparency = 0.15,
+				Color = Color3.fromRGB(255, 255, 255)
+			}):Play()
+		end
+
 		local twDown = TweenService:Create(btn, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Size = pressSize
+			Size = pressSize,
+			BackgroundTransparency = 0.28
 		})
 		twDown:Play()
+
 		twDown.Completed:Connect(function()
 			if btn and btn.Parent then
-				TweenService:Create(btn, TweenInfo.new(0.12, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-					Size = origSize
+				TweenService:Create(btn, TweenInfo.new(0.14, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+					Size = origSize,
+					BackgroundTransparency = 0.45
 				}):Play()
+				if stroke then
+					TweenService:Create(stroke, TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+						Transparency = origStrokeTrans,
+						Color = Color3.fromRGB(195, 225, 255)
+					}):Play()
+				end
 			end
 		end)
 	end)
@@ -5916,8 +5934,9 @@ end
 local function styleChilliFinderJoinButton(btnRoot, txtObj)
 	if not btnRoot or not btnRoot.Parent then return end
 	pcall(function()
-		btnRoot.BackgroundColor3 = Color3.fromRGB(225, 115, 30)
-		btnRoot.BackgroundTransparency = 0
+		-- 1. NỀN KÍNH LỎNG (LIQUID GLASSMORPHISM)
+		btnRoot.BackgroundColor3 = Color3.fromRGB(20, 26, 38)
+		btnRoot.BackgroundTransparency = 0.45
 		btnRoot.BorderSizePixel = 0
 		btnRoot.AnchorPoint = Vector2.new(1, 0.5)
 		btnRoot.Position = UDim2.new(1, -8, 0.5, 0)
@@ -5928,48 +5947,101 @@ local function styleChilliFinderJoinButton(btnRoot, txtObj)
 		local corner = btnRoot:FindFirstChildOfClass("UICorner") or mk("UICorner", { CornerRadius = UDim.new(0, 6) }, btnRoot)
 		corner.CornerRadius = UDim.new(0, 6)
 
-		local stroke = btnRoot:FindFirstChild("ChilliJoinStroke") or mk("UIStroke", {
-			Name = "ChilliJoinStroke",
-			Thickness = 1.0,
-			Color = Color3.fromRGB(255, 195, 110),
-			Transparency = 0.45,
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		}, btnRoot)
-		stroke.Thickness = 1.0
-		stroke.Color = Color3.fromRGB(255, 195, 110)
-		stroke.Transparency = 0.45
-
+		-- Gradient kính lỏng phản chiếu ánh sáng xiên tinh tế
 		local grad = btnRoot:FindFirstChild("ChilliJoinGrad") or mk("UIGradient", {
 			Name = "ChilliJoinGrad",
-			Rotation = 90,
+			Rotation = 60,
 			Color = ColorSequence.new({
-				ColorSequenceKeypoint.new(0.0, Color3.fromRGB(240, 130, 45)),
-				ColorSequenceKeypoint.new(1.0, Color3.fromRGB(195, 90, 20))
+				ColorSequenceKeypoint.new(0.0, Color3.fromRGB(48, 62, 88)),
+				ColorSequenceKeypoint.new(0.5, Color3.fromRGB(24, 32, 46)),
+				ColorSequenceKeypoint.new(1.0, Color3.fromRGB(15, 20, 30))
+			}),
+			Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0.0, 0.25),
+				NumberSequenceKeypoint.new(0.5, 0.45),
+				NumberSequenceKeypoint.new(1.0, 0.55)
 			})
 		}, btnRoot)
 
+		-- Viền kính ánh xanh ngọc nhạt / trắng ngà phản chiếu ánh sáng
+		local stroke = btnRoot:FindFirstChild("ChilliJoinStroke") or mk("UIStroke", {
+			Name = "ChilliJoinStroke",
+			Thickness = 1.0,
+			Color = Color3.fromRGB(195, 225, 255),
+			Transparency = 0.55,
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		}, btnRoot)
+		stroke.Thickness = 1.0
+		stroke.Color = Color3.fromRGB(195, 225, 255)
+		stroke.Transparency = 0.55
+
+		-- Vệt sáng gương kính ở nửa trên (Glass highlight)
+		local glassShine = btnRoot:FindFirstChild("ChilliJoinGlassShine")
+		if not glassShine then
+			glassShine = mk("Frame", {
+				Name = "ChilliJoinGlassShine",
+				AnchorPoint = Vector2.new(0.5, 0),
+				Position = UDim2.new(0.5, 0, 0, 1),
+				Size = UDim2.new(1, -2, 0.44, 0),
+				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+				BackgroundTransparency = 0.88,
+				BorderSizePixel = 0,
+				Active = false,
+				ZIndex = btnRoot.ZIndex + 1
+			}, btnRoot)
+			mk("UICorner", { CornerRadius = UDim.new(0, 5) }, glassShine)
+		end
+
+		-- Hiệu ứng Hover phản hồi xúc giác
+		if not btnRoot:GetAttribute("__GlassHoverHooked") then
+			btnRoot:SetAttribute("__GlassHoverHooked", true)
+			btnRoot.MouseEnter:Connect(function()
+				if isAlive() and stroke then
+					TweenService:Create(stroke, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+						Transparency = 0.30,
+						Color = Color3.fromRGB(255, 255, 255)
+					}):Play()
+					TweenService:Create(btnRoot, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+						BackgroundTransparency = 0.35
+					}):Play()
+				end
+			end)
+			btnRoot.MouseLeave:Connect(function()
+				if isAlive() and stroke then
+					TweenService:Create(stroke, TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+						Transparency = 0.55,
+						Color = Color3.fromRGB(195, 225, 255)
+					}):Play()
+					TweenService:Create(btnRoot, TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+						BackgroundTransparency = 0.45
+					}):Play()
+				end
+			end)
+		end
+
+		-- 2. CHỮ MÀU XANH NGỌC PASTEL / TRẮNG TINH KHIẾT
 		local wantText = (State.Language == "EN") and "Join" or "Vào ngay"
 
 		if txtObj and (txtObj:IsA("TextLabel") or txtObj:IsA("TextButton")) then
 			txtObj:SetAttribute("__IsTranslating", true)
 			txtObj:SetAttribute("__TranslatingFinderHud", true)
 			txtObj.Text = wantText
-			txtObj.TextColor3 = Color3.fromRGB(255, 255, 255)
+			txtObj.TextColor3 = Color3.fromRGB(230, 245, 255)
 			txtObj.Font = Enum.Font.GothamBold
-			txtObj.TextSize = 12.5
+			txtObj.TextSize = 12.0
 			txtObj.TextTransparency = 0
-			txtObj.ZIndex = btnRoot.ZIndex + 1
+			txtObj.ZIndex = btnRoot.ZIndex + 3
 			txtObj:SetAttribute("__IsTranslating", false)
 
 			local txtStroke = txtObj:FindFirstChild("JoinTxtStroke") or mk("UIStroke", {
 				Name = "JoinTxtStroke",
 				Thickness = 1.0,
-				Color = Color3.fromRGB(40, 16, 5),
-				Transparency = 0.40
+				Color = Color3.fromRGB(10, 16, 26),
+				Transparency = 0.65
 			}, txtObj)
 			txtStroke.Thickness = 1.0
-			txtStroke.Color = Color3.fromRGB(40, 16, 5)
-			txtStroke.Transparency = 0.40
+			txtStroke.Color = Color3.fromRGB(10, 16, 26)
+			txtStroke.Transparency = 0.65
 		end
 	end)
 end
@@ -5977,6 +6049,34 @@ end
 hopToLeastPlayersServer = function(joinLbl)
 	playIslandSfx("action")
 	executeRawHopToLeastPlayersServer(joinLbl)
+end
+
+-- XỬ LÝ KHI BẤM NÚT VÀO NGAY / JOIN: KIỂM TRA KEY SYSTEM CÓ SẴN -> SERVER HOPPER
+local function handleFinderJoinPress(btn)
+	if not isAlive() or not btn or not btn.Parent then return end
+	playJoinBtnClickFx(btn)
+
+	local remaining = nil
+	if GetKeyRemainingTime then
+		pcall(function() remaining = GetKeyRemainingTime() end)
+	end
+
+	if remaining and remaining > 0 then
+		-- Đã có Key kích hoạt hợp lệ -> Chuyển ngay sang Server ít người nhất
+		hopToLeastPlayersServer(btn)
+	else
+		-- Chưa có Key hợp lệ -> Mở Menu Get Key có sẵn trong code
+		State.PendingFinderJoinLbl = btn
+		if OpenKeySystemUI then
+			pcall(function()
+				if ApplyScreenLockdown then pcall(ApplyScreenLockdown) end
+				OpenKeySystemUI()
+			end)
+		else
+			-- Fallback trực tiếp nếu menu đang khởi tạo
+			hopToLeastPlayersServer(btn)
+		end
+	end
 end
 
 local function isFinderJoinLabel(inst)
@@ -6046,10 +6146,7 @@ hookChilliFinderJoin = function(inst)
 	end
 
 	local function onTriggerJoin()
-		if isAlive() then
-			playJoinBtnClickFx(btnRoot)
-			hopToLeastPlayersServer(btnRoot)
-		end
+		handleFinderJoinPress(btnRoot)
 	end
 
 	for _, tObj in ipairs(targets) do
@@ -6361,17 +6458,17 @@ local function instantStyleFinder(win)
 
 	-- ĐỒNG BỘ TIÊU ĐỀ "CHILLI FINDER FREEMIUM" & PHỤ ĐỀ
 	local isEn = (State.Language == "EN")
-	local wantSub = isEn and "Top 5 recent eggs | Chilli Finder Freemiummium" or "Top 5 trứng mới nhất | Chilli Finder Freemiummium"
+	local wantSub = isEn and "Top 5 recent eggs | Chilli Finder Freemium" or "Top 5 trứng mới nhất | Chilli Finder Freemium"
 	for _, d in ipairs(win:GetDescendants()) do
 		if d:IsA("TextLabel") and not d:FindFirstAncestorOfClass("ScrollingFrame") then
 			local t = d.Text or ""
 			local low = t:lower()
-			if t == "Chilli Finder" or low == "chilli finder freemiummium" or low:find("chilli finder", 1, true) then
+			if t == "Chilli Finder" or low == "chilli finder freemium" or low:find("chilli finder", 1, true) then
 				if d.AbsolutePosition.Y < win.AbsolutePosition.Y + 60 then
-					if d.Text ~= "Chilli Finder Freemiummium" then
+					if d.Text ~= "Chilli Finder Freemium" then
 						pcall(function()
 							d:SetAttribute("__IsTranslating", true)
-							d.Text = "Chilli Finder Freemiummium"
+							d.Text = "Chilli Finder Freemium"
 							d:SetAttribute("__IsTranslating", false)
 						end)
 					end
@@ -6471,17 +6568,18 @@ local function instantStyleFinder(win)
 					AnchorPoint = Vector2.new(1, 0.5),
 					Position = UDim2.new(1, -8, 0.5, 0),
 					Size = UDim2.new(0, 75, 0, 28),
-					BackgroundColor3 = Color3.fromRGB(225, 115, 30),
-					BackgroundTransparency = 0,
+					BackgroundColor3 = Color3.fromRGB(20, 26, 38),
+					BackgroundTransparency = 0.45,
 					BorderSizePixel = 0,
 					Text = wantText,
-					TextColor3 = Color3.fromRGB(255, 255, 255),
-					TextSize = 12.5,
+					TextColor3 = Color3.fromRGB(230, 245, 255),
+					TextSize = 12.0,
 					Font = Enum.Font.GothamBold,
-					AutoButtonColor = true,
+					AutoButtonColor = false,
 					Active = true,
 					ZIndex = math.max((row.ZIndex or 1) + 10, 50)
 				}, row)
+				styleChilliFinderJoinButton(customJoin, customJoin)
 			else
 				customJoin.Visible = true
 				customJoin.Position = UDim2.new(1, -8, 0.5, 0)
@@ -6489,15 +6587,15 @@ local function instantStyleFinder(win)
 				if customJoin.Text ~= wantText and not customJoin.Text:find("⏳") then
 					pcall(function() customJoin.Text = wantText end)
 				end
+				if not customJoin:GetAttribute("__LiquidGlassStyled") then
+					customJoin:SetAttribute("__LiquidGlassStyled", true)
+					styleChilliFinderJoinButton(customJoin, customJoin)
+				end
 			end
-			styleChilliFinderJoinButton(customJoin, customJoin)
 			if not customJoin:GetAttribute("__ClickHooked") then
 				customJoin:SetAttribute("__ClickHooked", true)
 				local function onCustomJoinClick()
-					if isAlive() then
-						playJoinBtnClickFx(customJoin)
-						hopToLeastPlayersServer(customJoin)
-					end
+					handleFinderJoinPress(customJoin)
 				end
 				customJoin.MouseButton1Click:Connect(onCustomJoinClick)
 				customJoin.Activated:Connect(onCustomJoinClick)
@@ -6712,8 +6810,8 @@ if not isAlive() then return end
 if not venyxGuiLocked then
 pcall(scanOnce, false)
 pcall(findAndStyleFinderNow)
-if not venyxGuiLocked and attempt < 40 then
-task.delay(0.25, function()
+if not venyxGuiLocked and attempt < 25 then
+task.delay(0.5, function()
 tryBootPass(attempt + 1)
 end)
 end
@@ -6725,7 +6823,7 @@ task.defer(function()
 tryBootPass(1)
 end)
 
--- LUỒNG KIỂM TRA ĐỊNH KỲ CHILLI FINDER FREEMIUM (CỐ ĐỊNH NÚT VÀO NGAY & TIÊU ĐỀ)
+-- LUỒNG KIỂM TRA ĐỊNH KỲ CHILLI FINDER FREEMIUM (SIÊU NHẸ, KHÔNG LAG KHI MỞ SCRIPT)
 task.spawn(function()
 	while isAlive() do
 		task.wait(3)
@@ -6733,8 +6831,6 @@ task.spawn(function()
 			local win = State.ActiveFinderWin
 			if win and win.Parent and win.Visible then
 				instantStyleFinder(win)
-			else
-				findAndStyleFinderNow()
 			end
 		end)
 	end
