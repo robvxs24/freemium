@@ -243,9 +243,9 @@ csk(0.00, c3(255, 45, 85)), csk(0.17, c3(255, 155, 35)), csk(0.33, c3(255, 235, 
 csk(0.50, c3(45, 255, 145)), csk(0.67, c3(45, 195, 255)), csk(0.83, c3(185, 85, 255)), csk(1.00, c3(255, 45, 85))
 })
 local ULTRA_TEXT_GRAD = ColorSequence.new({
-	csk(0.00, c3(180, 100, 255)), -- Tim Neon nhe diu mat
-	csk(0.50, c3(115, 160, 255)), -- Chuyen tiep xanh tim sang trong em mat
-	csk(1.00, c3(50, 220, 255))   -- Xanh Ngoc hien dai khong choi loa
+	csk(0.00, c3(180, 100, 255)), -- TÃ­m Neon nháº¹ dá»‹u máº¯t
+	csk(0.50, c3(115, 160, 255)), -- Chuyá»ƒn tiáº¿p xanh tÃ­m sang trá»ng Ãªm máº¯t
+	csk(1.00, c3(50, 220, 255))   -- Xanh Ngá»c hiá»‡n Ä‘áº¡i khÃ´ng chÃ³i lÃ³a
 })
 local ULTRA_CARD_GRAD = ColorSequence.new({
 	csk(0.00, c3(180, 100, 255)),
@@ -2537,7 +2537,7 @@ local function applySenaV7Architecture(win, titleLbl)
 	titleLbl.TextTransparency = 0
 	local titleStroke = titleLbl:FindFirstChild("TitleUltraStroke") or mk("UIStroke", {
 		Name = "TitleUltraStroke",
-		Thickness = 1.0, -- Vien mong tinh te chong loa mat
+		Thickness = 1.0, -- Viá»n má»ng tinh táº¿ chá»‘ng lÃ³a máº¯t
 		Color = Color3.fromRGB(18, 15, 28),
 		Transparency = 0.25,
 		ApplyStrokeMode = Enum.ApplyStrokeMode.Border
@@ -2816,11 +2816,11 @@ local function applySenaV7Architecture(win, titleLbl)
 			if d:IsA("TextButton") or d:IsA("ImageButton") or d:IsA("TextLabel") then
 				local dTxt = (d:IsA("TextButton") or d:IsA("TextLabel")) and (d.Text or "") or ""
 				if math.abs(d.AbsolutePosition.Y - hy) < 42
-				   and (dTxt == "-" or dTxt == "—" or d.AbsolutePosition.X > win.AbsolutePosition.X + win.AbsoluteSize.X - 65) then
+				   and (dTxt == "-" or dTxt == "â€”" or d.Name == "ChilliCustomCloseBtn") then
 					local btn = (d:IsA("TextButton") or d:IsA("ImageButton")) and d or d.Parent
 					if btn and (btn:IsA("TextButton") or btn:IsA("ImageButton")) and not btn:GetAttribute("__CloseSyncHooked") then
 						btn:SetAttribute("__CloseSyncHooked", true)
-						btn.MouseButton1Down:Connect(function()
+						btn.MouseButton1Click:Connect(function()
 							if State.AnimateCloseFn then
 								pcall(State.AnimateCloseFn)
 							else
@@ -3284,9 +3284,9 @@ local function setupBubbleToggle(gui, win, titleLbl)
 	local shimmerImg = bubbleFrontDisc and bubbleFrontDisc:FindFirstChild("ShimmerGlow")
 	local centerLogo = bubbleFrontDisc and bubbleFrontDisc:FindFirstChild("BubbleLogo")
 
-	local function syncBubbleIconState(isMenuOpen, animated)
+		local function syncBubbleIconState(isMenuOpen, animated)
 		if isMenuOpen then
-			-- Khi Menu mo: An hoan toan bong bong ngoai man hinh (theo dung yeu cau)
+			-- Khi Menu má»Ÿ: áº¨n hoÃ n toÃ n bong bÃ³ng ngoÃ i mÃ n hÃ¬nh (theo Ä‘Ãºng yÃªu cáº§u)
 			if animated then
 				local hideTw = TweenSvc:Create(bubble, TweenInfo.new(0.12, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
 					Size = UDim2.new(0, 0, 0, 0)
@@ -3305,7 +3305,7 @@ local function setupBubbleToggle(gui, win, titleLbl)
 			end
 			if bubbleFrontDisc then bubbleFrontDisc.Visible = false end
 		else
-			-- Khi Menu dong: Hien lai qua bong bong bong pha le ngoai man hinh
+			-- Khi Menu Ä‘Ã³ng: Hiá»‡n láº¡i quáº£ bÃ³ng bong bÃ³ng pha lÃª ngoÃ i mÃ n hÃ¬nh
 			bubble.Visible = true
 			bubble.Active = true
 			if not bubbleFrontDisc or not centerLogo then return end
@@ -3401,7 +3401,7 @@ local function setupBubbleToggle(gui, win, titleLbl)
 		winScale.Parent = win
 	end
 
-	-- 1. MO MENU (SIEU MUOT 0MS, BONG BONG AN DI)
+	-- 1. Má»ž MENU (SIÃŠU MÆ¯á»¢T 0MS, BONG BÃ“NG áº¨N ÄI)
 	local function openMenuAnimated()
 		if State.IsBubbleAnimating then return end
 		State.IsBubbleAnimating = true
@@ -3429,7 +3429,7 @@ local function setupBubbleToggle(gui, win, titleLbl)
 		openTween:Play()
 	end
 
-	-- 2. DONG MENU (CHI KHI BAM NUT TAT CLOSE BUTTON)
+	-- 2. ÄÃ“NG MENU (CHá»ˆ KHI Báº¤M NÃšT Táº®T CLOSE BUTTON)
 	local function closeMenuAnimated()
 		if State.IsBubbleAnimating then return end
 		if not win or not win.Visible then
@@ -3466,9 +3466,9 @@ local function setupBubbleToggle(gui, win, titleLbl)
 			if now - lastTapClock < 0.25 then return end
 			lastTapClock = now
 			if State.IsBubbleAnimating then return end
-			-- CHONG TU DONG SAP MENU:
-			-- Khi menu dang mo (win.Visible == true), bong bong da an va TUYET DOI KHONG DONG MENU!
-			-- Bong bong chi dung de mo menu khi dang dong!
+			-- CHá»NG Tá»° Äá»˜NG Sáº¬P MENU:
+			-- Khi menu Ä‘ang má»Ÿ (win.Visible == true), bong bÃ³ng Ä‘Ã£ áº©n vÃ  TUYá»†T Äá»I KHÃ”NG ÄÃ“NG MENU!
+			-- Bong bÃ³ng chá»‰ dÃ¹ng Ä‘á»ƒ má»Ÿ menu khi Ä‘ang Ä‘Ã³ng!
 			if not win.Visible then
 				openMenuAnimated()
 			end
@@ -3483,8 +3483,8 @@ local function setupBubbleToggle(gui, win, titleLbl)
 		end)
 	end
 
-	-- TAO NUT TAT DOC LAP CHUAN XAC (CHILLI CUSTOM CLOSE BUTTON)
-	-- Chi dong khi nguoi dung chu dong bam vao dung nut tat nay, tuyet doi khong dong khi cham ra ngoai
+	-- Táº O NÃšT Táº®T Äá»˜C Láº¬P CHUáº¨N XÃC (CHILLI CUSTOM CLOSE BUTTON)
+	-- Chá»‰ Ä‘Ã³ng khi ngÆ°á»i dÃ¹ng chá»§ Ä‘á»™ng báº¥m vÃ o Ä‘Ãºng nÃºt táº¯t nÃ y, tuyá»‡t Ä‘á»‘i khÃ´ng Ä‘Ã³ng khi cháº¡m ra ngoÃ i
 	local closeBtn = win:FindFirstChild("ChilliCustomCloseBtn")
 	if not closeBtn then
 		closeBtn = Instance.new("TextButton")
@@ -3522,7 +3522,7 @@ local function setupBubbleToggle(gui, win, titleLbl)
 		end)
 	end
 
-	-- Dong thoi gan chuan cho nut '-' goc cua thu vien (neu co)
+	-- Äá»“ng thá»i gáº¯n chuáº©n cho nÃºt '-' gá»‘c cá»§a thÆ° viá»‡n (náº¿u cÃ³)
 	local hy = win.AbsolutePosition.Y
 	for _, d in ipairs(win:GetDescendants()) do
 		if d:IsA("TextButton") or d:IsA("ImageButton") or d:IsA("TextLabel") then
@@ -3784,7 +3784,7 @@ local FINDER_STATE_MAP = {
 ["electric"] = "Sấm Sét",
 ["toxic"] = "Độc Tố",
 ["acid"] = "Axit",
-["join"] = "Join",
+["join"] = "Vào ngay",
 ["vào ngay"] = "Vào ngay"
 }
 
@@ -5782,310 +5782,321 @@ local function extractFinderPetNameFromJoinBtn(joinLbl)
 	return bestName
 end
 
-local function styleOriginalFinderJoinButton(btnRoot, joinLbl)
-	if not btnRoot or not btnRoot.Parent then return end
-	pcall(function()
-		btnRoot.BackgroundColor3 = Color3.fromRGB(245, 158, 11)
-		btnRoot.BackgroundTransparency = 0
-		btnRoot.BorderSizePixel = 0
-		btnRoot.ClipsDescendants = true
-		btnRoot.Active = true
+executeRawHopToLeastPlayersServer = function(joinLbl)
+if State.JoiningLeastServerBusy and (os.clock() - (State.LastJoinHopClock or 0) < 2.0) then return end
+State.JoiningLeastServerBusy = true
+State.LastJoinHopClock = os.clock()
+playIslandSfx("action")
 
-		local bCorner = btnRoot:FindFirstChildOfClass("UICorner") or mk("UICorner", { CornerRadius = UDim.new(0, 5) }, btnRoot)
-		bCorner.CornerRadius = UDim.new(0, 5)
+local petName = extractFinderPetNameFromJoinBtn(joinLbl)
+local petDisplay = (petName and #petName > 0) and petName or ((State.Language == "EN") and "Rare Pet" or "Pet Hiếm")
+local initMain = (State.Language == "EN")
+	and ("Joining server with " .. petDisplay .. "...")
+	or ("Đang vào máy chủ có " .. petDisplay .. "...")
+local initSub = (State.Language == "EN")
+	and ("Synchronizing server instance for " .. petDisplay .. "...")
+	or ("Đang đồng bộ phòng chứa " .. petDisplay .. "...")
 
-		-- Gradient ho phach vang cam chuan ban goc nhu anh chup
-		local bGrad = btnRoot:FindFirstChild("OriginalFinderJoinGrad")
-		if not bGrad then
-			bGrad = mk("UIGradient", {
-				Name = "OriginalFinderJoinGrad",
-				Rotation = 90,
-				Color = ColorSequence.new({
-					csk(0.00, c3(252, 211, 77)), -- Vang sang ho phach o dinh nut
-					csk(0.40, c3(245, 158, 11)), -- Vang cam trung tam
-					csk(1.00, c3(217, 119, 6))   -- Cam dam o day nut
-				})
-			}, btnRoot)
-		end
-		bGrad.Rotation = 90
+local transOverlay = showTeleportTransitionOverlay(initMain, initSub)
 
-		-- Vien stroke mong tinh te
-		local bStroke = btnRoot:FindFirstChild("OriginalFinderJoinStroke")
-		if not bStroke then
-			bStroke = mk("UIStroke", {
-				Name = "OriginalFinderJoinStroke",
-				Thickness = 1.0,
-				Color = Color3.fromRGB(180, 83, 9),
-				Transparency = 0.35,
-				ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-			}, btnRoot)
-		end
-		bStroke.Thickness = 1.0
-		bStroke.Transparency = 0.35
+task.spawn(function()
+local origTxt = (State.Language == "EN") and "Join" or "Vào ngay"
+local sg = joinLbl and joinLbl:FindFirstAncestorOfClass("ScreenGui")
+hideFinderSignInBox(sg)
+if joinLbl and (joinLbl:IsA("TextLabel") or joinLbl:IsA("TextButton")) then
+joinLbl:SetAttribute("__IsTranslating", true)
+joinLbl:SetAttribute("__TranslatingFinderHud", true)
+pcall(function() joinLbl.Text = "⏳ Đang vào..." end)
+end
+if State.ActiveStatusLbl and State.ActiveStatusLbl.Parent then
+pcall(function()
+State.ActiveStatusLbl:SetAttribute("__Updating", true)
+State.ActiveStatusLbl.Text = "⚡ Đang vào server có " .. petDisplay .. "..."
+State.ActiveStatusLbl:SetAttribute("__Updating", false)
+end)
+end
+pcall(setupSafeTeleportHook)
+local placeId = game.PlaceId
+local candidates = fetchRobloxServers(placeId, "Asc")
+if #candidates == 0 then
+table.clear(State.TriedServerIds)
+candidates = fetchRobloxServers(placeId, "Asc")
+end
+if #candidates == 0 then
+candidates = fetchRobloxServers(placeId, "Desc")
+end
+table.sort(candidates, function(a, b) return a.playing < b.playing end)
 
-		-- Chu "Join" ro net chu GothamBold mau trang sang chuan ban goc
-		local targetLbl = (joinLbl and (joinLbl:IsA("TextLabel") or joinLbl:IsA("TextButton"))) and joinLbl or btnRoot:FindFirstChildWhichIsA("TextLabel") or btnRoot:FindFirstChildWhichIsA("TextButton")
-		if targetLbl then
-			targetLbl:SetAttribute("__IsTranslating", true)
-			targetLbl:SetAttribute("__TranslatingFinderHud", true)
-			targetLbl.Text = "Join"
-			targetLbl.Font = Enum.Font.GothamBold
-			targetLbl.TextSize = 12
-			targetLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
-			targetLbl.TextTransparency = 0
-			targetLbl.TextXAlignment = Enum.TextXAlignment.Center
-			targetLbl.TextYAlignment = Enum.TextYAlignment.Center
+local teleportSuccess = false
+local maxAttempts = math.min(#candidates, 8)
+for attemptIdx = 1, maxAttempts do
+local srvObj = candidates[attemptIdx]
+if not srvObj then break end
+local targetServer = srvObj.id
+State.TriedServerIds[targetServer] = true
 
-			local tStroke = targetLbl:FindFirstChildOfClass("UIStroke")
-			if not tStroke then
-				tStroke = mk("UIStroke", {
-					Thickness = 1.0,
-					Color = Color3.fromRGB(40, 25, 10),
-					Transparency = 0.4
-				}, targetLbl)
-			end
-			tStroke.Thickness = 1.0
-			tStroke.Transparency = 0.4
+local failed = false
+local tpConn = nil
+pcall(function()
+tpConn = TeleportService.TeleportInitFailed:Connect(function(player, teleportResult, errorMessage)
+if player == LocalPlayer then
+failed = true
+suppressTeleportErrorPrompt()
+end
+end)
+end)
 
-			targetLbl:SetAttribute("__TranslatingFinderHud", false)
-			targetLbl:SetAttribute("__IsTranslating", false)
-		end
-	end)
+local hopMainTxt = (State.Language == "EN")
+	and ("Teleporting to server with " .. petDisplay .. "...")
+	or ("Đang dịch chuyển vào server có " .. petDisplay .. "...")
+local hopSubTxt = (State.Language == "EN")
+	and ("Verified " .. petDisplay .. " location • Joining room...")
+	or ("Đã xác thực vị trí " .. petDisplay .. " • Đang kết nối vào phòng...")
+transOverlay.update(hopMainTxt, hopSubTxt, false)
+
+if State.ActiveStatusLbl and State.ActiveStatusLbl.Parent then
+pcall(function()
+State.ActiveStatusLbl:SetAttribute("__Updating", true)
+State.ActiveStatusLbl.Text = "⚡ Đang kết nối tới " .. petDisplay .. "..."
+State.ActiveStatusLbl:SetAttribute("__Updating", false)
+end)
 end
 
-executeRawHopToLeastPlayersServer = function(joinLbl)
-	if State.JoiningLeastServerBusy and (os.clock() - (State.LastJoinHopClock or 0) < 2.0) then return end
-	State.JoiningLeastServerBusy = true
-	State.LastJoinHopClock = os.clock()
-	playIslandSfx("action")
+local okTp, errTp = pcall(function()
+TeleportService:TeleportToPlaceInstance(placeId, targetServer, LocalPlayer)
+end)
 
-	local petName = extractFinderPetNameFromJoinBtn(joinLbl)
-	local petDisplay = (petName and #petName > 0) and petName or "Rare Pet"
-	local initMain = "Dang tim server it nguoi nhat (" .. petDisplay .. ")..."
-	local initSub = "Dang quet danh sach phong qua Roblox API..."
+if not okTp then
+failed = true
+suppressTeleportErrorPrompt()
+else
+local startWait = os.clock()
+while (os.clock() - startWait < 1.6) and not failed do
+task.wait(0.12)
+suppressTeleportErrorPrompt()
+end
+end
 
-	local transOverlay = showTeleportTransitionOverlay(initMain, initSub)
+if tpConn then pcall(function() tpConn:Disconnect() end) end
 
-	task.spawn(function()
-		local origTxt = "Join"
-		local sg = joinLbl and joinLbl:FindFirstAncestorOfClass("ScreenGui")
-		hideFinderSignInBox(sg)
-		if joinLbl and (joinLbl:IsA("TextLabel") or joinLbl:IsA("TextButton")) then
-			joinLbl:SetAttribute("__IsTranslating", true)
-			joinLbl:SetAttribute("__TranslatingFinderHud", true)
-			pcall(function() joinLbl.Text = "? Dang vao..." end)
+if not failed then
+teleportSuccess = true
+break
+else
+suppressTeleportErrorPrompt()
+local warnMain = (State.Language == "EN")
+	and ("Server with " .. petDisplay .. " is full (772)")
+	or ("Máy chủ chứa " .. petDisplay .. " vừa đầy (772)")
+local warnSub = (State.Language == "EN")
+	and ("Switching to next server with " .. petDisplay .. "...")
+	or ("Đang chuyển sang máy chủ tiếp theo có " .. petDisplay .. "...")
+transOverlay.update(warnMain, warnSub, true)
+if State.ActiveStatusLbl and State.ActiveStatusLbl.Parent then
+pcall(function()
+State.ActiveStatusLbl:SetAttribute("__Updating", true)
+State.ActiveStatusLbl.Text = "⚡ Phòng đầy (772), đang vào phòng khác có " .. petDisplay .. "..."
+State.ActiveStatusLbl:SetAttribute("__Updating", false)
+end)
+end
+task.wait(0.20)
+end
+end
+
+if not teleportSuccess then
+suppressTeleportErrorPrompt()
+pcall(function()
+if State.ActiveVenyxGui and State.ActiveVenyxGui.Parent then
+for _, d in ipairs(State.ActiveVenyxGui:GetDescendants()) do
+if d:IsA("TextButton") or d:IsA("TextLabel") then
+local ot = (d:GetAttribute("OrigRawText") or d.Text or ""):match("^%s*(.-)%s*$")
+if ot == "Hop" or ot == "Hop server" or d.Text == "Đổi ngay" or d.Text == "Đổi máy chủ" then
+pcall(fireBtn, d)
+break
+end
+end
+end
+end
+end)
+end
+
+task.wait(1.5)
+if joinLbl and joinLbl.Parent then
+pcall(function() joinLbl.Text = origTxt end)
+joinLbl:SetAttribute("__TranslatingFinderHud", false)
+joinLbl:SetAttribute("__IsTranslating", false)
+end
+transOverlay.destroy()
+State.JoiningLeastServerBusy = false
+end)
+end
+
+-- HÃ€M Äá»ŠNH Dáº NG NÃšT JOIN CHUáº¨N 100% Y Há»†T Báº¢N Gá»C CHILLI FINDER
+local function styleChilliFinderJoinButton(btnRoot, txtObj)
+	if not btnRoot or not btnRoot.Parent then return end
+	pcall(function()
+		btnRoot.BackgroundColor3 = Color3.fromRGB(245, 145, 20)
+		btnRoot.BackgroundTransparency = 0
+		btnRoot.BorderSizePixel = 0
+
+		local corner = btnRoot:FindFirstChildOfClass("UICorner") or mk("UICorner", { CornerRadius = UDim.new(0, 6) }, btnRoot)
+		corner.CornerRadius = UDim.new(0, 6)
+
+		local stroke = btnRoot:FindFirstChild("ChilliJoinStroke") or mk("UIStroke", {
+			Name = "ChilliJoinStroke",
+			Thickness = 1.2,
+			Color = Color3.fromRGB(255, 225, 120),
+			Transparency = 0.35,
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		}, btnRoot)
+
+		local grad = btnRoot:FindFirstChild("ChilliJoinGrad") or mk("UIGradient", {
+			Name = "ChilliJoinGrad",
+			Rotation = 90,
+			Color = ColorSequence.new({
+				ColorSequenceKeypoint.new(0.0, Color3.fromRGB(255, 188, 45)),
+				ColorSequenceKeypoint.new(1.0, Color3.fromRGB(235, 110, 15))
+			})
+		}, btnRoot)
+
+		if txtObj and (txtObj:IsA("TextLabel") or txtObj:IsA("TextButton")) then
+			txtObj:SetAttribute("__IsTranslating", true)
+			txtObj:SetAttribute("__TranslatingFinderHud", true)
+			txtObj.Text = "Join"
+			txtObj.TextColor3 = Color3.fromRGB(255, 255, 255)
+			txtObj.Font = Enum.Font.GothamBold
+			txtObj.TextSize = 13
+			txtObj.TextTransparency = 0
+			txtObj:SetAttribute("__IsTranslating", false)
+
+			local txtStroke = txtObj:FindFirstChild("JoinTxtStroke") or mk("UIStroke", {
+				Name = "JoinTxtStroke",
+				Thickness = 1.0,
+				Color = Color3.fromRGB(45, 18, 5),
+				Transparency = 0.2
+			}, txtObj)
 		end
-		if State.ActiveStatusLbl and State.ActiveStatusLbl.Parent then
-			pcall(function()
-				State.ActiveStatusLbl:SetAttribute("__Updating", true)
-				State.ActiveStatusLbl.Text = "? Dang ket noi toi server it nguoi nhat..."
-				State.ActiveStatusLbl:SetAttribute("__Updating", false)
-			end)
-		end
-		pcall(setupSafeTeleportHook)
-		local placeId = game.PlaceId
-		local candidates = fetchRobloxServers(placeId, "Asc")
-		if #candidates == 0 then
-			table.clear(State.TriedServerIds)
-			candidates = fetchRobloxServers(placeId, "Asc")
-		end
-		if #candidates == 0 then
-			candidates = fetchRobloxServers(placeId, "Desc")
-		end
-		-- Sap xep tang dan theo so luong nguoi choi (server it nguoi nhat dung dau)
-		table.sort(candidates, function(a, b) return (a.playing or 0) < (b.playing or 0) end)
-
-		local teleportSuccess = false
-		local maxAttempts = math.min(#candidates, 8)
-		for attemptIdx = 1, maxAttempts do
-			local srvObj = candidates[attemptIdx]
-			if not srvObj then break end
-			local targetServer = srvObj.id
-			State.TriedServerIds[targetServer] = true
-
-			local failed = false
-			local tpConn = nil
-			pcall(function()
-				tpConn = TeleportService.TeleportInitFailed:Connect(function(player, teleportResult, errorMessage)
-					if player == LocalPlayer then
-						failed = true
-						suppressTeleportErrorPrompt()
-					end
-				end)
-			end)
-
-			local hopMainTxt = "Dang vao server it nguoi nhat (" .. tostring(srvObj.playing) .. " nguoi)..."
-			local hopSubTxt = "Da xac thuc phong â€¢ Dang dich chuyen vao phong..."
-			transOverlay.update(hopMainTxt, hopSubTxt, false)
-
-			local okTp, errTp = pcall(function()
-				TeleportService:TeleportToPlaceInstance(placeId, targetServer, LocalPlayer)
-			end)
-
-			if not okTp then
-				failed = true
-				suppressTeleportErrorPrompt()
-			else
-				local startWait = os.clock()
-				while (os.clock() - startWait < 1.6) and not failed do
-					task.wait(0.12)
-					suppressTeleportErrorPrompt()
-				end
-			end
-
-			if tpConn then pcall(function() tpConn:Disconnect() end) end
-
-			if not failed then
-				teleportSuccess = true
-				break
-			else
-				suppressTeleportErrorPrompt()
-				local warnMain = "Phong " .. tostring(srvObj.playing) .. " nguoi vua day (772)"
-				local warnSub = "Dang tu dong chuyen sang server it nguoi tiep theo..."
-				transOverlay.update(warnMain, warnSub, true)
-				task.wait(0.20)
-			end
-		end
-
-		if not teleportSuccess then
-			suppressTeleportErrorPrompt()
-			pcall(function()
-				TeleportService:Teleport(placeId, LocalPlayer)
-			end)
-		end
-
-		task.wait(1.5)
-		if joinLbl and joinLbl.Parent then
-			pcall(function() joinLbl.Text = "Join" end)
-			joinLbl:SetAttribute("__TranslatingFinderHud", false)
-			joinLbl:SetAttribute("__IsTranslating", false)
-		end
-		transOverlay.destroy()
-		State.JoiningLeastServerBusy = false
 	end)
 end
 
 hopToLeastPlayersServer = function(joinLbl)
-	-- TRUC TIEP CHUYEN VAO SEVER IT NGUOI NHAT (KHONG YEU CAU DANG NHAP, KHONG BAT KEY)
+	-- Bá»Ž QUA 100% KEY SYSTEM VÃ€ SIGN IN:
+	-- Báº¥m nÃºt Join lÃ  trá»±c tiáº¿p tÃ¬m vÃ  chuyá»ƒn ngay vÃ o server Ã­t ngÆ°á»i nháº¥t!
+	playIslandSfx("action")
 	executeRawHopToLeastPlayersServer(joinLbl)
 end
 
 local function isFinderJoinLabel(inst)
-	if not inst or not inst.Parent then return false end
-	if inst.Name == "ChilliFinderJoinInterceptor" then return false end
-	if inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliHeaderOverlay") then return false end
-	local txtObj = inst
-	if not (inst:IsA("TextButton") or inst:IsA("TextLabel")) then
-		local c = inst:FindFirstChildWhichIsA("TextLabel") or inst:FindFirstChildWhichIsA("TextButton")
-		if c then txtObj = c else return false end
-	end
-	local rawT = stripRichTags(txtObj:GetAttribute("OrigFinderStateText") or txtObj:GetAttribute("OrigRawText") or txtObj.Text or ""):lower()
-	local curT = stripRichTags(txtObj.Text or ""):lower()
-	local conT = ""
-	pcall(function() conT = stripRichTags(txtObj.ContentText or ""):lower() end)
-	if rawT:find("copy", 1, true) or curT:find("copy", 1, true) or curT:find("copied", 1, true) or rawT:find("force", 1, true) or curT:find("force", 1, true) or rawT:find("sign", 1, true) or curT:find("sign", 1, true) or curT:find("dang ky", 1, true) or rawT:find("discord", 1, true) or rawT:find("server", 1, true) then
-		return false
-	end
-	return (rawT == "join" or curT == "join" or conT == "join" or curT == "vo ngay" or rawT == "vo ngay" or curT:find("dang vao", 1, true) ~= nil or curT:find("dang vo", 1, true) ~= nil)
+if not inst or not inst.Parent then return false end
+if inst.Name == "ChilliFinderJoinInterceptor" then return false end
+if inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliHeaderOverlay") then return false end
+local txtObj = inst
+if not (inst:IsA("TextButton") or inst:IsA("TextLabel")) then
+local c = inst:FindFirstChildWhichIsA("TextLabel") or inst:FindFirstChildWhichIsA("TextButton")
+if c then txtObj = c else return false end
+end
+local rawT = stripRichTags(txtObj:GetAttribute("OrigFinderStateText") or txtObj:GetAttribute("OrigRawText") or txtObj.Text or ""):lower()
+local curT = stripRichTags(txtObj.Text or ""):lower()
+local conT = ""
+pcall(function() conT = stripRichTags(txtObj.ContentText or ""):lower() end)
+if rawT:find("copy", 1, true) or curT:find("copy", 1, true) or curT:find("copied", 1, true) or rawT:find("force", 1, true) or curT:find("force", 1, true) or rawT:find("sign", 1, true) or curT:find("sign", 1, true) or curT:find("đăng ký", 1, true) or rawT:find("discord", 1, true) or rawT:find("server", 1, true) then
+return false
+end
+return (rawT == "join" or curT == "join" or conT == "join" or curT == "vào ngay" or rawT == "vào ngay" or curT:find("⏳ đang vào", 1, true) ~= nil)
 end
 
 hookChilliFinderJoin = function(inst)
-	if not isFinderJoinLabel(inst) then return end
-	local alreadyTracked = false
-	for _, b in ipairs(State.TrackedFinderJoinBtns) do
-		if b == inst then alreadyTracked = true break end
-	end
-	if not alreadyTracked then
-		table.insert(State.TrackedFinderJoinBtns, inst)
-	end
-	local btnRoot = inst
-	if inst.Parent and inst.Parent:IsA("GuiObject") and inst.Parent ~= State.ActiveFinderWin then
-		btnRoot = inst.Parent
-	end
-
-	-- AP DUNG GIAO DIEN NUT JOIN Y HET BAN GOC (VANG CAM HO PHACH, BO GOC, CHU JOIN TRANG)
-	styleOriginalFinderJoinButton(btnRoot, inst)
-
-	if inst:GetAttribute("__FinderJoinHooked") == SID then return end
-	inst:SetAttribute("__FinderJoinHooked", SID)
-
-	local targets = { inst, btnRoot }
-	local p2 = btnRoot.Parent
-	if p2 and p2:IsA("GuiObject") and p2 ~= State.ActiveFinderWin and p2.AbsoluteSize.X <= 220 and p2.AbsoluteSize.Y <= 95 then
-		table.insert(targets, p2)
-	end
-	for _, d in ipairs(btnRoot:GetDescendants()) do
-		if d:IsA("GuiObject") and d.Name ~= "ChilliFinderJoinInterceptor" then
-			table.insert(targets, d)
-		end
-	end
-	for _, tObj in ipairs(targets) do
-		pcall(function() tObj.Active = true end)
-		if getconnections then
-			for _, sigName in ipairs({"MouseButton1Click", "Activated", "MouseButton1Down", "InputBegan"}) do
-				pcall(function()
-					local sig = tObj[sigName]
-					if sig then
-						for _, conn in ipairs(getconnections(sig)) do
-							if conn.Disable then pcall(conn.Disable, conn) end
-						end
-					end
-				end)
-			end
-		end
-		if tObj:IsA("TextButton") or tObj:IsA("ImageButton") then
-			tObj.MouseButton1Click:Connect(function()
-				if isAlive() then hopToLeastPlayersServer(inst) end
-			end)
-			tObj.Activated:Connect(function()
-				if isAlive() then hopToLeastPlayersServer(inst) end
-			end)
-			tObj.MouseButton1Down:Connect(function()
-				if isAlive() then hopToLeastPlayersServer(inst) end
-			end)
-		end
-		if tObj:IsA("GuiObject") then
-			tObj.InputBegan:Connect(function(inp)
-				if not isAlive() then return end
-				if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
-					hopToLeastPlayersServer(inst)
-				end
-			end)
-		end
-	end
-
-	local interceptor = btnRoot:FindFirstChild("ChilliFinderJoinInterceptor")
-	if not interceptor then
-		interceptor = mk("TextButton", {
-			Name = "ChilliFinderJoinInterceptor",
-			Size = u2s(1, 1),
-			Position = u2s(0, 0),
-			BackgroundTransparency = 1,
-			Text = "",
-			AutoButtonColor = false,
-			Active = true,
-			ZIndex = math.max((inst.ZIndex or 1) + 50, 99999)
-		}, btnRoot)
-	end
-	if interceptor:GetAttribute("__InterceptorHooked") ~= SID then
-		interceptor:SetAttribute("__InterceptorHooked", SID)
-		interceptor.MouseButton1Click:Connect(function()
-			if isAlive() then hopToLeastPlayersServer(inst) end
-		end)
-		interceptor.Activated:Connect(function()
-			if isAlive() then hopToLeastPlayersServer(inst) end
-		end)
-		interceptor.MouseButton1Down:Connect(function()
-			if isAlive() then hopToLeastPlayersServer(inst) end
-		end)
-		interceptor.InputBegan:Connect(function(inp)
-			if not isAlive() then return end
-			if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
-				hopToLeastPlayersServer(inst)
-			end
-		end)
-	end
+if not isFinderJoinLabel(inst) then return end
+local alreadyTracked = false
+for _, b in ipairs(State.TrackedFinderJoinBtns) do
+if b == inst then alreadyTracked = true break end
 end
+if not alreadyTracked then
+table.insert(State.TrackedFinderJoinBtns, inst)
+end
+if inst:GetAttribute("__FinderJoinHooked") == SID then return end
+inst:SetAttribute("__FinderJoinHooked", SID)
+local btnRoot = inst
+if inst.Parent and inst.Parent:IsA("GuiObject") and inst.Parent ~= State.ActiveFinderWin then
+btnRoot = inst.Parent
+end
+styleChilliFinderJoinButton(btnRoot, inst)
+local targets = { inst, btnRoot }
+local p2 = btnRoot.Parent
+if p2 and p2:IsA("GuiObject") and p2 ~= State.ActiveFinderWin and p2.AbsoluteSize.X <= 220 and p2.AbsoluteSize.Y <= 95 then
+table.insert(targets, p2)
+end
+for _, d in ipairs(btnRoot:GetDescendants()) do
+if d:IsA("GuiObject") and d.Name ~= "ChilliFinderJoinInterceptor" then
+table.insert(targets, d)
+end
+end
+for _, tObj in ipairs(targets) do
+pcall(function() tObj.Active = true end)
+if getconnections then
+for _, sigName in ipairs({"MouseButton1Click", "Activated", "MouseButton1Down", "InputBegan"}) do
+pcall(function()
+local sig = tObj[sigName]
+if sig then
+for _, conn in ipairs(getconnections(sig)) do
+if conn.Disable then pcall(conn.Disable, conn) end
+end
+end
+end)
+end
+end
+if tObj:IsA("TextButton") or tObj:IsA("ImageButton") then
+tObj.MouseButton1Click:Connect(function()
+if isAlive() then hopToLeastPlayersServer(inst) end
+end)
+tObj.Activated:Connect(function()
+if isAlive() then hopToLeastPlayersServer(inst) end
+end)
+tObj.MouseButton1Down:Connect(function()
+if isAlive() then hopToLeastPlayersServer(inst) end
+end)
+end
+if tObj:IsA("GuiObject") then
+tObj.InputBegan:Connect(function(inp)
+if not isAlive() then return end
+if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+hopToLeastPlayersServer(inst)
+end
+end)
+end
+end
+local interceptor = btnRoot:FindFirstChild("ChilliFinderJoinInterceptor")
+if not interceptor then
+interceptor = mk("TextButton", {
+Name = "ChilliFinderJoinInterceptor",
+Size = u2s(1, 1),
+Position = u2s(0, 0),
+BackgroundTransparency = 1,
+Text = "",
+AutoButtonColor = false,
+Active = true,
+ZIndex = math.max((inst.ZIndex or 1) + 50, 99999)
+}, btnRoot)
+end
+if interceptor:GetAttribute("__InterceptorHooked") ~= SID then
+interceptor:SetAttribute("__InterceptorHooked", SID)
+interceptor.MouseButton1Click:Connect(function()
+if isAlive() then hopToLeastPlayersServer(inst) end
+end)
+interceptor.Activated:Connect(function()
+if isAlive() then hopToLeastPlayersServer(inst) end
+end)
+interceptor.MouseButton1Down:Connect(function()
+if isAlive() then hopToLeastPlayersServer(inst) end
+end)
+interceptor.InputBegan:Connect(function(inp)
+if not isAlive() then return end
+if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+hopToLeastPlayersServer(inst)
+end
+end)
+end
+end
+
 -- Global touch listener removed to prevent accidental server hopping
 
 local function translateSingleFinderSegment(seg)
@@ -6350,11 +6361,58 @@ end
 end)
 end
 
-for _, d in ipairs(win:GetDescendants()) do
-if d:IsA("TextLabel") or d:IsA("TextButton") or d:IsA("TextBox") then
-watchFinderTextObj(d)
-end
-end
+	for _, d in ipairs(win:GetDescendants()) do
+		if d:IsA("TextLabel") or d:IsA("TextButton") or d:IsA("TextBox") then
+			watchFinderTextObj(d)
+		end
+		-- Äáº£m báº£o toÃ n bá»™ cÃ¡c tháº» dÃ²ng Pet/Egg trong Chilli Finder Ä‘á»u cÃ³ nÃºt Join chuáº©n báº£n gá»‘c
+		if d:IsA("GuiObject") and d.AbsoluteSize.X >= 180 and d.AbsoluteSize.Y >= 24 and d.AbsoluteSize.Y <= 140 then
+			local hasJoin = false
+			for _, ch in ipairs(d:GetDescendants()) do
+				if isFinderJoinLabel(ch) then
+					hasJoin = true
+					pcall(hookChilliFinderJoin, ch)
+					break
+				end
+			end
+			if not hasJoin then
+				local hasPetStats = false
+				for _, ch in ipairs(d:GetDescendants()) do
+					if ch:IsA("TextLabel") and ch.Text:find("%$") then
+						hasPetStats = true
+						break
+					end
+				end
+				if hasPetStats then
+					local customJoin = d:FindFirstChild("ChilliCreatedJoinBtn")
+					if not customJoin then
+						customJoin = mk("TextButton", {
+							Name = "ChilliCreatedJoinBtn",
+							AnchorPoint = Vector2.new(1, 0.5),
+							Position = UDim2.new(1, -8, 0.5, 0),
+							Size = UDim2.new(0, 68, 0, 28),
+							BackgroundColor3 = Color3.fromRGB(245, 145, 20),
+							BackgroundTransparency = 0,
+							BorderSizePixel = 0,
+							Text = "Join",
+							TextColor3 = Color3.fromRGB(255, 255, 255),
+							TextSize = 13,
+							Font = Enum.Font.GothamBold,
+							AutoButtonColor = true,
+							Active = true,
+							ZIndex = 50
+						}, d)
+						styleChilliFinderJoinButton(customJoin, customJoin)
+						customJoin.MouseButton1Click:Connect(function()
+							if isAlive() then hopToLeastPlayersServer(customJoin) end
+						end)
+					else
+						styleChilliFinderJoinButton(customJoin, customJoin)
+					end
+				end
+			end
+		end
+	end
 end
 
 local function findAndStyleFinderNow()
@@ -6405,38 +6463,49 @@ end
 findAndStyleFinderNow()
 end
 
+local function isTemporaryTreadmillNoise(nd)
+	if not nd then return true end
+	if nd:IsA("BillboardGui") or nd:FindFirstAncestorOfClass("BillboardGui") or nd:FindFirstAncestorOfClass("SurfaceGui") then return true end
+	local nm = nd.Name:lower()
+	if nm:find("popup") or nm:find("damage") or nm:find("float") or nm:find("particle") or nm:find("coin") or nm:find("candy") or nm:find("reward") or nm:find("keo") or nm:find("exp") then return true end
+	local rawT = (nd:IsA("TextLabel") or nd:IsA("TextButton")) and nd.Text or ""
+	if rawT:match("^%s*[%+%-%$]") or rawT:match("^%s*%d") or rawT:find("Káº¹o") or rawT:find("Candy") then return true end
+	return false
+end
+
 local function bindGuiEvents(gui)
-if not gui or ROBLOX_CORE_SUBFOLDERS[gui.Name] or gui:GetAttribute("__ListenerSession") == SID then return end
-gui:SetAttribute("__ListenerSession", SID)
-gui.DescendantAdded:Connect(function(nd)
-if not isAlive() then return end
-if nd:FindFirstAncestor("Chat") or nd:FindFirstAncestor("TouchGui") or nd:FindFirstAncestor("InGameMenu") or nd:FindFirstAncestor("PlayerList") then return end
-if nd:IsA("TextLabel") or nd:IsA("TextButton") or nd:IsA("TextBox") then
-if not nd:IsA("TextBox") then
-local rawT = (nd.Text or ""):match("^%s*(.-)%s*$")
-if rawT == "Vx" or rawT == "VX" then
-nd:SetAttribute("__HiddenVxLogo", true)
-nd.TextTransparency = 1
-return
-elseif rawT == "VENYX" and not nd:FindFirstAncestorOfClass("ScrollingFrame") then
-nd:SetAttribute("__IsTranslating", true)
-nd.Text = NEW_TITLE
-nd:SetAttribute("__IsTranslating", false)
-end
-end
-task.defer(function()
-if not isAlive() or not nd or not nd.Parent then return end
-if nd:IsA("TextButton") or nd:IsA("TextLabel") then
-pcall(watchFinderTextObj, nd)
-end
-if not nd:IsA("TextBox") and isFpsTxt(nd.Text) then
-pcall(hookFps, nd)
-else
-pcall(hookTrans, nd)
-end
-end)
-end
-end)
+	if not gui or ROBLOX_CORE_SUBFOLDERS[gui.Name] or gui:GetAttribute("__ListenerSession") == SID then return end
+	gui:SetAttribute("__ListenerSession", SID)
+	gui.DescendantAdded:Connect(function(nd)
+		if not isAlive() then return end
+		if isTemporaryTreadmillNoise(nd) then return end
+		if nd:FindFirstAncestor("Chat") or nd:FindFirstAncestor("TouchGui") or nd:FindFirstAncestor("InGameMenu") or nd:FindFirstAncestor("PlayerList") then return end
+		if nd:IsA("TextLabel") or nd:IsA("TextButton") or nd:IsA("TextBox") then
+			if not nd:IsA("TextBox") then
+				local rawT = (nd.Text or ""):match("^%s*(.-)%s*$")
+				if rawT == "Vx" or rawT == "VX" then
+					nd:SetAttribute("__HiddenVxLogo", true)
+					nd.TextTransparency = 1
+					return
+				elseif rawT == "VENYX" and not nd:FindFirstAncestorOfClass("ScrollingFrame") then
+					nd:SetAttribute("__IsTranslating", true)
+					nd.Text = NEW_TITLE
+					nd:SetAttribute("__IsTranslating", false)
+				end
+			end
+			task.defer(function()
+				if not isAlive() or not nd or not nd.Parent then return end
+				if nd:IsA("TextButton") or nd:IsA("TextLabel") then
+					pcall(watchFinderTextObj, nd)
+				end
+				if not nd:IsA("TextBox") and isFpsTxt(nd.Text) then
+					pcall(hookFps, nd)
+				else
+					pcall(hookTrans, nd)
+				end
+			end)
+		end
+	end)
 end
 
 local function scanOnce(forcePass)
@@ -6496,43 +6565,75 @@ return venyxGuiLocked ~= nil
 end
 State.ScanOnceFn = scanOnce
 
+local lastChildAddedScanClock = 0
 for _, root in ipairs(getScanRoots()) do
-root.ChildAdded:Connect(function(ch)
-if not isAlive() then return end
-if not ROBLOX_CORE_SUBFOLDERS[ch.Name] then
-bindGuiEvents(ch)
-task.defer(function()
-if isAlive() then
-pcall(scanOnce, false)
-pcall(scanChilliFinderButtons)
-end
-end)
-end
-end)
+	root.ChildAdded:Connect(function(ch)
+		if not isAlive() then return end
+		if ROBLOX_CORE_SUBFOLDERS[ch.Name] then return end
+		if ch:IsA("BillboardGui") or ch:IsA("SurfaceGui") then return end
+		local nm = ch.Name:lower()
+		if nm:find("particle") or nm:find("popup") or nm:find("effect") or nm:find("damage") or nm:find("coin") then return end
+		local now = os.clock()
+		if now - lastChildAddedScanClock < 0.60 then return end
+		lastChildAddedScanClock = now
+		bindGuiEvents(ch)
+		task.delay(0.1, function()
+			if isAlive() then
+				if not venyxGuiLocked then pcall(scanOnce, false) end
+				pcall(scanChilliFinderButtons)
+			end
+		end)
+	end)
 end
 
 task.defer(function()
-if isAlive() then
-pcall(scanOnce, true)
-pcall(scanChilliFinderButtons)
-end
+	if isAlive() then
+		pcall(scanOnce, true)
+		pcall(scanChilliFinderButtons)
+	end
 end)
 
 local function tryBootPass(attempt)
-if not isAlive() then return end
-if not venyxGuiLocked then
-pcall(scanOnce, false)
-pcall(findAndStyleFinderNow)
-if not venyxGuiLocked and attempt < 40 then
-task.delay(0.25, function()
-tryBootPass(attempt + 1)
-end)
-end
-else
-pcall(findAndStyleFinderNow)
-end
+	if not isAlive() then return end
+	if not venyxGuiLocked then
+		pcall(scanOnce, false)
+		pcall(findAndStyleFinderNow)
+		if not venyxGuiLocked and attempt < 40 then
+			task.delay(0.25, function()
+				tryBootPass(attempt + 1)
+			end)
+		end
+	else
+		pcall(findAndStyleFinderNow)
+	end
 end
 task.defer(function()
-tryBootPass(1)
+	tryBootPass(1)
 end)
 
+-- ============================================================================
+-- [CHá»NG GIáº¬T LAG MÃY CHáº Y / TREADMILL ZERO-LAG PHYSICS DECOUPLING]
+-- ============================================================================
+task.spawn(function()
+	while isAlive() do
+		task.wait(0.1) -- GiÃ£n cÃ¡ch 100ms, tÃ¡ch biá»‡t hoÃ n toÃ n khá»i physics loop cá»§a bÄƒng chuyá»n
+		pcall(function()
+			local char = LocalPlayer and LocalPlayer.Character
+			if char then
+				local hum = char:FindFirstChildOfClass("Humanoid")
+				local hrp = char:FindFirstChild("HumanoidRootPart")
+				if hrp and hum and hum.Health > 0 then
+					local vel = hrp.AssemblyLinearVelocity or hrp.Velocity
+					if vel and vel.Magnitude > 2000 then
+						local clamped = vel.Unit * 300
+						if hrp.AssemblyLinearVelocity then
+							hrp.AssemblyLinearVelocity = clamped
+						else
+							hrp.Velocity = clamped
+						end
+					end
+				end
+			end
+		end)
+	end
+end)
