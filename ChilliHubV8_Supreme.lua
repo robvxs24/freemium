@@ -1713,11 +1713,18 @@ local exp=venyxGui:FindFirstChild("ChilliV5_ExpandedIsland")
 if statusLbl:GetAttribute("__IslandSession")==SID and exp and pill.Parent==venyxGui then return true end
 statusLbl:SetAttribute("__IslandSession",SID)
 for _,r in ipairs(getScanRoots())do
-for _,d in ipairs(r:GetDescendants())do
+pcall(function()
+for _,ch in ipairs(r:GetChildren())do
+pcall(function()
+if ch.Name=="ChilliV5_ExpandedIsland" then ch:Destroy()end
+for _,d in ipairs(ch:GetDescendants())do
 if d.Name=="ChilliV5_ExpandedIsland" then
 pcall(d.Destroy,d)
 end
 end
+end)
+end
+end)
 end
 pill.Parent=venyxGui
 pill.AnchorPoint=v2(0.5,0)
@@ -2116,7 +2123,12 @@ cleanupStrayLogos=function(gui,win)
 if not gui then return end
 pcall(function()
 for _,root in ipairs(getScanRoots())do
-for _,d in ipairs(root:GetDescendants())do
+local okCh,chList=pcall(function()return root:GetChildren()end)
+if okCh and type(chList)=="table" then
+for _,cont in ipairs(chList)do
+local okCD,cDesc=pcall(function()return cont:GetDescendants()end)
+if okCD and type(cDesc)=="table" then
+for _,d in ipairs(cDesc)do
 if d.Name=="ChilliCircleDisc" or d.Name=="ChilliV5CoverLogo" or d.Name=="PerfectCircleAspect"
 or d.Name=="ChilliHeaderLogoBadge" or d.Name=="RainbowBorder"
 or d.Name=="ShimmerGlow" or d.Name=="OriginPepperLogo" or d.Name=="BubbleFrontDisc" then
@@ -2126,6 +2138,9 @@ if(d:IsA("TextLabel")or d:IsA("TextButton"))and not(win and d:IsDescendantOf(win
 local t=(d.Text or ""):lower():match("^%s*(.-)%s*$")
 if t=="vx" or t=="v" or t=="x" then
 killVxLogo(d)
+end
+end
+end
 end
 end
 end
@@ -3762,7 +3777,9 @@ local servers={}
 local curJob=game.JobId
 local urls={
 "https://games.roblox.com/v1/games/" .. tostring(placeId).. "/servers/Public?sortOrder=" .. sortOrder .. "&excludeFullGames=true&limit=100",
-"https://games.roproxy.com/v1/games/" .. tostring(placeId).. "/servers/Public?sortOrder=" .. sortOrder .. "&excludeFullGames=true&limit=100"
+"https://games.roproxy.com/v1/games/" .. tostring(placeId).. "/servers/Public?sortOrder=" .. sortOrder .. "&excludeFullGames=true&limit=100",
+"https://games.roblox.com/v1/games/" .. tostring(placeId).. "/servers/Public?sortOrder=" .. sortOrder .. "&excludeFullGames=true&limit=50",
+"https://games.roproxy.com/v1/games/" .. tostring(placeId).. "/servers/Public?sortOrder=" .. sortOrder .. "&excludeFullGames=true&limit=50"
 }
 local req=(syn and syn.request)or(http and http.request)or http_request or request or(fluxus and fluxus.request)or(delta and delta.request)
 for _,u in ipairs(urls)do
@@ -3918,7 +3935,10 @@ if gs and gs.ClearError then gs:ClearError()end
 end)
 pcall(function()
 for _,root in ipairs(getScanRoots())do
-for _,d in ipairs(root:GetDescendants())do
+for _,ch in ipairs(root:GetChildren())do
+local okS,sList=pcall(function()return ch:GetDescendants()end)
+if okS and type(sList)=="table" then
+for _,d in ipairs(sList)do
 if d:IsA("TextLabel")then
 local t=d.Text or ""
 if t:find("772")or t:find("Thất Bại")or t:find("Failed")or t:find("Mã Lỗi")or t:find("Error Code")or t:find("đã đầy")or t:find("full")then
@@ -3935,11 +3955,14 @@ end
 end
 end
 end
+end
+end
 end)
 end
 local GetKeyRemainingTime=nil
 local ApplyScreenLockdown=nil
 local OpenKeySystemUI=nil
+local executeRawHopToLeastPlayersServer=nil
 do
 local KeyUrl="https://link4m.net/nSmyHW"
 local TutorialUrl="https://craftvip.github.io/free/getkey.html"
@@ -4167,15 +4190,21 @@ InputBlockerScreen=nil
 end
 end
 local function UnlockAllJoinButtons()
+pcall(function()
 for _,container in ipairs(getScanRoots())do
 if container then
-for _,desc in ipairs(container:GetDescendants())do
+for _,ch in ipairs(container:GetChildren())do
+pcall(function()
+for _,desc in ipairs(ch:GetDescendants())do
 if desc.Name=="Chilli_JoinInterceptOverlay" then
 pcall(function()desc:Destroy()end)
 end
 end
+end)
 end
 end
+end
+end)
 end
 local Languages={
 VI={
@@ -4296,7 +4325,6 @@ local t2=TweenService:Create(btn,twi(0.14,EES.Back,EED.Out),{Size=origSize,Posit
 t1:Play()
 t1.Completed:Connect(function()t2:Play()end)
 end
-local executeRawHopToLeastPlayersServer=nil
 OpenKeySystemUI=function()
 if MainScreenGui and MainScreenGui.Parent then
 MainScreenGui.Enabled=true
@@ -4593,6 +4621,8 @@ if MainScreenGui then MainScreenGui.Enabled=false end
 if State.PendingFinderJoinLbl and executeRawHopToLeastPlayersServer then
 local pending=State.PendingFinderJoinLbl
 State.PendingFinderJoinLbl=nil
+State.JoiningLeastServerBusy=false
+State.LastJoinHopClock=0
 task.defer(function()
 executeRawHopToLeastPlayersServer(pending)
 end)
@@ -4701,6 +4731,8 @@ CheckKeyBtn.BackgroundColor3=c3(24,28,38)
 if State.PendingFinderJoinLbl and executeRawHopToLeastPlayersServer then
 local pending=State.PendingFinderJoinLbl
 State.PendingFinderJoinLbl=nil
+State.JoiningLeastServerBusy=false
+State.LastJoinHopClock=0
 task.defer(function()
 executeRawHopToLeastPlayersServer(pending)
 end)
@@ -4883,7 +4915,9 @@ failed=true
 suppressTeleportErrorPrompt()
 else
 local startWait=os.clock()
-while(os.clock()-startWait<1.6)and not failed do
+local waitTicks=0
+while(os.clock()-startWait<1.6)and waitTicks<12 and not failed do
+waitTicks=waitTicks+1
 task.wait(0.12)
 suppressTeleportErrorPrompt()
 end
@@ -4925,6 +4959,9 @@ end
 end
 end
 end
+end)
+pcall(function()
+TeleportService:Teleport(placeId,LocalPlayer)
 end)
 end
 task.wait(1.5)
@@ -5059,6 +5096,47 @@ end
 end)
 end
 end
+if env.__ChilliFinderJoinTouchConn then
+pcall(function()env.__ChilliFinderJoinTouchConn:Disconnect()end)
+end
+env.__ChilliFinderJoinTouchConn=UserInputService.InputBegan:Connect(function(inp)
+if not isAlive()then return end
+if inp.UserInputType~=EUIT.MouseButton1 and inp.UserInputType~=EUIT.Touch then return end
+if MainScreenGui and MainScreenGui.Parent and MainScreenGui.Enabled then return end
+local px,py=inp.Position.X,inp.Position.Y
+local insetY=0
+pcall(function()insetY=GuiService:GetGuiInset().Y end)
+local function isVisChain(obj)
+local c=obj
+while c and c~=game do
+if c:IsA("GuiObject")and not c.Visible then return false end
+if c:IsA("ScreenGui")and not c.Enabled then return false end
+c=c.Parent
+end
+return true
+end
+local function checkJoinBtnHit(lbl)
+if not lbl or not lbl.Parent or not isVisChain(lbl)then return false end
+local boxObj=(lbl.Parent and lbl.Parent:IsA("GuiObject")and lbl.Parent~=State.ActiveFinderWin and lbl.Parent.AbsoluteSize.X<=160 and lbl.Parent.AbsoluteSize.Y<=65)and lbl.Parent or lbl
+local bx,by=boxObj.AbsolutePosition.X,boxObj.AbsolutePosition.Y
+local bw,bh=boxObj.AbsoluteSize.X,boxObj.AbsoluteSize.Y
+if bw<18 or bh<12 or bw>180 or bh>75 then return false end
+local hitRaw=(px>=bx-6 and px<=bx+bw+6 and py>=by-6 and py<=by+bh+6)
+local hitInset=(px>=bx-6 and px<=bx+bw+6 and(py-insetY)>=by-6 and(py-insetY)<=by+bh+6)
+return hitRaw or hitInset
+end
+for i=#State.TrackedFinderJoinBtns,1,-1 do
+local lbl=State.TrackedFinderJoinBtns[i]
+if lbl and lbl.Parent then
+if checkJoinBtnHit(lbl)and isFinderJoinLabel(lbl)then
+hopToLeastPlayersServer(lbl)
+return
+end
+else
+table.remove(State.TrackedFinderJoinBtns,i)
+end
+end
+end)
 local function translateSingleFinderSegment(seg)
 if type(seg)~="string" or seg=="" then return seg end
 local lead,body,trail=seg:match("^(%s*)(.-)(%s*)$")
@@ -5347,6 +5425,36 @@ if low=="auto off" or low=="auto on" or low=="force join" then return true end
 if low:find("top 5 recent eggs",1,true)or low:find("chillihub.pro",1,true)or low:find("sign in with your",1,true)or low:find("create your account and get",1,true)then return true end
 return false
 end
+local function getSafeContainersFromRoot(root)
+local list={}
+if not root then return list end
+local okIsSg,isSg=pcall(function()return root:IsA("ScreenGui")end)
+if okIsSg and isSg and not FAST_SKIP_ANCESTORS[root.Name]then
+table.insert(list,root)
+end
+local okCh,children=pcall(function()return root:GetChildren()end)
+if okCh and type(children)=="table" then
+for _,ch in ipairs(children)do
+local okName,chName=pcall(function()return ch.Name end)
+if okName and not FAST_SKIP_ANCESTORS[chName]then
+if chName=="RobloxGui" then
+local okSub,subs=pcall(function()return ch:GetChildren()end)
+if okSub and type(subs)=="table" then
+for _,sub in ipairs(subs)do
+local okSName,sName=pcall(function()return sub.Name end)
+if okSName and not FAST_SKIP_ANCESTORS[sName]and sName~="CoreScriptsRootProvider" and sName~="SettingsClippingShield" then
+table.insert(list,sub)
+end
+end
+end
+elseif chName~="CoreScriptsRootProvider" and chName~="SettingsClippingShield" then
+table.insert(list,ch)
+end
+end
+end
+end
+return list
+end
 local function findAndStyleFinderNow()
 if State.ActiveFinderWin and State.ActiveFinderWin.Parent and not isMainWinOrAncestor(State.ActiveFinderWin)then
 pcall(instantStyleFinder,State.ActiveFinderWin)
@@ -5354,25 +5462,31 @@ end
 local foundAny=false
 local scannedGuiContainers={}
 for _,root in ipairs(getScanRoots())do
-local okD,descList=pcall(function()return root:GetDescendants()end)
+for _,cont in ipairs(getSafeContainersFromRoot(root))do
+local okD,descList=pcall(function()return cont:GetDescendants()end)
 if okD and type(descList)=="table" then
 for _,d in ipairs(descList)do
 if(d:IsA("TextLabel")or d:IsA("TextButton"))and not isSkippedAncestor(d)then
+pcall(watchFinderTextObj,d)
 if isFinderCandidateLabel(d)then
 foundAny=true
 local win=getFinderWindowFromObj(d)
 if win and not isMainWinOrAncestor(win)then
 pcall(instantStyleFinder,win)
 end
-local sg=d:FindFirstAncestorOfClass("ScreenGui")or(win and win.Parent)or d.Parent
+local sg=d:FindFirstAncestorOfClass("ScreenGui")or(win and win.Parent)or cont
 if sg and not scannedGuiContainers[sg]then
 scannedGuiContainers[sg]=true
-for _,subD in ipairs(sg:GetDescendants())do
+local okSg,sgDesc=pcall(function()return sg:GetDescendants()end)
+if okSg and type(sgDesc)=="table" then
+for _,subD in ipairs(sgDesc)do
 if(subD:IsA("TextLabel")or subD:IsA("TextButton")or subD:IsA("TextBox"))and not isSkippedAncestor(subD)then
 if subD:IsA("TextLabel")or subD:IsA("TextButton")then
 pcall(watchFinderTextObj,subD)
 end
 pcall(hookTrans,subD)
+end
+end
 end
 end
 end
