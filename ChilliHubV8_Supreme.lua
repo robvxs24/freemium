@@ -4024,24 +4024,25 @@ end
 -- HỆ THỐNG OVERLAY TIÊU ĐỀ BẤT KHẢ XÂM PHẠM (CHỈ GẮN VÀO TIÊU ĐỀ CHÍNH Ở HEADER)
 local function applyFreemiumTitleOverlay(titleObj, win)
 	if not titleObj or not titleObj.Parent then return end
-	if not isFinderHeaderTitle(titleObj, win) then
-		local stray = titleObj:FindFirstChild("ChilliFreemiumTitleOverlay")
-		if stray then pcall(function() stray:Destroy() end) end
-		return
-	end
+	if not isFinderHeaderTitle(titleObj, win) then return end
 
 	pcall(function()
 		titleObj.TextTransparency = 1
 		titleObj.ClipsDescendants = false
-		if titleObj.Parent and titleObj.Parent:IsA("GuiObject") then
-			titleObj.Parent.ClipsDescendants = false
+		local p = titleObj.Parent
+		if p and p:IsA("GuiObject") then
+			p.ClipsDescendants = false
 		end
-		local overlay = titleObj:FindFirstChild("ChilliFreemiumTitleOverlay")
+
+		-- Tạo overlay nằm trực tiếp trên Header Frame (sibling) hoặc bên trong titleObj
+		local targetParent = (p and p:IsA("GuiObject")) and p or titleObj
+		local overlay = targetParent:FindFirstChild("ChilliFreemiumTitleOverlay")
 		if not overlay then
 			overlay = mk("TextLabel", {
 				Name = "ChilliFreemiumTitleOverlay",
-				Size = UDim2.new(0, 260, 1, 0),
-				Position = UDim2.fromScale(0, 0),
+				Size = titleObj.Size,
+				Position = titleObj.Position,
+				AnchorPoint = titleObj.AnchorPoint,
 				BackgroundTransparency = 1,
 				Text = "Chilli Finder Freemium",
 				TextColor3 = Color3.fromRGB(255, 255, 255),
@@ -4052,10 +4053,10 @@ local function applyFreemiumTitleOverlay(titleObj, win)
 				ClipsDescendants = false,
 				TextTruncate = Enum.TextTruncate.None,
 				TextWrapped = false,
-				ZIndex = math.max((titleObj.ZIndex or 1) + 20, 100),
+				ZIndex = math.max((titleObj.ZIndex or 1) + 30, 120),
 				Active = false
-			}, titleObj)
-			local overlayStroke = mk("UIStroke", {
+			}, targetParent)
+			mk("UIStroke", {
 				Name = "TitleOverlayStroke",
 				Thickness = 1.0,
 				Color = Color3.fromRGB(15, 12, 22),
@@ -4063,9 +4064,12 @@ local function applyFreemiumTitleOverlay(titleObj, win)
 			}, overlay)
 		else
 			overlay.Text = "Chilli Finder Freemium"
+			overlay.Size = titleObj.Size
+			overlay.Position = titleObj.Position
+			overlay.AnchorPoint = titleObj.AnchorPoint
 			overlay.Visible = true
 			overlay.TextTransparency = 0
-			overlay.ZIndex = math.max((titleObj.ZIndex or 1) + 20, 100)
+			overlay.ZIndex = math.max((titleObj.ZIndex or 1) + 30, 120)
 		end
 
 		if not titleObj:GetAttribute("__OverlayLockHooked") then
@@ -4082,19 +4086,12 @@ local function applyFreemiumTitleOverlay(titleObj, win)
 				if titleObj.TextTransparency < 1 then
 					titleObj.TextTransparency = 1
 				end
-				local cur = titleObj:FindFirstChild("ChilliFreemiumTitleOverlay")
+				local cur = targetParent:FindFirstChild("ChilliFreemiumTitleOverlay")
 				if cur then
 					cur.Visible = true
 					cur.TextTransparency = 0
 				else
 					applyFreemiumTitleOverlay(titleObj, win)
-				end
-			end)
-			titleObj.ChildRemoved:Connect(function(c)
-				if c and c.Name == "ChilliFreemiumTitleOverlay" then
-					task.defer(function()
-						applyFreemiumTitleOverlay(titleObj, win)
-					end)
 				end
 			end)
 		end
@@ -6647,7 +6644,7 @@ State.RefreshFinderJoinLangFn = updateAllFinderJoinButtonsText
 local function instantStyleFinder(win)
 	if not win or not win.Parent then return end
 	local now = os.clock()
-	if State.LastInstantStyleClock and (now - State.LastInstantStyleClock < 0.30) then return end
+	if State.LastInstantStyleClock and (now - State.LastInstantStyleClock < 0.25) then return end
 	State.LastInstantStyleClock = now
 
 	State.ActiveFinderWin = win
@@ -6656,7 +6653,7 @@ local function instantStyleFinder(win)
 
 	local isEn = (State.Language == "EN")
 
-	-- ĐẢM BẢO VIỀN TĨNH SANG TRỌNG (1px, GRAPHITE KHÔNG CHỚP NHÁY)
+	-- 1. ĐẢM BẢO VIỀN TĨNH SANG TRỌNG (GRAPHITE 1px, KHÔNG CHỚP NHÁY)
 	local sleekBorder = win:FindFirstChild("ChilliFinderSleekBorder")
 	if not sleekBorder then
 		sleekBorder = mk("UIStroke", {
@@ -6666,9 +6663,14 @@ local function instantStyleFinder(win)
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 			Transparency = 0.25
 		}, win)
+	else
+		sleekBorder.Thickness = 1.0
+		sleekBorder.Color = Color3.fromRGB(45, 52, 70)
+		sleekBorder.Transparency = 0.25
+		sleekBorder.Enabled = true
 	end
 
-	-- DUYỆT 1 LẦN DUY NHẤT (SINGLE PASS) TOÀN BỘ CỬA SỔ -> KHỬ HOÀN TOÀN GIẬT LAG
+	-- 2. DUYỆT 1 LẦN DUY NHẤT (SINGLE PASS) TOÀN BỘ CỬA SỔ -> KHỬ HOÀN TOÀN GIẬT LAG
 	local allDesc = win:GetDescendants()
 	for i = 1, #allDesc do
 		local d = allDesc[i]
@@ -6691,7 +6693,7 @@ local function instantStyleFinder(win)
 			local raw = stripRichTags(d.Text or "")
 			local low = raw:lower():match("^%s*(.-)%s*$")
 
-			-- 1. Tiêu đề chính Header
+			-- 1. Tiêu đề chính Header (VƯỢT MẶT TRIỆT ĐỂ BỘ LỌC CHẶN CỦA SCRIPT GỐC)
 			if isFinderHeaderTitle(d, win) then
 				if d.Text ~= "Chilli Finder Freemium" then
 					d:SetAttribute("__IsTranslating", true)
@@ -6701,7 +6703,7 @@ local function instantStyleFinder(win)
 				end
 				pcall(applyFreemiumTitleOverlay, d, win)
 
-			-- 2. Xóa chữ thừa ở đáy
+			-- 2. Xóa chữ thừa ở đáy (Create your account and get Chilli Finder)
 			elseif (low:find("create your account", 1, true) or low:find("get chilli finder", 1, true) or low == "chilli finder freemium") then
 				if d.Visible or d.Text ~= "" then
 					d.Visible = false
@@ -6709,9 +6711,9 @@ local function instantStyleFinder(win)
 				end
 
 			-- 3. Phụ đề dưới header
-			elseif low:find("top 5", 1, true) or low:find("sign in with your", 1, true) or low:find("no active booking", 1, true) or (low:find("book at", 1, true) and low:find("chillihub.pro", 1, true)) then
+			elseif low:find("top 5", 1, true) or low:find("sign in with your", 1, true) or low:find("no active booking", 1, true) or low:find("book at", 1, true) or low:find("recent eggs", 1, true) then
 				local wantSub = isEn and "Top 5 recent eggs | Chilli Finder Freemium" or "Top 5 trứng mới nhất | Chilli Finder Freemium"
-				if d.Text ~= wantSub then
+				if d.Text ~= wantSub and not low:find("https://") then
 					d:SetAttribute("__IsTranslating", true)
 					d.Text = wantSub
 					d.TextColor3 = Color3.fromRGB(215, 225, 240)
@@ -6818,7 +6820,7 @@ local function instantStyleFinder(win)
 			if row:IsA("GuiObject") and row.Name ~= "UIListLayout" and row.Name ~= "UIPadding" then
 				local rowChildren = row:GetChildren()
 				local hasPetStats = false
-				local joinBtn = row:FindFirstChild("ChilliCreatedJoinBtn")
+				local existingJoinBtn = nil
 
 				for c = 1, #rowChildren do
 					local ch = rowChildren[c]
@@ -6852,10 +6854,16 @@ local function instantStyleFinder(win)
 								end
 							end
 						end
+
+						-- Nhận diện nút Join của bản gốc hoặc nút custom
+						if ch.Name == "ChilliCreatedJoinBtn" or isFinderJoinLabel(ch) or t == "join" or t == "vào ngay" then
+							existingJoinBtn = ch
+						end
 					end
 				end
 
 				if hasPetStats then
+					local joinBtn = existingJoinBtn or row:FindFirstChild("ChilliCreatedJoinBtn")
 					if not joinBtn then
 						joinBtn = mk("TextButton", {
 							Name = "ChilliCreatedJoinBtn",
@@ -6873,15 +6881,29 @@ local function instantStyleFinder(win)
 							ZIndex = (row.ZIndex or 1) + 10
 						}, row)
 						styleChilliFinderJoinButton(joinBtn, joinBtn)
-						joinBtn:SetAttribute("__ClickHooked", true)
-						joinBtn.Activated:Connect(function()
-							handleFinderJoinPress(joinBtn)
-						end)
 					else
 						if joinBtn.Text ~= wantJoinText and not joinBtn.Text:find("⏳") then
 							joinBtn.Text = wantJoinText
 						end
 						if not joinBtn.Visible then joinBtn.Visible = true end
+						if not joinBtn:GetAttribute("__Styled") then
+							joinBtn:SetAttribute("__Styled", true)
+							styleChilliFinderJoinButton(joinBtn, joinBtn)
+						end
+					end
+
+					if not joinBtn:GetAttribute("__ClickHooked") then
+						joinBtn:SetAttribute("__ClickHooked", true)
+						local function onJoinActivated()
+							handleFinderJoinPress(joinBtn)
+						end
+						if joinBtn:IsA("GuiButton") then
+							if joinBtn.Activated then
+								joinBtn.Activated:Connect(onJoinActivated)
+							else
+								joinBtn.MouseButton1Click:Connect(onJoinActivated)
+							end
+						end
 					end
 				end
 			end
@@ -6889,6 +6911,7 @@ local function instantStyleFinder(win)
 	end
 end
 
+-- HÀM TÌM KIẾM CỬA SỔ FINDER SIÊU TỐC & CHÍNH XÁC 100% (QUÉT ĐÚNG CÁC CUSTOM GUI, 0 LAG)
 local function findAndStyleFinderNow()
 	if State.ActiveFinderWin and State.ActiveFinderWin.Parent and State.ActiveFinderWin.Visible then
 		instantStyleFinder(State.ActiveFinderWin)
@@ -6896,39 +6919,47 @@ local function findAndStyleFinderNow()
 	end
 
 	local now = os.clock()
-	if State.LastFindFinderClock and (now - State.LastFindFinderClock < 0.5) then
+	if State.LastFindFinderClock and (now - State.LastFindFinderClock < 0.25) then
 		return false
 	end
 	State.LastFindFinderClock = now
 
 	for _, root in ipairs(getScanRoots()) do
 		if root then
-			for _, sg in ipairs(root:GetChildren()) do
-				if not ROBLOX_CORE_SUBFOLDERS[sg.Name] and (sg:IsA("ScreenGui") or sg:IsA("GuiObject") or sg:IsA("Folder")) then
-					for _, child in ipairs(sg:GetChildren()) do
-						if child:IsA("GuiObject") then
-							if child:GetAttribute("__IsChilliFinderContainer") or child:FindFirstChild("ChilliFinderSleekBorder") or child:FindFirstChild("ChillFinderRainbowBorder") then
-								State.ActiveFinderWin = child
-								instantStyleFinder(child)
-								return true
-							end
-							local raw = child.Name:lower()
-							if raw:find("finder") or raw:find("egg") then
-								State.ActiveFinderWin = child
-								instantStyleFinder(child)
-								return true
-							end
-							for _, sub in ipairs(child:GetChildren()) do
-								if sub:IsA("TextLabel") or sub:IsA("TextButton") then
-									local t = (sub.Text or ""):lower()
-									if t == "chilli finder" or t == "chilli finder freemium" or t:find("top 5", 1, true) then
-										local win = getFinderWindowFromObj(sub)
-										if win then
-											State.ActiveFinderWin = win
-											instantStyleFinder(win)
-											return true
-										end
-									end
+			local chs = root:GetChildren()
+			for i = 1, #chs do
+				local c = chs[i]
+				local guisToCheck = {}
+				if c.Name == "RobloxGui" then
+					local sub = c:GetChildren()
+					for s = 1, #sub do
+						local sg = sub[s]
+						if not ROBLOX_CORE_SUBFOLDERS[sg.Name] and (sg:IsA("ScreenGui") or sg:IsA("GuiObject") or sg:IsA("Folder")) then
+							table.insert(guisToCheck, sg)
+						end
+					end
+				elseif not ROBLOX_CORE_SUBFOLDERS[c.Name] and (c:IsA("ScreenGui") or c:IsA("GuiObject") or c:IsA("Folder")) then
+					table.insert(guisToCheck, c)
+				end
+
+				for g = 1, #guisToCheck do
+					local gui = guisToCheck[g]
+					local descs = gui:GetDescendants()
+					for d = 1, #descs do
+						local obj = descs[d]
+						if obj:IsA("TextLabel") or obj:IsA("TextButton") then
+							local raw = stripRichTags(obj.Text or "")
+							local low = raw:lower():match("^%s*(.-)%s*$")
+							if low == "chilli finder" or low == "chilli finder freemium"
+							   or low:find("top 5 recent eggs", 1, true) or low:find("top 5 trứng mới", 1, true)
+							   or low:find("create your account and get chilli finder", 1, true)
+							   or low:find("force join", 1, true) or low:find("min value", 1, true) then
+								local win = getFinderWindowFromObj(obj)
+								if win and win:IsA("GuiObject") then
+									State.ActiveFinderWin = win
+									win:SetAttribute("__IsChilliFinderContainer", true)
+									instantStyleFinder(win)
+									return true
 								end
 							end
 						end
