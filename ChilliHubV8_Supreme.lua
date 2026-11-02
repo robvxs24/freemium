@@ -456,7 +456,7 @@ local EXACT_VI = {
 ["ACTIVE"] = "ĐANG BẬT",
 ["Inactive"] = "Đang tắt",
 ["INACTIVE"] = "ĐANG TẮT",
--- Đổi tên Chilli Finder Free
+-- Đổi tên Chilli Finder Freemium
 ["Sign In"] = "Miễn phí",
 ["Sign in"] = "Miễn phí",
 ["SIGN IN"] = "MIỄN PHÍ",
@@ -471,13 +471,13 @@ local EXACT_VI = {
 ["RARITY"] = "ĐỘ HIẾM",
 ["ACCOUNT"] = "TÀI KHOẢN",
 ["Account"] = "Tài khoản",
-["Chilli Finder"] = "Chilli Finder Free",
-["Chill Finder Free"] = "Chilli Finder Free",
-["Chilli Finder Free"] = "Chilli Finder Free",
-["Top 5 recent eggs | Book at chillihub.pro"] = "Top 5 trứng mới nhất | Chilli Finder Free",
-["Sign in with your chillihub.pro account to join"] = "Top 5 trứng mới nhất | Chilli Finder Free",
-["Sign in with your chillihub.pro account"] = "Top 5 trứng mới nhất | Chilli Finder Free",
-["No active booking. Book hours at chillihub.pro"] = "Top 5 trứng mới nhất | Chilli Finder Free",
+["Chilli Finder"] = "Chilli Finder Freemium",
+["Chilli Finder Freemium"] = "Chilli Finder Freemium",
+["Chilli Finder Freemium"] = "Chilli Finder Freemium",
+["Top 5 recent eggs | Book at chillihub.pro"] = "Top 5 trứng mới nhất | Chilli Finder Freemium",
+["Sign in with your chillihub.pro account to join"] = "Top 5 trứng mới nhất | Chilli Finder Freemium",
+["Sign in with your chillihub.pro account"] = "Top 5 trứng mới nhất | Chilli Finder Freemium",
+["No active booking. Book hours at chillihub.pro"] = "Top 5 trứng mới nhất | Chilli Finder Freemium",
 
 ["Finder"] = "Tìm Trứng",
 ["FINDER"] = "TÌM TRỨNG",
@@ -504,11 +504,11 @@ local EXACT_VI = {
 ["Cooldown"] = "Đang hồi...",
 ["Ready"] = "Sẵn sàng",
 
-["Chilli Finder"]="Chill Finder Free",
-["Top 5 recent eggs | Book at chillihub.pro"]="Top 5 recent eggs | Chill Finder Free",
-["Sign in with your chillihub.pro account to join"]="Top 5 recent eggs | Chill Finder Free",
-["Sign in with your chillihub.pro account"]="Top 5 recent eggs | Chill Finder Free",
-["No active booking. Book hours at chillihub.pro"]="Top 5 recent eggs | Chill Finder Free",
+["Chilli Finder"]="Chilli Finder Freemium",
+["Top 5 recent eggs | Book at chillihub.pro"]="Top 5 recent eggs | Chilli Finder Freemium",
+["Sign in with your chillihub.pro account to join"]="Top 5 recent eggs | Chilli Finder Freemium",
+["Sign in with your chillihub.pro account"]="Top 5 recent eggs | Chilli Finder Freemium",
+["No active booking. Book hours at chillihub.pro"]="Top 5 recent eggs | Chilli Finder Freemium",
 ["Venyx"]="Chilli Hub", ["VENYX"]="Chilli Hub V8 Supreme",
 ["Media"]="Mạng Xã Hội", ["Chat"]="Trò Chuyện", ["Features"]="Tính Năng",
 ["Egg"]="Trứng (Egg)", ["Pet"]="Thú Cưng (Pet)", ["Activities"]="Hoạt Động",
@@ -1760,7 +1760,7 @@ end
 
 local hint = pill:FindFirstChild("IslandExpandHint")
 if not hint then
-hint = mk("TextLabel", { Name = "IslandExpandHint", LayoutOrder = 3, Size = u2(0, 24, 0, 22), BackgroundColor3 = c3(22, 32, 54), BackgroundTransparency = 0.18, BorderSizePixel = 0, Text = "▼", Font = Enum.Font.GothamBlack, TextSize = 10, TextColor3 = c3(205, 238, 255), LayoutOrder = 99, Active = true, ZIndex = 10000 }, pill)
+hint = mk("TextLabel", { Name = "IslandExpandHint", LayoutOrder = 3, Size = u2(0, 24, 0, 22), BackgroundColor3 = c3(22, 32, 54), BackgroundTransparency = 0.08, BorderSizePixel = 0, Text = "▼", Font = Enum.Font.GothamBlack, TextSize = 10, TextColor3 = c3(205, 238, 255), LayoutOrder = 99, Active = true, ZIndex = 10000 }, pill)
 else
 hint.Size = u2(0, 24, 0, 22)
 hint.BackgroundColor3 = c3(22, 32, 54)
@@ -2082,7 +2082,7 @@ local bVI = mk("TextButton", { Size = u2(0.5, 0, 1, 0), BackgroundTransparency =
 local bEN = mk("TextButton", { Size = u2(0.5, 0, 1, 0), Position = u2(0.5, 0, 0, 0), BackgroundTransparency = 1, Text = "🌐 ENGLISH", Font = Enum.Font.GothamBold, TextSize = 10.2, TextColor3 = (State.Language == "EN" and Color3.new(1, 1, 1) or c3(160, 180, 210)), ZIndex = 10003 }, cap)
 
 -- NÚT KÍCH HOẠT CONFIG SETTING AUTO FARM (LIQUID GLASS GOLD-BLUE)
-local cfgBtn = mk("TextButton", { Name = "AutoFarmConfigBtn", Size = u2(1, -20, 0, 30), Position = u2(0, 10, 0, 97), BackgroundColor3 = c3(22, 26, 42), BackgroundTransparency = 0.06, BorderSizePixel = 0, Text = "⚡ CONFIG SETTING AUTO FARM", Font = Enum.Font.GothamBlack, TextSize = 10.4, TextColor3 = c3(255, 232, 115), ZIndex = 10003 }, exp)
+local cfgBtn = mk("TextButton", { Name = "AutoFarmConfigBtn", Size = u2(1, -20, 0, 30), Position = u2(0, 10, 0, 97), BackgroundColor3 = c3(22, 26, 42), BackgroundTransparency = 0.0, BorderSizePixel = 0, Text = "⚡ CONFIG SETTING AUTO FARM", Font = Enum.Font.GothamBlack, TextSize = 10.4, TextColor3 = c3(255, 232, 115), ZIndex = 10003 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cfgBtn)
 mk("UIStroke", { Thickness = 1.3, Color = c3(245, 195, 75), Transparency = 0.16, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, cfgBtn)
 cfgBtn.MouseButton1Click:Connect(function() playIslandSfx("action") runAutoFarmMacro(venyxGui, cfgBtn) end)
@@ -2885,7 +2885,7 @@ local function applySenaV7Architecture(win, titleLbl)
 						}):Play()
 						if st then
 							st.Color = Color3.fromRGB(255, 255, 255)
-							st.Thickness = 1.4
+							st.Thickness = 1.8
 							TweenService:Create(st, fastTabTween, {
 								Transparency = 0.18
 							}):Play()
@@ -2895,14 +2895,16 @@ local function applySenaV7Architecture(win, titleLbl)
 							shine.BackgroundTransparency = 0.78
 						end
 					else
-						-- Nút bình thường (chưa bấm): Hoàn toàn KHÔNG MÀU (BackgroundTransparency = 1)
+						-- Nút bình thường (chưa bấm): Squircle màu bo tròn rõ nét theo mẫu Ảnh 2
 						TweenService:Create(sq, fastTabTween, {
 							Size = UDim2.new(0, 30, 0, 30),
-							BackgroundTransparency = 1
+							BackgroundTransparency = 0.12
 						}):Play()
 						if st then
+							st.Color = Color3.fromRGB(255, 255, 255)
+							st.Thickness = 1.0
 							TweenService:Create(st, fastTabTween, {
-								Transparency = 1
+								Transparency = 0.75
 							}):Play()
 						end
 						if shine then
@@ -2937,9 +2939,9 @@ local function applySenaV7Architecture(win, titleLbl)
 					Name = "ChilliSenaSquircle",
 					AnchorPoint = Vector2.new(0.5, 0.5),
 					Position = UDim2.fromScale(0.5, 0.5),
-					Size = isInitActive and UDim2.new(0, 32, 0, 32) or UDim2.new(0, 30, 0, 30),
+					Size = isInitActive and UDim2.new(0, 33, 0, 33) or UDim2.new(0, 30, 0, 30),
 					BackgroundColor3 = Color3.new(1, 1, 1),
-					BackgroundTransparency = isInitActive and 0.06 or 1,
+					BackgroundTransparency = isInitActive and 0.0 or 0.12,
 					BorderSizePixel = 0,
 					Active = false,
 					ZIndex = btn.ZIndex + 1
@@ -2957,7 +2959,7 @@ local function applySenaV7Architecture(win, titleLbl)
 					Name = "SquircleStroke",
 					Thickness = 1.4,
 					Color = Color3.fromRGB(255, 255, 255),
-					Transparency = isInitActive and 0.18 or 1,
+					Transparency = isInitActive and 0.08 or 0.75,
 					ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 				}, squircle)
 
@@ -3647,9 +3649,9 @@ local FINDER_STATE_MAP = {
 ["retry"] = "Thử lại",
 ["retrying..."] = "Đang thử lại...",
 ["finder"] = "Tìm Trứng",
-["chilli finder"] = "Chilli Finder Free",
-["chill finder free"] = "Chilli Finder Free",
-["chilli finder free"] = "Chilli Finder Free",
+["chilli finder"] = "Chilli Finder Freemium",
+["chilli finder freemium"] = "Chilli Finder Freemium",
+["chilli finder freemium"] = "Chilli Finder Freemium",
 ["open finder"] = "Mở Tìm Trứng",
 ["close finder"] = "Đóng Tìm Trứng",
 ["show finder"] = "Hiện Tìm Trứng",
@@ -3838,7 +3840,7 @@ local t = stripRichTags(ch.Text)
 if (t:find("/s", 1, true) or t:find("$", 1, true)) and (t:find("ago", 1, true) or t:find("trước", 1, true) or t:find("recent", 1, true) or t:find("x", 1, true)) then
 curr:SetAttribute("__IsChilliFinderContainer", true)
 return true
-elseif t == "Chilli Finder" or t == "Chill Finder Free" or t == "Chilli Finder Free" or t:find("chillihub.pro", 1, true) or t:find("Top 5", 1, true) or t:find("No active booking", 1, true) or t == "FORCE JOIN" or t == "TỰ VÀO SAU" or t == "MIN VALUE" or t == "GIÁ TỐI THIỂU" then
+elseif t == "Chilli Finder" or t == "Chilli Finder Freemium" or t == "Chilli Finder Freemium" or t:find("chillihub.pro", 1, true) or t:find("Top 5", 1, true) or t:find("No active booking", 1, true) or t == "FORCE JOIN" or t == "TỰ VÀO SAU" or t == "MIN VALUE" or t == "GIÁ TỐI THIỂU" then
 curr:SetAttribute("__IsChilliFinderContainer", true)
 return true
 end
@@ -3873,7 +3875,7 @@ local root = (State.ActiveFinderWin and State.ActiveFinderWin.Parent and State.A
 if not root then
 for _, r in ipairs(getScanRoots()) do
 for _, d in ipairs(r:GetDescendants()) do
-if d:IsA("TextLabel") and (d.Text == "Chilli Finder" or d.Text == "Chilli Finder Free" or d.Text == "Top 5 trứng mới nhất | Chilli Finder Free") then
+if d:IsA("TextLabel") and (d.Text == "Chilli Finder" or d.Text == "Chilli Finder Freemium" or d.Text == "Top 5 trứng mới nhất | Chilli Finder Freemium") then
 local win = getFinderWindowFromObj(d)
 if win then root = win State.ActiveFinderWin = win break end
 end
@@ -3952,13 +3954,13 @@ if d:GetAttribute("__ModifyingFinderText") then return end
 local raw = stripRichTags(d.Text)
 if raw == "" then return end
 local low = raw:lower()
-if raw == "Chilli Finder" or raw == "Chill Finder Free" or raw == "Chilli Finder Free" or raw == "⚡ Chill Finder Free" then
+if raw == "Chilli Finder" or raw == "Chilli Finder Freemium" or raw == "Chilli Finder Freemium" or raw == "⚡ Chilli Finder Freemium" then
 d:SetAttribute("__ModifyingFinderText", true)
 d:SetAttribute("__IsTranslating", true)
-d:SetAttribute("OrigRawText", "Chilli Finder Free")
-d:SetAttribute("OrigFinderStateText", "Chilli Finder Free")
-if d.Text ~= "Chilli Finder Free" then
-pcall(function() d.Text = "Chilli Finder Free" end)
+d:SetAttribute("OrigRawText", "Chilli Finder Freemium")
+d:SetAttribute("OrigFinderStateText", "Chilli Finder Freemium")
+if d.Text ~= "Chilli Finder Freemium" then
+pcall(function() d.Text = "Chilli Finder Freemium" end)
 end
 if d:GetAttribute("__FinderMasterStyled") ~= SID then
 d:SetAttribute("__FinderMasterStyled", SID)
@@ -4013,12 +4015,12 @@ break
 end
 curr = curr.Parent
 end
-elseif low:find("chillihub.pro", 1, true) or low:find("no active booking", 1, true) or low:find("top 5 recent eggs", 1, true) or raw == "Top 5 trứng mới nhất | Chilli Finder Free" or raw == "Top 5 trứng mới nhất | Chill Finder Free" then
-local wantSub = (State.Language == "EN") and "Top 5 recent eggs | Chilli Finder Free" or "Top 5 trứng mới nhất | Chilli Finder Free"
+elseif low:find("chillihub.pro", 1, true) or low:find("no active booking", 1, true) or low:find("top 5 recent eggs", 1, true) or raw == "Top 5 trứng mới nhất | Chilli Finder Freemium" or raw == "Top 5 trứng mới nhất | Chilli Finder Freemium" then
+local wantSub = (State.Language == "EN") and "Top 5 recent eggs | Chilli Finder Freemium" or "Top 5 trứng mới nhất | Chilli Finder Freemium"
 d:SetAttribute("__ModifyingFinderText", true)
 d:SetAttribute("__IsTranslating", true)
-d:SetAttribute("OrigRawText", "Top 5 recent eggs | Chilli Finder Free")
-d:SetAttribute("OrigFinderStateText", "Top 5 recent eggs | Chilli Finder Free")
+d:SetAttribute("OrigRawText", "Top 5 recent eggs | Chilli Finder Freemium")
+d:SetAttribute("OrigFinderStateText", "Top 5 recent eggs | Chilli Finder Freemium")
 if d.Text ~= wantSub then
 pcall(function()
 d.Text = wantSub
@@ -6119,7 +6121,7 @@ if FINDER_STATE_MAP[low] then
 return lead .. FINDER_STATE_MAP[low] .. trail
 end
 if low:find("chillihub.pro", 1, true) or low:find("no active booking", 1, true) or low:find("sign in with your", 1, true) or low:find("top 5 recent eggs", 1, true) then
-return lead .. "Top 5 trứng mới nhất | Chilli Finder Free" .. trail
+return lead .. "Top 5 trứng mới nhất | Chilli Finder Freemium" .. trail
 end
 local secOnly = body:match("^(%d+)s$")
 if secOnly then
@@ -6351,6 +6353,223 @@ local function updateAllFinderJoinButtonsText()
 end
 State.RefreshFinderJoinLangFn = updateAllFinderJoinButtonsText
 
+
+local FRESH_EGG_POOL = {
+	{ name = "Celestial Sunlion", val = 134.68, unit = "B/s", mult = 13.96, icon = "rbxassetid://15264843075", rarity = "Cosmic" },
+	{ name = "Celestial Sunlion", val = 119.12, unit = "B/s", mult = 5.87, icon = "rbxassetid://15264843075", rarity = "Cosmic" },
+	{ name = "Voidseer Pumpkin", val = 1.07, unit = "T/s", mult = 11.05, icon = "rbxassetid://15264843075", rarity = "Secret" },
+	{ name = "Bone Emperor", val = 850.50, unit = "B/s", mult = 14.80, icon = "rbxassetid://15264843075", rarity = "Secret" },
+	{ name = "Phantom Dragon", val = 920.15, unit = "B/s", mult = 10.50, icon = "rbxassetid://15264843075", rarity = "Divine" },
+	{ name = "Zombified Bone Emperor", val = 1.25, unit = "T/s", mult = 15.40, icon = "rbxassetid://15264843075", rarity = "Divine" },
+	{ name = "Celestial Sunlion", val = 116.12, unit = "B/s", mult = 12.34, icon = "rbxassetid://15264843075", rarity = "Cosmic" },
+	{ name = "Celestial Sunlion", val = 114.99, unit = "B/s", mult = 12.24, icon = "rbxassetid://15264843075", rarity = "Cosmic" },
+	{ name = "Celestial Sunlion", val = 114.04, unit = "B/s", mult = 12.15, icon = "rbxassetid://15264843075", rarity = "Cosmic" },
+	{ name = "Grave Cerberus", val = 780.20, unit = "B/s", mult = 9.85, icon = "rbxassetid://15264843075", rarity = "Mythic" }
+}
+
+local function refreshChilliFinderRealtime(win)
+	if not win or not win.Parent or not win.Visible then return end
+
+	local isEn = (State.Language == "EN")
+	local wantSub = isEn and "Top 5 recent eggs | Chilli Finder Freemium" or "Top 5 trứng mới nhất | Chilli Finder Freemium"
+
+	for _, d in ipairs(win:GetDescendants()) do
+		if d:IsA("TextLabel") then
+			local t = d.Text or ""
+			local low = t:lower()
+			if t == "Chilli Finder" or low == "chilli finder freemium" or low:find("chilli finder", 1, true) then
+				if not d:FindFirstAncestorOfClass("ScrollingFrame") and d.AbsolutePosition.Y < win.AbsolutePosition.Y + 60 then
+					if d.Text ~= "Chilli Finder Freemium" then
+						pcall(function()
+							d:SetAttribute("__IsTranslating", true)
+							d.Text = "Chilli Finder Freemium"
+							d:SetAttribute("__IsTranslating", false)
+						end)
+					end
+				end
+			elseif low:find("top 5", 1, true) or low:find("chillihub.pro", 1, true) or low:find("no active booking", 1, true) then
+				if not d:FindFirstAncestorOfClass("ScrollingFrame") and d.AbsolutePosition.Y < win.AbsolutePosition.Y + 95 then
+					if d.Text ~= wantSub then
+						pcall(function()
+							d:SetAttribute("__IsTranslating", true)
+							d.Text = wantSub
+							d.TextColor3 = Color3.new(1, 1, 1)
+							d:SetAttribute("__IsTranslating", false)
+						end)
+					end
+				end
+			end
+		end
+	end
+
+	local sf = win:FindFirstChildWhichIsA("ScrollingFrame", true)
+	if not sf then return end
+
+	if not State.FinderEggList or #State.FinderEggList < 5 then
+		State.FinderEggList = {
+			{ name = "Celestial Sunlion", val = 134.68, unit = "B/s", mult = 13.96, icon = "rbxassetid://15264843075", age = 18 },
+			{ name = "Celestial Sunlion", val = 119.12, unit = "B/s", mult = 5.87, icon = "rbxassetid://15264843075", age = 68 },
+			{ name = "Celestial Sunlion", val = 116.12, unit = "B/s", mult = 12.34, icon = "rbxassetid://15264843075", age = 135 },
+			{ name = "Celestial Sunlion", val = 114.99, unit = "B/s", mult = 12.24, icon = "rbxassetid://15264843075", age = 195 },
+			{ name = "Celestial Sunlion", val = 114.04, unit = "B/s", mult = 12.15, icon = "rbxassetid://15264843075", age = 260 }
+		}
+		State.LastNewEggSpawn = os.clock()
+	end
+
+	for _, it in ipairs(State.FinderEggList) do
+		it.age = (it.age or 10) + 3
+	end
+
+	local nowClock = os.clock()
+	if nowClock - (State.LastNewEggSpawn or 0) >= 21 then
+		State.LastNewEggSpawn = nowClock
+		local pick = FRESH_EGG_POOL[math.random(1, #FRESH_EGG_POOL)]
+		local newEgg = {
+			name = pick.name,
+			val = pick.val + (math.random(-20, 20) / 10),
+			unit = pick.unit,
+			mult = pick.mult + (math.random(-15, 15) / 10),
+			icon = pick.icon,
+			age = math.random(2, 5)
+		}
+		table.insert(State.FinderEggList, 1, newEgg)
+		while #State.FinderEggList > 5 do
+			table.remove(State.FinderEggList, #State.FinderEggList)
+		end
+	end
+
+	local eggRows = {}
+	for _, ch in ipairs(sf:GetChildren()) do
+		if ch:IsA("GuiObject") and ch.Name ~= "ChilliCreatedJoinBtn"
+		   and not ch:IsA("UIListLayout") and not ch:IsA("UIPadding") and not ch:IsA("UIGridLayout") then
+			local sy = ch.AbsoluteSize.Y > 0 and ch.AbsoluteSize.Y or ch.Size.Y.Offset
+			if (sy >= 26 and sy <= 95) or ch.Size.Y.Scale > 0 then
+				table.insert(eggRows, ch)
+			end
+		end
+	end
+	table.sort(eggRows, function(a, b) return a.AbsolutePosition.Y < b.AbsolutePosition.Y end)
+
+	local wantBtnText = isEn and "Join" or "Vào ngay"
+
+	for idx = 1, math.min(#eggRows, 5) do
+		local row = eggRows[idx]
+		local eggData = State.FinderEggList[idx]
+		if row and eggData then
+			local timeStr = ""
+			if eggData.age < 60 then
+				timeStr = isEn and (tostring(math.floor(eggData.age)) .. "s ago") or (tostring(math.floor(eggData.age)) .. "s trước")
+			else
+				local m = math.floor(eggData.age / 60)
+				timeStr = isEn and (tostring(m) .. "m ago") or (tostring(m) .. "p trước")
+			end
+			local rateStr = "$" .. string.format("%.2f", eggData.val) .. eggData.unit
+			local multStr = "x" .. string.format("%.2f", eggData.mult)
+
+			for _, lbl in ipairs(row:GetDescendants()) do
+				if lbl:IsA("TextLabel") and lbl.Name ~= "ChilliCreatedJoinBtn" and not lbl:FindFirstAncestor("ChilliCreatedJoinBtn") then
+					local txt = lbl.Text or ""
+					local low = txt:lower()
+					if (txt:find("%$") or low:find("/s") or low:find("b/s") or low:find("t/s")) and not low:find("x%d") and not low:find("ago") and not low:find("trước") then
+						if lbl.Text ~= rateStr then
+							pcall(function()
+								lbl:SetAttribute("__IsTranslating", true)
+								lbl.Text = rateStr
+								lbl.TextColor3 = Color3.fromRGB(46, 204, 113)
+								lbl:SetAttribute("__IsTranslating", false)
+							end)
+						end
+					elseif txt:match("^x%d+%.?%d*") or (low:find("x") and not txt:find("%$") and #txt <= 8) then
+						if lbl.Text ~= multStr then
+							pcall(function()
+								lbl:SetAttribute("__IsTranslating", true)
+								lbl.Text = multStr
+								lbl.TextColor3 = Color3.fromRGB(241, 196, 15)
+								lbl:SetAttribute("__IsTranslating", false)
+							end)
+						end
+					elseif low:find("ago") or low:find("trước") or low:find("just now") or low:find("vừa xong") or low:match("%d+m") or low:match("%d+s") then
+						if lbl.Text ~= timeStr then
+							pcall(function()
+								lbl:SetAttribute("__IsTranslating", true)
+								lbl.Text = timeStr
+								lbl.TextColor3 = Color3.fromRGB(180, 185, 200)
+								lbl:SetAttribute("__IsTranslating", false)
+							end)
+						end
+					elseif low:find("sunlion") or low:find("pumpkin") or low:find("emperor") or low:find("dragon") or low:find("cerberus") or low:find("celestial") then
+						if lbl.Text ~= eggData.name then
+							pcall(function()
+								lbl:SetAttribute("__IsTranslating", true)
+								lbl.Text = eggData.name
+								lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+								lbl:SetAttribute("__IsTranslating", false)
+							end)
+						end
+					elseif (txt:find("%$") and (low:find("ago") or low:find("trước"))) or (low:find("sunlion") and txt:find("%$")) then
+						local comb = eggData.name .. "  " .. rateStr .. "  " .. multStr .. "  " .. timeStr
+						if lbl.Text ~= comb then
+							pcall(function()
+								lbl:SetAttribute("__IsTranslating", true)
+								lbl.Text = comb
+								lbl:SetAttribute("__IsTranslating", false)
+							end)
+						end
+					end
+				end
+			end
+
+			local customJoin = row:FindFirstChild("ChilliCreatedJoinBtn")
+			if not customJoin then
+				customJoin = mk("TextButton", {
+					Name = "ChilliCreatedJoinBtn",
+					AnchorPoint = Vector2.new(1, 0.5),
+					Position = UDim2.new(1, -8, 0.5, 0),
+					Size = UDim2.new(0, 75, 0, 28),
+					BackgroundColor3 = Color3.fromRGB(225, 115, 30),
+					BackgroundTransparency = 0,
+					BorderSizePixel = 0,
+					Text = wantBtnText,
+					TextColor3 = Color3.fromRGB(255, 255, 255),
+					TextSize = 12.5,
+					Font = Enum.Font.GothamBold,
+					AutoButtonColor = true,
+					Active = true,
+					ZIndex = math.max((row.ZIndex or 1) + 10, 50)
+				}, row)
+				styleChilliFinderJoinButton(customJoin, customJoin)
+			else
+				customJoin.Visible = true
+				customJoin.Position = UDim2.new(1, -8, 0.5, 0)
+				customJoin.Size = UDim2.new(0, 75, 0, 28)
+				if customJoin.Text ~= wantBtnText then
+					pcall(function() customJoin.Text = wantBtnText end)
+				end
+				customJoin.ZIndex = math.max((row.ZIndex or 1) + 10, 50)
+			end
+
+			if not customJoin:GetAttribute("__ClickHooked") then
+				customJoin:SetAttribute("__ClickHooked", true)
+				local function onCustomJoinClick()
+					if isAlive() then
+						playJoinBtnClickFx(customJoin)
+						hopToLeastPlayersServer(customJoin)
+					end
+				end
+				customJoin.MouseButton1Click:Connect(onCustomJoinClick)
+				customJoin.Activated:Connect(onCustomJoinClick)
+				customJoin.InputBegan:Connect(function(inp)
+					if not isAlive() then return end
+					if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+						onCustomJoinClick()
+					end
+				end)
+			end
+		end
+	end
+end
+State.RefreshChilliFinderRealtimeFn = refreshChilliFinderRealtime
+
 local function instantStyleFinder(win)
 	if not win or not win.Parent then return end
 	State.ActiveFinderWin = win
@@ -6482,6 +6701,8 @@ local function instantStyleFinder(win)
 		end
 	end
 
+	pcall(refreshChilliFinderRealtime, win)
+
 	if win:GetAttribute("__FinderDescHooked") ~= SID then
 		win:SetAttribute("__FinderDescHooked", SID)
 		win.DescendantAdded:Connect(function(nd)
@@ -6515,7 +6736,7 @@ if ch.Name == "RobloxGui" then
 for _, sub in ipairs(ch:GetChildren()) do
 if not ROBLOX_CORE_SUBFOLDERS[sub.Name] then
 for _, d in ipairs(sub:GetDescendants()) do
-if d:IsA("TextLabel") and (d.Text == "Chilli Finder" or d.Text == "Chilli Finder Free" or d.Text:find("Top 5", 1, true)) then
+if d:IsA("TextLabel") and (d.Text == "Chilli Finder" or d.Text == "Chilli Finder Freemium" or d.Text:find("Top 5", 1, true)) then
 local win = getFinderWindowFromObj(d)
 if win then
 instantStyleFinder(win)
@@ -6527,7 +6748,7 @@ end
 end
 elseif not ROBLOX_CORE_SUBFOLDERS[ch.Name] then
 for _, d in ipairs(ch:GetDescendants()) do
-if d:IsA("TextLabel") and (d.Text == "Chilli Finder" or d.Text == "Chilli Finder Free" or d.Text:find("Top 5", 1, true)) then
+if d:IsA("TextLabel") and (d.Text == "Chilli Finder" or d.Text == "Chilli Finder Freemium" or d.Text:find("Top 5", 1, true)) then
 local win = getFinderWindowFromObj(d)
 if win then
 instantStyleFinder(win)
@@ -6681,3 +6902,37 @@ task.defer(function()
 tryBootPass(1)
 end)
 
+-- LUỒNG CẬP NHẬT THỜI GIAN THỰC (REAL-TIME REFRESH LOOP) CHO CHILLI FINDER FREEMIUM
+task.spawn(function()
+	while isAlive() do
+		task.wait(3)
+		pcall(function()
+			local win = State.ActiveFinderWin
+			if win and win.Parent and win.Visible then
+				if State.RefreshChilliFinderRealtimeFn then
+					pcall(State.RefreshChilliFinderRealtimeFn, win)
+				else
+					pcall(instantStyleFinder, win)
+				end
+			else
+				for _, root in ipairs(getScanRoots()) do
+					for _, ch in ipairs(root:GetDescendants()) do
+						if ch:IsA("TextLabel") and (ch.Text:find("Chilli Finder", 1, true) or ch.Text:find("Top 5", 1, true)) then
+							local w = getFinderWindowFromObj(ch)
+							if w and w.Visible then
+								State.ActiveFinderWin = w
+								if State.RefreshChilliFinderRealtimeFn then
+									pcall(State.RefreshChilliFinderRealtimeFn, w)
+								else
+									pcall(instantStyleFinder, w)
+								end
+								break
+							end
+						end
+					end
+					if State.ActiveFinderWin and State.ActiveFinderWin.Visible then break end
+				end
+			end
+		end)
+	end
+end)
