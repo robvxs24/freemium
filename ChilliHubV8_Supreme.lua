@@ -67,6 +67,74 @@ State.JoiningLeastServerBusy = false
 State.ScanningFinderBusy = false
 State.MacroBusy = false
 State.TrackedFinderJoinBtns = {}
+
+-- ============================================================================
+-- [HỆ THỐNG TỐI ƯU HÓA MÁY CHẠY - TREADMILL ZERO-LAG ENGINE]
+-- ============================================================================
+State.IsOnTreadmill = false
+State.LastTreadmillCheckClock = 0
+
+local function checkIsPlayerOnTreadmill()
+	local char = LocalPlayer and LocalPlayer.Character
+	if not char then return false end
+	local hum = char:FindFirstChildOfClass("Humanoid")
+	local hrp = char:FindFirstChild("HumanoidRootPart")
+	if not hum or not hrp then return false end
+
+	-- 1. Kiểm tra SeatPart nếu nhân vật đứng/ngồi trên máy
+	if hum.SeatPart then
+		local sName = hum.SeatPart.Name:lower()
+		if sName:find("treadmill") or sName:find("machine") or sName:find("conveyor") or sName:find("belt") or sName:find("run") then
+			return true
+		end
+	end
+
+	-- 2. Raycast xuống dưới chân kiểm tra băng chuyền / máy chạy
+	local rayParams = RaycastParams.new()
+	rayParams.FilterDescendantsInstances = { char }
+	rayParams.FilterType = Enum.RaycastFilterType.Exclude
+	local ray = workspace:Raycast(hrp.Position, Vector3.new(0, -6.5, 0), rayParams)
+	if ray and ray.Instance then
+		local nm = ray.Instance.Name:lower()
+		local pnm = (ray.Instance.Parent and ray.Instance.Parent.Name:lower()) or ""
+		local ppnm = (ray.Instance.Parent and ray.Instance.Parent.Parent and ray.Instance.Parent.Parent.Name:lower()) or ""
+		if nm:find("treadmill") or nm:find("conveyor") or nm:find("machine") or nm:find("belt") or nm:find("run") or nm:find("track")
+		   or pnm:find("treadmill") or pnm:find("conveyor") or pnm:find("machine") or pnm:find("belt")
+		   or ppnm:find("treadmill") or ppnm:find("machine") then
+			return true
+		end
+	end
+
+	-- 3. Kiểm tra các bộ phận chạm (TouchingParts) quanh HumanoidRootPart
+	local touching = hrp:GetTouchingParts()
+	for _, part in ipairs(touching) do
+		if part and not part:IsDescendantOf(char) then
+			local nm = part.Name:lower()
+			local pnm = (part.Parent and part.Parent.Name:lower()) or ""
+			if nm:find("treadmill") or nm:find("conveyor") or nm:find("machine") or nm:find("belt")
+			   or pnm:find("treadmill") or pnm:find("conveyor") or pnm:find("machine") then
+				return true
+			end
+		end
+	end
+
+	return false
+end
+
+-- Vòng lặp kiểm tra trạng thái máy chạy nhẹ nhàng (mỗi 1.2 giây)
+task.spawn(function()
+	while isAlive() do
+		task.wait(1.2)
+		local onTm = false
+		pcall(function()
+			onTm = checkIsPlayerOnTreadmill()
+		end)
+		State.IsOnTreadmill = onTm
+		if State.UpdateTreadmillIndicator then
+			pcall(State.UpdateTreadmillIndicator, onTm)
+		end
+	end
+end)
 local SID = State.SessionId
 
 -- CƠ CHẾ CAN THIỆP METAMETHOD CẤP ĐỘ CAO (OUTSMART HOST ANTI-TAMPER)
@@ -1250,19 +1318,31 @@ applyTrans(inst)
 if inst:GetAttribute("__TransHookSession") == SID then return end
 inst:SetAttribute("__TransHookSession", SID)
 table.insert(State.TrackedTexts, inst)
+-- KHỬ HOÀN TOÀN GIẬT LAG: LỌC BỎ CÁC NHÃN SỐ LIỆU ĐỘNG (STATS/TIỀN/ĐẾM GIỜ/TREADMILL)
+local initialCur = inst.Text or ""
+if initialCur:match("^[%$%+%-%d%.%,%/%%sxhm%s:%(%)kKmMbBtT]+$")
+   or (initialCur:find("%d") and (initialCur:find("%$") or initialCur:find("/s") or initialCur:find(":") or initialCur:find("kg") or initialCur:find("/"))) then
+	inst:SetAttribute("__IsDynamicStat", true)
+	return
+end
+
 local inScroll = inst:FindFirstAncestorOfClass("ScrollingFrame") ~= nil
 if inScroll and inst:IsA("TextLabel") and #inst.Text > 16 and not inst.Text:find("%d") then
-return
+	return
 end
 inst:GetPropertyChangedSignal("Text"):Connect(function()
-if not isAlive() or inst:GetAttribute("__IsTranslating") or inst:GetAttribute("__IslandDone") or inst:GetAttribute("__HiddenVxLogo") then return end
+if not isAlive() or inst:GetAttribute("__IsTranslating") or inst:GetAttribute("__IslandDone") or inst:GetAttribute("__HiddenVxLogo") or inst:GetAttribute("__IsDynamicStat") then return end
 local cur = inst.Text
 if cur == "" or cur == inst:GetAttribute("__LastTranslated") then return end
 if not inst:IsA("TextBox") and isFpsTxt(cur) then
 hookFps(inst)
 return
 end
-if cur:match("^[%$%+%-%d%.%,%/%%sxhm%s:]+$") then return end
+-- Lọc siêu nhanh: bỏ qua các chỉ số thay đổi liên tục khi chạy máy
+if cur:find("%d") and (cur:find("%$") or cur:find("/s") or cur:find(":") or cur:find("kg") or cur:match("^[%$%+%-%d%.%,%/%%sxhm%s:]+$")) then
+	inst:SetAttribute("__IsDynamicStat", true)
+	return
+end
 if inst:IsA("TextBox") then
 applyTrans(inst)
 return
@@ -2189,12 +2269,12 @@ if not State.AntiAfkHooked then
 State.AntiAfkHooked = true
 pcall(function()
 LocalPlayer.Idled:Connect(function()
-if State.AntiAfkEnabled then
-pcall(function()
-local cam = workspace.CurrentCamera
-if cam then cam.CFrame = cam.CFrame end
-end)
-end
+	if State.AntiAfkEnabled and not State.IsOnTreadmill then
+		pcall(function()
+			local cam = workspace.CurrentCamera
+			if cam then cam.CFrame = cam.CFrame end
+		end)
+	end
 end)
 end)
 end
@@ -2642,6 +2722,68 @@ local function applySenaV7Architecture(win, titleLbl)
 	end
 	State.MainChilliLogo = mainChilliLogo
 
+	-- [UI/UX PRO MAX] HUY HIỆU THÔNG MINH TRẠNG THÁI MÁY CHẠY (SMART TREADMILL INDICATOR)
+	local smartPill = win:FindFirstChild("ChilliSmartTreadmillPill")
+	if not smartPill then
+		smartPill = mk("Frame", {
+			Name = "ChilliSmartTreadmillPill",
+			AnchorPoint = Vector2.new(1, 0.5),
+			Position = UDim2.new(1, -165, 0, 19),
+			Size = UDim2.new(0, 142, 0, 22),
+			BackgroundColor3 = Color3.fromRGB(20, 24, 36),
+			BackgroundTransparency = 0.25,
+			BorderSizePixel = 0,
+			Active = false,
+			ZIndex = hdrBaseZ
+		}, win)
+		mk("UICorner", { CornerRadius = UDim.new(0, 11) }, smartPill)
+		local pStroke = mk("UIStroke", {
+			Name = "PillStroke",
+			Thickness = 1.0,
+			Color = Color3.fromRGB(45, 195, 125),
+			Transparency = 0.45
+		}, smartPill)
+		local pillTxt = mk("TextLabel", {
+			Name = "PillText",
+			Size = UDim2.fromScale(1, 1),
+			Position = UDim2.fromScale(0, 0),
+			BackgroundTransparency = 1,
+			Text = "⚡ TỐI ƯU: BẬT",
+			TextColor3 = Color3.fromRGB(45, 195, 125),
+			Font = Enum.Font.GothamBold,
+			TextSize = 10.5,
+			Active = false,
+			ZIndex = hdrBaseZ + 1
+		}, smartPill)
+	end
+
+	State.UpdateTreadmillIndicator = function(isOnTm)
+		if not smartPill or not smartPill.Parent then return end
+		local pStroke = smartPill:FindFirstChild("PillStroke")
+		local pillTxt = smartPill:FindFirstChild("PillText")
+		if isOnTm then
+			if pillTxt then
+				pillTxt.Text = "🏃 MÁY CHẠY: 0 LAG"
+				pillTxt.TextColor3 = Color3.fromRGB(50, 255, 140)
+			end
+			if pStroke then
+				pStroke.Color = Color3.fromRGB(50, 255, 140)
+				pStroke.Transparency = 0.20
+			end
+			smartPill.BackgroundColor3 = Color3.fromRGB(15, 35, 25)
+		else
+			if pillTxt then
+				pillTxt.Text = "⚡ TỐI ƯU: BẬT"
+				pillTxt.TextColor3 = Color3.fromRGB(45, 195, 125)
+			end
+			if pStroke then
+				pStroke.Color = Color3.fromRGB(45, 195, 125)
+				pStroke.Transparency = 0.45
+			end
+			smartPill.BackgroundColor3 = Color3.fromRGB(20, 24, 36)
+		end
+	end
+
 	local hy, tx = titleLbl.AbsolutePosition.Y, titleLbl.AbsolutePosition.X
 	local winX, winY = win.AbsolutePosition.X, win.AbsolutePosition.Y
 
@@ -2733,17 +2875,42 @@ local function applySenaV7Architecture(win, titleLbl)
 			end
 			for _, card in ipairs(d:GetChildren()) do
 				if card:IsA("Frame") and card.AbsoluteSize.X >= 120 then
-					card.BackgroundColor3 = Color3.fromRGB(13, 15, 25)
+					-- [UI/UX PRO MAX] Phong cách Dark Glassmorphism sang trọng, mượt mà
+					card.BackgroundColor3 = Color3.fromRGB(18, 21, 32)
+					local cCorner = card:FindFirstChildOfClass("UICorner") or mk("UICorner", { CornerRadius = UDim.new(0, 10) }, card)
+					cCorner.CornerRadius = UDim.new(0, 10)
+
+					local cStroke = card:FindFirstChild("ChilliModernCardStroke") or mk("UIStroke", {
+						Name = "ChilliModernCardStroke",
+						Thickness = 1.0,
+						Color = Color3.fromRGB(42, 48, 68),
+						Transparency = 0.45,
+						ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+					}, card)
+
 					for _, st in ipairs(card:GetChildren()) do
-						if st:IsA("UIStroke") then
-							if st.Name == "ChilliLuxuryCardStroke" then
-								st:Destroy()
-							else
-								st.Enabled = true
-								st.Transparency = 0.65
+						if st:IsA("UIStroke") and st ~= cStroke then
+							st.Enabled = false
+							st.Transparency = 1
+						end
+					end
+
+					-- Tinh chỉnh các nút bấm bên trong Card (Vào lại, Đổi server, Chép Job ID, Chép Link Mời)
+					for _, sub in ipairs(card:GetDescendants()) do
+						if sub:IsA("TextButton") or sub:IsA("ImageButton") then
+							if not sub.Name:find("Chilli") then
+								local bCorner = sub:FindFirstChildOfClass("UICorner") or mk("UICorner", { CornerRadius = UDim.new(0, 6) }, sub)
+								bCorner.CornerRadius = UDim.new(0, 6)
+								local bStroke = sub:FindFirstChild("ChilliBtnStroke") or mk("UIStroke", {
+									Name = "ChilliBtnStroke",
+									Thickness = 1.0,
+									Color = Color3.fromRGB(55, 62, 85),
+									Transparency = 0.50
+								}, sub)
 							end
 						end
 					end
+
 					table.insert(sectionCards, card)
 				end
 			end
@@ -6761,34 +6928,56 @@ end
 local function bindGuiEvents(gui)
 if not gui or ROBLOX_CORE_SUBFOLDERS[gui.Name] or gui:GetAttribute("__ListenerSession") == SID then return end
 gui:SetAttribute("__ListenerSession", SID)
+local pendingDescendants = {}
+local descendantBatchScheduled = false
+
+local function flushDescendantBatch()
+	descendantBatchScheduled = false
+	if not isAlive() then return end
+	local batch = pendingDescendants
+	pendingDescendants = {}
+	for i = 1, #batch do
+		local nd = batch[i]
+		if nd and nd.Parent then
+			if nd:IsA("TextButton") or nd:IsA("TextLabel") then
+				pcall(watchFinderTextObj, nd)
+				if not nd:IsA("TextBox") and isFpsTxt(nd.Text) then
+					pcall(hookFps, nd)
+				else
+					pcall(hookTrans, nd)
+				end
+			end
+		end
+		if i % 80 == 0 then task.wait(0.04) end
+	end
+end
+
 gui.DescendantAdded:Connect(function(nd)
-if not isAlive() then return end
-if nd:FindFirstAncestor("Chat") or nd:FindFirstAncestor("TouchGui") or nd:FindFirstAncestor("InGameMenu") or nd:FindFirstAncestor("PlayerList") then return end
-if nd:IsA("TextLabel") or nd:IsA("TextButton") or nd:IsA("TextBox") then
-if not nd:IsA("TextBox") then
-local rawT = (nd.Text or ""):match("^%s*(.-)%s*$")
-if rawT == "Vx" or rawT == "VX" then
-nd:SetAttribute("__HiddenVxLogo", true)
-nd.TextTransparency = 1
-return
-elseif rawT == "VENYX" and not nd:FindFirstAncestorOfClass("ScrollingFrame") then
-nd:SetAttribute("__IsTranslating", true)
-nd.Text = NEW_TITLE
-nd:SetAttribute("__IsTranslating", false)
-end
-end
-task.defer(function()
-if not isAlive() or not nd or not nd.Parent then return end
-if nd:IsA("TextButton") or nd:IsA("TextLabel") then
-pcall(watchFinderTextObj, nd)
-end
-if not nd:IsA("TextBox") and isFpsTxt(nd.Text) then
-pcall(hookFps, nd)
-else
-pcall(hookTrans, nd)
-end
-end)
-end
+	if not isAlive() then return end
+	-- Bỏ qua các đối tượng không liên quan để bảo toàn 100% FPS khi chạy máy
+	if nd:IsA("BillboardGui") or nd:IsA("SurfaceGui") or nd:FindFirstAncestorOfClass("BillboardGui")
+	   or nd:FindFirstAncestor("Chat") or nd:FindFirstAncestor("TouchGui") or nd:FindFirstAncestor("InGameMenu") or nd:FindFirstAncestor("PlayerList") then
+		return
+	end
+	if nd:IsA("TextLabel") or nd:IsA("TextButton") or nd:IsA("TextBox") then
+		if not nd:IsA("TextBox") then
+			local rawT = (nd.Text or ""):match("^%s*(.-)%s*$")
+			if rawT == "Vx" or rawT == "VX" then
+				nd:SetAttribute("__HiddenVxLogo", true)
+				nd.TextTransparency = 1
+				return
+			elseif rawT == "VENYX" and not nd:FindFirstAncestorOfClass("ScrollingFrame") then
+				nd:SetAttribute("__IsTranslating", true)
+				nd.Text = NEW_TITLE
+				nd:SetAttribute("__IsTranslating", false)
+			end
+		end
+		table.insert(pendingDescendants, nd)
+		if not descendantBatchScheduled then
+			descendantBatchScheduled = true
+			task.delay(0.12, flushDescendantBatch)
+		end
+	end
 end)
 end
 
@@ -6892,7 +7081,8 @@ end)
 -- LUỒNG KIỂM TRA ĐỊNH KỲ CHILLI FINDER FREEMIUM (CỐ ĐỊNH NÚT VÀO NGAY & TIÊU ĐỀ, 0 LAG)
 task.spawn(function()
 	while isAlive() do
-		task.wait(3.5)
+		local sleepSec = State.IsOnTreadmill and 6.0 or 3.5
+		task.wait(sleepSec)
 		pcall(function()
 			local win = State.ActiveFinderWin
 			if win and win.Parent and win.Visible then
