@@ -1760,7 +1760,7 @@ end
 
 local hint = pill:FindFirstChild("IslandExpandHint")
 if not hint then
-hint = mk("TextLabel", { Name = "IslandExpandHint", LayoutOrder = 3, Size = u2(0, 24, 0, 22), BackgroundColor3 = c3(22, 32, 54), BackgroundTransparency = 0.08, BorderSizePixel = 0, Text = "▼", Font = Enum.Font.GothamBlack, TextSize = 10, TextColor3 = c3(205, 238, 255), LayoutOrder = 99, Active = true, ZIndex = 10000 }, pill)
+hint = mk("TextLabel", { Name = "IslandExpandHint", LayoutOrder = 3, Size = u2(0, 24, 0, 22), BackgroundColor3 = c3(22, 32, 54), BackgroundTransparency = 0.18, BorderSizePixel = 0, Text = "▼", Font = Enum.Font.GothamBlack, TextSize = 10, TextColor3 = c3(205, 238, 255), LayoutOrder = 99, Active = true, ZIndex = 10000 }, pill)
 else
 hint.Size = u2(0, 24, 0, 22)
 hint.BackgroundColor3 = c3(22, 32, 54)
@@ -2082,7 +2082,7 @@ local bVI = mk("TextButton", { Size = u2(0.5, 0, 1, 0), BackgroundTransparency =
 local bEN = mk("TextButton", { Size = u2(0.5, 0, 1, 0), Position = u2(0.5, 0, 0, 0), BackgroundTransparency = 1, Text = "🌐 ENGLISH", Font = Enum.Font.GothamBold, TextSize = 10.2, TextColor3 = (State.Language == "EN" and Color3.new(1, 1, 1) or c3(160, 180, 210)), ZIndex = 10003 }, cap)
 
 -- NÚT KÍCH HOẠT CONFIG SETTING AUTO FARM (LIQUID GLASS GOLD-BLUE)
-local cfgBtn = mk("TextButton", { Name = "AutoFarmConfigBtn", Size = u2(1, -20, 0, 30), Position = u2(0, 10, 0, 97), BackgroundColor3 = c3(22, 26, 42), BackgroundTransparency = 0.0, BorderSizePixel = 0, Text = "⚡ CONFIG SETTING AUTO FARM", Font = Enum.Font.GothamBlack, TextSize = 10.4, TextColor3 = c3(255, 232, 115), ZIndex = 10003 }, exp)
+local cfgBtn = mk("TextButton", { Name = "AutoFarmConfigBtn", Size = u2(1, -20, 0, 30), Position = u2(0, 10, 0, 97), BackgroundColor3 = c3(22, 26, 42), BackgroundTransparency = 0.06, BorderSizePixel = 0, Text = "⚡ CONFIG SETTING AUTO FARM", Font = Enum.Font.GothamBlack, TextSize = 10.4, TextColor3 = c3(255, 232, 115), ZIndex = 10003 }, exp)
 mk("UICorner", { CornerRadius = UDim.new(1, 0) }, cfgBtn)
 mk("UIStroke", { Thickness = 1.3, Color = c3(245, 195, 75), Transparency = 0.16, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, cfgBtn)
 cfgBtn.MouseButton1Click:Connect(function() playIslandSfx("action") runAutoFarmMacro(venyxGui, cfgBtn) end)
@@ -2885,7 +2885,7 @@ local function applySenaV7Architecture(win, titleLbl)
 						}):Play()
 						if st then
 							st.Color = Color3.fromRGB(255, 255, 255)
-							st.Thickness = 1.8
+							st.Thickness = 1.4
 							TweenService:Create(st, fastTabTween, {
 								Transparency = 0.18
 							}):Play()
@@ -5890,8 +5890,9 @@ end
 
 -- ============================================================================
 -- ============================================================================
--- [CHILLI FINDER JOIN BUTTON] NÚT VÀO NGAY / JOIN GẮN CỐ ĐỊNH TRONG ITEM TRỨNG
+-- TỐI ƯU HÓA NÚT VÀO NGAY / JOIN • TÍCH HỢP SERVER HOPPER IT NGƯỜI NHẤT
 -- CĂN LỀ PHẢI (75x28px, CORNER 6px) • SONG NGỮ ĐỘNG (VI / EN) • MÀU HỔ PHÁCH SANG TRỌNG
+-- GIỮ NGUYÊN TOÀN BỘ DỮ LIỆU GỐC CỦA CHILLI FINDER (PET, $/s, xMULT, TIME)
 -- ============================================================================
 local function playJoinBtnClickFx(btn)
 	if not btn or not btn.Parent then return end
@@ -5915,7 +5916,6 @@ end
 local function styleChilliFinderJoinButton(btnRoot, txtObj)
 	if not btnRoot or not btnRoot.Parent then return end
 	pcall(function()
-		-- Nền cam hổ phách ấm áp sang trọng, dịu mắt không gây lóa
 		btnRoot.BackgroundColor3 = Color3.fromRGB(225, 115, 30)
 		btnRoot.BackgroundTransparency = 0
 		btnRoot.BorderSizePixel = 0
@@ -5983,7 +5983,6 @@ local function isFinderJoinLabel(inst)
 	if not inst or not inst.Parent then return false end
 	if inst.Name == "ChilliFinderJoinInterceptor" then return false end
 	if inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliHeaderOverlay") then return false end
-	-- Nút Join BẮT BUỘC phải nằm trong ScrollingFrame danh sách kết quả!
 	local sf = inst:FindFirstAncestorOfClass("ScrollingFrame")
 	if not sf then return false end
 
@@ -6086,20 +6085,16 @@ hookChilliFinderJoin = function(inst)
 	if not interceptor then
 		interceptor = mk("TextButton", {
 			Name = "ChilliFinderJoinInterceptor",
-			Size = u2s(1, 1),
-			Position = u2s(0, 0),
+			Size = UDim2.fromScale(1, 1),
+			Position = UDim2.fromScale(0, 0),
 			BackgroundTransparency = 1,
 			Text = "",
 			AutoButtonColor = false,
 			Active = true,
-			ZIndex = math.max((btnRoot.ZIndex or 1) + 20, 99999)
+			ZIndex = btnRoot.ZIndex + 5
 		}, btnRoot)
-	end
-	if interceptor:GetAttribute("__InterceptorHooked") ~= SID then
-		interceptor:SetAttribute("__InterceptorHooked", SID)
 		interceptor.MouseButton1Click:Connect(onTriggerJoin)
 		interceptor.Activated:Connect(onTriggerJoin)
-		interceptor.MouseButton1Down:Connect(onTriggerJoin)
 		interceptor.InputBegan:Connect(function(inp)
 			if not isAlive() then return end
 			if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
@@ -6353,42 +6348,36 @@ local function updateAllFinderJoinButtonsText()
 end
 State.RefreshFinderJoinLangFn = updateAllFinderJoinButtonsText
 
+local function instantStyleFinder(win)
+	if not win or not win.Parent then return end
+	State.ActiveFinderWin = win
+	win:SetAttribute("__IsChilliFinderContainer", true)
+	hideFinderSignInBox(win)
 
-local FRESH_EGG_POOL = {
-	{ name = "Celestial Sunlion", val = 134.68, unit = "B/s", mult = 13.96, icon = "rbxassetid://15264843075", rarity = "Cosmic" },
-	{ name = "Celestial Sunlion", val = 119.12, unit = "B/s", mult = 5.87, icon = "rbxassetid://15264843075", rarity = "Cosmic" },
-	{ name = "Voidseer Pumpkin", val = 1.07, unit = "T/s", mult = 11.05, icon = "rbxassetid://15264843075", rarity = "Secret" },
-	{ name = "Bone Emperor", val = 850.50, unit = "B/s", mult = 14.80, icon = "rbxassetid://15264843075", rarity = "Secret" },
-	{ name = "Phantom Dragon", val = 920.15, unit = "B/s", mult = 10.50, icon = "rbxassetid://15264843075", rarity = "Divine" },
-	{ name = "Zombified Bone Emperor", val = 1.25, unit = "T/s", mult = 15.40, icon = "rbxassetid://15264843075", rarity = "Divine" },
-	{ name = "Celestial Sunlion", val = 116.12, unit = "B/s", mult = 12.34, icon = "rbxassetid://15264843075", rarity = "Cosmic" },
-	{ name = "Celestial Sunlion", val = 114.99, unit = "B/s", mult = 12.24, icon = "rbxassetid://15264843075", rarity = "Cosmic" },
-	{ name = "Celestial Sunlion", val = 114.04, unit = "B/s", mult = 12.15, icon = "rbxassetid://15264843075", rarity = "Cosmic" },
-	{ name = "Grave Cerberus", val = 780.20, unit = "B/s", mult = 9.85, icon = "rbxassetid://15264843075", rarity = "Mythic" }
-}
+	local rb = win:FindFirstChild("ChillFinderRainbowBorder")
+	if rb then pcall(function() rb:Destroy() end) end
+	local wCorner = win:FindFirstChildOfClass("UICorner") or mk("UICorner", { CornerRadius = UDim.new(0, 8) }, win)
+	wCorner.CornerRadius = UDim.new(0, 8)
 
-local function refreshChilliFinderRealtime(win)
-	if not win or not win.Parent or not win.Visible then return end
-
+	-- ĐỒNG BỘ TIÊU ĐỀ "CHILLI FINDER FREEMIUM" & PHỤ ĐỀ
 	local isEn = (State.Language == "EN")
-	local wantSub = isEn and "Top 5 recent eggs | Chilli Finder Freemium" or "Top 5 trứng mới nhất | Chilli Finder Freemium"
-
+	local wantSub = isEn and "Top 5 recent eggs | Chilli Finder Freemiummium" or "Top 5 trứng mới nhất | Chilli Finder Freemiummium"
 	for _, d in ipairs(win:GetDescendants()) do
-		if d:IsA("TextLabel") then
+		if d:IsA("TextLabel") and not d:FindFirstAncestorOfClass("ScrollingFrame") then
 			local t = d.Text or ""
 			local low = t:lower()
-			if t == "Chilli Finder" or low == "chilli finder freemium" or low:find("chilli finder", 1, true) then
-				if not d:FindFirstAncestorOfClass("ScrollingFrame") and d.AbsolutePosition.Y < win.AbsolutePosition.Y + 60 then
-					if d.Text ~= "Chilli Finder Freemium" then
+			if t == "Chilli Finder" or low == "chilli finder freemiummium" or low:find("chilli finder", 1, true) then
+				if d.AbsolutePosition.Y < win.AbsolutePosition.Y + 60 then
+					if d.Text ~= "Chilli Finder Freemiummium" then
 						pcall(function()
 							d:SetAttribute("__IsTranslating", true)
-							d.Text = "Chilli Finder Freemium"
+							d.Text = "Chilli Finder Freemiummium"
 							d:SetAttribute("__IsTranslating", false)
 						end)
 					end
 				end
 			elseif low:find("top 5", 1, true) or low:find("chillihub.pro", 1, true) or low:find("no active booking", 1, true) then
-				if not d:FindFirstAncestorOfClass("ScrollingFrame") and d.AbsolutePosition.Y < win.AbsolutePosition.Y + 95 then
+				if d.AbsolutePosition.Y < win.AbsolutePosition.Y + 95 then
 					if d.Text ~= wantSub then
 						pcall(function()
 							d:SetAttribute("__IsTranslating", true)
@@ -6401,185 +6390,6 @@ local function refreshChilliFinderRealtime(win)
 			end
 		end
 	end
-
-	local sf = win:FindFirstChildWhichIsA("ScrollingFrame", true)
-	if not sf then return end
-
-	if not State.FinderEggList or #State.FinderEggList < 5 then
-		State.FinderEggList = {
-			{ name = "Celestial Sunlion", val = 134.68, unit = "B/s", mult = 13.96, icon = "rbxassetid://15264843075", age = 18 },
-			{ name = "Celestial Sunlion", val = 119.12, unit = "B/s", mult = 5.87, icon = "rbxassetid://15264843075", age = 68 },
-			{ name = "Celestial Sunlion", val = 116.12, unit = "B/s", mult = 12.34, icon = "rbxassetid://15264843075", age = 135 },
-			{ name = "Celestial Sunlion", val = 114.99, unit = "B/s", mult = 12.24, icon = "rbxassetid://15264843075", age = 195 },
-			{ name = "Celestial Sunlion", val = 114.04, unit = "B/s", mult = 12.15, icon = "rbxassetid://15264843075", age = 260 }
-		}
-		State.LastNewEggSpawn = os.clock()
-	end
-
-	for _, it in ipairs(State.FinderEggList) do
-		it.age = (it.age or 10) + 3
-	end
-
-	local nowClock = os.clock()
-	if nowClock - (State.LastNewEggSpawn or 0) >= 21 then
-		State.LastNewEggSpawn = nowClock
-		local pick = FRESH_EGG_POOL[math.random(1, #FRESH_EGG_POOL)]
-		local newEgg = {
-			name = pick.name,
-			val = pick.val + (math.random(-20, 20) / 10),
-			unit = pick.unit,
-			mult = pick.mult + (math.random(-15, 15) / 10),
-			icon = pick.icon,
-			age = math.random(2, 5)
-		}
-		table.insert(State.FinderEggList, 1, newEgg)
-		while #State.FinderEggList > 5 do
-			table.remove(State.FinderEggList, #State.FinderEggList)
-		end
-	end
-
-	local eggRows = {}
-	for _, ch in ipairs(sf:GetChildren()) do
-		if ch:IsA("GuiObject") and ch.Name ~= "ChilliCreatedJoinBtn"
-		   and not ch:IsA("UIListLayout") and not ch:IsA("UIPadding") and not ch:IsA("UIGridLayout") then
-			local sy = ch.AbsoluteSize.Y > 0 and ch.AbsoluteSize.Y or ch.Size.Y.Offset
-			if (sy >= 26 and sy <= 95) or ch.Size.Y.Scale > 0 then
-				table.insert(eggRows, ch)
-			end
-		end
-	end
-	table.sort(eggRows, function(a, b) return a.AbsolutePosition.Y < b.AbsolutePosition.Y end)
-
-	local wantBtnText = isEn and "Join" or "Vào ngay"
-
-	for idx = 1, math.min(#eggRows, 5) do
-		local row = eggRows[idx]
-		local eggData = State.FinderEggList[idx]
-		if row and eggData then
-			local timeStr = ""
-			if eggData.age < 60 then
-				timeStr = isEn and (tostring(math.floor(eggData.age)) .. "s ago") or (tostring(math.floor(eggData.age)) .. "s trước")
-			else
-				local m = math.floor(eggData.age / 60)
-				timeStr = isEn and (tostring(m) .. "m ago") or (tostring(m) .. "p trước")
-			end
-			local rateStr = "$" .. string.format("%.2f", eggData.val) .. eggData.unit
-			local multStr = "x" .. string.format("%.2f", eggData.mult)
-
-			for _, lbl in ipairs(row:GetDescendants()) do
-				if lbl:IsA("TextLabel") and lbl.Name ~= "ChilliCreatedJoinBtn" and not lbl:FindFirstAncestor("ChilliCreatedJoinBtn") then
-					local txt = lbl.Text or ""
-					local low = txt:lower()
-					if (txt:find("%$") or low:find("/s") or low:find("b/s") or low:find("t/s")) and not low:find("x%d") and not low:find("ago") and not low:find("trước") then
-						if lbl.Text ~= rateStr then
-							pcall(function()
-								lbl:SetAttribute("__IsTranslating", true)
-								lbl.Text = rateStr
-								lbl.TextColor3 = Color3.fromRGB(46, 204, 113)
-								lbl:SetAttribute("__IsTranslating", false)
-							end)
-						end
-					elseif txt:match("^x%d+%.?%d*") or (low:find("x") and not txt:find("%$") and #txt <= 8) then
-						if lbl.Text ~= multStr then
-							pcall(function()
-								lbl:SetAttribute("__IsTranslating", true)
-								lbl.Text = multStr
-								lbl.TextColor3 = Color3.fromRGB(241, 196, 15)
-								lbl:SetAttribute("__IsTranslating", false)
-							end)
-						end
-					elseif low:find("ago") or low:find("trước") or low:find("just now") or low:find("vừa xong") or low:match("%d+m") or low:match("%d+s") then
-						if lbl.Text ~= timeStr then
-							pcall(function()
-								lbl:SetAttribute("__IsTranslating", true)
-								lbl.Text = timeStr
-								lbl.TextColor3 = Color3.fromRGB(180, 185, 200)
-								lbl:SetAttribute("__IsTranslating", false)
-							end)
-						end
-					elseif low:find("sunlion") or low:find("pumpkin") or low:find("emperor") or low:find("dragon") or low:find("cerberus") or low:find("celestial") then
-						if lbl.Text ~= eggData.name then
-							pcall(function()
-								lbl:SetAttribute("__IsTranslating", true)
-								lbl.Text = eggData.name
-								lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
-								lbl:SetAttribute("__IsTranslating", false)
-							end)
-						end
-					elseif (txt:find("%$") and (low:find("ago") or low:find("trước"))) or (low:find("sunlion") and txt:find("%$")) then
-						local comb = eggData.name .. "  " .. rateStr .. "  " .. multStr .. "  " .. timeStr
-						if lbl.Text ~= comb then
-							pcall(function()
-								lbl:SetAttribute("__IsTranslating", true)
-								lbl.Text = comb
-								lbl:SetAttribute("__IsTranslating", false)
-							end)
-						end
-					end
-				end
-			end
-
-			local customJoin = row:FindFirstChild("ChilliCreatedJoinBtn")
-			if not customJoin then
-				customJoin = mk("TextButton", {
-					Name = "ChilliCreatedJoinBtn",
-					AnchorPoint = Vector2.new(1, 0.5),
-					Position = UDim2.new(1, -8, 0.5, 0),
-					Size = UDim2.new(0, 75, 0, 28),
-					BackgroundColor3 = Color3.fromRGB(225, 115, 30),
-					BackgroundTransparency = 0,
-					BorderSizePixel = 0,
-					Text = wantBtnText,
-					TextColor3 = Color3.fromRGB(255, 255, 255),
-					TextSize = 12.5,
-					Font = Enum.Font.GothamBold,
-					AutoButtonColor = true,
-					Active = true,
-					ZIndex = math.max((row.ZIndex or 1) + 10, 50)
-				}, row)
-				styleChilliFinderJoinButton(customJoin, customJoin)
-			else
-				customJoin.Visible = true
-				customJoin.Position = UDim2.new(1, -8, 0.5, 0)
-				customJoin.Size = UDim2.new(0, 75, 0, 28)
-				if customJoin.Text ~= wantBtnText then
-					pcall(function() customJoin.Text = wantBtnText end)
-				end
-				customJoin.ZIndex = math.max((row.ZIndex or 1) + 10, 50)
-			end
-
-			if not customJoin:GetAttribute("__ClickHooked") then
-				customJoin:SetAttribute("__ClickHooked", true)
-				local function onCustomJoinClick()
-					if isAlive() then
-						playJoinBtnClickFx(customJoin)
-						hopToLeastPlayersServer(customJoin)
-					end
-				end
-				customJoin.MouseButton1Click:Connect(onCustomJoinClick)
-				customJoin.Activated:Connect(onCustomJoinClick)
-				customJoin.InputBegan:Connect(function(inp)
-					if not isAlive() then return end
-					if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
-						onCustomJoinClick()
-					end
-				end)
-			end
-		end
-	end
-end
-State.RefreshChilliFinderRealtimeFn = refreshChilliFinderRealtime
-
-local function instantStyleFinder(win)
-	if not win or not win.Parent then return end
-	State.ActiveFinderWin = win
-	win:SetAttribute("__IsChilliFinderContainer", true)
-	hideFinderSignInBox(win)
-
-	local rb = win:FindFirstChild("ChillFinderRainbowBorder")
-	if rb then pcall(function() rb:Destroy() end) end
-	local wCorner = win:FindFirstChildOfClass("UICorner") or mk("UICorner", { CornerRadius = UDim.new(0, 8) }, win)
-	wCorner.CornerRadius = UDim.new(0, 8)
 
 	-- DỌN DẸP TRIỆT ĐỂ: XÓA TẤT CẢ NÚT JOIN BAY NGOÀI KHUNG HOẶC NẰM TRÊN HEADER/FOOTER/TOOLBAR
 	for _, d in ipairs(win:GetDescendants()) do
@@ -6604,18 +6414,17 @@ local function instantStyleFinder(win)
 		end)
 	end
 
-	-- ScrollingFrame chứa danh sách kết quả trứng/pet
+	-- ScrollingFrame chứa danh sách kết quả trứng/pet (GIỮ NGUYÊN TOÀN BỘ DỮ LIỆU GỐC)
 	local sf = win:FindFirstChildWhichIsA("ScrollingFrame", true)
 
 	local function processEggRow(row)
 		if not row or not row:IsA("GuiObject") or row == win or row.Name == "ChilliCosmicHolder" then return end
 		if row:IsA("ScrollingFrame") then return end
-		-- BẮT BUỘC PHẢI LÀ ITEM NẰM TRONG SCROLLINGFRAME
 		local rowSf = row:FindFirstAncestorOfClass("ScrollingFrame")
 		if not rowSf then return end
 
 		local sy = row.AbsoluteSize.Y > 0 and row.AbsoluteSize.Y or row.Size.Y.Offset
-		if (sy < 26 or sy > 85) and row.Size.Y.Scale <= 0 then return end
+		if (sy < 26 or sy > 95) and row.Size.Y.Scale <= 0 then return end
 
 		local hasJoin = false
 		local joinTarget = nil
@@ -6649,6 +6458,8 @@ local function instantStyleFinder(win)
 
 		if not hasPetStats and not hasJoin then return end
 
+		-- TUYỆT ĐỐI GIỮ NGUYÊN DỮ LIỆU PET, GIÁ TIỀN, HỆ SỐ, THỜI GIAN CỦA BẢN GỐC
+		-- CHỈ TÙY BIẾN VÀ CỐ ĐỊNH DUY NHẤT NÚT VÀO NGAY / JOIN VÀ GẮN SERVER HOPPER
 		if hasJoin and joinTarget then
 			pcall(hookChilliFinderJoin, joinTarget)
 		elseif hasPetStats then
@@ -6671,6 +6482,13 @@ local function instantStyleFinder(win)
 					Active = true,
 					ZIndex = math.max((row.ZIndex or 1) + 10, 50)
 				}, row)
+			else
+				customJoin.Visible = true
+				customJoin.Position = UDim2.new(1, -8, 0.5, 0)
+				customJoin.Size = UDim2.new(0, 75, 0, 28)
+				if customJoin.Text ~= wantText and not customJoin.Text:find("⏳") then
+					pcall(function() customJoin.Text = wantText end)
+				end
 			end
 			styleChilliFinderJoinButton(customJoin, customJoin)
 			if not customJoin:GetAttribute("__ClickHooked") then
@@ -6701,10 +6519,15 @@ local function instantStyleFinder(win)
 		end
 	end
 
-	pcall(refreshChilliFinderRealtime, win)
-
 	if win:GetAttribute("__FinderDescHooked") ~= SID then
 		win:SetAttribute("__FinderDescHooked", SID)
+		win:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+			if sf then
+				for _, d in ipairs(sf:GetDescendants()) do
+					if d:IsA("GuiObject") then pcall(processEggRow, d) end
+				end
+			end
+		end)
 		win.DescendantAdded:Connect(function(nd)
 			if not isAlive() then return end
 			task.defer(function()
@@ -6902,36 +6725,16 @@ task.defer(function()
 tryBootPass(1)
 end)
 
--- LUỒNG CẬP NHẬT THỜI GIAN THỰC (REAL-TIME REFRESH LOOP) CHO CHILLI FINDER FREEMIUM
+-- LUỒNG KIỂM TRA ĐỊNH KỲ CHILLI FINDER FREEMIUM (CỐ ĐỊNH NÚT VÀO NGAY & TIÊU ĐỀ)
 task.spawn(function()
 	while isAlive() do
 		task.wait(3)
 		pcall(function()
 			local win = State.ActiveFinderWin
 			if win and win.Parent and win.Visible then
-				if State.RefreshChilliFinderRealtimeFn then
-					pcall(State.RefreshChilliFinderRealtimeFn, win)
-				else
-					pcall(instantStyleFinder, win)
-				end
+				instantStyleFinder(win)
 			else
-				for _, root in ipairs(getScanRoots()) do
-					for _, ch in ipairs(root:GetDescendants()) do
-						if ch:IsA("TextLabel") and (ch.Text:find("Chilli Finder", 1, true) or ch.Text:find("Top 5", 1, true)) then
-							local w = getFinderWindowFromObj(ch)
-							if w and w.Visible then
-								State.ActiveFinderWin = w
-								if State.RefreshChilliFinderRealtimeFn then
-									pcall(State.RefreshChilliFinderRealtimeFn, w)
-								else
-									pcall(instantStyleFinder, w)
-								end
-								break
-							end
-						end
-					end
-					if State.ActiveFinderWin and State.ActiveFinderWin.Visible then break end
-				end
+				findAndStyleFinderNow()
 			end
 		end)
 	end
