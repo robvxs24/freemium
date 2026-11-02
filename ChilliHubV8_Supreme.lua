@@ -4085,8 +4085,8 @@ local function fetchRobloxServers(placeId, sortOrder)
 local servers = {}
 local curJob = game.JobId
 local urls = {
-"https://games.roblox.com/v1/games/" .. tostring(placeId) .. "/servers/Public?sortOrder=" .. sortOrder .. "&excludeFullGames=true&limit=100",
-"https://games.roproxy.com/v1/games/" .. tostring(placeId) .. "/servers/Public?sortOrder=" .. sortOrder .. "&excludeFullGames=true&limit=100"
+		"https://games.roproxy.com/v1/games/" .. tostring(placeId) .. "/servers/Public?sortOrder=" .. sortOrder .. "&excludeFullGames=true&limit=100",
+		"https://games.roblox.com/v1/games/" .. tostring(placeId) .. "/servers/Public?sortOrder=" .. sortOrder .. "&excludeFullGames=true&limit=100"
 }
 local req = (syn and syn.request) or (http and http.request) or http_request or request or (fluxus and fluxus.request) or (delta and delta.request)
 for _, u in ipairs(urls) do
@@ -5930,13 +5930,20 @@ State.JoiningLeastServerBusy = false
 end)
 end
 
--- HÃ€M Äá»ŠNH Dáº NG NÃšT JOIN CHUáº¨N 100% Y Há»†T Báº¢N Gá»C CHILLI FINDER
+-- ============================================================================
+-- [CHILLI FINDER JOIN BUTTON] TẠO NÚT JOIN CHUẨN 100% BẢN GỐC & TỰ VÀO SERVER ÍT NGƯỜI NHẤT
+-- ============================================================================
 local function styleChilliFinderJoinButton(btnRoot, txtObj)
 	if not btnRoot or not btnRoot.Parent then return end
 	pcall(function()
 		btnRoot.BackgroundColor3 = Color3.fromRGB(245, 145, 20)
 		btnRoot.BackgroundTransparency = 0
 		btnRoot.BorderSizePixel = 0
+		btnRoot.AnchorPoint = Vector2.new(1, 0.5)
+		btnRoot.Position = UDim2.new(1, -8, 0.5, 0)
+		btnRoot.Size = UDim2.new(0, 68, 0, 28)
+		btnRoot.Active = true
+		btnRoot.ZIndex = math.max((btnRoot.Parent and btnRoot.Parent.ZIndex or 1) + 10, 50)
 
 		local corner = btnRoot:FindFirstChildOfClass("UICorner") or mk("UICorner", { CornerRadius = UDim.new(0, 6) }, btnRoot)
 		corner.CornerRadius = UDim.new(0, 6)
@@ -5948,6 +5955,9 @@ local function styleChilliFinderJoinButton(btnRoot, txtObj)
 			Transparency = 0.35,
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		}, btnRoot)
+		stroke.Thickness = 1.2
+		stroke.Color = Color3.fromRGB(255, 225, 120)
+		stroke.Transparency = 0.35
 
 		local grad = btnRoot:FindFirstChild("ChilliJoinGrad") or mk("UIGradient", {
 			Name = "ChilliJoinGrad",
@@ -5966,139 +5976,153 @@ local function styleChilliFinderJoinButton(btnRoot, txtObj)
 			txtObj.Font = Enum.Font.GothamBold
 			txtObj.TextSize = 13
 			txtObj.TextTransparency = 0
+			txtObj.ZIndex = btnRoot.ZIndex + 1
 			txtObj:SetAttribute("__IsTranslating", false)
 
 			local txtStroke = txtObj:FindFirstChild("JoinTxtStroke") or mk("UIStroke", {
 				Name = "JoinTxtStroke",
 				Thickness = 1.0,
 				Color = Color3.fromRGB(45, 18, 5),
-				Transparency = 0.2
+				Transparency = 0.30
 			}, txtObj)
+			txtStroke.Thickness = 1.0
+			txtStroke.Color = Color3.fromRGB(45, 18, 5)
+			txtStroke.Transparency = 0.30
 		end
 	end)
 end
 
 hopToLeastPlayersServer = function(joinLbl)
-	-- Bá»Ž QUA 100% KEY SYSTEM VÃ€ SIGN IN:
-	-- Báº¥m nÃºt Join lÃ  trá»±c tiáº¿p tÃ¬m vÃ  chuyá»ƒn ngay vÃ o server Ã­t ngÆ°á»i nháº¥t!
+	-- BỎ QUA 100% KEY SYSTEM VÀ SIGN IN:
+	-- Bấm nút Join là trực tiếp tìm và chuyển ngay vào server ít người nhất!
 	playIslandSfx("action")
 	executeRawHopToLeastPlayersServer(joinLbl)
 end
 
 local function isFinderJoinLabel(inst)
-if not inst or not inst.Parent then return false end
-if inst.Name == "ChilliFinderJoinInterceptor" then return false end
-if inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliHeaderOverlay") then return false end
-local txtObj = inst
-if not (inst:IsA("TextButton") or inst:IsA("TextLabel")) then
-local c = inst:FindFirstChildWhichIsA("TextLabel") or inst:FindFirstChildWhichIsA("TextButton")
-if c then txtObj = c else return false end
-end
-local rawT = stripRichTags(txtObj:GetAttribute("OrigFinderStateText") or txtObj:GetAttribute("OrigRawText") or txtObj.Text or ""):lower()
-local curT = stripRichTags(txtObj.Text or ""):lower()
-local conT = ""
-pcall(function() conT = stripRichTags(txtObj.ContentText or ""):lower() end)
-if rawT:find("copy", 1, true) or curT:find("copy", 1, true) or curT:find("copied", 1, true) or rawT:find("force", 1, true) or curT:find("force", 1, true) or rawT:find("sign", 1, true) or curT:find("sign", 1, true) or curT:find("đăng ký", 1, true) or rawT:find("discord", 1, true) or rawT:find("server", 1, true) then
-return false
-end
-return (rawT == "join" or curT == "join" or conT == "join" or curT == "vào ngay" or rawT == "vào ngay" or curT:find("⏳ đang vào", 1, true) ~= nil)
+	if not inst or not inst.Parent then return false end
+	if inst.Name == "ChilliFinderJoinInterceptor" then return false end
+	if inst:FindFirstAncestor("ChilliV5_ExpandedIsland") or inst:FindFirstAncestor("ChilliHeaderOverlay") then return false end
+	local txtObj = inst
+	if not (inst:IsA("TextButton") or inst:IsA("TextLabel")) then
+		local c = inst:FindFirstChildWhichIsA("TextLabel") or inst:FindFirstChildWhichIsA("TextButton")
+		if c then txtObj = c else return false end
+	end
+	local rawT = stripRichTags(txtObj:GetAttribute("OrigFinderStateText") or txtObj:GetAttribute("OrigRawText") or txtObj.Text or ""):lower()
+	local curT = stripRichTags(txtObj.Text or ""):lower()
+	local conT = ""
+	pcall(function() conT = stripRichTags(txtObj.ContentText or ""):lower() end)
+	if rawT:find("copy", 1, true) or curT:find("copy", 1, true) or curT:find("copied", 1, true) or rawT:find("force", 1, true) or curT:find("force", 1, true) or rawT:find("sign", 1, true) or curT:find("sign", 1, true) or curT:find("đăng ký", 1, true) or rawT:find("discord", 1, true) or rawT:find("server", 1, true) then
+		return false
+	end
+	return (rawT == "join" or curT == "join" or conT == "join" or curT == "vào ngay" or rawT == "vào ngay" or curT:find("⏳ đang vào", 1, true) ~= nil)
 end
 
 hookChilliFinderJoin = function(inst)
-if not isFinderJoinLabel(inst) then return end
-local alreadyTracked = false
-for _, b in ipairs(State.TrackedFinderJoinBtns) do
-if b == inst then alreadyTracked = true break end
-end
-if not alreadyTracked then
-table.insert(State.TrackedFinderJoinBtns, inst)
-end
-if inst:GetAttribute("__FinderJoinHooked") == SID then return end
-inst:SetAttribute("__FinderJoinHooked", SID)
-local btnRoot = inst
-if inst.Parent and inst.Parent:IsA("GuiObject") and inst.Parent ~= State.ActiveFinderWin then
-btnRoot = inst.Parent
-end
-styleChilliFinderJoinButton(btnRoot, inst)
-local targets = { inst, btnRoot }
-local p2 = btnRoot.Parent
-if p2 and p2:IsA("GuiObject") and p2 ~= State.ActiveFinderWin and p2.AbsoluteSize.X <= 220 and p2.AbsoluteSize.Y <= 95 then
-table.insert(targets, p2)
-end
-for _, d in ipairs(btnRoot:GetDescendants()) do
-if d:IsA("GuiObject") and d.Name ~= "ChilliFinderJoinInterceptor" then
-table.insert(targets, d)
-end
-end
-for _, tObj in ipairs(targets) do
-pcall(function() tObj.Active = true end)
-if getconnections then
-for _, sigName in ipairs({"MouseButton1Click", "Activated", "MouseButton1Down", "InputBegan"}) do
-pcall(function()
-local sig = tObj[sigName]
-if sig then
-for _, conn in ipairs(getconnections(sig)) do
-if conn.Disable then pcall(conn.Disable, conn) end
-end
-end
-end)
-end
-end
-if tObj:IsA("TextButton") or tObj:IsA("ImageButton") then
-tObj.MouseButton1Click:Connect(function()
-if isAlive() then hopToLeastPlayersServer(inst) end
-end)
-tObj.Activated:Connect(function()
-if isAlive() then hopToLeastPlayersServer(inst) end
-end)
-tObj.MouseButton1Down:Connect(function()
-if isAlive() then hopToLeastPlayersServer(inst) end
-end)
-end
-if tObj:IsA("GuiObject") then
-tObj.InputBegan:Connect(function(inp)
-if not isAlive() then return end
-if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
-hopToLeastPlayersServer(inst)
-end
-end)
-end
-end
-local interceptor = btnRoot:FindFirstChild("ChilliFinderJoinInterceptor")
-if not interceptor then
-interceptor = mk("TextButton", {
-Name = "ChilliFinderJoinInterceptor",
-Size = u2s(1, 1),
-Position = u2s(0, 0),
-BackgroundTransparency = 1,
-Text = "",
-AutoButtonColor = false,
-Active = true,
-ZIndex = math.max((inst.ZIndex or 1) + 50, 99999)
-}, btnRoot)
-end
-if interceptor:GetAttribute("__InterceptorHooked") ~= SID then
-interceptor:SetAttribute("__InterceptorHooked", SID)
-interceptor.MouseButton1Click:Connect(function()
-if isAlive() then hopToLeastPlayersServer(inst) end
-end)
-interceptor.Activated:Connect(function()
-if isAlive() then hopToLeastPlayersServer(inst) end
-end)
-interceptor.MouseButton1Down:Connect(function()
-if isAlive() then hopToLeastPlayersServer(inst) end
-end)
-interceptor.InputBegan:Connect(function(inp)
-if not isAlive() then return end
-if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
-hopToLeastPlayersServer(inst)
-end
-end)
-end
-end
+	if not isFinderJoinLabel(inst) then return end
+	local alreadyTracked = false
+	for _, b in ipairs(State.TrackedFinderJoinBtns) do
+		if b == inst then alreadyTracked = true break end
+	end
+	if not alreadyTracked then
+		table.insert(State.TrackedFinderJoinBtns, inst)
+	end
+	if inst:GetAttribute("__FinderJoinHooked") == SID then return end
+	inst:SetAttribute("__FinderJoinHooked", SID)
 
--- Global touch listener removed to prevent accidental server hopping
+	local btnRoot = inst
+	local txtObj = inst
+	if inst:IsA("TextLabel") then
+		txtObj = inst
+		if inst.Parent and inst.Parent:IsA("GuiObject") and inst.Parent ~= State.ActiveFinderWin then
+			local px = inst.Parent.AbsoluteSize.X
+			local ox = inst.Parent.Size.X.Offset
+			if (px > 0 and px <= 120) or (ox > 0 and ox <= 120) or inst.Parent:IsA("GuiButton") then
+				btnRoot = inst.Parent
+			end
+		end
+	elseif inst:IsA("GuiButton") then
+		btnRoot = inst
+		local lbl = inst:FindFirstChildWhichIsA("TextLabel")
+		txtObj = lbl or inst
+	end
 
+	styleChilliFinderJoinButton(btnRoot, txtObj)
+
+	local targets = { inst, btnRoot }
+	for _, d in ipairs(btnRoot:GetDescendants()) do
+		if d:IsA("GuiObject") and d.Name ~= "ChilliFinderJoinInterceptor" then
+			table.insert(targets, d)
+		end
+	end
+
+	for _, tObj in ipairs(targets) do
+		pcall(function() tObj.Active = true end)
+		if getconnections then
+			for _, sigName in ipairs({"MouseButton1Click", "Activated", "MouseButton1Down", "InputBegan"}) do
+				pcall(function()
+					local sig = tObj[sigName]
+					if sig then
+						for _, conn in ipairs(getconnections(sig)) do
+							if conn.Disable then pcall(conn.Disable, conn) end
+						end
+					end
+				end)
+			end
+		end
+		if tObj:IsA("TextButton") or tObj:IsA("ImageButton") then
+			tObj.MouseButton1Click:Connect(function()
+				if isAlive() then hopToLeastPlayersServer(btnRoot) end
+			end)
+			tObj.Activated:Connect(function()
+				if isAlive() then hopToLeastPlayersServer(btnRoot) end
+			end)
+			tObj.MouseButton1Down:Connect(function()
+				if isAlive() then hopToLeastPlayersServer(btnRoot) end
+			end)
+		end
+		if tObj:IsA("GuiObject") then
+			tObj.InputBegan:Connect(function(inp)
+				if not isAlive() then return end
+				if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+					hopToLeastPlayersServer(btnRoot)
+				end
+			end)
+		end
+	end
+
+	local interceptor = btnRoot:FindFirstChild("ChilliFinderJoinInterceptor")
+	if not interceptor then
+		interceptor = mk("TextButton", {
+			Name = "ChilliFinderJoinInterceptor",
+			Size = u2s(1, 1),
+			Position = u2s(0, 0),
+			BackgroundTransparency = 1,
+			Text = "",
+			AutoButtonColor = false,
+			Active = true,
+			ZIndex = math.max((btnRoot.ZIndex or 1) + 20, 99999)
+		}, btnRoot)
+	end
+	if interceptor:GetAttribute("__InterceptorHooked") ~= SID then
+		interceptor:SetAttribute("__InterceptorHooked", SID)
+		interceptor.MouseButton1Click:Connect(function()
+			if isAlive() then hopToLeastPlayersServer(btnRoot) end
+		end)
+		interceptor.Activated:Connect(function()
+			if isAlive() then hopToLeastPlayersServer(btnRoot) end
+		end)
+		interceptor.MouseButton1Down:Connect(function()
+			if isAlive() then hopToLeastPlayersServer(btnRoot) end
+		end)
+		interceptor.InputBegan:Connect(function(inp)
+			if not isAlive() then return end
+			if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+				hopToLeastPlayersServer(btnRoot)
+			end
+		end)
+	end
+end
 local function translateSingleFinderSegment(seg)
 if type(seg) ~= "string" or seg == "" then return seg end
 local lead, body, trail = seg:match("^(%s*)(.-)(%s*)$")
@@ -6325,96 +6349,131 @@ CoreScriptsRootProvider=true, SettingsClippingShield=true, ChilliV7_GetKeyUI=tru
 }
 
 local function instantStyleFinder(win)
-if not win or not win.Parent then return end
-State.ActiveFinderWin = win
-win:SetAttribute("__IsChilliFinderContainer", true)
-hideFinderSignInBox(win)
+	if not win or not win.Parent then return end
+	State.ActiveFinderWin = win
+	win:SetAttribute("__IsChilliFinderContainer", true)
+	hideFinderSignInBox(win)
 
-local wCorner = win:FindFirstChildOfClass("UICorner") or mk("UICorner", { CornerRadius = UDim.new(0, 10) }, win)
-local rb = win:FindFirstChild("ChillFinderRainbowBorder")
-if not rb then
-rb = mk("UIStroke", {
-Name = "ChillFinderRainbowBorder",
-Thickness = 2.8,
-Color = Color3.new(1, 1, 1),
-ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-Transparency = 0
-}, win)
-local bgGrad = mk("UIGradient", { Name = "BorderNeonGrad", Color = FINDER_BORDER_NEON_GRAD }, rb)
-addGrad(bgGrad)
-else
-rb.Thickness = 2.8
-rb.Transparency = 0
-rb.Enabled = true
-end
+	local rb = win:FindFirstChild("ChillFinderRainbowBorder")
+	if rb then
+		pcall(function() rb:Destroy() end)
+	end
+	local wCorner = win:FindFirstChildOfClass("UICorner") or mk("UICorner", { CornerRadius = UDim.new(0, 8) }, win)
+	wCorner.CornerRadius = UDim.new(0, 8)
 
-if win:GetAttribute("__FinderVisHooked") ~= SID then
-win:SetAttribute("__FinderVisHooked", SID)
-win:GetPropertyChangedSignal("Visible"):Connect(function()
-if isAlive() and win.Visible then
-task.defer(function()
-if isAlive() and win and win.Parent then
-instantStyleFinder(win)
-end
-end)
-end
-end)
-end
+	if win:GetAttribute("__FinderVisHooked") ~= SID then
+		win:SetAttribute("__FinderVisHooked", SID)
+		win:GetPropertyChangedSignal("Visible"):Connect(function()
+			if isAlive() and win.Visible then
+				task.defer(function()
+					if isAlive() and win and win.Parent then
+						instantStyleFinder(win)
+					end
+				end)
+			end
+		end)
+	end
+
+	local function processEggRow(row)
+		if not row or not row:IsA("GuiObject") or row == win or row.Name == "ChilliCosmicHolder" then return end
+		local sy = row.AbsoluteSize.Y > 0 and row.AbsoluteSize.Y or row.Size.Y.Offset
+		local sx = row.AbsoluteSize.X > 0 and row.AbsoluteSize.X or row.Size.X.Offset
+		if (sy < 20 or sy > 140) and row.Size.Y.Scale <= 0 then return end
+
+		local hasJoin = false
+		local joinTarget = nil
+		local hasPetStats = false
+
+		for _, ch in ipairs(row:GetDescendants()) do
+			if ch:IsA("TextLabel") or ch:IsA("TextButton") then
+				local t = (ch.Text or ""):lower()
+				if t:find("%$") or t:find("/s") or t:find("ago") or t:find("trước") or t:match("x%d+%.?%d*") or t:find("billion") then
+					hasPetStats = true
+				end
+				if isFinderJoinLabel(ch) then
+					hasJoin = true
+					joinTarget = ch
+				end
+			end
+		end
+
+		if not hasPetStats and not hasJoin then
+			if (sy >= 26 and sy <= 85) and ((sx >= 160) or row.Size.X.Scale >= 0.7) then
+				if row:FindFirstChildWhichIsA("ImageLabel") or row:FindFirstChildWhichIsA("ImageButton") then
+					hasPetStats = true
+				end
+			end
+		end
+
+		if hasJoin and joinTarget then
+			pcall(hookChilliFinderJoin, joinTarget)
+		elseif hasPetStats then
+			local customJoin = row:FindFirstChild("ChilliCreatedJoinBtn")
+			if not customJoin then
+				customJoin = mk("TextButton", {
+					Name = "ChilliCreatedJoinBtn",
+					AnchorPoint = Vector2.new(1, 0.5),
+					Position = UDim2.new(1, -8, 0.5, 0),
+					Size = UDim2.new(0, 68, 0, 28),
+					BackgroundColor3 = Color3.fromRGB(245, 145, 20),
+					BackgroundTransparency = 0,
+					BorderSizePixel = 0,
+					Text = "Join",
+					TextColor3 = Color3.fromRGB(255, 255, 255),
+					TextSize = 13,
+					Font = Enum.Font.GothamBold,
+					AutoButtonColor = true,
+					Active = true,
+					ZIndex = math.max((row.ZIndex or 1) + 10, 50)
+				}, row)
+			end
+			styleChilliFinderJoinButton(customJoin, customJoin)
+			if not customJoin:GetAttribute("__ClickHooked") then
+				customJoin:SetAttribute("__ClickHooked", true)
+				customJoin.MouseButton1Click:Connect(function()
+					if isAlive() then hopToLeastPlayersServer(customJoin) end
+				end)
+				customJoin.Activated:Connect(function()
+					if isAlive() then hopToLeastPlayersServer(customJoin) end
+				end)
+				customJoin.InputBegan:Connect(function(inp)
+					if not isAlive() then return end
+					if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+						hopToLeastPlayersServer(customJoin)
+					end
+				end)
+			end
+		end
+	end
 
 	for _, d in ipairs(win:GetDescendants()) do
 		if d:IsA("TextLabel") or d:IsA("TextButton") or d:IsA("TextBox") then
 			watchFinderTextObj(d)
 		end
-		-- Äáº£m báº£o toÃ n bá»™ cÃ¡c tháº» dÃ²ng Pet/Egg trong Chilli Finder Ä‘á»u cÃ³ nÃºt Join chuáº©n báº£n gá»‘c
-		if d:IsA("GuiObject") and d.AbsoluteSize.X >= 180 and d.AbsoluteSize.Y >= 24 and d.AbsoluteSize.Y <= 140 then
-			local hasJoin = false
-			for _, ch in ipairs(d:GetDescendants()) do
-				if isFinderJoinLabel(ch) then
-					hasJoin = true
-					pcall(hookChilliFinderJoin, ch)
-					break
-				end
-			end
-			if not hasJoin then
-				local hasPetStats = false
-				for _, ch in ipairs(d:GetDescendants()) do
-					if ch:IsA("TextLabel") and ch.Text:find("%$") then
-						hasPetStats = true
-						break
-					end
-				end
-				if hasPetStats then
-					local customJoin = d:FindFirstChild("ChilliCreatedJoinBtn")
-					if not customJoin then
-						customJoin = mk("TextButton", {
-							Name = "ChilliCreatedJoinBtn",
-							AnchorPoint = Vector2.new(1, 0.5),
-							Position = UDim2.new(1, -8, 0.5, 0),
-							Size = UDim2.new(0, 68, 0, 28),
-							BackgroundColor3 = Color3.fromRGB(245, 145, 20),
-							BackgroundTransparency = 0,
-							BorderSizePixel = 0,
-							Text = "Join",
-							TextColor3 = Color3.fromRGB(255, 255, 255),
-							TextSize = 13,
-							Font = Enum.Font.GothamBold,
-							AutoButtonColor = true,
-							Active = true,
-							ZIndex = 50
-						}, d)
-						styleChilliFinderJoinButton(customJoin, customJoin)
-						customJoin.MouseButton1Click:Connect(function()
-							if isAlive() then hopToLeastPlayersServer(customJoin) end
-						end)
-					else
-						styleChilliFinderJoinButton(customJoin, customJoin)
-					end
-				end
-			end
+		if d:IsA("GuiObject") then
+			pcall(processEggRow, d)
 		end
 	end
-end
 
+	if win:GetAttribute("__FinderDescHooked") ~= SID then
+		win:SetAttribute("__FinderDescHooked", SID)
+		win.DescendantAdded:Connect(function(nd)
+			if not isAlive() then return end
+			task.defer(function()
+				if not isAlive() or not nd or not nd.Parent then return end
+				if nd:IsA("TextLabel") or nd:IsA("TextButton") or nd:IsA("TextBox") then
+					pcall(watchFinderTextObj, nd)
+				end
+				if nd:IsA("GuiObject") then
+					pcall(processEggRow, nd)
+					if nd.Parent and nd.Parent:IsA("GuiObject") then
+						pcall(processEggRow, nd.Parent)
+					end
+				end
+			end)
+		end)
+	end
+end
 local function findAndStyleFinderNow()
 if State.ActiveFinderWin and State.ActiveFinderWin.Parent then
 instantStyleFinder(State.ActiveFinderWin)
