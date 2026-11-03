@@ -391,6 +391,9 @@ end
 
 local function hookFps(lbl)
 if not lbl or not (lbl:IsA("TextLabel") or lbl:IsA("TextButton")) then return end
+if lbl:GetAttribute("__IslandDone") or lbl.Name == "IslandStatusText" or lbl.Name == "StandaloneIslandStatus" or lbl.Name == "IslandExpandHint" or lbl:FindFirstAncestor("ChilliV8_MasterIslandGui") or lbl:FindFirstAncestor("ChilliV5_ExpandedIsland") then
+	return
+end
 State.TrackedFpsLabels[lbl] = true
 pcall(function()
 local p = lbl.Parent
@@ -3748,17 +3751,150 @@ local function ensureStandaloneDynamicIsland()
 	pcall(function()
 		local masterGui = getMasterIslandGui()
 		if not masterGui then return end
-		local existingPill = masterGui:FindFirstChild("ChilliV5_DynamicIslandPill")
-		if existingPill and existingPill.Parent then return end
-
+		local pill = masterGui:FindFirstChild("ChilliV5_DynamicIslandPill")
 		local isEn = (State.Language == "EN")
 		local defaultText = isEn and "Idle" or "Đang rảnh"
-		local dummyLbl = mk("TextLabel", {
-			Name = "StandaloneIslandStatus",
-			Text = defaultText,
-			Visible = false
-		}, masterGui)
-		setupIsland(dummyLbl, masterGui)
+
+		if not pill then
+			pill = mk("Frame", {
+				Name = "ChilliV5_DynamicIslandPill",
+				AnchorPoint = Vector2.new(0.5, 0),
+				Position = State.IslandUserPos or UDim2.new(0.5, 0, 0, 6),
+				Size = UDim2.new(0, 0, 0, 38),
+				AutomaticSize = Enum.AutomaticSize.X,
+				BackgroundColor3 = Color3.fromRGB(15, 22, 35),
+				BackgroundTransparency = 0.15,
+				BorderSizePixel = 0,
+				Active = true,
+				Visible = true,
+				ZIndex = 9999
+			}, masterGui)
+
+			mk("UICorner", { CornerRadius = UDim.new(1, 0) }, pill)
+
+			-- Viền Neon xanh ngọc Cyan chuẩn như Ảnh 2
+			mk("UIStroke", {
+				Name = "IslandStroke",
+				Thickness = 1.6,
+				Color = Color3.fromRGB(55, 205, 255),
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+				Transparency = 0.1
+			}, pill)
+
+			mk("UIListLayout", {
+				Name = "IslandLayout",
+				FillDirection = Enum.FillDirection.Horizontal,
+				HorizontalAlignment = Enum.HorizontalAlignment.Center,
+				VerticalAlignment = Enum.VerticalAlignment.Center,
+				Padding = UDim.new(0, 8),
+				SortOrder = Enum.SortOrder.LayoutOrder
+			}, pill)
+
+			mk("UIPadding", {
+				PaddingLeft = UDim.new(0, 10),
+				PaddingRight = UDim.new(0, 10),
+				PaddingTop = UDim.new(0, 2),
+				PaddingBottom = UDim.new(0, 2)
+			}, pill)
+
+			-- 1. Logo Badge tròn bên trái (Rainbow Chilli Logo)
+			local leftBadge = mk("Frame", {
+				Name = "IslandLogoBadge",
+				LayoutOrder = 1,
+				Size = UDim2.new(0, 28, 0, 28),
+				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+				BorderSizePixel = 0,
+				ClipsDescendants = true,
+				Active = false,
+				ZIndex = 10000
+			}, pill)
+			mk("UICorner", { CornerRadius = UDim.new(1, 0) }, leftBadge)
+			local lbImg = mk("ImageLabel", {
+				Name = "LogoImg",
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				Position = UDim2.fromScale(0.5, 0.5),
+				Size = UDim2.fromScale(1, 1),
+				BackgroundTransparency = 1,
+				Image = LOGO_ID,
+				ScaleType = Enum.ScaleType.Crop,
+				Active = false,
+				ZIndex = 10001
+			}, leftBadge)
+			mk("UICorner", { CornerRadius = UDim.new(1, 0) }, lbImg)
+			mk("UIStroke", {
+				Thickness = 1.2,
+				Color = Color3.fromRGB(65, 195, 255),
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+			}, lbImg)
+
+			-- 2. Nhãn trạng thái ở giữa: "Đang rảnh"
+			local statusLbl = mk("TextLabel", {
+				Name = "IslandStatusText",
+				LayoutOrder = 2,
+				AutomaticSize = Enum.AutomaticSize.XY,
+				BackgroundTransparency = 1,
+				Text = defaultText,
+				Font = Enum.Font.GothamBold,
+				TextSize = 13,
+				TextColor3 = Color3.fromRGB(255, 255, 255),
+				TextTransparency = 0,
+				Active = false,
+				ZIndex = 10000
+			}, pill)
+			mk("UIStroke", {
+				Thickness = 1.15,
+				Color = Color3.fromRGB(8, 12, 22),
+				Transparency = 0.22
+			}, statusLbl)
+			statusLbl:SetAttribute("__IslandDone", true)
+			State.ActiveStatusLbl = statusLbl
+
+			-- 3. Nút mũi tên mở rộng bên phải: "▼"
+			local hint = mk("TextLabel", {
+				Name = "IslandExpandHint",
+				LayoutOrder = 3,
+				Size = UDim2.new(0, 24, 0, 22),
+				BackgroundColor3 = Color3.fromRGB(22, 32, 54),
+				BackgroundTransparency = 0.18,
+				BorderSizePixel = 0,
+				Text = "▼",
+				Font = Enum.Font.GothamBlack,
+				TextSize = 10,
+				TextColor3 = Color3.fromRGB(205, 238, 255),
+				Active = true,
+				ZIndex = 10000
+			}, pill)
+			mk("UICorner", { CornerRadius = UDim.new(1, 0) }, hint)
+			mk("UIStroke", {
+				Thickness = 1.1,
+				Color = Color3.fromRGB(135, 215, 255),
+				Transparency = 0.25
+			}, hint)
+
+			-- Xử lý click mở rộng / toggle menu
+			local btnHit = mk("TextButton", {
+				Name = "IslandClickHitbox",
+				Size = UDim2.fromScale(1, 1),
+				BackgroundTransparency = 1,
+				Text = "",
+				ZIndex = 10005
+			}, pill)
+			btnHit.Activated:Connect(function()
+				if State.ActiveMainWin then
+					State.ActiveMainWin.Visible = not State.ActiveMainWin.Visible
+				end
+			end)
+		else
+			pill.Visible = true
+			local sLbl = pill:FindFirstChild("IslandStatusText")
+			if sLbl and not sLbl:GetAttribute("__Updating") then
+				sLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+				sLbl.TextTransparency = 0
+				if sLbl.Text == "" or sLbl.Text:find("FPS") then
+					sLbl.Text = defaultText
+				end
+			end
+		end
 	end)
 end
 
@@ -4055,35 +4191,30 @@ local function applyFreemiumTitleOverlay(titleObj, win)
 	if not isFinderHeaderTitle(titleObj, win) then return end
 
 	pcall(function()
-		local p = titleObj.Parent
-		if p and p:IsA("GuiObject") then
-			p.ClipsDescendants = false
-			local oldSib = p:FindFirstChild("ChilliFreemiumHeaderSiblingOverlay")
-			if oldSib then oldSib:Destroy() end
+		local hdrFrame = titleObj.Parent
+		if hdrFrame and hdrFrame:IsA("GuiObject") then
+			hdrFrame.ClipsDescendants = false
 		end
 
-		-- 1. Can thiệp trực tiếp đối tượng tiêu đề gốc (Đảm bảo độ rộng không bị che khuất)
+		-- 1. Ẩn chữ gốc "Chilli Finder" của host script
 		titleObj:SetAttribute("__IsTranslating", true)
 		titleObj:SetAttribute("OrigRawText", "Chilli Finder Freemium")
 		titleObj:SetAttribute("OrigFinderStateText", "Chilli Finder Freemium")
 		titleObj.Text = "Chilli Finder Freemium"
 		titleObj.Size = UDim2.new(0, 240, titleObj.Size.Y.Scale, titleObj.Size.Y.Offset)
 		titleObj.AutomaticSize = Enum.AutomaticSize.X
-		titleObj.TextColor3 = Color3.fromRGB(255, 255, 255)
-		titleObj.TextTransparency = 0
-		titleObj.Visible = true
+		titleObj.TextTransparency = 1
 		titleObj.ClipsDescendants = false
-		titleObj.TextTruncate = Enum.TextTruncate.None
-		titleObj.TextWrapped = false
 		titleObj:SetAttribute("__IsTranslating", false)
 
-		-- 2. Lớp Overlay bất khả xâm phạm (Chống lại mọi lệnh chặn/ghi đè từ script gốc)
-		local titleOverlay = titleObj:FindFirstChild("ChilliFreemiumTitleOverlay")
+		-- 2. Gắn lớp phủ Overlay trực tiếp vào Header Frame (Không bao giờ bị tràn lề hay cắt chữ)
+		local titleHost = (hdrFrame and hdrFrame:IsA("GuiObject")) and hdrFrame or titleObj
+		local titleOverlay = titleHost:FindFirstChild("ChilliFreemiumTitleOverlay")
 		if not titleOverlay then
 			titleOverlay = mk("TextLabel", {
 				Name = "ChilliFreemiumTitleOverlay",
-				Size = UDim2.new(1, 80, 1, 0),
-				Position = UDim2.fromScale(0, 0),
+				Size = UDim2.new(0, 240, 1, 0),
+				Position = (titleHost == hdrFrame) and UDim2.new(0, 12, 0, 0) or UDim2.fromScale(0, 0),
 				BackgroundTransparency = 1,
 				Text = "Chilli Finder Freemium",
 				TextColor3 = Color3.fromRGB(255, 255, 255),
@@ -4094,9 +4225,9 @@ local function applyFreemiumTitleOverlay(titleObj, win)
 				ClipsDescendants = false,
 				TextTruncate = Enum.TextTruncate.None,
 				TextWrapped = false,
-				ZIndex = math.max((titleObj.ZIndex or 1) + 50, 150),
+				ZIndex = 500,
 				Active = false
-			}, titleObj)
+			}, titleHost)
 			mk("UIStroke", {
 				Name = "TitleOverlayStroke",
 				Thickness = 1.0,
@@ -4105,25 +4236,18 @@ local function applyFreemiumTitleOverlay(titleObj, win)
 			}, titleOverlay)
 		else
 			titleOverlay.Text = "Chilli Finder Freemium"
-			titleOverlay.Size = UDim2.new(1, 80, 1, 0)
+			titleOverlay.Size = UDim2.new(0, 240, 1, 0)
 			titleOverlay.Visible = true
 			titleOverlay.TextTransparency = 0
-			titleOverlay.ZIndex = math.max((titleObj.ZIndex or 1) + 50, 150)
+			titleOverlay.ZIndex = 500
 		end
 
-		-- 3. Khóa cứng thuộc tính Text: Nếu script gốc cố tình đổi lại "Chilli Finder", hoàn nguyên ngay
+		-- 3. Khóa cứng TextTransparency của nhãn gốc: luôn tàng hình để Overlay hiển thị sắc nét
 		if not titleObj:GetAttribute("__OverlayLockHooked") then
 			titleObj:SetAttribute("__OverlayLockHooked", true)
-			titleObj:GetPropertyChangedSignal("Text"):Connect(function()
-				if titleObj:GetAttribute("__IsTranslating") then return end
-				local curT = titleObj.Text
-				if curT ~= "Chilli Finder Freemium" then
-					titleObj:SetAttribute("__IsTranslating", true)
-					titleObj.Text = "Chilli Finder Freemium"
-					titleObj.Size = UDim2.new(0, 240, titleObj.Size.Y.Scale, titleObj.Size.Y.Offset)
-					titleObj.TextColor3 = Color3.fromRGB(255, 255, 255)
-					titleObj.Visible = true
-					titleObj:SetAttribute("__IsTranslating", false)
+			titleObj:GetPropertyChangedSignal("TextTransparency"):Connect(function()
+				if isAlive() and titleObj.TextTransparency ~= 1 then
+					titleObj.TextTransparency = 1
 				end
 			end)
 		end
@@ -7001,16 +7125,133 @@ local function instantStyleFinder(win)
 					end
 				end
 
-				-- Áp dụng cơ chế Tái Sử Dụng Giao Diện (UI POOLING / OBJECT REUSE)
-				if hasPetStats or existingJoinBtn or row:FindFirstChild("ChilliCreatedJoinBtn") then
-					-- Ẩn hoàn toàn tất cả nút gốc của host script
-					for _, ch in ipairs(rowChildren) do
-						if ch:IsA("GuiButton") and ch.Name ~= "ChilliCreatedJoinBtn" then
-							ch.Visible = false
-							ch.Position = UDim2.new(2, 0, 2, 0)
+				-- Áp dụng cơ chế Lớp Phủ Nút Join (Liquid Glass Overlay) & Server Hopper & GetKey UI
+				-- 1. Dịch thời gian đếm ngược (In-place Text update, 0 lag)
+				for _, ch in ipairs(row:GetDescendants()) do
+					if ch:IsA("TextLabel") or ch:IsA("TextButton") then
+						local t = (ch.Text or ""):lower()
+						if not isEn then
+							if t:find("ago") or t:find("just now") then
+								local newT = ch.Text:gsub("(%d+)%s*[sS]%s+ago", "%1 giây trước")
+								                     :gsub("(%d+)%s*[mM]%s+ago", "%1 phút trước")
+								                     :gsub("(%d+)%s*[hH]%s+ago", "%1 giờ trước")
+								                     :gsub("(%d+)%s*[dD]%s+ago", "%1 ngày trước")
+								                     :gsub("[Jj]ust%s+now", "vừa xong")
+								if newT ~= ch.Text then ch.Text = newT end
+							end
+						else
+							if t:find("trước") or t:find("vừa xong") then
+								local newT = ch.Text:gsub("(%d+)%s*giây%s+trước", "%1s ago")
+								                     :gsub("(%d+)%s*phút%s+trước", "%1m ago")
+								                     :gsub("(%d+)%s*giờ%s+trước", "%1h ago")
+								                     :gsub("(%d+)%s*ngày%s+trước", "%1d ago")
+								                     :gsub("vừa xong", "just now")
+								if newT ~= ch.Text then ch.Text = newT end
+							end
 						end
 					end
+				end
 
+				-- 2. Tìm nút Join gốc trong hàng (quét toàn bộ nhánh con)
+				local origJoinBtn = nil
+				for _, d in ipairs(row:GetDescendants()) do
+					if (d:IsA("GuiButton") or d:IsA("TextButton") or d:IsA("ImageButton")) and d.Name ~= "ChilliCreatedJoinBtn" and d.Name ~= "ChilliJoinOverlay" then
+						local t = stripRichTags(d.Text or ""):lower():match("^%s*(.-)%s*$")
+						if t == "join" or t == "vào ngay" or d.Name:lower():find("join") or d:FindFirstChildWhichIsA("TextLabel") then
+							origJoinBtn = d
+							break
+						end
+					end
+				end
+
+				if origJoinBtn then
+					-- Tàng hình nút gốc để lớp phủ Kính Lỏng hiển thị hoàn hảo
+					origJoinBtn.Text = ""
+					origJoinBtn.TextTransparency = 1
+					origJoinBtn.AutoButtonColor = false
+
+					local overlay = origJoinBtn:FindFirstChild("ChilliJoinOverlay")
+					if not overlay then
+						overlay = mk("TextButton", {
+							Name = "ChilliJoinOverlay",
+							Size = UDim2.fromScale(1, 1),
+							Position = UDim2.fromScale(0, 0),
+							BackgroundColor3 = Color3.fromRGB(225, 125, 25),
+							BackgroundTransparency = 0,
+							BorderSizePixel = 0,
+							Text = "",
+							Active = true,
+							AutoButtonColor = false,
+							ZIndex = math.max((origJoinBtn.ZIndex or 1) + 20, 50)
+						}, origJoinBtn)
+
+						mk("UICorner", { CornerRadius = UDim.new(0, 5) }, overlay)
+						mk("UIStroke", {
+							Name = "ChilliJoinStroke",
+							Thickness = 1.0,
+							Color = Color3.fromRGB(255, 195, 105),
+							Transparency = 0.42,
+							ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+						}, overlay)
+						mk("UIGradient", {
+							Name = "ChilliJoinGrad",
+							Rotation = 90,
+							Color = ColorSequence.new({
+								ColorSequenceKeypoint.new(0.0, Color3.fromRGB(242, 148, 38)),
+								ColorSequenceKeypoint.new(0.5, Color3.fromRGB(218, 118, 22)),
+								ColorSequenceKeypoint.new(1.0, Color3.fromRGB(188, 92, 14))
+							})
+						}, overlay)
+
+						local lbl = mk("TextLabel", {
+							Name = "ChilliJoinText",
+							Size = UDim2.fromScale(1, 1),
+							BackgroundTransparency = 1,
+							Text = wantJoinText,
+							TextColor3 = Color3.fromRGB(255, 255, 255),
+							Font = Enum.Font.GothamBold,
+							TextSize = 11.5,
+							ZIndex = overlay.ZIndex + 1
+						}, overlay)
+
+						mk("UIStroke", {
+							Name = "JoinTxtStroke",
+							Thickness = 1.0,
+							Color = Color3.fromRGB(35, 18, 8),
+							Transparency = 0.55
+						}, lbl)
+
+						local lastClick = 0
+						overlay.Activated:Connect(function()
+							local now = os.clock()
+							if now - lastClick < 1.0 then return end
+							lastClick = now
+							handleFinderJoinPress(overlay)
+						end)
+					else
+						local lbl = overlay:FindFirstChild("ChilliJoinText") or overlay:FindFirstChildWhichIsA("TextLabel")
+						if lbl and lbl.Text ~= wantJoinText then
+							lbl.Text = wantJoinText
+						end
+						overlay.Visible = true
+					end
+
+					-- Hook cả nút gốc
+					if not origJoinBtn:GetAttribute("__ChilliJoinHooked") then
+						origJoinBtn:SetAttribute("__ChilliJoinHooked", true)
+						if origJoinBtn.Activated then
+							origJoinBtn.Activated:Connect(function()
+								handleFinderJoinPress(origJoinBtn)
+							end)
+						end
+						if origJoinBtn.MouseButton1Click then
+							origJoinBtn.MouseButton1Click:Connect(function()
+								handleFinderJoinPress(origJoinBtn)
+							end)
+						end
+					end
+				else
+					-- Fallback: Tạo nút độc lập nếu không tìm thấy nút gốc
 					local joinBtn = row:FindFirstChild("ChilliCreatedJoinBtn")
 					if not joinBtn then
 						joinBtn = mk("TextButton", {
@@ -7024,9 +7265,8 @@ local function instantStyleFinder(win)
 							Text = "",
 							Active = true,
 							AutoButtonColor = false,
-							ZIndex = (row.ZIndex or 1) + 10
+							ZIndex = (row.ZIndex or 1) + 25
 						}, row)
-
 						mk("UICorner", { CornerRadius = UDim.new(0, 5) }, joinBtn)
 						mk("UIStroke", {
 							Name = "ChilliJoinStroke",
@@ -7044,7 +7284,6 @@ local function instantStyleFinder(win)
 								ColorSequenceKeypoint.new(1.0, Color3.fromRGB(188, 92, 14))
 							})
 						}, joinBtn)
-
 						local lbl = mk("TextLabel", {
 							Name = "ChilliJoinText",
 							Size = UDim2.fromScale(1, 1),
@@ -7055,14 +7294,12 @@ local function instantStyleFinder(win)
 							TextSize = 11.5,
 							ZIndex = joinBtn.ZIndex + 1
 						}, joinBtn)
-
 						mk("UIStroke", {
 							Name = "JoinTxtStroke",
 							Thickness = 1.0,
 							Color = Color3.fromRGB(35, 18, 8),
 							Transparency = 0.55
 						}, lbl)
-
 						local lastClick = 0
 						joinBtn.Activated:Connect(function()
 							local now = os.clock()
@@ -7074,8 +7311,6 @@ local function instantStyleFinder(win)
 						local lbl = joinBtn:FindFirstChild("ChilliJoinText") or joinBtn:FindFirstChildWhichIsA("TextLabel")
 						if lbl and lbl.Text ~= wantJoinText then
 							lbl.Text = wantJoinText
-						elseif not lbl and joinBtn:IsA("TextButton") and joinBtn.Text ~= wantJoinText then
-							joinBtn.Text = wantJoinText
 						end
 						joinBtn.Visible = true
 					end
@@ -7089,7 +7324,7 @@ end
 
 -- TÌM KIẾM VÀ STYLE CHILLI FINDER SIÊU TỐC (<0.5ms, KHÔNG DÙNG GETINSTANCES, 0 LAG)
 local function findAndStyleFinderNow()
-	-- 1. Nếu State.ActiveFinderWin hợp lệ và đang tồn tại trong DataModel, style ngay
+	-- 1. Nếu State.ActiveFinderWin hợp lệ và đang tồn tại, style ngay
 	if State.ActiveFinderWin and State.ActiveFinderWin.Parent then
 		local topWin = getFinderWindowFromObj(State.ActiveFinderWin) or State.ActiveFinderWin
 		State.ActiveFinderWin = topWin
@@ -7097,7 +7332,7 @@ local function findAndStyleFinderNow()
 		return true
 	end
 
-	-- 2. Quét trực tiếp qua getScanRoots() (Chỉ quét GUI đã nạp, không quét 90.000 part game)
+	-- 2. Quét toàn bộ GUI đang hiển thị để tìm cửa sổ Chilli Finder
 	local roots = getScanRoots()
 	for r = 1, #roots do
 		local root = roots[r]
@@ -7105,26 +7340,23 @@ local function findAndStyleFinderNow()
 			local guis = root:GetChildren()
 			for g = 1, #guis do
 				local gui = guis[g]
-				if gui and not ROBLOX_CORE_SUBFOLDERS[gui.Name] and gui.Name ~= "ChilliV8_MasterIslandGui" and gui.Name ~= "ChilliV5_NoticeGui" then
-					local sf = gui:FindFirstChildWhichIsA("ScrollingFrame", true)
-					if sf then
-						local descs = gui:GetDescendants()
-						for d = 1, #descs do
-							local obj = descs[d]
-							if obj:IsA("TextLabel") or obj:IsA("TextButton") then
-								local low = stripRichTags(obj.Text or ""):lower():match("^%s*(.-)%s*$")
-								if low == "chilli finder" or low == "chilli finder freemium"
-								   or low:find("top 5 recent eggs", 1, true) or low:find("top 5 trứng mới", 1, true)
-								   or low:find("force join", 1, true) or low:find("tự vào sau", 1, true)
-								   or low:find("min value", 1, true) or low:find("giá tối thiểu", 1, true)
-								   or low:find("rarity", 1, true) or low:find("độ hiếm", 1, true) then
-									local win = getFinderWindowFromObj(obj) or getFinderWindowFromObj(sf) or sf.Parent
-									if win and win:IsA("GuiObject") then
-										State.ActiveFinderWin = win
-										win:SetAttribute("__IsChilliFinderContainer", true)
-										instantStyleFinder(win)
-										return true
-									end
+				if gui and not ROBLOX_CORE_SUBFOLDERS[gui.Name] and gui.Name ~= "ChilliV8_MasterIslandGui" and gui.Name ~= "ChilliV5_NoticeGui" and gui.Name ~= "ChilliV7_GetKeyUI" then
+					local descs = gui:GetDescendants()
+					for d = 1, #descs do
+						local obj = descs[d]
+						if obj:IsA("TextLabel") or obj:IsA("TextButton") then
+							local low = stripRichTags(obj.Text or ""):lower():match("^%s*(.-)%s*$")
+							if low == "chilli finder" or low == "chilli finder freemium"
+							   or low:find("top 5 recent eggs", 1, true) or low:find("top 5 trứng mới", 1, true)
+							   or low:find("force join", 1, true) or low:find("tự vào sau", 1, true)
+							   or low:find("min value", 1, true) or low:find("giá tối thiểu", 1, true)
+							   or low:find("rarity", 1, true) or low:find("độ hiếm", 1, true) then
+								local win = getFinderWindowFromObj(obj) or obj.Parent
+								if win and win:IsA("GuiObject") then
+									State.ActiveFinderWin = win
+									win:SetAttribute("__IsChilliFinderContainer", true)
+									instantStyleFinder(win)
+									return true
 								end
 							end
 						end
