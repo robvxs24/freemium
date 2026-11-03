@@ -105,26 +105,13 @@ local function checkIsPlayerOnTreadmill()
 		end
 	end
 
-	-- 3. Kiểm tra các bộ phận chạm (TouchingParts) quanh HumanoidRootPart
-	local touching = hrp:GetTouchingParts()
-	for _, part in ipairs(touching) do
-		if part and not part:IsDescendantOf(char) then
-			local nm = part.Name:lower()
-			local pnm = (part.Parent and part.Parent.Name:lower()) or ""
-			if nm:find("treadmill") or nm:find("conveyor") or nm:find("machine") or nm:find("belt")
-			   or pnm:find("treadmill") or pnm:find("conveyor") or pnm:find("machine") then
-				return true
-			end
-		end
-	end
-
 	return false
 end
 
--- Vòng lặp kiểm tra trạng thái máy chạy nhẹ nhàng (mỗi 1.2 giây)
+-- Vòng lặp kiểm tra trạng thái máy chạy nhẹ nhàng (mỗi 2.0 giây, 0 lag, không can thiệp vật lý)
 task.spawn(function()
 	while isAlive() do
-		task.wait(1.2)
+		task.wait(2.0)
 		local onTm = false
 		pcall(function()
 			onTm = checkIsPlayerOnTreadmill()
@@ -2583,23 +2570,37 @@ local SIDEBAR_GRAD_PAIRS = {
 	{ Color3.fromRGB(16, 185, 129), Color3.fromRGB(45, 212, 191) },  -- [6] Emerald -> Tiffany Teal
 }
 
+local cachedTabSound = nil
+local function getCachedTabSound()
+	if not cachedTabSound or not cachedTabSound.Parent then
+		local ss = game:GetService("SoundService")
+		cachedTabSound = ss:FindFirstChild("ChilliCachedTabSound")
+		if not cachedTabSound then
+		cachedTabSound = Instance.new("Sound")
+		cachedTabSound.Name = "ChilliCachedTabSound"
+		cachedTabSound.SoundId = "rbxassetid://6026984224"
+		cachedTabSound.Volume = 0.85
+		cachedTabSound.PlaybackSpeed = 1.15
+		cachedTabSound.Parent = ss
+		end
+	end
+	return cachedTabSound
+end
+
 local function playModernTabSound()
 	pcall(function()
 		if playIslandSfx then
 			pcall(playIslandSfx, "tap")
 		end
 		local ss = game:GetService("SoundService")
-		local snd = Instance.new("Sound")
-		snd.SoundId = "rbxassetid://6026984224"
-		snd.Volume = 0.85
-		snd.PlaybackSpeed = 1.15
-		snd.Parent = ss
-		if ss.PlayLocalSound then
-			pcall(function() ss:PlayLocalSound(snd) end)
-		else
-			pcall(function() snd:Play() end)
+		local snd = getCachedTabSound()
+		if snd then
+			if ss.PlayLocalSound then
+				pcall(function() ss:PlayLocalSound(snd) end)
+			else
+				pcall(function() snd:Play() end)
+			end
 		end
-		game:GetService("Debris"):AddItem(snd, 2)
 	end)
 end
 
@@ -3018,8 +3019,6 @@ local function applySenaV7Architecture(win, titleLbl)
 	if win:GetAttribute("__InstantHideHooked") ~= SID then
 		win:SetAttribute("__InstantHideHooked", SID)
 		win:GetPropertyChangedSignal("Visible"):Connect(syncWindowVisibilityInstant)
-		win:GetPropertyChangedSignal("Size"):Connect(syncWindowVisibilityInstant)
-		win:GetPropertyChangedSignal("Position"):Connect(syncWindowVisibilityInstant)
 		if mainBg and mainBg ~= win then
 			mainBg:GetPropertyChangedSignal("BackgroundTransparency"):Connect(syncWindowVisibilityInstant)
 		end
@@ -3088,52 +3087,64 @@ local function applySenaV7Architecture(win, titleLbl)
 		local fastTabTween = TweenInfo.new(0.14, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
 
 		local function updateTabActiveStyles(activeIdx)
+			if State.ActiveSidebarTabIdx == activeIdx and State.__TabsInitialized then return end
+			local prevIdx = State.ActiveSidebarTabIdx
 			State.ActiveSidebarTabIdx = activeIdx
 			local btns = State.CurrentNavButtons or navButtons
-			for i, b in ipairs(btns) do
-				local sq = b and b:FindFirstChild("ChilliSenaSquircle")
-				if sq then
-					local st = sq:FindFirstChild("SquircleStroke") or sq:FindFirstChildOfClass("UIStroke")
-					local shine = sq:FindFirstChild("ChilliTabGlassShine")
-					local oldBar = sq:FindFirstChild("ChilliTabActiveBar")
-					if oldBar then oldBar:Destroy() end
+			if not btns then return end
 
-					if i == activeIdx then
-						-- Nút đang được bấm chọn: Hiện màu rực rỡ + viền sáng mảnh
-						TweenService:Create(sq, fastTabTween, {
-							Size = UDim2.new(0, 32, 0, 32),
-							BackgroundTransparency = 0.06
+			local function styleSingleTab(i, isSelected)
+				local b = btns[i]
+				local sq = b and b:FindFirstChild("ChilliSenaSquircle")
+				if not sq then return end
+				local st = sq:FindFirstChild("SquircleStroke") or sq:FindFirstChildOfClass("UIStroke")
+				local shine = sq:FindFirstChild("ChilliTabGlassShine")
+				local oldBar = sq:FindFirstChild("ChilliTabActiveBar")
+				if oldBar then oldBar:Destroy() end
+
+				if isSelected then
+					TweenService:Create(sq, fastTabTween, {
+						Size = UDim2.new(0, 32, 0, 32),
+						BackgroundTransparency = 0.06
+					}):Play()
+					if st then
+						st.Color = Color3.fromRGB(255, 255, 255)
+						st.Thickness = 1.4
+						TweenService:Create(st, fastTabTween, {
+							Transparency = 0.18
 						}):Play()
-						if st then
-							st.Color = Color3.fromRGB(255, 255, 255)
-							st.Thickness = 1.4
-							TweenService:Create(st, fastTabTween, {
-								Transparency = 0.18
-							}):Play()
-						end
-						if shine then
-							shine.Visible = true
-							shine.BackgroundTransparency = 0.78
-						end
-					else
-						-- Nút bình thường (chưa bấm): Squircle màu bo tròn rõ nét theo mẫu Ảnh 2
-						TweenService:Create(sq, fastTabTween, {
-							Size = UDim2.new(0, 30, 0, 30),
-							BackgroundTransparency = 0.12
-						}):Play()
-						if st then
-							st.Color = Color3.fromRGB(255, 255, 255)
-							st.Thickness = 1.0
-							TweenService:Create(st, fastTabTween, {
-								Transparency = 0.75
-							}):Play()
-						end
-						if shine then
-							shine.Visible = false
-							shine.BackgroundTransparency = 1
-						end
 					end
+				if shine then
+					shine.Visible = true
+					shine.BackgroundTransparency = 0.78
 				end
+				else
+					TweenService:Create(sq, fastTabTween, {
+						Size = UDim2.new(0, 30, 0, 30),
+						BackgroundTransparency = 0.12
+					}):Play()
+					if st then
+						st.Color = Color3.fromRGB(255, 255, 255)
+						st.Thickness = 1.0
+						TweenService:Create(st, fastTabTween, {
+							Transparency = 0.75
+						}):Play()
+					end
+				if shine then
+					shine.Visible = false
+					shine.BackgroundTransparency = 1
+				end
+				end
+			end
+
+			if not State.__TabsInitialized or not prevIdx or prevIdx == activeIdx then
+				State.__TabsInitialized = true
+				for i = 1, #btns do
+					styleSingleTab(i, i == activeIdx)
+				end
+			else
+				styleSingleTab(prevIdx, false)
+				styleSingleTab(activeIdx, true)
 			end
 		end
 		State.UpdateSidebarTabStyles = updateTabActiveStyles
@@ -3270,7 +3281,7 @@ local function applySenaV7Architecture(win, titleLbl)
 				btn:SetAttribute("__TabEffectHooked", SID)
 				local function triggerThisTab()
 					local now = os.clock()
-					if now - (State.LastTabClickTime or 0) < 0.08 then return end
+					if now - (State.LastTabClickTime or 0) < 0.18 then return end
 					State.LastTabClickTime = now
 					playModernTabSound()
 					if State.UpdateSidebarTabStyles then
@@ -3278,53 +3289,28 @@ local function applySenaV7Architecture(win, titleLbl)
 					end
 				end
 
-				local hookTargets = { btn }
-				for _, desc in ipairs(btn:GetDescendants()) do
-					if desc:IsA("GuiObject") and not desc.Name:find("^Chilli") then
-						table.insert(hookTargets, desc)
-					end
-				end
-				for _, hObj in ipairs(hookTargets) do
-					if hObj:IsA("GuiButton") then
-						hObj.Activated:Connect(triggerThisTab)
-						hObj.MouseButton1Click:Connect(triggerThisTab)
-						hObj.MouseButton1Down:Connect(triggerThisTab)
+				-- Chỉ kết nối 1 sự kiện Activated duy nhất, không nhân đôi sự kiện làm giật lag menu
+				if btn:IsA("GuiButton") then
+					btn.Activated:Connect(triggerThisTab)
+				else
+					local subBtn = btn:FindFirstChildWhichIsA("GuiButton")
+					if subBtn then
+						subBtn.Activated:Connect(triggerThisTab)
+					else
+						btn.InputBegan:Connect(function(inp)
+							if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+								triggerThisTab()
+							end
+						end)
 					end
 				end
 			end
 		end
 
-		-- Bắt sự kiện chạm/click trực tiếp theo tọa độ 6 nút Tab (đảm bảo 100% bấm nút nào nút đó hiện màu ngay lập tức kể cả khi nút là Frame)
-		if win:GetAttribute("__SidebarGlobalInputHooked") ~= SID then
-			win:SetAttribute("__SidebarGlobalInputHooked", SID)
-			if env.__ChilliSidebarInputConn then
-				pcall(function() env.__ChilliSidebarInputConn:Disconnect() end)
-			end
-			env.__ChilliSidebarInputConn = UserInputService.InputBegan:Connect(function(inp)
-				if not isAlive() or not win or not win.Parent or not win.Visible then return end
-				if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
-					local pos = inp.Position
-					local btns = State.CurrentNavButtons
-					if btns then
-						for idx, b in ipairs(btns) do
-							if b and b.Parent and b.Visible then
-								local bp, bs = b.AbsolutePosition, b.AbsoluteSize
-								if pos.X >= bp.X - 4 and pos.X <= bp.X + bs.X + 4 and pos.Y >= bp.Y - 3 and pos.Y <= bp.Y + bs.Y + 3 then
-									local now = os.clock()
-									if now - (State.LastTabClickTime or 0) >= 0.08 then
-										State.LastTabClickTime = now
-										playModernTabSound()
-										if State.UpdateSidebarTabStyles then
-											pcall(State.UpdateSidebarTabStyles, idx)
-										end
-									end
-									break
-								end
-							end
-						end
-					end
-				end
-			end)
+		-- Dọn dẹp kết nối input cũ nếu có
+		if env.__ChilliSidebarInputConn then
+			pcall(function() env.__ChilliSidebarInputConn:Disconnect() end)
+			env.__ChilliSidebarInputConn = nil
 		end
 
 		pcall(updateTabActiveStyles, State.ActiveSidebarTabIdx or 1)
@@ -3701,12 +3687,13 @@ local function setupBubbleToggle(gui, win, titleLbl)
 		end
 		if bubble:IsA("GuiButton") then
 			bubble.Activated:Connect(handleBubbleTap)
+		else
+			bubble.InputEnded:Connect(function(inp)
+				if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+					handleBubbleTap()
+				end
+			end)
 		end
-		bubble.InputEnded:Connect(function(inp)
-			if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
-				handleBubbleTap()
-			end
-		end)
 	end
 
 	local hy = win.AbsolutePosition.Y
@@ -3830,7 +3817,7 @@ task.spawn(function()
 for i = 1, #queue do
 if not isAlive() then break end
 if queue[i] and queue[i].Parent then pcall(hookTrans, queue[i]) if watchFinderTextObj then pcall(watchFinderTextObj, queue[i]) end end
-if i % 350 == 0 then task.wait() end
+if i % 15 == 0 then task.wait(0.02) end
 end
 gui:SetAttribute("__BatchTranslating", false)
 end)
@@ -6605,13 +6592,55 @@ watchFinderHudButton = function(lbl)
 	end
 end
 
+local function isTemporaryTreadmillNoise(nd)
+	if not nd then return true end
+	if nd:IsA("BillboardGui") or nd:IsA("SurfaceGui") or nd:FindFirstAncestorOfClass("BillboardGui") or nd:FindFirstAncestorOfClass("SurfaceGui") then
+		return true
+	end
+	local ndName = nd.Name:lower()
+	if ndName:find("popup") or ndName:find("float") or ndName:find("damage") or ndName:find("reward")
+	   or ndName:find("coin") or ndName:find("speed") or ndName:find("combo") or ndName:find("particle")
+	   or ndName:find("gain") or ndName:find("xp") or ndName:find("exp") or ndName:find("indicator") then
+		return true
+	end
+	local p = nd.Parent
+	if p then
+		local pName = p.Name:lower()
+		if pName:find("popup") or pName:find("float") or pName:find("damage") or pName:find("reward")
+		   or pName:find("coin") or pName:find("speed") or pName:find("combo") or pName:find("particle")
+		   or pName:find("gain") or pName:find("xp") or pName:find("exp") then
+			return true
+		end
+	end
+	if (nd:IsA("TextLabel") or nd:IsA("TextButton")) and not nd:IsA("TextBox") then
+		local t = nd.Text or ""
+		if t:match("^[%$%+%-%d%.%,%/%%sxhm%s:%(%)kKmMbBtT]+$") or (t:find("%d") and (t:find("%$") or t:find("/s") or t:find(":") or t:find("kg") or t:find("/"))) then
+			return true
+		end
+	end
+	return false
+end
+
 watchFinderTextObj = function(d)
 	if not d or not (d:IsA("TextButton") or d:IsA("TextLabel")) then return end
 	if d.Name == "ChilliFinderJoinInterceptor" or d:GetAttribute("__IsTranslating") then return end
 	if State.ActiveMainWin and d:IsDescendantOf(State.ActiveMainWin) then return end
+	if isTemporaryTreadmillNoise(d) then return end
+
+	local isFinderObj = (State.ActiveFinderWin and d:IsDescendantOf(State.ActiveFinderWin))
+	local checkT = stripRichTags(d.Text):lower()
+	if not isFinderObj then
+		if not (checkT == "chilli finder" or checkT == "chilli finder freemium"
+		   or checkT:find("top 5 recent eggs", 1, true) or checkT:find("top 5 trứng mới", 1, true)
+		   or checkT:find("chillihub.pro", 1, true) or checkT == "sign in" or checkT == "sign up"
+		   or checkT == "vào ngay" or checkT == "join" or checkT == "copy link" or checkT:find("chép link", 1, true)
+		   or checkT:find("force join", 1, true) or checkT:find("min value", 1, true) or checkT:find("rarity", 1, true)) then
+			return
+		end
+	end
+
 	pcall(sanitizeChillFinderFreeObj, d)
 	pcall(watchFinderHudButton, d)
-	local checkT = stripRichTags(d.Text):lower()
 	if checkT == "sign up" or checkT == "sign in" or checkT:find("sign in with your", 1, true) or checkT == "password" then
 		pcall(hideFinderSignInBox, d)
 	end
@@ -7082,15 +7111,18 @@ local function flushDescendantBatch()
 				end
 			end
 		end
-		if i % 80 == 0 then task.wait(0.04) end
+		if i % 20 == 0 then task.wait(0.02) end
 	end
 end
 
 gui.DescendantAdded:Connect(function(nd)
 	if not isAlive() then return end
 	-- Bỏ qua các đối tượng không liên quan để bảo toàn 100% FPS khi chạy máy
-	if nd:IsA("BillboardGui") or nd:IsA("SurfaceGui") or nd:FindFirstAncestorOfClass("BillboardGui")
-	   or nd:FindFirstAncestor("Chat") or nd:FindFirstAncestor("TouchGui") or nd:FindFirstAncestor("InGameMenu") or nd:FindFirstAncestor("PlayerList") then
+	if isTemporaryTreadmillNoise(nd) then return end
+	if nd:FindFirstAncestor("Chat") or nd:FindFirstAncestor("TouchGui") or nd:FindFirstAncestor("InGameMenu") or nd:FindFirstAncestor("PlayerList") then
+		return
+	end
+	if State.IsOnTreadmill and not (State.ActiveFinderWin and nd:IsDescendantOf(State.ActiveFinderWin)) and not (State.ActiveMainWin and nd:IsDescendantOf(State.ActiveMainWin)) then
 		return
 	end
 	if nd:IsA("TextLabel") or nd:IsA("TextButton") or nd:IsA("TextBox") then
@@ -7212,16 +7244,24 @@ task.defer(function()
 tryBootPass(1)
 end)
 
--- LUỒNG KIỂM TRA ĐỊNH KỲ CHILLI FINDER FREEMIUM (CẬP NHẬT REAL-TIME 1S, CỐ ĐỊNH NÚT VÀO NGAY & TIÊU ĐỀ, 0 LAG)
+-- LUỒNG KIỂM TRA ĐỊNH KỲ CHILLI FINDER FREEMIUM (CẬP NHẬT REAL-TIME, CỐ ĐỊNH NÚT VÀO NGAY & TIÊU ĐỀ, 0 LAG)
 task.spawn(function()
 	while isAlive() do
-		task.wait(1)
-		pcall(function()
-			if State.ActiveFinderWin and State.ActiveFinderWin.Parent and State.ActiveFinderWin.Visible then
+		if State.IsOnTreadmill then
+			-- Khi đang chạy máy: tạm dừng quét Finder để ưu tiên 100% tài nguyên CPU
+			task.wait(3.5)
+		elseif State.ActiveFinderWin and State.ActiveFinderWin.Parent and State.ActiveFinderWin.Visible then
+			-- Khi Finder đang mở: cập nhật mượt mà mỗi 2.0s
+			task.wait(2.0)
+			pcall(function()
 				instantStyleFinder(State.ActiveFinderWin)
-			else
+			end)
+		else
+			-- Khi Finder chưa mở hoặc đang ẩn: nghỉ 5.0s, tránh quét DOM liên tục mỗi giây
+			task.wait(5.0)
+			pcall(function()
 				findAndStyleFinderNow()
-			end
-		end)
+			end)
+		end
 	end
 end)
