@@ -68,6 +68,14 @@ State.ScanningFinderBusy = false
 State.MacroBusy = false
 State.TrackedFinderJoinBtns = {}
 
+local SID = State.SessionId
+local function isAlive() return State.SessionId == SID end
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
+local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("CoreGui")
+local Stats = game:GetService("Stats")
+
 -- ============================================================================
 -- [HỆ THỐNG TỐI ƯU HÓA MÁY CHẠY - TREADMILL ZERO-LAG ENGINE]
 -- ============================================================================
@@ -84,12 +92,17 @@ local function checkIsPlayerOnTreadmill()
 	-- 1. Kiểm tra SeatPart nếu nhân vật đứng/ngồi trên máy
 	if hum.SeatPart then
 		local sName = hum.SeatPart.Name:lower()
-		if sName:find("treadmill") or sName:find("machine") or sName:find("conveyor") or sName:find("belt") or sName:find("run") then
+		if sName:find("treadmill") or sName:find("machine") or sName:find("conveyor") or sName:find("belt") or sName:find("run") or sName:find("seat") then
 			return true
 		end
 	end
 
-	-- 2. Raycast xuống dưới chân kiểm tra băng chuyền / máy chạy
+	-- 2. Kiểm tra thuộc tính nhân vật (Attributes)
+	if char:GetAttribute("Treadmill") or char:GetAttribute("OnTreadmill") or char:GetAttribute("Training") or char:GetAttribute("IsTraining") then
+		return true
+	end
+
+	-- 3. Raycast xuống dưới sàn kiểm tra băng chuyền / máy chạy (loại trừ character, 0 lag vật lý)
 	local rayParams = RaycastParams.new()
 	rayParams.FilterDescendantsInstances = { char }
 	rayParams.FilterType = Enum.RaycastFilterType.Exclude
@@ -98,9 +111,9 @@ local function checkIsPlayerOnTreadmill()
 		local nm = ray.Instance.Name:lower()
 		local pnm = (ray.Instance.Parent and ray.Instance.Parent.Name:lower()) or ""
 		local ppnm = (ray.Instance.Parent and ray.Instance.Parent.Parent and ray.Instance.Parent.Parent.Name:lower()) or ""
-		if nm:find("treadmill") or nm:find("conveyor") or nm:find("machine") or nm:find("belt") or nm:find("run") or nm:find("track")
-		   or pnm:find("treadmill") or pnm:find("conveyor") or pnm:find("machine") or pnm:find("belt")
-		   or ppnm:find("treadmill") or ppnm:find("machine") then
+		if nm:find("treadmill") or nm:find("conveyor") or nm:find("machine") or nm:find("belt") or nm:find("run") or nm:find("track") or nm:find("gym")
+		   or pnm:find("treadmill") or pnm:find("conveyor") or pnm:find("machine") or pnm:find("belt") or pnm:find("run")
+		   or ppnm:find("treadmill") or ppnm:find("machine") or ppnm:find("gym") then
 			return true
 		end
 	end
@@ -108,10 +121,10 @@ local function checkIsPlayerOnTreadmill()
 	return false
 end
 
--- Vòng lặp kiểm tra trạng thái máy chạy nhẹ nhàng (mỗi 2.0 giây, 0 lag, không can thiệp vật lý)
+-- Vòng lặp kiểm tra trạng thái máy chạy nhẹ nhàng (mỗi 1.5 giây, 0 lag, không can thiệp vật lý)
 task.spawn(function()
 	while isAlive() do
-		task.wait(2.0)
+		task.wait(1.5)
 		local onTm = false
 		pcall(function()
 			onTm = checkIsPlayerOnTreadmill()
@@ -122,7 +135,6 @@ task.spawn(function()
 		end
 	end
 end)
-local SID = State.SessionId
 
 -- CƠ CHẾ CAN THIỆP METAMETHOD CẤP ĐỘ CAO (OUTSMART HOST ANTI-TAMPER)
 pcall(function()
@@ -144,18 +156,12 @@ pcall(function()
 		oldNewIndex = hookmetamethod(game, "__newindex", newcclosure and newcclosure(newIndexHook) or newIndexHook)
 	end
 end)
-local function isAlive() return State.SessionId == SID end
 pcall(function()
 if isfile and isfile(LANG_FILE) then
 local s = (readfile(LANG_FILE) or ""):match("^%s*(.-)%s*$")
 if s == "EN" or s == "VI" then State.Language = s end
 end
 end)
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
-local TweenService = game:GetService("TweenService")
-local CoreGui = game:GetService("CoreGui")
-local Stats = game:GetService("Stats")
 local function getScanRoots()
 local r, seen = {}, {}
 local function addRoot(inst)
@@ -3154,9 +3160,13 @@ local function applySenaV7Architecture(win, titleLbl)
 			pcall(function() btn.BackgroundTransparency = 1 end)
 			if btn:GetAttribute("__BgLockHooked") ~= SID then
 				btn:SetAttribute("__BgLockHooked", SID)
+				local updatingBg = false
 				btn:GetPropertyChangedSignal("BackgroundTransparency"):Connect(function()
+					if updatingBg then return end
 					if btn.BackgroundTransparency < 1 then
+						updatingBg = true
 						btn.BackgroundTransparency = 1
+						updatingBg = false
 					end
 				end)
 			end
@@ -6689,6 +6699,14 @@ State.RefreshFinderJoinLangFn = updateAllFinderJoinButtonsText
 
 local function instantStyleFinder(win)
 	if not win or not win.Parent then return end
+	if State.InstantStyleBusy then return end
+	if State.IsOnTreadmill then return end
+	local nowClock = os.clock()
+	if nowClock - (State.LastInstantStyleClock or 0) < 0.35 then return end
+	State.InstantStyleBusy = true
+	State.LastInstantStyleClock = nowClock
+
+	local okStyle, _ = pcall(function()
 	local topWin = getFinderWindowFromObj(win) or win
 	if topWin and topWin:IsA("GuiObject") then
 		win = topWin
@@ -7029,6 +7047,8 @@ local function instantStyleFinder(win)
 			end
 		end
 	end
+	end)
+	State.InstantStyleBusy = false
 end
 
 -- TÌM KIẾM VÀ STYLE CHILLI FINDER SIÊU TỐC (<0.5ms, KHÔNG DÙNG GETINSTANCES, 0 LAG)
@@ -7081,6 +7101,7 @@ local function findAndStyleFinderNow()
 end
 
 scanChilliFinderButtons = function()
+	if State.IsOnTreadmill then return end
 	if State.ActiveFinderWin and State.ActiveFinderWin.Parent then
 		instantStyleFinder(State.ActiveFinderWin)
 		return
@@ -7117,12 +7138,16 @@ end
 
 gui.DescendantAdded:Connect(function(nd)
 	if not isAlive() then return end
+	-- Khi đang chạy máy: ngắt hoàn toàn mọi xử lý giao diện không thuộc menu chính hoặc Finder
+	if State.IsOnTreadmill then
+		if not (State.ActiveMainWin and nd:IsDescendantOf(State.ActiveMainWin)) and not (State.ActiveFinderWin and nd:IsDescendantOf(State.ActiveFinderWin)) then
+			return
+		end
+	end
 	-- Bỏ qua các đối tượng không liên quan để bảo toàn 100% FPS khi chạy máy
 	if isTemporaryTreadmillNoise(nd) then return end
-	if nd:FindFirstAncestor("Chat") or nd:FindFirstAncestor("TouchGui") or nd:FindFirstAncestor("InGameMenu") or nd:FindFirstAncestor("PlayerList") then
-		return
-	end
-	if State.IsOnTreadmill and not (State.ActiveFinderWin and nd:IsDescendantOf(State.ActiveFinderWin)) and not (State.ActiveMainWin and nd:IsDescendantOf(State.ActiveMainWin)) then
+	local pName = nd.Parent and nd.Parent.Name
+	if pName == "Chat" or pName == "TouchGui" or pName == "InGameMenu" or pName == "PlayerList" then
 		return
 	end
 	if nd:IsA("TextLabel") or nd:IsA("TextButton") or nd:IsA("TextBox") then
@@ -7149,6 +7174,7 @@ end
 
 local function scanOnce(forcePass)
 if not isAlive() then return false end
+if State.IsOnTreadmill and not forcePass and venyxGuiLocked then return true end
 for _, root in ipairs(getScanRoots()) do
 local guis = {}
 for _, ch in ipairs(root:GetChildren()) do
@@ -7249,7 +7275,7 @@ task.spawn(function()
 	while isAlive() do
 		if State.IsOnTreadmill then
 			-- Khi đang chạy máy: tạm dừng quét Finder để ưu tiên 100% tài nguyên CPU
-			task.wait(3.5)
+			task.wait(6.0)
 		elseif State.ActiveFinderWin and State.ActiveFinderWin.Parent and State.ActiveFinderWin.Visible then
 			-- Khi Finder đang mở: cập nhật mượt mà mỗi 2.0s
 			task.wait(2.0)
