@@ -1,5 +1,5 @@
 --!strict
-local function InitializeDataScannerSystem()
+local function InitializeDynamicInspector()
     -- ==========================================
     -- 1. IMPORT DỊCH VỤ HỆ THỐNG
     -- ==========================================
@@ -9,36 +9,39 @@ local function InitializeDataScannerSystem()
 
     local localPlayer = Players.LocalPlayer
     if not localPlayer then
-        warn("[System] Cần khởi chạy script trong môi trường Client.")
+        warn("[Inspector] Script này cần chạy ở môi trường LocalScript (Client).")
         return
     end
 
     local playerGui = localPlayer:WaitForChild("PlayerGui")
 
     -- ==========================================
-    -- 2. HẰNG SỐ & CẤU HÌNH
+    -- 2. HẰNG SỐ VÀ CẤU HÌNH QUÉT
     -- ==========================================
-    local MIN_THRESHOLD = 1_000_000 -- Mốc giá trị lọc: 1 Triệu
-    local TARGET_CATEGORY = "Rare"
-    local SCAN_INTERVAL = 3
-    local POOL_SIZE = 5
+    local REFRESH_RATE = 2 -- Chu kỳ quét lại: 2 giây
+    local POOL_SIZE = 6
+
+    -- Các từ khóa mục tiêu cần nhận diện (viết thường để so sánh không phân biệt hoa/thường)
+    local VALUE_KEYWORDS = { "value", "money", "$/s", "multiplier", "rate", "income" }
+    local RARITY_KEYWORDS = { "rarity", "tier", "grade", "rank" }
 
     local GLASS_NORMAL_COLOR = Color3.fromRGB(255, 255, 255)
-    local GLASS_HOVER_COLOR = Color3.fromRGB(200, 225, 255)
+    local GLASS_HOVER_COLOR = Color3.fromRGB(210, 230, 255)
     local TWEEN_INFO = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
     -- ==========================================
     -- 3. ĐỊNH NGHĨA KIỂU DỮ LIỆU
     -- ==========================================
-    type ScannedResult = {
-        Node: Instance,
-        Name: string,
+    type ScannedEntity = {
+        ModelName: string,
         NumericValue: number,
-        Category: string,
+        RarityText: string,
+        InstanceRef: Model,
     }
 
     type DisplayItem = {
         Title: string,
+        SubText: string,
         ButtonText: string,
         OnClicked: () -> (),
     }
@@ -46,64 +49,129 @@ local function InitializeDataScannerSystem()
     type PooledFrame = {
         Instance: Frame,
         TitleLabel: TextLabel,
+        SubLabel: TextLabel,
         ActionButton: TextButton,
         ActiveConnection: RBXScriptConnection?,
     }
 
     -- ==========================================
-    -- 4. THUẬT TOÁN QUÉT VÀ LỌC DỮ LIỆU
+    -- 4. THUẬT TOÁN AUTO-DETECT QUÉT SÂU WORKSPACE
     -- ==========================================
-    --[[
-        Hàm SearchNodes duyệt qua các đối tượng con của thư mục đích,
-        kiểm tra sự tồn tại của NumberValue và StringValue để đối soát điều kiện.
-    ]]
-    local function SearchNodes(targetFolder: Instance): { ScannedResult }
-        local matchedResults: { ScannedResult } = {}
+    -- Hàm kiểm tra xem tên của ValueObject có chứa từ khóa mục tiêu không
+    local function matchesKeywords(name: string, keywords: { string }): boolean
+        local lowerName = string.lower(name)
+        for _, keyword in ipairs(keywords) do
+            if string.find(lowerName, keyword, 1, true) then
+                return true
+            end
+        end
+        return false
+    end
 
-        for _, child in ipairs(targetFolder:GetChildren()) do
-            -- Tìm kiếm thuộc tính dữ liệu gắn kèm
-            local numValObj = child:FindFirstChildOfClass("NumberValue")
-            local strValObj = child:FindFirstChildOfClass("StringValue")
+    -- Quét toàn bộ Workspace và lọc ra các Model chứa thông số tài sản
+    local function ScanWorkspaceEntities(): { ScannedEntity }
+        local detectedEntities: { ScannedEntity } = {}
+        local processedModels: { [Model]: boolean } = {}
 
-            local numericValue = numValObj and numValObj.Value or 0
-            local categoryValue = strValObj and strValObj.Value or "Standard"
+        -- Duyệt qua toàn bộ cây đối tượng trong Workspace
+        for _, descendant in ipairs(Workspace:GetDescendants()) do
+            if descendant:IsA("Model") and not processedModels[descendant] then
+                -- Bỏ qua Character của người chơi hiện tại để tránh nhận diện nhầm
+                if descendant == localPlayer.Character then
+                    continue
+                end
 
-            -- Tiêu chí lọc: Vượt ngưỡng giá trị hoặc thuộc nhóm mong muốn
-            local isHighValue = numericValue >= MIN_THRESHOLD
-            local isTargetCategory = categoryValue == TARGET_CATEGORY
+                local primaryNumeric = 0
+                local primaryRarity = "None"
+                local hasTargetValues = false
 
-            if isHighValue or isTargetCategory then
-                table.insert(matchedResults, {
-                    Node = child,
-                    Name = child.Name,
-                    NumericValue = numericValue,
-                    Category = categoryValue,
-                })
+                -- Quét các đối tượng con trực tiếp bên trong Model để tìm NumberValue / StringValue
+                for _, child in ipairs(descendant:GetChildren()) do
+                    if child:IsA("NumberValue") or child:IsA("IntValue") then
+                        if matchesKeywords(child.Name, VALUE_KEYWORDS) then
+                            -- Lấy giá trị số lớn nhất nếu Model có nhiều thuộc tính giá trị
+                            if child.Value > primaryNumeric then
+                                primaryNumeric = child.Value
+                                hasTargetValues = true
+                            end
+                        end
+                    elseif child:IsA("StringValue") then
+                        if matchesKeywords(child.Name, RARITY_KEYWORDS) then
+                            primaryRarity = child.Value
+                            hasTargetValues = true
+                        end
+                    end
+                end
+
+                -- Nếu Model đạt tiêu chuẩn thì đưa vào danh sách
+                if hasTargetValues then
+                    processedModels[descendant] = true
+                    table.insert(detectedEntities, {
+                        ModelName = descendant.Name,
+                        NumericValue = primaryNumeric,
+                        RarityText = primaryRarity,
+                        InstanceRef = descendant,
+                    })
+                end
             end
         end
 
-        return matchedResults
+        -- Sắp xếp danh sách giảm dần theo giá trị tài sản
+        table.sort(detectedEntities, function(a, b)
+            return a.NumericValue > b.NumericValue
+        end)
+
+        return detectedEntities
     end
 
     -- ==========================================
-    -- 5. GIAO DIỆN & OBJECT POOLING
+    -- 5. THIẾT KẾ GIAO DIỆN VÀ OBJECT POOLING
     -- ==========================================
     local poolList: { PooledFrame } = {}
 
     local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "DataScannerGUI"
+    screenGui.Name = "DynamicWorkspaceInspector"
     screenGui.ResetOnSpawn = false
     screenGui.Parent = playerGui
 
+    local mainFrame = Instance.new("Frame")
+    mainFrame.Name = "MainPanel"
+    mainFrame.Size = UDim2.new(0, 390, 0, 420)
+    mainFrame.Position = UDim2.new(0.5, -195, 0.5, -210)
+    mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+    mainFrame.BackgroundTransparency = 0.25
+    mainFrame.BorderSizePixel = 0
+    mainFrame.Parent = screenGui
+
+    local mainCorner = Instance.new("UICorner")
+    mainCorner.CornerRadius = UDim.new(0, 12)
+    mainCorner.Parent = mainFrame
+
+    local mainStroke = Instance.new("UIStroke")
+    mainStroke.Thickness = 1.5
+    mainStroke.Color = Color3.fromRGB(255, 255, 255)
+    mainStroke.Transparency = 0.7
+    mainStroke.Parent = mainFrame
+
+    -- Tiêu đề bảng
+    local header = Instance.new("TextLabel")
+    header.Size = UDim2.new(1, 0, 0, 35)
+    header.BackgroundTransparency = 1
+    header.Font = Enum.Font.GothamBold
+    header.TextSize = 14
+    header.TextColor3 = Color3.fromRGB(255, 255, 255)
+    header.Text = "WORKSPACE ASSET INSPECTOR"
+    header.Parent = mainFrame
+
+    -- Scrolling Frame chứa danh sách
     local scrollFrame = Instance.new("ScrollingFrame")
-    scrollFrame.Name = "ResultContainer"
-    scrollFrame.Size = UDim2.new(0, 380, 0, 400)
-    scrollFrame.Position = UDim2.new(0.5, -190, 0.5, -200)
-    scrollFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
-    scrollFrame.BackgroundTransparency = 0.3
+    scrollFrame.Name = "CardList"
+    scrollFrame.Size = UDim2.new(1, -20, 1, -50)
+    scrollFrame.Position = UDim2.new(0, 10, 0, 40)
+    scrollFrame.BackgroundTransparency = 1
     scrollFrame.BorderSizePixel = 0
-    scrollFrame.ScrollBarThickness = 4
-    scrollFrame.Parent = screenGui
+    scrollFrame.ScrollBarThickness = 3
+    scrollFrame.Parent = mainFrame
 
     local layout = Instance.new("UIListLayout")
     layout.Padding = UDim.new(0, 6)
@@ -111,55 +179,74 @@ local function InitializeDataScannerSystem()
     layout.SortOrder = Enum.SortOrder.LayoutOrder
     layout.Parent = scrollFrame
 
-    local padding = Instance.new("UIPadding")
-    padding.PaddingTop = UDim.new(0, 8)
-    padding.PaddingBottom = UDim.new(0, 8)
-    padding.Parent = scrollFrame
+    -- Nhãn trạng thái khi chưa có dữ liệu
+    local emptyStateLabel = Instance.new("TextLabel")
+    emptyStateLabel.Name = "EmptyState"
+    emptyStateLabel.Size = UDim2.new(1, 0, 0, 60)
+    emptyStateLabel.Position = UDim2.new(0, 0, 0.4, 0)
+    emptyStateLabel.BackgroundTransparency = 1
+    emptyStateLabel.Font = Enum.Font.GothamMedium
+    emptyStateLabel.TextSize = 13
+    emptyStateLabel.TextColor3 = Color3.fromRGB(180, 180, 190)
+    emptyStateLabel.Text = "Đang quét dữ liệu Workspace..."
+    emptyStateLabel.Visible = true
+    emptyStateLabel.Parent = scrollFrame
 
-    -- Tạo 1 Frame mẫu với Liquid Glassmorphism
-    local function createTemplateFrame(): PooledFrame
+    -- Hàm khởi tạo Frame trong Pool
+    local function createPooledCard(): PooledFrame
         local card = Instance.new("Frame")
-        card.Size = UDim2.new(0.94, 0, 0, 52)
+        card.Size = UDim2.new(1, -6, 0, 56)
         card.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        card.BackgroundTransparency = 0.88
+        card.BackgroundTransparency = 0.9
         card.BorderSizePixel = 0
 
         local corner = Instance.new("UICorner")
-        corner.CornerRadius = UDim.new(0, 10)
+        corner.CornerRadius = UDim.new(0, 8)
         corner.Parent = card
 
         local stroke = Instance.new("UIStroke")
-        stroke.Thickness = 1.2
+        stroke.Thickness = 1
         stroke.Color = Color3.fromRGB(255, 255, 255)
-        stroke.Transparency = 0.65
+        stroke.Transparency = 0.7
         stroke.Parent = card
 
-        local label = Instance.new("TextLabel")
-        label.Name = "TitleLabel"
-        label.Size = UDim2.new(0.68, 0, 1, 0)
-        label.Position = UDim2.new(0, 12, 0, 0)
-        label.BackgroundTransparency = 1
-        label.Font = Enum.Font.GothamMedium
-        label.TextSize = 13
-        label.TextColor3 = Color3.fromRGB(240, 240, 240)
-        label.TextXAlignment = Enum.TextXAlignment.Left
-        label.Text = ""
-        label.Parent = card
+        local title = Instance.new("TextLabel")
+        title.Name = "TitleLabel"
+        title.Size = UDim2.new(0.68, 0, 0, 22)
+        title.Position = UDim2.new(0, 10, 0, 6)
+        title.BackgroundTransparency = 1
+        title.Font = Enum.Font.GothamBold
+        title.TextSize = 13
+        title.TextColor3 = Color3.fromRGB(245, 245, 245)
+        title.TextXAlignment = Enum.TextXAlignment.Left
+        title.TextTruncate = Enum.TextTruncate.AtEnd
+        title.Parent = card
+
+        local sub = Instance.new("TextLabel")
+        sub.Name = "SubLabel"
+        sub.Size = UDim2.new(0.68, 0, 0, 18)
+        sub.Position = UDim2.new(0, 10, 0, 30)
+        sub.BackgroundTransparency = 1
+        sub.Font = Enum.Font.GothamMedium
+        sub.TextSize = 11
+        sub.TextColor3 = Color3.fromRGB(150, 200, 255)
+        sub.TextXAlignment = Enum.TextXAlignment.Left
+        sub.Parent = card
 
         local button = Instance.new("TextButton")
         button.Name = "ActionButton"
-        button.Size = UDim2.new(0.25, 0, 0.65, 0)
-        button.Position = UDim2.new(0.72, 0, 0.175, 0)
+        button.Size = UDim2.new(0.24, 0, 0.62, 0)
+        button.Position = UDim2.new(0.73, 0, 0.19, 0)
         button.BackgroundColor3 = GLASS_NORMAL_COLOR
         button.BackgroundTransparency = 0.8
         button.Font = Enum.Font.GothamBold
-        button.TextSize = 12
+        button.TextSize = 11
         button.TextColor3 = Color3.fromRGB(255, 255, 255)
         button.AutoButtonColor = false
         button.Parent = card
 
         local btnCorner = Instance.new("UICorner")
-        btnCorner.CornerRadius = UDim.new(0, 8)
+        btnCorner.CornerRadius = UDim.new(0, 6)
         btnCorner.Parent = button
 
         local btnStroke = Instance.new("UIStroke")
@@ -168,9 +255,9 @@ local function InitializeDataScannerSystem()
         btnStroke.Transparency = 0.5
         btnStroke.Parent = button
 
-        -- Hiệu ứng Hover đổi màu
+        -- Hiệu ứng Hover
         local tweenIn = TweenService:Create(button, TWEEN_INFO, {
-            BackgroundTransparency = 0.5,
+            BackgroundTransparency = 0.45,
             BackgroundColor3 = GLASS_HOVER_COLOR
         })
         local tweenOut = TweenService:Create(button, TWEEN_INFO, {
@@ -186,90 +273,87 @@ local function InitializeDataScannerSystem()
 
         return {
             Instance = card,
-            TitleLabel = label,
+            TitleLabel = title,
+            SubLabel = sub,
             ActionButton = button,
             ActiveConnection = nil,
         }
     end
 
-    -- Khởi tạo Pool ban đầu
+    -- Khởi tạo sẵn Pool
     for _ = 1, POOL_SIZE do
-        table.insert(poolList, createTemplateFrame())
+        table.insert(poolList, createPooledCard())
     end
 
-    -- Cập nhật danh sách từ dữ liệu đầu vào
-    local function updateUIList(dataList: { DisplayItem })
-        local totalData = #dataList
+    -- Cập nhật Frame từ danh sách
+    local function updateUIList(items: { DisplayItem })
+        local totalItems = #items
 
-        if totalData > #poolList then
-            for _ = #poolList + 1, totalData do
-                table.insert(poolList, createTemplateFrame())
+        -- Ẩn/Hiện thông báo rỗng
+        emptyStateLabel.Visible = (totalItems == 0)
+
+        -- Mở rộng Pool nếu cần
+        if totalItems > #poolList then
+            for _ = #poolList + 1, totalItems do
+                table.insert(poolList, createPooledCard())
             end
         end
 
-        for index, pooledItem in ipairs(poolList) do
-            if pooledItem.ActiveConnection then
-                pooledItem.ActiveConnection:Disconnect()
-                pooledItem.ActiveConnection = nil
+        for index, pooledCard in ipairs(poolList) do
+            if pooledCard.ActiveConnection then
+                pooledCard.ActiveConnection:Disconnect()
+                pooledCard.ActiveConnection = nil
             end
 
-            if index <= totalData then
-                local data = dataList[index]
-                pooledItem.TitleLabel.Text = data.Title
-                pooledItem.ActionButton.Text = data.ButtonText
+            if index <= totalItems then
+                local data = items[index]
+                pooledCard.TitleLabel.Text = data.Title
+                pooledCard.SubLabel.Text = data.SubText
+                pooledCard.ActionButton.Text = data.ButtonText
 
-                pooledItem.ActiveConnection = pooledItem.ActionButton.Activated:Connect(data.OnClicked)
-                pooledItem.Instance.Visible = true
+                pooledCard.ActiveConnection = pooledCard.ActionButton.Activated:Connect(data.OnClicked)
+                pooledCard.Instance.Visible = true
             else
-                pooledItem.Instance.Visible = false
+                pooledCard.Instance.Visible = false
             end
         end
     end
 
     -- ==========================================
-    -- 6. STATE LOOP & CALLBACK XỬ LÝ
+    -- 6. VÒNG LẶP REAL-TIME ĐỒNG BỘ DỮ LIỆU
     -- ==========================================
-    local isScanning = true
-
-    -- Hàm callback chuẩn bị sẵn để xử lý khi không có dữ liệu
-    local function OnDataExhausted()
-        print("[State] No data found, transitioning...")
-    end
-
-    -- Khởi chạy vòng lặp ngầm bằng task.spawn
     task.spawn(function()
-        print("[System] Bắt đầu quét Workspace...")
+        while true do
+            local success, detectedData = pcall(ScanWorkspaceEntities)
 
-        while isScanning do
-            task.wait(SCAN_INTERVAL)
-            if not isScanning then break end
+            if success and detectedData then
+                local displayItems: { DisplayItem } = {}
 
-            local foundNodes = SearchNodes(Workspace)
+                for _, entity in ipairs(detectedData) do
+                    local formattedSub = string.format("Giá trị: %s | Độ hiếm: %s", 
+                        tostring(entity.NumericValue), 
+                        entity.RarityText
+                    )
 
-            if #foundNodes > 0 then
-                isScanning = false
-                print(string.format("[System] Tìm thấy %d đối tượng hợp lệ! Dừng quét.", #foundNodes))
-
-                -- Chuyển đổi dữ liệu quét sang format hiển thị trên UI
-                local displayData: { DisplayItem } = {}
-                for _, result in ipairs(foundNodes) do
-                    table.insert(displayData, {
-                        Title = string.format("%s\nGiá trị: %d | [%s]", result.Name, result.NumericValue, result.Category),
-                        ButtonText = "Vào ngay", -- Có thể linh hoạt đổi sang "Join"
+                    table.insert(displayItems, {
+                        Title = entity.ModelName,
+                        SubText = formattedSub,
+                        ButtonText = "Vào ngay",
                         OnClicked = function()
-                            print(string.format("Đã chọn đối tượng: %s", result.Name))
+                            print(string.format("[Inspect] Đã tương tác với đối tượng: %s", entity.ModelName))
                         end
                     })
                 end
 
-                updateUIList(displayData)
-                break
+                updateUIList(displayItems)
             else
-                OnDataExhausted()
+                warn("[Inspector] Lỗi trong quá trình quét đối tượng:", detectedData)
             end
+
+            task.wait(REFRESH_RATE)
         end
     end)
 end
 
--- Tự động chạy hệ thống
-InitializeDataScannerSystem()
+-- Khởi động hệ thống
+InitializeDynamicInspector()
