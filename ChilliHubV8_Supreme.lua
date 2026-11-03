@@ -69,24 +69,6 @@ State.MacroBusy = false
 State.TrackedFinderJoinBtns = {}
 
 -- ============================================================================
--- [FORWARD DECLARATIONS CHO CHILLI FINDER FREEMIUM - GỌI TOÀN CỤC KHÔNG LỖI]
--- ============================================================================
-local isFinderHeaderTitle = nil
-local applyFreemiumTitleOverlay = nil
-local getFinderWindowFromObj = nil
-local instantStyleFinder = nil
-local styleChilliFinderJoinButton = nil
-local isFinderJoinLabel = nil
-local handleFinderJoinPress = nil
-local hideFinderSignInBox = nil
-local styleMasterChillFinderFree = nil
-local scanChilliFinderButtons = nil
-local findAndStyleFinderNow = nil
-local updateAllFinderJoinButtonsText = nil
-local sanitizeChillFinderFreeObj = nil
-local watchFinderTextObj = nil
-
--- ============================================================================
 -- [HỆ THỐNG TỐI ƯU HÓA MÁY CHẠY - TREADMILL ZERO-LAG ENGINE]
 -- ============================================================================
 State.IsOnTreadmill = false
@@ -3853,7 +3835,7 @@ end
 gui:SetAttribute("__BatchTranslating", false)
 end)
 end
-return (win ~= nil and gui:GetAttribute("__IslandLocked") == true)
+return (win ~= nil)
 end
 
 -- ============================================================================
@@ -3985,7 +3967,7 @@ local FINDER_STATE_MAP = {
 ["vào ngay"] = "Vào ngay"
 }
 
-getFinderWindowFromObj = function(obj)
+local function getFinderWindowFromObj(obj)
 	if not obj or not obj.Parent then return nil end
 	local curr = obj
 	local topWin = nil
@@ -4009,7 +3991,7 @@ end
 
 
 -- HÀM NHẬN DIỆN CHÍNH XÁC THANH TIÊU ĐỀ (HEADER TITLE DUY NHẤT Ở TRÊN ĐẦU BẢNG)
-isFinderHeaderTitle = function(d, win)
+local function isFinderHeaderTitle(d, win)
 	if not d or not d.Parent then return false end
 	if not (d:IsA("TextLabel") or d:IsA("TextButton")) then return false end
 	if d:FindFirstAncestorOfClass("ScrollingFrame") then return false end
@@ -4041,7 +4023,7 @@ isFinderHeaderTitle = function(d, win)
 end
 
 -- HỆ THỐNG OVERLAY TIÊU ĐỀ BẤT KHẢ XÂM PHẠM (CHỈ GẮN VÀO TIÊU ĐỀ CHÍNH Ở HEADER)
-applyFreemiumTitleOverlay = function(titleObj, win)
+local function applyFreemiumTitleOverlay(titleObj, win)
 	if not titleObj or not titleObj.Parent then return end
 	if not isFinderHeaderTitle(titleObj, win) then return end
 
@@ -6400,16 +6382,6 @@ hookChilliFinderJoin = function(inst)
 	local sf = inst:FindFirstAncestorOfClass("ScrollingFrame")
 	if not sf then return end
 
-	-- LẬP TỨC ĐỊNH VỊ VÀ STYLE TOÀN BỘ CỬA SỔ CHILLI FINDER
-	local win = getFinderWindowFromObj(sf) or sf.Parent
-	if win and win:IsA("GuiObject") then
-		State.ActiveFinderWin = win
-		win:SetAttribute("__IsChilliFinderContainer", true)
-		task.defer(function()
-			instantStyleFinder(win)
-		end)
-	end
-
 	local alreadyTracked = false
 	for _, b in ipairs(State.TrackedFinderJoinBtns) do
 		if b == inst then alreadyTracked = true break end
@@ -6686,7 +6658,7 @@ local function updateAllFinderJoinButtonsText()
 end
 State.RefreshFinderJoinLangFn = updateAllFinderJoinButtonsText
 
-instantStyleFinder = function(win)
+local function instantStyleFinder(win)
 	if not win or not win.Parent then return end
 	local topWin = getFinderWindowFromObj(win) or win
 	if topWin and topWin:IsA("GuiObject") then
@@ -7031,7 +7003,7 @@ instantStyleFinder = function(win)
 end
 
 -- TÌM KIẾM VÀ STYLE CHILLI FINDER SIÊU TỐC (<0.5ms, KHÔNG DÙNG GETINSTANCES, 0 LAG)
-findAndStyleFinderNow = function()
+local function findAndStyleFinderNow()
 	-- 1. Nếu State.ActiveFinderWin hợp lệ và đang tồn tại trong DataModel, style ngay
 	if State.ActiveFinderWin and State.ActiveFinderWin.Parent then
 		local topWin = getFinderWindowFromObj(State.ActiveFinderWin) or State.ActiveFinderWin
@@ -7087,19 +7059,169 @@ scanChilliFinderButtons = function()
 	findAndStyleFinderNow()
 end
 
+local function bindGuiEvents(gui)
+if not gui or ROBLOX_CORE_SUBFOLDERS[gui.Name] or gui:GetAttribute("__ListenerSession") == SID then return end
+gui:SetAttribute("__ListenerSession", SID)
+local pendingDescendants = {}
+local descendantBatchScheduled = false
+
+local function flushDescendantBatch()
+	descendantBatchScheduled = false
+	if not isAlive() then return end
+	local batch = pendingDescendants
+	pendingDescendants = {}
+	for i = 1, #batch do
+		local nd = batch[i]
+		if nd and nd.Parent then
+			if nd:IsA("TextButton") or nd:IsA("TextLabel") then
+				pcall(watchFinderTextObj, nd)
+				if not nd:IsA("TextBox") and isFpsTxt(nd.Text) then
+					pcall(hookFps, nd)
+				else
+					pcall(hookTrans, nd)
+				end
+			end
+		end
+		if i % 80 == 0 then task.wait(0.04) end
+	end
+end
+
+gui.DescendantAdded:Connect(function(nd)
+	if not isAlive() then return end
+	-- Bỏ qua các đối tượng không liên quan để bảo toàn 100% FPS khi chạy máy
+	if nd:IsA("BillboardGui") or nd:IsA("SurfaceGui") or nd:FindFirstAncestorOfClass("BillboardGui")
+	   or nd:FindFirstAncestor("Chat") or nd:FindFirstAncestor("TouchGui") or nd:FindFirstAncestor("InGameMenu") or nd:FindFirstAncestor("PlayerList") then
+		return
+	end
+	if nd:IsA("TextLabel") or nd:IsA("TextButton") or nd:IsA("TextBox") then
+		if not nd:IsA("TextBox") then
+			local rawT = (nd.Text or ""):match("^%s*(.-)%s*$")
+			if rawT == "Vx" or rawT == "VX" then
+				nd:SetAttribute("__HiddenVxLogo", true)
+				nd.TextTransparency = 1
+				return
+			elseif (rawT == "VENYX" or rawT:find("VENYX", 1, true)) and not nd:FindFirstAncestorOfClass("ScrollingFrame") then
+				nd:SetAttribute("__IsTranslating", true)
+				nd.Text = NEW_TITLE
+				nd:SetAttribute("__IsTranslating", false)
+			end
+		end
+		table.insert(pendingDescendants, nd)
+		if not descendantBatchScheduled then
+			descendantBatchScheduled = true
+			task.delay(0.12, flushDescendantBatch)
+		end
+	end
+end)
+end
+
+local function scanOnce(forcePass)
+if not isAlive() then return false end
+for _, root in ipairs(getScanRoots()) do
+local guis = {}
+for _, ch in ipairs(root:GetChildren()) do
+if ch.Name == "RobloxGui" then
+bindGuiEvents(ch)
+for _, sub in ipairs(ch:GetChildren()) do
+if not ROBLOX_CORE_SUBFOLDERS[sub.Name] and (sub:IsA("ScreenGui") or sub:IsA("GuiObject") or sub:IsA("Folder")) then
+table.insert(guis, sub)
+end
+end
+elseif ch:IsA("ScreenGui") and not ROBLOX_CORE_SUBFOLDERS[ch.Name] then
+table.insert(guis, ch)
+elseif ch:IsA("Folder") or ch:IsA("Configuration") then
+for _, sub in ipairs(ch:GetChildren()) do
+if sub:IsA("ScreenGui") and not ROBLOX_CORE_SUBFOLDERS[sub.Name] then
+table.insert(guis, sub)
+end
+end
+end
+end
+for _, gui in ipairs(guis) do
+bindGuiEvents(gui)
+if gui:GetAttribute("__ChilliV8Patched") ~= SID or forcePass then
+local titleLbl = nil
+for _, d in ipairs(gui:GetDescendants()) do
+if (d:IsA("TextLabel") or d:IsA("TextButton")) and d.Name ~= "ChilliUltraTitleBadge" and d.Name ~= "ChilliIslandTitle" and not d:FindFirstAncestor("ChilliV5_ExpandedIsland") and not d:FindFirstAncestor("ChilliHeaderOverlay") then
+local t = (d.Text or ""):match("^%s*(.-)%s*$")
+if t == "Vx" or t == "VX" then
+d:SetAttribute("__HiddenVxLogo", true)
+d.TextTransparency = 1
+elseif isFpsTxt(t) then
+pcall(hookFps, d)
+elseif (t == "VENYX" or t:find("VENYX", 1, true) or t == NEW_TITLE or t == "Chilli Hub Ultra" or t == "Chilli Hub V5" or t == "Chilli V5 |") and not d:FindFirstAncestorOfClass("ScrollingFrame") then
+titleLbl = d
+end
+local low = t:lower()
+if low == "finder" or low == "tìm trứng" then
+pcall(watchFinderHudButton, d)
+end
+end
+end
+if titleLbl then
+local okDone, fullyPatched = pcall(patchVenyxGui, gui, titleLbl)
+if okDone and fullyPatched then
+venyxGuiLocked = gui
+gui:SetAttribute("__ChilliV8Patched", SID)
+end
+end
+end
+end
+end
+return venyxGuiLocked ~= nil
+end
+State.ScanOnceFn = scanOnce
+
+for _, root in ipairs(getScanRoots()) do
+root.ChildAdded:Connect(function(ch)
+if not isAlive() then return end
+if not ROBLOX_CORE_SUBFOLDERS[ch.Name] then
+bindGuiEvents(ch)
+task.defer(function()
+if isAlive() then
+pcall(scanOnce, false)
+pcall(scanChilliFinderButtons)
+end
+end)
+end
+end)
+end
+
+task.defer(function()
+if isAlive() then
+pcall(scanOnce, true)
+pcall(scanChilliFinderButtons)
+end
+end)
+
+local function tryBootPass(attempt)
+if not isAlive() then return end
+if not venyxGuiLocked then
+pcall(scanOnce, false)
+pcall(findAndStyleFinderNow)
+if not venyxGuiLocked and attempt < 40 then
+task.delay(0.25, function()
+tryBootPass(attempt + 1)
+end)
+end
+else
+pcall(findAndStyleFinderNow)
+end
+end
+task.defer(function()
+tryBootPass(1)
+end)
+
 -- LUỒNG KIỂM TRA ĐỊNH KỲ CHILLI FINDER FREEMIUM (CẬP NHẬT REAL-TIME 1S, CỐ ĐỊNH NÚT VÀO NGAY & TIÊU ĐỀ, 0 LAG)
 task.spawn(function()
 	while isAlive() do
-		task.wait(1.0)
-		task.defer(function()
-			if not isAlive() then return end
-			pcall(function()
-				if State.ActiveFinderWin and State.ActiveFinderWin.Parent and State.ActiveFinderWin.Visible then
-					instantStyleFinder(State.ActiveFinderWin)
-				else
-					findAndStyleFinderNow()
-				end
-			end)
+		task.wait(1)
+		pcall(function()
+			if State.ActiveFinderWin and State.ActiveFinderWin.Parent and State.ActiveFinderWin.Visible then
+				instantStyleFinder(State.ActiveFinderWin)
+			else
+				findAndStyleFinderNow()
+			end
 		end)
 	end
 end)
