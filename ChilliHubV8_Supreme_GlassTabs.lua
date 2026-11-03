@@ -1,7 +1,7 @@
 --!strict
-local function InitializeDynamicInspector()
+local function InitializeProfessionalDashboard()
     -- ==========================================
-    -- 1. IMPORT DỊCH VỤ HỆ THỐNG
+    -- 1. IMPORT CÁC DỊCH VỤ HỆ THỐNG
     -- ==========================================
     local Players = game:GetService("Players")
     local TweenService = game:GetService("TweenService")
@@ -9,137 +9,114 @@ local function InitializeDynamicInspector()
 
     local localPlayer = Players.LocalPlayer
     if not localPlayer then
-        warn("[Inspector] Script này cần chạy ở môi trường LocalScript (Client).")
+        warn("[Dashboard] Cần chạy trong môi trường Client (LocalScript).")
         return
     end
 
     local playerGui = localPlayer:WaitForChild("PlayerGui")
 
     -- ==========================================
-    -- 2. HẰNG SỐ VÀ CẤU HÌNH QUÉT
+    -- 2. HẰNG SỐ & BẢNG MÀU GIAO DIỆN (PALETTE)
     -- ==========================================
-    local REFRESH_RATE = 2 -- Chu kỳ quét lại: 2 giây
-    local POOL_SIZE = 6
+    local BG_MAIN = Color3.fromRGB(18, 20, 26)
+    local BG_SECONDARY = Color3.fromRGB(25, 29, 38)
+    local BG_CARD = Color3.fromRGB(30, 35, 47)
+    local BORDER_COLOR = Color3.fromRGB(48, 55, 72)
+    local ACCENT_GREEN = Color3.fromRGB(65, 220, 125)
+    local ACCENT_RED = Color3.fromRGB(215, 55, 65)
+    local ACCENT_BLUE = Color3.fromRGB(50, 125, 235)
+    local TEXT_PRIMARY = Color3.fromRGB(245, 248, 255)
+    local TEXT_MUTED = Color3.fromRGB(150, 160, 180)
 
-    -- Các từ khóa mục tiêu cần nhận diện (viết thường để so sánh không phân biệt hoa/thường)
     local VALUE_KEYWORDS = { "value", "money", "$/s", "multiplier", "rate", "income" }
-    local RARITY_KEYWORDS = { "rarity", "tier", "grade", "rank" }
-
-    local GLASS_NORMAL_COLOR = Color3.fromRGB(255, 255, 255)
-    local GLASS_HOVER_COLOR = Color3.fromRGB(210, 230, 255)
-    local TWEEN_INFO = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    local WEIGHT_KEYWORDS = { "weight", "kg", "mass", "size" }
+    local SCAN_INTERVAL = 3
+    local POOL_SIZE = 8
 
     -- ==========================================
     -- 3. ĐỊNH NGHĨA KIỂU DỮ LIỆU
     -- ==========================================
     type ScannedEntity = {
         ModelName: string,
-        NumericValue: number,
-        RarityText: string,
-        InstanceRef: Model,
+        ValueRate: number,
+        Weight: number,
+        IsAvailable: boolean,
     }
 
-    type DisplayItem = {
-        Title: string,
-        SubText: string,
-        ButtonText: string,
-        OnClicked: () -> (),
-    }
-
-    type PooledFrame = {
+    type PooledRow = {
         Instance: Frame,
+        Icon: ImageLabel,
         TitleLabel: TextLabel,
-        SubLabel: TextLabel,
-        ActionButton: TextButton,
+        ValueLabel: TextLabel,
+        WeightLabel: TextLabel,
+        StatusButton: TextButton,
         ActiveConnection: RBXScriptConnection?,
     }
 
     -- ==========================================
-    -- 4. THUẬT TOÁN AUTO-DETECT QUÉT SÂU WORKSPACE
+    -- 4. THUẬT TOÁN QUÉT DỮ LIỆU THỰC TẾ
     -- ==========================================
-    -- Hàm kiểm tra xem tên của ValueObject có chứa từ khóa mục tiêu không
-    local function matchesKeywords(name: string, keywords: { string }): boolean
-        local lowerName = string.lower(name)
-        for _, keyword in ipairs(keywords) do
-            if string.find(lowerName, keyword, 1, true) then
-                return true
-            end
+    local function matchesAny(str: string, list: { string }): boolean
+        local lower = string.lower(str)
+        for _, key in ipairs(list) do
+            if string.find(lower, key, 1, true) then return true end
         end
         return false
     end
 
-    -- Quét toàn bộ Workspace và lọc ra các Model chứa thông số tài sản
-    local function ScanWorkspaceEntities(): { ScannedEntity }
-        local detectedEntities: { ScannedEntity } = {}
-        local processedModels: { [Model]: boolean } = {}
+    local function ScanWorkspace(): { ScannedEntity }
+        local list: { ScannedEntity } = {}
+        local visited: { [Model]: boolean } = {}
 
-        -- Duyệt qua toàn bộ cây đối tượng trong Workspace
         for _, descendant in ipairs(Workspace:GetDescendants()) do
-            if descendant:IsA("Model") and not processedModels[descendant] then
-                -- Bỏ qua Character của người chơi hiện tại để tránh nhận diện nhầm
-                if descendant == localPlayer.Character then
-                    continue
-                end
+            if descendant:IsA("Model") and not visited[descendant] then
+                if descendant == localPlayer.Character then continue end
 
-                local primaryNumeric = 0
-                local primaryRarity = "None"
-                local hasTargetValues = false
+                local foundValue = 0
+                local foundWeight = 0
+                local isValidTarget = false
 
-                -- Quét các đối tượng con trực tiếp bên trong Model để tìm NumberValue / StringValue
                 for _, child in ipairs(descendant:GetChildren()) do
                     if child:IsA("NumberValue") or child:IsA("IntValue") then
-                        if matchesKeywords(child.Name, VALUE_KEYWORDS) then
-                            -- Lấy giá trị số lớn nhất nếu Model có nhiều thuộc tính giá trị
-                            if child.Value > primaryNumeric then
-                                primaryNumeric = child.Value
-                                hasTargetValues = true
-                            end
-                        end
-                    elseif child:IsA("StringValue") then
-                        if matchesKeywords(child.Name, RARITY_KEYWORDS) then
-                            primaryRarity = child.Value
-                            hasTargetValues = true
+                        if matchesAny(child.Name, VALUE_KEYWORDS) then
+                            foundValue = math.max(foundValue, child.Value)
+                            isValidTarget = true
+                        elseif matchesAny(child.Name, WEIGHT_KEYWORDS) then
+                            foundWeight = child.Value
                         end
                     end
                 end
 
-                -- Nếu Model đạt tiêu chuẩn thì đưa vào danh sách
-                if hasTargetValues then
-                    processedModels[descendant] = true
-                    table.insert(detectedEntities, {
+                if isValidTarget then
+                    visited[descendant] = true
+                    table.insert(list, {
                         ModelName = descendant.Name,
-                        NumericValue = primaryNumeric,
-                        RarityText = primaryRarity,
-                        InstanceRef = descendant,
+                        ValueRate = foundValue,
+                        Weight = foundWeight > 0 and foundWeight or 1.0,
+                        IsAvailable = true,
                     })
                 end
             end
         end
 
-        -- Sắp xếp danh sách giảm dần theo giá trị tài sản
-        table.sort(detectedEntities, function(a, b)
-            return a.NumericValue > b.NumericValue
-        end)
-
-        return detectedEntities
+        table.sort(list, function(a, b) return a.ValueRate > b.ValueRate end)
+        return list
     end
 
     -- ==========================================
-    -- 5. THIẾT KẾ GIAO DIỆN VÀ OBJECT POOLING
+    -- 5. XÂY DỰNG GIAO DIỆN DASHBOARD CHUYÊN NGHIỆP
     -- ==========================================
-    local poolList: { PooledFrame } = {}
-
     local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "DynamicWorkspaceInspector"
+    screenGui.Name = "ProfessionalServerDashboard"
     screenGui.ResetOnSpawn = false
     screenGui.Parent = playerGui
 
+    -- Main Container
     local mainFrame = Instance.new("Frame")
-    mainFrame.Name = "MainPanel"
-    mainFrame.Size = UDim2.new(0, 390, 0, 420)
-    mainFrame.Position = UDim2.new(0.5, -195, 0.5, -210)
-    mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
-    mainFrame.BackgroundTransparency = 0.25
+    mainFrame.Name = "MainFrame"
+    mainFrame.Size = UDim2.new(0, 480, 0, 540)
+    mainFrame.Position = UDim2.new(0.5, -240, 0.5, -270)
+    mainFrame.BackgroundColor3 = BG_MAIN
     mainFrame.BorderSizePixel = 0
     mainFrame.Parent = screenGui
 
@@ -148,29 +125,101 @@ local function InitializeDynamicInspector()
     mainCorner.Parent = mainFrame
 
     local mainStroke = Instance.new("UIStroke")
+    mainStroke.Color = BORDER_COLOR
     mainStroke.Thickness = 1.5
-    mainStroke.Color = Color3.fromRGB(255, 255, 255)
-    mainStroke.Transparency = 0.7
     mainStroke.Parent = mainFrame
 
-    -- Tiêu đề bảng
-    local header = Instance.new("TextLabel")
-    header.Size = UDim2.new(1, 0, 0, 35)
-    header.BackgroundTransparency = 1
-    header.Font = Enum.Font.GothamBold
-    header.TextSize = 14
-    header.TextColor3 = Color3.fromRGB(255, 255, 255)
-    header.Text = "WORKSPACE ASSET INSPECTOR"
-    header.Parent = mainFrame
+    -- HEADER: Title & Close Button
+    local headerFrame = Instance.new("Frame")
+    headerFrame.Name = "Header"
+    headerFrame.Size = UDim2.new(1, 0, 0, 44)
+    headerFrame.BackgroundColor3 = BG_SECONDARY
+    headerFrame.BorderSizePixel = 0
+    headerFrame.Parent = mainFrame
 
-    -- Scrolling Frame chứa danh sách
+    local headerCorner = Instance.new("UICorner")
+    headerCorner.CornerRadius = UDim.new(0, 12)
+    headerCorner.Parent = headerFrame
+
+    local titleText = Instance.new("TextLabel")
+    titleText.Size = UDim2.new(0.7, 0, 1, 0)
+    titleText.Position = UDim2.new(0, 14, 0, 0)
+    titleText.BackgroundTransparency = 1
+    titleText.Font = Enum.Font.GothamBold
+    titleText.TextSize = 14
+    titleText.TextColor3 = TEXT_PRIMARY
+    titleText.TextXAlignment = Enum.TextXAlignment.Left
+    titleText.Text = "HỆ THỐNG THEO DÕI TÀI SẢN (LIVE)"
+    titleText.Parent = headerFrame
+
+    local closeBtn = Instance.new("TextButton")
+    closeBtn.Name = "CloseButton"
+    closeBtn.Size = UDim2.new(0, 26, 0, 26)
+    closeBtn.Position = UDim2.new(1, -36, 0.5, -13)
+    closeBtn.BackgroundColor3 = ACCENT_RED
+    closeBtn.Font = Enum.Font.GothamBold
+    closeBtn.Text = "X"
+    closeBtn.TextSize = 12
+    closeBtn.TextColor3 = Color3.new(1, 1, 1)
+    closeBtn.BorderSizePixel = 0
+    closeBtn.Parent = headerFrame
+
+    local closeCorner = Instance.new("UICorner")
+    closeCorner.CornerRadius = UDim.new(0, 6)
+    closeCorner.Parent = closeBtn
+
+    closeBtn.Activated:Connect(function()
+        mainFrame.Visible = false
+    end)
+
+    -- SUB-HEADER: Reset Countdown & Manual Refresh
+    local subHeader = Instance.new("Frame")
+    subHeader.Name = "SubHeader"
+    subHeader.Size = UDim2.new(1, -24, 0, 32)
+    subHeader.Position = UDim2.new(0, 12, 0, 52)
+    subHeader.BackgroundColor3 = BG_SECONDARY
+    subHeader.BorderSizePixel = 0
+    subHeader.Parent = mainFrame
+
+    local subCorner = Instance.new("UICorner")
+    subCorner.CornerRadius = UDim.new(0, 8)
+    subCorner.Parent = subHeader
+
+    local countdownLabel = Instance.new("TextLabel")
+    countdownLabel.Size = UDim2.new(0.5, 0, 1, 0)
+    countdownLabel.Position = UDim2.new(0, 10, 0, 0)
+    countdownLabel.BackgroundTransparency = 1
+    countdownLabel.Font = Enum.Font.RobotoMono
+    countdownLabel.TextSize = 12
+    countdownLabel.TextColor3 = TEXT_MUTED
+    countdownLabel.TextXAlignment = Enum.TextXAlignment.Left
+    countdownLabel.Text = "LÀM MỚI TRONG: 00:03"
+    countdownLabel.Parent = subHeader
+
+    local refreshBtn = Instance.new("TextButton")
+    refreshBtn.Size = UDim2.new(0, 80, 0.75, 0)
+    refreshBtn.Position = UDim2.new(1, -86, 0.125, 0)
+    refreshBtn.BackgroundColor3 = ACCENT_BLUE
+    refreshBtn.Font = Enum.Font.GothamBold
+    refreshBtn.Text = "REFRESH"
+    refreshBtn.TextSize = 11
+    refreshBtn.TextColor3 = Color3.new(1, 1, 1)
+    refreshBtn.BorderSizePixel = 0
+    refreshBtn.Parent = subHeader
+
+    local refCorner = Instance.new("UICorner")
+    refCorner.CornerRadius = UDim.new(0, 6)
+    refCorner.Parent = refreshBtn
+
+    -- SCROLLING FRAME (List Container)
     local scrollFrame = Instance.new("ScrollingFrame")
-    scrollFrame.Name = "CardList"
-    scrollFrame.Size = UDim2.new(1, -20, 1, -50)
-    scrollFrame.Position = UDim2.new(0, 10, 0, 40)
+    scrollFrame.Name = "ItemsList"
+    scrollFrame.Size = UDim2.new(1, -24, 0, 320)
+    scrollFrame.Position = UDim2.new(0, 12, 0, 92)
     scrollFrame.BackgroundTransparency = 1
     scrollFrame.BorderSizePixel = 0
-    scrollFrame.ScrollBarThickness = 3
+    scrollFrame.ScrollBarThickness = 4
+    scrollFrame.ScrollBarImageColor3 = BORDER_COLOR
     scrollFrame.Parent = mainFrame
 
     local layout = Instance.new("UIListLayout")
@@ -179,181 +228,226 @@ local function InitializeDynamicInspector()
     layout.SortOrder = Enum.SortOrder.LayoutOrder
     layout.Parent = scrollFrame
 
-    -- Nhãn trạng thái khi chưa có dữ liệu
-    local emptyStateLabel = Instance.new("TextLabel")
-    emptyStateLabel.Name = "EmptyState"
-    emptyStateLabel.Size = UDim2.new(1, 0, 0, 60)
-    emptyStateLabel.Position = UDim2.new(0, 0, 0.4, 0)
-    emptyStateLabel.BackgroundTransparency = 1
-    emptyStateLabel.Font = Enum.Font.GothamMedium
-    emptyStateLabel.TextSize = 13
-    emptyStateLabel.TextColor3 = Color3.fromRGB(180, 180, 190)
-    emptyStateLabel.Text = "Đang quét dữ liệu Workspace..."
-    emptyStateLabel.Visible = true
-    emptyStateLabel.Parent = scrollFrame
+    -- FOOTER: Điều hướng & Các nút tác vụ lớn
+    local footerFrame = Instance.new("Frame")
+    footerFrame.Name = "Footer"
+    footerFrame.Size = UDim2.new(1, -24, 0, 105)
+    footerFrame.Position = UDim2.new(0, 12, 1, -117)
+    footerFrame.BackgroundTransparency = 1
+    footerFrame.Parent = mainFrame
 
-    -- Hàm khởi tạo Frame trong Pool
-    local function createPooledCard(): PooledFrame
-        local card = Instance.new("Frame")
-        card.Size = UDim2.new(1, -6, 0, 56)
-        card.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        card.BackgroundTransparency = 0.9
-        card.BorderSizePixel = 0
+    -- Hàng nút lọc phụ (Sub-controls)
+    local function createTabButton(text: string, xPos: number, width: number): TextButton
+        local btn = Instance.new("TextButton")
+        btn.Size = UDim2.new(0, width, 0, 32)
+        btn.Position = UDim2.new(0, xPos, 0, 0)
+        btn.BackgroundColor3 = BG_SECONDARY
+        btn.Font = Enum.Font.GothamBold
+        btn.Text = text
+        btn.TextSize = 11
+        btn.TextColor3 = TEXT_MUTED
+        btn.BorderSizePixel = 0
+        btn.Parent = footerFrame
 
         local corner = Instance.new("UICorner")
-        corner.CornerRadius = UDim.new(0, 8)
-        corner.Parent = card
+        corner.CornerRadius = UDim.new(0, 6)
+        corner.Parent = btn
 
         local stroke = Instance.new("UIStroke")
+        stroke.Color = BORDER_COLOR
         stroke.Thickness = 1
-        stroke.Color = Color3.fromRGB(255, 255, 255)
-        stroke.Transparency = 0.7
-        stroke.Parent = card
+        stroke.Parent = btn
+        return btn
+    end
 
+    createTabButton("ALL ITEMS", 0, 140)
+    createTabButton("MY SERVER", 150, 140)
+    createTabButton("MIN VALUE", 300, 156)
+
+    -- Nút bấm đỏ đô lớn "JOIN RANDOM SERVER"
+    local actionBtn = Instance.new("TextButton")
+    actionBtn.Name = "ActionButtonLarge"
+    actionBtn.Size = UDim2.new(1, 0, 0, 48)
+    actionBtn.Position = UDim2.new(0, 0, 0, 44)
+    actionBtn.BackgroundColor3 = Color3.fromRGB(150, 25, 35) -- Đỏ đô
+    actionBtn.Font = Enum.Font.GothamBold
+    actionBtn.Text = "JOIN RANDOM SERVER"
+    actionBtn.TextSize = 13
+    actionBtn.TextColor3 = Color3.new(1, 1, 1)
+    actionBtn.BorderSizePixel = 0
+    actionBtn.Parent = footerFrame
+
+    local actionCorner = Instance.new("UICorner")
+    actionCorner.CornerRadius = UDim.new(0, 8)
+    actionCorner.Parent = actionBtn
+
+    local actionStroke = Instance.new("UIStroke")
+    actionStroke.Color = Color3.fromRGB(200, 50, 60)
+    actionStroke.Thickness = 1.2
+    actionStroke.Parent = actionBtn
+
+    -- ==========================================
+    -- 6. OBJECT POOLING CHO HÀNG DỮ LIỆU (ROWS)
+    -- ==========================================
+    local poolList: { PooledRow } = {}
+
+    local function createTemplateRow(): PooledRow
+        local row = Instance.new("Frame")
+        row.Size = UDim2.new(1, -6, 0, 56)
+        row.BackgroundColor3 = BG_CARD
+        row.BorderSizePixel = 0
+
+        local rCorner = Instance.new("UICorner")
+        rCorner.CornerRadius = UDim.new(0, 8)
+        rCorner.Parent = row
+
+        local rStroke = Instance.new("UIStroke")
+        rStroke.Color = BORDER_COLOR
+        rStroke.Thickness = 1
+        rStroke.Parent = row
+
+        -- Icon bên trái
+        local icon = Instance.new("ImageLabel")
+        icon.Size = UDim2.new(0, 40, 0, 40)
+        icon.Position = UDim2.new(0, 8, 0.5, -20)
+        icon.BackgroundColor3 = BG_SECONDARY
+        icon.Image = "rbxassetid://10888371607" -- Asset Icon placeholder
+        icon.BorderSizePixel = 0
+        icon.Parent = row
+
+        local iconCorner = Instance.new("UICorner")
+        iconCorner.CornerRadius = UDim.new(0, 6)
+        iconCorner.Parent = icon
+
+        -- Tên vật phẩm
         local title = Instance.new("TextLabel")
-        title.Name = "TitleLabel"
-        title.Size = UDim2.new(0.68, 0, 0, 22)
-        title.Position = UDim2.new(0, 10, 0, 6)
+        title.Size = UDim2.new(0.55, 0, 0, 20)
+        title.Position = UDim2.new(0, 56, 0, 8)
         title.BackgroundTransparency = 1
         title.Font = Enum.Font.GothamBold
         title.TextSize = 13
-        title.TextColor3 = Color3.fromRGB(245, 245, 245)
+        title.TextColor3 = TEXT_PRIMARY
         title.TextXAlignment = Enum.TextXAlignment.Left
         title.TextTruncate = Enum.TextTruncate.AtEnd
-        title.Parent = card
+        title.Parent = row
 
-        local sub = Instance.new("TextLabel")
-        sub.Name = "SubLabel"
-        sub.Size = UDim2.new(0.68, 0, 0, 18)
-        sub.Position = UDim2.new(0, 10, 0, 30)
-        sub.BackgroundTransparency = 1
-        sub.Font = Enum.Font.GothamMedium
-        sub.TextSize = 11
-        sub.TextColor3 = Color3.fromRGB(150, 200, 255)
-        sub.TextXAlignment = Enum.TextXAlignment.Left
-        sub.Parent = card
+        -- Value ($/s màu xanh lá)
+        local valLabel = Instance.new("TextLabel")
+        valLabel.Size = UDim2.new(0.3, 0, 0, 16)
+        valLabel.Position = UDim2.new(0, 56, 0, 30)
+        valLabel.BackgroundTransparency = 1
+        valLabel.Font = Enum.Font.GothamBold
+        valLabel.TextSize = 12
+        valLabel.TextColor3 = ACCENT_GREEN
+        valLabel.TextXAlignment = Enum.TextXAlignment.Left
+        valLabel.Parent = row
 
-        local button = Instance.new("TextButton")
-        button.Name = "ActionButton"
-        button.Size = UDim2.new(0.24, 0, 0.62, 0)
-        button.Position = UDim2.new(0.73, 0, 0.19, 0)
-        button.BackgroundColor3 = GLASS_NORMAL_COLOR
-        button.BackgroundTransparency = 0.8
-        button.Font = Enum.Font.GothamBold
-        button.TextSize = 11
-        button.TextColor3 = Color3.fromRGB(255, 255, 255)
-        button.AutoButtonColor = false
-        button.Parent = card
+        -- Weight (KG)
+        local wtLabel = Instance.new("TextLabel")
+        wtLabel.Size = UDim2.new(0.25, 0, 0, 16)
+        wtLabel.Position = UDim2.new(0, 180, 0, 30)
+        wtLabel.BackgroundTransparency = 1
+        wtLabel.Font = Enum.Font.GothamMedium
+        wtLabel.TextSize = 11
+        wtLabel.TextColor3 = TEXT_MUTED
+        wtLabel.TextXAlignment = Enum.TextXAlignment.Left
+        wtLabel.Parent = row
+
+        -- Nút trạng thái bên phải
+        local statusBtn = Instance.new("TextButton")
+        statusBtn.Size = UDim2.new(0, 84, 0, 30)
+        statusBtn.Position = UDim2.new(1, -92, 0.5, -15)
+        statusBtn.BackgroundColor3 = ACCENT_RED
+        statusBtn.Font = Enum.Font.GothamBold
+        statusBtn.Text = "TAKEN"
+        statusBtn.TextSize = 11
+        statusBtn.TextColor3 = Color3.new(1, 1, 1)
+        statusBtn.BorderSizePixel = 0
+        statusBtn.Parent = row
 
         local btnCorner = Instance.new("UICorner")
         btnCorner.CornerRadius = UDim.new(0, 6)
-        btnCorner.Parent = button
+        btnCorner.Parent = statusBtn
 
-        local btnStroke = Instance.new("UIStroke")
-        btnStroke.Thickness = 1
-        btnStroke.Color = Color3.fromRGB(255, 255, 255)
-        btnStroke.Transparency = 0.5
-        btnStroke.Parent = button
-
-        -- Hiệu ứng Hover
-        local tweenIn = TweenService:Create(button, TWEEN_INFO, {
-            BackgroundTransparency = 0.45,
-            BackgroundColor3 = GLASS_HOVER_COLOR
-        })
-        local tweenOut = TweenService:Create(button, TWEEN_INFO, {
-            BackgroundTransparency = 0.8,
-            BackgroundColor3 = GLASS_NORMAL_COLOR
-        })
-
-        button.MouseEnter:Connect(function() tweenIn:Play() end)
-        button.MouseLeave:Connect(function() tweenOut:Play() end)
-
-        card.Visible = false
-        card.Parent = scrollFrame
+        row.Visible = false
+        row.Parent = scrollFrame
 
         return {
-            Instance = card,
+            Instance = row,
+            Icon = icon,
             TitleLabel = title,
-            SubLabel = sub,
-            ActionButton = button,
+            ValueLabel = valLabel,
+            WeightLabel = wtLabel,
+            StatusButton = statusBtn,
             ActiveConnection = nil,
         }
     end
 
-    -- Khởi tạo sẵn Pool
     for _ = 1, POOL_SIZE do
-        table.insert(poolList, createPooledCard())
+        table.insert(poolList, createTemplateRow())
     end
 
-    -- Cập nhật Frame từ danh sách
-    local function updateUIList(items: { DisplayItem })
-        local totalItems = #items
+    local function updateDashboardList(dataList: { ScannedEntity })
+        local total = #dataList
 
-        -- Ẩn/Hiện thông báo rỗng
-        emptyStateLabel.Visible = (totalItems == 0)
-
-        -- Mở rộng Pool nếu cần
-        if totalItems > #poolList then
-            for _ = #poolList + 1, totalItems do
-                table.insert(poolList, createPooledCard())
+        if total > #poolList then
+            for _ = #poolList + 1, total do
+                table.insert(poolList, createTemplateRow())
             end
         end
 
-        for index, pooledCard in ipairs(poolList) do
-            if pooledCard.ActiveConnection then
-                pooledCard.ActiveConnection:Disconnect()
-                pooledCard.ActiveConnection = nil
+        for i, row in ipairs(poolList) do
+            if row.ActiveConnection then
+                row.ActiveConnection:Disconnect()
+                row.ActiveConnection = nil
             end
 
-            if index <= totalItems then
-                local data = items[index]
-                pooledCard.TitleLabel.Text = data.Title
-                pooledCard.SubLabel.Text = data.SubText
-                pooledCard.ActionButton.Text = data.ButtonText
+            if i <= total then
+                local data = dataList[i]
+                row.TitleLabel.Text = data.ModelName
+                row.ValueLabel.Text = string.format("+$%s/s", tostring(data.ValueRate))
+                row.WeightLabel.Text = string.format("%.1f KG", data.Weight)
 
-                pooledCard.ActiveConnection = pooledCard.ActionButton.Activated:Connect(data.OnClicked)
-                pooledCard.Instance.Visible = true
+                row.StatusButton.Text = data.IsAvailable and "OPEN" or "FULL"
+                row.StatusButton.BackgroundColor3 = data.IsAvailable and ACCENT_BLUE or ACCENT_RED
+
+                row.ActiveConnection = row.StatusButton.Activated:Connect(function()
+                    print(string.format("[Dashboard] Tương tác mục: %s", data.ModelName))
+                end)
+
+                row.Instance.Visible = true
             else
-                pooledCard.Instance.Visible = false
+                row.Instance.Visible = false
             end
         end
     end
 
     -- ==========================================
-    -- 6. VÒNG LẶP REAL-TIME ĐỒNG BỘ DỮ LIỆU
+    -- 7. TIẾN TRÌNH LÀM MỚI VÀ ĐẾM NGƯỢC
     -- ==========================================
+    local function executeRefresh()
+        local success, results = pcall(ScanWorkspace)
+        if success and results then
+            updateDashboardList(results)
+        end
+    end
+
+    refreshBtn.Activated:Connect(executeRefresh)
+
     task.spawn(function()
+        local timer = SCAN_INTERVAL
         while true do
-            local success, detectedData = pcall(ScanWorkspaceEntities)
+            task.wait(1)
+            timer -= 1
+            countdownLabel.Text = string.format("LÀM MỚI TRONG: 00:%02d", math.max(0, timer))
 
-            if success and detectedData then
-                local displayItems: { DisplayItem } = {}
-
-                for _, entity in ipairs(detectedData) do
-                    local formattedSub = string.format("Giá trị: %s | Độ hiếm: %s", 
-                        tostring(entity.NumericValue), 
-                        entity.RarityText
-                    )
-
-                    table.insert(displayItems, {
-                        Title = entity.ModelName,
-                        SubText = formattedSub,
-                        ButtonText = "Vào ngay",
-                        OnClicked = function()
-                            print(string.format("[Inspect] Đã tương tác với đối tượng: %s", entity.ModelName))
-                        end
-                    })
-                end
-
-                updateUIList(displayItems)
-            else
-                warn("[Inspector] Lỗi trong quá trình quét đối tượng:", detectedData)
+            if timer <= 0 then
+                timer = SCAN_INTERVAL
+                executeRefresh()
             end
-
-            task.wait(REFRESH_RATE)
         end
     end)
 end
 
--- Khởi động hệ thống
-InitializeDynamicInspector()
+-- Thực thi khởi tạo
+InitializeProfessionalDashboard()
