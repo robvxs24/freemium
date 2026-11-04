@@ -64,6 +64,33 @@ local IGNORED_SCREEN_GUIS = {
 	TeleportGui = true,
 }
 
+-- Âm thanh click UI dùng chung (menu Figgy + island)
+local SoundService = game:GetService("SoundService")
+local FIGGY_CLICK_SOUND = "rbxassetid://6895079853"
+
+local function figgyPlayClick(pitch)
+	pcall(function()
+		local snd = Instance.new("Sound")
+		snd.SoundId = FIGGY_CLICK_SOUND
+		snd.Volume = 0.35
+		snd.PlaybackSpeed = pitch or 1.05
+		snd.Parent = SoundService
+		snd:Play()
+		task.delay(1.2, function()
+			if snd then pcall(function() snd:Destroy() end) end
+		end)
+	end)
+end
+
+local function figgyHookButtonSound(btn, pitch)
+	if not btn or btn:GetAttribute("__FiggySndHooked") == SID then return end
+	btn:SetAttribute("__FiggySndHooked", SID)
+	btn.MouseButton1Down:Connect(function()
+		if not isAlive() then return end
+		figgyPlayClick(pitch or (1.0 + math.random() * 0.08))
+	end)
+end
+
 local function getUiRoots()
 	local roots, seen = {}, {}
 	local function add(r)
@@ -628,6 +655,61 @@ local EXACT_VI = {
 }
 
 local LOWER_VI = {}
+-- Bổ sung các mục menu Figgy còn thiếu (không đụng bảng gốc 449 mục)
+local EXTRA_VI = {
+	["Auto Farm"] = "Tự Cày",
+	["Speed"] = "Tốc Độ",
+	["Teleport"] = "Dịch Chuyển",
+	["Misc"] = "Khác",
+	["Main"] = "Chính",
+	["Trade"] = "Giao Dịch",
+	["Shop"] = "Cửa Hàng",
+	["Cooldown"] = "Hồi Chiêu",
+	["Auto"] = "Tự Động",
+	["Enable"] = "Bật",
+	["Disable"] = "Tắt",
+	["Save"] = "Lưu",
+	["Load"] = "Tải",
+	["Reset"] = "Đặt Lại",
+	["Close"] = "Đóng",
+	["Toggle"] = "Bật/Tắt",
+	["Notifications"] = "Thông Báo",
+	["Sound"] = "Âm Thanh",
+	["Music"] = "Nhạc",
+	["Time"] = "Thời Gian",
+	["Hop"] = "Đổi Máy Chủ",
+	["Join"] = "Vào Ngay",
+	["Claim"] = "Nhận",
+	["Reward"] = "Phần Thưởng",
+	["Pets"] = "Thú Cưng",
+	["Pet"] = "Thú Cưng",
+	["Hatch"] = "Ấp Trứng",
+	["Index"] = "Bộ Sưu Tập",
+	["Craft"] = "Chế Tạo",
+	["Upgrade"] = "Nâng Cấp",
+	["Coins"] = "Xu",
+	["Cash"] = "Tiền",
+	["Level"] = "Cấp Độ",
+	["Quest"] = "Nhiệm Vụ",
+	["Daily"] = "Hằng Ngày",
+	["Menu"] = "Danh Mục",
+	["Are you sure?"] = "Bạn chắc chắn chứ?",
+	["Confirm"] = "Xác Nhận",
+	["Cancel"] = "Hủy",
+	["Yes"] = "Có",
+	["No"] = "Không",
+	["Loading..."] = "Đang tải...",
+	["Equipped"] = "Đã Trang Bị",
+	["Unequip"] = "Tháo",
+	["Equip"] = "Trang Bị",
+	["Delete"] = "Xóa",
+	["Sell"] = "Bán",
+	["Buy"] = "Mua",
+}
+for enKey, viVal in pairs(EXTRA_VI) do
+	if EXACT_VI[enKey] == nil then EXACT_VI[enKey] = viVal end
+end
+
 local VI_TO_EN = {}
 for enKey, viVal in pairs(EXACT_VI) do
 	local lk = string.lower(enKey)
@@ -1082,6 +1164,93 @@ local function createIndependentFiggyDynamicIsland()
 	State.IslandPill = pillFrame
 	State.IslandStatusLabel = centerStatusLabel
 
+	-- ===== LIQUID GLASS: hiệu ứng kính trong suốt mờ nhẹ, viền sáng, quầng ngoài =====
+	local function figgyAddGlass(target, accentColor, withGradient, withGlow)
+		if withGradient then
+			local g = Instance.new("UIGradient")
+			g.Name = "GlassSheen"
+			g.Rotation = 90
+			g.Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, 0.04),
+				NumberSequenceKeypoint.new(0.45, 0.58),
+				NumberSequenceKeypoint.new(1, 0.94),
+			})
+			g.Color = ColorSequence.new({
+				ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+				ColorSequenceKeypoint.new(1, Color3.fromRGB(170, 195, 255)),
+			})
+			g.Parent = target
+		end
+		local rim = Instance.new("UIStroke")
+		rim.Name = "GlassRim"
+		rim.Thickness = 1
+		rim.Color = Color3.fromRGB(255, 255, 255)
+		rim.Transparency = 0.62
+		rim.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		rim.Parent = target
+		if withGlow then
+			local glow = Instance.new("Frame")
+			glow.Name = "GlassGlow"
+			glow.AnchorPoint = target.AnchorPoint
+			glow.Position = target.Position
+			glow.Size = UDim2.new(target.Size.X.Scale, target.Size.X.Offset + 12, target.Size.Y.Scale, target.Size.Y.Offset + 12)
+			glow.BackgroundColor3 = accentColor
+			glow.BackgroundTransparency = 0.9
+			glow.BorderSizePixel = 0
+			glow.ZIndex = target.ZIndex - 2
+			glow.Parent = target.Parent
+			local gc = Instance.new("UICorner")
+			gc.CornerRadius = UDim.new(1, 0)
+			gc.Parent = glow
+		end
+	end
+
+	-- Bề mặt kính mờ: pill + drawer (gradient sheen) — nút dùng sheen phẳng để chữ không bị loang màu
+	pillFrame.BackgroundTransparency = 0.22
+	expandPanel.BackgroundTransparency = 0.18
+	figgyAddGlass(pillFrame, FIGGY_STROKE, true, true)
+	figgyAddGlass(expandPanel, FIGGY_STROKE, true, false)
+
+	local function figgyAddButtonSheen(btn)
+		btn.BackgroundTransparency = 0.35
+		local sheen = Instance.new("Frame")
+		sheen.Name = "GlassSheen"
+		sheen.AnchorPoint = Vector2.new(0, 0)
+		sheen.Position = UDim2.new(0, 0, 0, 0)
+		sheen.Size = UDim2.new(1, 0, 0.55, 0)
+		sheen.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		sheen.BackgroundTransparency = 0.86
+		sheen.BorderSizePixel = 0
+		sheen.ZIndex = btn.ZIndex
+		sheen.Active = false
+		sheen.Parent = btn
+		local sc = Instance.new("UICorner")
+		sc.CornerRadius = UDim.new(1, 0)
+		sc.Parent = sheen
+		local rim = Instance.new("UIStroke")
+		rim.Name = "GlassRim"
+		rim.Thickness = 1
+		rim.Color = Color3.fromRGB(255, 255, 255)
+		rim.Transparency = 0.7
+		rim.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		rim.Parent = btn
+	end
+	figgyAddButtonSheen(btnVI)
+	figgyAddButtonSheen(btnEN)
+
+	-- Viền chữ trạng thái: đọc rõ trên nền kính
+	local statusStroke = Instance.new("UIStroke")
+	statusStroke.Name = "StatusReadStroke"
+	statusStroke.Thickness = 1
+	statusStroke.Color = Color3.fromRGB(0, 0, 0)
+	statusStroke.Transparency = 0.45
+	statusStroke.Parent = centerStatusLabel
+
+	-- Âm thanh khi bấm island
+	figgyHookButtonSound(pillClickBtn, 0.95)
+	figgyHookButtonSound(btnVI, 1.12)
+	figgyHookButtonSound(btnEN, 1.18)
+
 	pillClickBtn.Activated:Connect(function()
 		State.IsExpanded = not State.IsExpanded
 		expandPanel.Visible = State.IsExpanded
@@ -1229,6 +1398,10 @@ local function processTextObject(obj)
 		return
 	end
 
+	if obj:IsA("TextButton") or obj:IsA("ImageButton") then
+		figgyHookButtonSound(obj)
+	end
+
 	if not (obj:IsA("TextLabel") or obj:IsA("TextButton")) then return end
 	if obj:GetAttribute("__IsTranslatingFiggy") then return end
 
@@ -1284,7 +1457,8 @@ local function scanAllMenusOnce()
 		if okCh and type(children) == "table" then
 			for _, gui in ipairs(children) do
 				local okName, gName = pcall(function() return gui.Name end)
-				if okName and not IGNORED_SCREEN_GUIS[gName] then
+				if okName and not IGNORED_SCREEN_GUIS[gName] and gui:GetAttribute("__FiggyGuiScanned") ~= SID then
+					gui:SetAttribute("__FiggyGuiScanned", SID)
 					if gui:GetAttribute("__FiggyGuiHooked") ~= SID then
 						gui:SetAttribute("__FiggyGuiHooked", SID)
 						gui.DescendantAdded:Connect(function(desc)
@@ -1324,10 +1498,16 @@ createIndependentFiggyDynamicIsland()
 task.spawn(function()
 	scanAllMenusOnce()
 
+	local tick = 0
 	while isAlive() do
-		task.wait(1.0)
+		task.wait(2.0)
 		if not isAlive() then break end
-		scanAllMenusOnce()
+		tick = tick + 1
+		if tick % 3 == 0 then
+			pcall(scanAllMenusOnce)
+		else
+			pcall(refreshAllTranslatedMenus)
+		end
 		if State.UpdateIslandVisuals then
 			pcall(State.UpdateIslandVisuals)
 		end
