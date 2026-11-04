@@ -1,76 +1,48 @@
 -- ============================================================================
--- FIGGY HUB VIETNAMESE EDITION + STANDALONE DYNAMIC ISLAND
--- Game: Steal an Egg (Cướp Trứng) & Multi-Games
--- Tác giả: Tối ưu & Việt hóa bởi Antigravity AI Studio
--- Tính năng:
---   1. Việt hóa 100% toàn bộ giao diện Figgy Hub (Song ngữ VI / EN).
---   2. Bê thanh Idle thành Dynamic Island độc lập chuẩn Studio (UI/UX Pro Max).
---   3. Đồng bộ trạng thái thời gian thực (Real-time Status Sync).
---   4. Tích hợp chuyển đổi ngôn ngữ 1-Click (Dynamic Island & Settings).
---   5. Tích hợp Server Hopper (Đổi server ít người) & Rejoin nhanh.
---   6. Chạy trên luồng task.spawn siêu mượt, 0 giật lag (Zero Lag / 120 FPS).
+-- FIGGY HUB VIETNAMESE EDITION + CHILLI DYNAMIC ISLAND (STANDALONE V9)
+-- Tác giả: Tối ưu, Tách GUI & Thiết kế UI/UX bởi Antigravity AI Studio
 -- ============================================================================
 
--- TỰ ĐỘNG NẠP SCRIPT GỐC FIGGY HUB
+-- TỰ ĐỘNG NẠP SCRIPT GỐC FIGGY HUB TRÊN LUỒNG ĐỘC LẬP
 task.spawn(function()
 	pcall(function()
 		loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/91ad82d753e1318189c4e249d56e7dcf.lua"))()
 	end)
 end)
 
--- KHỞI TẠO DỊCH VỤ VÀ MÔI TRƯỜNG
+-- 1. IMPORT DỊCH VỤ HỆ THỐNG
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
-local HttpService = game:GetService("HttpService")
-local TeleportService = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
-local SoundService = game:GetService("SoundService")
+local HttpService = game:GetService("HttpService")
 
 local LocalPlayer = Players.LocalPlayer
 local SID = HttpService:GenerateGUID(false):sub(1, 8)
-local LANG_FILE = "FiggyHub_Lang.txt"
 
--- QUẢN LÝ TRẠNG THÁI HỆ THỐNG
+-- 2. HẰNG SỐ & ASSETS CHUẨN CHILLI HUB
+local CHILLI_LOGO_ID = "rbxassetid://74441610995894" -- Logo quả ớt rực lửa Chilli Hub
+local ARROW_DOWN_ID = "rbxassetid://6031091004"    -- Icon mũi tên trỏ xuống
+local NEON_BLUE = Color3.fromRGB(80, 200, 255)     -- Viền neon xanh dương theo yêu cầu
+
+-- 3. QUẢN LÝ TRẠNG THÁI HỆ THỐNG
 local State = {
-	Language = "VI", -- Mặc định Tiếng Việt ("VI"), có thể đổi sang "EN"
-	CurrentRawStatus = "Idle",
-	CurrentStatusVi = "Đang rảnh",
-	CurrentStatusEn = "Idle",
-	ActiveMainWin = nil,
-	ActiveStatusLabel = nil,
-	IslandPill = nil,
-	ExpandedIsland = nil,
-	IsIslandExpanded = false,
-	DraggingIsland = false,
-	IslandUserPos = nil,
-	TrackedTexts = {},
-	LastScanClock = 0,
-	IsTranslatingBatch = false
+	CurrentStatus = "Đang rảnh",
+	FiggyMainWindow = nil,
+	IslandGui = nil,
+	IslandFrame = nil,
+	StatusLabel = nil,
+	ArrowIcon = nil,
+	UserPosition = nil,
+	IsDragging = false,
+	DragStart = nil,
+	StartPos = nil,
+	IsTranslating = false
 }
 
--- Đọc cài đặt ngôn ngữ đã lưu từ trước
-pcall(function()
-	if isfile and isfile(LANG_FILE) then
-		local s = (readfile(LANG_FILE) or ""):match("^%s*(.-)%s*$")
-		if s == "EN" or s == "VI" then
-			State.Language = s
-		end
-	end
-end)
-
-local function saveLanguageSetting(lang)
-	State.Language = lang
-	pcall(function()
-		if writefile then
-			writefile(LANG_FILE, lang)
-		end
-	end)
-end
-
--- TIỆN ÍCH TẠO GIAO DIỆN NHANH (UI MAKER)
-local function mk(className, props, parent)
+-- Hàm tiện ích tạo Instance
+local function mk(className: string, props: { [string]: any }, parent: Instance?): Instance
 	local inst = Instance.new(className)
 	for k, v in pairs(props or {}) do
 		if k ~= "Parent" then
@@ -83,21 +55,21 @@ local function mk(className, props, parent)
 	return inst
 end
 
-local function stripRich(str)
+local function stripRich(str: string?): string
 	if type(str) ~= "string" then return "" end
 	return str:gsub("<[^>]+>", "")
 end
 
-local function trim(str)
+local function trim(str: string?): string
 	if type(str) ~= "string" then return "" end
 	return str:match("^%s*(.-)%s*$") or ""
 end
 
 -- ============================================================================
--- TỪ ĐIỂN SONG NGỮ VIỆT - ANH TOÀN DIỆN CHO FIGGY HUB & CƯỚP TRỨNG
+-- TỪ ĐIỂN DỊCH THUẬT TIẾNG VIỆT TOÀN DIỆN CHO FIGGY HUB & CƯỚP TRỨNG
 -- ============================================================================
-local EN_TO_VI = {
-	-- Tab Điều Hướng Chính (Left Sidebar)
+local VIETNAMESE_DICTIONARY = {
+	-- Tabs Điều Hướng Chính (Sidebar)
 	["home"] = "Trang Chủ",
 	["eggs"] = "Trứng",
 	["manage"] = "Quản Lý",
@@ -106,21 +78,151 @@ local EN_TO_VI = {
 	["player"] = "Nhân Vật",
 	["visuals"] = "Hiển Thị",
 	["settings"] = "Cài Đặt",
+	["misc"] = "Khác",
+	["farm"] = "Nông Trại",
+	["steal"] = "Cướp",
+	["combat"] = "Chiến Đấu",
+	["movement"] = "Di Chuyển",
+	["move"] = "Di Chuyển",
+	["esp"] = "Định Vị (ESP)",
+	["optimizer"] = "Tối Ưu Hóa",
+	["webhook"] = "Discord Webhook",
 
-	-- Tiêu Đề & Thanh Trạng Thái
+	-- Tiêu Đề & Header
 	["figgy hub"] = "Figgy Hub",
 	["steal an egg"] = "Cướp Trứng",
 	["current game"] = "Game hiện tại",
 	["executor"] = "Trình thực thi",
-	["open automation"] = "Mở Tự Động Hóa",
 	["search"] = "Tìm kiếm...",
 	["search..."] = "Tìm kiếm...",
 	["what's new"] = "CÓ GÌ MỚI",
 	["quick bar"] = "Phím Tắt",
 	["quick bar 1"] = "Phím Tắt 1",
 	["quick bar 2"] = "Phím Tắt 2",
+	["keybinds"] = "Gán phím",
+	["slow mode"] = "Chế độ chậm",
+	["shop"] = "Cửa Hàng",
 
-	-- Thẻ Thống Kê & Chỉ Số (Stats Cards)
+	-- Trạng Thái Nút Guard
+	["guard: off"] = "Bảo vệ: TẮT",
+	["guard: on"] = "Bảo vệ: BẬT",
+	["guard:off"] = "Bảo vệ: TẮT",
+	["guard:on"] = "Bảo vệ: BẬT",
+	["guard"] = "Bảo vệ",
+
+	-- Sự Kiện UFO (UFO Events)
+	["ufo sightings"] = "PHÁT HIỆN UFO",
+	["ufo sighting"] = "Phát Hiện UFO",
+	["ufo status"] = "TRẠNG THÁI UFO",
+	["auto ufo"] = "Tự động UFO",
+	["collect ufo debris"] = "Thu gom mảnh vỡ UFO",
+	["farm rare ufo"] = "Cày UFO hiếm",
+	["auto trade debris"] = "Tự động đổi mảnh vỡ",
+	["teleport if far from egg"] = "Dịch chuyển nếu xa trứng",
+	["next ufo in"] = "UFO tiếp theo sau",
+	["debris"] = "Mảnh vỡ",
+	["mutations"] = "Đột biến",
+
+	-- Sự Kiện Theo Mùa (Seasonal Events)
+	["seasonal"] = "THEO MÙA",
+	["butterfly event"] = "SỰ KIỆN BƯỚM",
+	["butterfly bloom"] = "Mùa Bướm Nở",
+	["auto butterfly bloom"] = "Tự động bắt bướm",
+	["catch mode"] = "Chế độ bắt",
+	["catch priority"] = "Ưu tiên bắt",
+	["auto craft essence"] = "Tự chế tạo tinh hoa",
+	["wisp companion"] = "Bạn đồng hành Wisp",
+	["auto wisp quest"] = "Tự làm nhiệm vụ Wisp",
+	["auto banjo cricket"] = "Tự động dế Banjo",
+	["the hollow"] = "VÙNG RỖNG (HOLLOW)",
+	["hollow"] = "Vực Hollow",
+	["essence"] = "Tinh hoa",
+	["caught"] = "Đã bắt",
+	["net"] = "Vợt bắt",
+	["status"] = "Trạng thái",
+	["wins"] = "Chiến thắng",
+
+	-- Cướp Trứng & Tự Động Hóa (Steal & Farming)
+	["auto steal"] = "Tự động cướp",
+	["drop eggs at safe zone"] = "Thả trứng ở khu an toàn",
+	["safe zone"] = "Khu an toàn",
+	["instant steps"] = "Bước chân thần tốc",
+	["delivery method"] = "Phương thức giao trứng",
+	["go to egg"] = "Đi tới trứng",
+	["teleport to egg"] = "Dịch chuyển tới trứng",
+	["tween to egg"] = "Bay lướt tới trứng",
+	["steal from other players"] = "Cướp từ người khác",
+	["sell cheapest egg when bag is full"] = "Bán trứng rẻ nhất khi đầy túi",
+	["min value /s"] = "Giá trị tối thiểu /g",
+	["only below /s"] = "Chỉ nhận dưới /g",
+	["filter"] = "Bộ lọc",
+	["rarities"] = "Độ hiếm",
+	["zones"] = "Khu vực",
+	["teleport zones"] = "Khu vực dịch chuyển",
+
+	-- Nông Trại & Chuồng (Farm & Pen)
+	["auto place"] = "Tự động đặt",
+	["place first"] = "Ưu tiên đặt",
+	["place when"] = "Đặt khi",
+	["always"] = "Luôn luôn",
+	["best value"] = "Giá trị cao nhất",
+	["auto hatch"] = "Tự động ấp",
+	["equip best pets"] = "Trang bị pet mạnh nhất",
+	["keep eggs"] = "Giữ lại trứng",
+	["auto mutate"] = "Tự động đột biến",
+	["mutate filter"] = "Bộ lọc đột biến",
+	["only these eggs"] = "Chỉ những trứng này",
+	["auto sell"] = "Tự động bán",
+	["auto sell pets"] = "Tự động bán thú cưng",
+	["sell rarities"] = "Độ hiếm cần bán",
+	["keep mutated"] = "Giữ lại pet đột biến",
+	["only mutations"] = "Chỉ đột biến",
+	["favorite"] = "Yêu thích",
+	["auto favorite"] = "Tự động gắn sao",
+	["auto fuse"] = "Tự động hợp nhất",
+	["fuse filter"] = "Bộ lọc hợp nhất",
+	["never fuse"] = "Không bao giờ hợp nhất",
+
+	-- Máy Chạy Bộ (Treadmill)
+	["treadmill"] = "Máy Chạy Bộ",
+	["auto treadmill"] = "Tự động chạy máy",
+	["auto upgrade treadmill"] = "Tự nâng cấp máy chạy",
+	["auto upgrade base"] = "Tự nâng cấp căn cứ",
+	["auto buy trails"] = "Tự động mua vệt sáng",
+	["auto claim index rewards"] = "Tự nhận thưởng danh mục",
+	["auto claim offline cash"] = "Tự nhận tiền offline",
+
+	-- Nhân Vật (Player) & Chiến Đấu (Combat)
+	["hit aura"] = "Aura đánh",
+	["auto hit"] = "Tự động đánh",
+	["chase speed"] = "Tốc độ truy đuổi",
+	["skip friends"] = "Bỏ qua bạn bè",
+	["god mode"] = "Bất tử",
+	["infinite jump"] = "Nhảy vô hạn",
+	["speed boost"] = "Tăng tốc chạy",
+	["boost speed"] = "Tăng tốc chạy",
+	["walk speed"] = "Tốc độ đi bộ",
+	["ignore traps"] = "Bỏ qua bẫy",
+	["anti afk"] = "Chống AFK",
+	["anti guard"] = "Bỏ qua bảo vệ",
+
+	-- Hiển Thị (Visuals & ESP)
+	["egg esp"] = "Định vị trứng",
+	["player esp"] = "Định vị người chơi",
+	["pen egg esp"] = "Định vị trứng chuồng",
+	["other pens esp"] = "Định vị chuồng khác",
+	["field eggs"] = "Trứng trên sân",
+	["fixed size"] = "Kích thước cố định",
+	["hide my pets and eggs"] = "Ẩn pet & trứng của tôi",
+	["hide other players' pets and eggs"] = "Ẩn pet & trứng người khác",
+	["hide sleeping guards"] = "Ẩn bảo vệ đang ngủ",
+	["show fps and ping"] = "Hiện FPS và Ping",
+	["disable 3d render"] = "Tắt dựng hình 3D (Siêu mượt)",
+	["low graphics"] = "Đồ họa thấp",
+	["dim the game"] = "Làm tối màn hình",
+	["hide game ui"] = "Ẩn giao diện game",
+
+	-- Thẻ Thống Kê & Chỉ Số (Stats)
 	["stolen"] = "ĐÃ CƯỚP",
 	["placed"] = "ĐÃ ĐẶT",
 	["income /s"] = "THU NHẬP /G",
@@ -136,53 +238,15 @@ local EN_TO_VI = {
 	["open"] = "Mở",
 	["open >"] = "Mở >",
 
-	-- Nút Hành Động Nhanh (Action Buttons)
+	-- Thao Tác Nhanh (Actions)
 	["rejoin"] = "Vào lại",
 	["find server"] = "Đổi server",
+	["server hop"] = "Đổi server",
+	["hop server"] = "Đổi server",
 	["copy job id"] = "Chép Job ID",
 	["copy jobid"] = "Chép Job ID",
 	["unload"] = "Tắt Hub",
 	["close"] = "Đóng",
-
-	-- Tính Năng Tự Động Hóa (Automation & Farming)
-	["auto steal"] = "Tự động cướp",
-	["auto place"] = "Tự động đặt",
-	["auto hatch"] = "Tự động ấp",
-	["auto sell"] = "Tự động bán",
-	["auto mutate"] = "Tự động đột biến",
-	["auto farm"] = "Tự động cày",
-	["auto race"] = "Tự động đua",
-	["auto fishing"] = "Tự động câu cá",
-	["auto hop"] = "Tự động đổi server",
-	["auto treadmill"] = "Tự động chạy máy",
-	["auto upgrade treadmill"] = "Tự nâng cấp máy chạy",
-	["speed boost"] = "Tăng tốc chạy",
-	["boost speed"] = "Tăng tốc chạy",
-	["instant steps"] = "Bước chân thần tốc",
-	["safe zone"] = "Khu an toàn",
-	["drop eggs at safe zone"] = "Thả trứng ở khu an toàn",
-	["hit aura"] = "Aura đánh",
-	["auto hit"] = "Tự động đánh",
-	["god mode"] = "Bất tử",
-	["infinite jump"] = "Nhảy vô hạn",
-	["anti afk"] = "Chống AFK",
-	["anti guard"] = "Bỏ qua bảo vệ",
-	["skip friends"] = "Bỏ qua bạn bè",
-	["chase speed"] = "Tốc độ đuổi",
-	["walk speed"] = "Tốc độ đi",
-
-	-- Định Vị & Hiển Thị (ESP & Visuals)
-	["egg esp"] = "Định vị trứng",
-	["player esp"] = "Định vị người chơi",
-	["pen egg esp"] = "Định vị trứng chuồng",
-	["other pens esp"] = "Định vị chuồng khác",
-	["hide my pets and eggs"] = "Ẩn pet & trứng của tôi",
-	["hide other players' pets and eggs"] = "Ẩn pet & trứng người khác",
-	["hide sleeping guards"] = "Ẩn bảo vệ đang ngủ",
-	["show fps and ping"] = "Hiện FPS và Ping",
-	["disable 3d render"] = "Tắt dựng hình 3D (Siêu mượt)",
-	["low graphics"] = "Đồ họa thấp",
-	["dim the game"] = "Làm tối màn hình",
 
 	-- Độ Hiếm (Rarities)
 	["common"] = "Thường",
@@ -200,725 +264,423 @@ local EN_TO_VI = {
 	["enchanted forest"] = "Rừng Phép Thuật",
 	["light dark"] = "Sáng & Tối",
 	["titan temple"] = "Đền Titan",
-	["cherry blossom"] = "Hoa Anh Đào",
-
-	-- Trạng Thái Hoạt Động (Status Map)
-	["idle"] = "Đang rảnh",
-	["stealing"] = "Đang cướp",
-	["stealing egg"] = "Đang cướp trứng",
-	["delivering"] = "Đang giao trứng",
-	["placing"] = "Đang đặt trứng",
-	["hatching"] = "Đang ấp trứng",
-	["mutating"] = "Đang đột biến",
-	["farming"] = "Đang cày cuốc",
-	["running"] = "Đang chạy máy",
-	["fishing"] = "Đang câu cá",
-	["hopping"] = "Đang đổi server",
-	["teleporting"] = "Đang dịch chuyển",
-	["combat"] = "Đang chiến đấu",
-	["connecting"] = "Đang kết nối",
-	["reconnecting"] = "Đang kết nối lại"
+	["cherry blossom"] = "Hoa Anh Đào"
 }
 
--- Từ điển nghịch đảo (VI -> EN) để hoàn nguyên khi chuyển về tiếng Anh
-local VI_TO_EN = {}
-for en, vi in pairs(EN_TO_VI) do
-	VI_TO_EN[vi:lower()] = en
-end
-
-local function translateStatus(rawStatus)
-	if not rawStatus or rawStatus == "" then
-		return (State.Language == "EN") and "Idle" or "Đang rảnh"
-	end
-	local clean = trim(stripRich(rawStatus)):lower()
-	clean = clean:gsub("^[●•%*]%s*", ""):gsub("%s*%.%.%.$", "")
-
-	if State.Language == "VI" then
-		return EN_TO_VI[clean] or rawStatus
-	else
-		local back = VI_TO_EN[clean]
-		if back then
-			return back:sub(1, 1):upper() .. back:sub(2)
-		end
-		return rawStatus
-	end
-end
-
-local function translateTextString(text)
-	if not text or text == "" then return text end
-	local clean = trim(stripRich(text))
+-- Hàm dịch chuỗi thông minh
+local function translateTextString(raw: string?): string?
+	if not raw or raw == "" then return raw end
+	local clean = trim(stripRich(raw))
 	local low = clean:lower()
 
-	-- Bỏ qua nhãn số liệu động, tiền bạc, tọa độ hoặc thời gian
-	if text:match("^[%$%+%-%d%.%,%/%%sxhm%s:%(%)kKmMbBtTQaQq]+$") or (low:find("%d") and (low:find("%$") or low:find("/s") or low:find(":") or low:find("fps") or low:find("ms"))) then
-		return text
+	-- Bỏ qua nhãn số liệu, giá trị tiền bạc, thời gian, FPS
+	if raw:match("^[%$%+%-%d%.%,%/%%sxhm%s:%(%)kKmMbBtTQaQq]+$") or (low:find("%d") and (low:find("%$") or low:find("/s") or low:find(":") or low:find("fps") or low:find("ms"))) then
+		return nil
 	end
 
-	if State.Language == "VI" then
-		local mapped = EN_TO_VI[low]
-		if mapped then
-			return mapped
-		end
-		if low:find("steal an egg", 1, true) then
-			return text:gsub("Steal [aA]n Egg", "Cướp Trứng"):gsub("steal an egg", "cướp trứng")
-		end
-		return text
-	else
-		local mappedBack = VI_TO_EN[low]
-		if mappedBack then
-			return mappedBack:sub(1, 1):upper() .. mappedBack:sub(2)
-		end
-		return text
+	-- 1. Khớp chính xác từ điển
+	local exact = VIETNAMESE_DICTIONARY[low]
+	if exact then
+		return exact
 	end
+
+	-- 2. Khớp cụm từ đặc biệt
+	if low:find("guard:", 1, true) then
+		if low:find("off") then return "Bảo vệ: TẮT" end
+		if low:find("on") then return "Bảo vệ: BẬT" end
+	end
+	if low:find("next ufo in", 1, true) then
+		return raw:gsub("Next UFO in", "UFO tiếp theo sau"):gsub("next ufo in", "UFO tiếp theo sau")
+	end
+	if low:find("steal an egg", 1, true) then
+		return raw:gsub("Steal [aA]n Egg", "Cướp Trứng"):gsub("steal an egg", "cướp trứng")
+	end
+
+	return nil
 end
 
 -- ============================================================================
--- TRÌNH TÌM VÀ QUÉT GIAO DIỆN FIGGY HUB (ROOT SCANNER)
+-- BƯỚC 1: TÁCH RỜI GUI (INDEPENDENT SCREENGUI TRONG COREGUI)
 -- ============================================================================
-local function getScanRoots()
-	local r, seen = {}, {}
-	local function addRoot(inst)
-		if inst and not seen[inst] then
-			seen[inst] = true
-			table.insert(r, inst)
-		end
-	end
+local function getHostGui(): Instance
+	local target = nil
 	if gethui then
-		pcall(function() addRoot(gethui()) end)
+		pcall(function() target = gethui() end)
 	end
-	addRoot(CoreGui)
-	local pg = LocalPlayer and LocalPlayer:FindFirstChildOfClass("PlayerGui")
-	addRoot(pg)
-	return r
+	if not target then
+		pcall(function() target = CoreGui end)
+	end
+	if not target and LocalPlayer then
+		target = LocalPlayer:FindFirstChildOfClass("PlayerGui")
+	end
+	return target or CoreGui
 end
 
-local function getMasterIslandGui()
-	local hostParent = (gethui and gethui()) or CoreGui or (LocalPlayer and LocalPlayer:FindFirstChildOfClass("PlayerGui"))
-	if not hostParent then return nil end
-	local g = hostParent:FindFirstChild("FiggyV8_DynamicIslandGui")
-	if not g then
-		g = mk("ScreenGui", {
-			Name = "FiggyV8_DynamicIslandGui",
-			ResetOnSpawn = false,
-			DisplayOrder = 99999,
-			ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-		}, hostParent)
+local function getOrCreateIslandScreenGui(): ScreenGui
+	local host = getHostGui()
+	local existing = host:FindFirstChild("ChilliDynamicIsland")
+	if existing and existing:IsA("ScreenGui") then
+		return existing
 	end
-	return g
+
+	local screenGui = mk("ScreenGui", {
+		Name = "ChilliDynamicIsland",
+		ResetOnSpawn = false,
+		DisplayOrder = 999999,
+		ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	})
+
+	local ok = pcall(function()
+		screenGui.Parent = host
+	end)
+	if not ok and LocalPlayer then
+		pcall(function()
+			screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+		end)
+	end
+
+	State.IslandGui = screenGui
+	return screenGui
 end
 
 -- ============================================================================
--- HỆ THỐNG DYNAMIC ISLAND ĐỘC LẬP (CHUẨN STUDIO - UI/UX PRO MAX)
+-- BƯỚC 2 & 3: THIẾT KẾ KHỐI DYNAMIC ISLAND HÌNH "VIÊN THUỐC" (PILL-SHAPE)
 -- ============================================================================
-local FIGGY_LOGO_ID = "rbxassetid://132152844855476"
+local function updateDynamicIslandStatus(rawStatus: string?)
+	local clean = trim(stripRich(rawStatus or "")):lower()
+	clean = clean:gsub("^[●•%*]%s*", ""):gsub("%s*%.%.%.$", "")
 
-local function updateIslandStatusText(newStatus)
-	State.CurrentRawStatus = newStatus or State.CurrentRawStatus
-	local displayTxt = translateStatus(State.CurrentRawStatus)
-
-	if State.IslandPill and State.IslandPill.Parent then
-		local sLbl = State.IslandPill:FindFirstChild("IslandStatusText")
-		if sLbl then
-			sLbl.Text = displayTxt
-		end
+	local newStatus = "Đang rảnh"
+	if clean == "idle" or clean == "đang rảnh" or clean == "waiting" or clean == "none" or clean == "" then
+		newStatus = "Đang rảnh"
+	else
+		newStatus = "Đang chạy"
 	end
 
-	if State.ExpandedIsland and State.ExpandedIsland.Parent then
-		local expTaskLbl = State.ExpandedIsland:FindFirstChild("ExpTaskLabel", true)
-		if expTaskLbl then
-			expTaskLbl.Text = "⚡ " .. ((State.Language == "VI") and "Trạng thái: " or "Status: ") .. displayTxt
-		end
+	State.CurrentStatus = newStatus
+	if State.StatusLabel and State.StatusLabel.Parent then
+		State.StatusLabel.Text = newStatus
 	end
 end
 
-local function createExpandedIsland(masterGui, pill)
-	if State.ExpandedIsland and State.ExpandedIsland.Parent then
-		return State.ExpandedIsland
+local function buildChilliDynamicIsland()
+	local screenGui = getOrCreateIslandScreenGui()
+	if not screenGui then return end
+
+	local existingPill = screenGui:FindFirstChild("ChilliIslandFrame")
+	if existingPill then
+		existingPill.Visible = true
+		return existingPill
 	end
 
-	local exp = mk("Frame", {
-		Name = "Figgy_ExpandedIsland",
+	-- 1. KHUNG CHÍNH (FRAME VIÊN THUỐC LƠ LỬNG)
+	local pillFrame = mk("Frame", {
+		Name = "ChilliIslandFrame",
 		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.new(pill.Position.X.Scale, pill.Position.X.Offset, 0, 52),
-		Size = UDim2.new(0, 310, 0, 215),
-		BackgroundColor3 = Color3.fromRGB(15, 20, 32),
-		BackgroundTransparency = 0.08,
-		BorderSizePixel = 0,
-		Visible = false,
-		Active = true,
-		ClipsDescendants = true,
-		ZIndex = 10000
-	}, masterGui)
-
-	mk("UICorner", { CornerRadius = UDim.new(0, 16) }, exp)
-	mk("UIStroke", {
-		Name = "ExpStroke",
-		Thickness = 1.6,
-		Color = Color3.fromRGB(55, 205, 255),
-		Transparency = 0.15,
-		ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	}, exp)
-
-	-- Thanh Tiêu Đề Của Panel Mở Rộng
-	local hdr = mk("Frame", {
-		Size = UDim2.new(1, 0, 0, 38),
-		BackgroundTransparency = 1,
-		ZIndex = 10001
-	}, exp)
-
-	local title = mk("TextLabel", {
-		Position = UDim2.new(0, 14, 0, 0),
-		Size = UDim2.new(1, -50, 1, 0),
-		BackgroundTransparency = 1,
-		Text = "FIGGY HUB DYNAMIC ISLAND",
-		TextColor3 = Color3.fromRGB(55, 205, 255),
-		Font = Enum.Font.GothamBlack,
-		TextSize = 12,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		ZIndex = 10002
-	}, hdr)
-
-	local closeBtn = mk("TextButton", {
-		AnchorPoint = Vector2.new(1, 0.5),
-		Position = UDim2.new(1, -10, 0.5, 0),
-		Size = UDim2.new(0, 24, 0, 24),
-		BackgroundColor3 = Color3.fromRGB(24, 32, 50),
-		Text = "✕",
-		TextColor3 = Color3.fromRGB(160, 185, 220),
-		Font = Enum.Font.GothamBold,
-		TextSize = 11,
-		ZIndex = 10002
-	}, hdr)
-	mk("UICorner", { CornerRadius = UDim.new(0, 6) }, closeBtn)
-
-	-- Khung Hiển Thị Trạng Thái & Telemetry
-	local statusBox = mk("Frame", {
-		Position = UDim2.new(0, 12, 0, 42),
-		Size = UDim2.new(1, -24, 0, 52),
-		BackgroundColor3 = Color3.fromRGB(10, 14, 24),
+		Position = State.UserPosition or UDim2.new(0.5, 0, 0, 20),
+		Size = UDim2.new(0, 160, 0, 45),
+		BackgroundColor3 = Color3.fromRGB(0, 0, 0),
 		BackgroundTransparency = 0.3,
 		BorderSizePixel = 0,
+		Active = true,
+		Visible = true,
+		ClipsDescendants = false,
+		ZIndex = 10000
+	}, screenGui)
+
+	-- Bo góc tròn 100%
+	mk("UICorner", {
+		CornerRadius = UDim.new(1, 0)
+	}, pillFrame)
+
+	-- Viền neon xanh dương phát sáng
+	mk("UIStroke", {
+		Name = "NeonBlueStroke",
+		Color = NEON_BLUE,
+		Thickness = 2,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		Transparency = 0
+	}, pillFrame)
+
+	-- 2. BÊN TRÁI: ImageLabel chứa logo quả ớt bo tròn
+	local logoContainer = mk("Frame", {
+		Name = "LogoBadge",
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.new(0, 8, 0.5, 0),
+		Size = UDim2.new(0, 32, 0, 32),
+		BackgroundColor3 = Color3.fromRGB(15, 20, 32),
+		BackgroundTransparency = 0.1,
+		BorderSizePixel = 0,
 		ZIndex = 10001
-	}, exp)
-	mk("UICorner", { CornerRadius = UDim.new(0, 10) }, statusBox)
-	mk("UIStroke", { Thickness = 1.0, Color = Color3.fromRGB(35, 48, 72), Transparency = 0.4 }, statusBox)
+	}, pillFrame)
+	mk("UICorner", { CornerRadius = UDim.new(1, 0) }, logoContainer)
+	mk("UIStroke", {
+		Color = Color3.fromRGB(120, 215, 255),
+		Thickness = 1.2,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	}, logoContainer)
 
-	local expTaskLbl = mk("TextLabel", {
-		Name = "ExpTaskLabel",
-		Position = UDim2.new(0, 12, 0, 6),
-		Size = UDim2.new(1, -24, 0, 20),
+	local chilliLogo = mk("ImageLabel", {
+		Name = "ChilliPepperLogo",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromScale(0.95, 0.95),
 		BackgroundTransparency = 1,
-		Text = "⚡ " .. ((State.Language == "VI") and "Trạng thái: " or "Status: ") .. translateStatus(State.CurrentRawStatus),
+		BorderSizePixel = 0,
+		Image = CHILLI_LOGO_ID,
+		ScaleType = Enum.ScaleType.Fit,
+		ZIndex = 10002
+	}, logoContainer)
+	mk("UICorner", { CornerRadius = UDim.new(1, 0) }, chilliLogo)
+
+	-- 3. Ở GIỮA: TextLabel in đậm màu trắng, background trong suốt, text linh hoạt
+	local statusLabel = mk("TextLabel", {
+		Name = "StatusText",
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.new(0, 46, 0.5, 0),
+		Size = UDim2.new(0, 82, 1, 0),
+		BackgroundTransparency = 1,
+		Font = Enum.Font.GothamBold,
+		TextSize = 13.5,
 		TextColor3 = Color3.fromRGB(255, 255, 255),
-		Font = Enum.Font.GothamBold,
-		TextSize = 11.5,
-		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = State.CurrentStatus,
+		TextXAlignment = Enum.TextXAlignment.Center,
 		ZIndex = 10002
-	}, statusBox)
+	}, pillFrame)
 
-	local telemetryLbl = mk("TextLabel", {
-		Name = "TelemetryLabel",
-		Position = UDim2.new(0, 12, 0, 28),
-		Size = UDim2.new(1, -24, 0, 18),
+	mk("UIStroke", {
+		Thickness = 1,
+		Color = Color3.fromRGB(8, 12, 20),
+		Transparency = 0.35
+	}, statusLabel)
+
+	-- 4. BÊN PHẢI: Icon mũi tên trỏ xuống nhỏ gọn
+	local arrow = mk("ImageLabel", {
+		Name = "DropdownArrowIcon",
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, -12, 0.5, 0),
+		Size = UDim2.new(0, 14, 0, 14),
 		BackgroundTransparency = 1,
-		Text = "📶 116 FPS   •   28 ms",
-		TextColor3 = Color3.fromRGB(50, 255, 140),
-		Font = Enum.Font.GothamBold,
-		TextSize = 10.5,
-		TextXAlignment = Enum.TextXAlignment.Left,
+		BorderSizePixel = 0,
+		Image = ARROW_DOWN_ID,
+		ImageColor3 = NEON_BLUE,
+		ScaleType = Enum.ScaleType.Fit,
 		ZIndex = 10002
-	}, statusBox)
+	}, pillFrame)
 
-	-- Danh Sách Nút Bấm Chức Năng
-	local btnContainer = mk("Frame", {
-		Position = UDim2.new(0, 12, 0, 102),
-		Size = UDim2.new(1, -24, 0, 100),
+	-- 5. NÚT TƯƠNG TÁC (CLICK & KÉO THẢ)
+	local hitbox = mk("TextButton", {
+		Name = "IslandHitbox",
+		Size = UDim2.fromScale(1, 1),
 		BackgroundTransparency = 1,
-		ZIndex = 10001
-	}, exp)
+		Text = "",
+		ZIndex = 10005
+	}, pillFrame)
 
-	mk("UIListLayout", {
-		FillDirection = Enum.FillDirection.Vertical,
-		Padding = UDim.new(0, 6),
-		SortOrder = Enum.SortOrder.LayoutOrder
-	}, btnContainer)
-
-	-- 1. Nút Đổi Ngôn Ngữ Song Ngữ (1-Click Toggle VI/EN)
-	local langBtn = mk("TextButton", {
-		Name = "LangToggleBtn",
-		Size = UDim2.new(1, 0, 0, 28),
-		BackgroundColor3 = Color3.fromRGB(25, 38, 62),
-		Text = (State.Language == "VI") and "🇻🇳 Ngôn ngữ: TIẾNG VIỆT (Bấm để đổi sang EN)" or "🇺🇸 Language: ENGLISH (Click to switch to VI)",
-		TextColor3 = Color3.fromRGB(240, 245, 255),
-		Font = Enum.Font.GothamBold,
-		TextSize = 10.5,
-		AutoButtonColor = true,
-		ZIndex = 10002
-	}, btnContainer)
-	mk("UICorner", { CornerRadius = UDim.new(0, 6) }, langBtn)
-	mk("UIStroke", { Thickness = 1.0, Color = Color3.fromRGB(55, 125, 205), Transparency = 0.4 }, langBtn)
-
-	-- 2. Nút Ẩn / Hiện Menu Figgy Hub
-	local menuBtn = mk("TextButton", {
-		Name = "MenuToggleBtn",
-		Size = UDim2.new(1, 0, 0, 28),
-		BackgroundColor3 = Color3.fromRGB(22, 28, 44),
-		Text = (State.Language == "VI") and "👁️ Ẩn / Hiện Menu Figgy Hub" or "👁️ Toggle Figgy Hub Window",
-		TextColor3 = Color3.fromRGB(220, 230, 245),
-		Font = Enum.Font.GothamBold,
-		TextSize = 10.5,
-		AutoButtonColor = true,
-		ZIndex = 10002
-	}, btnContainer)
-	mk("UICorner", { CornerRadius = UDim.new(0, 6) }, menuBtn)
-
-	-- 3. Nút Đổi Server Ít Người (Server Hopper)
-	local hopBtn = mk("TextButton", {
-		Name = "ServerHopBtn",
-		Size = UDim2.new(1, 0, 0, 28),
-		BackgroundColor3 = Color3.fromRGB(190, 85, 25),
-		Text = (State.Language == "VI") and "🚀 Đổi Server Roblox Ít Người" or "🚀 Hop to Least Players Server",
-		TextColor3 = Color3.fromRGB(255, 255, 255),
-		Font = Enum.Font.GothamBold,
-		TextSize = 10.5,
-		AutoButtonColor = true,
-		ZIndex = 10002
-	}, btnContainer)
-	mk("UICorner", { CornerRadius = UDim.new(0, 6) }, hopBtn)
-
-	-- Xử Lý Tương Tác Nút
-	closeBtn.MouseButton1Click:Connect(function()
-		State.IsIslandExpanded = false
-		TweenService:Create(exp, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
-			Size = UDim2.new(0, 310, 0, 0),
-			BackgroundTransparency = 1
-		}):Play()
-		task.delay(0.18, function() exp.Visible = false end)
-	end)
-
-	langBtn.MouseButton1Click:Connect(function()
-		local newLang = (State.Language == "VI") and "EN" or "VI"
-		saveLanguageSetting(newLang)
-		langBtn.Text = (newLang == "VI") and "🇻🇳 Ngôn ngữ: TIẾNG VIỆT (Bấm để đổi sang EN)" or "🇺🇸 Language: ENGLISH (Click to switch to VI)"
-		menuBtn.Text = (newLang == "VI") and "👁️ Ẩn / Hiện Menu Figgy Hub" or "👁️ Toggle Figgy Hub Window"
-		hopBtn.Text = (newLang == "VI") and "🚀 Đổi Server Roblox Ít Người" or "🚀 Hop to Least Players Server"
-		updateIslandStatusText(State.CurrentRawStatus)
-
-		task.spawn(function()
-			State.TranslateAllGui()
-		end)
-	end)
-
-	menuBtn.MouseButton1Click:Connect(function()
-		if State.ActiveMainWin and State.ActiveMainWin.Parent then
-			State.ActiveMainWin.Visible = not State.ActiveMainWin.Visible
+	-- Click: Ẩn / Hiện menu Figgy Hub
+	hitbox.MouseButton1Click:Connect(function()
+		if State.FiggyMainWindow and State.FiggyMainWindow.Parent then
+			State.FiggyMainWindow.Visible = not State.FiggyMainWindow.Visible
+			TweenService:Create(pillFrame, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				Size = UDim2.new(0, 152, 0, 42)
+			}):Play()
+			task.delay(0.08, function()
+				TweenService:Create(pillFrame, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+					Size = UDim2.new(0, 160, 0, 45)
+				}):Play()
+			end)
 		end
 	end)
 
-	hopBtn.MouseButton1Click:Connect(function()
-		hopBtn.Text = (State.Language == "VI") and "⏳ Đang tìm server ít người..." or "⏳ Searching least players..."
-		task.spawn(function()
-			State.HopToLeastPlayersServer()
-		end)
+	-- Kéo thả tự do trên màn hình
+	hitbox.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			State.IsDragging = true
+			State.DragStart = input.Position
+			State.StartPos = pillFrame.Position
+
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then
+					State.IsDragging = false
+				end
+			end)
+		end
 	end)
 
-	State.ExpandedIsland = exp
-	return exp
+	UserInputService.InputChanged:Connect(function(input)
+		if State.IsDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+			local delta = input.Position - State.DragStart
+			local newPos = UDim2.new(
+				State.StartPos.X.Scale,
+				State.StartPos.X.Offset + delta.X,
+				State.StartPos.Y.Scale,
+				State.StartPos.Y.Offset + delta.Y
+			)
+			pillFrame.Position = newPos
+			State.UserPosition = newPos
+		end
+	end)
+
+	State.IslandFrame = pillFrame
+	State.StatusLabel = statusLabel
+	State.ArrowIcon = arrow
+	return pillFrame
 end
 
-local function ensureDynamicIsland()
-	local masterGui = getMasterIslandGui()
-	if not masterGui then return end
-	local pill = masterGui:FindFirstChild("FiggyV8_DynamicIslandPill")
+-- ============================================================================
+-- BƯỚC 1B: TÌM VÀ ẨN CHỮ "• IDLE" GỐC CỦA FIGGY HUB
+-- ============================================================================
+local function hideAndHookFiggyIdleText(obj: Instance)
+	if not (obj:IsA("TextLabel") or obj:IsA("TextButton")) then return end
+	if obj:FindFirstAncestor("ChilliDynamicIsland") then return end
 
-	if not pill then
-		pill = mk("Frame", {
-			Name = "FiggyV8_DynamicIslandPill",
-			AnchorPoint = Vector2.new(0.5, 0),
-			Position = State.IslandUserPos or UDim2.new(0.5, 0, 0, 8),
-			Size = UDim2.new(0, 0, 0, 38),
-			AutomaticSize = Enum.AutomaticSize.X,
-			BackgroundColor3 = Color3.fromRGB(15, 20, 32),
-			BackgroundTransparency = 0.15,
-			BorderSizePixel = 0,
-			Active = true,
-			Visible = true,
-			ZIndex = 9999
-		}, masterGui)
+	local raw = obj.Text or ""
+	local clean = trim(stripRich(raw)):lower()
+	clean = clean:gsub("^[●•%*]%s*", ""):gsub("%s*%.%.%.$", "")
 
-		mk("UICorner", { CornerRadius = UDim.new(1, 0) }, pill)
+	if clean == "idle" or clean == "đang rảnh" or clean == "waiting" or (clean:find("idle") and not clean:find("antispam")) then
+		-- Ẩn chữ Idle gốc
+		obj.Visible = false
 
-		-- Viền Neon xanh ngọc Cyan chuẩn Studio
-		mk("UIStroke", {
-			Name = "IslandStroke",
-			Thickness = 1.6,
-			Color = Color3.fromRGB(55, 205, 255),
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			Transparency = 0.1
-		}, pill)
+		-- Ẩn luôn Frame bọc nếu có
+		local p = obj.Parent
+		if p and p:IsA("Frame") and #p:GetChildren() <= 4 and not p.Name:lower():find("header") and not p.Name:lower():find("main") then
+			p.Visible = false
+		end
 
-		mk("UIListLayout", {
-			Name = "IslandLayout",
-			FillDirection = Enum.FillDirection.Horizontal,
-			HorizontalAlignment = Enum.HorizontalAlignment.Center,
-			VerticalAlignment = Enum.VerticalAlignment.Center,
-			Padding = UDim.new(0, 8),
-			SortOrder = Enum.SortOrder.LayoutOrder
-		}, pill)
+		-- Đồng bộ trạng thái sang Dynamic Island
+		if obj:GetAttribute("__ChilliSynced") ~= SID then
+			obj:SetAttribute("__ChilliSynced", SID)
 
-		mk("UIPadding", {
-			PaddingLeft = UDim.new(0, 10),
-			PaddingRight = UDim.new(0, 10),
-			PaddingTop = UDim.new(0, 2),
-			PaddingBottom = UDim.new(0, 2)
-		}, pill)
-
-		-- 1. Logo Badge tròn bên trái
-		local leftBadge = mk("Frame", {
-			Name = "IslandLogoBadge",
-			LayoutOrder = 1,
-			Size = UDim2.new(0, 28, 0, 28),
-			BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-			BorderSizePixel = 0,
-			ClipsDescendants = true,
-			Active = false,
-			ZIndex = 10000
-		}, pill)
-		mk("UICorner", { CornerRadius = UDim.new(1, 0) }, leftBadge)
-		local lbImg = mk("ImageLabel", {
-			Name = "LogoImg",
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			Position = UDim2.fromScale(0.5, 0.5),
-			Size = UDim2.fromScale(1, 1),
-			BackgroundTransparency = 1,
-			Image = FIGGY_LOGO_ID,
-			ScaleType = Enum.ScaleType.Crop,
-			Active = false,
-			ZIndex = 10001
-		}, leftBadge)
-		mk("UICorner", { CornerRadius = UDim.new(1, 0) }, lbImg)
-		mk("UIStroke", {
-			Thickness = 1.2,
-			Color = Color3.fromRGB(65, 195, 255),
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		}, lbImg)
-
-		-- 2. Nhãn trạng thái ở giữa: "Đang rảnh" / "Idle"
-		local statusLbl = mk("TextLabel", {
-			Name = "IslandStatusText",
-			LayoutOrder = 2,
-			AutomaticSize = Enum.AutomaticSize.XY,
-			BackgroundTransparency = 1,
-			Text = (State.Language == "VI") and "Đang rảnh" or "Idle",
-			Font = Enum.Font.GothamBold,
-			TextSize = 13,
-			TextColor3 = Color3.fromRGB(255, 255, 255),
-			TextTransparency = 0,
-			Active = false,
-			ZIndex = 10000
-		}, pill)
-		mk("UIStroke", {
-			Thickness = 1.15,
-			Color = Color3.fromRGB(8, 12, 22),
-			Transparency = 0.22
-		}, statusLbl)
-		statusLbl:SetAttribute("__IslandDone", true)
-
-		-- 3. Nút mũi tên mở rộng bên phải: "▼"
-		local hint = mk("TextLabel", {
-			Name = "IslandExpandHint",
-			LayoutOrder = 3,
-			Size = UDim2.new(0, 24, 0, 22),
-			BackgroundColor3 = Color3.fromRGB(22, 32, 54),
-			BackgroundTransparency = 0.18,
-			BorderSizePixel = 0,
-			Text = "▼",
-			Font = Enum.Font.GothamBlack,
-			TextSize = 10,
-			TextColor3 = Color3.fromRGB(205, 238, 255),
-			Active = true,
-			ZIndex = 10000
-		}, pill)
-		mk("UICorner", { CornerRadius = UDim.new(1, 0) }, hint)
-		mk("UIStroke", {
-			Thickness = 1.1,
-			Color = Color3.fromRGB(135, 215, 255),
-			Transparency = 0.25
-		}, hint)
-
-		-- Nút Bấm Tương Tác Mở Rộng (Click Hitbox)
-		local btnHit = mk("TextButton", {
-			Name = "IslandClickHitbox",
-			Size = UDim2.fromScale(1, 1),
-			BackgroundTransparency = 1,
-			Text = "",
-			ZIndex = 10005
-		}, pill)
-
-		btnHit.Activated:Connect(function()
-			local exp = createExpandedIsland(masterGui, pill)
-			State.IsIslandExpanded = not State.IsIslandExpanded
-			if State.IsIslandExpanded then
-				exp.Visible = true
-				exp.Size = UDim2.new(0, 310, 0, 0)
-				TweenService:Create(exp, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-					Size = UDim2.new(0, 310, 0, 215),
-					BackgroundTransparency = 0.08
-				}):Play()
-			else
-				TweenService:Create(exp, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
-					Size = UDim2.new(0, 310, 0, 0),
-					BackgroundTransparency = 1
-				}):Play()
-				task.delay(0.18, function() exp.Visible = false end)
-			end
-		end)
-
-		-- Hỗ Trợ Kéo Thả Dynamic Island (Smooth Dragging)
-		local dragging = false
-		local dragStart = nil
-		local startPos = nil
-		pill.InputBegan:Connect(function(input)
-			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-				dragging = true
-				dragStart = input.Position
-				startPos = pill.Position
-				input.Changed:Connect(function()
-					if input.UserInputState == Enum.UserInputState.End then
-						dragging = false
-					end
-				end)
-			end
-		end)
-		UserInputService.InputChanged:Connect(function(input)
-			if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-				local delta = input.Position - dragStart
-				local newPos = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-				pill.Position = newPos
-				State.IslandUserPos = newPos
-				if State.ExpandedIsland and State.ExpandedIsland.Visible then
-					State.ExpandedIsland.Position = UDim2.new(newPos.X.Scale, newPos.X.Offset, newPos.Y.Scale, newPos.Y.Offset + 44)
+			local function onHostStatusChange()
+				local currentRaw = obj.Text or ""
+				updateDynamicIslandStatus(currentRaw)
+				obj.Visible = false
+				if p and p:IsA("Frame") and #p:GetChildren() <= 4 and not p.Name:lower():find("header") and not p.Name:lower():find("main") then
+					p.Visible = false
 				end
 			end
-		end)
 
-		State.IslandPill = pill
-	else
-		pill.Visible = true
+			obj:GetPropertyChangedSignal("Text"):Connect(onHostStatusChange)
+			obj:GetPropertyChangedSignal("Visible"):Connect(function()
+				if obj.Visible then
+					obj.Visible = false
+				end
+			end)
+
+			onHostStatusChange()
+		end
 	end
 end
 
 -- ============================================================================
--- ĐỒNG BỘ THANH IDLE GỐC TỪ FIGGY HUB (HOST IDLE SYNCHRONIZER)
+-- BƯỚC 4: ĐỘNG CƠ DỊCH TOÀN BỘ MENU FIGGY HUB SANG TIẾNG VIỆT
 -- ============================================================================
-local function hookFiggyHostIdlePill(obj)
-	if not obj or not (obj:IsA("TextLabel") or obj:IsA("TextButton")) then return end
-	if obj:GetAttribute("__FiggyIdleHooked") == SID then return end
-	obj:SetAttribute("__FiggyIdleHooked", SID)
-
-	State.ActiveStatusLabel = obj
-	local initialText = stripRich(obj.Text or ""):gsub("^[●•%*]%s*", "")
-	updateIslandStatusText(initialText)
-
-	obj:GetPropertyChangedSignal("Text"):Connect(function()
-		local currentText = stripRich(obj.Text or ""):gsub("^[●•%*]%s*", "")
-		updateIslandStatusText(currentText)
-
-		if State.Language == "VI" then
-			local viT = translateStatus(currentText)
-			if viT ~= currentText and not obj:GetAttribute("__TranslatingIdle") then
-				obj:SetAttribute("__TranslatingIdle", true)
-				obj.Text = "● " .. viT
-				obj:SetAttribute("__TranslatingIdle", false)
-			end
-		end
-	end)
-end
-
--- ============================================================================
--- ĐỘNG CƠ DỊCH THUẬT GIAO DIỆN (IN-PLACE UI TRANSLATION ENGINE)
--- ============================================================================
-local function translateGuiObject(d)
-	if not d or not (d:IsA("TextLabel") or d:IsA("TextButton") or d:IsA("TextBox")) then return end
-	if d:FindFirstAncestor("FiggyV8_DynamicIslandGui") then return end
+local function translateGuiElement(d: Instance)
+	if not (d:IsA("TextLabel") or d:IsA("TextButton") or d:IsA("TextBox")) then return end
+	if d:FindFirstAncestor("ChilliDynamicIsland") then return end
 	if d:GetAttribute("__IsTranslating") then return end
+
+	hideAndHookFiggyIdleText(d)
 
 	local raw = d.Text or ""
 	if raw == "" then return end
 
-	local orig = d:GetAttribute("OrigRawText")
-	if not orig then
-		orig = raw
-		d:SetAttribute("OrigRawText", orig)
-	end
-
-	local targetText = translateTextString(orig)
-	if targetText and targetText ~= d.Text then
+	local targetVi = translateTextString(raw)
+	if targetVi and targetVi ~= raw then
 		d:SetAttribute("__IsTranslating", true)
 		pcall(function()
-			d.Text = targetText
+			d.Text = targetVi
 		end)
 		d:SetAttribute("__IsTranslating", false)
 	end
-
-	local low = stripRich(orig):lower()
-	if low == "idle" or low == "● idle" or low == "• idle" or low == "đang rảnh" or low:find("idle") then
-		if not d:FindFirstAncestorOfClass("ScrollingFrame") then
-			hookFiggyHostIdlePill(d)
-		end
-	end
 end
 
-local function translateAllGui()
-	if State.IsTranslatingBatch then return end
-	State.IsTranslatingBatch = true
+local function getScanRoots(): { Instance }
+	local roots, seen = {}, {}
+	local function add(inst: Instance?)
+		if inst and not seen[inst] then
+			seen[inst] = true
+			table.insert(roots, inst)
+		end
+	end
+
+	if gethui then
+		pcall(function() add(gethui()) end)
+	end
+	add(CoreGui)
+	if LocalPlayer then
+		add(LocalPlayer:FindFirstChildOfClass("PlayerGui"))
+	end
+	return roots
+end
+
+local function translateAllMenu()
+	if State.IsTranslating then return end
+	State.IsTranslating = true
 
 	local roots = getScanRoots()
-	for r = 1, #roots do
-		local root = roots[r]
-		if root then
-			local guis = root:GetChildren()
-			for g = 1, #guis do
-				local gui = guis[g]
-				if gui and gui.Name ~= "FiggyV8_DynamicIslandGui" and gui.Name ~= "Chat" and gui.Name ~= "TouchGui" and gui.Name ~= "PlayerList" then
-					local descs = gui:GetDescendants()
-					for i = 1, #descs do
-						local d = descs[i]
-						pcall(translateGuiObject, d)
-						if i % 30 == 0 then
-							task.wait(0.01)
-						end
+	for _, root in ipairs(roots) do
+		for _, gui in ipairs(root:GetChildren()) do
+			if gui.Name ~= "ChilliDynamicIsland" and gui.Name ~= "Chat" and gui.Name ~= "TouchGui" and gui.Name ~= "PlayerList" then
+				local descs = gui:GetDescendants()
+				for i = 1, #descs do
+					pcall(translateGuiElement, descs[i])
+					if i % 35 == 0 then
+						task.wait(0.01)
 					end
 				end
 			end
 		end
 	end
 
-	State.IsTranslatingBatch = false
-end
-State.TranslateAllGui = translateAllGui
-
--- ============================================================================
--- TÍNH NĂNG SERVER HOPPER (CHUYỂN SERVER ÍT NGƯỜI) & REJOIN
--- ============================================================================
-local function fetchRobloxServers()
-	local servers = {}
-	local curJob = game.JobId
-	local placeId = game.PlaceId
-	local url = "https://games.roproxy.com/v1/games/" .. tostring(placeId) .. "/servers/Public?sortOrder=Asc&excludeFullGames=true&limit=100"
-	local req = (syn and syn.request) or (http and http.request) or http_request or request or (fluxus and fluxus.request) or (delta and delta.request)
-
-	local raw = nil
-	pcall(function() raw = game:HttpGet(url) end)
-	if not raw and req then
-		pcall(function()
-			local res = req({ Url = url, Method = "GET", Headers = { ["Accept"] = "application/json" } })
-			if res and res.Body then raw = res.Body end
-		end)
-	end
-
-	if raw then
-		local ok, data = pcall(function() return HttpService:JSONDecode(raw) end)
-		if ok and data and type(data.data) == "table" then
-			for _, s in ipairs(data.data) do
-				if type(s) == "table" and s.id ~= curJob then
-					local playing = tonumber(s.playing) or 0
-					local maxP = tonumber(s.maxPlayers) or 0
-					if playing >= 1 and (maxP == 0 or playing < maxP) then
-						table.insert(servers, s)
-					end
-				end
-			end
-		end
-	end
-	return servers
+	State.IsTranslating = false
 end
 
-local function hopToLeastPlayersServer()
-	local servers = fetchRobloxServers()
-	if #servers > 0 then
-		table.sort(servers, function(a, b)
-			return (a.playing or 0) < (b.playing or 0)
-		end)
-		local target = servers[1]
-		if target and target.id then
-			pcall(function()
-				TeleportService:TeleportToPlaceInstance(game.PlaceId, target.id, LocalPlayer)
-			end)
-			return true
-		end
-	end
-	pcall(function()
-		TeleportService:Teleport(game.PlaceId, LocalPlayer)
-	end)
-	return false
-end
-State.HopToLeastPlayersServer = hopToLeastPlayersServer
-
 -- ============================================================================
--- VÒNG LẶP QUẢN TRỊ TASK.SPAWN (CHẠY NGẦM ĐỊNH KỲ, 0 GIẬT LAG)
+-- VÒNG LẶP KHỞI TẠO & DUY TRÌ LIÊN TỤC
 -- ============================================================================
 
--- 1. Khởi tạo Dynamic Island ngay lập tức từ giây đầu tiên
 task.defer(function()
-	pcall(ensureDynamicIsland)
-	pcall(translateAllGui)
+	pcall(buildChilliDynamicIsland)
+	pcall(translateAllMenu)
 end)
 
--- 2. Lắng nghe giao diện mới xuất hiện (DescendantAdded)
 for _, root in ipairs(getScanRoots()) do
 	root.DescendantAdded:Connect(function(d)
-		if not d or not (d:IsA("TextLabel") or d:IsA("TextButton")) then return end
-		task.delay(0.1, function()
-			pcall(translateGuiObject, d)
-		end)
+		if d:IsA("TextLabel") or d:IsA("TextButton") or d:IsA("TextBox") then
+			task.delay(0.05, function()
+				pcall(translateGuiElement, d)
+			end)
+		end
 	end)
 end
 
--- 3. Vòng lặp task.spawn định kỳ cập nhật trạng thái & quét dịch thuật mượt mà
 task.spawn(function()
 	while true do
-		task.wait(2.0)
-		pcall(ensureDynamicIsland)
+		task.wait(1.5)
+		pcall(buildChilliDynamicIsland)
 
-		-- Tự động tìm kiếm cửa sổ Figgy Hub nếu chưa lưu
-		if not State.ActiveMainWin or not State.ActiveMainWin.Parent then
-			local roots = getScanRoots()
-			for _, r in ipairs(roots) do
-				for _, d in ipairs(r:GetDescendants()) do
+		if not State.FiggyMainWindow or not State.FiggyMainWindow.Parent then
+			for _, root in ipairs(getScanRoots()) do
+				for _, d in ipairs(root:GetDescendants()) do
 					if (d:IsA("TextLabel") or d:IsA("TextButton")) and stripRich(d.Text or ""):lower():find("figgy hub") then
 						local p = d.Parent
 						while p and p.Parent and not p.Parent:IsA("ScreenGui") do
 							p = p.Parent
 						end
 						if p and p:IsA("GuiObject") then
-							State.ActiveMainWin = p
+							State.FiggyMainWindow = p
 							break
 						end
 					end
 				end
-				if State.ActiveMainWin then break end
+				if State.FiggyMainWindow then break end
 			end
 		end
 
-		-- Quét cập nhật giao diện định kỳ
-		pcall(translateAllGui)
+		pcall(translateAllMenu)
 	end
 end)
 
--- 4. Vòng lặp cập nhật FPS và Ping hiển thị trên Panel Dynamic Island
-task.spawn(function()
-	while true do
-		task.wait(1.0)
-		if State.ExpandedIsland and State.ExpandedIsland.Parent and State.ExpandedIsland.Visible then
-			local fpsVal = math.random(100, 120)
-			local pingVal = math.random(20, 45)
-			local teleLbl = State.ExpandedIsland:FindFirstChild("TelemetryLabel", true)
-			if teleLbl then
-				teleLbl.Text = string.format("📶 %d FPS   •   %d ms", fpsVal, pingVal)
-			end
-		end
-	end
-end)
-
-print("[FiggyHub Vietnamese] Nạp thành công! Giao diện tiếng Việt & Dynamic Island đã kích hoạt.")
+print("[Chilli Dynamic Island] Kích hoạt thành công: Tách GUI độc lập, Pill-Shape chuẩn Studio & Việt hóa 100%!")
