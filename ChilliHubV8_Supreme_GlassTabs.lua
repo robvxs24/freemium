@@ -1,10 +1,12 @@
 -- ============================================================================
--- BANANA HUB V1.0.6+ (GOLD PREMIUM EDITION) | VIỆT HÓA & DYNAMIC ISLAND DỊU MẮT
+-- BANANA HUB V1.0.6+ (GOLD PREMIUM EDITION) | VIỆT HÓA 100% & DYNAMIC ISLAND DỊU MẮT
 -- Script gốc: loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/91ad82d753e1318189c4e249d56e7dcf.lua"))()
--- 1. Đổi tên Figgy Hub -> Banana Hub & Thay toàn bộ logo sang Banana Cat (rbxassetid://87447945720038)
--- 2. Phối màu Vàng Sang Trọng (Luxury Gold Premium) dịu mắt, chống chói (Anti-Glare Matte Gold)
--- 3. Bê nguyên Hình Ảnh Icon & Trạng Thái thực tế từ Header vào Dynamic Island, cập nhật realtime 100%
--- 4. Sửa toàn bộ chữ và nút bên trong Dynamic Island sang tông Đen Than - Vàng Kem dịu mắt, không trói mắt
+-- 1. Hiển thị chuẩn 100% Logo Banana Cat (ID: 87447945720038) bằng rbxthumb://type=Asset
+--    kèm lớp phủ chống ghi đè hoạt ảnh spritesheet trên Header, Nút Nổi và Dynamic Island
+-- 2. Việt hóa toàn diện 100% mọi Tab (Trang Chủ, Trứng, Quản Lý, Sự Kiện, Nhân Vật,
+--    Hiển Thị, Cài Đặt, Tìm Thú / Pet Finder, Nhật Ký Cập Nhật What's New)
+-- 3. Bê nguyên Hình Ảnh Icon & Trạng Thái thực tế từ Header vào Dynamic Island (Realtime)
+-- 4. Giao diện Vàng Sang Trọng (Luxury Gold Premium) dịu mắt, chống chói 100%
 -- ============================================================================
 
 local Players = game:GetService("Players")
@@ -40,6 +42,7 @@ State.TrackedLabels = State.TrackedLabels or {}
 State.FastCache = {}
 State.CachedSounds = State.CachedSounds or {}
 State.OrigFiggyLogoAssetIds = State.OrigFiggyLogoAssetIds or {}
+State.BananaLogoOverlays = State.BananaLogoOverlays or {}
 
 local function isAlive()
 	return State.SessionId == SID
@@ -99,11 +102,13 @@ local function isFiggyTargetGui(gui)
 			local t = d.Text or ""
 			if t == "Figgy Hub" or t == "Banana Hub" or t == "FrostyFig"
 				or t == "Steal an Egg" or t == "Cướp Trứng"
+				or t == "WHAT'S NEW" or t == "CÓ GÌ MỚI"
 				or t == "AUTO STEAL" or t == "TỰ ĐỘNG CƯỚP TRỨNG"
 				or t == "UFO SIGHTINGS" or t == "PHÁT HIỆN UFO"
 				or t == "EQUIP BEST" or t == "TRANG BỊ MẠNH NHẤT"
 				or t == "Guard: OFF" or t == "Bảo vệ: TẮT"
 				or t:find("^Shortcut %d+$") or t:find("^Phím Tắt %d+$")
+				or t:find("^THANH NHANH %d+$") or t:find("^QUICK BAR %d+$")
 			then
 				gui:SetAttribute("__VerifiedFiggyGui", true)
 				return true
@@ -164,10 +169,35 @@ local function playUiSound(kind)
 end
 
 -- ============================================================================
--- 3. BẢNG MÀU LUXURY GOLD PREMIUM & LOGO BANANA CAT (CHỐNG CHÓI 100%)
+-- 3. BẢNG MÀU LUXURY GOLD PREMIUM & LOGO BANANA CAT (HIỂN THỊ 100% MỌI THIẾT BỊ)
 -- ============================================================================
-local BANANA_CAT_LOGO     = "rbxassetid://87447945720038" -- ID ảnh Banana Cat theo yêu cầu
+-- Sử dụng chuẩn rbxthumb://type=Asset để hiển thị trực tiếp mọi ID ảnh/Decal (87447945720038)
+-- không bao giờ bị trống/đen ô như rbxassetid:// khi truyền Decal ID!
+local BANANA_CAT_ASSET_ID = "87447945720038"
+local BANANA_CAT_LOGO     = "rbxthumb://type=Asset&id=" .. BANANA_CAT_ASSET_ID .. "&w=420&h=420"
 local DOWN_ARROW_ICON     = "rbxassetid://6031091004"
+
+-- Nếu Executor hỗ trợ game:GetObjects, tự động lấy thêm Texture gốc làm phương án dự phòng
+task.spawn(function()
+	pcall(function()
+		if game.GetObjects then
+			local objs = game:GetObjects("rbxassetid://" .. BANANA_CAT_ASSET_ID)
+			if objs and objs[1] then
+				local o = objs[1]
+				local tex = (o:IsA("Decal") or o:IsA("Texture")) and o.Texture or (o:IsA("ImageLabel") and o.Image) or nil
+				if type(tex) == "string" and tex ~= "" then
+					BANANA_CAT_LOGO = tex
+					for _, ov in ipairs(State.BananaLogoOverlays) do
+						if ov and ov.Parent then
+							pcall(function() ov.Image = BANANA_CAT_LOGO end)
+						end
+					end
+				end
+				pcall(function() o:Destroy() end)
+			end
+		end
+	end)
+end)
 
 -- Bảng màu Vàng Sang Trọng (Luxury Matte Gold Premium - Dịu mắt, Không trói mắt)
 local GOLD_PRIMARY_TEXT   = Color3.fromRGB(238, 206, 118) -- Vàng Champagne sang trọng
@@ -186,10 +216,8 @@ local BTN_ACTIVE_TEXT     = Color3.fromRGB(240, 208, 120) -- Chữ nút đang ch
 local BTN_INACTIVE_BG     = Color3.fromRGB(24, 24, 28)    -- Nền nút thường: Xám than tối
 local BTN_INACTIVE_STROKE = Color3.fromRGB(52, 48, 42)    -- Viền nút thường
 
--- Nhận diện tông màu tím gốc của Figgy Hub để chuyển sang Vàng Gold Premium
 local function isFiggyPurpleColor(col)
 	if not col then return false end
-	-- Tím Figgy có kênh Blue cao (> 0.45), Red trung bình-cao (> 0.30), và Blue vượt trội hơn Green
 	return (col.B > 0.44 and col.R > 0.28 and (col.B - col.G) > 0.12)
 end
 
@@ -207,18 +235,90 @@ local function applyGoldGradientToTitle(titleLbl)
 	grad.Parent = titleLbl
 end
 
+-- Hàm gắn lớp phủ Logo Banana Cat chống bị hoạt ảnh spritesheet của Figgy Hub làm mất ảnh
+local function injectBananaLogoIntoContainer(logoImg)
+	if not logoImg or not logoImg.Parent then return end
+	local container = logoImg.Parent
+	if not container:IsA("GuiObject") then return end
+
+	local oldId = logoImg.Image or ""
+	if oldId ~= "" and oldId ~= BANANA_CAT_LOGO and not oldId:find(BANANA_CAT_ASSET_ID, 1, true) then
+		State.OrigFiggyLogoAssetIds[oldId] = true
+	end
+
+	logoImg:SetAttribute("__IsBananaBrandLogo", true)
+
+	pcall(function()
+		-- Ẩn hoạt ảnh spritesheet quả sung gốc (vốn cắt ImageRectOffset làm mất hình)
+		logoImg.ImageTransparency = 1
+		logoImg.Image = BANANA_CAT_LOGO
+		logoImg.ImageRectOffset = Vector2.new(0, 0)
+		logoImg.ImageRectSize = Vector2.new(0, 0)
+	end)
+
+	if logoImg:GetAttribute("__BananaLogoHooked") ~= SID then
+		logoImg:SetAttribute("__BananaLogoHooked", SID)
+		logoImg:GetPropertyChangedSignal("ImageTransparency"):Connect(function()
+			if isAlive() and logoImg.ImageTransparency < 0.99 then
+				pcall(function() logoImg.ImageTransparency = 1 end)
+			end
+		end)
+	end
+
+	-- Tạo ImageLabel độc lập hiển thị Banana Cat rõ nét 100% bên trong khung chứa Logo
+	local overlay = container:FindFirstChild("BananaCatFixedOverlay")
+	if not overlay then
+		overlay = Instance.new("ImageLabel")
+		overlay.Name = "BananaCatFixedOverlay"
+		overlay.AnchorPoint = Vector2.new(0.5, 0.5)
+		overlay.Position = UDim2.fromScale(0.5, 0.5)
+		overlay.Size = UDim2.fromScale(0.90, 0.90)
+		overlay.BackgroundTransparency = 1
+		overlay.Image = BANANA_CAT_LOGO
+		overlay.ImageColor3 = Color3.fromRGB(255, 255, 255)
+		overlay.ImageTransparency = 0
+		overlay.ScaleType = Enum.ScaleType.Crop
+		overlay.Active = false
+		overlay.ZIndex = math.max((logoImg.ZIndex or 5) + 3, (container.ZIndex or 5) + 3)
+		overlay.Parent = container
+
+		local ovCorner = Instance.new("UICorner")
+		ovCorner.CornerRadius = UDim.new(0, 8)
+		ovCorner.Parent = overlay
+
+		table.insert(State.BananaLogoOverlays, overlay)
+	else
+		overlay.Image = BANANA_CAT_LOGO
+		overlay.ImageTransparency = 0
+		overlay.Visible = true
+	end
+
+	pcall(function()
+		if container.AbsoluteSize.X <= 72 then
+			container.BackgroundColor3 = Color3.fromRGB(28, 24, 16)
+			container.BackgroundTransparency = 0.08
+			local st = container:FindFirstChildOfClass("UIStroke") or Instance.new("UIStroke", container)
+			st.Color = GOLD_BORDER_STROKE
+			st.Thickness = 1.3
+			st.Transparency = 0.15
+		end
+	end)
+end
+
 -- ============================================================================
--- 4. BỘ TỪ ĐIỂN & ĐỘNG CƠ DỊCH THUẬT TOÀN DIỆN BANANA HUB (ĐÃ FIX 7915.JPG)
+-- 4. BỘ TỪ ĐIỂN & ĐỘNG CƠ VIỆT HÓA TOÀN DIỆN 100% (BAO GỒM 7931.JPG & 7915.JPG)
 -- ============================================================================
 local EXACT_VI = {
-	-- Đổi tên thương hiệu sang Banana Hub
+	-- Thương hiệu & Header
 	["Figgy Hub"] = "Banana Hub",
 	["figgy hub"] = "Banana Hub",
 	["FIGGY HUB"] = "BANANA HUB",
+	["Figgy"] = "Banana Hub",
 	["Banana Hub"] = "Banana Hub",
 	["Steal an Egg"] = "Cướp Trứng",
 	["Steal An Egg"] = "Cướp Trứng",
 	["steal an egg"] = "Cướp Trứng",
+	["Lemon"] = "Vàng Hoàng Gia (Gold)",
 
 	-- Trạng thái
 	["Idle"] = "Đang rảnh",
@@ -260,7 +360,92 @@ local EXACT_VI = {
 	["Configs"] = "Cấu Hình",
 	["Server"] = "Máy Chủ",
 
-	-- Sub-tabs & Các mục trong ảnh 7915.jpg
+	-- Tab Trang Chủ (Home - Trong ảnh 7931.jpg)
+	["STOLEN"] = "ĐÃ CƯỚP",
+	["Stolen"] = "Đã cướp",
+	["IN PEN"] = "TRONG CHUỒNG",
+	["In Pen"] = "Trong chuồng",
+	["In pen"] = "Trong chuồng",
+	["INCOME /S"] = "THU NHẬP /GIÂY",
+	["INCOME/S"] = "THU NHẬP /GIÂY",
+	["Income /s"] = "Thu nhập /giây",
+	["Income/s"] = "Thu nhập /giây",
+	["LAST EGG"] = "TRỨNG GẦN NHẤT",
+	["Last Egg"] = "Trứng gần nhất",
+	["Last egg"] = "Trứng gần nhất",
+	["BEST STEAL"] = "CƯỚP GIÁ TRỊ NHẤT",
+	["Best Steal"] = "Cướp giá trị nhất",
+	["Best steal"] = "Cướp giá trị nhất",
+	["Pet bag"] = "Túi thú cưng",
+	["Pet Bag"] = "Túi Thú Cưng",
+	["PET BAG"] = "TÚI THÚ CƯNG",
+	["Egg bag"] = "Túi trứng",
+	["Egg Bag"] = "Túi Trứng",
+	["EGG BAG"] = "TÚI TRỨNG",
+	["Rejoin"] = "Vào lại server",
+	["REJOIN"] = "VÀO LẠI SERVER",
+	["Find server"] = "Tìm máy chủ",
+	["Find Server"] = "Tìm máy chủ",
+	["FIND SERVER"] = "TÌM MÁY CHỦ",
+	["Server Hop"] = "Đổi máy chủ",
+	["Server hop"] = "Đổi máy chủ",
+	["Copy Job ID"] = "Sao chép Job ID",
+	["Copy job ID"] = "Sao chép Job ID",
+	["COPY JOB ID"] = "SAO CHÉP JOB ID",
+	["Unload"] = "Tắt Script",
+	["UNLOAD"] = "TẮT SCRIPT",
+	["WHAT'S NEW"] = "CÓ GÌ MỚI",
+	["What's New"] = "Có gì mới",
+	["What's new"] = "Có gì mới",
+	["NEW"] = "MỚI",
+	["New"] = "Mới",
+	["Figgy SAE - Update v1.05"] = "Banana Hub - Bản cập nhật v1.05",
+	["Figgy SAE - Update v1.06"] = "Banana Hub - Bản cập nhật v1.06",
+	["Figgy SAE - Update v1.04"] = "Banana Hub - Bản cập nhật v1.04",
+
+	-- Nội dung What's New trong ảnh 7931.jpg
+	["v1.05: New Pet Finder above Shop with live logs, Min Value, Min Rarity, Auto Join, Force Join and a settings page with Sort By, age limits, new log alerts and an option to hide the server full popup. Pets and buttons have a springy hover, and the fig logo uses it too and plays its animation when you hover or click it. Fixed UFO eggs not being delivered, and debris is now collected inside the Rare UFO instead of on its roof."] = "v1.05: Thêm tính năng Tìm Thú Cưng (Pet Finder) phía trên Cửa Hàng với nhật ký trực tiếp, Giá trị tối thiểu, Độ hiếm tối thiểu, Tự động vào, Ép vào server và trang cài đặt Sắp xếp, giới hạn thời gian, âm báo mới cùng tùy chọn ẩn thông báo đầy máy chủ. Thú cưng, nút bấm và logo Banana Hub có hiệu ứng chuyển động đàn hồi mượt mà khi chạm. Đã sửa lỗi không giao trứng UFO và tự thu thập mảnh vỡ bên trong UFO Hiếm.",
+	["v1.04: Language setting in Settings > Interface: the hub in 18 languages, using Roblox's own translations first. The fig logo plays its animation on click or tap, and dragging it moves the window. Fixed a hidden error that could make the menu stutter after some actions."] = "v1.04: Hỗ trợ đa ngôn ngữ trong Cài Đặt > Giao Diện và tích hợp trình dịch tự động Banana Hub. Logo phát hoạt ảnh khi chạm và hỗ trợ kéo để di chuyển cửa sổ. Đã khắc phục lỗi ẩn gây khựng menu sau một số thao tác.",
+
+	-- Tính năng Finder (Pet Finder bên trái màn hình)
+	["Finder"] = "Tìm Thú",
+	["FINDER"] = "TÌM THÚ",
+	["Pet Finder"] = "Tìm Thú Cưng",
+	["PET FINDER"] = "TÌM THÚ CƯNG",
+	["Slow Mode"] = "Chế độ mượt",
+	["Live Logs"] = "Nhật ký trực tiếp",
+	["Live logs"] = "Nhật ký trực tiếp",
+	["LIVE LOGS"] = "NHẬT KÝ TRỰC TIẾP",
+	["Min Value"] = "Giá trị tối thiểu",
+	["Min value"] = "Giá trị tối thiểu",
+	["MIN VALUE"] = "GIÁ TRỊ TỐI THIỂU",
+	["Min Rarity"] = "Độ hiếm tối thiểu",
+	["Min rarity"] = "Độ hiếm tối thiểu",
+	["MIN RARITY"] = "ĐỘ HIẾM TỐI THIỂU",
+	["Auto Join"] = "Tự động vào",
+	["Auto join"] = "Tự động vào",
+	["AUTO JOIN"] = "TỰ ĐỘNG VÀO",
+	["Force Join"] = "Ép vào server",
+	["Force join"] = "Ép vào server",
+	["FORCE JOIN"] = "ÉP VÀO SERVER",
+	["Sort By"] = "Sắp xếp theo",
+	["Sort by"] = "Sắp xếp theo",
+	["SORT BY"] = "SẮP XẾP THEO",
+	["Age Limits"] = "Giới hạn thời gian",
+	["Age limits"] = "Giới hạn thời gian",
+	["Age limit"] = "Giới hạn thời gian",
+	["New Log Alerts"] = "Âm báo nhật ký mới",
+	["New log alerts"] = "Âm báo nhật ký mới",
+	["Hide Server Full Popup"] = "Ẩn thông báo đầy máy chủ",
+	["Hide server full popup"] = "Ẩn thông báo đầy máy chủ",
+	["Join"] = "Vào ngay",
+	["JOIN"] = "VÀO NGAY",
+	["Clear"] = "Xóa",
+	["CLEAR"] = "XÓA",
+	["Pause"] = "Tạm dừng",
+	["Resume"] = "Tiếp tục",
+
+	-- Tab Trứng (Trong ảnh 7915.jpg)
 	["Automation"] = "Tự Động",
 	["AUTOMATION"] = "TỰ ĐỘNG",
 	["Predictor"] = "Dự Đoán",
@@ -268,8 +453,6 @@ local EXACT_VI = {
 	["Auto Steal"] = "Tự động cướp trứng",
 	["AUTO STEAL"] = "TỰ ĐỘNG CƯỚP TRỨNG",
 	["Auto steal"] = "Tự động cướp trứng",
-	["STOLEN"] = "ĐÃ CƯỚP",
-	["Stolen"] = "Đã cướp",
 	["this session"] = "trong phiên này",
 	["This session"] = "Trong phiên này",
 	["this PHIÊN CHƠI"] = "trong phiên này",
@@ -285,9 +468,6 @@ local EXACT_VI = {
 	["Tự động cướp: Bật"] = "Tự động cướp: Bật",
 	["SPEED"] = "TỐC ĐỘ",
 	["Speed"] = "Tốc độ",
-	["EGG BAG"] = "TÚI TRỨNG",
-	["Egg Bag"] = "Túi Trứng",
-	["Egg bag"] = "Túi trứng",
 	["Move To Egg"] = "Di chuyển tới trứng",
 	["Move to Egg"] = "Di chuyển tới trứng",
 	["Move to egg"] = "Di chuyển tới trứng",
@@ -321,7 +501,7 @@ local EXACT_VI = {
 	["Steal Missing Index Eggs"] = "Cướp trứng thiếu trong Mục lục",
 	["Cướp trứng thiếu trong Mục lục"] = "Cướp trứng thiếu trong Mục lục",
 
-	-- Bộ Lọc (Trong ảnh 7915.jpg)
+	-- Bộ Lọc
 	["FILTER"] = "BỘ LỌC",
 	["Filter"] = "Bộ lọc",
 	["BỘ LỌC"] = "BỘ LỌC",
@@ -393,6 +573,7 @@ local EXACT_VI = {
 	["Open Egg Bag"] = "Mở Túi Trứng",
 	["Open"] = "Mở",
 	["OPEN"] = "MỞ",
+	["Open >"] = "Mở >",
 	["Close"] = "Đóng",
 	["CLOSE"] = "ĐÓNG",
 	["AUTO FAVORITE"] = "TỰ ĐỘNG KHÓA YÊU THÍCH",
@@ -422,6 +603,37 @@ local EXACT_VI = {
 	["Keep mutated eggs"] = "Giữ lại trứng đột biến",
 	["Never Sell Species"] = "Không bán các loài này",
 	["Never Sell Eggs"] = "Không bán các trứng này",
+
+	-- Tab Nhân Vật, Hiển Thị, Cài Đặt
+	["WalkSpeed"] = "Tốc độ chạy",
+	["Walk Speed"] = "Tốc độ chạy",
+	["Walk speed"] = "Tốc độ chạy",
+	["JumpPower"] = "Lực nhảy",
+	["Jump Power"] = "Lực nhảy",
+	["Jump power"] = "Lực nhảy",
+	["Jump Height"] = "Độ cao nhảy",
+	["Infinite Jump"] = "Nhảy vô hạn",
+	["Infinite jump"] = "Nhảy vô hạn",
+	["NoClip"] = "Đi xuyên tường (Noclip)",
+	["Noclip"] = "Đi xuyên tường (Noclip)",
+	["Fly"] = "Bay (Fly)",
+	["Anti AFK"] = "Chống văng (Anti-AFK)",
+	["Anti-AFK"] = "Chống văng (Anti-AFK)",
+	["Interface"] = "Giao Diện",
+	["INTERFACE"] = "GIAO DIỆN",
+	["Theme"] = "Chủ đề màu",
+	["THEME"] = "CHỦ ĐỀ MÀU",
+	["Language"] = "Ngôn ngữ",
+	["LANGUAGE"] = "NGÔN NGỮ",
+	["Keybinds"] = "Phím tắt",
+	["KEYBINDS"] = "PHÍM TẮT",
+	["Quick Bar"] = "Thanh Nhanh",
+	["QUICK BAR"] = "THANH NHANH",
+	["Notifications"] = "Thông Báo",
+	["NOTIFICATIONS"] = "THÔNG BÁO",
+	["Save Config"] = "Lưu cấu hình",
+	["Load Config"] = "Tải cấu hình",
+	["Delete Config"] = "Xóa cấu hình",
 
 	-- UFO & Sự Kiện
 	["UFO"] = "UFO (Đĩa Bay)",
@@ -453,7 +665,7 @@ for enKey, viVal in pairs(EXACT_VI) do
 	if not LOWER_VI[lk] or enKey:upper() ~= enKey then
 		LOWER_VI[lk] = viVal
 	end
-	if enKey ~= "Figgy Hub" and enKey ~= "figgy hub" and enKey ~= "FIGGY HUB" then
+	if enKey ~= "Figgy Hub" and enKey ~= "figgy hub" and enKey ~= "FIGGY HUB" and enKey ~= "Figgy" then
 		if not VI_TO_EN[viVal] then
 			VI_TO_EN[viVal] = enKey
 		end
@@ -465,7 +677,7 @@ for enKey, viVal in pairs(EXACT_VI) do
 end
 
 local GRAMMAR_VI = {
-	-- Trạng thái mang trứng/hoạt động trên Header & Thẻ Trạng Thái (VD: "Carrying $23.2M/s" hoặc "🦎 Carrying $23.2M/s")
+	-- Trạng thái mang trứng/hoạt động trên Header & Thẻ Trạng Thái
 	{ pat = "^(.-)[Cc]arrying%s+(.+)$", rep = "%1Đang mang %2" },
 	{ pat = "^(.-)[Hh]olding%s+(.+)$", rep = "%1Đang giữ %2" },
 	{ pat = "^(.-)[Ss]tealing%s+(.+)$", rep = "%1Đang cướp %2" },
@@ -475,6 +687,18 @@ local GRAMMAR_VI = {
 	{ pat = "^(.-)[Tt]eleporting%s+to%s+(.+)$", rep = "%1Đang dịch chuyển tới %2" },
 	{ pat = "^(.-)[Ww]aiting%s+for%s+(.+)$", rep = "%1Đang chờ %2" },
 	{ pat = "^(.-)[Ww]aiting(.*)$", rep = "%1Đang chờ%2" },
+
+	-- Bộ đếm phiên chơi & thời gian trong Trang Chủ (7931.jpg)
+	{ pat = "^[Ss]ession%s+([%d:]+)$", rep = "Phiên: %1" },
+	{ pat = "^Phiên%s+này%s+([%d:]+)$", rep = "Phiên: %1" },
+	{ pat = "^Figgy%s+SAE%s*%-%s*[Uu]pdate%s+(.+)$", rep = "Banana Hub - Bản cập nhật %1" },
+	{ pat = "^(%d+)%s+hours?%s+ago$", rep = "%1 giờ trước" },
+	{ pat = "^(%d+)%s+minutes?%s+ago$", rep = "%1 phút trước" },
+	{ pat = "^(%d+)%s+days?%s+ago$", rep = "%1 ngày trước" },
+	{ pat = "^(%d+)%s+seconds?%s+ago$", rep = "%1 giây trước" },
+	{ pat = "^in%s+(%d+m%s*%d*s?)$", rep = "sau %1" },
+
+	-- Thông số Tab Trứng (7915.jpg)
 	{ pat = "^([%d%.]+)%s*st/s%s*now$", rep = "%1 bước/giây hiện tại" },
 	{ pat = "^([%d%.]+)%s*st/s$", rep = "%1 bước/giây" },
 	{ pat = "^(%d+)%s+[Ff]ree$", rep = "Còn trống %1 ô" },
@@ -509,7 +733,35 @@ local GRAMMAR_VI = {
 }
 
 local PHRASES_VI = {
+	{ "figgy sae - update", "Banana Hub - Bản cập nhật" },
 	{ "figgy hub", "Banana Hub" },
+	{ "what's new", "CÓ GÌ MỚI" },
+	{ "in pen", "TRONG CHUỒNG" },
+	{ "income /s", "THU NHẬP /GIÂY" },
+	{ "income/s", "THU NHẬP /GIÂY" },
+	{ "last egg", "TRỨNG GẦN NHẤT" },
+	{ "best steal", "CƯỚP GIÁ TRỊ NHẤT" },
+	{ "pet bag", "Túi thú cưng" },
+	{ "egg bag", "Túi trứng" },
+	{ "find server", "Tìm máy chủ" },
+	{ "copy job id", "Sao chép Job ID" },
+	{ "new pet finder above shop", "Tính năng Tìm Thú Cưng phía trên Cửa Hàng" },
+	{ "with live logs", "với nhật ký trực tiếp" },
+	{ "min value", "Giá trị tối thiểu" },
+	{ "min rarity", "Độ hiếm tối thiểu" },
+	{ "auto join", "Tự động vào" },
+	{ "force join", "Ép vào server" },
+	{ "settings page", "trang cài đặt" },
+	{ "sort by", "Sắp xếp theo" },
+	{ "age limits", "giới hạn thời gian" },
+	{ "new log alerts", "âm báo nhật ký mới" },
+	{ "hide the server full popup", "ẩn thông báo đầy máy chủ" },
+	{ "hide server full popup", "Ẩn thông báo đầy máy chủ" },
+	{ "the fig logo", "logo Banana Hub" },
+	{ "fig logo", "logo Banana Hub" },
+	{ "hours ago", "giờ trước" },
+	{ "minutes ago", "phút trước" },
+	{ "days ago", "ngày trước" },
 	{ "makes room when the egg bag is full", "Tự bán dọn chỗ khi túi trứng đầy" },
 	{ "makes room when the trứng túi is full", "Tự bán dọn chỗ khi túi trứng đầy" },
 	{ "makes room when the", "Tự bán dọn chỗ khi" },
@@ -546,15 +798,45 @@ local PHRASES_VI = {
 	{ "enchanted forest", "Rừng Phù Phép" },
 	{ "cherry blossom", "Hoa Anh Đào" },
 	{ "light dark", "Sáng Tối" },
+	{ "walk speed", "Tốc độ chạy" },
+	{ "jump power", "Lực nhảy" },
+	{ "infinite jump", "Nhảy vô hạn" },
+	{ "save config", "Lưu cấu hình" },
+	{ "load config", "Tải cấu hình" },
+	{ "delete config", "Xóa cấu hình" },
 }
 
 local WORDS_VI = {
+	figgy = "Banana Hub",
+	rejoin = "Vào lại server",
+	unload = "Tắt Script",
+	finder = "Tìm Thú",
+	income = "thu nhập",
+	pen = "chuồng",
+	last = "gần nhất",
+	stolen = "đã cướp",
+	update = "bản cập nhật",
+	hours = "giờ",
+	hour = "giờ",
+	minutes = "phút",
+	minute = "phút",
+	ago = "trước",
+	new = "mới",
+	copy = "sao chép",
+	find = "tìm",
+	server = "máy chủ",
+	join = "vào",
+	force = "ép",
+	sort = "sắp xếp",
+	clear = "xóa",
+	pause = "tạm dừng",
+	resume = "tiếp tục",
 	cheapest = "rẻ nhất",
 	move = "di chuyển",
 	to = "tới",
 	free = "trống",
 	now = "hiện tại",
-	session = "phiên này",
+	session = "Phiên",
 	equip = "trang bị",
 	equipped = "đang trang bị",
 	best = "mạnh nhất",
@@ -576,7 +858,9 @@ local WORDS_VI = {
 	never = "không bao giờ",
 	species = "loài",
 	upgrades = "nâng cấp",
+	upgrade = "nâng cấp",
 	crafting = "chế tạo",
+	craft = "chế tạo",
 	place = "đặt",
 	hatch = "ấp",
 	sell = "bán",
@@ -624,7 +908,22 @@ local WORDS_VI = {
 	all = "tất cả",
 	any = "bất kỳ",
 	match = "khớp",
+	settings = "cài đặt",
+	interface = "giao diện",
+	language = "ngôn ngữ",
+	theme = "chủ đề",
 }
+
+local function isPlayerUsername(str)
+	if not str or str == "" then return false end
+	if string.sub(str, 1, 1) == "@" then return true end
+	if LocalPlayer then
+		if str == LocalPlayer.Name or str == LocalPlayer.DisplayName then
+			return true
+		end
+	end
+	return false
+end
 
 local function applyPhrasesAndWords(str)
 	local out = str
@@ -651,8 +950,13 @@ local function translateRawSegment(rawText, targetLang)
 	local lead, trimmed, trail = rawText:match("^(%s*)(.-)(%s*)$")
 	if not trimmed or trimmed == "" then return rawText end
 
+	-- Không dịch tên tài khoản người chơi
+	if isPlayerUsername(trimmed) then
+		return rawText
+	end
+
 	-- Luôn giữ thương hiệu "Banana Hub" ở cả 2 ngôn ngữ
-	if trimmed == "Figgy Hub" or trimmed == "figgy hub" or trimmed == "Banana Hub" then
+	if trimmed == "Figgy Hub" or trimmed == "figgy hub" or trimmed == "Banana Hub" or trimmed == "Figgy" then
 		return lead .. "Banana Hub" .. trail
 	end
 
@@ -676,6 +980,17 @@ local function translateRawSegment(rawText, targetLang)
 			return lead .. exact .. trail
 		end
 
+		-- Bắt đoạn văn What's New dài theo phiên bản (v1.05, v1.04...)
+		if trimmed:find("^v1%.05:%s+New Pet Finder") then
+			local rep = EXACT_VI["v1.05: New Pet Finder above Shop with live logs, Min Value, Min Rarity, Auto Join, Force Join and a settings page with Sort By, age limits, new log alerts and an option to hide the server full popup. Pets and buttons have a springy hover, and the fig logo uses it too and plays its animation when you hover or click it. Fixed UFO eggs not being delivered, and debris is now collected inside the Rare UFO instead of on its roof."]
+			State.FastCache[cacheKey] = rep
+			return lead .. rep .. trail
+		elseif trimmed:find("^v1%.04:%s+Language setting") then
+			local rep = EXACT_VI["v1.04: Language setting in Settings > Interface: the hub in 18 languages, using Roblox's own translations first. The fig logo plays its animation on click or tap, and dragging it moves the window. Fixed a hidden error that could make the menu stutter after some actions."]
+			State.FastCache[cacheKey] = rep
+			return lead .. rep .. trail
+		end
+
 		for i = 1, #GRAMMAR_VI do
 			local g = GRAMMAR_VI[i]
 			if string.find(trimmed, g.pat) then
@@ -686,13 +1001,11 @@ local function translateRawSegment(rawText, targetLang)
 			end
 		end
 
-		local low = string.lower(trimmed)
-		for i = 1, #PHRASES_VI do
-			if string.find(low, PHRASES_VI[i][1], 1, true) then
-				local rep = applyPhrasesAndWords(trimmed)
-				State.FastCache[cacheKey] = rep
-				return lead .. rep .. trail
-			end
+		-- Dịch cụm từ và từ đơn cho mọi nhãn tiếng Anh còn lại
+		local rep = applyPhrasesAndWords(trimmed)
+		if rep ~= trimmed then
+			State.FastCache[cacheKey] = rep
+			return lead .. rep .. trail
 		end
 
 		return rawText
@@ -756,9 +1069,6 @@ end
 
 -- ============================================================================
 -- 5. THIẾT KẾ BANANA HUB DYNAMIC ISLAND (GOLD PREMIUM - ANTI-GLARE DỊU MẮT)
---    - Ghim cố định sát mép trên Y = 6, khóa di chuyển 100%
---    - Bê nguyên hình ảnh trạng thái (Image + ImageRectOffset/Size + ImageColor3) và Text
---    - Chữ và nút bên trong dùng tông Đen Obsidian & Nâu Vàng Espresso chống trói mắt
 -- ============================================================================
 local PINNED_PILL_POS   = UDim2.new(0.5, 0, 0, 6)
 local PINNED_DRAWER_POS = UDim2.new(0.5, 0, 0, 48)
@@ -837,7 +1147,6 @@ local function createIndependentFiggyDynamicIsland()
 	pillFrame.ZIndex = 20
 	pillFrame.Parent = islandGui
 
-	-- Khóa cứng tọa độ viên thuốc, không cho phép di chuyển
 	pillFrame:GetPropertyChangedSignal("Position"):Connect(function()
 		if isAlive() and pillFrame.Position ~= PINNED_PILL_POS then
 			pillFrame.Position = PINNED_PILL_POS
@@ -846,7 +1155,7 @@ local function createIndependentFiggyDynamicIsland()
 
 	applyGoldMatteGlass(pillFrame, UDim.new(1, 0), 0.12, GOLD_BORDER_STROKE, 1.3)
 
-	-- [Bên trái]: Khung Avatar Banana Cat (rbxassetid://87447945720038) viền Vàng Gold
+	-- [Bên trái]: Khung Avatar Banana Cat (rbxthumb://type=Asset&id=87447945720038) viền Vàng Gold
 	local logoOrb = Instance.new("Frame")
 	logoOrb.Name = "BananaCatLogoOrb"
 	logoOrb.AnchorPoint = Vector2.new(0, 0.5)
@@ -881,6 +1190,7 @@ local function createIndependentFiggyDynamicIsland()
 	bananaLogoImg.ZIndex = 23
 	bananaLogoImg.Parent = logoOrb
 	Instance.new("UICorner", bananaLogoImg).CornerRadius = UDim.new(1, 0)
+	table.insert(State.BananaLogoOverlays, bananaLogoImg)
 
 	-- [Khung Trạng Thái Bê Nguyên Từ Header]: Chứa Icon Trạng Thái + Chữ Trạng Thái thực tế
 	local statusBadgeContainer = Instance.new("Frame")
@@ -901,7 +1211,6 @@ local function createIndependentFiggyDynamicIsland()
 	badgeInnerStroke.Transparency = 0.45
 	badgeInnerStroke.Parent = statusBadgeContainer
 
-	-- Icon trạng thái bê nguyên từ Banana Hub (nếu trạng thái có icon riêng như 🦎 / 🌙)
 	local statusIconImg = Instance.new("ImageLabel")
 	statusIconImg.Name = "TransplantedStatusIcon"
 	statusIconImg.AnchorPoint = Vector2.new(0, 0.5)
@@ -916,7 +1225,6 @@ local function createIndependentFiggyDynamicIsland()
 	statusIconImg.ZIndex = 23
 	statusIconImg.Parent = statusBadgeContainer
 
-	-- TextLabel trạng thái bê nguyên từ Banana Hub sang (màu vàng kem dịu mắt)
 	local centerStatusLabel = Instance.new("TextLabel")
 	centerStatusLabel.Name = "StatusText"
 	centerStatusLabel.AnchorPoint = Vector2.new(0, 0.5)
@@ -1006,6 +1314,7 @@ local function createIndependentFiggyDynamicIsland()
 	expLogoImg.ZIndex = 33
 	expLogoImg.Parent = expLogoOrb
 	Instance.new("UICorner", expLogoImg).CornerRadius = UDim.new(1, 0)
+	table.insert(State.BananaLogoOverlays, expLogoImg)
 
 	local expTitle = Instance.new("TextLabel")
 	expTitle.Position = UDim2.new(0, 48, 0, 9)
@@ -1093,7 +1402,7 @@ local function createIndependentFiggyDynamicIsland()
 	cardStatusLbl.ZIndex = 33
 	cardStatusLbl.Parent = liveStatusCard
 
-	-- Thanh gạt chọn ngôn ngữ (Nền Nâu Vàng Espresso dịu mắt + Viền Vàng Kim, tuyệt đối không trói mắt)
+	-- Thanh gạt chọn ngôn ngữ (Nền Nâu Vàng Espresso dịu mắt + Viền Vàng Kim, không trói mắt)
 	local langTrack = Instance.new("Frame")
 	langTrack.Name = "LanguageGlassTrack"
 	langTrack.Position = UDim2.new(0, 12, 0, 78)
@@ -1145,7 +1454,7 @@ local function createIndependentFiggyDynamicIsland()
 	btnENStroke.Thickness = 1
 	btnENStroke.Transparency = (State.Language == "EN") and 0.15 or 0.55
 
-	-- Hàng nút chức năng (Âm thanh & Quét lại Menu)
+	-- Hàng nút chức năng
 	local actionRow = Instance.new("Frame")
 	actionRow.Name = "ActionRow"
 	actionRow.Position = UDim2.new(0, 12, 0, 114)
@@ -1256,7 +1565,7 @@ local function createIndependentFiggyDynamicIsland()
 	ndLine2.TextSize = 8.5
 	ndLine2.TextColor3 = GOLD_MUTED_SUBTEXT
 	ndLine2.TextXAlignment = Enum.TextXAlignment.Left
-	ndLine2.Text = "+ Logo Banana Cat (87447945720038) & Giao diện Vàng Sang Trọng"
+	ndLine2.Text = "+ Logo Banana Cat (87447945720038) chuẩn rbxthumb 100% hiển thị"
 	ndLine2.ZIndex = 35
 
 	local ndLine3 = Instance.new("TextLabel", noteDrawer)
@@ -1267,7 +1576,7 @@ local function createIndependentFiggyDynamicIsland()
 	ndLine3.TextSize = 8.5
 	ndLine3.TextColor3 = Color3.fromRGB(145, 210, 165)
 	ndLine3.TextXAlignment = Enum.TextXAlignment.Left
-	ndLine3.Text = "+ Nút bấm Nâu Vàng Espresso dịu mắt, chống chói 100%"
+	ndLine3.Text = "+ Việt hóa 100% toàn bộ các Tab, Nhật ký & Nút bấm dịu mắt"
 	ndLine3.ZIndex = 35
 
 	-- Cập nhật giao diện khi đổi trạng thái hoặc ngôn ngữ
@@ -1276,7 +1585,6 @@ local function createIndependentFiggyDynamicIsland()
 		centerStatusLabel.Text = displayTxt
 		cardStatusLbl.Text = displayTxt
 
-		-- Cập nhật icon trạng thái bê từ Header sang (nếu không có icon riêng thì hiện Banana Cat)
 		local hasCustomImg = (State.CurrentStatusImage ~= nil and State.CurrentStatusImage ~= "")
 		local curImg = hasCustomImg and State.CurrentStatusImage or BANANA_CAT_LOGO
 		local curCol = hasCustomImg and (State.CurrentStatusImageColor or Color3.fromRGB(255, 255, 255)) or Color3.fromRGB(255, 255, 255)
@@ -1293,7 +1601,6 @@ local function createIndependentFiggyDynamicIsland()
 		cardIconImg.ImageRectOffset = curOff
 		cardIconImg.ImageRectSize = curSz
 
-		-- Cập nhật ngôn ngữ trên bảng mở rộng
 		expSubBadge.Text = (State.Language == "EN") and "● REALTIME STATUS • ANTI-GLARE GOLD" or "● ĐỒNG BỘ TRẠNG THÁI THỜI GIAN THỰC"
 		collapseBtn.Text = (State.Language == "EN") and "Collapse ▲" or "Thu gọn ▲"
 		soundToggleBtn.Text = State.SoundEnabled
@@ -1301,7 +1608,6 @@ local function createIndependentFiggyDynamicIsland()
 			or ((State.Language == "EN") and "🔇 Sound: OFF" or "🔇 Âm thanh: TẮT")
 		rescanBtn.Text = (State.Language == "EN") and "⚡ Refresh & Sync" or "⚡ Làm mới & Đồng bộ"
 
-		-- Nút ngôn ngữ: Tông Nâu Vàng Espresso + Viền Vàng Kim dịu mắt (không chói)
 		btnVI.BackgroundColor3 = (State.Language == "VI") and BTN_ACTIVE_BG or BTN_INACTIVE_BG
 		btnVI.TextColor3 = (State.Language == "VI") and BTN_ACTIVE_TEXT or GOLD_MUTED_SUBTEXT
 		btnVIStroke.Color = (State.Language == "VI") and BTN_ACTIVE_STROKE or BTN_INACTIVE_STROKE
@@ -1312,7 +1618,6 @@ local function createIndependentFiggyDynamicIsland()
 		btnENStroke.Color = (State.Language == "EN") and BTN_ACTIVE_STROKE or BTN_INACTIVE_STROKE
 		btnENStroke.Transparency = (State.Language == "EN") and 0.15 or 0.55
 
-		-- Tự co giãn chiều rộng viên thuốc theo độ dài trạng thái thực tế
 		local textLen = utf8.len(displayTxt) or #displayTxt
 		local targetWidth = math.max(196, math.min(320, 96 + textLen * 7))
 		TweenService:Create(
@@ -1416,9 +1721,6 @@ end
 
 -- ============================================================================
 -- 6. BÊ NGUYÊN HÌNH ẢNH & TRẠNG THÁI TỪ HEADER BANANA HUB VÀO DYNAMIC ISLAND
---    - Tự động phát hiện thanh trạng thái trên Header (cạnh v1.0.6) và thẻ TRẠNG THÁI
---    - Ẩn bằng độ trong suốt (Transparency = 1, vẫn giữ Visible = true) để script gốc
---      không bao giờ ngừng cập nhật trạng thái!
 -- ============================================================================
 local NON_STATUS_TEXTS = {
 	["figgy hub"] = true,
@@ -1445,7 +1747,6 @@ local function isIgnoredHeaderLabel(txt)
 	return false
 end
 
--- Ẩn khung trạng thái gốc trên Header bằng Transparency (giữ Visible = true để Figgy Hub luôn cập nhật!)
 local function cloakOriginalStatusBadge(badgeFrame)
 	if not badgeFrame or not badgeFrame:IsA("GuiObject") then return end
 	pcall(function()
@@ -1467,7 +1768,6 @@ local function cloakOriginalStatusBadge(badgeFrame)
 	end)
 end
 
--- Đồng bộ dữ liệu thực tế từ widget trạng thái của Figgy Hub vào Dynamic Island
 local function syncStatusFromLiveWidgets()
 	if not isAlive() then return end
 	local txtObj = State.LiveFiggyTextLabel
@@ -1483,7 +1783,6 @@ local function syncStatusFromLiveWidgets()
 		end
 	end
 
-	-- Nếu thanh trạng thái Header đang rảnh nhưng thẻ TRẠNG THÁI trong tab có thông tin chi tiết hơn
 	if (rawText == "" or rawText == "Idle" or rawText == "Đang rảnh") and fallbackTxtObj and fallbackTxtObj.Parent then
 		local fbText = fallbackTxtObj:GetAttribute("__FiggyOrigText") or fallbackTxtObj.Text or ""
 		if fbText ~= "" and not isIgnoredHeaderLabel(fbText) then
@@ -1520,15 +1819,12 @@ local function syncStatusFromLiveWidgets()
 	end
 end
 
--- Tự động gắn kết với thanh trạng thái trên Header của Banana Hub (cạnh v1.0.6)
 local function bindHeaderAndLogosFromTitle(titleLbl)
 	if not titleLbl or not titleLbl.Parent then return end
 
-	-- Tìm khung Header chứa cả Logo, Tiêu đề, v1.0.6 và Thanh trạng thái
 	local headerContainer = titleLbl.Parent
 	for _ = 1, 3 do
 		if headerContainer and headerContainer.Parent and headerContainer.Parent:IsA("GuiObject") then
-			-- Nếu khung cha có chiều cao <= 75px thì đó chính là toàn bộ thanh Topbar/Header
 			if headerContainer.Parent.AbsoluteSize.Y > 0 and headerContainer.Parent.AbsoluteSize.Y <= 78 then
 				headerContainer = headerContainer.Parent
 			else
@@ -1539,47 +1835,31 @@ local function bindHeaderAndLogosFromTitle(titleLbl)
 
 	if not headerContainer then return end
 
-	-- 1. Thay Logo trên Header sang Banana Cat (rbxassetid://87447945720038)
+	-- 1. Thay Logo trên Header sang Banana Cat bằng lớp phủ BananaCatFixedOverlay
 	for _, d in ipairs(headerContainer:GetDescendants()) do
-		if (d:IsA("ImageLabel") or d:IsA("ImageButton")) and d.Parent ~= State.LiveFiggyBadgeFrame then
+		if (d:IsA("ImageLabel") or d:IsA("ImageButton")) and d.Name ~= "BananaCatFixedOverlay" and d.Parent ~= State.LiveFiggyBadgeFrame then
 			local isLeftOfTitle = (d.AbsolutePosition.X <= titleLbl.AbsolutePosition.X + 24)
-			local isSquareLogo = (d.AbsoluteSize.X >= 14 and d.AbsoluteSize.X <= 48 and math.abs(d.AbsoluteSize.X - d.AbsoluteSize.Y) <= 8)
+			local isSquareLogo = (d.AbsoluteSize.X >= 14 and d.AbsoluteSize.X <= 54 and math.abs(d.AbsoluteSize.X - d.AbsoluteSize.Y) <= 10)
 			if isLeftOfTitle and isSquareLogo then
-				local oldId = d.Image or ""
-				if oldId ~= "" and oldId ~= BANANA_CAT_LOGO then
-					State.OrigFiggyLogoAssetIds[oldId] = true
-				end
-				d:SetAttribute("__IsBananaBrandLogo", true)
-				pcall(function()
-					d.Image = BANANA_CAT_LOGO
-					d.ImageColor3 = Color3.fromRGB(255, 255, 255)
-					d.ImageRectOffset = Vector2.new(0, 0)
-					d.ImageRectSize = Vector2.new(0, 0)
-					if d.Parent and d.Parent:IsA("Frame") and d.Parent.AbsoluteSize.X <= 52 then
-						d.Parent.BackgroundColor3 = Color3.fromRGB(36, 30, 18)
-						local st = d.Parent:FindFirstChildOfClass("UIStroke") or Instance.new("UIStroke", d.Parent)
-						st.Color = GOLD_BORDER_STROKE
-						st.Thickness = 1
-					end
-				end)
+				injectBananaLogoIntoContainer(d)
 			end
 		end
 	end
 
-	-- 2. Tìm Thanh Trạng Thái (Status Pill) nằm trên Header (bên phải "Banana Hub" / "v1.0.6")
+	-- 2. Tìm Thanh Trạng Thái (Status Pill) nằm trên Header (bên phải "Banana Hub" / "v1.0.5")
 	for _, desc in ipairs(headerContainer:GetDescendants()) do
 		if desc:IsA("Frame") and not desc:FindFirstChildWhichIsA("TextBox") then
-			-- Không phải là khung chứa tiêu đề chính
 			if not desc:IsAncestorOf(titleLbl) and desc ~= titleLbl.Parent then
 				local candidateTxt = nil
 				local candidateEmoji = nil
-				local candidateImg = desc:FindFirstChildWhichIsA("ImageLabel", true) or desc:FindFirstChildWhichIsA("ImageButton", true)
+				local candidateImg = nil
 
 				for _, ch in ipairs(desc:GetDescendants()) do
-					if ch:IsA("TextLabel") then
+					if (ch:IsA("ImageLabel") or ch:IsA("ImageButton")) and ch.Name ~= "BananaCatFixedOverlay" then
+						candidateImg = ch
+					elseif ch:IsA("TextLabel") then
 						local t = (ch.Text or ""):match("^%s*(.-)%s*$") or ""
 						if t ~= "" and not isIgnoredHeaderLabel(t) then
-							-- Nếu là ký tự icon/emoji ngắn (<= 4 byte) và đã có TextLabel khác
 							if #t <= 4 and not t:find("%w") then
 								candidateEmoji = ch
 							else
@@ -1615,7 +1895,6 @@ local function bindHeaderAndLogosFromTitle(titleLbl)
 	return false
 end
 
--- Nhận diện trực tiếp bất kỳ TextLabel trạng thái nào (dự phòng trường hợp cấu trúc Header thay đổi)
 local function checkDirectStatusLabelCandidate(lbl)
 	if not lbl or not lbl:IsA("TextLabel") or not lbl.Parent then return end
 	local raw = lbl:GetAttribute("__FiggyOrigText") or lbl.Text or ""
@@ -1640,7 +1919,6 @@ local function checkDirectStatusLabelCandidate(lbl)
 	local badgeFrame = lbl.Parent
 	if badgeFrame and badgeFrame:IsA("GuiObject") then
 		local img = badgeFrame:FindFirstChildWhichIsA("ImageLabel", true) or badgeFrame:FindFirstChildWhichIsA("ImageButton", true)
-		-- Kiểm tra xem đây là thanh trạng thái trên Header (chiều cao nhỏ <= 36px) hay thẻ TRẠNG THÁI trong Tab
 		if badgeFrame.AbsoluteSize.Y > 0 and badgeFrame.AbsoluteSize.Y <= 38 then
 			if State.LiveFiggyTextLabel ~= lbl then
 				State.LiveFiggyTextLabel = lbl
@@ -1655,7 +1933,6 @@ local function checkDirectStatusLabelCandidate(lbl)
 			cloakOriginalStatusBadge(badgeFrame)
 			syncStatusFromLiveWidgets()
 		else
-			-- Thẻ TRẠNG THÁI bên trong Tab Trứng (làm nguồn đồng bộ dự phòng)
 			if State.FallbackStatusCardLabel ~= lbl then
 				State.FallbackStatusCardLabel = lbl
 				lbl:GetPropertyChangedSignal("Text"):Connect(syncStatusFromLiveWidgets)
@@ -1674,8 +1951,8 @@ end
 local function styleElementGoldAndLogo(obj)
 	if not obj or not obj.Parent then return end
 	if State.IslandGui and obj:IsDescendantOf(State.IslandGui) then return end
+	if obj.Name == "BananaCatFixedOverlay" then return end
 
-	-- Không can thiệp vào icon trạng thái đang được bê lên Dynamic Island
 	if State.LiveFiggyBadgeFrame and (obj == State.LiveFiggyBadgeFrame or obj:IsDescendantOf(State.LiveFiggyBadgeFrame)) then
 		return
 	end
@@ -1690,35 +1967,50 @@ local function styleElementGoldAndLogo(obj)
 
 		local isKnownFiggyLogo = (imgId ~= "" and State.OrigFiggyLogoAssetIds[imgId] == true)
 		local isFloatingToggleLogo = (
-			par and (par:IsA("Frame") or par:IsA("ImageButton") or par:IsA("TextButton"))
-			and parW >= 34 and parW <= 68 and math.abs(parW - parH) <= 8
-			and aw >= 18 and aw <= 64 and math.abs(aw - ah) <= 8
-			and (par.Parent and (par.Parent:IsA("ScreenGui") or par.Parent.Parent and par.Parent.Parent:IsA("ScreenGui")))
+			par and (par:IsA("Frame") or par:IsA("ImageButton") or par:IsA("TextButton") or par:IsA("CanvasGroup"))
+			and parW >= 32 and parW <= 72 and math.abs(parW - parH) <= 10
+			and aw >= 16 and aw <= 68 and math.abs(aw - ah) <= 10
+			and (par.Parent and (par.Parent:IsA("ScreenGui") or (par.Parent.Parent and par.Parent.Parent:IsA("ScreenGui"))))
 		)
 
 		if isKnownFiggyLogo or isFloatingToggleLogo or obj:GetAttribute("__IsBananaBrandLogo") then
-			if imgId ~= "" and imgId ~= BANANA_CAT_LOGO then
-				State.OrigFiggyLogoAssetIds[imgId] = true
-			end
-			obj:SetAttribute("__IsBananaBrandLogo", true)
-			pcall(function()
-				obj.Image = BANANA_CAT_LOGO
-				obj.ImageColor3 = Color3.fromRGB(255, 255, 255)
-				obj.ImageRectOffset = Vector2.new(0, 0)
-				obj.ImageRectSize = Vector2.new(0, 0)
-				if par and par:IsA("GuiObject") and parW <= 70 then
-					par.BackgroundColor3 = Color3.fromRGB(26, 22, 16)
-					local st = par:FindFirstChildOfClass("UIStroke") or Instance.new("UIStroke", par)
-					st.Color = GOLD_BORDER_STROKE
-					st.Thickness = 1.3
-				end
-			end)
+			injectBananaLogoIntoContainer(obj)
 			return
 		end
 
-		-- Chuyển các icon màu tím của Figgy Hub sang Vàng Gold dịu mắt
 		if isFiggyPurpleColor(obj.ImageColor3) then
 			pcall(function() obj.ImageColor3 = GOLD_PRIMARY_TEXT end)
+		end
+	end
+
+	-- Nếu bản thân nút nổi là một Frame trống (do ảnh con đã bị ẩn hoặc tạo trễ), chèn luôn BananaCatFixedOverlay vào nút nổi
+	if obj:IsA("Frame") or obj:IsA("TextButton") then
+		local aw, ah = obj.AbsoluteSize.X, obj.AbsoluteSize.Y
+		local isTopLevelSquareBtn = (
+			aw >= 36 and aw <= 68 and math.abs(aw - ah) <= 8
+			and obj.Parent and obj.Parent:IsA("ScreenGui")
+			and obj:FindFirstChildOfClass("UICorner") ~= nil
+			and not obj:FindFirstChildWhichIsA("TextLabel", true)
+		)
+		if isTopLevelSquareBtn then
+			local childImg = obj:FindFirstChildWhichIsA("ImageLabel", true) or obj:FindFirstChildWhichIsA("ImageButton", true)
+			if childImg and childImg.Name ~= "BananaCatFixedOverlay" then
+				injectBananaLogoIntoContainer(childImg)
+			elseif not obj:FindFirstChild("BananaCatFixedOverlay") then
+				local overlay = Instance.new("ImageLabel")
+				overlay.Name = "BananaCatFixedOverlay"
+				overlay.AnchorPoint = Vector2.new(0.5, 0.5)
+				overlay.Position = UDim2.fromScale(0.5, 0.5)
+				overlay.Size = UDim2.fromScale(0.88, 0.88)
+				overlay.BackgroundTransparency = 1
+				overlay.Image = BANANA_CAT_LOGO
+				overlay.ScaleType = Enum.ScaleType.Crop
+				overlay.Active = false
+				overlay.ZIndex = (obj.ZIndex or 5) + 3
+				overlay.Parent = obj
+				Instance.new("UICorner", overlay).CornerRadius = UDim.new(0, 8)
+				table.insert(State.BananaLogoOverlays, overlay)
+			end
 		end
 	end
 
@@ -1803,7 +2095,6 @@ local function processGuiElement(obj)
 	local curText = obj.Text or ""
 	if curText == "" then return end
 
-	-- Phát hiện tiêu đề "Figgy Hub" hoặc "Banana Hub" -> Đổi tên, gắn Gold Gradient, thay Logo và bê Status
 	if obj:IsA("TextLabel") and (curText == "Figgy Hub" or curText == "Banana Hub" or curText == "FrostyFig") then
 		if curText == "Figgy Hub" then
 			obj:SetAttribute("__FiggyOrigText", "Figgy Hub")
@@ -1812,7 +2103,7 @@ local function processGuiElement(obj)
 		pcall(bindHeaderAndLogosFromTitle, obj)
 	end
 
-	if EXACT_VI[curText] and State.Language == "VI" and curText ~= "Figgy Hub" then
+	if EXACT_VI[curText] and State.Language == "VI" and curText ~= "Figgy Hub" and curText ~= "Figgy" then
 		obj:SetAttribute("__FiggyOrigText", VI_TO_EN[EXACT_VI[curText]] or curText)
 	end
 
@@ -1833,7 +2124,6 @@ local function processGuiElement(obj)
 		obj:SetAttribute("__IsTranslatingFiggy", false)
 	end
 
-	-- Kiểm tra nếu đây là nhãn trạng thái trên Header hoặc trong Thẻ Trạng Thái
 	if obj:IsA("TextLabel") then
 		pcall(checkDirectStatusLabelCandidate, obj)
 		if obj == State.LiveFiggyTextLabel or obj == State.FallbackStatusCardLabel then
@@ -1895,7 +2185,6 @@ local function scanAllMenusOnce(forceSweep)
 									task.wait()
 								end
 							else
-								-- Luôn kiểm tra màu sắc/logo cho các phần tử mới đổi trạng thái
 								if d:IsA("Frame") or d:IsA("UIStroke") or d:IsA("ImageLabel") or d:IsA("ImageButton") then
 									pcall(styleElementGoldAndLogo, d)
 								end
@@ -1921,7 +2210,6 @@ task.spawn(function()
 		task.wait(0.15)
 		if not isAlive() then break end
 
-		-- Đồng bộ liên tục trạng thái & hình ảnh từ Header của Banana Hub vào Dynamic Island
 		pcall(syncStatusFromLiveWidgets)
 
 		sweepCounter = sweepCounter + 1
