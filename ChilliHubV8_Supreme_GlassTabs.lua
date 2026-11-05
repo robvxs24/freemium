@@ -1953,63 +1953,99 @@ end
 -- 7. NHẬN DIỆN CHÍNH XÁC NÚT LOGO NỔI MỞ MENU & ĐỔI TÔNG MÀU GOLD PREMIUM
 --    (Tuyệt đối không gắn ảnh Banana Cat vào cửa sổ chính, Thanh Nhanh hay Avatar người chơi!)
 -- ============================================================================
-local function hasFiggyOnionIdentity(value)
-	local name = string.lower(value or "")
-	return name:find("figgy", 1, true) ~= nil
-		or name:find("frostyfig", 1, true) ~= nil
-		or name:find("frosty", 1, true) ~= nil
-		or name:find("onion", 1, true) ~= nil
-		or name:find("shallot", 1, true) ~= nil
-		or name:find("fig", 1, true) ~= nil
+-- KHỐI 1: chỉ bọc hai icon Figgy/củ hành tím; mọi logo khác (Delta, Roblox...) bị bỏ qua.
+local function isFiggyTitle(label)
+	if not label or not label:IsA("TextLabel") then return false end
+	local text = label:GetAttribute("__FiggyOrigText") or label.Text or ""
+	text = string.lower(text)
+	return text == "figgy hub" or text == "frostyfig" or text == "banana hub"
+end
+
+local function findFiggyMainPanel(gui)
+	if not gui then return nil end
+	for _, label in ipairs(gui:GetDescendants()) do
+		if isFiggyTitle(label) then
+			local panel = label.Parent
+			while panel and panel ~= gui do
+				if panel:IsA("GuiObject") and panel.AbsoluteSize.X >= 220 and panel.AbsoluteSize.Y >= 120 then
+					return panel
+				end
+				panel = panel.Parent
+			end
+		end
+	end
+	return nil
+end
+
+local function hasHeaderTitle(host)
+	local node = host.Parent
+	while node and not node:IsA("ScreenGui") do
+		for _, child in ipairs(node:GetChildren()) do
+			if isFiggyTitle(child) and host.AbsolutePosition.X < child.AbsolutePosition.X then
+				return true
+			end
+		end
+		node = node.Parent
+	end
+	return false
+end
+
+local function bindFiggyLogo(host, slot, gui)
+	if host:GetAttribute("__FiggyInstantLogoHooked") == SID then return end
+	host:SetAttribute("__FiggyInstantLogoHooked", SID)
+	decorateCircularGoldLogoBox(host, slot == "toggle" and 2.2 or 1.6, false)
+
+	local hitbox = Instance.new("TextButton")
+	hitbox.Name = "FiggyLogoInstantHitbox"
+	hitbox.Size = UDim2.fromScale(1, 1)
+	hitbox.BackgroundTransparency = 1
+	hitbox.BorderSizePixel = 0
+	hitbox.Text = ""
+	hitbox.AutoButtonColor = false
+	hitbox.ZIndex = (host.ZIndex or 1) + 20
+	hitbox.Parent = host
+
+	trackConn(hitbox.MouseButton1Click:Connect(function()
+		if not isAlive() then return end
+		local avatar = host:FindFirstChild("BananaCatCircleAvatar")
+		local stroke = host:FindFirstChild("LuxuryGoldCircleStroke")
+		playCircularLogoPulse(avatar, stroke, slot == "toggle" and 2.2 or 1.6)
+
+		-- Nút ngoài cùng bên trái mở/đóng menu ngay trong click hiện tại, không tween/wait.
+		if slot == "toggle" then
+			local panel = findFiggyMainPanel(gui)
+			if panel then
+				panel.Visible = not panel.Visible
+			end
+		end
+	end))
 end
 
 local function checkAndDecorateFloatingMenuLogo(obj)
-	if not obj or not obj.Parent then return end
-	-- Không nhận diện theo kích thước hoặc chữ "logo" chung chung: Delta cũng có nút như vậy.
-	if not (obj:IsA("ImageButton") or obj:IsA("Frame")) then return end
+	if not obj or not obj.Parent or not (obj:IsA("ImageButton") or obj:IsA("Frame")) then return end
+	local gui = obj:FindFirstAncestorOfClass("ScreenGui")
+	if not gui or gui:GetAttribute("__VerifiedFiggyGui") ~= true then return end
 
-	-- Nút Logo nổi mở Menu phải là con trực tiếp của ScreenGui Figgy Hub
-	local par = obj.Parent
-	local isTopLevelInScreenGui = par:IsA("ScreenGui") or (par:IsA("Frame") and par.Parent and par.Parent:IsA("ScreenGui") and par.BackgroundTransparency >= 0.99)
-	if not isTopLevelInScreenGui then return end
+	local w, h = obj.AbsoluteSize.X, obj.AbsoluteSize.Y
+	if w < 24 or w > 68 or h < 24 or h > 68 or math.abs(w - h) > 7 then return end
+	local image = obj:IsA("ImageButton") and obj or obj:FindFirstChildWhichIsA("ImageLabel", true) or obj:FindFirstChildWhichIsA("ImageButton", true)
+	if not image or (image.Image or "") == "" then return end
+	local identity = string.lower((obj.Name or "") .. " " .. (image.Name or "") .. " " .. (obj.Parent.Name or ""))
+	if identity:find("delta", 1, true) then return end
+	local looksLikeFiggyOnion = identity:find("fig", 1, true) or identity:find("frosty", 1, true)
+		or identity:find("onion", 1, true) or isFiggyPurpleColor(image.ImageColor3)
+	if not looksLikeFiggyOnion then return end
 
-	-- Kích thước nút Logo nổi luôn là hình vuông nhỏ (34px -> 66px)
-	local aw, ah = obj.AbsoluteSize.X, obj.AbsoluteSize.Y
-	if aw < 34 or aw > 66 or ah < 34 or ah > 66 or math.abs(aw - ah) > 6 then
-		return
-	end
+	State.FiggyLogoSlots = State.FiggyLogoSlotsSession == SID and State.FiggyLogoSlots or {}
+	State.FiggyLogoSlotsSession = SID
+	local topLevel = obj.Parent == gui or (obj.Parent:IsA("Frame") and obj.Parent.Parent == gui)
+	local isLeftToggle = topLevel and obj.AbsolutePosition.X <= 220 and obj.AbsolutePosition.Y <= 110
+	local isHeaderIcon = (not isLeftToggle) and hasHeaderTitle(obj)
+	local slot = isLeftToggle and "toggle" or (isHeaderIcon and "header" or nil)
+	if not slot or (State.FiggyLogoSlots[slot] and State.FiggyLogoSlots[slot] ~= obj) then return end
 
-	-- Không chứa chữ (khác với Thanh Nhanh / Quick Bar có chữ)
-	for _, d in ipairs(obj:GetDescendants()) do
-		if d:IsA("TextLabel") and (d.Text or "") ~= "" then
-			return
-		end
-	end
-
-	-- Phải có một ảnh icon thật, không áp dụng cho ô chứa/khung trang trí rỗng.
-	local logoImage = obj:IsA("ImageButton") and obj or obj:FindFirstChildWhichIsA("ImageButton", true) or obj:FindFirstChildWhichIsA("ImageLabel", true)
-	if not logoImage or (logoImage.Image or "") == "" then return end
-
-	-- Chỉ logo Figgy/củ hành tím: nhận theo tên Figgy/FrostyFig ở chính nút hoặc
-	-- ở ScreenGui chủ quản, và icon phải mang tint tím nếu tên nút không nói rõ.
-	local screenGui = obj:FindFirstAncestorOfClass("ScreenGui")
-	local controlIsFiggy = hasFiggyOnionIdentity(obj.Name)
-	local ownerIsFiggy = screenGui and (
-		hasFiggyOnionIdentity(screenGui.Name)
-		or screenGui:GetAttribute("__VerifiedFiggyGui") == true
-	)
-	local iconIsPurple = isFiggyPurpleColor(logoImage.ImageColor3)
-	if not controlIsFiggy and not ownerIsFiggy then return end
-	if not controlIsFiggy and not iconIsPurple then return end
-
-	-- Mỗi lần chạy chỉ có duy nhất một logo Figgy được thay; mọi logo khác giữ nguyên.
-	if State.FiggyOnionMenuLogo and State.FiggyOnionMenuLogo.Parent and State.FiggyOnionMenuLogo ~= obj then
-		return
-	end
-
-	obj:SetAttribute("__BananaGoldMenuLogo", true)
-	State.FiggyOnionMenuLogo = obj
-	decorateCircularGoldLogoBox(obj, 2.2, true)
+	State.FiggyLogoSlots[slot] = obj
+	bindFiggyLogo(obj, slot, gui)
 end
 
 local function styleElementGoldAndLogo(obj)
@@ -2116,82 +2152,50 @@ local function refreshAllTranslatedMenus()
 end
 State.RefreshAllMenus = refreshAllTranslatedMenus
 
+-- KHỐI 2: đăng ký theo sự kiện; không chờ theo vòng quét lặp lại.
 local function hookTargetScreenGui(gui)
 	if not gui or gui:GetAttribute("__FiggyGuiHooked") == SID then return end
 	local okName, gName = pcall(function() return gui.Name end)
 	if not okName or IGNORED_SCREEN_GUIS[gName] or gName == "Old_BananaDynamicIsland" then return end
 	if not isFiggyTargetGui(gui) then return end
-
 	gui:SetAttribute("__FiggyGuiHooked", SID)
 
-	-- Lắng nghe sự kiện phần tử mới thêm vào (Không dùng vòng lặp!)
 	trackConn(gui.DescendantAdded:Connect(function(desc)
-		if not isAlive() then return end
-		task.defer(function()
-			if isAlive() and desc and desc.Parent then
-				pcall(processGuiElement, desc)
-			end
-		end)
+		if isAlive() then
+			task.defer(function()
+				if isAlive() and desc and desc.Parent then pcall(processGuiElement, desc) end
+			end)
+		end
 	end))
 
-	-- Quét 1 lần duy nhất khi phát hiện GUI (chia nhỏ theo batch để không khựng frame)
-	task.spawn(function()
-		local okDesc, descendants = pcall(function() return gui:GetDescendants() end)
-		if okDesc and type(descendants) == "table" then
-			for i, d in ipairs(descendants) do
-				if not isAlive() then break end
-				pcall(processGuiElement, d)
-				if i % 250 == 0 then
-					task.wait()
-				end
-			end
-		end
-	end)
+	local okDesc, descendants = pcall(function() return gui:GetDescendants() end)
+	if not okDesc or type(descendants) ~= "table" then return end
+	local nextIndex = 1
+	local function processBatch()
+		if not isAlive() then return end
+		local lastIndex = math.min(nextIndex + 119, #descendants)
+		for i = nextIndex, lastIndex do pcall(processGuiElement, descendants[i]) end
+		nextIndex = lastIndex + 1
+		if nextIndex <= #descendants then task.defer(processBatch) end
+	end
+	task.defer(processBatch)
 end
 
--- ============================================================================
--- 9. KHỞI CHẠY DYNAMIC ISLAND & ĐĂNG KÝ SỰ KIỆN (KHÔNG VÒNG LẶP GÂY GIẬT LAG)
--- ============================================================================
+-- Chạy một lần cho UI đã có; các UI xuất hiện sau đó được bắt bằng ChildAdded.
 createIndependentFiggyDynamicIsland()
-
-task.spawn(function()
-	for _, root in ipairs(getUiRoots()) do
-		-- Quét các ScreenGui hiện có 1 lần
-		local okCh, children = pcall(function() return root:GetChildren() end)
-		if okCh and type(children) == "table" then
-			for _, gui in ipairs(children) do
-				pcall(hookTargetScreenGui, gui)
-			end
-		end
-
-		-- Tự động bắt ScreenGui của Figgy Hub ngay khi Loader vừa tải xong (Event-Driven)
-		trackConn(root.ChildAdded:Connect(function(newGui)
-			if not isAlive() then return end
-			-- Đợi ngắn để Figgy Hub khởi tạo xong tiêu đề bên trong ScreenGui mới
-			task.delay(0.35, function()
-				if isAlive() and newGui and newGui.Parent then
-					pcall(hookTargetScreenGui, newGui)
-				end
-			end)
-			task.delay(1.20, function()
-				if isAlive() and newGui and newGui.Parent then
-					pcall(hookTargetScreenGui, newGui)
-				end
-			end)
-		end))
+for _, root in ipairs(getUiRoots()) do
+	local okChildren, children = pcall(function() return root:GetChildren() end)
+	if okChildren and type(children) == "table" then
+		for _, gui in ipairs(children) do pcall(hookTargetScreenGui, gui) end
 	end
-
-	-- Quét xác nhận thêm 1 lần sau 1.5s và 3.5s khi script gốc vừa khởi tạo xong (rồi dừng hẳn, không lặp!)
-	for _, delaySec in ipairs({ 1.5, 3.5 }) do
-		task.wait(delaySec)
-		if not isAlive() then break end
-		for _, root in ipairs(getUiRoots()) do
-			local okCh, children = pcall(function() return root:GetChildren() end)
-			if okCh and type(children) == "table" then
-				for _, gui in ipairs(children) do
-					pcall(hookTargetScreenGui, gui)
-				end
-			end
-		end
-	end
-end)
+	trackConn(root.ChildAdded:Connect(function(newGui)
+		if not isAlive() then return end
+		task.defer(function()
+			if isAlive() and newGui and newGui.Parent then pcall(hookTargetScreenGui, newGui) end
+		end)
+		-- Chỉ retry cho GUI vừa được loader tạo, không có vòng lặp quét toàn bộ UI.
+		task.delay(0.35, function()
+			if isAlive() and newGui and newGui.Parent then pcall(hookTargetScreenGui, newGui) end
+		end)
+	end))
+end
