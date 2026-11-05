@@ -1,16 +1,16 @@
---!strict
 -- ============================================================================
--- BANANA HUB | LUXURY GOLD PREMIUM EDITION
--- KHỐI 4: AVATAR_RENDERER (DYNAMIC WALK ANIMATION & 3D WORLDMODEL SYSTEM)
--- Logo: Banana Cat (rbxassetid://87447945720038)
--- Màu chủ đạo: Gold Premium (Vàng Hoàng Gia Sang Trọng #FFE66E - #EBB937 - #C88C1E)
+-- BANANA HUB V1.0.6+ (GOLD PREMIUM EDITION) | VIỆT HÓA & DYNAMIC ISLAND DỊU MẮT
+-- Script gốc: loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/91ad82d753e1318189c4e249d56e7dcf.lua"))()
+-- 1. Đổi tên Figgy Hub -> Banana Hub & Thay toàn bộ logo sang Banana Cat (rbxassetid://87447945720038)
+-- 2. Phối màu Vàng Sang Trọng (Luxury Gold Premium) dịu mắt, chống chói (Anti-Glare Matte Gold)
+-- 3. Bê nguyên Hình Ảnh Icon & Trạng Thái thực tế từ Header vào Dynamic Island, cập nhật realtime 100%
+-- 4. Sửa toàn bộ chữ và nút bên trong Dynamic Island sang tông Đen Than - Vàng Kem dịu mắt, không trói mắt
 -- ============================================================================
 
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
 local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+local SoundService = game:GetService("SoundService")
 
 local LocalPlayer = Players.LocalPlayer
 if not LocalPlayer then
@@ -20,1013 +20,1914 @@ if not LocalPlayer then
 	LocalPlayer = Players.LocalPlayer
 end
 
--- Quản lý phiên chạy an toàn & dọn dẹp khi chạy lại script
+-- Quản lý trạng thái phiên chạy
 local env = (getgenv and getgenv()) or _G
-env.__BananaHubSession = (env.__BananaHubSession or 0) + 1
-local SID = env.__BananaHubSession
+env.__FiggyIslandState = env.__FiggyIslandState or {}
+local State = env.__FiggyIslandState
+State.SessionId = (State.SessionId or 0) + 1
+local SID = State.SessionId
+State.Language = State.Language or "VI" -- "VI" hoặc "EN"
+State.CurrentRawStatus = State.CurrentRawStatus or "Idle"
+State.CurrentStatusImage = State.CurrentStatusImage or ""
+State.CurrentStatusImageColor = State.CurrentStatusImageColor or Color3.fromRGB(255, 255, 255)
+State.CurrentStatusRectOffset = State.CurrentStatusRectOffset or Vector2.new(0, 0)
+State.CurrentStatusRectSize = State.CurrentStatusRectSize or Vector2.new(0, 0)
+State.CurrentStatusEmoji = State.CurrentStatusEmoji or ""
+State.SoundEnabled = (State.SoundEnabled ~= false)
+State.IsExpanded = false
+State.NoteOpen = false
+State.TrackedLabels = State.TrackedLabels or {}
+State.FastCache = {}
+State.CachedSounds = State.CachedSounds or {}
+State.OrigFiggyLogoAssetIds = State.OrigFiggyLogoAssetIds or {}
+
 local function isAlive()
-	return env.__BananaHubSession == SID
+	return State.SessionId == SID
 end
 
 -- ============================================================================
--- 1. HẰNG SỐ, ASSET ID & BẢNG MÀU VÀNG SANG TRỌNG (GOLD PREMIUM PALETTE)
+-- 1. KHỞI CHẠY TRỰC TIẾP SCRIPT GỐC (FIGGY / BANANA HUB LOADER)
 -- ============================================================================
-local BANANA_CAT_LOGO = "rbxassetid://87447945720038"
+local FIGGY_LOADER_URL = "https://api.luarmor.net/files/v4/loaders/91ad82d753e1318189c4e249d56e7dcf.lua"
 
--- ID Animation chuẩn dự phòng cho R15 và R6
-local ANIM_IDS = {
-	R15 = {
-		Walk = "http://www.roblox.com/asset/?id=507777826",
-		Idle = "http://www.roblox.com/asset/?id=507766388",
-		Run  = "http://www.roblox.com/asset/?id=507767714"
-	},
-	R6 = {
-		Walk = "http://www.roblox.com/asset/?id=180426354",
-		Idle = "http://www.roblox.com/asset/?id=180435571",
-		Run  = "http://www.roblox.com/asset/?id=180426354"
-	}
+task.spawn(function()
+	loadstring(game:HttpGet(FIGGY_LOADER_URL))()
+end)
+
+local IGNORED_SCREEN_GUIS = {
+	BananaDynamicIsland = true,
+	FiggyDynamicIsland = true,
+	RobloxGui = true,
+	TopBarApp = true,
+	TouchGui = true,
+	Chat = true,
+	BubbleChat = true,
+	ExperienceChat = true,
+	BackpackGui = true,
+	PlayerList = true,
+	InGameMenu = true,
+	PurchasePrompt = true,
+	TeleportGui = true,
 }
 
--- Bảng màu Gold Premium sang trọng
-local GOLD_PALETTE = {
-	ObsidianBg   = Color3.fromRGB(16, 17, 22),       -- Đen tuyền sâu thẳm
-	CardBg       = Color3.fromRGB(24, 25, 32),       -- Nền thẻ kính tối
-	GlassTint    = Color3.fromRGB(32, 30, 26),       -- Kính ám hổ phách trầm
-	LightGold    = Color3.fromRGB(255, 235, 130),     -- Vàng sáng hoàng gia (#FFE66E)
-	MetallicGold = Color3.fromRGB(235, 185, 55),      -- Vàng kim loại chuẩn (#EBB937)
-	AmberGold    = Color3.fromRGB(200, 140, 30),      -- Vàng hổ phách (#C88C1E)
-	DeepGold     = Color3.fromRGB(140, 95, 18),       -- Vàng đồng trầm (#8C5F12)
-	TextPrimary  = Color3.fromRGB(255, 248, 225),     -- Trắng ngà hoàng kim
-	TextMuted    = Color3.fromRGB(185, 175, 150),     -- Xám vàng dịu mắt
-	StatusMoving = Color3.fromRGB(85, 235, 145),      -- Xanh ngọc lục bảo (Di chuyển)
-	StatusIdle   = Color3.fromRGB(255, 215, 65),      -- Vàng hổ phách (Đứng yên)
+local function getUiRoots()
+	local roots, seen = {}, {}
+	local function add(r)
+		if r and not seen[r] then
+			seen[r] = true
+			table.insert(roots, r)
+		end
+	end
+	pcall(function() add(CoreGui) end)
+	if gethui then pcall(function() add(gethui()) end) end
+	if get_hidden_gui then pcall(function() add(get_hidden_gui()) end) end
+	if gethiddenui then pcall(function() add(gethiddenui()) end) end
+	if LocalPlayer then
+		add(LocalPlayer:FindFirstChildOfClass("PlayerGui"))
+	end
+	return roots
+end
+
+-- Nhận diện chính xác ScreenGui của Figgy Hub / Banana Hub
+local function isFiggyTargetGui(gui)
+	if not gui then return false end
+	if gui:GetAttribute("__VerifiedFiggyGui") then return true end
+	local okD, desc = pcall(function() return gui:GetDescendants() end)
+	if not okD or type(desc) ~= "table" then return false end
+	for _, d in ipairs(desc) do
+		if d:IsA("TextLabel") or d:IsA("TextButton") then
+			local t = d.Text or ""
+			if t == "Figgy Hub" or t == "Banana Hub" or t == "FrostyFig"
+				or t == "Steal an Egg" or t == "Cướp Trứng"
+				or t == "AUTO STEAL" or t == "TỰ ĐỘNG CƯỚP TRỨNG"
+				or t == "UFO SIGHTINGS" or t == "PHÁT HIỆN UFO"
+				or t == "EQUIP BEST" or t == "TRANG BỊ MẠNH NHẤT"
+				or t == "Guard: OFF" or t == "Bảo vệ: TẮT"
+				or t:find("^Shortcut %d+$") or t:find("^Phím Tắt %d+$")
+			then
+				gui:SetAttribute("__VerifiedFiggyGui", true)
+				return true
+			end
+		end
+	end
+	return false
+end
+
+-- ============================================================================
+-- 2. HỆ THỐNG ÂM THANH TƯƠNG TÁC (MENU & DYNAMIC ISLAND - ZERO LATENCY)
+-- ============================================================================
+local SOUND_CONFIG = {
+	open   = { id = "rbxassetid://6895079853", vol = 0.55, spd = 1.06 },
+	close  = { id = "rbxassetid://6895079853", vol = 0.45, spd = 0.86 },
+	tap    = { id = "rbxassetid://6026984224", vol = 0.52, spd = 1.14 },
+	action = { id = "rbxassetid://4590662766", vol = 0.55, spd = 1.08 },
 }
 
-local GOLD_GRADIENT_SEQUENCE = ColorSequence.new({
-	ColorSequenceKeypoint.new(0.00, GOLD_PALETTE.LightGold),
-	ColorSequenceKeypoint.new(0.35, GOLD_PALETTE.MetallicGold),
-	ColorSequenceKeypoint.new(0.70, GOLD_PALETTE.AmberGold),
-	ColorSequenceKeypoint.new(1.00, GOLD_PALETTE.LightGold)
-})
-
--- ============================================================================
--- 2. ĐỊNH NGHĨA KIỂU DỮ LIỆU & MODULE AVATAR_RENDERER
--- ============================================================================
-local Avatar_Renderer = {}
-Avatar_Renderer.__index = Avatar_Renderer
-
---[[
-    Kiểu dữ liệu cấu hình Renderer (RendererConfig):
-    - Parent: GuiObject? (Khung chứa giao diện)
-    - Player: Player? (Người chơi cần render, mặc định LocalPlayer)
-    - Size: UDim2? (Kích thước khung 3D)
-    - Position: UDim2? (Vị trí hiển thị)
-    - ShowStats: boolean? (Hiện thông số tốc độ & tên)
-    - AutoRotate: boolean? (Tự động xoay Avatar)
---]]
-
--- Hàm tiện ích lấy gốc an toàn
-local function getSafeTargetGui()
-	local target = nil
-	if gethui then
-		pcall(function() target = gethui() end)
+local function getCachedSound(kind)
+	local key = kind or "tap"
+	local cfg = SOUND_CONFIG[key] or SOUND_CONFIG.tap
+	local snd = State.CachedSounds[key]
+	if not (snd and snd.Parent) then
+		snd = Instance.new("Sound")
+		snd.Name = "BananaGoldSfx_" .. key
+		snd.SoundId = cfg.id
+		snd.Volume = cfg.vol
+		snd.PlaybackSpeed = cfg.spd
+		snd.Parent = SoundService
+		State.CachedSounds[key] = snd
 	end
-	if not target and CoreGui then
-		pcall(function() target = CoreGui end)
-	end
-	if not target and LocalPlayer then
-		target = LocalPlayer:FindFirstChildOfClass("PlayerGui")
-	end
-	return target or game:GetService("Workspace")
+	return snd
 end
 
--- ============================================================================
--- 3. HÀM TÌM KIẾM ANIMATION ID THỰC CỦA NGƯỜI CHƠI (CÓ DỰ PHÒNG CHUẨN)
--- ============================================================================
-local function extractCharacterAnimationIds(character, humanoid)
-	local isR15 = (humanoid.RigType == Enum.HumanoidRigType.R15)
-	local defaultTable = isR15 and ANIM_IDS.R15 or ANIM_IDS.R6
-
-	local walkId = defaultTable.Walk
-	local idleId = defaultTable.Idle
-
-	local animateScript = character:FindFirstChild("Animate")
-	if animateScript then
-		-- 1. Tìm Walk Animation ID
-		pcall(function()
-			local walkFolder = animateScript:FindFirstChild("walk") or animateScript:FindFirstChild("run")
-			if walkFolder then
-				local animObj = walkFolder:FindFirstChildWhichIsA("Animation")
-				if animObj and animObj.AnimationId and #animObj.AnimationId > 8 then
-					walkId = animObj.AnimationId
-				end
-			end
-		end)
-
-		-- 2. Tìm Idle Animation ID
-		pcall(function()
-			local idleFolder = animateScript:FindFirstChild("idle")
-			if idleFolder then
-				local animObj = idleFolder:FindFirstChild("Animation1") or idleFolder:FindFirstChildWhichIsA("Animation")
-				if animObj and animObj.AnimationId and #animObj.AnimationId > 8 then
-					idleId = animObj.AnimationId
-				end
-			end
-		end)
-	end
-
-	return walkId, idleId
-end
-
--- ============================================================================
--- 4. KHỞI TẠO BẢN CLONE AN TOÀN TRONG WORLDMODEL
--- ============================================================================
-local function prepareCleanAvatarClone(character)
-	character.Archivable = true
-	local clone = character:Clone()
-	character.Archivable = false
-
-	if not clone then return nil end
-	clone.Name = "BananaHub_AvatarClone"
-
-	-- Xóa bỏ script, âm thanh và phụ kiện thừa không cần thiết trong 3D Viewport
-	for _, desc in ipairs(clone:GetDescendants()) do
-		if desc:IsA("Script") or desc:IsA("LocalScript") or desc:IsA("Sound") then
-			desc:Destroy()
-		elseif desc:IsA("BasePart") then
-			desc.CanCollide = false
-			desc.CanTouch = false
-			desc.CanQuery = false
-			-- Chỉ neo HumanoidRootPart để nhân vật không rơi khỏi bệ, giữ các khớp cử động cho hoạt ảnh
-			if desc.Name == "HumanoidRootPart" then
-				desc.Anchored = true
-			else
-				desc.Anchored = false
-			end
+task.defer(function()
+	pcall(function()
+		for k in pairs(SOUND_CONFIG) do
+			getCachedSound(k)
 		end
-	end
+	end)
+end)
 
-	local cloneHumanoid = clone:FindFirstChildOfClass("Humanoid")
-	if cloneHumanoid then
-		cloneHumanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
-		cloneHumanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
-		cloneHumanoid.NameDisplayDistance = 0
-		cloneHumanoid.HealthDisplayDistance = 0
-		cloneHumanoid.PlatformStand = true
-	end
-
-	return clone
+local lastSoundClock = 0
+local function playUiSound(kind)
+	if not State.SoundEnabled then return end
+	local now = os.clock()
+	if kind == "tap" and (now - lastSoundClock < 0.045) then return end
+	lastSoundClock = now
+	pcall(function()
+		local snd = getCachedSound(kind or "tap")
+		snd.TimePosition = 0
+		if SoundService.PlayLocalSound then
+			pcall(function() SoundService:PlayLocalSound(snd) end)
+		end
+		pcall(function() snd:Play() end)
+	end)
 end
 
 -- ============================================================================
--- 5. KHỞI TẠO MODULE RENDERER CHÍNH
+-- 3. BẢNG MÀU LUXURY GOLD PREMIUM & LOGO BANANA CAT (CHỐNG CHÓI 100%)
 -- ============================================================================
-function Avatar_Renderer.new(userConfig)
-	local config = userConfig or {}
-	local targetPlayer = config.Player or LocalPlayer
-	local showStats = (config.ShowStats ~= false)
-	local autoRotateInit = (config.AutoRotate ~= false)
+local BANANA_CAT_LOGO     = "rbxassetid://87447945720038" -- ID ảnh Banana Cat theo yêu cầu
+local DOWN_ARROW_ICON     = "rbxassetid://6031091004"
 
-	local self = setmetatable({}, Avatar_Renderer)
-	self.Connections = {}
-	self.RotationAngle = 0
-	self.AutoRotate = autoRotateInit
-	self.IsWalking = false
-	self.ManualDragRotation = 0
+-- Bảng màu Vàng Sang Trọng (Luxury Matte Gold Premium - Dịu mắt, Không trói mắt)
+local GOLD_PRIMARY_TEXT   = Color3.fromRGB(238, 206, 118) -- Vàng Champagne sang trọng
+local GOLD_BRIGHT_TITLE   = Color3.fromRGB(246, 212, 102) -- Vàng Hoàng Gia cho tiêu đề Banana Hub
+local GOLD_ACCENT_FILL    = Color3.fromRGB(198, 154, 52)  -- Vàng đồng trầm cho thanh gạt/tab trong menu
+local GOLD_BORDER_STROKE  = Color3.fromRGB(176, 138, 56)  -- Viền vàng kim mờ sang trọng
+local GOLD_SOFT_CREAM     = Color3.fromRGB(224, 216, 198) -- Chữ kem ấm dịu mắt trong Dynamic Island
+local GOLD_MUTED_SUBTEXT  = Color3.fromRGB(154, 146, 128) -- Chữ phụ xám vàng êm dịu
 
-	-- 1. Khung chứa chính (Container) với hiệu ứng Gold Premium
-	local container = Instance.new("Frame")
-	container.Name = "AvatarRendererCard"
-	container.Size = config.Size or UDim2.new(0, 240, 0, showStats and 340 or 270)
-	container.Position = config.Position or UDim2.new(0, 16, 0, 70)
-	container.BackgroundColor3 = GOLD_PALETTE.CardBg
-	container.BorderSizePixel = 0
-	container.ClipsDescendants = true
-	self.Container = container
+-- Nền & Nút trong Dynamic Island (Tông Đen Obsidian & Nâu Vàng Espresso chống chói mắt)
+local ISLAND_BG_DARK      = Color3.fromRGB(16, 16, 20)    -- Đen khói mờ sâu
+local ISLAND_CARD_BG      = Color3.fromRGB(24, 23, 20)    -- Nền thẻ trạng thái ấm dịu
+local BTN_ACTIVE_BG       = Color3.fromRGB(52, 42, 22)    -- Nền nút đang chọn: Nâu Vàng Espresso dịu mắt (không chói)
+local BTN_ACTIVE_STROKE   = Color3.fromRGB(196, 156, 62)  -- Viền nút đang chọn: Vàng kim
+local BTN_ACTIVE_TEXT     = Color3.fromRGB(240, 208, 120) -- Chữ nút đang chọn: Vàng kem dịu
+local BTN_INACTIVE_BG     = Color3.fromRGB(24, 24, 28)    -- Nền nút thường: Xám than tối
+local BTN_INACTIVE_STROKE = Color3.fromRGB(52, 48, 42)    -- Viền nút thường
 
-	local cardCorner = Instance.new("UICorner")
-	cardCorner.CornerRadius = UDim.new(0, 14)
-	cardCorner.Parent = container
+-- Nhận diện tông màu tím gốc của Figgy Hub để chuyển sang Vàng Gold Premium
+local function isFiggyPurpleColor(col)
+	if not col then return false end
+	-- Tím Figgy có kênh Blue cao (> 0.45), Red trung bình-cao (> 0.30), và Blue vượt trội hơn Green
+	return (col.B > 0.44 and col.R > 0.28 and (col.B - col.G) > 0.12)
+end
 
-	local cardStroke = Instance.new("UIStroke")
-	cardStroke.Name = "GoldPremiumBorder"
-	cardStroke.Color = GOLD_PALETTE.MetallicGold
-	cardStroke.Thickness = 1.6
-	cardStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	cardStroke.Parent = container
-
-	local strokeGrad = Instance.new("UIGradient")
-	strokeGrad.Color = GOLD_GRADIENT_SEQUENCE
-	strokeGrad.Rotation = 45
-	strokeGrad.Parent = cardStroke
-
-	-- Hiệu ứng phản quang vàng ánh kim mặt trên (Gold Glass Shimmer)
-	local goldTopShimmer = Instance.new("Frame")
-	goldTopShimmer.Name = "GoldTopShimmer"
-	goldTopShimmer.Size = UDim2.new(1, 0, 0, 32)
-	goldTopShimmer.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	goldTopShimmer.BorderSizePixel = 0
-	goldTopShimmer.ZIndex = 5
-	goldTopShimmer.Parent = container
-
-	local shimmerGrad = Instance.new("UIGradient")
-	shimmerGrad.Rotation = 90
-	shimmerGrad.Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0.00, GOLD_PALETTE.LightGold),
-		ColorSequenceKeypoint.new(1.00, GOLD_PALETTE.DeepGold)
+local function applyGoldGradientToTitle(titleLbl)
+	if not titleLbl or titleLbl:FindFirstChild("BananaGoldTitleGrad") then return end
+	titleLbl.TextColor3 = GOLD_BRIGHT_TITLE
+	local grad = Instance.new("UIGradient")
+	grad.Name = "BananaGoldTitleGrad"
+	grad.Rotation = 90
+	grad.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 232, 150)),
+		ColorSequenceKeypoint.new(0.55, Color3.fromRGB(235, 190, 75)),
+		ColorSequenceKeypoint.new(1.00, Color3.fromRGB(198, 148, 42)),
 	})
-	shimmerGrad.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0.00, 0.75),
-		NumberSequenceKeypoint.new(0.60, 0.92),
-		NumberSequenceKeypoint.new(1.00, 1.00)
+	grad.Parent = titleLbl
+end
+
+-- ============================================================================
+-- 4. BỘ TỪ ĐIỂN & ĐỘNG CƠ DỊCH THUẬT TOÀN DIỆN BANANA HUB (ĐÃ FIX 7915.JPG)
+-- ============================================================================
+local EXACT_VI = {
+	-- Đổi tên thương hiệu sang Banana Hub
+	["Figgy Hub"] = "Banana Hub",
+	["figgy hub"] = "Banana Hub",
+	["FIGGY HUB"] = "BANANA HUB",
+	["Banana Hub"] = "Banana Hub",
+	["Steal an Egg"] = "Cướp Trứng",
+	["Steal An Egg"] = "Cướp Trứng",
+	["steal an egg"] = "Cướp Trứng",
+
+	-- Trạng thái
+	["Idle"] = "Đang rảnh",
+	["• Idle"] = "• Đang rảnh",
+	["Running"] = "Đang chạy",
+	["• Running"] = "• Đang chạy",
+	["Working"] = "Đang chạy",
+	["Active"] = "Đang bật",
+	["ACTIVE"] = "ĐANG BẬT",
+	["Inactive"] = "Đang tắt",
+	["INACTIVE"] = "ĐANG TẮT",
+	["Farming"] = "Đang cày",
+	["Stealing"] = "Đang cướp trứng",
+	["Searching"] = "Đang tìm kiếm",
+	["Search"] = "Tìm kiếm...",
+	["Search..."] = "Tìm kiếm...",
+	["Find option"] = "Tìm tùy chọn...",
+	["🔍 Find option"] = "🔍 Tìm tùy chọn...",
+
+	-- Tab Sidebar
+	["Home"] = "Trang Chủ",
+	["Dashboard"] = "Trang Chủ",
+	["Eggs"] = "Trứng",
+	["Egg"] = "Trứng",
+	["Steal"] = "Cướp Trứng",
+	["Manage"] = "Quản Lý",
+	["Management"] = "Quản Lý",
+	["Farm"] = "Tự Cày",
+	["Events"] = "Sự Kiện",
+	["Event"] = "Sự Kiện",
+	["System"] = "Hệ Thống",
+	["Player"] = "Nhân Vật",
+	["Visuals"] = "Hiển Thị",
+	["Visual"] = "Hiển Thị",
+	["ESP"] = "Định Vị (ESP)",
+	["Settings"] = "Cài Đặt",
+	["Setting"] = "Cài Đặt",
+	["Config"] = "Cấu Hình",
+	["Configs"] = "Cấu Hình",
+	["Server"] = "Máy Chủ",
+
+	-- Sub-tabs & Các mục trong ảnh 7915.jpg
+	["Automation"] = "Tự Động",
+	["AUTOMATION"] = "TỰ ĐỘNG",
+	["Predictor"] = "Dự Đoán",
+	["PREDICTOR"] = "DỰ ĐOÁN",
+	["Auto Steal"] = "Tự động cướp trứng",
+	["AUTO STEAL"] = "TỰ ĐỘNG CƯỚP TRỨNG",
+	["Auto steal"] = "Tự động cướp trứng",
+	["STOLEN"] = "ĐÃ CƯỚP",
+	["Stolen"] = "Đã cướp",
+	["this session"] = "trong phiên này",
+	["This session"] = "Trong phiên này",
+	["this PHIÊN CHƠI"] = "trong phiên này",
+	["This PHIÊN CHƠI"] = "Trong phiên này",
+	["PHIÊN CHƠI"] = "phiên này",
+	["STATUS"] = "TRẠNG THÁI",
+	["Status"] = "Trạng thái",
+	["Auto steal: Off"] = "Tự động cướp: Tắt",
+	["Auto steal: On"] = "Tự động cướp: Bật",
+	["Auto Steal: Off"] = "Tự động cướp: Tắt",
+	["Auto Steal: On"] = "Tự động cướp: Bật",
+	["Tự động cướp: Tắt"] = "Tự động cướp: Tắt",
+	["Tự động cướp: Bật"] = "Tự động cướp: Bật",
+	["SPEED"] = "TỐC ĐỘ",
+	["Speed"] = "Tốc độ",
+	["EGG BAG"] = "TÚI TRỨNG",
+	["Egg Bag"] = "Túi Trứng",
+	["Egg bag"] = "Túi trứng",
+	["Move To Egg"] = "Di chuyển tới trứng",
+	["Move to Egg"] = "Di chuyển tới trứng",
+	["Move to egg"] = "Di chuyển tới trứng",
+	["Go to egg"] = "Di chuyển tới trứng",
+	["Go to Egg"] = "Di chuyển tới trứng",
+	["Go To Egg"] = "Di chuyển tới trứng",
+	["Di Chuyển To trứng"] = "Di chuyển tới trứng",
+	["Di chuyển To trứng"] = "Di chuyển tới trứng",
+	["Di chuyển tới trứng"] = "Di chuyển tới trứng",
+	["dịch chuyển"] = "Dịch chuyển",
+	["Dịch chuyển"] = "Dịch chuyển",
+	["Teleport"] = "Dịch chuyển",
+	["Fast Tween"] = "Bay Nhanh (Fast Tween)",
+	["Fast tween"] = "Bay Nhanh (Fast Tween)",
+	["Walk"] = "Đi bộ",
+	["Delivery method"] = "Phương thức giao trứng",
+	["Delivery Method"] = "Phương thức giao trứng",
+	["Phương thức giao trứng"] = "Phương thức giao trứng",
+	["Teleport zones"] = "Khu vực dịch chuyển",
+	["Teleport Zones"] = "Khu vực dịch chuyển",
+	["Khu vực dịch chuyển"] = "Khu vực dịch chuyển",
+	["Titan Temple"] = "Đền Titan",
+	["Enchanted Forest"] = "Rừng Phù Phép",
+	["Light Dark"] = "Sáng Tối",
+	["Cherry Blossom"] = "Hoa Anh Đào",
+	["Prehistoric"] = "Tiền Sử",
+	["Volcano"] = "Núi Lửa",
+	["Snow"] = "Tuyết",
+	["Desert"] = "Sa Mạc",
+	["Steal missing index eggs"] = "Cướp trứng thiếu trong Mục lục",
+	["Steal Missing Index Eggs"] = "Cướp trứng thiếu trong Mục lục",
+	["Cướp trứng thiếu trong Mục lục"] = "Cướp trứng thiếu trong Mục lục",
+
+	-- Bộ Lọc (Trong ảnh 7915.jpg)
+	["FILTER"] = "BỘ LỌC",
+	["Filter"] = "Bộ lọc",
+	["BỘ LỌC"] = "BỘ LỌC",
+	["Area"] = "Khu vực",
+	["Zones"] = "Khu vực",
+	["Zone"] = "Khu vực",
+	["Khu vực"] = "Khu vực",
+	["Steal first"] = "Ưu tiên cướp trước",
+	["Steal First"] = "Ưu tiên cướp trước",
+	["Steal Priority"] = "Ưu tiên cướp trước",
+	["Ưu tiên cướp trước"] = "Ưu tiên cướp trước",
+	["Highest Earnings"] = "Thu nhập cao nhất",
+	["Lowest Earnings"] = "Thu nhập thấp nhất",
+	["Best value"] = "Giá trị cao nhất",
+	["Lowest value"] = "Giá trị thấp nhất",
+	["Best rarity"] = "Độ hiếm cao nhất",
+	["Best mutation"] = "Đột biến tốt nhất",
+	["Mutation"] = "Đột biến",
+	["Mutations"] = "Đột biến",
+	["Đột biến"] = "Đột biến",
+	["No selection"] = "Chưa chọn",
+	["Chưa chọn"] = "Chưa chọn",
+	["Rarity"] = "Độ hiếm",
+	["Rarities"] = "Độ hiếm",
+	["Độ hiếm"] = "Độ hiếm",
+	["Only these eggs"] = "Chỉ những trứng này",
+	["Only These Eggs"] = "Chỉ những trứng này",
+	["Chỉ những trứng này"] = "Chỉ những trứng này",
+	["Min $/s"] = "Tối thiểu $/giây",
+	["Tối thiểu $/giây"] = "Tối thiểu $/giây",
+	["Min KG"] = "Cân nặng tối thiểu (KG)",
+	["Max KG"] = "Cân nặng tối đa (KG)",
+	["Sell Cheapest Egg"] = "Bán trứng rẻ nhất khi đầy túi",
+	["Sell cheapest egg"] = "Bán trứng rẻ nhất khi đầy túi",
+	["bán Cheapest trứng"] = "Bán trứng rẻ nhất khi đầy túi",
+	["Bán Cheapest trứng"] = "Bán trứng rẻ nhất khi đầy túi",
+	["Sell cheapest egg when bag is full"] = "Bán trứng rẻ nhất khi đầy túi",
+	["Makes room when the egg bag is full"] = "Tự bán dọn chỗ khi túi trứng đầy",
+	["Makes room when the trứng túi is full"] = "Tự bán dọn chỗ khi túi trứng đầy",
+	["Makes room when the bag is full"] = "Tự bán dọn chỗ khi túi đầy",
+	["None"] = "Không có",
+	["Không có"] = "Không có",
+	["Off"] = "Tắt",
+	["Tắt"] = "Tắt",
+	["On"] = "Bật",
+	["Bật"] = "Bật",
+
+	-- Tab Quản Lý
+	["Inventory"] = "Túi Đồ",
+	["INVENTORY"] = "TÚI ĐỒ",
+	["Place & Hatch"] = "Đặt & Ấp Trứng",
+	["PLACE & HATCH"] = "ĐẶT & ẤP TRỨNG",
+	["Upgrades"] = "Nâng Cấp",
+	["UPGRADES"] = "NÂNG CẤP",
+	["Crafting"] = "Chế Tạo",
+	["CRAFTING"] = "CHẾ TẠO",
+	["EQUIP BEST"] = "TRANG BỊ MẠNH NHẤT",
+	["Equip Best"] = "Trang Bị Mạnh Nhất",
+	["Equip best"] = "Trang bị mạnh nhất",
+	["PETS"] = "THÚ CƯNG",
+	["Pets"] = "Thú Cưng",
+	["EQUIPPED"] = "ĐANG TRANG BỊ",
+	["Equipped"] = "Đang Trang Bị",
+	["Auto Equip Best Pets"] = "Tự động trang bị thú cưng mạnh nhất",
+	["Auto equip best pets"] = "Tự động trang bị thú cưng mạnh nhất",
+	["Tự động Equip Best thú cưng"] = "Tự động trang bị thú cưng mạnh nhất",
+	["Equip best pets"] = "Trang bị thú cưng mạnh nhất",
+	["Open Pet Bag"] = "Mở Túi Thú Cưng",
+	["Open Egg Bag"] = "Mở Túi Trứng",
+	["Open"] = "Mở",
+	["OPEN"] = "MỞ",
+	["Close"] = "Đóng",
+	["CLOSE"] = "ĐÓNG",
+	["AUTO FAVORITE"] = "TỰ ĐỘNG KHÓA YÊU THÍCH",
+	["Auto Favorite"] = "Tự động khóa yêu thích",
+	["Auto favorite"] = "Tự động khóa yêu thích",
+	["FAVORITED"] = "ĐÃ YÊU THÍCH",
+	["Favorited"] = "Đã Yêu Thích",
+	["UNFAVORITED"] = "CHƯA YÊU THÍCH",
+	["Unfavorited"] = "Chưa Yêu Thích",
+	["Categories"] = "Danh mục",
+	["SELL EGGS"] = "BÁN TRỨNG",
+	["Sell Eggs"] = "Bán Trứng",
+	["Sell eggs"] = "Bán trứng",
+	["SPACE LEFT"] = "CHỖ TRỐNG",
+	["Space Left"] = "Chỗ Trống",
+	["Space left"] = "Chỗ trống",
+	["Egg Names"] = "Tên trứng",
+	["Pet Names"] = "Tên thú cưng",
+	["Egg Rarities"] = "Độ hiếm trứng",
+	["Pet Rarities"] = "Độ hiếm thú cưng",
+	["Sell Rule"] = "Quy tắc bán",
+	["Match All"] = "Khớp tất cả",
+	["Match Any"] = "Khớp bất kỳ",
+	["Maximum Rarity"] = "Độ hiếm tối đa",
+	["Minimum Rarity"] = "Độ hiếm tối thiểu",
+	["Keep Mutated Eggs"] = "Giữ lại trứng đột biến",
+	["Keep mutated eggs"] = "Giữ lại trứng đột biến",
+	["Never Sell Species"] = "Không bán các loài này",
+	["Never Sell Eggs"] = "Không bán các trứng này",
+
+	-- UFO & Sự Kiện
+	["UFO"] = "UFO (Đĩa Bay)",
+	["UFO SIGHTINGS"] = "PHÁT HIỆN UFO",
+	["Auto UFO"] = "Tự động săn UFO",
+	["Collect UFO Debris"] = "Thu thập mảnh vỡ UFO",
+	["Farm Rare UFO"] = "Cày UFO hiếm",
+	["Auto Trade Debris"] = "Tự động đổi mảnh vỡ",
+	["Teleport If Far From Egg"] = "Dịch chuyển nếu ở xa trứng",
+	["UFO STATUS"] = "TRẠNG THÁI UFO",
+	["EGGS"] = "TRỨNG",
+	["DEBRIS"] = "MẢNH VỠ",
+	["SEASONAL"] = "SỰ KIỆN THEO MÙA",
+	["BUTTERFLY EVENT"] = "SỰ KIỆN BƯỚM",
+	["ESSENCE"] = "TINH CHẤT",
+	["CAUGHT"] = "ĐÃ BẮT",
+	["NET"] = "VỢT BẮT",
+	["THE HOLLOW"] = "VỰC HOLLOW",
+	["WINS"] = "SỐ TRẬN THẮNG",
+	["STEAL"] = "CƯỚP NGAY",
+	["Guard: OFF"] = "Bảo vệ: TẮT",
+	["Guard: ON"] = "Bảo vệ: BẬT",
+}
+
+local LOWER_VI = {}
+local VI_TO_EN = {}
+for enKey, viVal in pairs(EXACT_VI) do
+	local lk = string.lower(enKey)
+	if not LOWER_VI[lk] or enKey:upper() ~= enKey then
+		LOWER_VI[lk] = viVal
+	end
+	if enKey ~= "Figgy Hub" and enKey ~= "figgy hub" and enKey ~= "FIGGY HUB" then
+		if not VI_TO_EN[viVal] then
+			VI_TO_EN[viVal] = enKey
+		end
+		local lv = string.lower(viVal)
+		if not VI_TO_EN[lv] then
+			VI_TO_EN[lv] = enKey
+		end
+	end
+end
+
+local GRAMMAR_VI = {
+	-- Trạng thái mang trứng/hoạt động trên Header & Thẻ Trạng Thái (VD: "Carrying $23.2M/s" hoặc "🦎 Carrying $23.2M/s")
+	{ pat = "^(.-)[Cc]arrying%s+(.+)$", rep = "%1Đang mang %2" },
+	{ pat = "^(.-)[Hh]olding%s+(.+)$", rep = "%1Đang giữ %2" },
+	{ pat = "^(.-)[Ss]tealing%s+(.+)$", rep = "%1Đang cướp %2" },
+	{ pat = "^(.-)[Ff]arming%s+(.+)$", rep = "%1Đang cày %2" },
+	{ pat = "^(.-)[Ss]elling%s+(.+)$", rep = "%1Đang bán %2" },
+	{ pat = "^(.-)[Mm]oving%s+to%s+(.+)$", rep = "%1Đang tới %2" },
+	{ pat = "^(.-)[Tt]eleporting%s+to%s+(.+)$", rep = "%1Đang dịch chuyển tới %2" },
+	{ pat = "^(.-)[Ww]aiting%s+for%s+(.+)$", rep = "%1Đang chờ %2" },
+	{ pat = "^(.-)[Ww]aiting(.*)$", rep = "%1Đang chờ%2" },
+	{ pat = "^([%d%.]+)%s*st/s%s*now$", rep = "%1 bước/giây hiện tại" },
+	{ pat = "^([%d%.]+)%s*st/s$", rep = "%1 bước/giây" },
+	{ pat = "^(%d+)%s+[Ff]ree$", rep = "Còn trống %1 ô" },
+	{ pat = "^[Tt]his%s+session$", rep = "trong phiên này" },
+	{ pat = "^[Tt]his%s+PHIÊN%s+CHƠI$", rep = "trong phiên này" },
+	{ pat = "^[Mm]ove%s+[Tt]o%s+[Ee]gg$", rep = "Di chuyển tới trứng" },
+	{ pat = "^[Gg]o%s+[Tt]o%s+[Ee]gg$", rep = "Di chuyển tới trứng" },
+	{ pat = "^[Ss]ell%s+[Cc]heapest%s+[Ee]gg$", rep = "Bán trứng rẻ nhất khi đầy túi" },
+	{ pat = "^[Mm]akes%s+room%s+when%s+the%s+.-%s+is%s+full$", rep = "Tự bán dọn chỗ khi túi trứng đầy" },
+	{ pat = "^[Nn]ext%s+UFO%s+in%s+(.+)$", rep = "UFO tiếp theo sau %1" },
+	{ pat = "^[Nn]ext%s+event%s+in%s+(.+)$", rep = "Sự kiện tiếp theo sau %1" },
+	{ pat = "^[Ss]hortcut%s+(%d+)$", rep = "Phím Tắt %1" },
+	{ pat = "^QUICK BAR (%d+)$", rep = "THANH NHANH %1" },
+	{ pat = "^[Gg]uard:%s*[Oo][Ff][Ff]$", rep = "Bảo vệ: TẮT" },
+	{ pat = "^[Gg]uard:%s*[Oo][Nn]$", rep = "Bảo vệ: BẬT" },
+	{ pat = "^[Mm]in%s+%$/s(.*)$", rep = "Tối thiểu $/giây%1" },
+	{ pat = "^[Mm]ax%s+%$/s(.*)$", rep = "Tối đa $/giây%1" },
+	{ pat = "^[Mm]in%s+KG(.*)$", rep = "Cân nặng tối thiểu (KG)%1" },
+	{ pat = "^[Mm]ax%s+KG(.*)$", rep = "Cân nặng tối đa (KG)%1" },
+	{ pat = "^[Oo]pen%s+(.+)%s+[Bb]ag$", rep = "Mở Túi %1" },
+	{ pat = "^[Kk]eep%s+[Mm]utated%s+(.+)$", rep = "Giữ lại %1 đột biến" },
+	{ pat = "^[Nn]ever%s+[Ss]ell%s+(.+)$", rep = "Không bán %1" },
+	{ pat = "^[Mm]aximum%s+(.+)$", rep = "Tối đa %1" },
+	{ pat = "^[Mm]inimum%s+(.+)$", rep = "Tối thiểu %1" },
+	{ pat = "^[Cc]ollect%s+UFO%s+(.+)$", rep = "Thu thập %1 UFO" },
+	{ pat = "^[Ff]arm%s+[Rr]are%s+(.+)$", rep = "Cày %1 hiếm" },
+	{ pat = "^[Tt]eleport%s+[Ii]f%s+[Ff]ar%s+[Ff]rom%s+(.+)$", rep = "Dịch chuyển nếu ở xa %1" },
+	{ pat = "^[Aa]uto%s+[Ee]quip%s+[Bb]est%s+(.+)$", rep = "Tự động trang bị %1 mạnh nhất" },
+	{ pat = "^[Aa]uto%s+[Ss]teal:%s*[Oo][Ff][Ff]$", rep = "Tự động cướp: Tắt" },
+	{ pat = "^[Aa]uto%s+[Ss]teal:%s*[Oo][Nn]$", rep = "Tự động cướp: Bật" },
+	{ pat = "^[Aa]uto%s+(.+)$", rep = "Tự động %1" },
+}
+
+local PHRASES_VI = {
+	{ "figgy hub", "Banana Hub" },
+	{ "makes room when the egg bag is full", "Tự bán dọn chỗ khi túi trứng đầy" },
+	{ "makes room when the trứng túi is full", "Tự bán dọn chỗ khi túi trứng đầy" },
+	{ "makes room when the", "Tự bán dọn chỗ khi" },
+	{ "sell cheapest egg", "Bán trứng rẻ nhất khi đầy túi" },
+	{ "bán cheapest trứng", "Bán trứng rẻ nhất khi đầy túi" },
+	{ "move to egg", "Di chuyển tới trứng" },
+	{ "go to egg", "Di chuyển tới trứng" },
+	{ "di chuyển to trứng", "Di chuyển tới trứng" },
+	{ "this session", "trong phiên này" },
+	{ "this phiên chơi", "trong phiên này" },
+	{ "equip best pets", "trang bị thú cưng mạnh nhất" },
+	{ "equip best", "trang bị mạnh nhất" },
+	{ "open pet bag", "Mở Túi Thú Cưng" },
+	{ "open egg bag", "Mở Túi Trứng" },
+	{ "space left", "Chỗ Trống" },
+	{ "egg names", "Tên trứng" },
+	{ "pet names", "Tên thú cưng" },
+	{ "egg rarities", "Độ hiếm trứng" },
+	{ "pet rarities", "Độ hiếm thú cưng" },
+	{ "sell rule", "Quy tắc bán" },
+	{ "match all", "Khớp tất cả" },
+	{ "match any", "Khớp bất kỳ" },
+	{ "maximum rarity", "Độ hiếm tối đa" },
+	{ "minimum rarity", "Độ hiếm tối thiểu" },
+	{ "keep mutated eggs", "Giữ lại trứng đột biến" },
+	{ "never sell species", "Không bán các loài này" },
+	{ "never sell eggs", "Không bán các trứng này" },
+	{ "no selection", "Chưa chọn" },
+	{ "place & hatch", "Đặt & Ấp Trứng" },
+	{ "highest earnings", "Thu nhập cao nhất" },
+	{ "lowest earnings", "Thu nhập thấp nhất" },
+	{ "fast tween", "Bay Nhanh (Fast Tween)" },
+	{ "titan temple", "Đền Titan" },
+	{ "enchanted forest", "Rừng Phù Phép" },
+	{ "cherry blossom", "Hoa Anh Đào" },
+	{ "light dark", "Sáng Tối" },
+}
+
+local WORDS_VI = {
+	cheapest = "rẻ nhất",
+	move = "di chuyển",
+	to = "tới",
+	free = "trống",
+	now = "hiện tại",
+	session = "phiên này",
+	equip = "trang bị",
+	equipped = "đang trang bị",
+	best = "mạnh nhất",
+	favorited = "đã thích",
+	unfavorited = "chưa thích",
+	favorite = "yêu thích",
+	categories = "danh mục",
+	category = "danh mục",
+	selection = "lựa chọn",
+	space = "chỗ",
+	left = "trống",
+	names = "tên",
+	name = "tên",
+	rule = "quy tắc",
+	maximum = "tối đa",
+	minimum = "tối thiểu",
+	keep = "giữ lại",
+	mutated = "đột biến",
+	never = "không bao giờ",
+	species = "loài",
+	upgrades = "nâng cấp",
+	crafting = "chế tạo",
+	place = "đặt",
+	hatch = "ấp",
+	sell = "bán",
+	open = "mở",
+	close = "đóng",
+	bag = "túi",
+	ufo = "UFO",
+	debris = "mảnh vỡ",
+	sightings = "phát hiện",
+	seasonal = "theo mùa",
+	essence = "tinh chất",
+	caught = "đã bắt",
+	net = "vợt bắt",
+	hollow = "Vực Hollow",
+	wins = "thắng",
+	status = "trạng thái",
+	egg = "trứng",
+	eggs = "trứng",
+	pet = "thú cưng",
+	pets = "thú cưng",
+	mutation = "đột biến",
+	mutations = "đột biến",
+	rarity = "độ hiếm",
+	rarities = "độ hiếm",
+	steal = "cướp",
+	stealing = "đang cướp",
+	farm = "cày",
+	farming = "đang cày",
+	collect = "thu thập",
+	trade = "đổi",
+	teleport = "dịch chuyển",
+	auto = "tự động",
+	rare = "hiếm",
+	idle = "Đang rảnh",
+	running = "Đang chạy",
+	waiting = "Đang chờ",
+	carrying = "Đang mang",
+	holding = "Đang giữ",
+	guard = "bảo vệ",
+	player = "người chơi",
+	speed = "tốc độ",
+	value = "giá trị",
+	earnings = "thu nhập",
+	none = "không có",
+	all = "tất cả",
+	any = "bất kỳ",
+	match = "khớp",
+}
+
+local function applyPhrasesAndWords(str)
+	local out = str
+	for i = 1, #PHRASES_VI do
+		local pair = PHRASES_VI[i]
+		local guard = 0
+		while guard < 4 do
+			local sIdx, eIdx = string.find(string.lower(out), pair[1], 1, true)
+			if not sIdx then break end
+			out = string.sub(out, 1, sIdx - 1) .. pair[2] .. string.sub(out, eIdx + 1)
+			guard = guard + 1
+		end
+	end
+	out = out:gsub("([\128-\255%a']+)", function(w)
+		if string.find(w, "[\128-\255]") then return w end
+		local lw = string.lower(w)
+		return WORDS_VI[lw] or LOWER_VI[lw] or w
+	end)
+	return out
+end
+
+local function translateRawSegment(rawText, targetLang)
+	if type(rawText) ~= "string" or rawText == "" then return rawText end
+	local lead, trimmed, trail = rawText:match("^(%s*)(.-)(%s*)$")
+	if not trimmed or trimmed == "" then return rawText end
+
+	-- Luôn giữ thương hiệu "Banana Hub" ở cả 2 ngôn ngữ
+	if trimmed == "Figgy Hub" or trimmed == "figgy hub" or trimmed == "Banana Hub" then
+		return lead .. "Banana Hub" .. trail
+	end
+
+	local bulletPrefix, afterBullet = trimmed:match("^(•%s*)(.+)$")
+	if not bulletPrefix then
+		bulletPrefix, afterBullet = trimmed:match("^(●%s*)(.+)$")
+	end
+	if bulletPrefix and afterBullet then
+		return lead .. bulletPrefix .. translateRawSegment(afterBullet, targetLang) .. trail
+	end
+
+	local cacheKey = targetLang .. "|" .. trimmed
+	if State.FastCache[cacheKey] then
+		return lead .. State.FastCache[cacheKey] .. trail
+	end
+
+	if targetLang == "VI" then
+		local exact = EXACT_VI[trimmed] or LOWER_VI[string.lower(trimmed)]
+		if exact then
+			State.FastCache[cacheKey] = exact
+			return lead .. exact .. trail
+		end
+
+		for i = 1, #GRAMMAR_VI do
+			local g = GRAMMAR_VI[i]
+			if string.find(trimmed, g.pat) then
+				local rep = string.gsub(trimmed, g.pat, g.rep)
+				rep = applyPhrasesAndWords(rep)
+				State.FastCache[cacheKey] = rep
+				return lead .. rep .. trail
+			end
+		end
+
+		local low = string.lower(trimmed)
+		for i = 1, #PHRASES_VI do
+			if string.find(low, PHRASES_VI[i][1], 1, true) then
+				local rep = applyPhrasesAndWords(trimmed)
+				State.FastCache[cacheKey] = rep
+				return lead .. rep .. trail
+			end
+		end
+
+		return rawText
+	else
+		local rev = VI_TO_EN[trimmed] or VI_TO_EN[string.lower(trimmed)]
+		if rev then
+			State.FastCache[cacheKey] = rev
+			return lead .. rev .. trail
+		end
+		local carryPrefix, carryVal = trimmed:match("^(.-)Đang%s+mang%s+(.+)$")
+		if carryVal then
+			return lead .. (carryPrefix or "") .. "Carrying " .. carryVal .. trail
+		end
+		local holdPrefix, holdVal = trimmed:match("^(.-)Đang%s+giữ%s+(.+)$")
+		if holdVal then
+			return lead .. (holdPrefix or "") .. "Holding " .. holdVal .. trail
+		end
+		return rawText
+	end
+end
+
+local function translateString(rawText, targetLang)
+	if type(rawText) ~= "string" or rawText == "" then return rawText end
+	if string.find(rawText, "<[^>]+>") then
+		return (string.gsub(rawText, "([^<>]+)", function(seg)
+			return translateRawSegment(seg, targetLang)
+		end))
+	end
+	return translateRawSegment(rawText, targetLang)
+end
+
+local function formatIslandStatusText(rawStatus)
+	local clean = tostring(rawStatus or "Idle"):gsub("^•%s*", ""):gsub("^●%s*", ""):match("^%s*(.-)%s*$") or "Idle"
+	local low = string.lower(clean)
+	local isIdle = (low == "" or low == "idle" or low == "đang rảnh")
+
+	local prefixEmoji = State.CurrentStatusEmoji or ""
+	if prefixEmoji ~= "" and not string.find(clean, prefixEmoji, 1, true) then
+		prefixEmoji = prefixEmoji .. " "
+	else
+		prefixEmoji = ""
+	end
+
+	if State.Language == "EN" then
+		if isIdle then return prefixEmoji .. "Idle" end
+		if low == "đang chạy" then return prefixEmoji .. "Running" end
+		local enStr = translateRawSegment(clean, "EN")
+		return prefixEmoji .. ((enStr and enStr ~= "") and enStr or clean)
+	else
+		if isIdle then return prefixEmoji .. "Đang rảnh" end
+		if low == "running" or low == "working" or low == "active" or low == "đang chạy" then
+			return prefixEmoji .. "Đang chạy"
+		end
+		local viStr = translateRawSegment(clean, "VI")
+		if viStr and viStr ~= clean then
+			return prefixEmoji .. viStr
+		end
+		return prefixEmoji .. clean
+	end
+end
+
+-- ============================================================================
+-- 5. THIẾT KẾ BANANA HUB DYNAMIC ISLAND (GOLD PREMIUM - ANTI-GLARE DỊU MẮT)
+--    - Ghim cố định sát mép trên Y = 6, khóa di chuyển 100%
+--    - Bê nguyên hình ảnh trạng thái (Image + ImageRectOffset/Size + ImageColor3) và Text
+--    - Chữ và nút bên trong dùng tông Đen Obsidian & Nâu Vàng Espresso chống trói mắt
+-- ============================================================================
+local PINNED_PILL_POS   = UDim2.new(0.5, 0, 0, 6)
+local PINNED_DRAWER_POS = UDim2.new(0.5, 0, 0, 48)
+
+local function applyGoldMatteGlass(frame, cornerRadius, bgAlpha, strokeColor, strokeThickness)
+	frame.BackgroundColor3 = ISLAND_BG_DARK
+	frame.BackgroundTransparency = bgAlpha or 0.14
+	frame.BorderSizePixel = 0
+
+	local corner = frame:FindFirstChildOfClass("UICorner") or Instance.new("UICorner")
+	corner.CornerRadius = cornerRadius or UDim.new(1, 0)
+	corner.Parent = frame
+
+	local stroke = frame:FindFirstChild("GoldMatteRimStroke") or Instance.new("UIStroke")
+	stroke.Name = "GoldMatteRimStroke"
+	stroke.Color = strokeColor or GOLD_BORDER_STROKE
+	stroke.Thickness = strokeThickness or 1.2
+	stroke.Transparency = 0.28
+	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	stroke.Parent = frame
+
+	local strokeGrad = stroke:FindFirstChildOfClass("UIGradient") or Instance.new("UIGradient")
+	strokeGrad.Rotation = 90
+	strokeGrad.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0.00, Color3.fromRGB(232, 192, 92)),
+		ColorSequenceKeypoint.new(0.50, Color3.fromRGB(168, 130, 48)),
+		ColorSequenceKeypoint.new(1.00, Color3.fromRGB(112, 86, 30)),
 	})
-	shimmerGrad.Parent = goldTopShimmer
+	strokeGrad.Parent = stroke
 
-	-- 2. ViewportFrame & WorldModel
-	local viewport = Instance.new("ViewportFrame")
-	viewport.Name = "AvatarViewport"
-	viewport.Size = UDim2.new(1, -16, 0, 210)
-	viewport.Position = UDim2.new(0, 8, 0, 8)
-	viewport.BackgroundColor3 = GOLD_PALETTE.ObsidianBg
-	viewport.BackgroundTransparency = 0.25
-	viewport.BorderSizePixel = 0
-	viewport.Ambient = Color3.fromRGB(220, 205, 180)
-	viewport.LightColor = Color3.fromRGB(255, 240, 200)
-	viewport.LightDirection = Vector3.new(-1, -2, -1.5).Unit
-	viewport.ZIndex = 2
-	viewport.Parent = container
-	self.Viewport = viewport
+	return stroke
+end
 
-	local vpCorner = Instance.new("UICorner")
-	vpCorner.CornerRadius = UDim.new(0, 10)
-	vpCorner.Parent = viewport
-
-	local vpStroke = Instance.new("UIStroke")
-	vpStroke.Color = GOLD_PALETTE.AmberGold
-	vpStroke.Thickness = 1.0
-	vpStroke.Transparency = 0.35
-	vpStroke.Parent = viewport
-
-	local worldModel = Instance.new("WorldModel")
-	worldModel.Name = "AvatarWorldModel"
-	worldModel.Parent = viewport
-	self.WorldModel = worldModel
-
-	local camera = Instance.new("Camera")
-	camera.Name = "AvatarRendererCamera"
-	camera.FieldOfView = 36
-	camera.Parent = viewport
-	viewport.CurrentCamera = camera
-	self.Camera = camera
-
-	-- 3. Khung điều khiển nhanh trên 3D Viewport (Xoay, Bật/Tắt Auto-Rotate)
-	local controlRow = Instance.new("Frame")
-	controlRow.Name = "ViewportControls"
-	controlRow.Size = UDim2.new(1, -12, 0, 24)
-	controlRow.Position = UDim2.new(0, 6, 1, -30)
-	controlRow.BackgroundTransparency = 1
-	controlRow.ZIndex = 6
-	controlRow.Parent = viewport
-
-	local autoRotateBtn = Instance.new("TextButton")
-	autoRotateBtn.Name = "AutoRotateToggleBtn"
-	autoRotateBtn.Size = UDim2.new(0.5, -4, 1, 0)
-	autoRotateBtn.Position = UDim2.new(0, 0, 0, 0)
-	autoRotateBtn.BackgroundColor3 = GOLD_PALETTE.GlassTint
-	autoRotateBtn.BackgroundTransparency = 0.2
-	autoRotateBtn.Font = Enum.Font.GothamBold
-	autoRotateBtn.TextSize = 9.5
-	autoRotateBtn.TextColor3 = self.AutoRotate and GOLD_PALETTE.LightGold or GOLD_PALETTE.TextMuted
-	autoRotateBtn.Text = self.AutoRotate and "🔄 Xoay: BẬT" or "⏸️ Xoay: TẮT"
-	autoRotateBtn.AutoButtonColor = false
-	autoRotateBtn.ZIndex = 7
-	autoRotateBtn.Parent = controlRow
-	Instance.new("UICorner", autoRotateBtn).CornerRadius = UDim.new(0, 6)
-	local arbStroke = Instance.new("UIStroke", autoRotateBtn)
-	arbStroke.Color = GOLD_PALETTE.AmberGold
-	arbStroke.Thickness = 1
-	arbStroke.Transparency = 0.4
-
-	local resetCamBtn = Instance.new("TextButton")
-	resetCamBtn.Name = "ResetCamBtn"
-	resetCamBtn.Size = UDim2.new(0.5, -4, 1, 0)
-	resetCamBtn.Position = UDim2.new(0.5, 4, 0, 0)
-	resetCamBtn.BackgroundColor3 = GOLD_PALETTE.GlassTint
-	resetCamBtn.BackgroundTransparency = 0.2
-	resetCamBtn.Font = Enum.Font.GothamBold
-	resetCamBtn.TextSize = 9.5
-	resetCamBtn.TextColor3 = GOLD_PALETTE.TextPrimary
-	resetCamBtn.Text = "🎯 Góc Chuẩn"
-	resetCamBtn.AutoButtonColor = false
-	resetCamBtn.ZIndex = 7
-	resetCamBtn.Parent = controlRow
-	Instance.new("UICorner", resetCamBtn).CornerRadius = UDim.new(0, 6)
-	local rcbStroke = Instance.new("UIStroke", resetCamBtn)
-	rcbStroke.Color = GOLD_PALETTE.AmberGold
-	rcbStroke.Thickness = 1
-	rcbStroke.Transparency = 0.4
-
-	-- 4. Bảng thông số người chơi & trạng thái di chuyển (Gold Stats Panel)
-	local statsPanel = Instance.new("Frame")
-	statsPanel.Name = "AvatarStatsPanel"
-	statsPanel.Size = UDim2.new(1, -16, 0, 108)
-	statsPanel.Position = UDim2.new(0, 8, 0, 224)
-	statsPanel.BackgroundColor3 = GOLD_PALETTE.ObsidianBg
-	statsPanel.BackgroundTransparency = 0.35
-	statsPanel.BorderSizePixel = 0
-	statsPanel.ZIndex = 3
-	statsPanel.Visible = showStats
-	statsPanel.Parent = container
-	Instance.new("UICorner", statsPanel).CornerRadius = UDim.new(0, 10)
-	local spStroke = Instance.new("UIStroke", statsPanel)
-	spStroke.Color = GOLD_PALETTE.AmberGold
-	spStroke.Thickness = 1
-	spStroke.Transparency = 0.5
-
-	-- Thẻ trạng thái động: Đang đi bộ / Đang đứng yên
-	local statusIndicator = Instance.new("Frame")
-	statusIndicator.Name = "StatusIndicator"
-	statusIndicator.Size = UDim2.new(1, -12, 0, 26)
-	statusIndicator.Position = UDim2.new(0, 6, 0, 6)
-	statusIndicator.BackgroundColor3 = GOLD_PALETTE.CardBg
-	statusIndicator.BorderSizePixel = 0
-	statusIndicator.ZIndex = 4
-	statusIndicator.Parent = statsPanel
-	Instance.new("UICorner", statusIndicator).CornerRadius = UDim.new(0, 6)
-
-	local statusDot = Instance.new("Frame")
-	statusDot.Name = "StatusDot"
-	statusDot.Size = UDim2.new(0, 8, 0, 8)
-	statusDot.Position = UDim2.new(0, 8, 0.5, -4)
-	statusDot.BackgroundColor3 = GOLD_PALETTE.StatusIdle
-	statusDot.BorderSizePixel = 0
-	statusDot.ZIndex = 5
-	statusDot.Parent = statusIndicator
-	Instance.new("UICorner", statusDot).CornerRadius = UDim.new(1, 0)
-	local dotGlow = Instance.new("UIStroke", statusDot)
-	dotGlow.Color = GOLD_PALETTE.StatusIdle
-	dotGlow.Thickness = 2
-	dotGlow.Transparency = 0.4
-
-	local statusText = Instance.new("TextLabel")
-	statusText.Name = "StatusText"
-	statusText.Size = UDim2.new(1, -26, 1, 0)
-	statusText.Position = UDim2.new(0, 22, 0, 0)
-	statusText.BackgroundTransparency = 1
-	statusText.Font = Enum.Font.GothamBold
-	statusText.TextSize = 10.5
-	statusText.TextColor3 = GOLD_PALETTE.LightGold
-	statusText.TextXAlignment = Enum.TextXAlignment.Left
-	statusText.Text = "TRẠNG THÁI: ĐANG ĐỨNG YÊN"
-	statusText.ZIndex = 5
-	statusText.Parent = statusIndicator
-
-	-- Thông số tên nhân vật & tốc độ di chuyển thực tế
-	local playerInfoLbl = Instance.new("TextLabel")
-	playerInfoLbl.Name = "PlayerInfoLbl"
-	playerInfoLbl.Size = UDim2.new(1, -12, 0, 16)
-	playerInfoLbl.Position = UDim2.new(0, 8, 0, 38)
-	playerInfoLbl.BackgroundTransparency = 1
-	playerInfoLbl.Font = Enum.Font.GothamBold
-	playerInfoLbl.TextSize = 10
-	playerInfoLbl.TextColor3 = GOLD_PALETTE.TextPrimary
-	playerInfoLbl.TextXAlignment = Enum.TextXAlignment.Left
-	playerInfoLbl.Text = "NHÂN VẬT: " .. (targetPlayer and targetPlayer.DisplayName or "Player")
-	playerInfoLbl.ZIndex = 4
-	playerInfoLbl.Parent = statsPanel
-
-	local speedMetricLbl = Instance.new("TextLabel")
-	speedMetricLbl.Name = "SpeedMetricLbl"
-	speedMetricLbl.Size = UDim2.new(1, -12, 0, 16)
-	speedMetricLbl.Position = UDim2.new(0, 8, 0, 58)
-	speedMetricLbl.BackgroundTransparency = 1
-	speedMetricLbl.Font = Enum.Font.RobotoMono
-	speedMetricLbl.TextSize = 9.5
-	speedMetricLbl.TextColor3 = GOLD_PALETTE.TextMuted
-	speedMetricLbl.TextXAlignment = Enum.TextXAlignment.Left
-	speedMetricLbl.Text = "TỐC ĐỘ THỰC: 16.0 studs/s (x1.00)"
-	speedMetricLbl.ZIndex = 4
-	speedMetricLbl.Parent = statsPanel
-
-	local bananaBadge = Instance.new("TextLabel")
-	bananaBadge.Name = "BananaBadge"
-	bananaBadge.Size = UDim2.new(1, -12, 0, 18)
-	bananaBadge.Position = UDim2.new(0, 8, 0, 80)
-	bananaBadge.BackgroundTransparency = 1
-	bananaBadge.Font = Enum.Font.GothamBlack
-	bananaBadge.TextSize = 9.5
-	bananaBadge.TextColor3 = GOLD_PALETTE.MetallicGold
-	bananaBadge.TextXAlignment = Enum.TextXAlignment.Left
-	bananaBadge.Text = "👑 BANANA HUB • GOLD PREMIUM ENGINE"
-	bananaBadge.ZIndex = 4
-	bananaBadge.Parent = statsPanel
-
-	-- ========================================================================
-	-- 6. HÀM NẠP VÀ ĐỒNG BỘ HOẠT ẢNH DI ĐỘNG (WALK ANIMATION SETUP)
-	-- ========================================================================
-	local function setupAvatarAndAnimations(character)
-		-- Dọn dẹp bản clone cũ nếu có
-		if self.CloneModel then
-			pcall(function() self.CloneModel:Destroy() end)
-			self.CloneModel = nil
-		end
-		self.IdleTrack = nil
-		self.WalkTrack = nil
-		self.Animator = nil
-
-		local realHumanoid = character:WaitForChild("Humanoid", 5)
-		if not realHumanoid or not realHumanoid:IsA("Humanoid") then return end
-
-		-- Chuẩn bị bản clone sạch
-		local clone = prepareCleanAvatarClone(character)
-		if not clone then return end
-		clone.Parent = worldModel
-		self.CloneModel = clone
-
-		local cloneHumanoid = clone:FindFirstChildOfClass("Humanoid")
-		if not cloneHumanoid then return end
-
-		local animator = cloneHumanoid:FindFirstChildOfClass("Animator")
-		if not animator then
-			animator = Instance.new("Animator")
-			animator.Parent = cloneHumanoid
-		end
-		self.Animator = animator
-
-		-- Lấy ID animation đi bộ và đứng yên
-		local walkId, idleId = extractCharacterAnimationIds(character, realHumanoid)
-
-		local walkAnim = Instance.new("Animation")
-		walkAnim.AnimationId = walkId
-
-		local idleAnim = Instance.new("Animation")
-		idleAnim.AnimationId = idleId
-
-		local okIdle, idleTrack = pcall(function()
-			local tr = animator:LoadAnimation(idleAnim)
-			tr.Looped = true
-			tr.Priority = Enum.AnimationPriority.Idle
-			return tr
-		end)
-
-		local okWalk, walkTrack = pcall(function()
-			local tr = animator:LoadAnimation(walkAnim)
-			tr.Looped = true
-			tr.Priority = Enum.AnimationPriority.Movement
-			return tr
-		end)
-
-		if okIdle and idleTrack then
-			self.IdleTrack = idleTrack
-			idleTrack:Play(0)
-		end
-		if okWalk and walkTrack then
-			self.WalkTrack = walkTrack
-		end
-
-		-- Hàm cập nhật logic chuyển động (Dynamic Movement Detection)
-		local function updateMovement()
-			if not isAlive() or not realHumanoid or not realHumanoid.Parent then return end
-			local moveMagnitude = realHumanoid.MoveDirection.Magnitude
-			local isMoving = (moveMagnitude > 0.1)
-
-			if isMoving then
-				if not self.IsWalking then
-					self.IsWalking = true
-					if self.IdleTrack then
-						self.IdleTrack:Stop(0.15)
-					end
-					if self.WalkTrack then
-						self.WalkTrack:Play(0.15)
-					end
-					statusText.Text = "TRẠNG THÁI: ĐANG DI CHUYỂN"
-					statusText.TextColor3 = GOLD_PALETTE.StatusMoving
-					statusDot.BackgroundColor3 = GOLD_PALETTE.StatusMoving
-					dotGlow.Color = GOLD_PALETTE.StatusMoving
-				end
-
-				-- Đồng bộ tốc độ hoạt ảnh của bản Clone với tốc độ di chuyển thực tế
-				if self.WalkTrack then
-					local walkSpeed = realHumanoid.WalkSpeed
-					local speedMultiplier = math.clamp(walkSpeed / 16.0, 0.25, 4.0)
-					self.WalkTrack:AdjustSpeed(speedMultiplier)
-					speedMetricLbl.Text = string.format("TỐC ĐỘ THỰC: %.1f studs/s (x%.2f)", walkSpeed, speedMultiplier)
-				end
-			else
-				if self.IsWalking then
-					self.IsWalking = false
-					if self.WalkTrack then
-						self.WalkTrack:Stop(0.15)
-					end
-					if self.IdleTrack then
-						self.IdleTrack:Play(0.15)
-					end
-					statusText.Text = "TRẠNG THÁI: ĐANG ĐỨNG YÊN"
-					statusText.TextColor3 = GOLD_PALETTE.StatusIdle
-					statusDot.BackgroundColor3 = GOLD_PALETTE.StatusIdle
-					dotGlow.Color = GOLD_PALETTE.StatusIdle
-					speedMetricLbl.Text = string.format("TỐC ĐỘ THỰC: %.1f studs/s (Nghỉ)", realHumanoid.WalkSpeed)
-				end
+local function createIndependentFiggyDynamicIsland()
+	for _, root in ipairs(getUiRoots()) do
+		for _, gName in ipairs({ "BananaDynamicIsland", "FiggyDynamicIsland" }) do
+			local old = root:FindFirstChild(gName)
+			if old then
+				pcall(function()
+					old.Name = "Old_BananaDynamicIsland"
+					old.Enabled = false
+					old:Destroy()
+				end)
 			end
 		end
-
-		-- Kết nối lắng nghe thay đổi MoveDirection của Humanoid thực tế
-		if self.Connections["MoveDirectionConn"] then
-			self.Connections["MoveDirectionConn"]:Disconnect()
-		end
-		self.Connections["MoveDirectionConn"] = realHumanoid:GetPropertyChangedSignal("MoveDirection"):Connect(updateMovement)
-
-		if self.Connections["WalkSpeedConn"] then
-			self.Connections["WalkSpeedConn"]:Disconnect()
-		end
-		self.Connections["WalkSpeedConn"] = realHumanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
-			if self.IsWalking and self.WalkTrack then
-				local spd = realHumanoid.WalkSpeed
-				local mult = math.clamp(spd / 16.0, 0.25, 4.0)
-				self.WalkTrack:AdjustSpeed(mult)
-				speedMetricLbl.Text = string.format("TỐC ĐỘ THỰC: %.1f studs/s (x%.2f)", spd, mult)
-			end
-		end)
-
-		-- Chạy kiểm tra khởi tạo ngay lập tức
-		updateMovement()
 	end
 
-	-- Lắng nghe khởi tạo nhân vật
-	if targetPlayer.Character then
-		task.spawn(function()
-			setupAvatarAndAnimations(targetPlayer.Character)
-		end)
-	end
-	self.Connections["CharAddedConn"] = targetPlayer.CharacterAdded:Connect(function(newChar)
-		task.delay(0.2, function()
-			if isAlive() then
-				setupAvatarAndAnimations(newChar)
-			end
-		end)
+	local islandGui = Instance.new("ScreenGui")
+	islandGui.Name = "BananaDynamicIsland"
+	islandGui.ResetOnSpawn = false
+	islandGui.IgnoreGuiInset = true
+	islandGui.DisplayOrder = 999999
+	islandGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+	local okParent = pcall(function()
+		islandGui.Parent = CoreGui
 	end)
+	if not okParent or not islandGui.Parent then
+		if gethui then
+			pcall(function() islandGui.Parent = gethui() end)
+		end
+	end
+	if not islandGui.Parent and LocalPlayer then
+		islandGui.Parent = LocalPlayer:FindFirstChildOfClass("PlayerGui")
+	end
 
 	-- ========================================================================
-	-- 7. CẬP NHẬT CAMERA CÓ ĐỘ NẢY BỒNG BỀNH (BOBBING MOTION) & XOAY 3D
+	-- VIÊN THUỐC NGOÀI (DYNAMIC ISLAND PILL - GHIM CỐ ĐỊNH Y = 6)
 	-- ========================================================================
-	self.Connections["RenderSteppedConn"] = RunService.RenderStepped:Connect(function(dt)
-		if not isAlive() or not self.CloneModel or not self.CloneModel.Parent then return end
-		local rootPart = self.CloneModel:FindFirstChild("HumanoidRootPart") or self.CloneModel.PrimaryPart or self.CloneModel:FindFirstChild("Torso") or self.CloneModel:FindFirstChild("UpperTorso")
-		if not rootPart or not rootPart:IsA("BasePart") then return end
+	local pillFrame = Instance.new("Frame")
+	pillFrame.Name = "DynamicIslandPill"
+	pillFrame.AnchorPoint = Vector2.new(0.5, 0)
+	pillFrame.Position = PINNED_PILL_POS
+	pillFrame.Size = UDim2.new(0, 210, 0, 38)
+	pillFrame.Active = true
+	pillFrame.ZIndex = 20
+	pillFrame.Parent = islandGui
 
-		-- Tính toán góc quay tự động hoặc do người dùng kéo
-		if self.AutoRotate then
-			self.RotationAngle = (self.RotationAngle + dt * 0.8) % (math.pi * 2)
+	-- Khóa cứng tọa độ viên thuốc, không cho phép di chuyển
+	pillFrame:GetPropertyChangedSignal("Position"):Connect(function()
+		if isAlive() and pillFrame.Position ~= PINNED_PILL_POS then
+			pillFrame.Position = PINNED_PILL_POS
 		end
-		local totalAngle = self.RotationAngle + self.ManualDragRotation
-
-		-- Hiệu ứng bồng bềnh tự nhiên theo nhịp chân bước (Bobbing Motion)
-		local isMoving = self.IsWalking
-		local bobbleSpeed = isMoving and 10.5 or 2.2
-		local bobbleAmpY = isMoving and 0.08 or 0.018
-		local bobbleAmpX = isMoving and 0.035 or 0.012
-
-		local clock = os.clock()
-		local offsetY = math.sin(clock * bobbleSpeed) * bobbleAmpY
-		local offsetX = math.cos(clock * (bobbleSpeed * 0.5)) * bobbleAmpX
-
-		local centerPos = rootPart.Position + Vector3.new(0, 0.3 + offsetY, 0)
-		local camDistance = 4.7
-		local camHeight = 0.35
-
-		local camPos = centerPos + Vector3.new(
-			math.sin(totalAngle) * camDistance + offsetX,
-			camHeight,
-			math.cos(totalAngle) * camDistance
-		)
-
-		self.Camera.CFrame = CFrame.lookAt(camPos, centerPos)
 	end)
+
+	applyGoldMatteGlass(pillFrame, UDim.new(1, 0), 0.12, GOLD_BORDER_STROKE, 1.3)
+
+	-- [Bên trái]: Khung Avatar Banana Cat (rbxassetid://87447945720038) viền Vàng Gold
+	local logoOrb = Instance.new("Frame")
+	logoOrb.Name = "BananaCatLogoOrb"
+	logoOrb.AnchorPoint = Vector2.new(0, 0.5)
+	logoOrb.Position = UDim2.new(0, 6, 0.5, 0)
+	logoOrb.Size = UDim2.new(0, 26, 0, 26)
+	logoOrb.BackgroundColor3 = Color3.fromRGB(32, 27, 18)
+	logoOrb.BackgroundTransparency = 0.10
+	logoOrb.BorderSizePixel = 0
+	logoOrb.ClipsDescendants = true
+	logoOrb.ZIndex = 22
+	logoOrb.Parent = pillFrame
+
+	local orbCorner = Instance.new("UICorner")
+	orbCorner.CornerRadius = UDim.new(1, 0)
+	orbCorner.Parent = logoOrb
+
+	local orbStroke = Instance.new("UIStroke")
+	orbStroke.Color = GOLD_BORDER_STROKE
+	orbStroke.Thickness = 1.1
+	orbStroke.Transparency = 0.20
+	orbStroke.Parent = logoOrb
+
+	local bananaLogoImg = Instance.new("ImageLabel")
+	bananaLogoImg.Name = "BananaCatImage"
+	bananaLogoImg.AnchorPoint = Vector2.new(0.5, 0.5)
+	bananaLogoImg.Position = UDim2.fromScale(0.5, 0.5)
+	bananaLogoImg.Size = UDim2.new(0, 24, 0, 24)
+	bananaLogoImg.BackgroundTransparency = 1
+	bananaLogoImg.Image = BANANA_CAT_LOGO
+	bananaLogoImg.ImageColor3 = Color3.fromRGB(255, 255, 255)
+	bananaLogoImg.ScaleType = Enum.ScaleType.Crop
+	bananaLogoImg.ZIndex = 23
+	bananaLogoImg.Parent = logoOrb
+	Instance.new("UICorner", bananaLogoImg).CornerRadius = UDim.new(1, 0)
+
+	-- [Khung Trạng Thái Bê Nguyên Từ Header]: Chứa Icon Trạng Thái + Chữ Trạng Thái thực tế
+	local statusBadgeContainer = Instance.new("Frame")
+	statusBadgeContainer.Name = "TransplantedStatusBadge"
+	statusBadgeContainer.AnchorPoint = Vector2.new(0, 0.5)
+	statusBadgeContainer.Position = UDim2.new(0, 38, 0.5, 0)
+	statusBadgeContainer.Size = UDim2.new(1, -64, 0, 26)
+	statusBadgeContainer.BackgroundColor3 = Color3.fromRGB(24, 22, 18)
+	statusBadgeContainer.BackgroundTransparency = 0.25
+	statusBadgeContainer.BorderSizePixel = 0
+	statusBadgeContainer.ZIndex = 22
+	statusBadgeContainer.Parent = pillFrame
+	Instance.new("UICorner", statusBadgeContainer).CornerRadius = UDim.new(1, 0)
+
+	local badgeInnerStroke = Instance.new("UIStroke")
+	badgeInnerStroke.Color = Color3.fromRGB(115, 92, 42)
+	badgeInnerStroke.Thickness = 1
+	badgeInnerStroke.Transparency = 0.45
+	badgeInnerStroke.Parent = statusBadgeContainer
+
+	-- Icon trạng thái bê nguyên từ Banana Hub (nếu trạng thái có icon riêng như 🦎 / 🌙)
+	local statusIconImg = Instance.new("ImageLabel")
+	statusIconImg.Name = "TransplantedStatusIcon"
+	statusIconImg.AnchorPoint = Vector2.new(0, 0.5)
+	statusIconImg.Position = UDim2.new(0, 7, 0.5, 0)
+	statusIconImg.Size = UDim2.new(0, 15, 0, 15)
+	statusIconImg.BackgroundTransparency = 1
+	statusIconImg.Image = (State.CurrentStatusImage ~= "") and State.CurrentStatusImage or BANANA_CAT_LOGO
+	statusIconImg.ImageColor3 = State.CurrentStatusImageColor or Color3.fromRGB(255, 255, 255)
+	statusIconImg.ImageRectOffset = State.CurrentStatusRectOffset or Vector2.new(0, 0)
+	statusIconImg.ImageRectSize = State.CurrentStatusRectSize or Vector2.new(0, 0)
+	statusIconImg.ScaleType = Enum.ScaleType.Fit
+	statusIconImg.ZIndex = 23
+	statusIconImg.Parent = statusBadgeContainer
+
+	-- TextLabel trạng thái bê nguyên từ Banana Hub sang (màu vàng kem dịu mắt)
+	local centerStatusLabel = Instance.new("TextLabel")
+	centerStatusLabel.Name = "StatusText"
+	centerStatusLabel.AnchorPoint = Vector2.new(0, 0.5)
+	centerStatusLabel.Position = UDim2.new(0, 26, 0.5, 0)
+	centerStatusLabel.Size = UDim2.new(1, -32, 1, 0)
+	centerStatusLabel.BackgroundTransparency = 1
+	centerStatusLabel.Font = Enum.Font.GothamBold
+	centerStatusLabel.TextColor3 = GOLD_PRIMARY_TEXT
+	centerStatusLabel.TextSize = 11.5
+	centerStatusLabel.TextXAlignment = Enum.TextXAlignment.Left
+	centerStatusLabel.Text = formatIslandStatusText(State.CurrentRawStatus)
+	centerStatusLabel.TextTruncate = Enum.TextTruncate.AtEnd
+	centerStatusLabel.ZIndex = 23
+	centerStatusLabel.Parent = statusBadgeContainer
+
+	-- [Bên phải]: Icon mũi tên mở rộng
+	local rightArrow = Instance.new("ImageLabel")
+	rightArrow.Name = "ArrowIcon"
+	rightArrow.AnchorPoint = Vector2.new(1, 0.5)
+	rightArrow.Position = UDim2.new(1, -8, 0.5, 0)
+	rightArrow.Size = UDim2.new(0, 12, 0, 12)
+	rightArrow.BackgroundTransparency = 1
+	rightArrow.Image = DOWN_ARROW_ICON
+	rightArrow.ImageColor3 = GOLD_MUTED_SUBTEXT
+	rightArrow.ScaleType = Enum.ScaleType.Fit
+	rightArrow.ZIndex = 23
+	rightArrow.Parent = pillFrame
+
+	local pillClickBtn = Instance.new("TextButton")
+	pillClickBtn.Name = "IslandToggleButton"
+	pillClickBtn.Size = UDim2.fromScale(1, 1)
+	pillClickBtn.BackgroundTransparency = 1
+	pillClickBtn.Text = ""
+	pillClickBtn.AutoButtonColor = false
+	pillClickBtn.ZIndex = 25
+	pillClickBtn.Parent = pillFrame
 
 	-- ========================================================================
-	-- 8. TƯƠNG TÁC XOAY 3D BẰNG CHUỘT / CẢM ỨNG & ĐIỀU KHIỂN
+	-- BẢNG MỞ RỘNG BÊN TRONG (GOLD PREMIUM DRAWER - CHỐNG TRÓI MẮT 100%)
 	-- ========================================================================
-	local dragging = false
-	local dragStart = Vector2.new(0, 0)
-	local startAngle = 0
+	local EXP_W = 316
+	local COLLAPSED_EXP_H = 172
+	local OPEN_NOTE_EXP_H = 260
 
-	viewport.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			dragging = true
-			dragStart = Vector2.new(input.Position.X, input.Position.Y)
-			startAngle = self.ManualDragRotation
-			self.AutoRotate = false
-			autoRotateBtn.Text = "⏸️ Xoay: TẮT"
-			autoRotateBtn.TextColor3 = GOLD_PALETTE.TextMuted
+	local expandPanel = Instance.new("Frame")
+	expandPanel.Name = "LanguageDrawer"
+	expandPanel.AnchorPoint = Vector2.new(0.5, 0)
+	expandPanel.Position = PINNED_DRAWER_POS
+	expandPanel.Size = UDim2.new(0, EXP_W, 0, COLLAPSED_EXP_H)
+	expandPanel.Visible = false
+	expandPanel.Active = true
+	expandPanel.ClipsDescendants = true
+	expandPanel.ZIndex = 30
+	expandPanel.Parent = islandGui
+
+	expandPanel:GetPropertyChangedSignal("Position"):Connect(function()
+		if isAlive() and expandPanel.Position ~= PINNED_DRAWER_POS then
+			expandPanel.Position = PINNED_DRAWER_POS
 		end
 	end)
 
-	UserInputService.InputChanged:Connect(function(input)
-		if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-			local deltaX = input.Position.X - dragStart.X
-			self.ManualDragRotation = startAngle - (deltaX * 0.015)
-		end
-	end)
+	applyGoldMatteGlass(expandPanel, UDim.new(0, 18), 0.10, GOLD_BORDER_STROKE, 1.3)
 
-	local function stopDrag()
-		dragging = false
+	-- Header Bảng Mở Rộng với Avatar Banana Cat
+	local expLogoOrb = Instance.new("Frame")
+	expLogoOrb.Position = UDim2.new(0, 12, 0, 10)
+	expLogoOrb.Size = UDim2.new(0, 28, 0, 28)
+	expLogoOrb.BackgroundColor3 = Color3.fromRGB(32, 27, 18)
+	expLogoOrb.BackgroundTransparency = 0.10
+	expLogoOrb.BorderSizePixel = 0
+	expLogoOrb.ClipsDescendants = true
+	expLogoOrb.ZIndex = 32
+	expLogoOrb.Parent = expandPanel
+	Instance.new("UICorner", expLogoOrb).CornerRadius = UDim.new(1, 0)
+	local elStroke = Instance.new("UIStroke", expLogoOrb)
+	elStroke.Color = GOLD_BORDER_STROKE
+	elStroke.Thickness = 1
+
+	local expLogoImg = Instance.new("ImageLabel")
+	expLogoImg.AnchorPoint = Vector2.new(0.5, 0.5)
+	expLogoImg.Position = UDim2.fromScale(0.5, 0.5)
+	expLogoImg.Size = UDim2.new(0, 26, 0, 26)
+	expLogoImg.BackgroundTransparency = 1
+	expLogoImg.Image = BANANA_CAT_LOGO
+	expLogoImg.ImageColor3 = Color3.fromRGB(255, 255, 255)
+	expLogoImg.ScaleType = Enum.ScaleType.Crop
+	expLogoImg.ZIndex = 33
+	expLogoImg.Parent = expLogoOrb
+	Instance.new("UICorner", expLogoImg).CornerRadius = UDim.new(1, 0)
+
+	local expTitle = Instance.new("TextLabel")
+	expTitle.Position = UDim2.new(0, 48, 0, 9)
+	expTitle.Size = UDim2.new(0, 180, 0, 15)
+	expTitle.BackgroundTransparency = 1
+	expTitle.Font = Enum.Font.GothamBold
+	expTitle.TextSize = 11.5
+	expTitle.TextColor3 = GOLD_BRIGHT_TITLE
+	expTitle.TextXAlignment = Enum.TextXAlignment.Left
+	expTitle.Text = "BANANA HUB • GOLD PREMIUM"
+	expTitle.ZIndex = 33
+	expTitle.Parent = expandPanel
+	applyGoldGradientToTitle(expTitle)
+
+	local expSubBadge = Instance.new("TextLabel")
+	expSubBadge.Position = UDim2.new(0, 48, 0, 24)
+	expSubBadge.Size = UDim2.new(0, 180, 0, 12)
+	expSubBadge.BackgroundTransparency = 1
+	expSubBadge.Font = Enum.Font.GothamMedium
+	expSubBadge.TextSize = 8.5
+	expSubBadge.TextColor3 = GOLD_MUTED_SUBTEXT
+	expSubBadge.TextXAlignment = Enum.TextXAlignment.Left
+	expSubBadge.Text = "● ĐỒNG BỘ TRẠNG THÁI THỜI GIAN THỰC"
+	expSubBadge.ZIndex = 33
+	expSubBadge.Parent = expandPanel
+
+	local collapseBtn = Instance.new("TextButton")
+	collapseBtn.Name = "CollapseIslandBtn"
+	collapseBtn.Position = UDim2.new(1, -78, 0, 11)
+	collapseBtn.Size = UDim2.new(0, 66, 0, 22)
+	collapseBtn.BackgroundColor3 = BTN_INACTIVE_BG
+	collapseBtn.BorderSizePixel = 0
+	collapseBtn.Text = "Thu gọn ▲"
+	collapseBtn.Font = Enum.Font.GothamMedium
+	collapseBtn.TextSize = 9.5
+	collapseBtn.TextColor3 = GOLD_SOFT_CREAM
+	collapseBtn.AutoButtonColor = false
+	collapseBtn.ZIndex = 34
+	collapseBtn.Parent = expandPanel
+	Instance.new("UICorner", collapseBtn).CornerRadius = UDim.new(1, 0)
+	local cbStroke = Instance.new("UIStroke", collapseBtn)
+	cbStroke.Color = BTN_INACTIVE_STROKE
+	cbStroke.Thickness = 1
+
+	-- Thẻ hiển thị trạng thái bê nguyên từ Banana Hub vào
+	local liveStatusCard = Instance.new("Frame")
+	liveStatusCard.Name = "LiveStatusCard"
+	liveStatusCard.Position = UDim2.new(0, 12, 0, 44)
+	liveStatusCard.Size = UDim2.new(1, -24, 0, 28)
+	liveStatusCard.BackgroundColor3 = ISLAND_CARD_BG
+	liveStatusCard.BorderSizePixel = 0
+	liveStatusCard.ZIndex = 32
+	liveStatusCard.Parent = expandPanel
+	Instance.new("UICorner", liveStatusCard).CornerRadius = UDim.new(0, 8)
+	local lscStroke = Instance.new("UIStroke", liveStatusCard)
+	lscStroke.Color = Color3.fromRGB(92, 74, 34)
+	lscStroke.Thickness = 1
+	lscStroke.Transparency = 0.35
+
+	local cardIconImg = Instance.new("ImageLabel")
+	cardIconImg.Name = "CardIcon"
+	cardIconImg.AnchorPoint = Vector2.new(0, 0.5)
+	cardIconImg.Position = UDim2.new(0, 8, 0.5, 0)
+	cardIconImg.Size = UDim2.new(0, 16, 0, 16)
+	cardIconImg.BackgroundTransparency = 1
+	cardIconImg.Image = (State.CurrentStatusImage ~= "") and State.CurrentStatusImage or BANANA_CAT_LOGO
+	cardIconImg.ImageColor3 = State.CurrentStatusImageColor or Color3.fromRGB(255, 255, 255)
+	cardIconImg.ImageRectOffset = State.CurrentStatusRectOffset or Vector2.new(0, 0)
+	cardIconImg.ImageRectSize = State.CurrentStatusRectSize or Vector2.new(0, 0)
+	cardIconImg.ScaleType = Enum.ScaleType.Fit
+	cardIconImg.ZIndex = 33
+	cardIconImg.Parent = liveStatusCard
+
+	local cardStatusLbl = Instance.new("TextLabel")
+	cardStatusLbl.Name = "CardStatusText"
+	cardStatusLbl.Position = UDim2.new(0, 30, 0, 0)
+	cardStatusLbl.Size = UDim2.new(1, -38, 1, 0)
+	cardStatusLbl.BackgroundTransparency = 1
+	cardStatusLbl.Font = Enum.Font.GothamBold
+	cardStatusLbl.TextSize = 11
+	cardStatusLbl.TextColor3 = GOLD_PRIMARY_TEXT
+	cardStatusLbl.TextXAlignment = Enum.TextXAlignment.Left
+	cardStatusLbl.TextTruncate = Enum.TextTruncate.AtEnd
+	cardStatusLbl.Text = formatIslandStatusText(State.CurrentRawStatus)
+	cardStatusLbl.ZIndex = 33
+	cardStatusLbl.Parent = liveStatusCard
+
+	-- Thanh gạt chọn ngôn ngữ (Nền Nâu Vàng Espresso dịu mắt + Viền Vàng Kim, tuyệt đối không trói mắt)
+	local langTrack = Instance.new("Frame")
+	langTrack.Name = "LanguageGlassTrack"
+	langTrack.Position = UDim2.new(0, 12, 0, 78)
+	langTrack.Size = UDim2.new(1, -24, 0, 30)
+	langTrack.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
+	langTrack.BorderSizePixel = 0
+	langTrack.ZIndex = 32
+	langTrack.Parent = expandPanel
+	Instance.new("UICorner", langTrack).CornerRadius = UDim.new(0, 8)
+	local ltStroke = Instance.new("UIStroke", langTrack)
+	ltStroke.Color = BTN_INACTIVE_STROKE
+	ltStroke.Thickness = 1
+
+	local btnVI = Instance.new("TextButton")
+	btnVI.Name = "BtnVietnamese"
+	btnVI.Position = UDim2.new(0, 3, 0, 3)
+	btnVI.Size = UDim2.new(0.5, -5, 1, -6)
+	btnVI.BorderSizePixel = 0
+	btnVI.BackgroundColor3 = (State.Language == "VI") and BTN_ACTIVE_BG or BTN_INACTIVE_BG
+	btnVI.Font = Enum.Font.GothamBold
+	btnVI.Text = "🇻🇳 Tiếng Việt"
+	btnVI.TextSize = 10.5
+	btnVI.TextColor3 = (State.Language == "VI") and BTN_ACTIVE_TEXT or GOLD_MUTED_SUBTEXT
+	btnVI.AutoButtonColor = false
+	btnVI.ZIndex = 34
+	btnVI.Parent = langTrack
+	Instance.new("UICorner", btnVI).CornerRadius = UDim.new(0, 6)
+	local btnVIStroke = Instance.new("UIStroke", btnVI)
+	btnVIStroke.Color = (State.Language == "VI") and BTN_ACTIVE_STROKE or BTN_INACTIVE_STROKE
+	btnVIStroke.Thickness = 1
+	btnVIStroke.Transparency = (State.Language == "VI") and 0.15 or 0.55
+
+	local btnEN = Instance.new("TextButton")
+	btnEN.Name = "BtnEnglish"
+	btnEN.Position = UDim2.new(0.5, 2, 0, 3)
+	btnEN.Size = UDim2.new(0.5, -5, 1, -6)
+	btnEN.BorderSizePixel = 0
+	btnEN.BackgroundColor3 = (State.Language == "EN") and BTN_ACTIVE_BG or BTN_INACTIVE_BG
+	btnEN.Font = Enum.Font.GothamBold
+	btnEN.Text = "🇺🇸 English"
+	btnEN.TextSize = 10.5
+	btnEN.TextColor3 = (State.Language == "EN") and BTN_ACTIVE_TEXT or GOLD_MUTED_SUBTEXT
+	btnEN.AutoButtonColor = false
+	btnEN.ZIndex = 34
+	btnEN.Parent = langTrack
+	Instance.new("UICorner", btnEN).CornerRadius = UDim.new(0, 6)
+	local btnENStroke = Instance.new("UIStroke", btnEN)
+	btnENStroke.Color = (State.Language == "EN") and BTN_ACTIVE_STROKE or BTN_INACTIVE_STROKE
+	btnENStroke.Thickness = 1
+	btnENStroke.Transparency = (State.Language == "EN") and 0.15 or 0.55
+
+	-- Hàng nút chức năng (Âm thanh & Quét lại Menu)
+	local actionRow = Instance.new("Frame")
+	actionRow.Name = "ActionRow"
+	actionRow.Position = UDim2.new(0, 12, 0, 114)
+	actionRow.Size = UDim2.new(1, -24, 0, 26)
+	actionRow.BackgroundTransparency = 1
+	actionRow.ZIndex = 32
+	actionRow.Parent = expandPanel
+
+	local soundToggleBtn = Instance.new("TextButton")
+	soundToggleBtn.Name = "SoundToggleBtn"
+	soundToggleBtn.Position = UDim2.new(0, 0, 0, 0)
+	soundToggleBtn.Size = UDim2.new(0.5, -4, 1, 0)
+	soundToggleBtn.BackgroundColor3 = BTN_INACTIVE_BG
+	soundToggleBtn.BorderSizePixel = 0
+	soundToggleBtn.Font = Enum.Font.GothamMedium
+	soundToggleBtn.TextSize = 9.5
+	soundToggleBtn.TextColor3 = GOLD_SOFT_CREAM
+	soundToggleBtn.Text = State.SoundEnabled and "🔊 Âm thanh: BẬT" or "🔇 Âm thanh: TẮT"
+	soundToggleBtn.AutoButtonColor = false
+	soundToggleBtn.ZIndex = 34
+	soundToggleBtn.Parent = actionRow
+	Instance.new("UICorner", soundToggleBtn).CornerRadius = UDim.new(0, 6)
+	local sbStroke = Instance.new("UIStroke", soundToggleBtn)
+	sbStroke.Color = BTN_INACTIVE_STROKE
+	sbStroke.Thickness = 1
+
+	local rescanBtn = Instance.new("TextButton")
+	rescanBtn.Name = "RescanTranslateBtn"
+	rescanBtn.Position = UDim2.new(0.5, 4, 0, 0)
+	rescanBtn.Size = UDim2.new(0.5, -4, 1, 0)
+	rescanBtn.BackgroundColor3 = BTN_ACTIVE_BG
+	rescanBtn.BorderSizePixel = 0
+	rescanBtn.Font = Enum.Font.GothamMedium
+	rescanBtn.TextSize = 9.5
+	rescanBtn.TextColor3 = GOLD_PRIMARY_TEXT
+	rescanBtn.Text = "⚡ Làm mới & Đồng bộ"
+	rescanBtn.AutoButtonColor = false
+	rescanBtn.ZIndex = 34
+	rescanBtn.Parent = actionRow
+	Instance.new("UICorner", rescanBtn).CornerRadius = UDim.new(0, 6)
+	local rbStroke = Instance.new("UIStroke", rescanBtn)
+	rbStroke.Color = BTN_ACTIVE_STROKE
+	rbStroke.Thickness = 1
+	rbStroke.Transparency = 0.30
+
+	-- Ngăn thông tin
+	local noteToggleBtn = Instance.new("TextButton")
+	noteToggleBtn.Name = "SettingNoteToggleBtn"
+	noteToggleBtn.Position = UDim2.new(0, 12, 0, 144)
+	noteToggleBtn.Size = UDim2.new(1, -24, 0, 22)
+	noteToggleBtn.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
+	noteToggleBtn.BorderSizePixel = 0
+	noteToggleBtn.Text = "Thông tin Banana Hub Gold Premium (Bấm xem) ▼"
+	noteToggleBtn.Font = Enum.Font.GothamMedium
+	noteToggleBtn.TextSize = 9
+	noteToggleBtn.TextColor3 = GOLD_MUTED_SUBTEXT
+	noteToggleBtn.AutoButtonColor = false
+	noteToggleBtn.ZIndex = 33
+	noteToggleBtn.Parent = expandPanel
+	Instance.new("UICorner", noteToggleBtn).CornerRadius = UDim.new(0, 6)
+	local ntbStroke = Instance.new("UIStroke", noteToggleBtn)
+	ntbStroke.Color = BTN_INACTIVE_STROKE
+	ntbStroke.Thickness = 1
+
+	local noteDrawer = Instance.new("Frame")
+	noteDrawer.Name = "SettingNoteDrawer"
+	noteDrawer.Position = UDim2.new(0, 12, 0, 170)
+	noteDrawer.Size = UDim2.new(1, -24, 0, 80)
+	noteDrawer.BackgroundColor3 = ISLAND_CARD_BG
+	noteDrawer.BorderSizePixel = 0
+	noteDrawer.Visible = false
+	noteDrawer.ClipsDescendants = true
+	noteDrawer.ZIndex = 33
+	noteDrawer.Parent = expandPanel
+	Instance.new("UICorner", noteDrawer).CornerRadius = UDim.new(0, 8)
+	local ndStroke = Instance.new("UIStroke", noteDrawer)
+	ndStroke.Color = Color3.fromRGB(92, 74, 34)
+	ndStroke.Thickness = 1
+	ndStroke.Transparency = 0.40
+
+	local ndHeader = Instance.new("TextLabel", noteDrawer)
+	ndHeader.Position = UDim2.new(0, 8, 0, 4)
+	ndHeader.Size = UDim2.new(1, -16, 0, 14)
+	ndHeader.BackgroundTransparency = 1
+	ndHeader.Font = Enum.Font.GothamBold
+	ndHeader.TextSize = 9
+	ndHeader.TextColor3 = GOLD_PRIMARY_TEXT
+	ndHeader.TextXAlignment = Enum.TextXAlignment.Left
+	ndHeader.Text = "🍌 BANANA HUB • LUXURY GOLD PREMIUM"
+	ndHeader.ZIndex = 35
+
+	local ndLine1 = Instance.new("TextLabel", noteDrawer)
+	ndLine1.Position = UDim2.new(0, 8, 0, 20)
+	ndLine1.Size = UDim2.new(1, -16, 0, 16)
+	ndLine1.BackgroundTransparency = 1
+	ndLine1.Font = Enum.Font.GothamMedium
+	ndLine1.TextSize = 8.5
+	ndLine1.TextColor3 = GOLD_SOFT_CREAM
+	ndLine1.TextXAlignment = Enum.TextXAlignment.Left
+	ndLine1.Text = "+ Bê nguyên Icon & Trạng thái thực tế vào Dynamic Island"
+	ndLine1.ZIndex = 35
+
+	local ndLine2 = Instance.new("TextLabel", noteDrawer)
+	ndLine2.Position = UDim2.new(0, 8, 0, 38)
+	ndLine2.Size = UDim2.new(1, -16, 0, 16)
+	ndLine2.BackgroundTransparency = 1
+	ndLine2.Font = Enum.Font.GothamMedium
+	ndLine2.TextSize = 8.5
+	ndLine2.TextColor3 = GOLD_MUTED_SUBTEXT
+	ndLine2.TextXAlignment = Enum.TextXAlignment.Left
+	ndLine2.Text = "+ Logo Banana Cat (87447945720038) & Giao diện Vàng Sang Trọng"
+	ndLine2.ZIndex = 35
+
+	local ndLine3 = Instance.new("TextLabel", noteDrawer)
+	ndLine3.Position = UDim2.new(0, 8, 0, 56)
+	ndLine3.Size = UDim2.new(1, -16, 0, 16)
+	ndLine3.BackgroundTransparency = 1
+	ndLine3.Font = Enum.Font.GothamMedium
+	ndLine3.TextSize = 8.5
+	ndLine3.TextColor3 = Color3.fromRGB(145, 210, 165)
+	ndLine3.TextXAlignment = Enum.TextXAlignment.Left
+	ndLine3.Text = "+ Nút bấm Nâu Vàng Espresso dịu mắt, chống chói 100%"
+	ndLine3.ZIndex = 35
+
+	-- Cập nhật giao diện khi đổi trạng thái hoặc ngôn ngữ
+	local function updatePillVisuals()
+		local displayTxt = formatIslandStatusText(State.CurrentRawStatus)
+		centerStatusLabel.Text = displayTxt
+		cardStatusLbl.Text = displayTxt
+
+		-- Cập nhật icon trạng thái bê từ Header sang (nếu không có icon riêng thì hiện Banana Cat)
+		local hasCustomImg = (State.CurrentStatusImage ~= nil and State.CurrentStatusImage ~= "")
+		local curImg = hasCustomImg and State.CurrentStatusImage or BANANA_CAT_LOGO
+		local curCol = hasCustomImg and (State.CurrentStatusImageColor or Color3.fromRGB(255, 255, 255)) or Color3.fromRGB(255, 255, 255)
+		local curOff = hasCustomImg and (State.CurrentStatusRectOffset or Vector2.new(0, 0)) or Vector2.new(0, 0)
+		local curSz  = hasCustomImg and (State.CurrentStatusRectSize or Vector2.new(0, 0)) or Vector2.new(0, 0)
+
+		statusIconImg.Image = curImg
+		statusIconImg.ImageColor3 = curCol
+		statusIconImg.ImageRectOffset = curOff
+		statusIconImg.ImageRectSize = curSz
+
+		cardIconImg.Image = curImg
+		cardIconImg.ImageColor3 = curCol
+		cardIconImg.ImageRectOffset = curOff
+		cardIconImg.ImageRectSize = curSz
+
+		-- Cập nhật ngôn ngữ trên bảng mở rộng
+		expSubBadge.Text = (State.Language == "EN") and "● REALTIME STATUS • ANTI-GLARE GOLD" or "● ĐỒNG BỘ TRẠNG THÁI THỜI GIAN THỰC"
+		collapseBtn.Text = (State.Language == "EN") and "Collapse ▲" or "Thu gọn ▲"
+		soundToggleBtn.Text = State.SoundEnabled
+			and ((State.Language == "EN") and "🔊 Sound: ON" or "🔊 Âm thanh: BẬT")
+			or ((State.Language == "EN") and "🔇 Sound: OFF" or "🔇 Âm thanh: TẮT")
+		rescanBtn.Text = (State.Language == "EN") and "⚡ Refresh & Sync" or "⚡ Làm mới & Đồng bộ"
+
+		-- Nút ngôn ngữ: Tông Nâu Vàng Espresso + Viền Vàng Kim dịu mắt (không chói)
+		btnVI.BackgroundColor3 = (State.Language == "VI") and BTN_ACTIVE_BG or BTN_INACTIVE_BG
+		btnVI.TextColor3 = (State.Language == "VI") and BTN_ACTIVE_TEXT or GOLD_MUTED_SUBTEXT
+		btnVIStroke.Color = (State.Language == "VI") and BTN_ACTIVE_STROKE or BTN_INACTIVE_STROKE
+		btnVIStroke.Transparency = (State.Language == "VI") and 0.15 or 0.55
+
+		btnEN.BackgroundColor3 = (State.Language == "EN") and BTN_ACTIVE_BG or BTN_INACTIVE_BG
+		btnEN.TextColor3 = (State.Language == "EN") and BTN_ACTIVE_TEXT or GOLD_MUTED_SUBTEXT
+		btnENStroke.Color = (State.Language == "EN") and BTN_ACTIVE_STROKE or BTN_INACTIVE_STROKE
+		btnENStroke.Transparency = (State.Language == "EN") and 0.15 or 0.55
+
+		-- Tự co giãn chiều rộng viên thuốc theo độ dài trạng thái thực tế
+		local textLen = utf8.len(displayTxt) or #displayTxt
+		local targetWidth = math.max(196, math.min(320, 96 + textLen * 7))
+		TweenService:Create(
+			pillFrame,
+			TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
+			{ Size = UDim2.new(0, targetWidth, 0, 38) }
+		):Play()
 	end
-	UserInputService.InputEnded:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			stopDrag()
-		end
-	end)
 
-	autoRotateBtn.Activated:Connect(function()
-		self.AutoRotate = not self.AutoRotate
-		autoRotateBtn.Text = self.AutoRotate and "🔄 Xoay: BẬT" or "⏸️ Xoay: TẮT"
-		autoRotateBtn.TextColor3 = self.AutoRotate and GOLD_PALETTE.LightGold or GOLD_PALETTE.TextMuted
-	end)
+	State.UpdateIslandVisuals = updatePillVisuals
+	State.IslandGui = islandGui
+	State.IslandPill = pillFrame
+	State.IslandStatusLabel = centerStatusLabel
+	State.IslandStatusIcon = statusIconImg
 
-	resetCamBtn.Activated:Connect(function()
-		self.ManualDragRotation = 0
-		self.RotationAngle = 0
-		self.AutoRotate = true
-		autoRotateBtn.Text = "🔄 Xoay: BẬT"
-		autoRotateBtn.TextColor3 = GOLD_PALETTE.LightGold
-	end)
-
-	-- Gắn vào đối tượng cha nếu được chỉ định
-	if config.Parent then
-		container.Parent = config.Parent
-	end
-
-	-- Tự động dọn dẹp khi UI container bị Destroy
-	container.Destroying:Connect(function()
-		self:Destroy()
-	end)
-
-	return self
-end
-
--- ============================================================================
--- 9. HÀM DỌN DẸP & KHẮC PHỤC RÒ RỈ BỘ NHỚ (LEAK-PROOF CLEANUP)
--- ============================================================================
-function Avatar_Renderer:Destroy()
-	-- Ngắt toàn bộ kết nối sự kiện (Disconnect All)
-	for key, conn in pairs(self.Connections) do
-		if conn and conn.Disconnect then
-			pcall(function() conn:Disconnect() end)
-		end
-		self.Connections[key] = nil
-	end
-
-	-- Dừng và giải phóng các AnimationTrack
-	if self.IdleTrack then
-		pcall(function()
-			self.IdleTrack:Stop(0)
-			self.IdleTrack:Destroy()
-		end)
-		self.IdleTrack = nil
-	end
-	if self.WalkTrack then
-		pcall(function()
-			self.WalkTrack:Stop(0)
-			self.WalkTrack:Destroy()
-		end)
-		self.WalkTrack = nil
-	end
-
-	-- Xóa bản clone và camera
-	if self.CloneModel then
-		pcall(function() self.CloneModel:Destroy() end)
-		self.CloneModel = nil
-	end
-	if self.Camera then
-		pcall(function() self.Camera:Destroy() end)
-		self.Camera = nil
-	end
-
-	if self.Container and self.Container.Parent then
-		pcall(function() self.Container:Destroy() end)
-	end
-end
-
-function Avatar_Renderer:SetAutoRotate(enabled)
-	self.AutoRotate = enabled
-end
-
-function Avatar_Renderer:ResetCamera()
-	self.ManualDragRotation = 0
-	self.RotationAngle = 0
-end
-
--- ============================================================================
--- 10. GIAO DIỆN CHÍNH "BANANA HUB" SANG TRỌNG VÀNG GOLD PREMIUM (AUTO-MOUNT)
--- ============================================================================
-local function createBananaHubGoldWindow()
-	local targetRoot = getSafeTargetGui()
-
-	-- Dọn dẹp phiên bản cũ nếu có
-	for _, root in ipairs({ CoreGui, (gethui and gethui()) or nil, LocalPlayer and LocalPlayer:FindFirstChildOfClass("PlayerGui") or nil }) do
-		if root then
-			local old = root:FindFirstChild("BananaHub_MainWindowGui")
-			if old then pcall(function() old:Destroy() end) end
-		end
-	end
-
-	local screenGui = Instance.new("ScreenGui")
-	screenGui.Name = "BananaHub_MainWindowGui"
-	screenGui.ResetOnSpawn = false
-	screenGui.IgnoreGuiInset = true
-	screenGui.DisplayOrder = 999980
-	screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-	screenGui.Parent = targetRoot
-
-	-- Khung cửa sổ chính Banana Hub
-	local mainFrame = Instance.new("Frame")
-	mainFrame.Name = "BananaHub_MainFrame"
-	mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-	mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-	mainFrame.Size = UDim2.new(0, 520, 0, 420)
-	mainFrame.BackgroundColor3 = GOLD_PALETTE.ObsidianBg
-	mainFrame.BorderSizePixel = 0
-	mainFrame.ClipsDescendants = true
-	mainFrame.Active = true
-	mainFrame.Parent = screenGui
-
-	Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 16)
-	local mainStroke = Instance.new("UIStroke", mainFrame)
-	mainStroke.Color = GOLD_PALETTE.MetallicGold
-	mainStroke.Thickness = 2.0
-	mainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-
-	local mainGrad = Instance.new("UIGradient", mainStroke)
-	mainGrad.Color = GOLD_GRADIENT_SEQUENCE
-	mainGrad.Rotation = 45
-
-	-- Header Bar Hoàng Kim
-	local headerBar = Instance.new("Frame")
-	headerBar.Name = "HeaderBar"
-	headerBar.Size = UDim2.new(1, 0, 0, 48)
-	headerBar.BackgroundColor3 = GOLD_PALETTE.CardBg
-	headerBar.BorderSizePixel = 0
-	headerBar.Parent = mainFrame
-	Instance.new("UICorner", headerBar).CornerRadius = UDim.new(0, 16)
-
-	-- Logo Banana Cat (rbxassetid://87447945720038)
-	local logoFrame = Instance.new("Frame")
-	logoFrame.Name = "BananaLogoOrb"
-	logoFrame.AnchorPoint = Vector2.new(0, 0.5)
-	logoFrame.Position = UDim2.new(0, 12, 0.5, 0)
-	logoFrame.Size = UDim2.new(0, 32, 0, 32)
-	logoFrame.BackgroundColor3 = GOLD_PALETTE.GlassTint
-	logoFrame.BorderSizePixel = 0
-	logoFrame.ClipsDescendants = true
-	logoFrame.Parent = headerBar
-	Instance.new("UICorner", logoFrame).CornerRadius = UDim.new(1, 0)
-
-	local logoStroke = Instance.new("UIStroke", logoFrame)
-	logoStroke.Color = GOLD_PALETTE.LightGold
-	logoStroke.Thickness = 1.4
-
-	local logoImg = Instance.new("ImageLabel")
-	logoImg.Name = "BananaCatIcon"
-	logoImg.AnchorPoint = Vector2.new(0.5, 0.5)
-	logoImg.Position = UDim2.fromScale(0.5, 0.5)
-	logoImg.Size = UDim2.fromScale(0.92, 0.92)
-	logoImg.BackgroundTransparency = 1
-	logoImg.Image = BANANA_CAT_LOGO
-	logoImg.ScaleType = Enum.ScaleType.Fit
-	logoImg.Parent = logoFrame
-
-	-- Tiêu đề Banana Hub
-	local titleLbl = Instance.new("TextLabel")
-	titleLbl.Name = "HubTitle"
-	titleLbl.Position = UDim2.new(0, 52, 0, 7)
-	titleLbl.Size = UDim2.new(0, 200, 0, 18)
-	titleLbl.BackgroundTransparency = 1
-	titleLbl.Font = Enum.Font.GothamBlack
-	titleLbl.TextSize = 14
-	titleLbl.TextColor3 = GOLD_PALETTE.TextPrimary
-	titleLbl.TextXAlignment = Enum.TextXAlignment.Left
-	titleLbl.Text = "BANANA HUB"
-	titleLbl.Parent = headerBar
-
-	local titleGrad = Instance.new("UIGradient", titleLbl)
-	titleGrad.Color = GOLD_GRADIENT_SEQUENCE
-
-	local subTitleLbl = Instance.new("TextLabel")
-	subTitleLbl.Name = "HubSubtitle"
-	subTitleLbl.Position = UDim2.new(0, 52, 0, 26)
-	subTitleLbl.Size = UDim2.new(0, 240, 0, 14)
-	subTitleLbl.BackgroundTransparency = 1
-	subTitleLbl.Font = Enum.Font.GothamBold
-	subTitleLbl.TextSize = 9.5
-	subTitleLbl.TextColor3 = GOLD_PALETTE.AmberGold
-	subTitleLbl.TextXAlignment = Enum.TextXAlignment.Left
-	subTitleLbl.Text = "⭐ LUXURY GOLD PREMIUM EDITION • AVATAR 3D"
-	subTitleLbl.Parent = headerBar
-
-	-- Nút đóng cửa sổ
-	local closeBtn = Instance.new("TextButton")
-	closeBtn.Name = "CloseBtn"
-	closeBtn.AnchorPoint = Vector2.new(1, 0.5)
-	closeBtn.Position = UDim2.new(1, -12, 0.5, 0)
-	closeBtn.Size = UDim2.new(0, 28, 0, 28)
-	closeBtn.BackgroundColor3 = GOLD_PALETTE.CardBg
-	closeBtn.BorderSizePixel = 0
-	closeBtn.Font = Enum.Font.GothamBold
-	closeBtn.Text = "✕"
-	closeBtn.TextSize = 12
-	closeBtn.TextColor3 = GOLD_PALETTE.TextMuted
-	closeBtn.AutoButtonColor = false
-	closeBtn.Parent = headerBar
-	Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 8)
-	local cbStroke = Instance.new("UIStroke", closeBtn)
-	cbStroke.Color = GOLD_PALETTE.AmberGold
-	cbStroke.Thickness = 1.0
-
-	closeBtn.Activated:Connect(function()
-		screenGui:Destroy()
-	end)
-
-	-- Hỗ trợ kéo thả cửa sổ chính
-	local dragging, dragStart, startPos = false, nil, nil
-	headerBar.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			dragging = true
-			dragStart = input.Position
-			startPos = mainFrame.Position
-			if input.Changed then
-				input.Changed:Connect(function()
-					if input.UserInputState == Enum.UserInputState.End or input.UserInputState == Enum.UserInputState.Cancel then
-						dragging = false
-					end
+	noteToggleBtn.Activated:Connect(function()
+		playUiSound("tap")
+		State.NoteOpen = not State.NoteOpen
+		if State.NoteOpen then
+			noteDrawer.Visible = true
+			noteToggleBtn.Text = "Thông tin Banana Hub Gold Premium (Thu gọn) ▲"
+			TweenService:Create(expandPanel, TweenInfo.new(0.20, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+				Size = UDim2.new(0, EXP_W, 0, OPEN_NOTE_EXP_H)
+			}):Play()
+		else
+			noteToggleBtn.Text = "Thông tin Banana Hub Gold Premium (Bấm xem) ▼"
+			local tw = TweenService:Create(expandPanel, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+				Size = UDim2.new(0, EXP_W, 0, COLLAPSED_EXP_H)
+			})
+			tw:Play()
+			if tw.Completed then
+				tw.Completed:Connect(function()
+					if not State.NoteOpen then noteDrawer.Visible = false end
 				end)
 			end
 		end
 	end)
-	UserInputService.InputChanged:Connect(function(input)
-		if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-			local delta = input.Position - dragStart
-			mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+
+	soundToggleBtn.Activated:Connect(function()
+		State.SoundEnabled = not State.SoundEnabled
+		if State.SoundEnabled then
+			playUiSound("action")
+		end
+		updatePillVisuals()
+	end)
+
+	rescanBtn.Activated:Connect(function()
+		playUiSound("action")
+		if State.RefreshAllMenus then
+			task.spawn(State.RefreshAllMenus)
 		end
 	end)
 
-	-- Khởi tạo Khối 4: Avatar_Renderer 3D bên trái
-	local renderer = Avatar_Renderer.new({
-		Parent = mainFrame,
-		Player = LocalPlayer,
-		Size = UDim2.new(0, 220, 0, 350),
-		Position = UDim2.new(0, 14, 0, 58),
-		ShowStats = true,
-		AutoRotate = true,
-	})
+	local lastToggleClock = -10
+	local function toggleIslandExpand()
+		if os.clock() - lastToggleClock < 0.14 then return end
+		lastToggleClock = os.clock()
+		State.IsExpanded = not State.IsExpanded
+		playUiSound(State.IsExpanded and "open" or "close")
 
-	-- Khu vực tính năng bên phải (Features & Settings Panel)
-	local rightPanel = Instance.new("Frame")
-	rightPanel.Name = "RightFeaturesPanel"
-	rightPanel.Size = UDim2.new(1, -262, 0, 350)
-	rightPanel.Position = UDim2.new(0, 248, 0, 58)
-	rightPanel.BackgroundColor3 = GOLD_PALETTE.CardBg
-	rightPanel.BorderSizePixel = 0
-	rightPanel.Parent = mainFrame
-	Instance.new("UICorner", rightPanel).CornerRadius = UDim.new(0, 12)
-	local rpStroke = Instance.new("UIStroke", rightPanel)
-	rpStroke.Color = GOLD_PALETTE.AmberGold
-	rpStroke.Thickness = 1.2
-	rpStroke.Transparency = 0.4
-
-	local featureTitle = Instance.new("TextLabel")
-	featureTitle.Position = UDim2.new(0, 14, 0, 10)
-	featureTitle.Size = UDim2.new(1, -28, 0, 18)
-	featureTitle.BackgroundTransparency = 1
-	featureTitle.Font = Enum.Font.GothamBlack
-	featureTitle.TextSize = 12
-	featureTitle.TextColor3 = GOLD_PALETTE.LightGold
-	featureTitle.TextXAlignment = Enum.TextXAlignment.Left
-	featureTitle.Text = "🍌 BANANA HUB • TRÌNH ĐIỀU KHIỂN"
-	featureTitle.Parent = rightPanel
-
-	local descLbl = Instance.new("TextLabel")
-	descLbl.Position = UDim2.new(0, 14, 0, 32)
-	descLbl.Size = UDim2.new(1, -28, 0, 36)
-	descLbl.BackgroundTransparency = 1
-	descLbl.Font = Enum.Font.GothamMedium
-	descLbl.TextSize = 9.5
-	descLbl.TextColor3 = GOLD_PALETTE.TextMuted
-	descLbl.TextXAlignment = Enum.TextXAlignment.Left
-	descLbl.TextWrapped = true
-	descLbl.Text = "Hệ thống Avatar 3D tự động phát hiện người chơi đi bộ/đứng yên và đồng bộ tốc độ di chuyển thực tế."
-	descLbl.Parent = rightPanel
-
-	-- Danh sách phím tắt tính năng nhanh (Gold Action Cards)
-	local function createGoldActionBtn(name, yPos, title, sub)
-		local btn = Instance.new("TextButton")
-		btn.Name = name
-		btn.Size = UDim2.new(1, -28, 0, 48)
-		btn.Position = UDim2.new(0, 14, 0, yPos)
-		btn.BackgroundColor3 = GOLD_PALETTE.ObsidianBg
-		btn.BorderSizePixel = 0
-		btn.Text = ""
-		btn.AutoButtonColor = false
-		btn.Parent = rightPanel
-		Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-		local bStroke = Instance.new("UIStroke", btn)
-		bStroke.Color = GOLD_PALETTE.AmberGold
-		bStroke.Thickness = 1.0
-		bStroke.Transparency = 0.35
-
-		local bTitle = Instance.new("TextLabel", btn)
-		bTitle.Position = UDim2.new(0, 12, 0, 8)
-		bTitle.Size = UDim2.new(1, -24, 0, 16)
-		bTitle.BackgroundTransparency = 1
-		bTitle.Font = Enum.Font.GothamBold
-		bTitle.TextSize = 11
-		bTitle.TextColor3 = GOLD_PALETTE.LightGold
-		bTitle.TextXAlignment = Enum.TextXAlignment.Left
-		bTitle.Text = title
-
-		local bSub = Instance.new("TextLabel", btn)
-		bSub.Position = UDim2.new(0, 12, 0, 26)
-		bSub.Size = UDim2.new(1, -24, 0, 14)
-		bSub.BackgroundTransparency = 1
-		bSub.Font = Enum.Font.GothamMedium
-		bSub.TextSize = 9
-		bSub.TextColor3 = GOLD_PALETTE.TextMuted
-		bSub.TextXAlignment = Enum.TextXAlignment.Left
-		bSub.Text = sub
-
-		btn.MouseEnter:Connect(function()
-			bStroke.Color = GOLD_PALETTE.LightGold
-			bStroke.Transparency = 0.1
-		end)
-		btn.MouseLeave:Connect(function()
-			bStroke.Color = GOLD_PALETTE.AmberGold
-			bStroke.Transparency = 0.35
-		end)
-		return btn
+		if State.IsExpanded then
+			expandPanel.Position = PINNED_DRAWER_POS
+			local targetH = State.NoteOpen and OPEN_NOTE_EXP_H or COLLAPSED_EXP_H
+			expandPanel.Visible = true
+			TweenService:Create(expandPanel, TweenInfo.new(0.20, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Size = UDim2.new(0, EXP_W, 0, targetH) }):Play()
+			TweenService:Create(rightArrow, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Rotation = 180 }):Play()
+		else
+			TweenService:Create(rightArrow, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Rotation = 0 }):Play()
+			expandPanel.Visible = false
+		end
 	end
 
-	local b1 = createGoldActionBtn("SpeedTestBtn", 76, "⚡ Tăng Tốc Độ Đi Bộ (WalkSpeed +16)", "Thử nghiệm tăng tốc độ để thấy hoạt ảnh chạy nhanh hơn")
-	local b2 = createGoldActionBtn("ResetSpeedBtn", 132, "🔄 Đặt Lại Tốc Độ Mặc Định (16 studs/s)", "Khôi phục lại tốc độ đi bộ tiêu chuẩn")
-	local b3 = createGoldActionBtn("CameraViewBtn", 188, "🎥 Tự Động Xoay Avatar 360°", "Bật/Tắt chế độ quay đều Camera quanh Avatar")
-	local b4 = createGoldActionBtn("ReloadAvatarBtn", 244, "✨ Tải Lại Avatar Người Chơi", "Cập nhật ngoại hình mới nhất của nhân vật")
+	pillClickBtn.Activated:Connect(toggleIslandExpand)
+	collapseBtn.Activated:Connect(toggleIslandExpand)
 
-	b1.Activated:Connect(function()
-		pcall(function()
-			local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-			if hum then
-				hum.WalkSpeed = math.min(hum.WalkSpeed + 16, 120)
+	btnVI.Activated:Connect(function()
+		playUiSound("action")
+		if State.Language ~= "VI" then
+			State.Language = "VI"
+			updatePillVisuals()
+			if State.RefreshAllMenus then
+				task.spawn(State.RefreshAllMenus)
 			end
-		end)
+		end
 	end)
 
-	b2.Activated:Connect(function()
-		pcall(function()
-			local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-			if hum then
-				hum.WalkSpeed = 16
+	btnEN.Activated:Connect(function()
+		playUiSound("action")
+		if State.Language ~= "EN" then
+			State.Language = "EN"
+			updatePillVisuals()
+			if State.RefreshAllMenus then
+				task.spawn(State.RefreshAllMenus)
 			end
-		end)
+		end
 	end)
 
-	b3.Activated:Connect(function()
-		renderer:SetAutoRotate(not renderer.AutoRotate)
-	end)
-
-	b4.Activated:Connect(function()
-		pcall(function()
-			if LocalPlayer.Character then
-				renderer:Destroy()
-				renderer = Avatar_Renderer.new({
-					Parent = mainFrame,
-					Player = LocalPlayer,
-					Size = UDim2.new(0, 220, 0, 350),
-					Position = UDim2.new(0, 14, 0, 58),
-					ShowStats = true,
-					AutoRotate = true,
-				})
-			end
-		end)
-	end)
-
-	-- Footer Bản Quyền Banana Hub
-	local footerLbl = Instance.new("TextLabel")
-	footerLbl.Position = UDim2.new(0, 14, 1, -38)
-	footerLbl.Size = UDim2.new(1, -28, 0, 24)
-	footerLbl.BackgroundTransparency = 1
-	footerLbl.Font = Enum.Font.RobotoMono
-	footerLbl.TextSize = 8.5
-	footerLbl.TextColor3 = GOLD_PALETTE.AmberGold
-	footerLbl.TextXAlignment = Enum.TextXAlignment.Center
-	footerLbl.Text = "Banana Hub v2.0 • Gold Premium • Made with Banana Cat 🍌"
-	footerLbl.Parent = rightPanel
-
-	return screenGui
+	updatePillVisuals()
+	return islandGui
 end
 
 -- ============================================================================
--- 11. TỰ ĐỘNG THỰC THI (AUTO-RUN DEMO) & XUẤT MODULE
+-- 6. BÊ NGUYÊN HÌNH ẢNH & TRẠNG THÁI TỪ HEADER BANANA HUB VÀO DYNAMIC ISLAND
+--    - Tự động phát hiện thanh trạng thái trên Header (cạnh v1.0.6) và thẻ TRẠNG THÁI
+--    - Ẩn bằng độ trong suốt (Transparency = 1, vẫn giữ Visible = true) để script gốc
+--      không bao giờ ngừng cập nhật trạng thái!
 -- ============================================================================
-task.spawn(function()
-	pcall(createBananaHubGoldWindow)
-end)
+local NON_STATUS_TEXTS = {
+	["figgy hub"] = true,
+	["banana hub"] = true,
+	["frostyfig"] = true,
+	["steal an egg"] = true,
+	["cướp trứng"] = true,
+	["search"] = true,
+	["search..."] = true,
+	["tìm kiếm..."] = true,
+	["find option"] = true,
+	["tìm tùy chọn..."] = true,
+	["-"] = true,
+	["+"] = true,
+	["×"] = true,
+	["x"] = true,
+}
 
-return Avatar_Renderer
+local function isIgnoredHeaderLabel(txt)
+	if not txt or txt == "" then return true end
+	local low = string.lower((txt:match("^%s*(.-)%s*$") or ""))
+	if NON_STATUS_TEXTS[low] then return true end
+	if low:find("^v%d+%.%d+") then return true end
+	return false
+end
+
+-- Ẩn khung trạng thái gốc trên Header bằng Transparency (giữ Visible = true để Figgy Hub luôn cập nhật!)
+local function cloakOriginalStatusBadge(badgeFrame)
+	if not badgeFrame or not badgeFrame:IsA("GuiObject") then return end
+	pcall(function()
+		badgeFrame.BackgroundTransparency = 1
+		for _, ch in ipairs(badgeFrame:GetDescendants()) do
+			if ch:IsA("UIStroke") then
+				ch.Transparency = 1
+			elseif ch:IsA("TextLabel") or ch:IsA("TextButton") then
+				ch.TextTransparency = 1
+				ch.TextStrokeTransparency = 1
+				ch.BackgroundTransparency = 1
+			elseif ch:IsA("ImageLabel") or ch:IsA("ImageButton") then
+				ch.ImageTransparency = 1
+				ch.BackgroundTransparency = 1
+			elseif ch:IsA("Frame") then
+				ch.BackgroundTransparency = 1
+			end
+		end
+	end)
+end
+
+-- Đồng bộ dữ liệu thực tế từ widget trạng thái của Figgy Hub vào Dynamic Island
+local function syncStatusFromLiveWidgets()
+	if not isAlive() then return end
+	local txtObj = State.LiveFiggyTextLabel
+	local imgObj = State.LiveFiggyImageLabel
+	local emojiObj = State.LiveFiggyEmojiLabel
+	local fallbackTxtObj = State.FallbackStatusCardLabel
+
+	local rawText = ""
+	if txtObj and txtObj.Parent then
+		rawText = txtObj:GetAttribute("__FiggyOrigText") or txtObj.Text or ""
+		if rawText == "" then
+			rawText = txtObj.Text or ""
+		end
+	end
+
+	-- Nếu thanh trạng thái Header đang rảnh nhưng thẻ TRẠNG THÁI trong tab có thông tin chi tiết hơn
+	if (rawText == "" or rawText == "Idle" or rawText == "Đang rảnh") and fallbackTxtObj and fallbackTxtObj.Parent then
+		local fbText = fallbackTxtObj:GetAttribute("__FiggyOrigText") or fallbackTxtObj.Text or ""
+		if fbText ~= "" and not isIgnoredHeaderLabel(fbText) then
+			rawText = fbText
+		end
+	end
+
+	if rawText ~= "" then
+		State.CurrentRawStatus = rawText
+	end
+
+	if imgObj and imgObj.Parent and (imgObj.Image or "") ~= "" then
+		State.CurrentStatusImage = imgObj.Image
+		State.CurrentStatusImageColor = imgObj.ImageColor3 or Color3.fromRGB(255, 255, 255)
+		State.CurrentStatusRectOffset = imgObj.ImageRectOffset or Vector2.new(0, 0)
+		State.CurrentStatusRectSize = imgObj.ImageRectSize or Vector2.new(0, 0)
+	end
+
+	if emojiObj and emojiObj.Parent and emojiObj ~= txtObj then
+		local em = (emojiObj.Text or ""):match("^%s*(.-)%s*$") or ""
+		if em ~= "" and #em <= 8 then
+			State.CurrentStatusEmoji = em
+		end
+	else
+		State.CurrentStatusEmoji = ""
+	end
+
+	if State.LiveFiggyBadgeFrame and State.LiveFiggyBadgeFrame.Parent then
+		cloakOriginalStatusBadge(State.LiveFiggyBadgeFrame)
+	end
+
+	if State.UpdateIslandVisuals then
+		pcall(State.UpdateIslandVisuals)
+	end
+end
+
+-- Tự động gắn kết với thanh trạng thái trên Header của Banana Hub (cạnh v1.0.6)
+local function bindHeaderAndLogosFromTitle(titleLbl)
+	if not titleLbl or not titleLbl.Parent then return end
+
+	-- Tìm khung Header chứa cả Logo, Tiêu đề, v1.0.6 và Thanh trạng thái
+	local headerContainer = titleLbl.Parent
+	for _ = 1, 3 do
+		if headerContainer and headerContainer.Parent and headerContainer.Parent:IsA("GuiObject") then
+			-- Nếu khung cha có chiều cao <= 75px thì đó chính là toàn bộ thanh Topbar/Header
+			if headerContainer.Parent.AbsoluteSize.Y > 0 and headerContainer.Parent.AbsoluteSize.Y <= 78 then
+				headerContainer = headerContainer.Parent
+			else
+				break
+			end
+		end
+	end
+
+	if not headerContainer then return end
+
+	-- 1. Thay Logo trên Header sang Banana Cat (rbxassetid://87447945720038)
+	for _, d in ipairs(headerContainer:GetDescendants()) do
+		if (d:IsA("ImageLabel") or d:IsA("ImageButton")) and d.Parent ~= State.LiveFiggyBadgeFrame then
+			local isLeftOfTitle = (d.AbsolutePosition.X <= titleLbl.AbsolutePosition.X + 24)
+			local isSquareLogo = (d.AbsoluteSize.X >= 14 and d.AbsoluteSize.X <= 48 and math.abs(d.AbsoluteSize.X - d.AbsoluteSize.Y) <= 8)
+			if isLeftOfTitle and isSquareLogo then
+				local oldId = d.Image or ""
+				if oldId ~= "" and oldId ~= BANANA_CAT_LOGO then
+					State.OrigFiggyLogoAssetIds[oldId] = true
+				end
+				d:SetAttribute("__IsBananaBrandLogo", true)
+				pcall(function()
+					d.Image = BANANA_CAT_LOGO
+					d.ImageColor3 = Color3.fromRGB(255, 255, 255)
+					d.ImageRectOffset = Vector2.new(0, 0)
+					d.ImageRectSize = Vector2.new(0, 0)
+					if d.Parent and d.Parent:IsA("Frame") and d.Parent.AbsoluteSize.X <= 52 then
+						d.Parent.BackgroundColor3 = Color3.fromRGB(36, 30, 18)
+						local st = d.Parent:FindFirstChildOfClass("UIStroke") or Instance.new("UIStroke", d.Parent)
+						st.Color = GOLD_BORDER_STROKE
+						st.Thickness = 1
+					end
+				end)
+			end
+		end
+	end
+
+	-- 2. Tìm Thanh Trạng Thái (Status Pill) nằm trên Header (bên phải "Banana Hub" / "v1.0.6")
+	for _, desc in ipairs(headerContainer:GetDescendants()) do
+		if desc:IsA("Frame") and not desc:FindFirstChildWhichIsA("TextBox") then
+			-- Không phải là khung chứa tiêu đề chính
+			if not desc:IsAncestorOf(titleLbl) and desc ~= titleLbl.Parent then
+				local candidateTxt = nil
+				local candidateEmoji = nil
+				local candidateImg = desc:FindFirstChildWhichIsA("ImageLabel", true) or desc:FindFirstChildWhichIsA("ImageButton", true)
+
+				for _, ch in ipairs(desc:GetDescendants()) do
+					if ch:IsA("TextLabel") then
+						local t = (ch.Text or ""):match("^%s*(.-)%s*$") or ""
+						if t ~= "" and not isIgnoredHeaderLabel(t) then
+							-- Nếu là ký tự icon/emoji ngắn (<= 4 byte) và đã có TextLabel khác
+							if #t <= 4 and not t:find("%w") then
+								candidateEmoji = ch
+							else
+								candidateTxt = ch
+							end
+						end
+					end
+				end
+
+				if candidateTxt then
+					if State.LiveFiggyTextLabel ~= candidateTxt then
+						State.LiveFiggyTextLabel = candidateTxt
+						State.LiveFiggyImageLabel = candidateImg
+						State.LiveFiggyEmojiLabel = candidateEmoji
+						State.LiveFiggyBadgeFrame = desc
+
+						candidateTxt:GetPropertyChangedSignal("Text"):Connect(syncStatusFromLiveWidgets)
+						if candidateImg then
+							candidateImg:GetPropertyChangedSignal("Image"):Connect(syncStatusFromLiveWidgets)
+							candidateImg:GetPropertyChangedSignal("ImageColor3"):Connect(syncStatusFromLiveWidgets)
+						end
+						if candidateEmoji then
+							candidateEmoji:GetPropertyChangedSignal("Text"):Connect(syncStatusFromLiveWidgets)
+						end
+					end
+					cloakOriginalStatusBadge(desc)
+					syncStatusFromLiveWidgets()
+					return true
+				end
+			end
+		end
+	end
+	return false
+end
+
+-- Nhận diện trực tiếp bất kỳ TextLabel trạng thái nào (dự phòng trường hợp cấu trúc Header thay đổi)
+local function checkDirectStatusLabelCandidate(lbl)
+	if not lbl or not lbl:IsA("TextLabel") or not lbl.Parent then return end
+	local raw = lbl:GetAttribute("__FiggyOrigText") or lbl.Text or ""
+	local clean = raw:match("^%s*(.-)%s*$") or ""
+	if clean == "" or isIgnoredHeaderLabel(clean) then return end
+
+	local low = string.lower(clean)
+	local looksLikeLiveStatus = (
+		low == "idle" or low == "đang rảnh"
+		or low:find("carrying ", 1, true) ~= nil
+		or low:find("đang mang ", 1, true) ~= nil
+		or low:find("holding ", 1, true) ~= nil
+		or low:find("đang giữ ", 1, true) ~= nil
+		or low:find("stealing", 1, true) ~= nil
+		or low:find("đang cướp", 1, true) ~= nil
+		or low:find("moving to", 1, true) ~= nil
+		or low:find("selling", 1, true) ~= nil
+	)
+
+	if not looksLikeLiveStatus then return end
+
+	local badgeFrame = lbl.Parent
+	if badgeFrame and badgeFrame:IsA("GuiObject") then
+		local img = badgeFrame:FindFirstChildWhichIsA("ImageLabel", true) or badgeFrame:FindFirstChildWhichIsA("ImageButton", true)
+		-- Kiểm tra xem đây là thanh trạng thái trên Header (chiều cao nhỏ <= 36px) hay thẻ TRẠNG THÁI trong Tab
+		if badgeFrame.AbsoluteSize.Y > 0 and badgeFrame.AbsoluteSize.Y <= 38 then
+			if State.LiveFiggyTextLabel ~= lbl then
+				State.LiveFiggyTextLabel = lbl
+				State.LiveFiggyImageLabel = img
+				State.LiveFiggyBadgeFrame = badgeFrame
+				lbl:GetPropertyChangedSignal("Text"):Connect(syncStatusFromLiveWidgets)
+				if img then
+					img:GetPropertyChangedSignal("Image"):Connect(syncStatusFromLiveWidgets)
+					img:GetPropertyChangedSignal("ImageColor3"):Connect(syncStatusFromLiveWidgets)
+				end
+			end
+			cloakOriginalStatusBadge(badgeFrame)
+			syncStatusFromLiveWidgets()
+		else
+			-- Thẻ TRẠNG THÁI bên trong Tab Trứng (làm nguồn đồng bộ dự phòng)
+			if State.FallbackStatusCardLabel ~= lbl then
+				State.FallbackStatusCardLabel = lbl
+				lbl:GetPropertyChangedSignal("Text"):Connect(syncStatusFromLiveWidgets)
+				if img and not State.LiveFiggyImageLabel then
+					State.LiveFiggyImageLabel = img
+				end
+			end
+			syncStatusFromLiveWidgets()
+		end
+	end
+end
+
+-- ============================================================================
+-- 7. THAY LOGO NÚT NỔI (FLOATING BUTTON) & PHỐI MÀU GOLD PREMIUM CHO MENU
+-- ============================================================================
+local function styleElementGoldAndLogo(obj)
+	if not obj or not obj.Parent then return end
+	if State.IslandGui and obj:IsDescendantOf(State.IslandGui) then return end
+
+	-- Không can thiệp vào icon trạng thái đang được bê lên Dynamic Island
+	if State.LiveFiggyBadgeFrame and (obj == State.LiveFiggyBadgeFrame or obj:IsDescendantOf(State.LiveFiggyBadgeFrame)) then
+		return
+	end
+
+	-- 1. Thay thế Logo nút nổi (Floating Toggle Button) & Logo khớp ID gốc sang Banana Cat
+	if obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
+		local imgId = obj.Image or ""
+		local aw, ah = obj.AbsoluteSize.X, obj.AbsoluteSize.Y
+		local par = obj.Parent
+		local parW = (par and par:IsA("GuiObject")) and par.AbsoluteSize.X or 0
+		local parH = (par and par:IsA("GuiObject")) and par.AbsoluteSize.Y or 0
+
+		local isKnownFiggyLogo = (imgId ~= "" and State.OrigFiggyLogoAssetIds[imgId] == true)
+		local isFloatingToggleLogo = (
+			par and (par:IsA("Frame") or par:IsA("ImageButton") or par:IsA("TextButton"))
+			and parW >= 34 and parW <= 68 and math.abs(parW - parH) <= 8
+			and aw >= 18 and aw <= 64 and math.abs(aw - ah) <= 8
+			and (par.Parent and (par.Parent:IsA("ScreenGui") or par.Parent.Parent and par.Parent.Parent:IsA("ScreenGui")))
+		)
+
+		if isKnownFiggyLogo or isFloatingToggleLogo or obj:GetAttribute("__IsBananaBrandLogo") then
+			if imgId ~= "" and imgId ~= BANANA_CAT_LOGO then
+				State.OrigFiggyLogoAssetIds[imgId] = true
+			end
+			obj:SetAttribute("__IsBananaBrandLogo", true)
+			pcall(function()
+				obj.Image = BANANA_CAT_LOGO
+				obj.ImageColor3 = Color3.fromRGB(255, 255, 255)
+				obj.ImageRectOffset = Vector2.new(0, 0)
+				obj.ImageRectSize = Vector2.new(0, 0)
+				if par and par:IsA("GuiObject") and parW <= 70 then
+					par.BackgroundColor3 = Color3.fromRGB(26, 22, 16)
+					local st = par:FindFirstChildOfClass("UIStroke") or Instance.new("UIStroke", par)
+					st.Color = GOLD_BORDER_STROKE
+					st.Thickness = 1.3
+				end
+			end)
+			return
+		end
+
+		-- Chuyển các icon màu tím của Figgy Hub sang Vàng Gold dịu mắt
+		if isFiggyPurpleColor(obj.ImageColor3) then
+			pcall(function() obj.ImageColor3 = GOLD_PRIMARY_TEXT end)
+		end
+	end
+
+	-- 2. Chuyển màu nền/viền/chữ màu Tím Figgy sang Vàng Sang Trọng (Gold Premium)
+	if obj:IsA("GuiObject") then
+		if obj.BackgroundTransparency < 0.98 and isFiggyPurpleColor(obj.BackgroundColor3) then
+			pcall(function() obj.BackgroundColor3 = GOLD_ACCENT_FILL end)
+		end
+	end
+
+	if obj:IsA("UIStroke") then
+		if isFiggyPurpleColor(obj.Color) then
+			pcall(function() obj.Color = GOLD_BORDER_STROKE end)
+		end
+	end
+
+	if obj:IsA("TextLabel") or obj:IsA("TextButton") then
+		if isFiggyPurpleColor(obj.TextColor3) then
+			pcall(function() obj.TextColor3 = GOLD_PRIMARY_TEXT end)
+		end
+	end
+end
+
+-- ============================================================================
+-- 8. GẮN ÂM THANH & ĐỘNG CƠ DỊCH THUẬT MENU BANANA HUB (ZERO-LAG)
+-- ============================================================================
+local function hookMenuButtonSound(inst)
+	if not inst or not inst.Parent then return end
+	if State.IslandGui and inst:IsDescendantOf(State.IslandGui) then return end
+	if inst:GetAttribute("__FiggySfxHooked") == SID then return end
+
+	if inst:IsA("TextButton") or inst:IsA("ImageButton") then
+		inst:SetAttribute("__FiggySfxHooked", SID)
+		inst.Activated:Connect(function()
+			if isAlive() then
+				playUiSound("tap")
+			end
+		end)
+	elseif inst:IsA("Frame") then
+		local aw, ah = inst.AbsoluteSize.X, inst.AbsoluteSize.Y
+		local isToggleOrInteractive = (aw >= 28 and aw <= 220 and ah >= 16 and ah <= 44 and inst:FindFirstChildOfClass("UICorner") ~= nil)
+		if isToggleOrInteractive then
+			inst:SetAttribute("__FiggySfxHooked", SID)
+			inst.InputBegan:Connect(function(inp)
+				if not isAlive() then return end
+				if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+					playUiSound("tap")
+				end
+			end)
+		end
+	end
+end
+
+local function processGuiElement(obj)
+	if not obj or not obj.Parent then return end
+	if State.IslandGui and obj:IsDescendantOf(State.IslandGui) then return end
+
+	pcall(styleElementGoldAndLogo, obj)
+
+	if obj:IsA("TextButton") or obj:IsA("ImageButton") or obj:IsA("Frame") then
+		pcall(hookMenuButtonSound, obj)
+	end
+
+	if obj:IsA("TextBox") then
+		local ph = obj.PlaceholderText or ""
+		if ph ~= "" then
+			if not obj:GetAttribute("__FiggyOrigPlaceholder") then
+				obj:SetAttribute("__FiggyOrigPlaceholder", ph)
+			end
+			local basePh = obj:GetAttribute("__FiggyOrigPlaceholder") or ph
+			local targetPh = translateString(basePh, State.Language)
+			if targetPh and targetPh ~= ph then
+				pcall(function() obj.PlaceholderText = targetPh end)
+			end
+		end
+		return
+	end
+
+	if not (obj:IsA("TextLabel") or obj:IsA("TextButton")) then return end
+	if obj:GetAttribute("__IsTranslatingFiggy") then return end
+
+	local curText = obj.Text or ""
+	if curText == "" then return end
+
+	-- Phát hiện tiêu đề "Figgy Hub" hoặc "Banana Hub" -> Đổi tên, gắn Gold Gradient, thay Logo và bê Status
+	if obj:IsA("TextLabel") and (curText == "Figgy Hub" or curText == "Banana Hub" or curText == "FrostyFig") then
+		if curText == "Figgy Hub" then
+			obj:SetAttribute("__FiggyOrigText", "Figgy Hub")
+		end
+		pcall(applyGoldGradientToTitle, obj)
+		pcall(bindHeaderAndLogosFromTitle, obj)
+	end
+
+	if EXACT_VI[curText] and State.Language == "VI" and curText ~= "Figgy Hub" then
+		obj:SetAttribute("__FiggyOrigText", VI_TO_EN[EXACT_VI[curText]] or curText)
+	end
+
+	local lastTranslated = obj:GetAttribute("__FiggyLastTranslated")
+	if not obj:GetAttribute("__FiggyOrigText") or (lastTranslated and curText ~= lastTranslated) then
+		obj:SetAttribute("__FiggyOrigText", curText)
+	end
+
+	local origText = obj:GetAttribute("__FiggyOrigText") or curText
+	local translated = translateString(origText, State.Language)
+
+	if translated and translated ~= curText then
+		obj:SetAttribute("__IsTranslatingFiggy", true)
+		obj:SetAttribute("__FiggyLastTranslated", translated)
+		pcall(function()
+			obj.Text = translated
+		end)
+		obj:SetAttribute("__IsTranslatingFiggy", false)
+	end
+
+	-- Kiểm tra nếu đây là nhãn trạng thái trên Header hoặc trong Thẻ Trạng Thái
+	if obj:IsA("TextLabel") then
+		pcall(checkDirectStatusLabelCandidate, obj)
+		if obj == State.LiveFiggyTextLabel or obj == State.FallbackStatusCardLabel then
+			pcall(syncStatusFromLiveWidgets)
+		end
+	end
+
+	if obj:GetAttribute("__FiggyTextWatched") ~= SID then
+		obj:SetAttribute("__FiggyTextWatched", SID)
+		table.insert(State.TrackedLabels, obj)
+		obj:GetPropertyChangedSignal("Text"):Connect(function()
+			if not isAlive() or obj:GetAttribute("__IsTranslatingFiggy") then return end
+			processGuiElement(obj)
+		end)
+	end
+end
+
+local function refreshAllTranslatedMenus()
+	State.FastCache = {}
+	for i = #State.TrackedLabels, 1, -1 do
+		local lbl = State.TrackedLabels[i]
+		if lbl and lbl.Parent then
+			pcall(processGuiElement, lbl)
+		else
+			table.remove(State.TrackedLabels, i)
+		end
+	end
+	pcall(syncStatusFromLiveWidgets)
+end
+State.RefreshAllMenus = refreshAllTranslatedMenus
+
+local function scanAllMenusOnce(forceSweep)
+	for _, root in ipairs(getUiRoots()) do
+		local okCh, children = pcall(function() return root:GetChildren() end)
+		if okCh and type(children) == "table" then
+			for _, gui in ipairs(children) do
+				local okName, gName = pcall(function() return gui.Name end)
+				if okName and not IGNORED_SCREEN_GUIS[gName] and gName ~= "Old_BananaDynamicIsland" and isFiggyTargetGui(gui) then
+					if gui:GetAttribute("__FiggyGuiHooked") ~= SID then
+						gui:SetAttribute("__FiggyGuiHooked", SID)
+						gui.DescendantAdded:Connect(function(desc)
+							if not isAlive() then return end
+							task.defer(function()
+								if isAlive() and desc and desc.Parent then
+									pcall(processGuiElement, desc)
+								end
+							end)
+						end)
+					end
+
+					local okDesc, descendants = pcall(function() return gui:GetDescendants() end)
+					if okDesc and type(descendants) == "table" then
+						local processedCount = 0
+						for _, d in ipairs(descendants) do
+							if forceSweep or d:GetAttribute("__FiggyTextWatched") ~= SID then
+								pcall(processGuiElement, d)
+								processedCount = processedCount + 1
+								if processedCount % 220 == 0 then
+									task.wait()
+								end
+							else
+								-- Luôn kiểm tra màu sắc/logo cho các phần tử mới đổi trạng thái
+								if d:IsA("Frame") or d:IsA("UIStroke") or d:IsA("ImageLabel") or d:IsA("ImageButton") then
+									pcall(styleElementGoldAndLogo, d)
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+-- ============================================================================
+-- 9. KHỞI CHẠY DYNAMIC ISLAND & VÒNG LẶP ĐỒNG BỘ TRẠNG THÁI REALTIME (0.15s)
+-- ============================================================================
+createIndependentFiggyDynamicIsland()
+
+task.spawn(function()
+	scanAllMenusOnce(true)
+
+	local sweepCounter = 0
+	while isAlive() do
+		task.wait(0.15)
+		if not isAlive() then break end
+
+		-- Đồng bộ liên tục trạng thái & hình ảnh từ Header của Banana Hub vào Dynamic Island
+		pcall(syncStatusFromLiveWidgets)
+
+		sweepCounter = sweepCounter + 1
+		if sweepCounter >= 4 then
+			sweepCounter = 0
+			scanAllMenusOnce(false)
+		end
+	end
+end)
