@@ -1,8 +1,9 @@
 -- ============================================================================
 -- FIGGY HUB V1.0.6+ | BẢN VIỆT HÓA TOÀN DIỆN & FIGGY DYNAMIC ISLAND (MATTE LIQUID GLASS)
 -- Script gốc: loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/91ad82d753e1318189c4e249d56e7dcf.lua"))()
--- Giao diện Kính Khói Mờ Dịu Mắt (Anti-Glare Matte Liquid Glass), Ghim Cố Định Mé Trên
--- Avatar & Nhận diện thương hiệu Figgy Hub riêng biệt (Không dùng avatar Chilli Hub)
+-- 1. Bê nguyên hình ảnh và trạng thái từ header Figgy Hub vào Dynamic Island, cập nhật liên tục 100% thời gian thực
+-- 2. Giao diện Kính Khói Mờ Dịu Mắt (Anti-Glare Matte Liquid Glass), nút màu Hổ Phách Figgy không còn chói mắt
+-- 3. Ghim cố định sát mép trên màn hình, khóa di chuyển 100%
 -- ============================================================================
 
 local Players = game:GetService("Players")
@@ -26,6 +27,8 @@ State.SessionId = (State.SessionId or 0) + 1
 local SID = State.SessionId
 State.Language = State.Language or "VI" -- "VI" hoặc "EN"
 State.CurrentRawStatus = State.CurrentRawStatus or "Idle"
+State.CurrentStatusImage = State.CurrentStatusImage or ""
+State.CurrentStatusImageColor = State.CurrentStatusImageColor or Color3.fromRGB(255, 255, 255)
 State.SoundEnabled = (State.SoundEnabled ~= false)
 State.IsExpanded = false
 State.NoteOpen = false
@@ -38,9 +41,13 @@ local function isAlive()
 end
 
 -- ============================================================================
--- 1. KHỞI CHẠY TRỰC TIẾP SCRIPT GỐC FIGGY HUB (ĐẢM BẢO LÊN MENU 100%)
+-- 1. KHỞI CHẠY TRỰC TIẾP SCRIPT GỐC FIGGY HUB
 -- ============================================================================
 local FIGGY_LOADER_URL = "https://api.luarmor.net/files/v4/loaders/91ad82d753e1318189c4e249d56e7dcf.lua"
+
+task.spawn(function()
+	loadstring(game:HttpGet(FIGGY_LOADER_URL))()
+end)
 
 local IGNORED_SCREEN_GUIS = {
 	ChilliDynamicIsland = true,
@@ -76,12 +83,7 @@ local function getUiRoots()
 	return roots
 end
 
--- Khởi chạy trực tiếp script gốc Figgy Hub bằng task.spawn (Không chặn bởi bộ quét UI để tránh nhận nhầm trình soạn thảo của Executor và không bọc pcall lên hàm thực thi Luarmor)
-task.spawn(function()
-	loadstring(game:HttpGet(FIGGY_LOADER_URL))()
-end)
-
--- Nhận diện chính xác ScreenGui thuộc về Figgy Hub (Tránh đụng vào UI riêng của Executor như Delta/Codex/Arceus)
+-- Nhận diện chính xác ScreenGui của Figgy Hub (tránh can thiệp vào UI riêng của Executor)
 local function isFiggyTargetGui(gui)
 	if not gui then return false end
 	if gui:GetAttribute("__VerifiedFiggyGui") then return true end
@@ -103,10 +105,10 @@ end
 -- 2. HỆ THỐNG ÂM THANH TƯƠNG TÁC (MENU & DYNAMIC ISLAND - ZERO LATENCY)
 -- ============================================================================
 local SOUND_CONFIG = {
-	open   = { id = "rbxassetid://6895079853", vol = 0.65, spd = 1.06 },
-	close  = { id = "rbxassetid://6895079853", vol = 0.50, spd = 0.86 },
-	tap    = { id = "rbxassetid://6026984224", vol = 0.62, spd = 1.14 },
-	action = { id = "rbxassetid://4590662766", vol = 0.65, spd = 1.08 },
+	open   = { id = "rbxassetid://6895079853", vol = 0.60, spd = 1.06 },
+	close  = { id = "rbxassetid://6895079853", vol = 0.48, spd = 0.86 },
+	tap    = { id = "rbxassetid://6026984224", vol = 0.58, spd = 1.14 },
+	action = { id = "rbxassetid://4590662766", vol = 0.60, spd = 1.08 },
 }
 
 local function getCachedSound(kind)
@@ -150,28 +152,24 @@ local function playUiSound(kind)
 end
 
 -- ============================================================================
--- 3. AVATAR & BẢNG MÀU KÍNH KHÓI MỜ DỊU MẮT (ANTI-GLARE SMOKED LIQUID GLASS)
---    Hoàn toàn tách biệt khỏi Chilli Hub: Dùng Avatar Tinh Thể Tím Figgy Hub
+-- 3. BẢNG MÀU KÍNH KHÓI MỜ DỊU MẮT & NÚT HỔ PHÁCH FIGGY (ANTI-GLARE DESIGN)
 -- ============================================================================
--- Mặc định dùng icon Tinh Thể/Ngôi Sao Tím Figgy Hub và tự động đồng bộ logo thật từ cửa sổ Figgy Hub khi mở
-local DEFAULT_FIGGY_AVATAR = "rbxassetid://6031280882"
+local DEFAULT_FIGGY_AVATAR = "rbxassetid://6031280882" -- Avatar Quả Sung Tím Figgy Hub
 local DOWN_ARROW_ICON      = "rbxassetid://6031091004"
 
--- Tông chữ dịu mắt (Warm Soft Ivory & Muted Lavender-Slate, tuyệt đối không trắng gắt hay xanh chói)
-local TEXT_SOFT_PRIMARY = Color3.fromRGB(220, 224, 235) -- Trắng ngà dịu mắt
-local TEXT_SOFT_MUTED   = Color3.fromRGB(152, 160, 178) -- Xám bạc dịu
-local TEXT_SOFT_ACCENT  = Color3.fromRGB(182, 168, 235) -- Tím khói Figgy dịu mắt
-local TEXT_SOFT_MINT    = Color3.fromRGB(115, 210, 165) -- Xanh ngọc trầm dịu mắt
-local STROKE_MATTE_GLOW = Color3.fromRGB(118, 108, 168) -- Viền kính khói tím trầm chuẩn Figgy Hub
+-- Tông màu dịu mắt chống chói (Matte Smoked Charcoal & Soft Figgy Amber)
+local TEXT_SOFT_PRIMARY   = Color3.fromRGB(224, 224, 230) -- Trắng ngà dịu mắt
+local TEXT_SOFT_MUTED     = Color3.fromRGB(152, 155, 168) -- Xám bạc êm ái
+local TEXT_DARK_BTN       = Color3.fromRGB(24, 24, 28)    -- Chữ đen than cho nút active
+local BTN_ACTIVE_AMBER    = Color3.fromRGB(245, 218, 140) -- Vàng hổ phách dịu mắt chuẩn Figgy Hub
+local BTN_INACTIVE_BG     = Color3.fromRGB(34, 34, 40)    -- Nền nút xám trầm
+local STROKE_MUTED_BORDER = Color3.fromRGB(56, 56, 68)    -- Viền kính trầm không chói
 
 -- ============================================================================
--- 4. TỪ ĐIỂN & ĐỘNG CƠ VIỆT HÓA 100% MENU FIGGY HUB V1.0.6+ (ZERO-LAG)
+-- 4. BỘ TỪ ĐIỂN & ĐỘNG CƠ DỊCH THUẬT TOÀN DIỆN FIGGY HUB (BAO GỒM 7915.JPG)
 -- ============================================================================
 local EXACT_VI = {
-	["Tự động Equip Best thú cưng"] = "Tự động trang bị thú cưng mạnh nhất",
-	["Tự động equip best thú cưng"] = "Tự động trang bị thú cưng mạnh nhất",
-
-	-- Tiêu đề & Thanh trạng thái Figgy Hub
+	-- Header & Trạng thái
 	["Figgy Hub"] = "Figgy Hub",
 	["Steal an Egg"] = "Cướp Trứng",
 	["Steal An Egg"] = "Cướp Trứng",
@@ -193,7 +191,7 @@ local EXACT_VI = {
 	["Find option"] = "Tìm tùy chọn...",
 	["🔍 Find option"] = "🔍 Tìm tùy chọn...",
 
-	-- Các Tab Menu Chính (Sidebar Figgy Hub)
+	-- Tab Sidebar Figgy Hub
 	["Home"] = "Trang Chủ",
 	["Dashboard"] = "Trang Chủ",
 	["Eggs"] = "Trứng",
@@ -215,7 +213,92 @@ local EXACT_VI = {
 	["Configs"] = "Cấu Hình",
 	["Server"] = "Máy Chủ",
 
-	-- Tab Quản Lý (Manage) & Các Sub-tab trong ảnh 7909.jpg
+	-- Sub-tabs Tab Trứng (Trong ảnh 7915.jpg)
+	["Automation"] = "Tự Động",
+	["AUTOMATION"] = "TỰ ĐỘNG",
+	["Predictor"] = "Dự Đoán",
+	["PREDICTOR"] = "DỰ ĐOÁN",
+	["TỰ ĐỘNG CƯỚP TRỨNG"] = "TỰ ĐỘNG CƯỚP TRỨNG",
+	["Tự động cướp trứng"] = "Tự động cướp trứng",
+	["Auto Steal"] = "Tự động cướp trứng",
+	["AUTO STEAL"] = "TỰ ĐỘNG CƯỚP TRỨNG",
+	["Auto steal"] = "Tự động cướp trứng",
+	["ĐÃ CƯỚP"] = "ĐÃ CƯỚP",
+	["TRẠNG THÁI"] = "TRẠNG THÁI",
+	["Tự động cướp: Tắt"] = "Tự động cướp: Tắt",
+	["Tự động cướp: Bật"] = "Tự động cướp: Bật",
+	["TỐC ĐỘ"] = "TỐC ĐỘ",
+	["TÚI TRỨNG"] = "TÚI TRỨNG",
+	["Di Chuyển To trứng"] = "Di chuyển tới trứng",
+	["Di chuyển tới trứng"] = "Di chuyển tới trứng",
+	["Go to egg"] = "Di chuyển tới trứng",
+	["Go to Egg"] = "Di chuyển tới trứng",
+	["dịch chuyển"] = "Dịch chuyển",
+	["Dịch chuyển"] = "Dịch chuyển",
+	["Teleport"] = "Dịch chuyển",
+	["Fast Tween"] = "Bay Nhanh (Fast Tween)",
+	["Fast tween"] = "Bay Nhanh (Fast Tween)",
+	["Walk"] = "Đi bộ",
+	["Phương thức giao trứng"] = "Phương thức giao trứng",
+	["Delivery method"] = "Phương thức giao trứng",
+	["Khu vực dịch chuyển"] = "Khu vực dịch chuyển",
+	["Teleport zones"] = "Khu vực dịch chuyển",
+	["Titan Temple"] = "Đền Titan",
+	["Enchanted Forest"] = "Rừng Phù Phép",
+	["Light Dark"] = "Sáng Tối",
+	["Cherry Blossom"] = "Hoa Anh Đào",
+	["Prehistoric"] = "Tiền Sử",
+	["Volcano"] = "Núi Lửa",
+	["Snow"] = "Tuyết",
+	["Desert"] = "Sa Mạc",
+	["Cướp trứng thiếu trong Mục lục"] = "Cướp trứng thiếu trong Mục lục",
+	["Steal missing index eggs"] = "Cướp trứng thiếu trong Mục lục",
+
+	-- Bộ Lọc (Trong ảnh 7915.jpg)
+	["BỘ LỌC"] = "BỘ LỌC",
+	["Bộ lọc"] = "Bộ lọc",
+	["Filter"] = "Bộ lọc",
+	["FILTER"] = "BỘ LỌC",
+	["Khu vực"] = "Khu vực",
+	["Area"] = "Khu vực",
+	["Zones"] = "Khu vực",
+	["Ưu tiên cướp trước"] = "Ưu tiên cướp trước",
+	["Steal first"] = "Ưu tiên cướp trước",
+	["Steal Priority"] = "Ưu Tiên Cướp",
+	["Highest Earnings"] = "Thu nhập cao nhất",
+	["Lowest Earnings"] = "Thu nhập thấp nhất",
+	["Best value"] = "Giá trị cao nhất",
+	["Lowest value"] = "Giá trị thấp nhất",
+	["Best rarity"] = "Độ hiếm cao nhất",
+	["Best mutation"] = "Đột biến tốt nhất",
+	["Đột biến"] = "Đột biến",
+	["Mutation"] = "Đột biến",
+	["Mutations"] = "Đột biến",
+	["Chưa chọn"] = "Chưa chọn",
+	["No selection"] = "Chưa chọn",
+	["Độ hiếm"] = "Độ hiếm",
+	["Rarity"] = "Độ hiếm",
+	["Rarities"] = "Độ hiếm",
+	["Chỉ những trứng này"] = "Chỉ những trứng này",
+	["Only these eggs"] = "Chỉ những trứng này",
+	["Tối thiểu $/giây"] = "Tối thiểu $/giây",
+	["Min $/s"] = "Tối thiểu $/giây",
+	["Min KG"] = "Cân nặng tối thiểu (KG)",
+	["Bán Cheapest trứng"] = "Bán trứng rẻ nhất khi đầy túi",
+	["Sell Cheapest Egg"] = "Bán trứng rẻ nhất khi đầy túi",
+	["Sell cheapest egg"] = "Bán trứng rẻ nhất khi đầy túi",
+	["Sell cheapest egg when bag is full"] = "Bán trứng rẻ nhất khi đầy túi",
+	["Makes room when the trứng túi is full"] = "Tự bán dọn chỗ khi túi trứng đầy",
+	["Makes room when the egg bag is full"] = "Tự bán dọn chỗ khi túi trứng đầy",
+	["Makes room when the bag is full"] = "Tự bán dọn chỗ khi túi đầy",
+	["Không có"] = "Không có",
+	["None"] = "Không có",
+	["Tắt"] = "Tắt",
+	["Off"] = "Tắt",
+	["Bật"] = "Bật",
+	["On"] = "Bật",
+
+	-- Tab Quản Lý (Trong ảnh 7909.jpg)
 	["Inventory"] = "Túi Đồ",
 	["INVENTORY"] = "TÚI ĐỒ",
 	["Place & Hatch"] = "Đặt & Ấp Trứng",
@@ -224,8 +307,6 @@ local EXACT_VI = {
 	["UPGRADES"] = "NÂNG CẤP",
 	["Crafting"] = "Chế Tạo",
 	["CRAFTING"] = "CHẾ TẠO",
-
-	-- Khung EQUIP BEST (Trong ảnh 7909.jpg)
 	["EQUIP BEST"] = "TRANG BỊ MẠNH NHẤT",
 	["Equip Best"] = "Trang Bị Mạnh Nhất",
 	["Equip best"] = "Trang bị mạnh nhất",
@@ -235,16 +316,14 @@ local EXACT_VI = {
 	["Equipped"] = "Đang Trang Bị",
 	["Auto Equip Best Pets"] = "Tự động trang bị thú cưng mạnh nhất",
 	["Auto equip best pets"] = "Tự động trang bị thú cưng mạnh nhất",
+	["Tự động Equip Best thú cưng"] = "Tự động trang bị thú cưng mạnh nhất",
 	["Equip best pets"] = "Trang bị thú cưng mạnh nhất",
-	["Equip Best Pets"] = "Trang Bị Thú Cưng Mạnh Nhất",
 	["Open Pet Bag"] = "Mở Túi Thú Cưng",
 	["Open Egg Bag"] = "Mở Túi Trứng",
 	["Open"] = "Mở",
 	["OPEN"] = "MỞ",
 	["Close"] = "Đóng",
 	["CLOSE"] = "ĐÓNG",
-
-	-- Khung AUTO FAVORITE (Trong ảnh 7909.jpg)
 	["AUTO FAVORITE"] = "TỰ ĐỘNG KHÓA YÊU THÍCH",
 	["Auto Favorite"] = "Tự động khóa yêu thích",
 	["Auto favorite"] = "Tự động khóa yêu thích",
@@ -253,545 +332,48 @@ local EXACT_VI = {
 	["UNFAVORITED"] = "CHƯA YÊU THÍCH",
 	["Unfavorited"] = "Chưa Yêu Thích",
 	["Categories"] = "Danh mục",
-	["CATEGORIES"] = "DANH MỤC",
-	["Category"] = "Danh mục",
-	["Rarities"] = "Độ hiếm",
-	["RARITIES"] = "ĐỘ HIẾM",
-	["Rarity"] = "Độ hiếm",
-	["RARITY"] = "ĐỘ HIẾM",
-	["Mutations"] = "Đột biến",
-	["MUTATIONS"] = "ĐỘT BIẾN",
-	["Mutation"] = "Đột biến",
-	["MUTATION"] = "ĐỘT BIẾN",
-	["None"] = "Không có",
-	["NONE"] = "KHÔNG CÓ",
-	["No selection"] = "Chưa chọn",
-	["No Selection"] = "Chưa chọn",
-	["NO SELECTION"] = "CHƯA CHỌN",
-	["All"] = "Tất cả",
-	["ALL"] = "TẤT CẢ",
-	["Any"] = "Bất kỳ",
-	["ANY"] = "BẤT KỲ",
-	["Off"] = "Tắt",
-	["OFF"] = "TẮT",
-	["On"] = "Bật",
-	["ON"] = "BẬT",
-
-	-- Khung SELL EGGS & SELL PETS (Trong ảnh 7909.jpg)
 	["SELL EGGS"] = "BÁN TRỨNG",
 	["Sell Eggs"] = "Bán Trứng",
 	["Sell eggs"] = "Bán trứng",
-	["SELL PETS"] = "BÁN THÚ CƯNG",
-	["Sell Pets"] = "Bán Thú Cưng",
-	["Sell pets"] = "Bán thú cưng",
-	["EGG BAG"] = "TÚI TRỨNG",
-	["Egg Bag"] = "Túi Trứng",
-	["PET BAG"] = "TÚI THÚ CƯNG",
-	["Pet Bag"] = "Túi Thú Cưng",
 	["SPACE LEFT"] = "CHỖ TRỐNG",
 	["Space Left"] = "Chỗ Trống",
 	["Space left"] = "Chỗ trống",
 	["Egg Names"] = "Tên trứng",
-	["EGG NAMES"] = "TÊN TRỨNG",
 	["Pet Names"] = "Tên thú cưng",
-	["PET NAMES"] = "TÊN THÚ CƯNG",
 	["Egg Rarities"] = "Độ hiếm trứng",
-	["EGG RARITIES"] = "ĐỘ HIẾM TRỨNG",
 	["Pet Rarities"] = "Độ hiếm thú cưng",
-	["PET RARITIES"] = "ĐỘ HIẾM THÚ CƯNG",
-	["Egg Mutations"] = "Đột biến trứng",
-	["Pet Mutations"] = "Đột biến thú cưng",
-	["Min $/s"] = "Tối thiểu $/giây",
-	["Max $/s"] = "Tối đa $/giây",
-	["Min Value"] = "Giá trị tối thiểu",
-	["Max Value"] = "Giá trị tối đa",
-	["Min value /s"] = "Giá trị tối thiểu /giây",
-	["Max value /s"] = "Giá trị tối đa /giây",
-	["Auto Sell Eggs"] = "Tự động bán trứng",
-	["Auto sell eggs"] = "Tự động bán trứng",
-	["Auto Sell Pets"] = "Tự động bán thú cưng",
-	["Auto sell pets"] = "Tự động bán thú cưng",
 	["Sell Rule"] = "Quy tắc bán",
-	["SELL RULE"] = "QUY TẮC BÁN",
 	["Match All"] = "Khớp tất cả",
-	["MATCH ALL"] = "KHỚP TẤT CẢ",
 	["Match Any"] = "Khớp bất kỳ",
-	["MATCH ANY"] = "KHỚP BẤT KỲ",
-	["All picked rules"] = "Khớp tất cả quy tắc",
-	["Any picked rule"] = "Khớp bất kỳ quy tắc",
 	["Maximum Rarity"] = "Độ hiếm tối đa",
-	["MAXIMUM RARITY"] = "ĐỘ HIẾM TỐI ĐA",
 	["Minimum Rarity"] = "Độ hiếm tối thiểu",
-	["MINIMUM RARITY"] = "ĐỘ HIẾM TỐI THIỂU",
 	["Keep Mutated Eggs"] = "Giữ lại trứng đột biến",
 	["Keep mutated eggs"] = "Giữ lại trứng đột biến",
-	["Keep Mutated Pets"] = "Giữ lại thú cưng đột biến",
-	["Keep mutated pets"] = "Giữ lại thú cưng đột biến",
-	["Keep Mutated"] = "Giữ lại cá thể đột biến",
-	["Keep mutated"] = "Giữ lại cá thể đột biến",
-	["Keep Equipped"] = "Giữ lại thú đang đeo",
-	["Keep Favorited"] = "Giữ lại mục yêu thích",
 	["Never Sell Species"] = "Không bán các loài này",
-	["Never sell species"] = "Không bán các loài này",
 	["Never Sell Eggs"] = "Không bán các trứng này",
-	["Never sell eggs"] = "Không bán các trứng này",
-	["Never Sell Pets"] = "Không bán các thú này",
-	["Never sell pets"] = "Không bán các thú này",
-	["Never Sell Mutations"] = "Không bán các đột biến này",
-	["Never sell"] = "Không bao giờ bán",
-	["Never Sell"] = "Không bao giờ bán",
-	["Sell All Eggs"] = "Bán hết trứng ngay",
-	["Sell All Pets"] = "Bán hết thú cưng ngay",
-	["Sell all eggs now"] = "Bán hết trứng ngay",
-	["Sell all pets now"] = "Bán hết thú cưng ngay",
-	["Sell Now"] = "Bán ngay",
-	["Sell On Inventory Full"] = "Chỉ bán khi đầy túi",
 
-	-- Các Sub-tab Đặt & Ấp Trứng (Place & Hatch), Nâng Cấp (Upgrades), Chế Tạo (Crafting)
-	["PLACE EGGS"] = "ĐẶT TRỨNG VÀO CHUỒNG",
-	["Place Eggs"] = "Đặt Trứng Vào Chuồng",
-	["Place Egg"] = "Đặt Trứng Vào Chuồng",
-	["HATCH EGGS"] = "ẤP TRỨNG TRONG CHUỒNG",
-	["Hatch Eggs"] = "Ấp Trứng Trong Chuồng",
-	["Hatch Egg"] = "Ấp Trứng Trong Chuồng",
-	["PEN STATUS"] = "TRẠNG THÁI CHUỒNG ẤP",
-	["Pen Status"] = "Trạng Thái Chuồng Ấp",
-	["PLACED EGGS"] = "TRỨNG ĐANG ĐẶT",
-	["READY TO HATCH"] = "SẴN SÀNG ẤP",
-	["EMPTY SLOTS"] = "Ô CHUỒNG TRỐNG",
-	["Auto Place Eggs"] = "Tự động đặt trứng",
-	["Auto Place Egg"] = "Tự động đặt trứng",
-	["Auto place"] = "Tự động đặt trứng",
-	["Auto Hatch Eggs"] = "Tự động ấp trứng",
-	["Auto Hatch Egg"] = "Tự động ấp trứng",
-	["Auto hatch"] = "Tự động ấp trứng",
-	["Place Priority"] = "Ưu tiên đặt trứng",
-	["Hatch Priority"] = "Ưu tiên ấp trứng",
-	["Place first"] = "Ưu tiên đặt trước",
-	["Place when"] = "Đặt trứng khi",
-	["Always"] = "Luôn luôn",
-	["Stop At Rarity"] = "Dừng lại ở độ hiếm",
-	["Place Missing Index Only"] = "Chỉ đặt trứng thiếu trong Mục lục",
-	["Hatch Missing Index Only"] = "Chỉ ấp trứng thiếu trong Mục lục",
-	["Auto Place Indexing"] = "Tự động đặt lấy Mục lục",
-	["Auto Hatch Indexing"] = "Tự động ấp lấy Mục lục",
-	["Whitelist"] = "Danh sách ưu tiên (Whitelist)",
-	["Blacklist"] = "Danh sách chặn (Blacklist)",
-	["Whitelist Rarity"] = "Ưu tiên độ hiếm",
-	["Whitelist Pet"] = "Ưu tiên thú cưng",
-	["Whitelist Mutation"] = "Ưu tiên đột biến",
-	["Blacklist Rarity"] = "Bỏ qua độ hiếm",
-	["Blacklist Pet"] = "Bỏ qua thú cưng",
-	["Blacklist Mutation"] = "Bỏ qua đột biến",
-	["KEEP EGGS"] = "GIỮ LẠI TRỨNG",
-	["Keep eggs"] = "Giữ lại trứng",
-	["Eggs to keep"] = "Danh sách trứng giữ lại",
-	["Keep Above"] = "Giữ lại trên mức",
-
-	["TREADMILL"] = "MÁY TẬP CHẠY BỘ",
-	["Treadmill"] = "Máy Tập Chạy Bộ",
-	["BASE UPGRADES"] = "NÂNG CẤP CĂN CỨ",
-	["Base Upgrades"] = "Nâng Cấp Căn Cứ",
-	["INDEX & REWARDS"] = "MỤC LỤC & PHẦN THƯỞNG",
-	["Index & Rewards"] = "Mục Lục & Phần Thưởng",
-	["TRAILS"] = "VỆT SÁNG (TRAILS)",
-	["Trails"] = "Vệt Sáng",
-	["Auto Treadmill"] = "Tự động chạy máy tập",
-	["Auto treadmill"] = "Tự động chạy máy tập",
-	["Auto Upgrade Treadmill"] = "Tự nâng cấp máy tập",
-	["Auto upgrade treadmill"] = "Tự nâng cấp máy tập",
-	["Auto Upgrade Base"] = "Tự nâng cấp căn cứ",
-	["Auto upgrade base"] = "Tự nâng cấp căn cứ",
-	["Auto Claim Offline Cash"] = "Tự nhận tiền ngoại tuyến",
-	["Auto claim offline cash"] = "Tự nhận tiền ngoại tuyến",
-	["Auto Claim Index"] = "Tự nhận thưởng Mục lục",
-	["Auto Claim Index Rewards"] = "Tự nhận thưởng Mục lục",
-	["Auto claim index rewards"] = "Tự nhận thưởng Mục lục",
-	["Auto Claim Mastery"] = "Tự động nhận thưởng Thông Thạo",
-	["Auto claim mastery"] = "Tự động nhận thưởng Thông Thạo",
-	["Claim mastery"] = "Nhận thưởng Thông Thạo",
-	["Mastery"] = "Thông Thạo",
-	["MASTERY"] = "THÔNG THẠO",
-	["Auto Buy Trails"] = "Tự động mua vệt sáng",
-	["Auto buy trails"] = "Tự động mua vệt sáng",
-
-	["FUSE MACHINE"] = "MÁY DUNG HỢP",
-	["Fuse Machine"] = "Máy Dung Hợp",
-	["Fuse machine"] = "Máy dung hợp",
-	["FUSE PETS"] = "DUNG HỢP THÚ CƯNG",
-	["Fuse Pets"] = "Dung Hợp Thú Cưng",
-	["FUSE FILTER"] = "BỘ LỌC DUNG HỢP",
-	["Fuse filter"] = "Bộ lọc dung hợp",
-	["FUSE PREDICTOR"] = "DỰ ĐOÁN DUNG HỢP",
-	["Auto Fuse"] = "Tự động dung hợp",
-	["Auto fuse"] = "Tự động dung hợp",
-	["Auto Fuse Pets"] = "Tự động dung hợp thú cưng",
-	["Fuse first"] = "Ưu tiên dung hợp",
-	["Fuse Priority"] = "Ưu tiên dung hợp",
-	["Use pets"] = "Sử dụng thú cưng",
-	["Never fuse"] = "Không bao giờ dung hợp",
-	["Never Fuse"] = "Không bao giờ dung hợp",
-	["Skip mutated"] = "Bỏ qua cá thể đột biến",
-	["Skip Mutated"] = "Bỏ qua cá thể đột biến",
-	["Skip Mutated Pets"] = "Bỏ qua thú đã đột biến",
-	["Eject odd pets"] = "Đẩy thú lẻ ra ngoài",
-	["Eject Odd Pets"] = "Đẩy thú lẻ ra ngoài",
-	["MUTATE EGGS"] = "ĐỘT BIẾN TRỨNG",
-	["Mutate Eggs"] = "Đột Biến Trứng",
-	["MUTATION MACHINE"] = "MÁY ĐỘT BIẾN",
-	["Mutation Machine"] = "Máy Đột Biến",
-	["AUTO MUTATE"] = "TỰ ĐỘNG ĐỘT BIẾN",
-	["Auto Mutate"] = "Tự động đột biến",
-	["Auto mutate"] = "Tự động đột biến",
-	["Auto Mutate Eggs"] = "Tự động đột biến trứng",
-	["MUTATE FILTER"] = "BỘ LỌC ĐỘT BIẾN",
-	["Mutate filter"] = "Bộ lọc đột biến",
-	["Mutate first"] = "Ưu tiên đột biến",
-	["Mutate Priority"] = "Ưu tiên đột biến",
-	["Use items"] = "Sử dụng vật phẩm",
-	["Mutation Items"] = "Vật phẩm đột biến",
-	["Target Mutations"] = "Đột biến mục tiêu",
-	["Skip eggs with"] = "Bỏ qua trứng đã có",
-	["Auto buy Nitro"] = "Tự động mua Nitro",
-	["Auto Buy Nitro"] = "Tự động mua Nitro",
-
-	-- Mục UFO / SEASONAL / BUTTERFLY / THE HOLLOW / AA
+	-- UFO & Sự kiện
 	["UFO"] = "UFO (Đĩa Bay)",
 	["UFO SIGHTINGS"] = "PHÁT HIỆN UFO",
-	["UFO Sightings"] = "Phát Hiện UFO",
 	["Auto UFO"] = "Tự động săn UFO",
 	["Collect UFO Debris"] = "Thu thập mảnh vỡ UFO",
 	["Farm Rare UFO"] = "Cày UFO hiếm",
 	["Auto Trade Debris"] = "Tự động đổi mảnh vỡ",
 	["Teleport If Far From Egg"] = "Dịch chuyển nếu ở xa trứng",
 	["UFO STATUS"] = "TRẠNG THÁI UFO",
-	["UFO Status"] = "Trạng Thái UFO",
 	["EGGS"] = "TRỨNG",
 	["DEBRIS"] = "MẢNH VỠ",
-	["Debris"] = "Mảnh Vỡ",
 	["SEASONAL"] = "SỰ KIỆN THEO MÙA",
-	["Seasonal"] = "Sự Kiện Theo Mùa",
-	["AA"] = "SỰ KIỆN ADMIN (AA)",
-	["Admin Abuse"] = "Sự Kiện Admin (AA)",
-	["ADMIN ABUSE"] = "SỰ KIỆN ADMIN (AA)",
 	["BUTTERFLY EVENT"] = "SỰ KIỆN BƯỚM",
-	["Butterfly Event"] = "Sự Kiện Bướm",
-	["Butterfly"] = "Sự Kiện Bướm",
-	["BUTTERFLY"] = "SỰ KIỆN BƯỚM",
-	["BUTTERFLY BLOOM"] = "MÙA BƯỚM NỞ",
-	["Butterfly bloom"] = "Mùa bướm nở",
 	["ESSENCE"] = "TINH CHẤT",
-	["Essence"] = "Tinh Chất",
 	["CAUGHT"] = "ĐÃ BẮT",
-	["Caught"] = "Đã Bắt",
 	["NET"] = "VỢT BẮT",
-	["Net"] = "Vợt Bắt",
 	["THE HOLLOW"] = "VỰC HOLLOW",
-	["The Hollow"] = "Vực Hollow",
-	["Hollow"] = "Vực Hollow",
 	["STATUS"] = "TRẠNG THÁI",
-	["Status"] = "Trạng Thái",
 	["WINS"] = "SỐ TRẬN THẮNG",
-	["Wins"] = "Số Trận Thắng",
-	["TROPHIES"] = "CÚP",
-	["SOULS"] = "LINH HỒN",
-	["CANDY CORN"] = "KẸO NGÔ",
-	["Candy Corn"] = "Kẹo Ngô",
-	["KILLS"] = "SỐ LẦN HẠ",
-	["Kills"] = "Số Lần Hạ",
-	["BOSS"] = "TRÙM (BOSS)",
-	["ALIVE"] = "CÒN SỐNG",
-	["DEAD"] = "ĐÃ HẠ",
-	["SPAWNED"] = "ĐÃ XUẤT HIỆN",
-	["NOT SPAWNED"] = "CHƯA XUẤT HIỆN",
-
-	-- Bảng Tác Vụ Nhanh Bên Phải (Quick Steal / Shortcuts)
 	["STEAL"] = "CƯỚP NGAY",
 	["Guard: OFF"] = "Bảo vệ: TẮT",
 	["Guard: ON"] = "Bảo vệ: BẬT",
-	["Shortcut 1"] = "Phím Tắt 1",
-	["Shortcut 2"] = "Phím Tắt 2",
-	["Shortcut 3"] = "Phím Tắt 3",
-	["Rare"] = "Hiếm",
-	["Rare+"] = "Hiếm+",
-	["Common"] = "Phổ Thông",
-	["Uncommon"] = "Thường",
-	["Epic"] = "Sử Thi",
-	["Legendary"] = "Huyền Thoại",
-	["Mythic"] = "Thần Thoại",
-	["Secret"] = "Bí Ẩn",
-	["Cosmic"] = "Vũ Trụ",
-	["Eternal"] = "Vĩnh Cửu",
-	["Divine"] = "Thánh Thần",
-	["Celestial"] = "Thiên Giới",
-	["Golden"] = "Hoàng Kim",
-	["Silver"] = "Bạc",
-	["Rainbow"] = "Cầu Vồng",
-	["Diamond"] = "Kim Cương",
-	["Radiant"] = "Rực Rỡ",
-	["Amethyst"] = "Thạch Anh Tím",
-	["Sapphire"] = "Lam Ngọc",
-	["Emerald"] = "Ngọc Lục Bảo",
-	["Fractured"] = "Rạn Nứt",
-	["Scrambled"] = "Hỗn Loạn",
-	["Enchanted"] = "Phù Phép",
-	["Nitro"] = "Nitro",
-	["Spectral"] = "Quang Phổ",
-
-	-- Các mục trong Tab Trang Chủ / Trứng / Sự Kiện / Nhân Vật / Hiển Thị / Cài Đặt
-	["Welcome Home"] = "Trang Chủ",
-	["Welcome back"] = "Chào mừng trở lại",
-	["SESSION"] = "PHIÊN CHƠI",
-	["STOLEN"] = "ĐÃ CƯỚP",
-	["LAST EGG"] = "TRỨNG CUỐI",
-	["PLACED"] = "ĐÃ ĐẶT",
-	["HATCHED"] = "ĐÃ ẤP",
-	["NIGHT IN"] = "ĐÊM SAU",
-	["NEXT NIGHT"] = "ĐÊM SAU",
-	["SESSION TIME"] = "THỜI GIAN",
-	["TIME"] = "THỜI GIAN",
-	["BEST STEAL"] = "CƯỚP TỐT NHẤT",
-	["WHAT'S NEW"] = "CÓ GÌ MỚI",
-	["MONEY /S"] = "TIỀN /GIÂY",
-	["CASH / S"] = "TIỀN / GIÂY",
-	["Player Stats"] = "Thống Kê Người Chơi",
-	["Money"] = "Tiền",
-	["Gems"] = "Đá Quý",
-	["Gain"] = "Tăng Tốc Độ",
-	["Inventory values"] = "Giá trị túi đồ",
-	["Inventory Values"] = "Giá trị túi đồ",
-	["Egg Inventory Value"] = "Giá Trị Trứng Trong Túi",
-
-	["Auto Steal"] = "Tự động cướp trứng",
-	["AUTO STEAL"] = "TỰ ĐỘNG CƯỚP TRỨNG",
-	["Auto steal"] = "Tự động cướp trứng",
-	["Steal Egg"] = "Cướp Trứng",
-	["Steal egg"] = "Cướp trứng",
-	["Instant Steal"] = "Cướp trứng tức thì",
-	["Instant steal"] = "Cướp trứng tức thì",
-	["Steal from other players"] = "Cướp trứng từ người chơi khác",
-	["Steal From Player"] = "Cướp Từ Người Chơi",
-	["Steal From Players"] = "Cướp Từ Người Chơi",
-	["Steal back from players"] = "Cướp lại từ người chơi",
-	["Steal Other Script"] = "Cướp Của Script Khác",
-	["Drop eggs at safe zone"] = "Thả trứng tại vùng an toàn",
-	["Drop for Friend"] = "Nhặt Hộ Bạn Bè",
-	["Delivery method"] = "Phương thức giao trứng",
-	["Delivery Mode"] = "Chế Độ Giao Trứng",
-	["Steal Mode"] = "Chế Độ Cướp",
-	["Steal Settings"] = "Cài Đặt Cướp",
-	["STEAL SETTINGS"] = "CÀI ĐẶT CƯỚP TRỨNG",
-	["STEAL FILTER"] = "BỘ LỌC CƯỚP TRỨNG",
-	["Steal Status"] = "Trạng Thái Cướp",
-	["Open Steal Panel"] = "Mở Bảng Cướp Trứng",
-	["Open Steal History"] = "Mở Lịch Sử Cướp",
-	["Egg Predictor"] = "Dự Đoán Trứng",
-	["EGG PREDICTOR"] = "DỰ ĐOÁN TRỨNG",
-	["Open Egg Predictor"] = "Mở Dự Đoán Trứng",
-	["Egg Utilities"] = "Tiện Ích Trứng",
-	["EGG SHOWCASE"] = "TRƯNG BÀY TRỨNG",
-	["Sort eggs"] = "Sắp xếp trứng",
-	["Preview card"] = "Thẻ xem trước",
-	["Calculate mutations"] = "Tính thử đột biến",
-	["Go to egg"] = "Di chuyển tới trứng",
-	["Go to Egg Leap"] = "Nhảy Tới Trứng",
-	["Teleport to egg"] = "Dịch chuyển tới trứng",
-	["Walk to egg"] = "Đi bộ tới trứng",
-	["Tween to egg"] = "Bay mượt tới trứng",
-	["Fly to egg"] = "Bay tới trứng",
-	["Hold egg"] = "Cầm trứng",
-	["Instant steps"] = "Bước dịch chuyển tức thì",
-	["Delivery speed"] = "Tốc độ giao trứng",
-	["Fast tween speed"] = "Tốc độ bay nhanh",
-	["Tween speed"] = "Tốc độ bay (Tween)",
-	["Steal speed"] = "Tốc độ cướp",
-	["Anti guard"] = "Chống vệ sĩ (Anti-Guard)",
-	["Anti Guard"] = "Chống vệ sĩ (Anti-Guard)",
-	["Skip friends"] = "Bỏ qua bạn bè",
-	["Ignore Friends"] = "Bỏ qua bạn bè",
-	["Filtering"] = "Bộ Lọc",
-	["FILTER"] = "BỘ LỌC",
-	["Strict Filter"] = "Lọc Nghiêm Ngặt",
-	["Steal Priority"] = "Ưu Tiên Cướp",
-	["Steal first"] = "Ưu tiên cướp trước",
-	["Select Area"] = "Chọn Khu Vực",
-	["Select Rarity"] = "Chọn Độ Hiếm",
-	["Select Pet"] = "Chọn Thú Cưng",
-	["Select Mutation"] = "Chọn Đột Biến",
-	["Only these eggs"] = "Chỉ những trứng này",
-	["Only these pets"] = "Chỉ những thú cưng này",
-	["Only below /s"] = "Chỉ lấy dưới mức /giây",
-	["Only sell eggs below /s"] = "Chỉ bán trứng dưới mức /giây",
-	["Sell cheapest egg when bag is full"] = "Bán trứng rẻ nhất khi đầy túi",
-	["Zones"] = "Khu vực",
-	["Teleport zones"] = "Khu vực dịch chuyển",
-	["Best value"] = "Giá trị cao nhất",
-	["Lowest value"] = "Giá trị thấp nhất",
-	["Best rarity"] = "Độ hiếm cao nhất",
-	["Best mutation"] = "Đột biến tốt nhất",
-	["Lowest rarity"] = "Độ hiếm thấp nhất",
-	["Highest rarity"] = "Độ hiếm cao nhất",
-	["Lowest value first"] = "Giá trị thấp nhất trước",
-	["Highest value first"] = "Giá trị cao nhất trước",
-	["Rarest"] = "Hiếm nhất",
-	["Rarest first"] = "Ưu tiên hiếm nhất",
-	["Biggest"] = "Kích thước lớn nhất",
-	["Closest"] = "Khoảng cách gần nhất",
-	["Nearest"] = "Gần nhất",
-
-	["Indexing"] = "Mục Lục (Index)",
-	["Auto Indexing"] = "Tự Động Thu Thập Mục Lục",
-	["Steal missing index eggs"] = "Cướp trứng thiếu trong Mục lục",
-	["Steal missing index"] = "Cướp trứng thiếu trong Mục lục",
-	["Steal missing Halloween index"] = "Cướp trứng Halloween thiếu trong Mục lục",
-	["Place eggs in pen and hatch missing in Egg Index"] = "Đặt trứng vào chuồng và ấp trứng thiếu trong Mục lục",
-
-	["Priority"] = "Ưu Tiên",
-	["PRIORITY"] = "THỨ TỰ ƯU TIÊN",
-	["TASK ORDER"] = "THỨ TỰ TÁC VỤ",
-	["Task order"] = "Thứ tự tác vụ",
-	["Reset order"] = "Đặt lại thứ tự",
-	["DOING"] = "ĐANG LÀM",
-	["WAITING"] = "ĐANG CHỜ",
-
-	["Auto butterfly bloom"] = "Tự động sự kiện Hoa Bướm",
-	["BUTTERFLY MACHINE"] = "MÁY ĐỔI BƯỚM",
-	["Butterfly machine"] = "Máy đổi Bướm",
-	["Auto craft essence"] = "Tự động chế tạo Tinh Chất",
-	["Smart trade for essence"] = "Đổi thông minh lấy Tinh Chất",
-	["Auto trade up"] = "Tự động nâng bậc bướm",
-	["Catch mode"] = "Chế độ bắt",
-	["Catch priority"] = "Ưu tiên bắt",
-	["Catch speed"] = "Tốc độ bắt",
-	["Stand"] = "Đứng yên",
-	["Chase"] = "Đuổi theo",
-	["WISP COMPANION"] = "ĐỒNG HÀNH WISP",
-	["Auto wisp quest"] = "Tự làm nhiệm vụ Wisp",
-	["Auto banjo cricket"] = "Tự bắt dế Banjo",
-	["SHOOTING STAR"] = "SAO BĂNG RƠI",
-	["Shooting Star"] = "Sao Băng",
-	["Auto catch shooting star"] = "Tự động bắt Sao Băng",
-	["LANDS IN"] = "RƠI SAU",
-	["EXPIRES IN"] = "BIẾN MẤT SAU",
-	["HALLOWEEN DIMENSION"] = "KHÔNG GIAN HALLOWEEN",
-	["Halloween Dimension"] = "Không Gian Halloween",
-	["Auto steal Halloween eggs"] = "Tự động cướp trứng Halloween",
-	["Instant steal Halloween eggs"] = "Cướp tức thì trứng Halloween",
-	["Auto Pumpkin Moon"] = "Tự động sự kiện Trăng Bí Ngô",
-	["Auto Pumpkin Boss"] = "Tự đánh Boss Bí Ngô",
-	["Pumpkin Boss"] = "Boss Bí Ngô",
-	["PUMPKIN BOSS"] = "BOSS BÍ NGÔ",
-	["Auto dodge attacks"] = "Tự động né đòn đánh",
-	["Stub pickup speed"] = "Tốc độ nhặt Cuống Bí Ngô",
-	["Auto manor key"] = "Tự lấy chìa khóa dinh thự",
-	["Manor key"] = "Chìa khóa dinh thự",
-	["PHANTOM EXPRESS"] = "TÀU MA PHANTOM EXPRESS",
-	["Auto Phantom Express"] = "Tự động Tàu Ma (Phantom Express)",
-	["Auto vacuum Ghouler boss"] = "Tự hút trùm Ghouler",
-	["Auto trade souls"] = "Tự động đổi Linh Hồn",
-	["MONSTERS"] = "QUÁI VẬT",
-	["Auto farm monsters"] = "Tự động đánh quái sự kiện",
-	["GHOST DOG AND FISHING"] = "CHÓ MA VÀ CÂU CÁ",
-	["Auto fishing"] = "Tự động câu cá",
-	["Auto Ghost Dog quest"] = "Tự làm nhiệm vụ Chó Ma",
-	["CAPTURE THE EGG"] = "CƯỚP TRỨNG SỰ KIỆN",
-	["Auto capture event egg"] = "Tự chiếm trứng sự kiện",
-	["Take it from the holder"] = "Giật trứng từ người đang cầm",
-	["MINIGAME EGGS"] = "TRỨNG TRÒ CHƠI NHỎ",
-	["Auto steal minigame egg"] = "Tự cướp trứng trò chơi nhỏ",
-	["CURSED ISLAND WARS"] = "ĐẠI CHIẾN ĐẢO NGUYỀN RỦA",
-	["Cursed Island Wars"] = "Đại Chiến Đảo Nguyền Rủa",
-	["Auto play Cursed Island Wars"] = "Tự chơi Đại Chiến Đảo Nguyền Rủa",
-	["RACING EVENT"] = "SỰ KIỆN ĐUA XE",
-	["Auto race"] = "Tự động đua xe",
-	["Auto race Hollow"] = "Tự động đua sự kiện Hollow",
-
-	["Move"] = "Di Chuyển",
-	["MOVE"] = "DI CHUYỂN",
-	["MOVEMENT"] = "TỐC ĐỘ & DI CHUYỂN",
-	["Combat"] = "Chiến Đấu",
-	["COMBAT"] = "CHIẾN ĐẤU",
-	["PROTECTION"] = "BẢO VỆ NHÂN VẬT",
-	["HIT AURA"] = "VÒNG SÁNG ĐÁNH TỰ ĐỘNG",
-	["Hit aura"] = "Vòng sáng đánh tự động (Hit Aura)",
-	["AUTO HIT"] = "TỰ ĐỘNG ĐÁNH",
-	["Auto hit"] = "Tự động đánh người chơi",
-	["Hit who"] = "Mục tiêu đánh",
-	["Nearest player"] = "Người chơi gần nhất",
-	["Chosen player"] = "Người chơi chỉ định",
-	["Egg carrier"] = "Người đang ôm trứng",
-	["Chase speed"] = "Tốc độ truy đuổi",
-	["WEAPONS"] = "VŨ KHÍ",
-	["Use weapons"] = "Sử dụng vũ khí",
-	["Hold each"] = "Thời gian cầm mỗi món",
-	["Boost speed"] = "Tốc độ tăng thêm",
-	["Speed boost"] = "Bật tăng tốc chạy",
-	["Walk speed"] = "Tốc độ di chuyển",
-	["Infinite jump"] = "Nhảy vô hạn",
-	["God mode"] = "Bất tử (God Mode)",
-	["Anti ragdoll"] = "Chống ngã (Anti-Ragdoll)",
-	["Anti AFK"] = "Chống treo máy (Anti-AFK)",
-	["Ignore traps"] = "Bỏ qua bẫy",
-	["Instant prompts"] = "Tương tác nút bấm tức thì",
-	["Invisible"] = "Tàng hình",
-
-	["FIELD EGGS"] = "TRỨNG NGOÀI SÂN",
-	["OTHERS"] = "MỤC KHÁC",
-	["Player ESP"] = "Định vị người chơi (ESP)",
-	["Guard ESP"] = "Định vị lính gác (ESP)",
-	["Egg ESP"] = "Định vị trứng ngoài bãi (ESP)",
-	["Pen egg ESP"] = "Định vị trứng trong chuồng",
-	["Other pens ESP"] = "Định vị chuồng người khác",
-	["Hide sleeping guards"] = "Ẩn lính gác đang ngủ",
-	["ESP size"] = "Kích thước chữ ESP",
-	["Fixed size"] = "Cố định kích thước",
-
-	["OPTIMIZER"] = "TỐI ƯU HÓA",
-	["Optimizer"] = "Tối Ưu Hóa",
-	["GRAPHICS"] = "ĐỒ HỌA",
-	["Low graphics"] = "Đồ họa thấp (Giảm lag)",
-	["Disable 3D Render"] = "Tắt kết xuất 3D (Treo máy)",
-	["Hide my pets and eggs"] = "Ẩn thú cưng & trứng của tôi",
-	["Hide other players' pets and eggs"] = "Ẩn thú cưng & trứng người khác",
-	["Hide game UI"] = "Ẩn giao diện gốc của game",
-	["FRAME RATE"] = "TỐC ĐỘ KHUNG HÌNH (FPS)",
-	["Show FPS and ping"] = "Hiện FPS và Ping",
-	["FPS cap"] = "Giới hạn FPS",
-	["INTERFACE"] = "GIAO DIỆN",
-	["Interface"] = "Giao Diện",
-	["QUICK BARS"] = "THANH PHÍM TẮT NHANH",
-	["Quick bars"] = "Thanh phím tắt nhanh",
-	["Show quick bars"] = "Hiện thanh phím tắt nhanh",
-	["Keybinds"] = "Phím tắt",
-	["Bar size"] = "Kích cỡ thanh nhanh",
-	["UI scale"] = "Tỷ lệ thu phóng menu",
-	["Show / hide UI"] = "Phím ẩn / hiện Menu",
-	["Opacity"] = "Độ trong suốt nền",
-	["Tone"] = "Tông màu",
-	["Dim the game"] = "Làm tối cảnh nền game",
-
-	["AUTO HOP SERVER"] = "TỰ ĐỔI MÁY CHỦ",
-	["SERVER HOP"] = "ĐỔI MÁY CHỦ",
-	["Auto hop server"] = "Tự động đổi máy chủ",
-	["Auto hop"] = "Tự động đổi máy chủ",
-	["Server Hop (No Target)"] = "Đổi Server (Khi Hết Mục Tiêu)",
-	["Hop server"] = "Đổi máy chủ",
-	["Server hop"] = "Đổi máy chủ",
-	["Hop now"] = "Đổi máy chủ ngay",
-	["Hop to"] = "Đổi sang máy chủ",
-	["Least players"] = "Ít người chơi nhất",
-	["Most players"] = "Đông người chơi nhất",
-	["Random"] = "Ngẫu nhiên",
-	["Rejoin"] = "Vào lại phòng",
-	["Rejoin this server"] = "Vào lại máy chủ này",
-	["Rejoin on kick"] = "Tự vào lại khi bị văng",
-	["Auto load script"] = "Tự nạp lại script khi đổi phòng",
-	["Copy Job ID"] = "Chép mã phòng (Job ID)",
-	["Unload hub"] = "Tắt Hub",
-	["Save config"] = "Lưu cấu hình",
-	["Load config"] = "Nạp cấu hình",
-	["Reset to defaults"] = "Khôi phục mặc định",
-	["Turn off all toggles"] = "Tắt toàn bộ công tắc",
 }
 
 local LOWER_VI = {}
@@ -811,9 +393,14 @@ for enKey, viVal in pairs(EXACT_VI) do
 end
 
 local GRAMMAR_VI = {
+	-- Trạng thái mang trứng trong 7915.jpg: "Carrying $23.2M/s" -> "Đang mang $23.2M/s"
+	{ pat = "^[Cc]arrying%s+(.+)$", rep = "Đang mang %1" },
+	{ pat = "^[Hh]olding%s+(.+)$", rep = "Đang giữ %1" },
+	{ pat = "^[Ss]tealing%s+(.+)$", rep = "Đang cướp %1" },
+	{ pat = "^[Ff]arming%s+(.+)$", rep = "Đang cày %1" },
+	{ pat = "^[Ww]aiting%s+for%s+(.+)$", rep = "Đang chờ %1" },
 	{ pat = "^[Nn]ext%s+UFO%s+in%s+(.+)$", rep = "UFO tiếp theo sau %1" },
 	{ pat = "^[Nn]ext%s+event%s+in%s+(.+)$", rep = "Sự kiện tiếp theo sau %1" },
-	{ pat = "^[Nn]ext%s+race%s+in%s+(.+)$", rep = "Cuộc đua tiếp theo sau %1" },
 	{ pat = "^[Ss]hortcut%s+(%d+)$", rep = "Phím Tắt %1" },
 	{ pat = "^QUICK BAR (%d+)$", rep = "THANH NHANH %1" },
 	{ pat = "^[Gg]uard:%s*[Oo][Ff][Ff]$", rep = "Bảo vệ: TẮT" },
@@ -829,35 +416,8 @@ local GRAMMAR_VI = {
 	{ pat = "^[Ff]arm%s+[Rr]are%s+(.+)$", rep = "Cày %1 hiếm" },
 	{ pat = "^[Tt]eleport%s+[Ii]f%s+[Ff]ar%s+[Ff]rom%s+(.+)$", rep = "Dịch chuyển nếu ở xa %1" },
 	{ pat = "^[Aa]uto%s+[Ee]quip%s+[Bb]est%s+(.+)$", rep = "Tự động trang bị %1 mạnh nhất" },
-	{ pat = "^[Aa]uto%s+play%s+(.+)$", rep = "Tự động chơi %1" },
-	{ pat = "^[Aa]uto%s+farm%s+(.+)$", rep = "Tự động cày %1" },
-	{ pat = "^[Aa]uto%s+kill%s+(.+)$", rep = "Tự động tiêu diệt %1" },
-	{ pat = "^[Aa]uto%s+catch%s+(.+)$", rep = "Tự động bắt %1" },
-	{ pat = "^[Aa]uto%s+collect%s+(.+)$", rep = "Tự động thu thập %1" },
-	{ pat = "^[Aa]uto%s+buy%s+(.+)$", rep = "Tự động mua %1" },
-	{ pat = "^[Aa]uto%s+sell%s+(.+)$", rep = "Tự động bán %1" },
-	{ pat = "^[Aa]uto%s+claim%s+(.+)$", rep = "Tự động nhận %1" },
-	{ pat = "^[Aa]uto%s+upgrade%s+(.+)$", rep = "Tự động nâng cấp %1" },
-	{ pat = "^[Aa]uto%s+craft%s+(.+)$", rep = "Tự động chế tạo %1" },
-	{ pat = "^[Aa]uto%s+trade%s+(.+)$", rep = "Tự động đổi %1" },
-	{ pat = "^[Aa]uto%s+equip%s+(.+)$", rep = "Tự động trang bị %1" },
-	{ pat = "^[Aa]uto%s+steal%s+(.+)$", rep = "Tự động cướp %1" },
-	{ pat = "^[Aa]uto%s+place%s+(.+)$", rep = "Tự động đặt %1" },
-	{ pat = "^[Aa]uto%s+hatch%s+(.+)$", rep = "Tự động ấp %1" },
-	{ pat = "^[Aa]uto%s+fuse%s+(.+)$", rep = "Tự động dung hợp %1" },
-	{ pat = "^[Aa]uto%s+mutate%s+(.+)$", rep = "Tự động đột biến %1" },
-	{ pat = "^[Ii]nstant%s+steal%s+(.+)$", rep = "Cướp tức thì %1" },
 	{ pat = "^[Aa]uto%s+(.+)$", rep = "Tự động %1" },
-	{ pat = "^[Cc]arrying%s+(.+)%s+to%s+(.+)$", rep = "Đang mang %1 tới %2" },
-	{ pat = "^[Cc]arrying%s+(.+)$", rep = "Đang mang %1" },
-	{ pat = "^[Dd]elivering%s+(.+)$", rep = "Đang giao %1" },
-	{ pat = "^[Ss]tealing%s+(.+)$", rep = "Đang cướp %1" },
-	{ pat = "^[Cc]ollecting%s+(.+)$", rep = "Đang thu thập %1" },
-	{ pat = "^[Ff]arming%s+(.+)$", rep = "Đang cày %1" },
-	{ pat = "^[Ww]aiting%s+for%s+(.+)$", rep = "Đang chờ %1" },
-	{ pat = "^[Ss]earching%s+for%s+(.+)$", rep = "Đang tìm %1" },
-	{ pat = "^(%d+)%s+selected$", rep = "Đã chọn %1 mục" },
-	{ pat = "^(%d+)%s*/%s*(%d+)%s+selected$", rep = "Đã chọn %1/%2" },
+	{ pat = "^this%s+[Ss][Ee][Ss][Ss][Ii][Oo][Nn]$", rep = "phiên này" },
 }
 
 local PHRASES_VI = {
@@ -876,32 +436,18 @@ local PHRASES_VI = {
 	{ "maximum rarity", "Độ hiếm tối đa" },
 	{ "minimum rarity", "Độ hiếm tối thiểu" },
 	{ "keep mutated eggs", "Giữ lại trứng đột biến" },
-	{ "keep mutated pets", "Giữ lại thú cưng đột biến" },
 	{ "never sell species", "Không bán các loài này" },
 	{ "never sell eggs", "Không bán các trứng này" },
-	{ "never sell pets", "Không bán các thú này" },
 	{ "no selection", "Chưa chọn" },
 	{ "place & hatch", "Đặt & Ấp Trứng" },
-	{ "ufo sightings", "Phát Hiện UFO" },
-	{ "ufo status", "Trạng Thái UFO" },
-	{ "collect ufo debris", "Thu thập mảnh vỡ UFO" },
-	{ "farm rare ufo", "Cày UFO hiếm" },
-	{ "auto trade debris", "Tự động đổi mảnh vỡ" },
-	{ "teleport if far from egg", "Dịch chuyển nếu ở xa trứng" },
-	{ "far from egg", "ở xa trứng" },
-	{ "butterfly event", "Sự Kiện Bướm" },
-	{ "the hollow", "Vực Hollow" },
-	{ "cursed island wars", "Đại Chiến Đảo Nguyền Rủa" },
-	{ "phantom express", "Tàu Ma Phantom Express" },
-	{ "pumpkin moon", "Trăng Bí Ngô" },
-	{ "halloween dimension", "Không Gian Halloween" },
-	{ "shooting star", "Sao Băng" },
-	{ "butterfly bloom", "Mùa Bướm Nở" },
-	{ "safe zone", "vùng an toàn" },
-	{ "other players", "người chơi khác" },
-	{ "offline cash", "tiền ngoại tuyến" },
-	{ "index rewards", "thưởng Mục lục" },
-	{ "egg index", "Mục lục trứng" },
+	{ "highest earnings", "Thu nhập cao nhất" },
+	{ "lowest earnings", "Thu nhập thấp nhất" },
+	{ "fast tween", "Bay Nhanh (Fast Tween)" },
+	{ "titan temple", "Đền Titan" },
+	{ "enchanted forest", "Rừng Phù Phép" },
+	{ "cherry blossom", "Hoa Anh Đào" },
+	{ "light dark", "Sáng Tối" },
+	{ "this session", "phiên này" },
 }
 
 local WORDS_VI = {
@@ -919,7 +465,6 @@ local WORDS_VI = {
 	names = "tên",
 	name = "tên",
 	rule = "quy tắc",
-	rules = "quy tắc",
 	maximum = "tối đa",
 	minimum = "tối thiểu",
 	keep = "giữ lại",
@@ -927,9 +472,7 @@ local WORDS_VI = {
 	never = "không bao giờ",
 	species = "loài",
 	upgrades = "nâng cấp",
-	upgrade = "nâng cấp",
 	crafting = "chế tạo",
-	craft = "chế tạo",
 	place = "đặt",
 	hatch = "ấp",
 	sell = "bán",
@@ -959,22 +502,20 @@ local WORDS_VI = {
 	farm = "cày",
 	farming = "đang cày",
 	collect = "thu thập",
-	collecting = "đang thu thập",
 	trade = "đổi",
-	trading = "đang đổi",
 	teleport = "dịch chuyển",
 	auto = "tự động",
 	rare = "hiếm",
 	idle = "Đang rảnh",
 	running = "Đang chạy",
 	waiting = "Đang chờ",
+	carrying = "Đang mang",
+	holding = "Đang giữ",
 	guard = "bảo vệ",
-	guards = "vệ sĩ",
 	player = "người chơi",
-	players = "người chơi",
-	server = "máy chủ",
 	speed = "tốc độ",
 	value = "giá trị",
+	earnings = "thu nhập",
 	none = "không có",
 	all = "tất cả",
 	any = "bất kỳ",
@@ -994,23 +535,11 @@ local function applyPhrasesAndWords(str)
 		end
 	end
 	out = out:gsub("([\128-\255%a']+)", function(w)
-		if string.find(w, "[\128-\255]") then
-			return w
-		end
+		if string.find(w, "[\128-\255]") then return w end
 		local lw = string.lower(w)
 		return WORDS_VI[lw] or LOWER_VI[lw] or w
 	end)
 	return out
-end
-
-local function hasTranslateableEnglishWord(str)
-	for w in string.gmatch(str, "[%a']+") do
-		local lw = string.lower(w)
-		if WORDS_VI[lw] or LOWER_VI[lw] then
-			return true
-		end
-	end
-	return false
 end
 
 local function translateRawSegment(rawText, targetLang)
@@ -1057,12 +586,6 @@ local function translateRawSegment(rawText, targetLang)
 			end
 		end
 
-		if hasTranslateableEnglishWord(trimmed) then
-			local rep = applyPhrasesAndWords(trimmed)
-			State.FastCache[cacheKey] = rep
-			return lead .. rep .. trail
-		end
-
 		return rawText
 	else
 		local rev = VI_TO_EN[trimmed] or VI_TO_EN[string.lower(trimmed)]
@@ -1070,16 +593,15 @@ local function translateRawSegment(rawText, targetLang)
 			State.FastCache[cacheKey] = rev
 			return lead .. rev .. trail
 		end
-		local ufoTime = trimmed:match("^UFO%s+tiếp%s+theo%s+sau%s+(.+)$")
-		if ufoTime then
-			return lead .. "Next UFO in " .. ufoTime .. trail
+		-- Khôi phục tiếng Anh cho trạng thái mang trứng
+		local carryVal = trimmed:match("^Đang%s+mang%s+(.+)$")
+		if carryVal then
+			return lead .. "Carrying " .. carryVal .. trail
 		end
-		local scNum = trimmed:match("^Phím%s+Tắt%s+(%d+)$") or trimmed:match("^THANH%s+NHANH%s+(%d+)$")
-		if scNum then
-			return lead .. "Shortcut " .. scNum .. trail
+		local holdVal = trimmed:match("^Đang%s+giữ%s+(.+)$")
+		if holdVal then
+			return lead .. "Holding " .. holdVal .. trail
 		end
-		if trimmed == "Bảo vệ: TẮT" then return lead .. "Guard: OFF" .. trail end
-		if trimmed == "Bảo vệ: BẬT" then return lead .. "Guard: ON" .. trail end
 		return rawText
 	end
 end
@@ -1103,7 +625,7 @@ local function formatIslandStatusText(rawStatus)
 		if isIdle then return "Idle" end
 		if low == "đang chạy" then return "Running" end
 		local enStr = translateRawSegment(clean, "EN")
-		return (enStr and enStr ~= "") and enStr or "Running"
+		return (enStr and enStr ~= "") and enStr or clean
 	else
 		if isIdle then return "Đang rảnh" end
 		if low == "running" or low == "working" or low == "active" or low == "đang chạy" then
@@ -1113,47 +635,43 @@ local function formatIslandStatusText(rawStatus)
 		if viStr and viStr ~= clean then
 			return viStr
 		end
-		return "Đang chạy: " .. clean
+		return clean
 	end
 end
 
 -- ============================================================================
--- 5. THIẾT KẾ DYNAMIC ISLAND KÍNH KHÓI MỜ DỊU MẮT (ANTI-GLARE MATTE LIQUID GLASS)
---    - Ghim cố định sát mép trên (Position = UDim2.new(0.5, 0, 0, 6)), khóa di chuyển 100%
---    - Đổi toàn bộ Avatar sang Tinh Thể Tím Figgy Hub (tự đồng bộ icon thật của Figgy Hub)
+-- 5. THIẾT KẾ FIGGY DYNAMIC ISLAND (MATTE LIQUID GLASS - ANTI-GLARE)
+--    - Bê nguyên icon ImageLabel & trạng thái TextLabel từ Figgy Hub vào viên thuốc
+--    - Nút gạt Tiếng Việt / English dùng màu Hổ Phách Figgy, dịu mắt, không còn chói
+--    - Ghim cố định sát mép trên Y = 6, khóa di chuyển 100%
 -- ============================================================================
-local function applyMatteLiquidGlass(frame, topTint, midTint, botTint, topAlpha, midAlpha, botAlpha, cornerRadius, strokeColor, strokeThickness)
-	frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	frame.BackgroundTransparency = 0
+local PINNED_PILL_POS   = UDim2.new(0.5, 0, 0, 6)
+local PINNED_DRAWER_POS = UDim2.new(0.5, 0, 0, 48)
+
+local function applyMatteLiquidGlass(frame, cornerRadius, bgAlpha, strokeColor, strokeThickness)
+	frame.BackgroundColor3 = Color3.fromRGB(24, 24, 28)
+	frame.BackgroundTransparency = bgAlpha or 0.22
 	frame.BorderSizePixel = 0
 
 	local corner = frame:FindFirstChildOfClass("UICorner") or Instance.new("UICorner")
 	corner.CornerRadius = cornerRadius or UDim.new(1, 0)
 	corner.Parent = frame
 
-	-- Lớp kính khói trầm dịu mắt (Smoked Matte Glass Gradient - nhìn xuyên hơi mờ, không chói)
-	local grad = frame:FindFirstChild("LiquidGlassGradient") or Instance.new("UIGradient")
-	grad.Name = "LiquidGlassGradient"
-	grad.Rotation = 90
-	grad.Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0.00, topTint or Color3.fromRGB(28, 29, 38)),
-		ColorSequenceKeypoint.new(0.45, midTint or Color3.fromRGB(16, 17, 23)),
-		ColorSequenceKeypoint.new(1.00, botTint or Color3.fromRGB(22, 23, 31)),
-	})
-	grad.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0.00, topAlpha or 0.20),
-		NumberSequenceKeypoint.new(0.50, midAlpha or 0.28),
-		NumberSequenceKeypoint.new(1.00, botAlpha or 0.20),
-	})
-	grad.Parent = frame
+	local stroke = frame:FindFirstChild("MatteRimStroke") or Instance.new("UIStroke")
+	stroke.Name = "MatteRimStroke"
+	stroke.Color = strokeColor or STROKE_MUTED_BORDER
+	stroke.Thickness = strokeThickness or 1.2
+	stroke.Transparency = 0.35
+	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	stroke.Parent = frame
 
-	-- Dải phản quang kính mờ siêu dịu phía trên (Transparency = 0.88 -> 1.00, không bao giờ lóa mắt)
-	local topShine = frame:FindFirstChild("LiquidGlassTopSpecular") or Instance.new("Frame")
-	topShine.Name = "LiquidGlassTopSpecular"
+	-- Phản quang đỉnh kính mờ siêu dịu mắt (Transparency = 0.90..1.00)
+	local topShine = frame:FindFirstChild("MatteGlassTopSpecular") or Instance.new("Frame")
+	topShine.Name = "MatteGlassTopSpecular"
 	topShine.AnchorPoint = Vector2.new(0.5, 0)
 	topShine.Position = UDim2.new(0.5, 0, 0, 1)
-	topShine.Size = UDim2.new(1, -20, 0, 10)
-	topShine.BackgroundColor3 = Color3.fromRGB(215, 210, 240)
+	topShine.Size = UDim2.new(1, -20, 0, 9)
+	topShine.BackgroundColor3 = Color3.fromRGB(225, 225, 235)
 	topShine.BackgroundTransparency = 0
 	topShine.BorderSizePixel = 0
 	topShine.Active = false
@@ -1167,31 +685,13 @@ local function applyMatteLiquidGlass(frame, topTint, midTint, botTint, topAlpha,
 	local shineGrad = topShine:FindFirstChildOfClass("UIGradient") or Instance.new("UIGradient")
 	shineGrad.Rotation = 90
 	shineGrad.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0.00, 0.88),
-		NumberSequenceKeypoint.new(0.65, 0.95),
+		NumberSequenceKeypoint.new(0.00, 0.90),
+		NumberSequenceKeypoint.new(0.70, 0.96),
 		NumberSequenceKeypoint.new(1.00, 1.00),
 	})
 	shineGrad.Parent = topShine
 
-	-- Viền kính khói tím trầm dịu mắt (Matte Lavender-Slate Rim)
-	local stroke = frame:FindFirstChild("NeonBlueStroke") or Instance.new("UIStroke")
-	stroke.Name = "NeonBlueStroke"
-	stroke.Color = strokeColor or STROKE_MATTE_GLOW
-	stroke.Thickness = strokeThickness or 1.4
-	stroke.Transparency = 0.32
-	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	stroke.Parent = frame
-
-	local strokeGrad = stroke:FindFirstChildOfClass("UIGradient") or Instance.new("UIGradient")
-	strokeGrad.Rotation = 35
-	strokeGrad.Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0.00, Color3.fromRGB(160, 150, 210)),
-		ColorSequenceKeypoint.new(0.50, strokeColor or STROKE_MATTE_GLOW),
-		ColorSequenceKeypoint.new(1.00, Color3.fromRGB(140, 155, 195)),
-	})
-	strokeGrad.Parent = stroke
-
-	return stroke, grad
+	return stroke
 end
 
 local function createIndependentFiggyDynamicIsland()
@@ -1227,144 +727,89 @@ local function createIndependentFiggyDynamicIsland()
 		islandGui.Parent = LocalPlayer:FindFirstChildOfClass("PlayerGui")
 	end
 
-	-- Ghim cố định lên sát mép trên (Y = 6) và khóa cứng không cho di chuyển
-	local PINNED_PILL_POS = UDim2.new(0.5, 0, 0, 6)
-	local PINNED_DRAWER_POS = UDim2.new(0.5, 0, 0, 48)
-
+	-- ========================================================================
+	-- VIÊN THUỐC NGOÀI (DYNAMIC ISLAND PILL - GHIM CỐ ĐỊNH SÁT MÉP TRÊN Y = 6)
+	-- ========================================================================
 	local pillFrame = Instance.new("Frame")
 	pillFrame.Name = "DynamicIslandPill"
 	pillFrame.AnchorPoint = Vector2.new(0.5, 0)
 	pillFrame.Position = PINNED_PILL_POS
-	pillFrame.Size = UDim2.new(0, 168, 0, 38)
+	pillFrame.Size = UDim2.new(0, 172, 0, 38)
 	pillFrame.Active = true
 	pillFrame.ZIndex = 20
 	pillFrame.Parent = islandGui
 
-	-- Khóa cố định tọa độ viên thuốc, tuyệt đối không cho phép kéo thả hay xê dịch
+	-- Khóa cứng tọa độ viên thuốc, không cho phép di chuyển
 	pillFrame:GetPropertyChangedSignal("Position"):Connect(function()
 		if isAlive() and pillFrame.Position ~= PINNED_PILL_POS then
 			pillFrame.Position = PINNED_PILL_POS
 		end
 	end)
 
-	local pillScale = Instance.new("UIScale")
-	pillScale.Name = "PillFluidScale"
-	pillScale.Scale = 1.0
-	pillScale.Parent = pillFrame
+	local pillStroke = applyMatteLiquidGlass(pillFrame, UDim.new(1, 0), 0.22, STROKE_MUTED_BORDER, 1.2)
 
-	local pillStroke = applyMatteLiquidGlass(
-		pillFrame,
-		Color3.fromRGB(28, 29, 39),
-		Color3.fromRGB(15, 16, 22),
-		Color3.fromRGB(22, 23, 32),
-		0.18, 0.26, 0.18,
-		UDim.new(1, 0),
-		STROKE_MATTE_GLOW,
-		1.4
-	)
+	-- [Bên trái]: Khung Icon kính mờ chứa trực tiếp Icon bê từ Figgy Hub sang
+	local iconOrb = Instance.new("Frame")
+	iconOrb.Name = "StatusIconOrb"
+	iconOrb.AnchorPoint = Vector2.new(0, 0.5)
+	iconOrb.Position = UDim2.new(0, 6, 0.5, 0)
+	iconOrb.Size = UDim2.new(0, 26, 0, 26)
+	iconOrb.BackgroundColor3 = Color3.fromRGB(32, 32, 38)
+	iconOrb.BackgroundTransparency = 0.20
+	iconOrb.BorderSizePixel = 0
+	iconOrb.ZIndex = 22
+	iconOrb.Parent = pillFrame
 
-	-- [Bên trái]: Khung cầu kính khói chứa Avatar Figgy Hub (Tím Amethyst trầm dịu mắt)
-	local leftLogoOrb = Instance.new("Frame")
-	leftLogoOrb.Name = "FiggyAvatarOrb"
-	leftLogoOrb.AnchorPoint = Vector2.new(0, 0.5)
-	leftLogoOrb.Position = UDim2.new(0, 6, 0.5, 0)
-	leftLogoOrb.Size = UDim2.new(0, 27, 0, 27)
-	leftLogoOrb.ZIndex = 22
-	leftLogoOrb.Parent = pillFrame
-	applyMatteLiquidGlass(
-		leftLogoOrb,
-		Color3.fromRGB(58, 46, 92),
-		Color3.fromRGB(28, 22, 46),
-		Color3.fromRGB(42, 34, 70),
-		0.20, 0.30, 0.20,
-		UDim.new(1, 0),
-		Color3.fromRGB(148, 128, 215),
-		1.2
-	)
+	local orbCorner = Instance.new("UICorner")
+	orbCorner.CornerRadius = UDim.new(1, 0)
+	orbCorner.Parent = iconOrb
 
-	local leftLogo = Instance.new("ImageLabel")
-	leftLogo.Name = "PepperLogo"
-	leftLogo.AnchorPoint = Vector2.new(0.5, 0.5)
-	leftLogo.Position = UDim2.fromScale(0.5, 0.5)
-	leftLogo.Size = UDim2.fromScale(0.78, 0.78)
-	leftLogo.BackgroundTransparency = 1
-	leftLogo.Image = DEFAULT_FIGGY_AVATAR
-	leftLogo.ImageColor3 = Color3.fromRGB(205, 190, 255)
-	leftLogo.ScaleType = Enum.ScaleType.Fit
-	leftLogo.ZIndex = 23
-	leftLogo.Parent = leftLogoOrb
+	local orbStroke = Instance.new("UIStroke")
+	orbStroke.Color = Color3.fromRGB(48, 48, 58)
+	orbStroke.Thickness = 1.0
+	orbStroke.Parent = iconOrb
 
-	local logoCorner = Instance.new("UICorner")
-	logoCorner.CornerRadius = UDim.new(1, 0)
-	logoCorner.Parent = leftLogo
+	-- ImageLabel icon bê nguyên từ Figgy Hub vào (tự cập nhật khi trứng/trạng thái đổi)
+	local statusIconImg = Instance.new("ImageLabel")
+	statusIconImg.Name = "TransplantedStatusIcon"
+	statusIconImg.AnchorPoint = Vector2.new(0.5, 0.5)
+	statusIconImg.Position = UDim2.fromScale(0.5, 0.5)
+	statusIconImg.Size = UDim2.new(0, 18, 0, 18)
+	statusIconImg.BackgroundTransparency = 1
+	statusIconImg.Image = (State.CurrentStatusImage ~= "") and State.CurrentStatusImage or DEFAULT_FIGGY_AVATAR
+	statusIconImg.ImageColor3 = State.CurrentStatusImageColor or Color3.fromRGB(255, 255, 255)
+	statusIconImg.ScaleType = Enum.ScaleType.Fit
+	statusIconImg.ZIndex = 23
+	statusIconImg.Parent = iconOrb
 
-	-- Chấm trạng thái xanh ngọc trầm dịu mắt
-	local liveDot = Instance.new("Frame")
-	liveDot.Name = "LivePulseDot"
-	liveDot.AnchorPoint = Vector2.new(0, 0.5)
-	liveDot.Position = UDim2.new(0, 39, 0.5, 0)
-	liveDot.Size = UDim2.new(0, 6, 0, 6)
-	liveDot.BackgroundColor3 = TEXT_SOFT_MINT
-	liveDot.BorderSizePixel = 0
-	liveDot.ZIndex = 23
-	liveDot.Parent = pillFrame
-
-	local dotCorner = Instance.new("UICorner")
-	dotCorner.CornerRadius = UDim.new(1, 0)
-	dotCorner.Parent = liveDot
-
-	local dotStroke = Instance.new("UIStroke")
-	dotStroke.Color = TEXT_SOFT_MINT
-	dotStroke.Thickness = 1.2
-	dotStroke.Transparency = 0.62
-	dotStroke.Parent = liveDot
-
-	-- [Ở giữa]: Chữ trạng thái trắng ngà dịu mắt (TEXT_SOFT_PRIMARY)
+	-- [Ở giữa]: TextLabel trạng thái bê nguyên từ Figgy Hub sang (màu ngà dịu mắt, không chói)
 	local centerStatusLabel = Instance.new("TextLabel")
 	centerStatusLabel.Name = "StatusText"
 	centerStatusLabel.AnchorPoint = Vector2.new(0, 0.5)
-	centerStatusLabel.Position = UDim2.new(0, 50, 0.5, 0)
-	centerStatusLabel.Size = UDim2.new(1, -84, 1, 0)
+	centerStatusLabel.Position = UDim2.new(0, 38, 0.5, 0)
+	centerStatusLabel.Size = UDim2.new(1, -66, 1, 0)
 	centerStatusLabel.BackgroundTransparency = 1
 	centerStatusLabel.Font = Enum.Font.GothamBold
 	centerStatusLabel.TextColor3 = TEXT_SOFT_PRIMARY
-	centerStatusLabel.TextSize = 12.5
+	centerStatusLabel.TextSize = 12
 	centerStatusLabel.TextXAlignment = Enum.TextXAlignment.Left
 	centerStatusLabel.Text = formatIslandStatusText(State.CurrentRawStatus)
 	centerStatusLabel.TextTruncate = Enum.TextTruncate.AtEnd
 	centerStatusLabel.ZIndex = 23
 	centerStatusLabel.Parent = pillFrame
 
-	-- [Bên phải]: Viên nang kính khói chứa mũi tên trỏ xuống
-	local arrowPill = Instance.new("Frame")
-	arrowPill.Name = "ArrowGlassBadge"
-	arrowPill.AnchorPoint = Vector2.new(1, 0.5)
-	arrowPill.Position = UDim2.new(1, -7, 0.5, 0)
-	arrowPill.Size = UDim2.new(0, 24, 0, 20)
-	arrowPill.ZIndex = 22
-	arrowPill.Parent = pillFrame
-	applyMatteLiquidGlass(
-		arrowPill,
-		Color3.fromRGB(38, 40, 54),
-		Color3.fromRGB(22, 23, 32),
-		Color3.fromRGB(30, 32, 44),
-		0.25, 0.38, 0.25,
-		UDim.new(1, 0),
-		Color3.fromRGB(130, 125, 175),
-		1.0
-	)
-
+	-- [Bên phải]: Icon mũi tên mở rộng
 	local rightArrow = Instance.new("ImageLabel")
 	rightArrow.Name = "ArrowIcon"
-	rightArrow.AnchorPoint = Vector2.new(0.5, 0.5)
-	rightArrow.Position = UDim2.fromScale(0.5, 0.5)
-	rightArrow.Size = UDim2.new(0, 13, 0, 13)
+	rightArrow.AnchorPoint = Vector2.new(1, 0.5)
+	rightArrow.Position = UDim2.new(1, -8, 0.5, 0)
+	rightArrow.Size = UDim2.new(0, 12, 0, 12)
 	rightArrow.BackgroundTransparency = 1
 	rightArrow.Image = DOWN_ARROW_ICON
 	rightArrow.ImageColor3 = TEXT_SOFT_MUTED
 	rightArrow.ScaleType = Enum.ScaleType.Fit
 	rightArrow.ZIndex = 23
-	rightArrow.Parent = arrowPill
+	rightArrow.Parent = pillFrame
 
 	local pillClickBtn = Instance.new("TextButton")
 	pillClickBtn.Name = "IslandToggleButton"
@@ -1376,11 +821,12 @@ local function createIndependentFiggyDynamicIsland()
 	pillClickBtn.Parent = pillFrame
 
 	-- ========================================================================
-	-- BẢNG ĐIỀU KHIỂN MỞ RỘNG (KÍNH KHÓI MỜ DỊU MẮT - GHIM CỐ ĐỊNH)
+	-- BẢNG MỞ RỘNG BÊN TRONG (LANGUAGE DRAWER - ANTI-GLARE MATTE LIQUID GLASS)
+	-- Nút chọn ngôn ngữ dùng tông Hổ Phách Figgy dịu mắt, không còn màu xanh chói!
 	-- ========================================================================
-	local EXP_W = 316
-	local COLLAPSED_EXP_H = 174
-	local OPEN_NOTE_EXP_H = 264
+	local EXP_W = 312
+	local COLLAPSED_EXP_H = 168
+	local OPEN_NOTE_EXP_H = 256
 
 	local expandPanel = Instance.new("Frame")
 	expandPanel.Name = "LanguageDrawer"
@@ -1399,57 +845,33 @@ local function createIndependentFiggyDynamicIsland()
 		end
 	end)
 
-	local expScale = Instance.new("UIScale")
-	expScale.Name = "ExpFluidScale"
-	expScale.Scale = 1.0
-	expScale.Parent = expandPanel
+	local expStroke = applyMatteLiquidGlass(expandPanel, UDim.new(0, 20), 0.14, STROKE_MUTED_BORDER, 1.2)
 
-	local expStroke = applyMatteLiquidGlass(
-		expandPanel,
-		Color3.fromRGB(26, 28, 38),
-		Color3.fromRGB(15, 16, 22),
-		Color3.fromRGB(20, 22, 30),
-		0.18, 0.26, 0.18,
-		UDim.new(0, 22),
-		STROKE_MATTE_GLOW,
-		1.4
-	)
-
-	-- Header bên trong Bảng Mở Rộng (Avatar Figgy Hub + Tên Figgy Island)
+	-- Header Bảng Mở Rộng
 	local expLogoOrb = Instance.new("Frame")
 	expLogoOrb.Position = UDim2.new(0, 12, 0, 10)
-	expLogoOrb.Size = UDim2.new(0, 28, 0, 28)
+	expLogoOrb.Size = UDim2.new(0, 26, 0, 26)
+	expLogoOrb.BackgroundColor3 = Color3.fromRGB(34, 34, 40)
+	expLogoOrb.BackgroundTransparency = 0.20
+	expLogoOrb.BorderSizePixel = 0
 	expLogoOrb.ZIndex = 32
 	expLogoOrb.Parent = expandPanel
-	applyMatteLiquidGlass(
-		expLogoOrb,
-		Color3.fromRGB(58, 46, 92),
-		Color3.fromRGB(28, 22, 46),
-		Color3.fromRGB(42, 34, 70),
-		0.20, 0.30, 0.20,
-		UDim.new(1, 0),
-		Color3.fromRGB(148, 128, 215),
-		1.2
-	)
+	Instance.new("UICorner", expLogoOrb).CornerRadius = UDim.new(1, 0)
 
 	local expLogoImg = Instance.new("ImageLabel")
 	expLogoImg.AnchorPoint = Vector2.new(0.5, 0.5)
 	expLogoImg.Position = UDim2.fromScale(0.5, 0.5)
-	expLogoImg.Size = UDim2.fromScale(0.78, 0.78)
+	expLogoImg.Size = UDim2.new(0, 18, 0, 18)
 	expLogoImg.BackgroundTransparency = 1
-	expLogoImg.Image = DEFAULT_FIGGY_AVATAR
-	expLogoImg.ImageColor3 = Color3.fromRGB(205, 190, 255)
+	expLogoImg.Image = (State.CurrentStatusImage ~= "") and State.CurrentStatusImage or DEFAULT_FIGGY_AVATAR
+	expLogoImg.ImageColor3 = State.CurrentStatusImageColor or Color3.fromRGB(255, 255, 255)
 	expLogoImg.ScaleType = Enum.ScaleType.Fit
 	expLogoImg.ZIndex = 33
 	expLogoImg.Parent = expLogoOrb
 
-	local expLogoCorner = Instance.new("UICorner")
-	expLogoCorner.CornerRadius = UDim.new(1, 0)
-	expLogoCorner.Parent = expLogoImg
-
 	local expTitle = Instance.new("TextLabel")
 	expTitle.Position = UDim2.new(0, 46, 0, 8)
-	expTitle.Size = UDim2.new(0, 175, 0, 15)
+	expTitle.Size = UDim2.new(0, 170, 0, 15)
 	expTitle.BackgroundTransparency = 1
 	expTitle.Font = Enum.Font.GothamBold
 	expTitle.TextSize = 11.5
@@ -1461,150 +883,124 @@ local function createIndependentFiggyDynamicIsland()
 
 	local expSubBadge = Instance.new("TextLabel")
 	expSubBadge.Position = UDim2.new(0, 46, 0, 23)
-	expSubBadge.Size = UDim2.new(0, 185, 0, 12)
+	expSubBadge.Size = UDim2.new(0, 180, 0, 12)
 	expSubBadge.BackgroundTransparency = 1
 	expSubBadge.Font = Enum.Font.GothamMedium
-	expSubBadge.TextSize = 8.8
-	expSubBadge.TextColor3 = TEXT_SOFT_MINT
+	expSubBadge.TextSize = 8.5
+	expSubBadge.TextColor3 = TEXT_SOFT_MUTED
 	expSubBadge.TextXAlignment = Enum.TextXAlignment.Left
-	expSubBadge.Text = "● KÍNH MỜ DỊU MẮT • ĐÃ GHIM CỐ ĐỊNH"
+	expSubBadge.Text = "● ĐỒNG BỘ THỜI GIAN THỰC • DỊU MẮT"
 	expSubBadge.ZIndex = 33
 	expSubBadge.Parent = expandPanel
 
 	local collapseBtn = Instance.new("TextButton")
 	collapseBtn.Name = "CollapseIslandBtn"
-	collapseBtn.Position = UDim2.new(1, -80, 0, 11)
-	collapseBtn.Size = UDim2.new(0, 68, 0, 22)
+	collapseBtn.Position = UDim2.new(1, -78, 0, 10)
+	collapseBtn.Size = UDim2.new(0, 66, 0, 22)
+	collapseBtn.BackgroundColor3 = BTN_INACTIVE_BG
+	collapseBtn.BorderSizePixel = 0
 	collapseBtn.Text = "Thu gọn ▲"
-	collapseBtn.Font = Enum.Font.GothamBold
+	collapseBtn.Font = Enum.Font.GothamMedium
 	collapseBtn.TextSize = 9.5
-	collapseBtn.TextColor3 = TEXT_SOFT_PRIMARY
+	collapseBtn.TextColor3 = TEXT_SOFT_MUTED
 	collapseBtn.AutoButtonColor = false
 	collapseBtn.ZIndex = 34
 	collapseBtn.Parent = expandPanel
-	applyMatteLiquidGlass(
-		collapseBtn,
-		Color3.fromRGB(38, 40, 54),
-		Color3.fromRGB(22, 24, 34),
-		Color3.fromRGB(30, 32, 44),
-		0.24, 0.36, 0.24,
-		UDim.new(1, 0),
-		Color3.fromRGB(125, 120, 168),
-		1.0
-	)
+	Instance.new("UICorner", collapseBtn).CornerRadius = UDim.new(1, 0)
+	local cbStroke = Instance.new("UIStroke", collapseBtn)
+	cbStroke.Color = Color3.fromRGB(50, 50, 60)
+	cbStroke.Thickness = 1
 
-	-- Thẻ kính mờ số 1: Thanh Trạng Thái
-	local taskGlassCard = Instance.new("TextButton")
-	taskGlassCard.Name = "IslandTaskCycleBtn"
-	taskGlassCard.Position = UDim2.new(0, 12, 0, 42)
-	taskGlassCard.Size = UDim2.new(1, -24, 0, 27)
-	taskGlassCard.Text = ""
-	taskGlassCard.AutoButtonColor = false
-	taskGlassCard.ZIndex = 32
-	taskGlassCard.Parent = expandPanel
-	local taskCardStroke = applyMatteLiquidGlass(
-		taskGlassCard,
-		Color3.fromRGB(36, 38, 52),
-		Color3.fromRGB(20, 22, 30),
-		Color3.fromRGB(28, 30, 42),
-		0.25, 0.36, 0.25,
-		UDim.new(1, 0),
-		Color3.fromRGB(120, 115, 165),
-		1.1
-	)
+	-- Thẻ hiển thị trạng thái bê nguyên từ Figgy Hub vào
+	local liveStatusCard = Instance.new("Frame")
+	liveStatusCard.Name = "LiveStatusCard"
+	liveStatusCard.Position = UDim2.new(0, 12, 0, 42)
+	liveStatusCard.Size = UDim2.new(1, -24, 0, 28)
+	liveStatusCard.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
+	liveStatusCard.BorderSizePixel = 0
+	liveStatusCard.ZIndex = 32
+	liveStatusCard.Parent = expandPanel
+	Instance.new("UICorner", liveStatusCard).CornerRadius = UDim.new(0, 8)
+	local lscStroke = Instance.new("UIStroke", liveStatusCard)
+	lscStroke.Color = Color3.fromRGB(48, 48, 58)
+	lscStroke.Thickness = 1
 
-	local expTaskLbl = Instance.new("TextLabel")
-	expTaskLbl.Name = "ExpandedStatusText"
-	expTaskLbl.Position = UDim2.new(0, 12, 0, 0)
-	expTaskLbl.Size = UDim2.new(1, -90, 1, 0)
-	expTaskLbl.BackgroundTransparency = 1
-	expTaskLbl.Font = Enum.Font.GothamBold
-	expTaskLbl.TextSize = 10.5
-	expTaskLbl.TextColor3 = TEXT_SOFT_PRIMARY
-	expTaskLbl.TextXAlignment = Enum.TextXAlignment.Left
-	expTaskLbl.TextTruncate = Enum.TextTruncate.AtEnd
-	expTaskLbl.Text = "⚡ Trạng thái: " .. formatIslandStatusText(State.CurrentRawStatus)
-	expTaskLbl.ZIndex = 34
-	expTaskLbl.Parent = taskGlassCard
+	local cardIconImg = Instance.new("ImageLabel")
+	cardIconImg.Name = "CardIcon"
+	cardIconImg.AnchorPoint = Vector2.new(0, 0.5)
+	cardIconImg.Position = UDim2.new(0, 8, 0.5, 0)
+	cardIconImg.Size = UDim2.new(0, 16, 0, 16)
+	cardIconImg.BackgroundTransparency = 1
+	cardIconImg.Image = (State.CurrentStatusImage ~= "") and State.CurrentStatusImage or DEFAULT_FIGGY_AVATAR
+	cardIconImg.ImageColor3 = State.CurrentStatusImageColor or Color3.fromRGB(255, 255, 255)
+	cardIconImg.ScaleType = Enum.ScaleType.Fit
+	cardIconImg.ZIndex = 33
+	cardIconImg.Parent = liveStatusCard
 
-	local touchHintLbl = Instance.new("TextLabel")
-	touchHintLbl.AnchorPoint = Vector2.new(1, 0.5)
-	touchHintLbl.Position = UDim2.new(1, -12, 0.5, 0)
-	touchHintLbl.Size = UDim2.new(0, 72, 0, 16)
-	touchHintLbl.BackgroundTransparency = 1
-	touchHintLbl.Font = Enum.Font.GothamMedium
-	touchHintLbl.TextSize = 9
-	touchHintLbl.TextColor3 = TEXT_SOFT_MUTED
-	touchHintLbl.TextXAlignment = Enum.TextXAlignment.Right
-	touchHintLbl.Text = "Chạm đổi •"
-	touchHintLbl.ZIndex = 34
-	touchHintLbl.Parent = taskGlassCard
+	local cardStatusLbl = Instance.new("TextLabel")
+	cardStatusLbl.Name = "CardStatusText"
+	cardStatusLbl.Position = UDim2.new(0, 30, 0, 0)
+	cardStatusLbl.Size = UDim2.new(1, -38, 1, 0)
+	cardStatusLbl.BackgroundTransparency = 1
+	cardStatusLbl.Font = Enum.Font.GothamBold
+	cardStatusLbl.TextSize = 11
+	cardStatusLbl.TextColor3 = TEXT_SOFT_PRIMARY
+	cardStatusLbl.TextXAlignment = Enum.TextXAlignment.Left
+	cardStatusLbl.TextTruncate = Enum.TextTruncate.AtEnd
+	cardStatusLbl.Text = formatIslandStatusText(State.CurrentRawStatus)
+	cardStatusLbl.ZIndex = 33
+	cardStatusLbl.Parent = liveStatusCard
 
-	-- Thẻ kính mờ số 2: Thanh Gạt Ngôn Ngữ Dịu Mắt
+	-- Thanh gạt chọn ngôn ngữ dịu mắt (Màu Hổ Phách Figgy, không còn chói)
 	local langTrack = Instance.new("Frame")
 	langTrack.Name = "LanguageGlassTrack"
-	langTrack.Position = UDim2.new(0, 12, 0, 74)
+	langTrack.Position = UDim2.new(0, 12, 0, 76)
 	langTrack.Size = UDim2.new(1, -24, 0, 30)
+	langTrack.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
+	langTrack.BorderSizePixel = 0
 	langTrack.ZIndex = 32
 	langTrack.Parent = expandPanel
-	applyMatteLiquidGlass(
-		langTrack,
-		Color3.fromRGB(30, 32, 44),
-		Color3.fromRGB(16, 17, 24),
-		Color3.fromRGB(22, 24, 34),
-		0.26, 0.38, 0.26,
-		UDim.new(1, 0),
-		Color3.fromRGB(108, 104, 150),
-		1.1
-	)
-
-	local langSlider = Instance.new("Frame")
-	langSlider.Name = "ActiveLangSlider"
-	langSlider.Position = (State.Language == "VI") and UDim2.new(0, 3, 0, 3) or UDim2.new(0.5, 1, 0, 3)
-	langSlider.Size = UDim2.new(0.5, -4, 1, -6)
-	langSlider.ZIndex = 33
-	langSlider.Parent = langTrack
-	applyMatteLiquidGlass(
-		langSlider,
-		Color3.fromRGB(72, 62, 118),
-		Color3.fromRGB(48, 40, 84),
-		Color3.fromRGB(60, 50, 98),
-		0.15, 0.25, 0.15,
-		UDim.new(1, 0),
-		Color3.fromRGB(155, 140, 215),
-		1.1
-	)
+	Instance.new("UICorner", langTrack).CornerRadius = UDim.new(0, 8)
+	local ltStroke = Instance.new("UIStroke", langTrack)
+	ltStroke.Color = Color3.fromRGB(46, 46, 56)
+	ltStroke.Thickness = 1
 
 	local btnVI = Instance.new("TextButton")
 	btnVI.Name = "BtnVietnamese"
-	btnVI.Position = UDim2.new(0, 0, 0, 0)
-	btnVI.Size = UDim2.new(0.5, 0, 1, 0)
-	btnVI.BackgroundTransparency = 1
+	btnVI.Position = UDim2.new(0, 2, 0, 2)
+	btnVI.Size = UDim2.new(0.5, -3, 1, -4)
+	btnVI.BorderSizePixel = 0
+	btnVI.BackgroundColor3 = (State.Language == "VI") and BTN_ACTIVE_AMBER or Color3.fromRGB(34, 34, 40)
+	btnVI.BackgroundTransparency = (State.Language == "VI") and 0 or 1
 	btnVI.Font = Enum.Font.GothamBold
 	btnVI.Text = "🇻🇳 Tiếng Việt"
 	btnVI.TextSize = 10.5
-	btnVI.TextColor3 = (State.Language == "VI") and TEXT_SOFT_PRIMARY or TEXT_SOFT_MUTED
+	btnVI.TextColor3 = (State.Language == "VI") and TEXT_DARK_BTN or TEXT_SOFT_MUTED
 	btnVI.AutoButtonColor = false
-	btnVI.ZIndex = 35
+	btnVI.ZIndex = 34
 	btnVI.Parent = langTrack
+	Instance.new("UICorner", btnVI).CornerRadius = UDim.new(0, 6)
 
 	local btnEN = Instance.new("TextButton")
 	btnEN.Name = "BtnEnglish"
-	btnEN.Position = UDim2.new(0.5, 0, 0, 0)
-	btnEN.Size = UDim2.new(0.5, 0, 1, 0)
-	btnEN.BackgroundTransparency = 1
+	btnEN.Position = UDim2.new(0.5, 1, 0, 2)
+	btnEN.Size = UDim2.new(0.5, -3, 1, -4)
+	btnEN.BorderSizePixel = 0
+	btnEN.BackgroundColor3 = (State.Language == "EN") and BTN_ACTIVE_AMBER or Color3.fromRGB(34, 34, 40)
+	btnEN.BackgroundTransparency = (State.Language == "EN") and 0 or 1
 	btnEN.Font = Enum.Font.GothamBold
 	btnEN.Text = "🇺🇸 English"
 	btnEN.TextSize = 10.5
-	btnEN.TextColor3 = (State.Language == "EN") and TEXT_SOFT_PRIMARY or TEXT_SOFT_MUTED
+	btnEN.TextColor3 = (State.Language == "EN") and TEXT_DARK_BTN or TEXT_SOFT_MUTED
 	btnEN.AutoButtonColor = false
-	btnEN.ZIndex = 35
+	btnEN.ZIndex = 34
 	btnEN.Parent = langTrack
+	Instance.new("UICorner", btnEN).CornerRadius = UDim.new(0, 6)
 
-	-- Thẻ kính mờ số 3: Nút Âm Thanh & Làm Mới Dịch Thuật
+	-- Nút gạt Âm thanh & Nút quét lại dịch thuật
 	local actionRow = Instance.new("Frame")
-	actionRow.Name = "LiquidActionRow"
-	actionRow.Position = UDim2.new(0, 12, 0, 109)
+	actionRow.Name = "ActionRow"
+	actionRow.Position = UDim2.new(0, 12, 0, 112)
 	actionRow.Size = UDim2.new(1, -24, 0, 26)
 	actionRow.BackgroundTransparency = 1
 	actionRow.ZIndex = 32
@@ -1614,244 +1010,175 @@ local function createIndependentFiggyDynamicIsland()
 	soundToggleBtn.Name = "SoundToggleBtn"
 	soundToggleBtn.Position = UDim2.new(0, 0, 0, 0)
 	soundToggleBtn.Size = UDim2.new(0.5, -4, 1, 0)
-	soundToggleBtn.Font = Enum.Font.GothamBold
+	soundToggleBtn.BackgroundColor3 = BTN_INACTIVE_BG
+	soundToggleBtn.BorderSizePixel = 0
+	soundToggleBtn.Font = Enum.Font.GothamMedium
 	soundToggleBtn.TextSize = 9.5
-	soundToggleBtn.TextColor3 = TEXT_SOFT_PRIMARY
+	soundToggleBtn.TextColor3 = TEXT_SOFT_MUTED
 	soundToggleBtn.Text = State.SoundEnabled and "🔊 Âm thanh: BẬT" or "🔇 Âm thanh: TẮT"
 	soundToggleBtn.AutoButtonColor = false
 	soundToggleBtn.ZIndex = 34
 	soundToggleBtn.Parent = actionRow
-	applyMatteLiquidGlass(
-		soundToggleBtn,
-		Color3.fromRGB(36, 38, 52),
-		Color3.fromRGB(20, 22, 30),
-		Color3.fromRGB(28, 30, 42),
-		0.25, 0.36, 0.25,
-		UDim.new(1, 0),
-		Color3.fromRGB(115, 110, 158),
-		1.0
-	)
+	Instance.new("UICorner", soundToggleBtn).CornerRadius = UDim.new(0, 6)
+	local sbStroke = Instance.new("UIStroke", soundToggleBtn)
+	sbStroke.Color = Color3.fromRGB(46, 46, 56)
+	sbStroke.Thickness = 1
 
 	local rescanBtn = Instance.new("TextButton")
 	rescanBtn.Name = "RescanTranslateBtn"
 	rescanBtn.Position = UDim2.new(0.5, 4, 0, 0)
 	rescanBtn.Size = UDim2.new(0.5, -4, 1, 0)
-	rescanBtn.Font = Enum.Font.GothamBold
+	rescanBtn.BackgroundColor3 = BTN_INACTIVE_BG
+	rescanBtn.BorderSizePixel = 0
+	rescanBtn.Font = Enum.Font.GothamMedium
 	rescanBtn.TextSize = 9.5
-	rescanBtn.TextColor3 = TEXT_SOFT_ACCENT
-	rescanBtn.Text = "⚡ Làm mới dịch thuật"
+	rescanBtn.TextColor3 = Color3.fromRGB(225, 205, 140)
+	rescanBtn.Text = "⚡ Quét lại Menu"
 	rescanBtn.AutoButtonColor = false
 	rescanBtn.ZIndex = 34
 	rescanBtn.Parent = actionRow
-	applyMatteLiquidGlass(
-		rescanBtn,
-		Color3.fromRGB(42, 38, 62),
-		Color3.fromRGB(22, 20, 34),
-		Color3.fromRGB(32, 28, 48),
-		0.25, 0.36, 0.25,
-		UDim.new(1, 0),
-		Color3.fromRGB(132, 120, 182),
-		1.0
-	)
+	Instance.new("UICorner", rescanBtn).CornerRadius = UDim.new(0, 6)
+	local rbStroke = Instance.new("UIStroke", rescanBtn)
+	rbStroke.Color = Color3.fromRGB(46, 46, 56)
+	rbStroke.Thickness = 1
 
-	-- Thẻ kính mờ số 4: Ngăn Xem Thông Tin Figgy Hub
+	-- Ngăn thông tin
 	local noteToggleBtn = Instance.new("TextButton")
 	noteToggleBtn.Name = "SettingNoteToggleBtn"
-	noteToggleBtn.Position = UDim2.new(0, 12, 0, 140)
-	noteToggleBtn.Size = UDim2.new(1, -24, 0, 25)
-	noteToggleBtn.Text = ""
+	noteToggleBtn.Position = UDim2.new(0, 12, 0, 142)
+	noteToggleBtn.Size = UDim2.new(1, -24, 0, 22)
+	noteToggleBtn.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
+	noteToggleBtn.BorderSizePixel = 0
+	noteToggleBtn.Text = "Thông tin Figgy Island (Bấm xem) ▼"
+	noteToggleBtn.Font = Enum.Font.GothamMedium
+	noteToggleBtn.TextSize = 9
+	noteToggleBtn.TextColor3 = TEXT_SOFT_MUTED
 	noteToggleBtn.AutoButtonColor = false
 	noteToggleBtn.ZIndex = 33
 	noteToggleBtn.Parent = expandPanel
-	applyMatteLiquidGlass(
-		noteToggleBtn,
-		Color3.fromRGB(34, 36, 48),
-		Color3.fromRGB(18, 20, 28),
-		Color3.fromRGB(26, 28, 38),
-		0.26, 0.38, 0.26,
-		UDim.new(1, 0),
-		Color3.fromRGB(108, 104, 150),
-		1.0
-	)
-
-	local noteBadge = Instance.new("Frame")
-	noteBadge.AnchorPoint = Vector2.new(0, 0.5)
-	noteBadge.Position = UDim2.new(0, 6, 0.5, 0)
-	noteBadge.Size = UDim2.new(0, 52, 0, 17)
-	noteBadge.BackgroundColor3 = Color3.fromRGB(38, 32, 58)
-	noteBadge.BackgroundTransparency = 0.25
-	noteBadge.BorderSizePixel = 0
-	noteBadge.ZIndex = 34
-	noteBadge.Parent = noteToggleBtn
-	Instance.new("UICorner", noteBadge).CornerRadius = UDim.new(1, 0)
-	local nbStroke = Instance.new("UIStroke", noteBadge)
-	nbStroke.Color = TEXT_SOFT_ACCENT
-	nbStroke.Thickness = 1
-
-	local nbTxt = Instance.new("TextLabel", noteBadge)
-	nbTxt.Size = UDim2.fromScale(1, 1)
-	nbTxt.BackgroundTransparency = 1
-	nbTxt.Font = Enum.Font.GothamBold
-	nbTxt.TextSize = 8.2
-	nbTxt.TextColor3 = TEXT_SOFT_ACCENT
-	nbTxt.Text = "✨ FIGGY"
-	nbTxt.ZIndex = 35
-
-	local noteSmallLbl = Instance.new("TextLabel", noteToggleBtn)
-	noteSmallLbl.Position = UDim2.new(0, 64, 0, 0)
-	noteSmallLbl.Size = UDim2.new(1, -88, 1, 0)
-	noteSmallLbl.BackgroundTransparency = 1
-	noteSmallLbl.Font = Enum.Font.GothamMedium
-	noteSmallLbl.TextSize = 9.4
-	noteSmallLbl.TextColor3 = TEXT_SOFT_PRIMARY
-	noteSmallLbl.TextXAlignment = Enum.TextXAlignment.Left
-	noteSmallLbl.Text = "Thông tin Figgy Island (Bấm xem)"
-	noteSmallLbl.ZIndex = 34
-
-	local noteArrowLbl = Instance.new("TextLabel", noteToggleBtn)
-	noteArrowLbl.Position = UDim2.new(1, -22, 0, 0)
-	noteArrowLbl.Size = UDim2.new(0, 18, 1, 0)
-	noteArrowLbl.BackgroundTransparency = 1
-	noteArrowLbl.Font = Enum.Font.GothamBold
-	noteArrowLbl.TextSize = 9.5
-	noteArrowLbl.TextColor3 = TEXT_SOFT_MUTED
-	noteArrowLbl.Text = "▼"
-	noteArrowLbl.ZIndex = 34
+	Instance.new("UICorner", noteToggleBtn).CornerRadius = UDim.new(0, 6)
+	local ntbStroke = Instance.new("UIStroke", noteToggleBtn)
+	ntbStroke.Color = Color3.fromRGB(44, 44, 54)
+	ntbStroke.Thickness = 1
 
 	local noteDrawer = Instance.new("Frame")
 	noteDrawer.Name = "SettingNoteDrawer"
-	noteDrawer.Position = UDim2.new(0, 12, 0, 170)
-	noteDrawer.Size = UDim2.new(1, -24, 0, 84)
+	noteDrawer.Position = UDim2.new(0, 12, 0, 168)
+	noteDrawer.Size = UDim2.new(1, -24, 0, 80)
+	noteDrawer.BackgroundColor3 = Color3.fromRGB(26, 26, 32)
+	noteDrawer.BorderSizePixel = 0
 	noteDrawer.Visible = false
 	noteDrawer.ClipsDescendants = true
 	noteDrawer.ZIndex = 33
 	noteDrawer.Parent = expandPanel
-	applyMatteLiquidGlass(
-		noteDrawer,
-		Color3.fromRGB(30, 32, 44),
-		Color3.fromRGB(16, 17, 24),
-		Color3.fromRGB(22, 24, 34),
-		0.25, 0.36, 0.25,
-		UDim.new(0, 14),
-		Color3.fromRGB(108, 104, 150),
-		1.0
-	)
+	Instance.new("UICorner", noteDrawer).CornerRadius = UDim.new(0, 8)
+	local ndStroke = Instance.new("UIStroke", noteDrawer)
+	ndStroke.Color = Color3.fromRGB(44, 44, 54)
+	ndStroke.Thickness = 1
 
 	local ndHeader = Instance.new("TextLabel", noteDrawer)
-	ndHeader.Position = UDim2.new(0, 10, 0, 5)
-	ndHeader.Size = UDim2.new(1, -20, 0, 15)
+	ndHeader.Position = UDim2.new(0, 8, 0, 4)
+	ndHeader.Size = UDim2.new(1, -16, 0, 14)
 	ndHeader.BackgroundTransparency = 1
 	ndHeader.Font = Enum.Font.GothamBold
-	ndHeader.TextSize = 9.2
-	ndHeader.TextColor3 = TEXT_SOFT_ACCENT
+	ndHeader.TextSize = 9
+	ndHeader.TextColor3 = Color3.fromRGB(225, 205, 140)
 	ndHeader.TextXAlignment = Enum.TextXAlignment.Left
-	ndHeader.Text = "🍇 FIGGY DYNAMIC ISLAND • MATTE EDITION"
+	ndHeader.Text = "🍇 FIGGY DYNAMIC ISLAND"
 	ndHeader.ZIndex = 35
 
 	local ndLine1 = Instance.new("TextLabel", noteDrawer)
-	ndLine1.Position = UDim2.new(0, 10, 0, 23)
-	ndLine1.Size = UDim2.new(1, -20, 0, 17)
+	ndLine1.Position = UDim2.new(0, 8, 0, 20)
+	ndLine1.Size = UDim2.new(1, -16, 0, 16)
 	ndLine1.BackgroundTransparency = 1
 	ndLine1.Font = Enum.Font.GothamMedium
-	ndLine1.TextSize = 8.8
+	ndLine1.TextSize = 8.5
 	ndLine1.TextColor3 = TEXT_SOFT_PRIMARY
 	ndLine1.TextXAlignment = Enum.TextXAlignment.Left
-	ndLine1.Text = "+ Kính khói mờ dịu mắt, ghim cố định sát mép trên"
+	ndLine1.Text = "+ Bê nguyên hình ảnh & trạng thái từ Figgy Hub vào Dynamic Island"
 	ndLine1.ZIndex = 35
 
 	local ndLine2 = Instance.new("TextLabel", noteDrawer)
-	ndLine2.Position = UDim2.new(0, 10, 0, 41)
-	ndLine2.Size = UDim2.new(1, -20, 0, 17)
+	ndLine2.Position = UDim2.new(0, 8, 0, 38)
+	ndLine2.Size = UDim2.new(1, -16, 0, 16)
 	ndLine2.BackgroundTransparency = 1
 	ndLine2.Font = Enum.Font.GothamMedium
-	ndLine2.TextSize = 8.8
+	ndLine2.TextSize = 8.5
 	ndLine2.TextColor3 = TEXT_SOFT_MUTED
 	ndLine2.TextXAlignment = Enum.TextXAlignment.Left
-	ndLine2.Text = "+ Tự động đồng bộ Avatar Figgy Hub & Việt hóa 100%"
+	ndLine2.Text = "+ Kính khói mờ dịu mắt, ghim cố định sát mép trên"
 	ndLine2.ZIndex = 35
 
 	local ndLine3 = Instance.new("TextLabel", noteDrawer)
-	ndLine3.Position = UDim2.new(0, 10, 0, 59)
-	ndLine3.Size = UDim2.new(1, -20, 0, 17)
+	ndLine3.Position = UDim2.new(0, 8, 0, 56)
+	ndLine3.Size = UDim2.new(1, -16, 0, 16)
 	ndLine3.BackgroundTransparency = 1
 	ndLine3.Font = Enum.Font.GothamMedium
-	ndLine3.TextSize = 8.8
-	ndLine3.TextColor3 = TEXT_SOFT_MINT
+	ndLine3.TextSize = 8.5
+	ndLine3.TextColor3 = Color3.fromRGB(140, 220, 175)
 	ndLine3.TextXAlignment = Enum.TextXAlignment.Left
-	ndLine3.Text = "+ Âm thanh tương tác êm ái cho toàn bộ nút bấm"
+	ndLine3.Text = "+ Âm thanh tương tác êm ái khi bấm các nút"
 	ndLine3.ZIndex = 35
 
-	-- ========================================================================
-	-- SỰ KIỆN TƯƠNG TÁC TRÊN DYNAMIC ISLAND (KHÔNG CHO DI CHUYỂN)
-	-- ========================================================================
-	local ISLAND_CYCLE_STATES = {
-		{ textVI = "Đang rảnh",    textEN = "Idle",       dot = TEXT_SOFT_MINT,                  stroke = STROKE_MATTE_GLOW },
-		{ textVI = "Đang chạy",    textEN = "Running",    dot = Color3.fromRGB(225, 165, 95),    stroke = Color3.fromRGB(165, 135, 110) },
-		{ textVI = "Tự động cướp", textEN = "Auto Steal", dot = Color3.fromRGB(175, 145, 235),   stroke = Color3.fromRGB(145, 125, 205) },
-	}
-	local cycleIdx = 1
-
+	-- Cập nhật giao diện khi đổi trạng thái hoặc ngôn ngữ
 	local function updatePillVisuals()
 		local displayTxt = formatIslandStatusText(State.CurrentRawStatus)
 		centerStatusLabel.Text = displayTxt
-		expTaskLbl.Text = (State.Language == "EN") and ("⚡ Status: " .. displayTxt) or ("⚡ Trạng thái: " .. displayTxt)
-		expSubBadge.Text = (State.Language == "EN") and "● MATTE GLASS • PINNED TOP" or "● KÍNH MỜ DỊU MẮT • ĐÃ GHIM CỐ ĐỊNH"
+		cardStatusLbl.Text = displayTxt
+
+		-- Cập nhật icon bê từ Figgy Hub
+		local curImg = (State.CurrentStatusImage ~= "") and State.CurrentStatusImage or DEFAULT_FIGGY_AVATAR
+		statusIconImg.Image = curImg
+		statusIconImg.ImageColor3 = State.CurrentStatusImageColor or Color3.fromRGB(255, 255, 255)
+		cardIconImg.Image = curImg
+		cardIconImg.ImageColor3 = State.CurrentStatusImageColor or Color3.fromRGB(255, 255, 255)
+		expLogoImg.Image = curImg
+		expLogoImg.ImageColor3 = State.CurrentStatusImageColor or Color3.fromRGB(255, 255, 255)
+
+		-- Cập nhật ngôn ngữ
+		expSubBadge.Text = (State.Language == "EN") and "● REALTIME SYNC • MATTE GLASS" or "● ĐỒNG BỘ THỜI GIAN THỰC • DỊU MẮT"
 		collapseBtn.Text = (State.Language == "EN") and "Collapse ▲" or "Thu gọn ▲"
-		touchHintLbl.Text = (State.Language == "EN") and "Tap cycle •" or "Chạm đổi •"
 		soundToggleBtn.Text = State.SoundEnabled
 			and ((State.Language == "EN") and "🔊 Sound: ON" or "🔊 Âm thanh: BẬT")
 			or ((State.Language == "EN") and "🔇 Sound: OFF" or "🔇 Âm thanh: TẮT")
-		rescanBtn.Text = (State.Language == "EN") and "⚡ Refresh Translation" or "⚡ Làm mới dịch thuật"
+		rescanBtn.Text = (State.Language == "EN") and "⚡ Rescan Menu" or "⚡ Quét lại Menu"
 
+		-- Nút ngôn ngữ: màu Hổ Phách Figgy dịu mắt khi chọn
+		btnVI.BackgroundColor3 = (State.Language == "VI") and BTN_ACTIVE_AMBER or Color3.fromRGB(34, 34, 40)
+		btnVI.BackgroundTransparency = (State.Language == "VI") and 0 or 1
+		btnVI.TextColor3 = (State.Language == "VI") and TEXT_DARK_BTN or TEXT_SOFT_MUTED
+
+		btnEN.BackgroundColor3 = (State.Language == "EN") and BTN_ACTIVE_AMBER or Color3.fromRGB(34, 34, 40)
+		btnEN.BackgroundTransparency = (State.Language == "EN") and 0 or 1
+		btnEN.TextColor3 = (State.Language == "EN") and TEXT_DARK_BTN or TEXT_SOFT_MUTED
+
+		-- Tự co giãn chiều rộng viên thuốc mượt mà theo độ dài trạng thái
 		local textLen = utf8.len(displayTxt) or #displayTxt
-		local targetWidth = math.max(168, math.min(280, 102 + textLen * 6.5))
+		local targetWidth = math.max(168, math.min(290, 78 + textLen * 7))
 		TweenService:Create(
 			pillFrame,
-			TweenInfo.new(0.22, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
+			TweenInfo.new(0.20, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
 			{ Size = UDim2.new(0, targetWidth, 0, 38) }
 		):Play()
-
-		TweenService:Create(
-			langSlider,
-			TweenInfo.new(0.20, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
-			{ Position = (State.Language == "VI") and UDim2.new(0, 3, 0, 3) or UDim2.new(0.5, 1, 0, 3) }
-		):Play()
-		btnVI.TextColor3 = (State.Language == "VI") and TEXT_SOFT_PRIMARY or TEXT_SOFT_MUTED
-		btnEN.TextColor3 = (State.Language == "EN") and TEXT_SOFT_PRIMARY or TEXT_SOFT_MUTED
 	end
 
 	State.UpdateIslandVisuals = updatePillVisuals
 	State.IslandGui = islandGui
 	State.IslandPill = pillFrame
 	State.IslandStatusLabel = centerStatusLabel
-	State.IslandAvatarLogos = { leftLogo, expLogoImg }
-
-	taskGlassCard.Activated:Connect(function()
-		playUiSound("action")
-		cycleIdx = (cycleIdx % #ISLAND_CYCLE_STATES) + 1
-		local st = ISLAND_CYCLE_STATES[cycleIdx]
-		State.CurrentRawStatus = (State.Language == "EN") and st.textEN or st.textVI
-		liveDot.BackgroundColor3 = st.dot
-		dotStroke.Color = st.dot
-		pillStroke.Color = st.stroke
-		expStroke.Color = st.stroke
-		taskCardStroke.Color = st.stroke
-		updatePillVisuals()
-	end)
+	State.IslandStatusIcon = statusIconImg
 
 	noteToggleBtn.Activated:Connect(function()
 		playUiSound("tap")
 		State.NoteOpen = not State.NoteOpen
 		if State.NoteOpen then
 			noteDrawer.Visible = true
-			noteArrowLbl.Text = "▲"
-			noteSmallLbl.Text = (State.Language == "EN") and "Figgy Island Info (Tap to hide)" or "Thông tin Figgy Island (Bấm thu gọn)"
+			noteToggleBtn.Text = "Thông tin Figgy Island (Bấm thu gọn) ▲"
 			TweenService:Create(expandPanel, TweenInfo.new(0.20, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 				Size = UDim2.new(0, EXP_W, 0, OPEN_NOTE_EXP_H)
 			}):Play()
 		else
-			noteArrowLbl.Text = "▼"
-			noteSmallLbl.Text = (State.Language == "EN") and "Figgy Island Info (Tap to view)" or "Thông tin Figgy Island (Bấm xem)"
+			noteToggleBtn.Text = "Thông tin Figgy Island (Bấm xem) ▼"
 			local tw = TweenService:Create(expandPanel, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 				Size = UDim2.new(0, EXP_W, 0, COLLAPSED_EXP_H)
 			})
@@ -1890,13 +1217,10 @@ local function createIndependentFiggyDynamicIsland()
 			expandPanel.Position = PINNED_DRAWER_POS
 			local targetH = State.NoteOpen and OPEN_NOTE_EXP_H or COLLAPSED_EXP_H
 			expandPanel.Visible = true
-			expScale.Scale = 0.92
-			TweenService:Create(expScale, TweenInfo.new(0.22, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1.0 }):Play()
-			TweenService:Create(expandPanel, TweenInfo.new(0.22, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Size = UDim2.new(0, EXP_W, 0, targetH) }):Play()
-			TweenService:Create(rightArrow, TweenInfo.new(0.20, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Rotation = 180 }):Play()
+			TweenService:Create(expandPanel, TweenInfo.new(0.20, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Size = UDim2.new(0, EXP_W, 0, targetH) }):Play()
+			TweenService:Create(rightArrow, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Rotation = 180 }):Play()
 		else
-			TweenService:Create(rightArrow, TweenInfo.new(0.20, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Rotation = 0 }):Play()
-			TweenService:Create(expScale, TweenInfo.new(0.15, Enum.EasingStyle.Quart, Enum.EasingDirection.In), { Scale = 0.92 }):Play()
+			TweenService:Create(rightArrow, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Rotation = 0 }):Play()
 			expandPanel.Visible = false
 		end
 	end
@@ -1930,31 +1254,72 @@ local function createIndependentFiggyDynamicIsland()
 	return islandGui
 end
 
--- Tự động đồng bộ Avatar thật của Figgy Hub (quả sung tím trên góc trái menu Figgy Hub) lên Dynamic Island
-local function trySyncFiggyNativeAvatar(gui, figgyTitleLbl)
-	if State.FiggyAvatarSynced or not gui or not figgyTitleLbl then return end
-	pcall(function()
-		local header = figgyTitleLbl.Parent
-		if header then
-			for _, ch in ipairs(header:GetDescendants()) do
-				if (ch:IsA("ImageLabel") or ch:IsA("ImageButton")) and ch.Image and ch.Image ~= "" and ch.Image ~= "rbxassetid://74441610995894" then
-					State.FiggyAvatarSynced = true
-					for _, logoImg in ipairs(State.IslandAvatarLogos or {}) do
-						if logoImg and logoImg.Parent then
-							logoImg.Image = ch.Image
-							logoImg.ImageColor3 = Color3.fromRGB(255, 255, 255)
-							logoImg.Size = UDim2.fromScale(0.88, 0.88)
-						end
+-- ============================================================================
+-- 6. BÊ NGUYÊN HÌNH ẢNH & TRẠNG THÁI TỪ HEADER FIGGY HUB VÀO DYNAMIC ISLAND
+-- ============================================================================
+-- Hàm tìm và bê thanh trạng thái trên header Figgy Hub
+local function bindFiggyHeaderStatusWidget(header)
+	if not header or not header:IsA("GuiObject") then return end
+	if header:GetAttribute("__FiggyStatusWidgetHooked") == SID then return end
+
+	for _, desc in ipairs(header:GetDescendants()) do
+		if (desc:IsA("Frame") or desc:IsA("GuiObject")) and not desc:FindFirstChildWhichIsA("TextBox") and not desc:IsA("TextBox") then
+			local img = desc:FindFirstChildWhichIsA("ImageLabel")
+			local txt = desc:FindFirstChildWhichIsA("TextLabel")
+			if img and txt and txt.Text ~= "Figgy Hub" and txt.Text ~= "FrostyFig" and not txt.Text:find("^v%d+%.%d+") then
+				header:SetAttribute("__FiggyStatusWidgetHooked", SID)
+
+				-- Hàm cập nhật trạng thái ngay lập tức khi Figgy Hub thay đổi
+				local function syncFromFiggyBadge()
+					if not isAlive() then return end
+					local rawText = txt.Text or ""
+					local rawImg = img.Image or ""
+					local rawCol = img.ImageColor3 or Color3.fromRGB(255, 255, 255)
+
+					if rawText ~= "" then
+						State.CurrentRawStatus = rawText
 					end
-					return
+					if rawImg ~= "" then
+						State.CurrentStatusImage = rawImg
+						State.CurrentStatusImageColor = rawCol
+					end
+
+					if State.UpdateIslandVisuals then
+						pcall(State.UpdateIslandVisuals)
+					end
 				end
+
+				-- Ẩn widget gốc trên header của Figgy Hub để chuyển hẳn lên Dynamic Island
+				pcall(function()
+					desc.Visible = false
+				end)
+				desc:GetPropertyChangedSignal("Visible"):Connect(function()
+					if isAlive() and desc.Visible then
+						pcall(function() desc.Visible = false end)
+					end
+				end)
+
+				-- Bắt sự kiện thay đổi văn bản và hình ảnh theo thời gian thực
+				txt:GetPropertyChangedSignal("Text"):Connect(syncFromFiggyBadge)
+				img:GetPropertyChangedSignal("Image"):Connect(syncFromFiggyBadge)
+				img:GetPropertyChangedSignal("ImageColor3"):Connect(syncFromFiggyBadge)
+
+				-- Đồng bộ lần đầu tiên ngay khi phát hiện
+				syncFromFiggyBadge()
+
+				-- Lưu tham chiếu để kiểm tra nhanh trong vòng lặp Heartbeat
+				State.LiveFiggyTextLabel = txt
+				State.LiveFiggyImageLabel = img
+				State.LiveFiggyBadgeFrame = desc
+				return true
 			end
 		end
-	end)
+	end
+	return false
 end
 
 -- ============================================================================
--- 6. GẮN ÂM THANH CHO TẤT CẢ NÚT BẤM, TAB, TOGGLE & DROPDOWN TRÊN MENU FIGGY HUB
+-- 7. GẮN ÂM THANH CHO MỌI NÚT BẤM & TAB TRONG MENU FIGGY HUB
 -- ============================================================================
 local function hookMenuButtonSound(inst)
 	if not inst or not inst.Parent then return end
@@ -1984,72 +1349,7 @@ local function hookMenuButtonSound(inst)
 end
 
 -- ============================================================================
--- 7. ẨN AN TOÀN "• Idle" GỐC CỦA FIGGY HUB (TUYỆT ĐỐI KHÔNG ẨN NHẦM CỬA SỔ CHÍNH)
--- ============================================================================
-local function isStatusLabelCandidate(lbl)
-	if not lbl or not lbl:IsA("TextLabel") then return false end
-	if State.IslandGui and lbl:IsDescendantOf(State.IslandGui) then return false end
-	local raw = (lbl:GetAttribute("__FiggyOrigText") or lbl.Text or ""):match("^%s*(.-)%s*$") or ""
-	if raw == "" then return false end
-
-	local afterBullet = raw:match("^•%s*(.+)$") or raw:match("^●%s*(.+)$")
-	if afterBullet then
-		local abLow = afterBullet:lower():match("^%s*(.-)%s*$") or ""
-		if abLow == "idle" or abLow == "đang rảnh" or abLow == "running" or abLow == "đang chạy" or abLow:find("steal", 1, true) or abLow:find("farm", 1, true) or abLow:find("ufo", 1, true) or abLow:find("waiting", 1, true) then
-			return true
-		end
-	end
-
-	return false
-end
-
-local function hideOriginalFiggyStatusAndHook(lbl)
-	if not lbl or not lbl.Parent then return end
-
-	local currentTxt = lbl.Text or ""
-	if currentTxt ~= "" then
-		State.CurrentRawStatus = currentTxt
-		if State.UpdateIslandVisuals then
-			pcall(State.UpdateIslandVisuals)
-		end
-	end
-
-	-- Chỉ ẩn đúng nhãn "• Idle" và khung pill nhỏ chứa nó (khi kích thước > 0 và < 145px), tuyệt đối không ẩn nhầm khung lớn khi menu đang khởi tạo!
-	pcall(function()
-		lbl.Visible = false
-		local p = lbl.Parent
-		if p and p:IsA("GuiObject") and not p:IsA("ScrollingFrame") then
-			if p:FindFirstChild("IslandLogoBadge") or p:FindFirstChild("IslandExpandHint") or p:FindFirstChild("IslandStroke") then
-				p.Visible = false
-			end
-		end
-	end)
-
-	if lbl:GetAttribute("__FiggyStatusHooked") ~= SID then
-		lbl:SetAttribute("__FiggyStatusHooked", SID)
-		lbl:GetPropertyChangedSignal("Text"):Connect(function()
-			if not isAlive() then return end
-			local newTxt = lbl.Text or ""
-			if newTxt ~= "" then
-				State.CurrentRawStatus = newTxt
-				if State.UpdateIslandVisuals then
-					pcall(State.UpdateIslandVisuals)
-				end
-			end
-			if lbl.Visible then
-				pcall(function() lbl.Visible = false end)
-			end
-		end)
-		lbl:GetPropertyChangedSignal("Visible"):Connect(function()
-			if isAlive() and lbl.Visible then
-				pcall(function() lbl.Visible = false end)
-			end
-		end)
-	end
-end
-
--- ============================================================================
--- 8. ĐỘNG CƠ QUÉT & DỊCH THUẬT TOÀN BỘ MENU FIGGY HUB (ZERO-LAG)
+-- 8. ĐỘNG CƠ DỊCH THUẬT MENU FIGGY HUB (ZERO-LAG)
 -- ============================================================================
 local function processGuiElement(obj)
 	if not obj or not obj.Parent then return end
@@ -2059,14 +1359,15 @@ local function processGuiElement(obj)
 		pcall(hookMenuButtonSound, obj)
 	end
 
-	if obj:IsA("TextLabel") and obj.Text == "Figgy Hub" then
-		local sg = obj:FindFirstAncestorOfClass("ScreenGui")
-		trySyncFiggyNativeAvatar(sg, obj)
-	end
-
-	if obj:IsA("TextLabel") and isStatusLabelCandidate(obj) then
-		hideOriginalFiggyStatusAndHook(obj)
-		return
+	-- Tìm kiếm và bê thanh trạng thái trên header khi phát hiện tiêu đề "Figgy Hub"
+	if obj:IsA("TextLabel") and (obj.Text == "Figgy Hub" or obj.Text == "FrostyFig") then
+		local header = obj.Parent
+		if header then
+			pcall(bindFiggyHeaderStatusWidget, header)
+			if header.Parent then
+				pcall(bindFiggyHeaderStatusWidget, header.Parent)
+			end
+		end
 	end
 
 	if obj:IsA("TextBox") then
@@ -2116,11 +1417,7 @@ local function processGuiElement(obj)
 		table.insert(State.TrackedLabels, obj)
 		obj:GetPropertyChangedSignal("Text"):Connect(function()
 			if not isAlive() or obj:GetAttribute("__IsTranslatingFiggy") then return end
-			if isStatusLabelCandidate(obj) then
-				hideOriginalFiggyStatusAndHook(obj)
-			else
-				processGuiElement(obj)
-			end
+			processGuiElement(obj)
 		end)
 	end
 end
@@ -2181,19 +1478,43 @@ local function scanAllMenusOnce(forceSweep)
 end
 
 -- ============================================================================
--- 9. KHỞI CHẠY FIGGY DYNAMIC ISLAND & VÒNG LẶP task.spawn ZERO-LAG
+-- 9. KHỞI CHẠY DYNAMIC ISLAND & VÒNG LẶP KIỂM TRA TRẠNG THÁI LIÊN TỤC
 -- ============================================================================
 createIndependentFiggyDynamicIsland()
 
 task.spawn(function()
 	scanAllMenusOnce(true)
 
+	local lastCheckedStatus = ""
+	local lastCheckedImage = ""
+
 	while isAlive() do
-		task.wait(1.0)
+		task.wait(0.25)
 		if not isAlive() then break end
-		scanAllMenusOnce(false)
-		if State.UpdateIslandVisuals then
-			pcall(State.UpdateIslandVisuals)
+
+		-- Kiểm tra trực tiếp widget trạng thái từ Figgy Hub để cập nhật ngay lập tức nếu có thay đổi
+		if State.LiveFiggyTextLabel and State.LiveFiggyTextLabel.Parent then
+			local curTxt = State.LiveFiggyTextLabel.Text or ""
+			local curImg = (State.LiveFiggyImageLabel and State.LiveFiggyImageLabel.Image) or ""
+			local curCol = (State.LiveFiggyImageLabel and State.LiveFiggyImageLabel.ImageColor3) or Color3.fromRGB(255, 255, 255)
+
+			if curTxt ~= lastCheckedStatus or curImg ~= lastCheckedImage then
+				lastCheckedStatus = curTxt
+				lastCheckedImage = curImg
+				State.CurrentRawStatus = curTxt
+				State.CurrentStatusImage = curImg
+				State.CurrentStatusImageColor = curCol
+				if State.UpdateIslandVisuals then
+					pcall(State.UpdateIslandVisuals)
+				end
+			end
+
+			-- Đảm bảo widget gốc trên header luôn được ẩn đi
+			if State.LiveFiggyBadgeFrame and State.LiveFiggyBadgeFrame.Visible then
+				pcall(function() State.LiveFiggyBadgeFrame.Visible = false end)
+			end
 		end
+
+		scanAllMenusOnce(false)
 	end
 end)
