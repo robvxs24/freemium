@@ -1953,7 +1953,7 @@ end
 -- 7. NHẬN DIỆN CHÍNH XÁC NÚT LOGO NỔI MỞ MENU & ĐỔI TÔNG MÀU GOLD PREMIUM
 --    (Tuyệt đối không gắn ảnh Banana Cat vào cửa sổ chính, Thanh Nhanh hay Avatar người chơi!)
 -- ============================================================================
--- KHỐI 1: chỉ bọc hai icon Figgy/củ hành tím; mọi logo khác (Delta, Roblox...) bị bỏ qua.
+-- KHỐI 1: chỉ bọc ba icon Figgy/củ hành tím; mọi logo khác (Delta, Roblox...) bị bỏ qua.
 local function isFiggyTitle(label)
 	if not label or not label:IsA("TextLabel") then return false end
 	local text = label:GetAttribute("__FiggyOrigText") or label.Text or ""
@@ -1977,17 +1977,15 @@ local function findFiggyMainPanel(gui)
 	return nil
 end
 
-local function hasHeaderTitle(host)
-	local node = host.Parent
-	while node and not node:IsA("ScreenGui") do
-		for _, child in ipairs(node:GetChildren()) do
-			if isFiggyTitle(child) and host.AbsolutePosition.X < child.AbsolutePosition.X then
-				return true
-			end
+local function findBrandLabelOnSameRow(host, gui)
+	for _, label in ipairs(gui:GetDescendants()) do
+		if isFiggyTitle(label)
+			and host.AbsolutePosition.X < label.AbsolutePosition.X
+			and math.abs(host.AbsolutePosition.Y - label.AbsolutePosition.Y) <= 32 then
+			return label
 		end
-		node = node.Parent
 	end
-	return false
+	return nil
 end
 
 local function bindFiggyLogo(host, slot, gui)
@@ -2022,26 +2020,30 @@ local function bindFiggyLogo(host, slot, gui)
 end
 
 local function checkAndDecorateFloatingMenuLogo(obj)
-	if not obj or not obj.Parent or not (obj:IsA("ImageButton") or obj:IsA("Frame")) then return end
+	if not obj or not obj.Parent or not (obj:IsA("ImageLabel") or obj:IsA("ImageButton") or obj:IsA("Frame")) then return end
 	local gui = obj:FindFirstAncestorOfClass("ScreenGui")
 	if not gui or gui:GetAttribute("__VerifiedFiggyGui") ~= true then return end
 
 	local w, h = obj.AbsoluteSize.X, obj.AbsoluteSize.Y
 	if w < 24 or w > 68 or h < 24 or h > 68 or math.abs(w - h) > 7 then return end
-	local image = obj:IsA("ImageButton") and obj or obj:FindFirstChildWhichIsA("ImageLabel", true) or obj:FindFirstChildWhichIsA("ImageButton", true)
+	local image = (obj:IsA("ImageLabel") or obj:IsA("ImageButton")) and obj
+		or obj:FindFirstChildWhichIsA("ImageLabel", true) or obj:FindFirstChildWhichIsA("ImageButton", true)
 	if not image or (image.Image or "") == "" then return end
 	local identity = string.lower((obj.Name or "") .. " " .. (image.Name or "") .. " " .. (obj.Parent.Name or ""))
 	if identity:find("delta", 1, true) then return end
 	local looksLikeFiggyOnion = identity:find("fig", 1, true) or identity:find("frosty", 1, true)
 		or identity:find("onion", 1, true) or isFiggyPurpleColor(image.ImageColor3)
-	if not looksLikeFiggyOnion then return end
 
 	State.FiggyLogoSlots = State.FiggyLogoSlotsSession == SID and State.FiggyLogoSlots or {}
 	State.FiggyLogoSlotsSession = SID
-	local topLevel = obj.Parent == gui or (obj.Parent:IsA("Frame") and obj.Parent.Parent == gui)
-	local isLeftToggle = topLevel and obj.AbsolutePosition.X <= 220 and obj.AbsolutePosition.Y <= 110
-	local isHeaderIcon = (not isLeftToggle) and hasHeaderTitle(obj)
-	local slot = isLeftToggle and "toggle" or (isHeaderIcon and "header" or nil)
+	local panel = findFiggyMainPanel(gui)
+	local isInsidePanel = panel and obj:IsDescendantOf(panel)
+	local brandLabel = findBrandLabelOnSameRow(obj, gui)
+	local relativeY = panel and (obj.AbsolutePosition.Y - panel.AbsolutePosition.Y) or -1
+	local isLeftToggle = not isInsidePanel and obj.AbsolutePosition.X <= 220 and obj.AbsolutePosition.Y <= 110 and looksLikeFiggyOnion
+	local isHeaderIcon = isInsidePanel and brandLabel and relativeY <= 60
+	local isFooterIcon = isInsidePanel and brandLabel and relativeY >= (panel.AbsoluteSize.Y - 60)
+	local slot = isLeftToggle and "toggle" or (isHeaderIcon and "header" or (isFooterIcon and "footer" or nil))
 	if not slot or (State.FiggyLogoSlots[slot] and State.FiggyLogoSlots[slot] ~= obj) then return end
 
 	State.FiggyLogoSlots[slot] = obj
