@@ -308,7 +308,7 @@ local function cleanupPreviousOverlaysAndDeduplicate()
 								if par and par:IsA("GuiObject") and not isInsideLargeWindowFrame(par) then
 									local pX = par.AbsolutePosition.X
 									local pY = par.AbsolutePosition.Y
-									if (pX > vpW * 0.18 and pX < vpW * 0.78) or (pX < 40 and not (pX >= vpW * 0.78)) or (pX == 0 and pY == 0) then
+									if (pX > vpW * 0.18 and pX < vpW * 0.78) or (pX < 40 and not (pX >= vpW * 0.78)) or (pX == 0 and pY == 0) or (pX >= vpW * 0.78 and pY > 175) then
 										isWrongCentralAttachment = true
 									end
 								end
@@ -702,7 +702,7 @@ local function decoratePurpleOnionButton(rawTarget, strokeThickness, forceRounde
 	local cx = container.AbsolutePosition.X
 	local cy = container.AbsolutePosition.Y
 	if not isInsideLargeWindowFrame(container) then
-		if (cx == 0 and cy == 0) or (cx > vpW * 0.18 and cx < vpW * 0.78) or (cx < 40 and not (cx >= vpW * 0.78)) then
+		if (cx == 0 and cy == 0) or (cx > vpW * 0.18 and cx < vpW * 0.78) or (cx < 40 and not (cx >= vpW * 0.78)) or (cx >= vpW * 0.78 and cy > 175) then
 			return
 		end
 	end
@@ -2344,36 +2344,19 @@ task.spawn(function()
 	end
 	pcall(autoSelectGoldTheme)
 
-	-- Quét bù theo 3 mốc ngắn lúc mới khởi tạo xong hiệu ứng mở
-	for _, waitSec in ipairs({ 0.15, 0.50, 1.20 }) do
-		task.wait(waitSec)
-		if not isAlive() then break end
-		pcall(scanPurpleOnionButtonsOnce)
-	end
+	-- Thực thi dứt khoát 1 lần sau khi giao diện khởi tạo xong (Zero-Lag, không dùng while loop)
+	pcall(cleanupPreviousOverlaysAndDeduplicate)
+	pcall(scanPurpleOnionButtonsOnce)
+	pcall(refreshAllTranslatedMenus)
+	pcall(autoSelectGoldTheme)
 
-	-- Watchdog vĩnh viễn: Giữ 100% tiếng Việt, dọn dẹp Delta X và duy trì nút củ hành vuông bên phải
-	task.spawn(function()
-		while isAlive() do
-			task.wait(1.5)
+	for _, delaySec in ipairs({ 0.25, 0.80, 1.80 }) do
+		task.delay(delaySec, function()
+			if not isAlive() then return end
 			pcall(cleanupPreviousOverlaysAndDeduplicate)
 			pcall(scanPurpleOnionButtonsOnce)
 			pcall(refreshAllTranslatedMenus)
-
-			-- Quét dịch toàn bộ text mới tạo trong Figgy Hub hoặc HUD
-			for _, root in ipairs(getUiRoots()) do
-				pcall(function()
-					for _, g in ipairs(root:GetChildren()) do
-						local gName = g.Name or ""
-						if not IGNORED_SCREEN_GUIS[gName] and not isDeltaOrExecutorGui(g) then
-							for _, desc in ipairs(g:GetDescendants()) do
-								if desc:IsA("TextLabel") or desc:IsA("TextButton") then
-									pcall(translateMenuElementOnce, desc)
-								end
-							end
-						end
-					end
-				end)
-			end
-		end
-	end)
+			pcall(autoSelectGoldTheme)
+		end)
+	end
 end)
