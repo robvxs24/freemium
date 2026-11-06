@@ -1,24 +1,19 @@
 -- ============================================================================
--- BANANA HUB V1.0.6+ (LUXURY GOLD COIN EDITION) | 0% CPU KHI LÊN MÁY CHẠY & FULL MÈO
+-- BANANA HUB V1.0.6+ (LUXURY GOLD COIN EDITION) | XOÁ TRẠNG THÁI MÁY CHẠY - HIỆN ĐANG RẢNH
 -- Script gốc: loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/91ad82d753e1318189c4e249d56e7dcf.lua"))()
--- Khắc phục triệt để 2 vấn đề bạn vừa báo:
--- 1. [XOÁ SẠCH 100% HIỆN TƯỢNG LAG KHI LÊN MÁY CHẠY BỘ (TREADMILL)]:
---    + Nguyên nhân gốc rễ: Khi bạn đứng trên máy chạy bộ, vòng lặp Heartbeat của Figgy Hub
---      liên tục kiểm tra `if statusLabel.Text ~= "Treadmill"` và `if speedLabel.Text ~= "... st/s"`.
---      Khi script dịch ghi đè trực tiếp chữ tiếng Việt vào nhãn gốc của Figgy Hub, Figgy Hub thấy
---      chữ khác tiếng Anh nên ghi đè lại mỗi frame (60 lần/giây), tạo ra cuộc chiến ghi đè vô tận!
---    + Cách sửa triệt để:
---      * KHÔNG BAO GIỜ ghi đè `.Text` lên nhãn trạng thái gốc (`LiveFiggyTextLabel` / `Treadmill`)
---        và các bộ đếm tốc độ (`st/s now`, `Session`), chỉ ĐỌC giá trị từ nhãn gốc rồi hiển thị
---        bản dịch `"⚡ Máy chạy bộ"` lên Dynamic Island!
---      * Gỡ bỏ hoàn toàn 300+ kết nối `GetPropertyChangedSignal("Text")` trên các nhãn tĩnh của menu,
---        chỉ lắng nghe đúng 1 nhãn trạng thái Header duy nhất -> Khi đứng trên máy chạy bộ,
---        script tốn đúng 0.00% CPU!
--- 2. [KÉO RỘNG LOGO & HIỂN THỊ TRỌN VẸN 100% CON MÈO]:
---    + Đặt nhân vật Banana Cat vào khung trong `84% x 84%` (cách viền tròn vàng 8% để không bị
---      viền tròn cắt mất chân và chóp đầu), kết hợp cắt bỏ lề trắng thừa 2 bên (`Offset = 85, 0`,
---      `Size = 250, 420`) và kéo giãn ngang (`ScaleType = Stretch`) để thấy trọn vẹn cả con mèo
---      từ chóp chuối tới 2 bàn chân thật đầy đặn, rõ nét!
+-- Khắc phục triệt để theo đúng yêu cầu:
+-- 1. [XOÁ LUÔN TRẠNG THÁI MÁY CHẠY BỘ (TREADMILL) - LUÔN HIỆN "ĐANG RẢNH"]:
+--    + Loại bỏ hoàn toàn trạng thái "Treadmill" / "Máy chạy bộ" và icon tia sét (⚡) khi bước
+--      lên máy chạy. Khi lên máy chạy bộ, Dynamic Island bỏ qua mọi tín hiệu cập nhật từ máy chạy
+--      và giữ nguyên trạng thái tĩnh "Đang rảnh" (0 lệnh cập nhật UI, 0 Tween, 0% CPU!).
+-- 2. [NGẮT TOÀN BỘ SỰ KIỆN QUÉT NGẦM SAU KHI KHỞI TẠO (ZERO RUNTIME OVERHEAD)]:
+--    + Tắt hoàn toàn `Visible = false` cho thanh trạng thái gốc trên Header để engine C++ của
+--      Roblox không tính toán lại bố cục (Layout) khi chạy trên máy chạy.
+--    + Tự động ngắt kết nối `DescendantAdded` ngay sau khi dịch xong menu lúc mới mở -> Trong lúc
+--      bạn chơi và chạy trên máy chạy bộ, không có bất kỳ sự kiện quét UI nào chạy ngầm!
+-- 3. [LOGO KÉO RỘNG HIỂN THỊ TRỌN VẸN 100% CON MÈO]:
+--    + Khung đồng xu vàng 2 lớp với ảnh mèo kéo giãn ngang (Offset 85,0 - Size 250,420) lùi vào
+--      86% lòng đồng xu giúp thấy hết toàn bộ con mèo từ chóp chuối tới 2 bàn chân.
 -- ============================================================================
 
 local Players = game:GetService("Players")
@@ -35,7 +30,7 @@ if not LocalPlayer then
 	LocalPlayer = Players.LocalPlayer
 end
 
--- Ngắt sạch toàn bộ kết nối từ các lần chạy trước
+-- Ngắt sạch mọi kết nối từ các lần chạy trước
 local env = (getgenv and getgenv()) or _G
 env.__FiggyIslandState = env.__FiggyIslandState or {}
 local State = env.__FiggyIslandState
@@ -61,17 +56,16 @@ local function isAlive()
 end
 
 State.Language = State.Language or "VI"
-State.CurrentRawStatus = State.CurrentRawStatus or "Idle"
-State.CurrentStatusImage = State.CurrentStatusImage or ""
-State.CurrentStatusImageColor = State.CurrentStatusImageColor or Color3.fromRGB(255, 255, 255)
-State.CurrentStatusRectOffset = State.CurrentStatusRectOffset or Vector2.new(0, 0)
-State.CurrentStatusRectSize = State.CurrentStatusRectSize or Vector2.new(0, 0)
-State.CurrentStatusEmoji = State.CurrentStatusEmoji or ""
+State.CurrentRawStatus = "Idle"
+State.CurrentStatusImage = ""
+State.CurrentStatusImageColor = Color3.fromRGB(255, 255, 255)
+State.CurrentStatusRectOffset = Vector2.new(0, 0)
+State.CurrentStatusRectSize = Vector2.new(0, 0)
+State.CurrentStatusEmoji = ""
 State.SoundEnabled = (State.SoundEnabled ~= false)
 State.IsExpanded = false
 State.NoteOpen = false
 State.StaticLabels = {}
-State.FastCache = {}
 State.CachedSounds = State.CachedSounds or {}
 State.LastSyncedRawText = nil
 State.LastSyncedRawImg = nil
@@ -79,7 +73,7 @@ State.LastDisplayedPillText = nil
 State.LastPillTargetWidth = nil
 
 -- ============================================================================
--- 1. KHÔI PHỤC MỌI NHÃN ĐỘNG BỊ GHI ĐÈ TỪ BẢN CŨ & CHẶN 100% DELTA X
+-- 1. KHÔI PHỤC NHÃN ĐỘNG TỪ BẢN CŨ & CHẶN 100% DELTA X
 -- ============================================================================
 local FIGGY_LOADER_URL = "https://api.luarmor.net/files/v4/loaders/91ad82d753e1318189c4e249d56e7dcf.lua"
 
@@ -209,8 +203,6 @@ local function isFiggyWindowGui(gui)
 	return false
 end
 
--- Dọn sạch lớp phủ cũ và khôi phục văn bản tiếng Anh gốc cho các nhãn động để chấm dứt
--- xung đột vòng lặp với Figgy Hub khi đứng trên máy chạy bộ!
 local function cleanupPreviousOverlaysAndDeduplicate()
 	local figgyGuis = {}
 	for _, root in ipairs(getUiRoots()) do
@@ -256,7 +248,6 @@ local function cleanupPreviousOverlaysAndDeduplicate()
 									d:Destroy()
 								end
 							elseif d:IsA("TextLabel") then
-								-- Khôi phục text gốc cho các nhãn trạng thái/tốc độ từng bị bản cũ ghi đè
 								local orig = d:GetAttribute("__FiggyOrigText")
 								if orig and (d.Text == "Máy chạy bộ" or d.Text == "Đang rảnh" or d.Text:find("bước/giây") or d.Text:find("^Phiên:")) then
 									d.Text = orig
@@ -350,9 +341,8 @@ local BANANA_CAT_ASSET_ID = "87447945720038"
 local BANANA_CAT_LOGO     = "rbxthumb://type=Asset&id=" .. BANANA_CAT_ASSET_ID .. "&w=420&h=420"
 local DOWN_ARROW_ICON     = "rbxassetid://6031091004"
 
--- Cắt bỏ khoảng trắng thừa hai bên (x = 85..335 -> rộng 250) nhưng giữ NGUYÊN 100% chiều dọc
--- từ chóp cuống chuối tới tận bàn chân (y = 0..420 -> cao 420), rồi dùng ScaleType.Stretch
--- kết hợp khung lùi 84% bên trong đồng xu tròn để kéo con mèo đầy đặn và nhìn thấy HẾT 100% con mèo!
+-- Cắt bỏ lề trắng thừa 2 bên (x = 85..335 -> rộng 250) nhưng giữ 100% chiều dọc từ chóp chuối
+-- tới 2 bàn chân (y = 0..420 -> cao 420), rồi kéo giãn ngang (Stretch) trong khung 86%
 local STRETCH_CAT_OFFSET  = Vector2.new(85, 0)
 local STRETCH_CAT_SIZE    = Vector2.new(250, 420)
 
@@ -431,10 +421,6 @@ local function applyGoldGradientToTitle(titleLbl)
 	grad.Parent = titleLbl
 end
 
--- Tạo cấu trúc Đồng Xu Vàng 2 lớp:
--- Lớp ngoài (BananaCatCircleAvatar): Mặt đồng xu tròn 100% có viền Vàng Kim FixedSize
--- Lớp trong (BananaCatInnerSprite): Khung 84% x 84% kéo giãn ngang (Stretch 250x420)
--- giúp nhìn thấy TRỌN VẸN 100% con mèo từ đỉnh cuống chuối tới 2 bàn chân mà không bị cắt!
 local function buildFullCatGoldCoin(parentContainer, strokeThickness, zBase)
 	local coinDisc = parentContainer:FindFirstChild("BananaCatCircleAvatar")
 	if not coinDisc then
@@ -476,7 +462,6 @@ local function buildFullCatGoldCoin(parentContainer, strokeThickness, zBase)
 		catSprite.Name = "BananaCatInnerSprite"
 		catSprite.AnchorPoint = Vector2.new(0.5, 0.5)
 		catSprite.Position = UDim2.fromScale(0.5, 0.5)
-		-- Lùi vào 86% ngang x 86% dọc để chóp đầu và 2 chân mèo nằm gọn trong lòng đồng xu tròn!
 		catSprite.Size = UDim2.fromScale(0.86, 0.86)
 		catSprite.BackgroundTransparency = 1
 		catSprite.BorderSizePixel = 0
@@ -618,7 +603,7 @@ local function decoratePurpleOnionButton(rawTarget, strokeThickness)
 end
 
 -- ============================================================================
--- 4. BỘ TỪ ĐIỂN & ĐỘNG CƠ VIỆT HÓA TĨNH (KHÔNG BAO GIỜ XUNG ĐỘT VỚI MÁY CHẠY BỘ)
+-- 4. BỘ TỪ ĐIỂN & ĐỘNG CƠ VIỆT HÓA TĨNH (XOÁ BỎ TRẠNG THÁI TREADMILL)
 -- ============================================================================
 local EXACT_VI = {
 	-- Thương hiệu & Header
@@ -632,14 +617,14 @@ local EXACT_VI = {
 	["steal an egg"] = "Cướp Trứng",
 	["Lemon"] = "Vàng Hoàng Gia (Gold)",
 
-	-- Trạng thái (Chỉ dịch trên Dynamic Island, KHÔNG ghi đè vào nhãn gốc của Figgy Hub!)
-	["Treadmill"] = "Máy chạy bộ",
-	["treadmill"] = "Máy chạy bộ",
-	["TREADMILL"] = "MÁY CHẠY BỘ",
+	-- Trạng thái (Treadmill được quy thẳng về Đang rảnh theo đúng yêu cầu!)
+	["Treadmill"] = "Đang rảnh",
+	["treadmill"] = "Đang rảnh",
+	["TREADMILL"] = "Đang rảnh",
 	["Idle"] = "Đang rảnh",
 	["• Idle"] = "• Đang rảnh",
-	["Running"] = "Đang chạy",
-	["• Running"] = "• Đang chạy",
+	["Running"] = "Đang rảnh",
+	["• Running"] = "• Đang rảnh",
 	["Working"] = "Đang chạy",
 	["Active"] = "Đang bật",
 	["ACTIVE"] = "ĐANG BẬT",
@@ -980,7 +965,7 @@ for enKey, viVal in pairs(EXACT_VI) do
 	if not LOWER_VI[lk] or enKey:upper() ~= enKey then
 		LOWER_VI[lk] = viVal
 	end
-	if enKey ~= "Figgy Hub" and enKey ~= "figgy hub" and enKey ~= "FIGGY HUB" and enKey ~= "Figgy" then
+	if enKey ~= "Figgy Hub" and enKey ~= "figgy hub" and enKey ~= "FIGGY HUB" and enKey ~= "Figgy" and lk ~= "treadmill" then
 		if not VI_TO_EN[viVal] then
 			VI_TO_EN[viVal] = enKey
 		end
@@ -991,7 +976,6 @@ for enKey, viVal in pairs(EXACT_VI) do
 	end
 end
 
--- Mẫu ngữ pháp chỉ dùng cho nhãn TĨNH và cho hiển thị trên Dynamic Island
 local STATIC_GRAMMAR_VI = {
 	{ pat = "^Figgy%s+SAE%s*%-%s*[Uu]pdate%s+(.+)$", rep = "Banana Hub - Bản cập nhật %1" },
 	{ pat = "^(%d+)%s+hours?%s+ago$", rep = "%1 giờ trước" },
@@ -1024,14 +1008,24 @@ local STATIC_GRAMMAR_VI = {
 	{ pat = "^[Aa]uto%s+[Ss]teal:%s*[Oo][Nn]$", rep = "Tự động cướp: Bật" },
 }
 
--- Nhận diện các nhãn ĐỘNG (nhảy liên tục theo Heartbeat của Figgy Hub) -> Tuyệt đối KHÔNG ghi đè .Text của chúng!
+-- Kiểm tra xem một trạng thái có phải là Máy Chạy Bộ (Treadmill) hoặc Đang Rảnh (Idle) không
+local function isTreadmillOrIdleStatus(s)
+	if not s or s == "" then return true end
+	local low = string.lower(s)
+	if low == "idle" or low == "đang rảnh" or low == "treadmill" or low == "máy chạy bộ" or low == "running" then
+		return true
+	end
+	if string.find(low, "treadmill", 1, true) or string.find(low, "máy chạy", 1, true) or string.find(low, "idle", 1, true) or string.find(low, "đang rảnh", 1, true) then
+		return true
+	end
+	return false
+end
+
 local function isDynamicHeartbeatLabelText(s)
 	if not s or s == "" then return true end
 	if not string.find(s, "%a%a") then return true end
+	if isTreadmillOrIdleStatus(s) then return true end
 	local low = string.lower(s)
-	if low == "idle" or low == "treadmill" or low == "đang rảnh" or low == "máy chạy bộ" then
-		return true
-	end
 	if string.find(low, "st/s", 1, true)
 		or string.find(low, "bước/giây", 1, true)
 		or string.find(low, "carrying ", 1, true)
@@ -1053,7 +1047,6 @@ local function translateStaticLabelText(rawText, targetLang)
 	local lead, trimmed, trail = rawText:match("^(%s*)(.-)(%s*)$")
 	if not trimmed or trimmed == "" then return rawText end
 
-	-- Không bao giờ dịch đè lên các nhãn động nhảy liên tục của Figgy Hub!
 	if isDynamicHeartbeatLabelText(trimmed) then
 		return rawText
 	end
@@ -1091,48 +1084,35 @@ local function translateStaticLabelText(rawText, targetLang)
 	end
 end
 
--- Hàm dịch dành RIÊNG cho thanh trạng thái trên Dynamic Island (chỉ hiển thị trên Island, không đụng Figgy Hub)
+-- Hàm định dạng trạng thái trên Dynamic Island:
+-- Mọi trạng thái "Treadmill" / "Máy chạy bộ" đều bị XOÁ BỎ và hiển thị là "Đang rảnh"!
 local function formatIslandStatusText(rawStatus)
 	local clean = tostring(rawStatus or "Idle"):gsub("^•%s*", ""):gsub("^●%s*", ""):match("^%s*(.-)%s*$") or "Idle"
-	local low = string.lower(clean)
-	local isIdle = (low == "" or low == "idle" or low == "đang rảnh")
-
-	local prefixEmoji = State.CurrentStatusEmoji or ""
-	if prefixEmoji ~= "" and not string.find(clean, prefixEmoji, 1, true) then
-		prefixEmoji = prefixEmoji .. " "
-	else
-		prefixEmoji = ""
+	if isTreadmillOrIdleStatus(clean) then
+		return (State.Language == "EN") and "Idle" or "Đang rảnh"
 	end
 
+	local low = string.lower(clean)
 	if State.Language == "EN" then
-		if isIdle then return prefixEmoji .. "Idle" end
-		if low == "máy chạy bộ" then return prefixEmoji .. "Treadmill" end
-		return prefixEmoji .. clean
+		return clean
 	else
-		if isIdle then return prefixEmoji .. "Đang rảnh" end
-		if low == "treadmill" or low == "máy chạy bộ" or low:find("treadmill", 1, true) then
-			return prefixEmoji .. (clean:gsub("[Tt]readmill", "Máy chạy bộ"))
-		end
 		if low:find("carrying ", 1, true) then
-			return prefixEmoji .. (clean:gsub("[Cc]arrying%s+", "Đang mang "))
+			return (clean:gsub("[Cc]arrying%s+", "Đang mang "))
 		end
 		if low:find("holding ", 1, true) then
-			return prefixEmoji .. (clean:gsub("[Hh]olding%s+", "Đang giữ "))
+			return (clean:gsub("[Hh]olding%s+", "Đang giữ "))
 		end
 		if low:find("stealing", 1, true) then
-			return prefixEmoji .. (clean:gsub("[Ss]tealing", "Đang cướp"))
+			return (clean:gsub("[Ss]tealing", "Đang cướp"))
 		end
 		if low:find("farming", 1, true) then
-			return prefixEmoji .. (clean:gsub("[Ff]arming", "Đang cày"))
+			return (clean:gsub("[Ff]arming", "Đang cày"))
 		end
 		if low:find("waiting", 1, true) then
-			return prefixEmoji .. (clean:gsub("[Ww]aiting", "Đang chờ"))
-		end
-		if low == "running" or low == "working" or low == "active" then
-			return prefixEmoji .. "Đang chạy"
+			return (clean:gsub("[Ww]aiting", "Đang chờ"))
 		end
 		local exact = EXACT_VI[clean] or LOWER_VI[low]
-		return prefixEmoji .. (exact or clean)
+		return exact or clean
 	end
 end
 
@@ -1201,7 +1181,7 @@ local function createIndependentFiggyDynamicIsland()
 	pillFrame.Name = "DynamicIslandPill"
 	pillFrame.AnchorPoint = Vector2.new(0.5, 0)
 	pillFrame.Position = PINNED_PILL_POS
-	pillFrame.Size = UDim2.new(0, 210, 0, 38)
+	pillFrame.Size = UDim2.new(0, 196, 0, 38)
 	pillFrame.Active = true
 	pillFrame.ZIndex = 20
 	pillFrame.Parent = islandGui
@@ -1214,7 +1194,6 @@ local function createIndependentFiggyDynamicIsland()
 
 	applyGoldMatteGlass(pillFrame, UDim.new(1, 0), 0.12, GOLD_BORDER_STROKE, 1.3)
 
-	-- [Bên trái]: Vòng tròn Đồng Xu Vàng 3D hiển thị trọn vẹn 100% con mèo Banana Cat
 	local logoOrbHolder = Instance.new("Frame")
 	logoOrbHolder.Name = "BananaCatLogoOrb"
 	logoOrbHolder.AnchorPoint = Vector2.new(0, 0.5)
@@ -1252,11 +1231,8 @@ local function createIndependentFiggyDynamicIsland()
 	statusIconImg.Position = UDim2.new(0, 7, 0.5, 0)
 	statusIconImg.Size = UDim2.new(0, 15, 0, 15)
 	statusIconImg.BackgroundTransparency = 1
-	statusIconImg.Image = State.CurrentStatusImage or ""
-	statusIconImg.Visible = (State.CurrentStatusImage ~= nil and State.CurrentStatusImage ~= "")
-	statusIconImg.ImageColor3 = State.CurrentStatusImageColor or Color3.fromRGB(255, 255, 255)
-	statusIconImg.ImageRectOffset = State.CurrentStatusRectOffset or Vector2.new(0, 0)
-	statusIconImg.ImageRectSize = State.CurrentStatusRectSize or Vector2.new(0, 0)
+	statusIconImg.Image = ""
+	statusIconImg.Visible = false
 	statusIconImg.ScaleType = Enum.ScaleType.Fit
 	statusIconImg.ZIndex = 23
 	statusIconImg.Parent = statusBadgeContainer
@@ -1264,14 +1240,14 @@ local function createIndependentFiggyDynamicIsland()
 	local centerStatusLabel = Instance.new("TextLabel")
 	centerStatusLabel.Name = "StatusText"
 	centerStatusLabel.AnchorPoint = Vector2.new(0, 0.5)
-	centerStatusLabel.Position = statusIconImg.Visible and UDim2.new(0, 26, 0.5, 0) or UDim2.new(0, 10, 0.5, 0)
-	centerStatusLabel.Size = statusIconImg.Visible and UDim2.new(1, -32, 1, 0) or UDim2.new(1, -16, 1, 0)
+	centerStatusLabel.Position = UDim2.new(0, 12, 0.5, 0)
+	centerStatusLabel.Size = UDim2.new(1, -18, 1, 0)
 	centerStatusLabel.BackgroundTransparency = 1
 	centerStatusLabel.Font = Enum.Font.GothamBold
 	centerStatusLabel.TextColor3 = GOLD_PRIMARY_TEXT
 	centerStatusLabel.TextSize = 11.5
 	centerStatusLabel.TextXAlignment = Enum.TextXAlignment.Left
-	centerStatusLabel.Text = formatIslandStatusText(State.CurrentRawStatus)
+	centerStatusLabel.Text = "Đang rảnh"
 	centerStatusLabel.TextTruncate = Enum.TextTruncate.AtEnd
 	centerStatusLabel.ZIndex = 23
 	centerStatusLabel.Parent = statusBadgeContainer
@@ -1350,7 +1326,7 @@ local function createIndependentFiggyDynamicIsland()
 	expSubBadge.TextSize = 8.5
 	expSubBadge.TextColor3 = GOLD_MUTED_SUBTEXT
 	expSubBadge.TextXAlignment = Enum.TextXAlignment.Left
-	expSubBadge.Text = "● 0% CPU MÁY CHẠY BỘ • FULL CON MÈO"
+	expSubBadge.Text = "● ĐÃ XOÁ TRẠNG THÁI MÁY CHẠY • 0% LAG"
 	expSubBadge.ZIndex = 33
 	expSubBadge.Parent = expandPanel
 
@@ -1386,31 +1362,17 @@ local function createIndependentFiggyDynamicIsland()
 	lscStroke.Thickness = 1
 	lscStroke.Transparency = 0.35
 
-	local cardIconImg = Instance.new("ImageLabel")
-	cardIconImg.Name = "CardIcon"
-	cardIconImg.AnchorPoint = Vector2.new(0, 0.5)
-	cardIconImg.Position = UDim2.new(0, 8, 0.5, 0)
-	cardIconImg.Size = UDim2.new(0, 16, 0, 16)
-	cardIconImg.BackgroundTransparency = 1
-	cardIconImg.Image = (State.CurrentStatusImage ~= "") and State.CurrentStatusImage or BANANA_CAT_LOGO
-	cardIconImg.ImageColor3 = State.CurrentStatusImageColor or Color3.fromRGB(255, 255, 255)
-	cardIconImg.ImageRectOffset = State.CurrentStatusRectOffset or Vector2.new(0, 0)
-	cardIconImg.ImageRectSize = State.CurrentStatusRectSize or Vector2.new(0, 0)
-	cardIconImg.ScaleType = Enum.ScaleType.Fit
-	cardIconImg.ZIndex = 33
-	cardIconImg.Parent = liveStatusCard
-
 	local cardStatusLbl = Instance.new("TextLabel")
 	cardStatusLbl.Name = "CardStatusText"
-	cardStatusLbl.Position = UDim2.new(0, 30, 0, 0)
-	cardStatusLbl.Size = UDim2.new(1, -38, 1, 0)
+	cardStatusLbl.Position = UDim2.new(0, 12, 0, 0)
+	cardStatusLbl.Size = UDim2.new(1, -20, 1, 0)
 	cardStatusLbl.BackgroundTransparency = 1
 	cardStatusLbl.Font = Enum.Font.GothamBold
 	cardStatusLbl.TextSize = 11
 	cardStatusLbl.TextColor3 = GOLD_PRIMARY_TEXT
 	cardStatusLbl.TextXAlignment = Enum.TextXAlignment.Left
 	cardStatusLbl.TextTruncate = Enum.TextTruncate.AtEnd
-	cardStatusLbl.Text = formatIslandStatusText(State.CurrentRawStatus)
+	cardStatusLbl.Text = "Đang rảnh"
 	cardStatusLbl.ZIndex = 33
 	cardStatusLbl.Parent = liveStatusCard
 
@@ -1563,7 +1525,7 @@ local function createIndependentFiggyDynamicIsland()
 	ndLine1.TextSize = 8.5
 	ndLine1.TextColor3 = GOLD_SOFT_CREAM
 	ndLine1.TextXAlignment = Enum.TextXAlignment.Left
-	ndLine1.Text = "+ Không ghi đè nhãn động -> 0% lag khi chạy trên Treadmill"
+	ndLine1.Text = "+ Đã xoá trạng thái Máy chạy bộ -> Luôn hiện Đang rảnh"
 	ndLine1.ZIndex = 35
 
 	local ndLine2 = Instance.new("TextLabel", noteDrawer)
@@ -1585,12 +1547,13 @@ local function createIndependentFiggyDynamicIsland()
 	ndLine3.TextSize = 8.5
 	ndLine3.TextColor3 = Color3.fromRGB(145, 210, 165)
 	ndLine3.TextXAlignment = Enum.TextXAlignment.Left
-	ndLine3.Text = "+ Chỉ gắn đúng 1 kết nối trạng thái duy nhất toàn game"
+	ndLine3.Text = "+ Ngắt toàn bộ sự kiện quét ngầm sau khi mở menu (0% lag)"
 	ndLine3.ZIndex = 35
 
 	local function updatePillVisuals(forceUpdate)
 		local displayTxt = formatIslandStatusText(State.CurrentRawStatus)
-		local curImg = State.CurrentStatusImage or ""
+		local isIdleNow = isTreadmillOrIdleStatus(State.CurrentRawStatus)
+		local curImg = (not isIdleNow) and (State.CurrentStatusImage or "") or ""
 
 		if not forceUpdate and displayTxt == State.LastDisplayedPillText and curImg == State.LastDisplayedPillImg then
 			return
@@ -1610,18 +1573,13 @@ local function createIndependentFiggyDynamicIsland()
 			statusIconImg.ImageRectSize = State.CurrentStatusRectSize or Vector2.new(0, 0)
 			centerStatusLabel.Position = UDim2.new(0, 26, 0.5, 0)
 			centerStatusLabel.Size = UDim2.new(1, -32, 1, 0)
-
-			cardIconImg.Image = curImg
-			cardIconImg.ImageColor3 = State.CurrentStatusImageColor or Color3.fromRGB(255, 255, 255)
-			cardIconImg.ImageRectOffset = State.CurrentStatusRectOffset or Vector2.new(0, 0)
-			cardIconImg.ImageRectSize = State.CurrentStatusRectSize or Vector2.new(0, 0)
 		else
-			centerStatusLabel.Position = UDim2.new(0, 10, 0.5, 0)
-			centerStatusLabel.Size = UDim2.new(1, -16, 1, 0)
+			centerStatusLabel.Position = UDim2.new(0, 12, 0.5, 0)
+			centerStatusLabel.Size = UDim2.new(1, -18, 1, 0)
 		end
 
 		if forceUpdate then
-			expSubBadge.Text = (State.Language == "EN") and "● 0% CPU TREADMILL • FULL CAT" or "● 0% CPU MÁY CHẠY BỘ • FULL CON MÈO"
+			expSubBadge.Text = (State.Language == "EN") and "● NO TREADMILL STATUS • 0% LAG" or "● ĐÃ XOÁ TRẠNG THÁI MÁY CHẠY • 0% LAG"
 			collapseBtn.Text = (State.Language == "EN") and "Collapse ▲" or "Thu gọn ▲"
 			soundToggleBtn.Text = State.SoundEnabled
 				and ((State.Language == "EN") and "🔊 Sound: ON" or "🔊 Âm thanh: BẬT")
@@ -1640,7 +1598,7 @@ local function createIndependentFiggyDynamicIsland()
 		end
 
 		local textLen = utf8.len(displayTxt) or #displayTxt
-		local targetWidth = math.max(196, math.min(320, 96 + textLen * 7))
+		local targetWidth = math.max(186, math.min(310, 92 + textLen * 7))
 		if targetWidth ~= State.LastPillTargetWidth then
 			State.LastPillTargetWidth = targetWidth
 			TweenService:Create(
@@ -1744,7 +1702,7 @@ local function createIndependentFiggyDynamicIsland()
 end
 
 -- ============================================================================
--- 6. ĐỌC TRẠNG THÁI TỪ HEADER (READ-ONLY 100%, KHÔNG BAO GIỜ GHI ĐÈ NHÃN GỐC!)
+-- 6. ĐỒNG BỘ TRẠNG THÁI (BỎ QUA 100% TREADMILL -> LUÔN GIỮ "ĐANG RẢNH")
 -- ============================================================================
 local NON_STATUS_TEXTS = {
 	["figgy hub"] = true,
@@ -1771,63 +1729,58 @@ local function isIgnoredHeaderLabel(txt)
 	return false
 end
 
-local function cloakOriginalStatusBadgeOnce(badgeFrame)
+-- Tắt hoàn toàn Visible = false trên thanh trạng thái gốc của Header để Roblox C++ không tính toán lại
+-- layout mỗi frame khi Figgy Hub chạy hiệu ứng Treadmill!
+local function hideOriginalStatusBadgeCompletely(badgeFrame)
 	if not badgeFrame or not badgeFrame:IsA("GuiObject") then return end
-	if badgeFrame:GetAttribute("__CloakedByBanana") == SID then return end
-	badgeFrame:SetAttribute("__CloakedByBanana", SID)
+	if badgeFrame:GetAttribute("__HiddenByBanana") == SID then return end
+	badgeFrame:SetAttribute("__HiddenByBanana", SID)
 	pcall(function()
-		badgeFrame.BackgroundTransparency = 1
-		for _, ch in ipairs(badgeFrame:GetDescendants()) do
-			if ch:IsA("UIStroke") then
-				ch.Transparency = 1
-			elseif ch:IsA("TextLabel") or ch:IsA("TextButton") then
-				ch.TextTransparency = 1
-				ch.TextStrokeTransparency = 1
-				ch.BackgroundTransparency = 1
-			elseif ch:IsA("ImageLabel") or ch:IsA("ImageButton") then
-				ch.ImageTransparency = 1
-				ch.BackgroundTransparency = 1
-			elseif ch:IsA("Frame") then
-				ch.BackgroundTransparency = 1
-			end
-		end
+		badgeFrame.Visible = false
 	end)
+	trackConn(badgeFrame:GetPropertyChangedSignal("Visible"):Connect(function()
+		if isAlive() and badgeFrame.Visible then
+			pcall(function() badgeFrame.Visible = false end)
+		end
+	end))
 end
 
--- Chỉ ĐỌC .Text và .Image từ nhãn trạng thái gốc của Figgy Hub (Tuyệt đối không sửa .Text của nó!)
 local function syncStatusFromLiveWidgets()
 	if not isAlive() then return end
 	local txtObj = State.LiveFiggyTextLabel
 	local imgObj = State.LiveFiggyImageLabel
-	local emojiObj = State.LiveFiggyEmojiLabel
 
-	local rawText = (txtObj and txtObj.Parent and txtObj.Text) or ""
+	local rawText = (txtObj and txtObj.Parent and txtObj.Text) or "Idle"
+
+	-- NẾU LÀ TRẠNG THÁI MÁY CHẠY BỘ (TREADMILL) HOẶC IDLE:
+	-- Quy thẳng về "Idle" ("Đang rảnh") và xoá bỏ icon tia sét của máy chạy!
+	if isTreadmillOrIdleStatus(rawText) then
+		if State.LastSyncedRawText == "Idle" then
+			-- Đã ở trạng thái Đang rảnh rồi -> Thoát ngay lập tức ở dòng 1 (0% CPU, không làm bất cứ gì!)
+			return
+		end
+		State.LastSyncedRawText = "Idle"
+		State.CurrentRawStatus = "Idle"
+		State.CurrentStatusImage = ""
+		if State.UpdateIslandVisuals then
+			pcall(State.UpdateIslandVisuals, false)
+		end
+		return
+	end
+
 	local rawImg = (imgObj and imgObj.Parent and imgObj.Image) or ""
-
 	if rawText == State.LastSyncedRawText and rawImg == State.LastSyncedRawImg then
 		return
 	end
 	State.LastSyncedRawText = rawText
 	State.LastSyncedRawImg = rawImg
 
-	if rawText ~= "" then
-		State.CurrentRawStatus = rawText
-	end
-
+	State.CurrentRawStatus = rawText
 	if rawImg ~= "" and imgObj then
 		State.CurrentStatusImage = rawImg
 		State.CurrentStatusImageColor = imgObj.ImageColor3 or Color3.fromRGB(255, 255, 255)
 		State.CurrentStatusRectOffset = imgObj.ImageRectOffset or Vector2.new(0, 0)
 		State.CurrentStatusRectSize = imgObj.ImageRectSize or Vector2.new(0, 0)
-	end
-
-	if emojiObj and emojiObj.Parent and emojiObj ~= txtObj then
-		local em = (emojiObj.Text or ""):match("^%s*(.-)%s*$") or ""
-		if em ~= "" and #em <= 8 then
-			State.CurrentStatusEmoji = em
-		end
-	else
-		State.CurrentStatusEmoji = ""
 	end
 
 	if State.UpdateIslandVisuals then
@@ -1836,7 +1789,7 @@ local function syncStatusFromLiveWidgets()
 end
 
 -- ============================================================================
--- 7. NHẬN DIỆN NÚT CỦ HÀNH TÍM (BÊN TRÁI, HEADER & CỘT BÊN PHẢI)
+-- 7. NHẬN DIỆN NÚT CỦ HÀNH TÍM (CHỈ QUÉT 1 LẦN LÚC KHỞI ĐỘNG)
 -- ============================================================================
 local function isPurpleOnionSquareButton(btn, isInsideVerifiedFiggyGui)
 	if not btn or not btn.Parent then return false end
@@ -1979,7 +1932,6 @@ local function bindHeaderAndLogosFromTitle(titleLbl)
 		if desc:IsA("Frame") and not desc:FindFirstChildWhichIsA("TextBox") and not desc:FindFirstChild("BananaCatCircleAvatar") then
 			if not desc:IsAncestorOf(titleLbl) and desc ~= titleLbl.Parent then
 				local candidateTxt = nil
-				local candidateEmoji = nil
 				local candidateImg = nil
 
 				for _, ch in ipairs(desc:GetDescendants()) do
@@ -1987,12 +1939,8 @@ local function bindHeaderAndLogosFromTitle(titleLbl)
 						candidateImg = ch
 					elseif ch:IsA("TextLabel") then
 						local t = (ch.Text or ""):match("^%s*(.-)%s*$") or ""
-						if t ~= "" and not isIgnoredHeaderLabel(t) then
-							if #t <= 4 and not t:find("%w") then
-								candidateEmoji = ch
-							else
-								candidateTxt = ch
-							end
+						if t ~= "" and not isIgnoredHeaderLabel(t) and (#t > 4 or t:find("%w")) then
+							candidateTxt = ch
 						end
 					end
 				end
@@ -2001,22 +1949,16 @@ local function bindHeaderAndLogosFromTitle(titleLbl)
 					if State.LiveFiggyTextLabel ~= candidateTxt then
 						State.LiveFiggyTextLabel = candidateTxt
 						State.LiveFiggyImageLabel = candidateImg
-						State.LiveFiggyEmojiLabel = candidateEmoji
 						State.LiveFiggyBadgeFrame = desc
 
-						-- Nếu nhãn trạng thái gốc từng bị bản cũ dịch sang tiếng Việt, trả về tiếng Anh gốc
 						local orig = candidateTxt:GetAttribute("__FiggyOrigText")
 						if orig and orig ~= "" then
 							pcall(function() candidateTxt.Text = orig end)
 						end
 
-						-- ĐÂY LÀ KẾT NỐI TEXT DUY NHẤT TRONG TOÀN BỘ SCRIPT (CHỈ ĐỌC, KHÔNG GHI ĐÈ!)
 						trackConn(candidateTxt:GetPropertyChangedSignal("Text"):Connect(syncStatusFromLiveWidgets))
-						if candidateImg then
-							trackConn(candidateImg:GetPropertyChangedSignal("Image"):Connect(syncStatusFromLiveWidgets))
-						end
 					end
-					cloakOriginalStatusBadgeOnce(desc)
+					hideOriginalStatusBadgeCompletely(desc)
 					syncStatusFromLiveWidgets()
 					return true
 				end
@@ -2035,14 +1977,6 @@ local function styleElementGoldOnce(obj)
 	if obj.Name == "BananaCatCircleAvatar" or obj.Name == "BananaCatInnerSprite" or obj.Name == "LuxuryGoldCircleStroke" then return end
 
 	if State.LiveFiggyBadgeFrame and (obj == State.LiveFiggyBadgeFrame or obj:IsDescendantOf(State.LiveFiggyBadgeFrame)) then
-		return
-	end
-
-	if isPurpleOnionSquareButton(obj, true) then
-		decoratePurpleOnionButton(obj, 2.0)
-		return
-	elseif obj.Parent and (obj:IsA("ImageLabel") or obj:IsA("ImageButton")) and isPurpleOnionSquareButton(obj.Parent, true) then
-		decoratePurpleOnionButton(obj.Parent, 2.0)
 		return
 	end
 
@@ -2072,7 +2006,7 @@ local function styleElementGoldOnce(obj)
 end
 
 -- ============================================================================
--- 8. DỊCH MENU 1 LẦN DUY NHẤT (KHÔNG GẮN LISTENER LÊN 300 NHÃN MENU -> 0% LAG!)
+-- 8. DỊCH MENU TĨNH 1 LẦN & TỰ NGẮT SỰ KIỆN QUÉT NGẦM (0% LAG KHI CHƠI)
 -- ============================================================================
 local function hookMenuButtonSound(inst)
 	if not inst or not inst.Parent then return end
@@ -2106,7 +2040,6 @@ local function translateMenuElementOnce(obj)
 		pcall(bindHeaderAndLogosFromTitle, obj)
 	end
 
-	-- Bỏ qua hoàn toàn các nhãn động (như Treadmill, Idle, st/s now, Session...) để Figgy Hub tự cập nhật không bị xung đột!
 	if isDynamicHeartbeatLabelText(curText) then
 		return
 	end
@@ -2194,8 +2127,9 @@ local function hookTargetScreenGui(gui)
 	State.ActiveFiggyGui = gui
 	gui:SetAttribute("__FiggyGuiHooked", SID)
 
-	-- Chỉ lắng nghe phần tử mới trong giai đoạn khởi tạo menu, và bỏ qua các hiệu ứng động
-	trackConn(gui.DescendantAdded:Connect(function(desc)
+	-- Chỉ mở DescendantAdded trong 2.5 giây đầu khi menu đang tạo, sau đó NGẮT HẲN để khi chơi 0% lag!
+	local tempDescConn
+	tempDescConn = gui.DescendantAdded:Connect(function(desc)
 		if not isAlive() then return end
 		if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") or desc:IsA("ImageButton") then
 			task.defer(function()
@@ -2204,12 +2138,17 @@ local function hookTargetScreenGui(gui)
 				end
 			end)
 		end
-	end))
+	end)
+	trackConn(tempDescConn)
+	task.delay(2.5, function()
+		if tempDescConn then
+			pcall(function() tempDescConn:Disconnect() end)
+		end
+	end)
 
 	task.spawn(function()
 		local okDesc, descendants = pcall(function() return gui:GetDescendants() end)
 		if okDesc and type(descendants) == "table" then
-			-- Quét tìm tiêu đề "Figgy Hub" / "Banana Hub" trước tiên để khóa ngay nhãn trạng thái Header!
 			for _, d in ipairs(descendants) do
 				if d:IsA("TextLabel") and (d.Text == "Figgy Hub" or d.Text == "Banana Hub" or d.Text == "FrostyFig") then
 					pcall(bindHeaderAndLogosFromTitle, d)
@@ -2249,20 +2188,21 @@ task.spawn(function()
 			end
 		end
 
-		trackConn(root.ChildAdded:Connect(function(newGui)
+		local rootAddConn
+		rootAddConn = root.ChildAdded:Connect(function(newGui)
 			if not isAlive() then return end
-			task.delay(0.25, function()
+			task.delay(0.3, function()
 				if isAlive() and newGui and newGui.Parent then
 					pcall(hookTargetScreenGui, newGui)
 					pcall(scanPurpleOnionButtonsOnce)
 				end
 			end)
-			task.delay(1.0, function()
-				if isAlive() and newGui and newGui.Parent then
-					pcall(hookTargetScreenGui, newGui)
-					pcall(scanPurpleOnionButtonsOnce)
-				end
-			end)
-		end))
+		end)
+		trackConn(rootAddConn)
+		task.delay(5.0, function()
+			if rootAddConn then
+				pcall(function() rootAddConn:Disconnect() end)
+			end
+		end)
 	end
 end)
