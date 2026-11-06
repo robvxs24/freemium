@@ -307,7 +307,8 @@ local function cleanupPreviousOverlaysAndDeduplicate()
 								local isWrongCentralAttachment = false
 								if par and par:IsA("GuiObject") and not isInsideLargeWindowFrame(par) then
 									local pX = par.AbsolutePosition.X
-									if pX > vpW * 0.18 and pX < vpW * 0.78 then
+									local pY = par.AbsolutePosition.Y
+									if (pX > vpW * 0.18 and pX < vpW * 0.78) or (pX < 40 and not (pX >= vpW * 0.78)) or (pX == 0 and pY == 0) then
 										isWrongCentralAttachment = true
 									end
 								end
@@ -696,11 +697,12 @@ local function decoratePurpleOnionButton(rawTarget, strokeThickness, forceRounde
 	local container = getOutermostSquareButton(rawTarget)
 	if not container or not container:IsA("GuiObject") then return end
 
-	-- TUYỆT ĐỐI KHÔNG gắn vào Delta X hoặc vùng giữa màn hình!
+	-- TUYỆT ĐỐI KHÔNG gắn vào Delta X hoặc vùng giữa màn hình hoặc nút chưa đặt tọa độ!
 	local vpW = getViewportWidth()
 	local cx = container.AbsolutePosition.X
+	local cy = container.AbsolutePosition.Y
 	if not isInsideLargeWindowFrame(container) then
-		if cx > vpW * 0.18 and cx < vpW * 0.78 then
+		if (cx == 0 and cy == 0) or (cx > vpW * 0.18 and cx < vpW * 0.78) or (cx < 40 and not (cx >= vpW * 0.78)) then
 			return
 		end
 	end
@@ -796,6 +798,41 @@ local EXACT_VI = {
 	["Steal An Egg"] = "Cướp Trứng",
 	["steal an egg"] = "Cướp Trứng",
 	["Lemon"] = "Vàng Hoàng Gia (Gold)",
+
+	-- Nút HUD & Nút chức năng ngoài màn hình (7994.jpg)
+	["Finder"] = "Tìm Kiếm",
+	["finder"] = "Tìm kiếm",
+	["FINDER"] = "TÌM KIẾM",
+	["Shop"] = "Cửa Hàng",
+	["shop"] = "Cửa hàng",
+	["SHOP"] = "CỬA HÀNG",
+	["Slow Mode"] = "Chế Độ Chậm",
+	["slow mode"] = "Chế độ chậm",
+	["SLOW MODE"] = "CHẾ ĐỘ CHẬM",
+	["Index"] = "Mục Lục",
+	["index"] = "Mục lục",
+	["INDEX"] = "MỤC LỤC",
+	["Fast Mode"] = "Chế Độ Nhanh",
+	["fast mode"] = "Chế độ nhanh",
+	["FAST MODE"] = "CHẾ ĐỘ NHANH",
+	["Trade"] = "Giao Dịch",
+	["trade"] = "Giao dịch",
+	["TRADE"] = "GIAO DỊCH",
+	["Teleport"] = "Dịch Chuyển",
+	["teleport"] = "Dịch chuyển",
+	["TELEPORT"] = "DỊCH CHUYỂN",
+	["Stats"] = "Chỉ Số",
+	["stats"] = "Chỉ số",
+	["STATS"] = "CHỈ SỐ",
+	["Pets"] = "Thú Cưng",
+	["pets"] = "Thú cưng",
+	["PETS"] = "THÚ CƯNG",
+	["Auto Farm"] = "Tự Động Cày",
+	["auto farm"] = "Tự động cày",
+	["AUTO FARM"] = "TỰ ĐỘNG CÀY",
+	["Anti AFK"] = "Chống AFK",
+	["anti afk"] = "Chống AFK",
+	["ANTI AFK"] = "CHỐNG AFK",
 
 	-- Trạng thái (Treadmill được quy thẳng về Đang rảnh)
 	["Treadmill"] = "Đang rảnh",
@@ -1796,7 +1833,6 @@ local function isPurpleOnionSquareButton(btn, isInsideVerifiedFiggyGui)
 	end
 
 	-- TUYỆT ĐỐI KHÔNG gắn nhầm vào các nút/icon/avatar bên trong cửa sổ menu lớn!
-	-- (Logo tiêu đề góc trái của cửa sổ đã được gắn riêng qua bindHeaderAndLogosFromTitle)
 	if isInsideLargeWindowFrame(btn) then
 		return false
 	end
@@ -1816,8 +1852,12 @@ local function isPurpleOnionSquareButton(btn, isInsideVerifiedFiggyGui)
 	local absX = btn.AbsolutePosition.X
 	local absY = btn.AbsolutePosition.Y
 
-	-- TUYỆT ĐỐI CẤM gắn vào Delta X hoặc vùng giữa màn hình!
-	-- Figgy Hub chỉ có nút ở mép trái (X <= 18% màn hình) hoặc mép phải (X >= 78% màn hình)
+	-- TUYỆT ĐỐI CẤM gắn vào Delta X hoặc phần tử chưa đặt tọa độ (0, 0)!
+	if (absX == 0 and absY == 0) or (absX < 40 and not (absX >= vpW * 0.78)) then
+		return false
+	end
+
+	-- CẤM TUYỆT ĐỐI vùng giữa màn hình (Delta X và Game UI):
 	if absX > vpW * 0.18 and absX < vpW * 0.78 then
 		return false
 	end
@@ -1825,7 +1865,7 @@ local function isPurpleOnionSquareButton(btn, isInsideVerifiedFiggyGui)
 	local par = btn.Parent
 	local isTopLevel = par:IsA("ScreenGui") or (par:IsA("Frame") and par.Parent and par.Parent:IsA("ScreenGui") and par.BackgroundTransparency >= 0.99) or (par.Parent and par.Parent.Parent and par.Parent.Parent:IsA("ScreenGui") and par.Parent.BackgroundTransparency >= 0.99)
 
-	local isLeftColumn = (absX <= vpW * 0.18)
+	local isLeftColumn = (absX >= 40 and absX <= vpW * 0.18)
 	local isRightColumn = (absX >= vpW * 0.78)
 
 	-- 1. NÚT BÊN TAY TRÁI (Logo mở menu chính / Index button) -> Hình tròn
@@ -1850,8 +1890,6 @@ local function isPurpleOnionSquareButton(btn, isInsideVerifiedFiggyGui)
 		end
 
 		-- Nút củ hành tím ở góc trên bên phải (Y từ 40 đến 170):
-		-- Luau không đọc được màu tím trong file ảnh texture rbxassetid, nhưng nút củ hành này là nút trên cùng (Y <= 170),
-		-- có hình ảnh icon, không có chữ số (trứng đỏ có chữ "8").
 		if absY >= 40 and absY <= 170 and (hasImg or isInsideVerifiedFiggyGui) then
 			return true
 		end
@@ -2163,9 +2201,8 @@ local function hookTargetScreenGui(gui)
 	State.ActiveFiggyGui = gui
 	gui:SetAttribute("__FiggyGuiHooked", SID)
 
-	-- Bắt tức thời từng phần tử ngay khi tạo trong 4.0 giây đầu, sau đó NGẮT HẲN để khi chơi 0% lag!
-	local tempDescConn
-	tempDescConn = gui.DescendantAdded:Connect(function(desc)
+	-- Bắt liên tục từng phần tử để đảm bảo khi chuyển Tab hoặc mở Menu luôn 100% tiếng Việt!
+	local liveDescConn = gui.DescendantAdded:Connect(function(desc)
 		if not isAlive() then return end
 		task.defer(function()
 			if isAlive() and desc and desc.Parent then
@@ -2173,12 +2210,7 @@ local function hookTargetScreenGui(gui)
 			end
 		end)
 	end)
-	trackConn(tempDescConn)
-	task.delay(4.0, function()
-		if tempDescConn then
-			pcall(function() tempDescConn:Disconnect() end)
-		end
-	end)
+	trackConn(liveDescConn)
 
 	task.spawn(function()
 		local okDesc, descendants = pcall(function() return gui:GetDescendants() end)
@@ -2278,10 +2310,36 @@ task.spawn(function()
 		end)
 	end
 
-	-- Quét bù theo 3 mốc ngắn lúc mới khởi tạo xong hiệu ứng mở để đảm bảo 100% không cần nút làm mới thủ công
+	-- Quét bù theo 3 mốc ngắn lúc mới khởi tạo xong hiệu ứng mở
 	for _, waitSec in ipairs({ 0.15, 0.50, 1.20 }) do
 		task.wait(waitSec)
 		if not isAlive() then break end
 		pcall(scanPurpleOnionButtonsOnce)
 	end
+
+	-- Watchdog vĩnh viễn: Giữ 100% tiếng Việt, dọn dẹp Delta X và duy trì nút củ hành vuông bên phải
+	task.spawn(function()
+		while isAlive() do
+			task.wait(1.5)
+			pcall(cleanupPreviousOverlaysAndDeduplicate)
+			pcall(scanPurpleOnionButtonsOnce)
+			pcall(refreshAllTranslatedMenus)
+
+			-- Quét dịch toàn bộ text mới tạo trong Figgy Hub hoặc HUD
+			for _, root in ipairs(getUiRoots()) do
+				pcall(function()
+					for _, g in ipairs(root:GetChildren()) do
+						local gName = g.Name or ""
+						if not IGNORED_SCREEN_GUIS[gName] and not isDeltaOrExecutorGui(g) then
+							for _, desc in ipairs(g:GetDescendants()) do
+								if desc:IsA("TextLabel") or desc:IsA("TextButton") then
+									pcall(translateMenuElementOnce, desc)
+								end
+							end
+						end
+					end
+				end)
+			end
+		end
+	end)
 end)
