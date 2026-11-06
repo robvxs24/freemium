@@ -2319,32 +2319,32 @@ local function ancestorsHavePurple(obj, levels)
 	return false
 end
 
-local function isRightOnionCandidate(obj, vpW, vpH)
-	if not obj or not obj.Parent then return false end
+local function isRightOnionGeometry(obj, vpW, vpH)
+	if not obj or not obj.Parent then return false, false end
 	if not (obj:IsA("Frame") or obj:IsA("ImageButton") or obj:IsA("TextButton") or obj:IsA("ImageLabel") or obj:IsA("CanvasGroup")) then
-		return false
+		return false, false
 	end
 	local n = obj.Name or ""
-	if n:find("^BananaCat") or n == "GoldBadgeInnerDisc" or n == "GlobalOnionGoldStroke" then return false end
-	if obj:FindFirstChild("BananaCatCircleAvatar") then return false end
+	if n:find("^BananaCat") or n == "GoldBadgeInnerDisc" or n == "GlobalOnionGoldStroke" then return false, false end
+	if obj:FindFirstChild("BananaCatCircleAvatar") then return false, false end
 
 	local bw, bh = getEffectiveBoxSize(obj)
-	if bw < 20 or bh < 20 or bw > 84 or bh > 84 or math.abs(bw - bh) > 14 then return false end
+	if bw < 18 or bh < 18 or bw > 90 or bh > 90 or math.abs(bw - bh) > 16 then return false, false end
 
 	local ax, ay = obj.AbsolutePosition.X, obj.AbsolutePosition.Y
-	if ax == 0 and ay == 0 then return false end
-	-- Mép phải của nút nằm sát rìa phải màn hình; hàng trên cùng của cột nút phải.
-	if (ax + bw) < vpW * 0.925 then return false end
-	if ay < vpH * 0.14 or ay > vpH * 0.42 then return false end
+	if ax == 0 and ay == 0 then return false, false end
+	-- Mép phải của nút sát rìa phải màn hình; nửa trên của màn hình.
+	if (ax + bw) < vpW * 0.92 then return false, false end
+	if ay < vpH * 0.10 or ay > vpH * 0.50 then return false, false end
 
 	for _, d in ipairs(obj:GetDescendants()) do
 		if d:IsA("TextLabel") and d.Visible and d.TextTransparency < 0.95 then
 			local t = (d.Text or ""):match("^%s*(.-)%s*$") or ""
-			if #t > 0 then return false end
+			if #t > 0 then return false, false end
 		end
 	end
 
-	-- Phải có dấu hiệu là nút củ hành: ảnh gốc trùng, hoặc tím (ở chính nó / con / khung cha).
+	local hint = false
 	if State.OnionAsset and State.OnionAsset ~= "" then
 		local function sameAsset(o)
 			if o:IsA("ImageLabel") or o:IsA("ImageButton") then
@@ -2353,13 +2353,15 @@ local function isRightOnionCandidate(obj, vpW, vpH)
 			end
 			return false
 		end
-		if sameAsset(obj) then return true end
-		for _, d in ipairs(obj:GetDescendants()) do
-			if sameAsset(d) then return true end
+		if sameAsset(obj) then hint = true end
+		if not hint then
+			for _, d in ipairs(obj:GetDescendants()) do
+				if sameAsset(d) then hint = true; break end
+			end
 		end
 	end
-	if hasPurpleVisualInside(obj) or ancestorsHavePurple(obj, 3) then return true end
-	return false
+	if not hint and (hasPurpleVisualInside(obj) or ancestorsHavePurple(obj, 3)) then hint = true end
+	return true, hint
 end
 
 local function applyRightOnionSquare(container)
@@ -2412,9 +2414,19 @@ local function applyRightOnionSquare(container)
 	end
 end
 
+local function isBlockedGuiByName(gui)
+	if not gui then return true end
+	local gName = gui.Name or ""
+	if IGNORED_SCREEN_GUIS[gName] or gName:find("^Old_") then return true end
+	local low = string.lower(gName)
+	for _, kw in ipairs(EXECUTOR_KEYWORDS) do
+		if string.find(low, kw, 1, true) then return true end
+	end
+	return false
+end
+
 local function scanRightOnionButtonOnce()
 	local vpW, vpH = getViewportWidth(), getViewportHeight()
-	local executorCache = {}
 	local roots, seenRoots = {}, {}
 	local function addRoot(r)
 		if r and not seenRoots[r] then
@@ -2429,29 +2441,54 @@ local function scanRightOnionButtonOnce()
 	end
 	if gethui then pcall(function() addRoot(gethui()) end) end
 
+	-- Bước 1: gom các khung vuông nhỏ sát mép phải (mỗi nút một khung ngoài cùng).
+	local containers, seenC = {}, {}
 	for _, root in ipairs(roots) do
 		local okD, desc = pcall(function() return root:GetDescendants() end)
 		if okD and type(desc) == "table" then
 			for _, d in ipairs(desc) do
-				if isRightOnionCandidate(d, vpW, vpH) then
+				local okG, hint = isRightOnionGeometry(d, vpW, vpH)
+				if okG then
 					local gui = d:FindFirstAncestorOfClass("ScreenGui")
-					if gui then
-						local ignored = executorCache[gui]
-						if ignored == nil then
-							ignored = isExecutorOrIgnoredScreenGui(gui)
-							executorCache[gui] = ignored
-						end
-						if not ignored then
-							local container = getOutermostSquareButton(d)
-							-- Chỉ nhận khung vuông nhỏ đúng kích thước nút, không leo lên khung cột.
-							local cw, ch = getEffectiveBoxSize(container)
-							if container and cw >= 20 and cw <= 92 and ch >= 20 and ch <= 92 then
-								applyRightOnionSquare(container)
+					if gui and not isBlockedGuiByName(gui) and not (State.IslandGui and d:IsDescendantOf(State.IslandGui)) then
+						local c = getOutermostSquareButton(d)
+						if c and c.Parent and not seenC[c] then
+							local cw, ch = getEffectiveBoxSize(c)
+							if cw >= 18 and cw <= 92 and ch >= 18 and ch <= 92 then
+								seenC[c] = true
+								table.insert(containers, { obj = c, hint = hint })
+							elseif hint == true then
+								-- giữ nguyên: khung ngoài quá lớn thì bỏ qua
+							end
+						elseif c and seenC[c] and hint then
+							for _, e in ipairs(containers) do
+								if e.obj == c then e.hint = true; break end
 							end
 						end
 					end
 				end
 			end
+		end
+	end
+
+	-- Bước 2: chọn nút TRÊN CÙNG của cột nút phải (phía dưới còn Trứng/Chân thú) hoặc nút có dấu hiệu củ hành.
+	for _, e in ipairs(containers) do
+		local c = e.obj
+		local cx, cy = c.AbsolutePosition.X, c.AbsolutePosition.Y
+		local _, chh = getEffectiveBoxSize(c)
+		local hasAbove, hasBelow = false, false
+		for _, o in ipairs(containers) do
+			if o.obj ~= c then
+				local ox, oy = o.obj.AbsolutePosition.X, o.obj.AbsolutePosition.Y
+				if math.abs(ox - cx) <= 16 then
+					if oy < cy - 8 and cy - oy <= 130 then hasAbove = true end
+					if oy > cy + 8 and oy - cy <= 150 then hasBelow = true end
+				end
+			end
+		end
+		local isTopOfColumn = (not hasAbove) and hasBelow
+		if (e.hint and not hasAbove) or isTopOfColumn then
+			applyRightOnionSquare(c)
 		end
 	end
 end
@@ -2464,7 +2501,7 @@ task.defer(function()
 end)
 
 -- Các mốc một lần (không phải vòng lặp) để bắt ScreenGui độc lập dựng muộn.
-for _, delaySec in ipairs({ 1.00, 2.20, 3.50, 6.00 }) do
+for _, delaySec in ipairs({ 1.00, 2.20, 3.50, 6.00, 9.00, 14.00 }) do
 	task.delay(delaySec, function()
 		if isAlive() then
 			pcall(scanGlobalLeftOnionButtonsOnce)
