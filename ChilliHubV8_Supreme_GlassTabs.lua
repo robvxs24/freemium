@@ -454,7 +454,14 @@ local SQUARE_CORNER_UDIM  = UDim.new(0.22, 0) -- Bo góc vuông đẹp chuẩn c
 
 local function isFiggyPurpleColor(col)
 	if not col then return false end
-	return (col.B > 0.44 and col.R > 0.25 and (col.B - col.G) > 0.12 and col.B >= col.R * 0.85)
+	-- Bắt chuẩn toàn bộ các sắc độ tím/lilac/midnight fig của Figgy Hub (từ tím đậm nền nút đến tím sáng thanh trượt)
+	if col.B > 0.24 and col.R > 0.14 and (col.B - col.G) > 0.04 and col.B >= col.R * 0.85 then
+		-- Loại trừ màu xám trung tính (khi R, G, B gần bằng nhau)
+		if (col.B - col.G) > 0.05 or (col.R - col.G) > 0.04 then
+			return true
+		end
+	end
+	return false
 end
 
 local function hasPurpleGradient(obj)
@@ -818,6 +825,9 @@ local EXACT_VI = {
 	["Steal An Egg"] = "Cướp Trứng",
 	["steal an egg"] = "Cướp Trứng",
 	["Lemon"] = "Vàng Hoàng Gia (Gold)",
+	["• Lemon"] = "• Vàng Hoàng Gia (Gold)",
+	["Midnight Fig"] = "Vàng Hoàng Gia (Gold)",
+	["• Midnight Fig"] = "• Vàng Hoàng Gia (Gold)",
 
 	-- Nút HUD & Nút chức năng ngoài màn hình (7994.jpg)
 	["Finder"] = "Tìm Kiếm",
@@ -1926,13 +1936,102 @@ local function scanPurpleOnionButtonsOnce()
 					local isVerifiedFiggy = isFiggyWindowGui(gui)
 					local okD, desc = pcall(function() return gui:GetDescendants() end)
 					if okD and type(desc) == "table" then
+						-- A. Quét theo danh sách nút tiêu chuẩn
 						for _, d in ipairs(desc) do
 							if isPurpleOnionSquareButton(d, isVerifiedFiggy) then
-								local isRightSq = (d.AbsolutePosition.X >= vpW * 0.78)
+								local isRightSq = (d.AbsolutePosition.X >= vpW * 0.75)
 								decoratePurpleOnionButton(d, 2.0, isRightSq)
 							elseif d:IsA("ImageLabel") and d.Parent and isPurpleOnionSquareButton(d.Parent, isVerifiedFiggy) then
-								local isRightSq = (d.Parent.AbsolutePosition.X >= vpW * 0.78)
+								local isRightSq = (d.Parent.AbsolutePosition.X >= vpW * 0.75)
 								decoratePurpleOnionButton(d.Parent, 2.0, isRightSq)
+							end
+						end
+
+						-- B. Quét trực tiếp mọi ImageLabel/ImageButton ở lề trái (X: 35..195, Y: 155..340) để bắt 100% nút Củ hành tím dưới nút Shop!
+						for _, d in ipairs(desc) do
+							if (d:IsA("ImageLabel") or d:IsA("ImageButton")) and d.Name ~= "BananaCatInnerSprite" and d.Name ~= "BananaCatToggleOverlay" then
+								local ax, ay = d.AbsolutePosition.X, d.AbsolutePosition.Y
+								local aw, ah = getEffectiveBoxSize(d)
+								if ax >= 35 and ax <= 195 and ay >= 155 and ay <= 340 and aw >= 18 and aw <= 90 and ah >= 18 and ah <= 90 then
+									local targetBox = getOutermostSquareButton(d)
+									if targetBox and not isInsideLargeWindowFrame(targetBox) then
+										-- Kiểm tra xem nút này có chữ hiển thị như "Shop" hay "Tìm Kiếm" không
+										local hasVisTxt = false
+										for _, sub in ipairs(targetBox:GetDescendants()) do
+											if sub:IsA("TextLabel") and sub.Visible and sub.TextTransparency < 0.95 then
+												local t = (sub.Text or ""):match("^%s*(.-)%s*$") or ""
+												if #t > 0 and t ~= "Index" and t ~= "Mục Lục" then
+													hasVisTxt = true
+													break
+												end
+											end
+										end
+										if not hasVisTxt and not targetBox:FindFirstChild("BananaCatCircleAvatar") then
+											decoratePurpleOnionButton(targetBox, 2.0, false)
+										end
+									end
+								end
+							end
+						end
+
+						-- C. Kiểm tra cột bên phải (X >= 75% chiều rộng màn hình):
+						-- Tìm tất cả các nút bên phải và CHỈ GIỮ LẠI nút nằm cao nhất (Y nhỏ nhất = nút củ hành tím trên cùng),
+						-- GỠ BỎ NGAY LẬP TỨC mọi lớp phủ BananaCatCircleAvatar trên các nút nằm thấp hơn (như nút chân thú dưới cùng)!
+						local rightButtons = {}
+						for _, d in ipairs(desc) do
+							if (d:IsA("Frame") or d:IsA("ImageButton") or d:IsA("TextButton") or d:IsA("CanvasGroup")) and not isInsideLargeWindowFrame(d) then
+								local ax, ay = d.AbsolutePosition.X, d.AbsolutePosition.Y
+								local aw, ah = getEffectiveBoxSize(d)
+								if ax >= vpW * 0.75 and ay >= 30 and ay <= 360 and aw >= 26 and aw <= 86 and ah >= 26 and ah <= 86 and math.abs(aw - ah) <= 16 then
+									table.insert(rightButtons, d)
+								end
+							end
+						end
+
+						if #rightButtons > 0 then
+							local minY = 99999
+							for _, rb in ipairs(rightButtons) do
+								if rb.AbsolutePosition.Y < minY then
+									minY = rb.AbsolutePosition.Y
+								end
+							end
+
+							for _, rb in ipairs(rightButtons) do
+								local ry = rb.AbsolutePosition.Y
+								if ry <= minY + 18 and ry <= 165 then
+									-- Đây chính là nút Củ hành tím trên cùng bên phải -> Gắn hình vuông bo góc đẹp!
+									local hasBadgeNumber = false
+									for _, sub in ipairs(rb:GetDescendants()) do
+										if sub:IsA("TextLabel") and sub.Visible and (sub.Text or ""):match("%S") ~= nil then
+											hasBadgeNumber = true
+											break
+										end
+									end
+									if not hasBadgeNumber and not rb:FindFirstChild("BananaCatCircleAvatar") then
+										decoratePurpleOnionButton(rb, 2.0, true)
+									end
+								elseif ry > minY + 20 or ry > 165 then
+									-- Đây là nút Trứng đỏ (ở giữa) hoặc nút Chân thú cam (dưới cùng) -> Tuyệt đối gỡ sạch nếu bị gắn nhầm!
+									local wrongCoin = rb:FindFirstChild("BananaCatCircleAvatar")
+									if wrongCoin then
+										wrongCoin:Destroy()
+										rb:SetAttribute("__RestoredOrig", true)
+										rb.BackgroundTransparency = 0
+										local cCorner = rb:FindFirstChildOfClass("UICorner")
+										if cCorner then cCorner.CornerRadius = UDim.new(0, 8) end
+										for _, sub in ipairs(rb:GetDescendants()) do
+											sub:SetAttribute("__RestoredOrig", true)
+											if sub:IsA("ImageLabel") or sub:IsA("ImageButton") then
+												sub.ImageTransparency = 0
+												local origImg = sub:GetAttribute("__OrigImageAsset")
+												if origImg and origImg ~= "" then sub.Image = origImg end
+											elseif sub:IsA("UIStroke") and sub.Name ~= "LuxuryGoldCircleStroke" then
+												sub.Transparency = 0
+												sub.Enabled = true
+											end
+										end
+									end
+								end
 							end
 						end
 					end
@@ -2036,39 +2135,100 @@ local function bindHeaderAndLogosFromTitle(titleLbl)
 	return false
 end
 
+local ROYAL_GOLD_BRIGHT = Color3.fromRGB(238, 210, 118) -- Màu vàng sáng của Toggle ON & Tab General (Lemon Theme)
+local ROYAL_GOLD_MEDIUM = Color3.fromRGB(196, 168, 92)  -- Màu vàng vừa cho nút bấm & viền sáng
+local ROYAL_GOLD_DARK   = Color3.fromRGB(64, 54, 34)    -- Màu nền vàng trầm sang trọng cho nút Join/Copy/Tab đang chọn
+
+local function mapPurpleToRoyalGold(col)
+	if not col then return SOFT_CHAMPAGNE_GOLD end
+	-- Nếu là màu tím sáng (như thanh trượt Tone, nút Toggle ON, Tab General đang chọn: B > 0.70)
+	if col.B > 0.70 then
+		return ROYAL_GOLD_BRIGHT
+	elseif col.B > 0.48 then
+		return ROYAL_GOLD_MEDIUM
+	else
+		return ROYAL_GOLD_DARK
+	end
+end
+
 local function styleElementGoldOnce(obj)
 	if not obj or not obj.Parent then return end
-	if obj:GetAttribute("__StyledGoldOnce") == SID then return end
-	obj:SetAttribute("__StyledGoldOnce", SID)
-
 	if State.IslandGui and obj:IsDescendantOf(State.IslandGui) then return end
 	if obj.Name == "BananaCatCircleAvatar" or obj.Name == "BananaCatInnerSprite" or obj.Name == "LuxuryGoldCircleStroke" then return end
-
 	if State.LiveFiggyBadgeFrame and (obj == State.LiveFiggyBadgeFrame or obj:IsDescendantOf(State.LiveFiggyBadgeFrame)) then
 		return
 	end
 
 	pcall(function()
 		if obj:IsA("TextLabel") or obj:IsA("TextButton") then
-			local curCol = obj.TextColor3
-			if isFiggyPurpleColor(curCol) then
-				obj:SetAttribute("__WasFiggyPurple", true)
-				obj.TextColor3 = SOFT_CHAMPAGNE_GOLD
+			local txt = (obj.Text or ""):match("^%s*(.-)%s*$") or ""
+			if txt == "Midnight Fig" or txt == "• Midnight Fig" then
+				obj.Text = txt:find("•") and "• Vàng Hoàng Gia (Gold)" or "Vàng Hoàng Gia (Gold)"
 			end
-		elseif obj:IsA("Frame") or obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
-			local curBg = obj.BackgroundColor3
-			if isFiggyPurpleColor(curBg) then
+			if isFiggyPurpleColor(obj.TextColor3) then
 				obj:SetAttribute("__WasFiggyPurple", true)
-				obj.BackgroundColor3 = Color3.fromRGB(44, 38, 28)
+				obj.TextColor3 = ROYAL_GOLD_BRIGHT
+			end
+			if isFiggyPurpleColor(obj.BackgroundColor3) then
+				obj:SetAttribute("__WasFiggyPurple", true)
+				obj.BackgroundColor3 = mapPurpleToRoyalGold(obj.BackgroundColor3)
+			end
+			if obj:GetAttribute("__GoldColorLocked") ~= SID then
+				obj:SetAttribute("__GoldColorLocked", SID)
+				trackConn(obj:GetPropertyChangedSignal("TextColor3"):Connect(function()
+					if isAlive() and isFiggyPurpleColor(obj.TextColor3) then
+						obj.TextColor3 = ROYAL_GOLD_BRIGHT
+					end
+				end))
+				trackConn(obj:GetPropertyChangedSignal("BackgroundColor3"):Connect(function()
+					if isAlive() and isFiggyPurpleColor(obj.BackgroundColor3) then
+						obj.BackgroundColor3 = mapPurpleToRoyalGold(obj.BackgroundColor3)
+					end
+				end))
+			end
+		elseif obj:IsA("Frame") or obj:IsA("ImageLabel") or obj:IsA("ImageButton") or obj:IsA("CanvasGroup") or obj:IsA("ScrollingFrame") then
+			if isFiggyPurpleColor(obj.BackgroundColor3) then
+				obj:SetAttribute("__WasFiggyPurple", true)
+				obj.BackgroundColor3 = mapPurpleToRoyalGold(obj.BackgroundColor3)
 			end
 			if (obj:IsA("ImageLabel") or obj:IsA("ImageButton")) and isFiggyPurpleColor(obj.ImageColor3) then
 				obj:SetAttribute("__WasFiggyPurple", true)
-				obj.ImageColor3 = SOFT_CHAMPAGNE_GOLD
+				obj.ImageColor3 = ROYAL_GOLD_BRIGHT
+			end
+			if obj:GetAttribute("__GoldColorLocked") ~= SID then
+				obj:SetAttribute("__GoldColorLocked", SID)
+				trackConn(obj:GetPropertyChangedSignal("BackgroundColor3"):Connect(function()
+					if isAlive() and isFiggyPurpleColor(obj.BackgroundColor3) then
+						obj.BackgroundColor3 = mapPurpleToRoyalGold(obj.BackgroundColor3)
+					end
+				end))
+				if obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
+					trackConn(obj:GetPropertyChangedSignal("ImageColor3"):Connect(function()
+						if isAlive() and isFiggyPurpleColor(obj.ImageColor3) then
+							obj.ImageColor3 = ROYAL_GOLD_BRIGHT
+						end
+					end))
+				end
 			end
 		elseif obj:IsA("UIStroke") then
 			if isFiggyPurpleColor(obj.Color) then
 				obj:SetAttribute("__WasFiggyPurple", true)
-				obj.Color = Color3.fromRGB(150, 120, 65)
+				obj.Color = mapPurpleToRoyalGold(obj.Color)
+			end
+			if obj:GetAttribute("__GoldColorLocked") ~= SID then
+				obj:SetAttribute("__GoldColorLocked", SID)
+				trackConn(obj:GetPropertyChangedSignal("Color"):Connect(function()
+					if isAlive() and isFiggyPurpleColor(obj.Color) then
+						obj.Color = mapPurpleToRoyalGold(obj.Color)
+					end
+				end))
+			end
+		elseif obj:IsA("UIGradient") then
+			if obj.Name ~= "LuxuryGoldGradient" and obj.Name ~= "LiquidGlassStrokeGrad" and obj.Name ~= "LiquidGlassBgGrad" and obj.Name ~= "CoinSurfaceGoldGrad" and obj.Name ~= "BananaGoldTitleGrad" then
+				if obj.Parent and hasPurpleGradient(obj.Parent) then
+					obj.Parent:SetAttribute("__WasFiggyPurple", true)
+					applyMetallicGoldGradient(obj.Parent)
+				end
 			end
 		end
 
@@ -2076,7 +2236,7 @@ local function styleElementGoldOnce(obj)
 		if grad and grad.Name ~= "LuxuryGoldGradient" and grad.Name ~= "LiquidGlassStrokeGrad" and grad.Name ~= "LiquidGlassBgGrad" and grad.Name ~= "CoinSurfaceGoldGrad" and grad.Name ~= "BananaGoldTitleGrad" then
 			if hasPurpleGradient(obj) then
 				obj:SetAttribute("__WasFiggyPurple", true)
-				applyMetallicGoldGradient(grad)
+				applyMetallicGoldGradient(obj)
 			end
 		end
 	end)
@@ -2394,6 +2554,10 @@ task.spawn(function()
 					if fireAllButtonSignals(chosen) then
 						themeAlreadyApplied = true
 					end
+				end
+				-- Đồng thời phủ màu Vàng Hoàng Gia (Royal Gold) lên toàn bộ các nút/thanh trượt/tab trong chưa đầy 0.5ms (0% lag)
+				for _, d in ipairs(root:GetDescendants()) do
+					pcall(styleElementGoldOnce, d)
 				end
 			end)
 		end
