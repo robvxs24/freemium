@@ -180,16 +180,23 @@ end
 
 -- Kiểm tra xem một phần tử có nằm bên trong cửa sổ menu lớn (>= 220x150) hay không
 local function isInsideLargeWindowFrame(obj)
+	if not obj then return false end
+	-- Nút củ hành lề trái (X <= 18% màn hình) KHÔNG BAO GIỜ nằm trong cửa sổ chính (cửa sổ chính nằm ở X >= 190)
+	local vpW = getViewportWidth()
+	local ox = obj.AbsolutePosition.X
+	if ox >= 40 and ox <= vpW * 0.18 then
+		return false
+	end
 	if State.FiggyMainWindow and (obj == State.FiggyMainWindow or obj:IsDescendantOf(State.FiggyMainWindow)) then
 		return true
 	end
-	local p = obj and obj.Parent
+	local p = obj.Parent
 	while p and not p:IsA("ScreenGui") do
 		if p:IsA("GuiObject") then
 			local pw, ph = getEffectiveBoxSize(p)
-			if pw >= 220 and ph >= 150 then
+			if pw >= 320 and ph >= 220 and p.AbsolutePosition.X > vpW * 0.16 then
 				local bgT = p.BackgroundTransparency or 0
-				if bgT < 0.98 then
+				if bgT < 0.90 then
 					return true
 				end
 			end
@@ -316,13 +323,28 @@ local function cleanupPreviousOverlaysAndDeduplicate()
 								if isExec or isWrongCentralAttachment then
 									d:Destroy()
 									if par then
+										par:SetAttribute("__RestoredOrig", true)
 										if par:IsA("ImageLabel") or par:IsA("ImageButton") then
 											par.ImageTransparency = 0
 											par.BackgroundTransparency = 0
+											local origImg = par:GetAttribute("__OrigImageAsset")
+											if origImg and origImg ~= "" then par.Image = origImg end
+										elseif par:IsA("Frame") then
+											par.BackgroundTransparency = 0
+										end
+										local cCorner = par:FindFirstChildOfClass("UICorner")
+										if cCorner and par.AbsolutePosition.X >= vpW * 0.78 and par.AbsolutePosition.Y > 175 then
+											cCorner.CornerRadius = UDim.new(0, 8)
 										end
 										for _, sib in ipairs(par:GetDescendants()) do
+											sib:SetAttribute("__RestoredOrig", true)
 											if sib:IsA("ImageLabel") or sib:IsA("ImageButton") then
 												sib.ImageTransparency = 0
+												local origImg = sib:GetAttribute("__OrigImageAsset")
+												if origImg and origImg ~= "" then sib.Image = origImg end
+											elseif sib:IsA("UIStroke") and sib.Name ~= "LuxuryGoldCircleStroke" then
+												sib.Transparency = 0
+												sib.Enabled = true
 											end
 										end
 									end
@@ -655,6 +677,9 @@ local function silenceOriginalButtonVisual(inst, coinDisc, targetCornerUdim)
 		end
 	elseif inst:IsA("ImageLabel") or inst:IsA("ImageButton") then
 		pcall(function()
+			if inst.Image ~= "" and not inst:GetAttribute("__OrigImageAsset") then
+				inst:SetAttribute("__OrigImageAsset", inst.Image)
+			end
 			inst.ImageTransparency = 1
 			inst.BackgroundTransparency = 1
 			inst.Image = ""
@@ -662,18 +687,13 @@ local function silenceOriginalButtonVisual(inst, coinDisc, targetCornerUdim)
 		if inst:GetAttribute("__HideOrigFigConnected") ~= SID then
 			inst:SetAttribute("__HideOrigFigConnected", SID)
 			trackConn(inst:GetPropertyChangedSignal("ImageTransparency"):Connect(function()
-				if isAlive() and inst.ImageTransparency < 0.99 then
-					pcall(function() inst.ImageTransparency = 1; inst.Image = "" end)
+				if isAlive() and inst:GetAttribute("__RestoredOrig") ~= true and inst.ImageTransparency < 0.99 then
+					pcall(function() inst.ImageTransparency = 1 end)
 				end
 			end))
 			trackConn(inst:GetPropertyChangedSignal("BackgroundTransparency"):Connect(function()
-				if isAlive() and inst.BackgroundTransparency < 0.99 then
+				if isAlive() and inst:GetAttribute("__RestoredOrig") ~= true and inst.BackgroundTransparency < 0.99 then
 					pcall(function() inst.BackgroundTransparency = 1 end)
-				end
-			end))
-			trackConn(inst:GetPropertyChangedSignal("Image"):Connect(function()
-				if isAlive() and inst.Image ~= "" then
-					pcall(function() inst.Image = ""; inst.ImageTransparency = 1 end)
 				end
 			end))
 		end
@@ -1832,19 +1852,22 @@ local function isPurpleOnionSquareButton(btn, isInsideVerifiedFiggyGui)
 		return false
 	end
 
-	-- TUYỆT ĐỐI KHÔNG gắn nhầm vào các nút/icon/avatar bên trong cửa sổ menu lớn!
 	if isInsideLargeWindowFrame(btn) then
 		return false
 	end
 
 	local bw, bh = getEffectiveBoxSize(btn)
-	if bw < 22 or bw > 82 or bh < 22 or bh > 82 or math.abs(bw - bh) > 14 then
+	if bw < 22 or bw > 86 or bh < 22 or bh > 86 or math.abs(bw - bh) > 16 then
 		return false
 	end
 
+	-- Chỉ loại bỏ các nút có chữ hiển thị thực sự (như Shop, Tìm Kiếm, hoặc Trứng có số 8)
 	for _, d in ipairs(btn:GetDescendants()) do
-		if d:IsA("TextLabel") and (d.Text or ""):match("%S") ~= nil then
-			return false
+		if d:IsA("TextLabel") and d.Visible and d.TextTransparency < 0.95 then
+			local t = (d.Text or ""):match("^%s*(.-)%s*$") or ""
+			if #t > 0 then
+				return false
+			end
 		end
 	end
 
@@ -1857,30 +1880,32 @@ local function isPurpleOnionSquareButton(btn, isInsideVerifiedFiggyGui)
 		return false
 	end
 
-	-- CẤM TUYỆT ĐỐI vùng giữa màn hình (Delta X và Game UI):
+	-- CẤM TUYỆT ĐỐI vùng giữa màn hình (Delta X và Avatar người chơi):
 	if absX > vpW * 0.18 and absX < vpW * 0.78 then
 		return false
 	end
 
-	local par = btn.Parent
-	local isTopLevel = par:IsA("ScreenGui") or (par:IsA("Frame") and par.Parent and par.Parent:IsA("ScreenGui") and par.BackgroundTransparency >= 0.99) or (par.Parent and par.Parent.Parent and par.Parent.Parent:IsA("ScreenGui") and par.Parent.BackgroundTransparency >= 0.99)
+	-- CẤM TUYỆT ĐỐI nút bên phải dưới cùng (nút chân thú cam ở Y > 175):
+	if absX >= vpW * 0.78 and absY > 175 then
+		return false
+	end
 
 	local isLeftColumn = (absX >= 40 and absX <= vpW * 0.18)
-	local isRightColumn = (absX >= vpW * 0.78)
+	local isRightColumn = (absX >= vpW * 0.78 and absY >= 40 and absY <= 170)
 
-	-- 1. NÚT BÊN TAY TRÁI (Logo mở menu chính / Toggle củ hành lề trái dưới nút Shop) -> Hình tròn
+	-- 1. NÚT CỦ HÀNH TÍM BÊN TRÁI (Dưới nút Shop, Y từ 160 đến 330) -> Hình tròn
 	if isLeftColumn then
 		local hasImg = (btn:IsA("ImageButton") or btn:FindFirstChildWhichIsA("ImageLabel", true) ~= nil or btn:FindFirstChildWhichIsA("ImageButton", true) ~= nil)
-		if (absY >= 160 and absY <= 320) and (hasImg or hasPurpleVisualInside(btn)) then
+		if (absY >= 160 and absY <= 330) and (hasImg or hasPurpleVisualInside(btn) or isInsideVerifiedFiggyGui) then
 			return true
 		end
-		if (isTopLevel or isInsideVerifiedFiggyGui) and (hasImg or hasPurpleVisualInside(btn)) then
+		if hasPurpleVisualInside(btn) then
 			return true
 		end
 	end
 
-	-- 2. NÚT BÊN TAY PHẢI (Củ hành tím Figgy Hub ở trên Trứng đỏ) -> HÌNH VUÔNG CÓ GÓC BO ĐẸP (Y <= 170, LOẠI BỎ NÚT CHÂN THÚ DƯỚI CÙNG)
-	if isRightColumn and absY >= 40 and absY <= 170 then
+	-- 2. NÚT CỦ HÀNH TÍM BÊN PHẢI TRÊN CÙNG (Y từ 40 đến 170, trên nút Trứng đỏ) -> Hình vuông có góc bo đẹp
+	if isRightColumn then
 		local hasImg = (btn:IsA("ImageButton") or btn:FindFirstChildWhichIsA("ImageLabel", true) ~= nil or btn:FindFirstChildWhichIsA("ImageButton", true) ~= nil)
 		if hasPurpleVisualInside(btn) or hasImg or isInsideVerifiedFiggyGui then
 			return true
@@ -2295,41 +2320,79 @@ task.spawn(function()
 
 	pcall(scanPurpleOnionButtonsOnce)
 
-	-- Tự động ép theme Vàng Hoàng Gia (Gold / Lemon)
+	-- Tự động chọn Theme Vàng ("Banana Gold" / "Vàng Hoàng Gia") siêu tốc, vô hình, 0% lag
+	local themeAlreadyApplied = false
 	local function autoSelectGoldTheme()
-		for _, root in ipairs(getUiRoots()) do
-			pcall(function()
-				for _, d in ipairs(root:GetDescendants()) do
-					local txt = (d:IsA("TextLabel") or d:IsA("TextButton")) and string.lower(d.Text or "") or ""
-					local nm = string.lower(d.Name or "")
-					if txt:find("vàng hoàng gia", 1, true) or txt:find("lemon", 1, true) or txt:find("gold", 1, true)
-						or nm:find("vàng hoàng gia", 1, true) or nm:find("lemon", 1, true) or nm == "gold" then
-						local tBtn = d
-						if not d:IsA("GuiButton") then
-							local cur = d
-							for _ = 1, 4 do
-								if cur.Parent and cur.Parent:IsA("GuiObject") then
-									cur = cur.Parent
-									if cur:IsA("GuiButton") then tBtn = cur break end
-								else break end
-							end
-						end
-						if tBtn then
-							pcall(function()
-								if firesignal then
-									if tBtn.Activated then firesignal(tBtn.Activated) end
-									if tBtn.MouseButton1Click then firesignal(tBtn.MouseButton1Click) end
-								end
-							end)
-							pcall(function()
-								if getconnections then
-									for _, c in ipairs(getconnections(tBtn.MouseButton1Click or tBtn.Activated)) do
-										if c.Function then pcall(c.Function) elseif c.Fire then pcall(c.Fire, c) end
+		if themeAlreadyApplied then return end
+		local VirtualInputManager = nil
+		pcall(function() VirtualInputManager = game:GetService("VirtualInputManager") end)
+
+		local function fireAllButtonSignals(guiObj)
+			if not guiObj then return false end
+			local fired = false
+			local targets = { guiObj }
+			if guiObj.Parent and guiObj.Parent:IsA("GuiObject") then
+				table.insert(targets, guiObj.Parent)
+				for _, ch in ipairs(guiObj.Parent:GetDescendants()) do
+					if ch:IsA("GuiButton") then table.insert(targets, ch) end
+				end
+			end
+			for _, ch in ipairs(guiObj:GetDescendants()) do
+				if ch:IsA("GuiButton") then table.insert(targets, ch) end
+			end
+
+			for _, t in ipairs(targets) do
+				pcall(function()
+					if firesignal then
+						if t.Activated then firesignal(t.Activated); fired = true end
+						if t.MouseButton1Click then firesignal(t.MouseButton1Click); fired = true end
+						if t.MouseButton1Down then firesignal(t.MouseButton1Down); fired = true end
+						if t.MouseButton1Up then firesignal(t.MouseButton1Up); fired = true end
+					end
+				end)
+				pcall(function()
+					if getconnections then
+						for _, sig in ipairs({ t.MouseButton1Click, t.Activated, t.MouseButton1Down, t.InputBegan }) do
+							if sig then
+								for _, c in ipairs(getconnections(sig)) do
+									if c.Function then
+										pcall(c.Function, { UserInputType = Enum.UserInputType.MouseButton1, UserInputState = Enum.UserInputState.Begin })
+										fired = true
+									elseif c.Fire then
+										pcall(c.Fire, c)
+										fired = true
 									end
 								end
-							end)
-							return
+							end
 						end
+					end
+				end)
+			end
+			return fired
+		end
+
+		for _, root in ipairs(getUiRoots()) do
+			pcall(function()
+				local bananaGoldTarget = nil
+				local royalGoldTarget = nil
+
+				for _, d in ipairs(root:GetDescendants()) do
+					if d:IsA("TextLabel") or d:IsA("TextButton") then
+						local rawT = (d.Text or ""):match("^%s*(.-)%s*$") or ""
+						local lowT = string.lower(rawT)
+						if lowT == "banana gold" or lowT == "frosted fig" then
+							bananaGoldTarget = d
+							break
+						elseif lowT:find("vàng hoàng gia", 1, true) or lowT == "lemon" then
+							royalGoldTarget = d
+						end
+					end
+				end
+
+				local chosen = bananaGoldTarget or royalGoldTarget
+				if chosen then
+					if fireAllButtonSignals(chosen) then
+						themeAlreadyApplied = true
 					end
 				end
 			end)
