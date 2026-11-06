@@ -1,5 +1,5 @@
 -- ============================================================================
--- BANANA HUB V1.0.9 (LIQUID GLASS EDITION) | BANANA LOGOS + GOLD THEME + HOME
+-- BANANA HUB V1.0.10 (LIQUID GLASS EDITION) | BANANA LOGOS + GOLD THEME + HOME
 -- Script gốc: loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/91ad82d753e1318189c4e249d56e7dcf.lua"))()
 -- 1. [KHẮC PHỤC TRIỆT ĐỂ LỖI LỘ ẢNH MỜ GỐC LÚC MỚI CHẠY & KHÔNG GHIM NHẦM]:
 --    + Đo kích thước thực tế qua cả `AbsoluteSize` lẫn `Size.Offset` để bắt dính nút ngay từ
@@ -2144,10 +2144,10 @@ local function isGlobalLeftOnionImageButton(btn)
 	local inRightTopOnionBand = ax >= vpW * 0.86 and ax <= vpW * 0.98
 	local isSmallRightSquare = bw >= 16 and bw <= 36 and bh >= 16 and bh <= 36 and math.abs(bw - bh) <= 8
 	local isTopRightOnionRow = ay >= vpH * 0.18 and ay <= vpH * 0.34
-	if (not inLeftLogoBand and not (inRightTopOnionBand and isSmallRightSquare and isTopRightOnionRow))
+	-- Nút củ hành bên phải giờ do scanRightOnionButtonOnce xử lý riêng (tránh hai bộ quét tranh nhau).
+	if (not inLeftLogoBand)
 		or ay < 0 or ay > vpH * 0.95 then return false end
-	local isRightOnionCandidate = inRightTopOnionBand and isSmallRightSquare and isTopRightOnionRow
-	if isInsideLargeWindowFrame(btn) and not isRightOnionCandidate then return false end
+	if isInsideLargeWindowFrame(btn) then return false end
 
 	for _, d in ipairs(btn:GetDescendants()) do
 		if d:IsA("TextLabel") and d.Visible and d.TextTransparency < 0.95 then
@@ -2173,7 +2173,7 @@ local function isGlobalLeftOnionImageButton(btn)
 	if matchesOriginalOnionImage(btn) then return true end
 	-- Fallback only for the small purple onion icon at the top of the right column.
 	-- Egg and paw buttons sit lower and are deliberately excluded by the Y band.
-	return inRightTopOnionBand and isSmallRightSquare and isTopRightOnionRow and hasPurpleVisualInside(btn)
+	return false
 end
 
 local function applyBananaCatImageOverride(btn)
@@ -2302,14 +2302,174 @@ local function scanGlobalLeftOnionButtonsOnce()
 	end
 end
 
+-- ----------------------------------------------------------------------------
+-- 7D. NÚT CỦ HÀNH TÍM BÊN PHẢI (cột nút phải, trên Trứng & Chân thú)
+--     Nhận diện theo VỊ TRÍ mép phải + hàng trên cùng, nhận cả khi màu tím nằm ở khung cha
+--     hoặc kích thước lớn hơn 36px. Đổi thành logo Banana Cat vuông bo góc, xoá ảnh/nền tím gốc.
+-- ----------------------------------------------------------------------------
+local function ancestorsHavePurple(obj, levels)
+	local cur = obj
+	for _ = 1, levels do
+		if not cur or not cur:IsA("GuiObject") then break end
+		if cur:GetAttribute("__WasFiggyPurple") == true then return true end
+		if cur.BackgroundTransparency < 0.95 and isFiggyPurpleColor(cur.BackgroundColor3) then return true end
+		if hasPurpleGradient(cur) then return true end
+		cur = cur.Parent
+	end
+	return false
+end
+
+local function isRightOnionCandidate(obj, vpW, vpH)
+	if not obj or not obj.Parent then return false end
+	if not (obj:IsA("Frame") or obj:IsA("ImageButton") or obj:IsA("TextButton") or obj:IsA("ImageLabel") or obj:IsA("CanvasGroup")) then
+		return false
+	end
+	local n = obj.Name or ""
+	if n:find("^BananaCat") or n == "GoldBadgeInnerDisc" or n == "GlobalOnionGoldStroke" then return false end
+	if obj:FindFirstChild("BananaCatCircleAvatar") then return false end
+
+	local bw, bh = getEffectiveBoxSize(obj)
+	if bw < 20 or bh < 20 or bw > 84 or bh > 84 or math.abs(bw - bh) > 14 then return false end
+
+	local ax, ay = obj.AbsolutePosition.X, obj.AbsolutePosition.Y
+	if ax == 0 and ay == 0 then return false end
+	-- Mép phải của nút nằm sát rìa phải màn hình; hàng trên cùng của cột nút phải.
+	if (ax + bw) < vpW * 0.925 then return false end
+	if ay < vpH * 0.14 or ay > vpH * 0.42 then return false end
+
+	for _, d in ipairs(obj:GetDescendants()) do
+		if d:IsA("TextLabel") and d.Visible and d.TextTransparency < 0.95 then
+			local t = (d.Text or ""):match("^%s*(.-)%s*$") or ""
+			if #t > 0 then return false end
+		end
+	end
+
+	-- Phải có dấu hiệu là nút củ hành: ảnh gốc trùng, hoặc tím (ở chính nó / con / khung cha).
+	if State.OnionAsset and State.OnionAsset ~= "" then
+		local function sameAsset(o)
+			if o:IsA("ImageLabel") or o:IsA("ImageButton") then
+				local a = o:GetAttribute("__OrigImageAsset") or o:GetAttribute("__OrigOnionImage") or o.Image
+				return a == State.OnionAsset
+			end
+			return false
+		end
+		if sameAsset(obj) then return true end
+		for _, d in ipairs(obj:GetDescendants()) do
+			if sameAsset(d) then return true end
+		end
+	end
+	if hasPurpleVisualInside(obj) or ancestorsHavePurple(obj, 3) then return true end
+	return false
+end
+
+local function applyRightOnionSquare(container)
+	if not container or not container.Parent then return end
+	if container:GetAttribute("__RightOnionDone") == SID then return end
+	container:SetAttribute("__RightOnionDone", SID)
+
+	local thick = 2.0
+	-- Hình vuông bo góc (isRoundedSquare = true)
+	local coinDisc, stroke = buildFullCatGoldCoin(container, thick, (container.ZIndex or 5) + 8, true)
+
+	-- Khung bo góc đồng bộ cho nút
+	local cCorner = container:FindFirstChild("BananaCatForcedCorner") or container:FindFirstChildOfClass("UICorner")
+	if not cCorner then
+		cCorner = Instance.new("UICorner")
+		cCorner.Name = "BananaCatForcedCorner"
+		cCorner.Parent = container
+	end
+	cCorner.CornerRadius = SQUARE_CORNER_UDIM
+
+	-- Xoá sạch ảnh/nền tím gốc của nút (kể cả phần tử con dựng sau)
+	silenceOriginalButtonVisual(container, coinDisc, SQUARE_CORNER_UDIM)
+	for _, desc in ipairs(container:GetDescendants()) do
+		silenceOriginalButtonVisual(desc, coinDisc, SQUARE_CORNER_UDIM)
+	end
+	if container:GetAttribute("__SilenceNewChildren") ~= SID then
+		container:SetAttribute("__SilenceNewChildren", SID)
+		trackConn(container.DescendantAdded:Connect(function(newChild)
+			if isAlive() and not isBananaCoinPart(newChild, coinDisc) then
+				silenceOriginalButtonVisual(newChild, coinDisc, SQUARE_CORNER_UDIM)
+			end
+		end))
+	end
+
+	-- Âm thanh + nhấp nháy khi chạm (một lần mỗi cú chạm)
+	if container:GetAttribute("__BananaGoldPulseHooked") ~= SID then
+		container:SetAttribute("__BananaGoldPulseHooked", SID)
+		if container:IsA("TextButton") or container:IsA("ImageButton") then
+			trackConn(container.Activated:Connect(function()
+				if isAlive() then playCircularLogoPulse(coinDisc, stroke, thick) end
+			end))
+		else
+			trackConn(container.InputBegan:Connect(function(inp)
+				if not isAlive() then return end
+				if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+					playCircularLogoPulse(coinDisc, stroke, thick)
+				end
+			end))
+		end
+	end
+end
+
+local function scanRightOnionButtonOnce()
+	local vpW, vpH = getViewportWidth(), getViewportHeight()
+	local executorCache = {}
+	local roots, seenRoots = {}, {}
+	local function addRoot(r)
+		if r and not seenRoots[r] then
+			seenRoots[r] = true
+			table.insert(roots, r)
+		end
+	end
+	pcall(function() addRoot(game:GetService("CoreGui")) end)
+	if LocalPlayer then
+		local pg = LocalPlayer:FindFirstChildOfClass("PlayerGui")
+		if pg then addRoot(pg) end
+	end
+	if gethui then pcall(function() addRoot(gethui()) end) end
+
+	for _, root in ipairs(roots) do
+		local okD, desc = pcall(function() return root:GetDescendants() end)
+		if okD and type(desc) == "table" then
+			for _, d in ipairs(desc) do
+				if isRightOnionCandidate(d, vpW, vpH) then
+					local gui = d:FindFirstAncestorOfClass("ScreenGui")
+					if gui then
+						local ignored = executorCache[gui]
+						if ignored == nil then
+							ignored = isExecutorOrIgnoredScreenGui(gui)
+							executorCache[gui] = ignored
+						end
+						if not ignored then
+							local container = getOutermostSquareButton(d)
+							-- Chỉ nhận khung vuông nhỏ đúng kích thước nút, không leo lên khung cột.
+							local cw, ch = getEffectiveBoxSize(container)
+							if container and cw >= 20 and cw <= 92 and ch >= 20 and ch <= 92 then
+								applyRightOnionSquare(container)
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
 task.defer(function()
-	if isAlive() then pcall(scanGlobalLeftOnionButtonsOnce) end
+	if isAlive() then
+		pcall(scanGlobalLeftOnionButtonsOnce)
+		pcall(scanRightOnionButtonOnce)
+	end
 end)
 
 -- Các mốc một lần (không phải vòng lặp) để bắt ScreenGui độc lập dựng muộn.
-for _, delaySec in ipairs({ 1.00, 3.50 }) do
+for _, delaySec in ipairs({ 1.00, 2.20, 3.50, 6.00 }) do
 	task.delay(delaySec, function()
-		if isAlive() then pcall(scanGlobalLeftOnionButtonsOnce) end
+		if isAlive() then
+			pcall(scanGlobalLeftOnionButtonsOnce)
+			pcall(scanRightOnionButtonOnce)
+		end
 	end)
 end
 
@@ -2957,6 +3117,7 @@ task.spawn(function()
 	-- Thực thi dứt khoát 1 lần sau khi giao diện khởi tạo xong (Zero-Lag, không dùng while loop)
 	pcall(cleanupPreviousOverlaysAndDeduplicate)
 	pcall(scanPurpleOnionButtonsOnce)
+	pcall(scanRightOnionButtonOnce)
 	pcall(refreshAllTranslatedMenus)
 	pcall(trySelectGoldThemeOnce)
 
@@ -2966,6 +3127,7 @@ task.spawn(function()
 			if not isAlive() then return end
 			pcall(cleanupPreviousOverlaysAndDeduplicate)
 			pcall(scanPurpleOnionButtonsOnce)
+			pcall(scanRightOnionButtonOnce)
 			pcall(refreshAllTranslatedMenus)
 			pcall(trySelectGoldThemeOnce)
 		end)
