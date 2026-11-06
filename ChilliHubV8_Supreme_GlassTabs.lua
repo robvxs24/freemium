@@ -1,5 +1,16 @@
 -- ============================================================================
--- BANANA HUB V1.0.9 (LIQUID GLASS EDITION) | BANANA LOGOS + GOLD THEME + HOME
+-- BANANA HUB V1.1.0 (LIQUID GLASS EDITION) | BANANA LOGOS + GOLD THEME + HOME
+-- FIX V1.1.0 - NÚT CỦ HÀNH TÍM BÊN PHẢI (cột phải Steal Panel, ảnh chụp 06/11):
+--    + Nguyên nhân cũ: (1) decoratePurpleOnionButton() chặn cứng chỉ cho lề trái
+--      (cx 2%-20%) nên nút phải dù nhận diện đúng vẫn return sớm; (2) đường
+--      global chỉ nhận nút 16-36px, Y 18%-34%, trong khi nút thật ~40-70px;
+--      (3) hasPurpleVisualInside() chỉ soi bên TRONG nút, còn màu tím nằm ở
+--      khung Frame cha bên ngoài, còn icon bên trong thì trắng/trong suốt;
+--      (4) quét global chỉ chạy lúc load +1s/+3.5s, Steal Panel mở muộn là lỡ.
+--    + Sửa: thêm mục 7D riêng cho nút phải - nhận diện theo tím ở cả nút,
+--      con cháu VÀ khung cha, không bắt buộc trùng asset củ hành gốc, giữ
+--      khung vuông tím nguyên, chỉ thay ảnh icon bên trong sang Banana Cat,
+--      quét lại bằng DescendantAdded (debounce, không loop) + các mốc muộn.
 -- Script gốc: loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/91ad82d753e1318189c4e249d56e7dcf.lua"))()
 -- 1. [KHẮC PHỤC TRIỆT ĐỂ LỖI LỘ ẢNH MỜ GỐC LÚC MỚI CHẠY & KHÔNG GHIM NHẦM]:
 --    + Đo kích thước thực tế qua cả `AbsoluteSize` lẫn `Size.Offset` để bắt dính nút ngay từ
@@ -81,6 +92,9 @@ State.LastPillTargetWidth = nil
 State.OnionButton = nil -- Nút củ hành tím mở menu thật sự (lề trái)
 State.HeaderBadgeFrame = nil -- Logo nhỏ cạnh tiêu đề trong cửa sổ menu
 State.OnionAsset = nil -- Asset ảnh củ hành gốc để nhận diện chính xác
+State.RightOnionButton = nil -- Nút củ hành tím vuông ở cột phải (ngoài Steal Panel)
+State.RightOnionImage = nil -- ImageLabel/ImageButton chứa icon củ hành bên trong nút phải
+State.RightOnionScanPending = false -- Debounce cho hook DescendantAdded của nút phải
 State.GoldThemeApplied = false -- Đã chọn theme Vàng Hoàng Gia (Lemon)
 State.GoldThemeAttempts = 0 -- Số lần thử chọn theme (có giới hạn, không lặp vô hạn)
 State.HomeTabReturned = false -- Mỗi lần chạy chỉ quay về Home một lần
@@ -332,6 +346,8 @@ local function cleanupPreviousOverlaysAndDeduplicate()
 									local pY = par.AbsolutePosition.Y
 									local isProtectedOnion = (State.OnionButton ~= nil and par == State.OnionButton)
 										or (State.HeaderBadgeFrame ~= nil and par == State.HeaderBadgeFrame)
+										or (State.RightOnionButton ~= nil and par == State.RightOnionButton)
+										or (State.RightOnionImage ~= nil and par == State.RightOnionImage)
 									if not isProtectedOnion then
 										local inOnionBand = (pX >= vpW * 0.02 and pX <= vpW * 0.20 and pY >= 70 and pY <= vpH * 0.82)
 										if State.OnionButton ~= nil then
@@ -1980,6 +1996,8 @@ local function removeWrongOnionOverlays(gui)
 			if par and par:IsA("GuiObject") and not isInsideLargeWindowFrame(par) then
 				local isProtected = (State.OnionButton ~= nil and par == State.OnionButton)
 					or (State.HeaderBadgeFrame ~= nil and par == State.HeaderBadgeFrame)
+					or (State.RightOnionButton ~= nil and par == State.RightOnionButton)
+					or (State.RightOnionImage ~= nil and par == State.RightOnionImage)
 				if not isProtected then
 					d:Destroy()
 					restoreWronglyDecoratedButton(par)
@@ -2142,8 +2160,10 @@ local function isGlobalLeftOnionImageButton(btn)
 	if bw < 14 or bh < 14 or bw > 110 or bh > 110 or math.abs(bw - bh) > 18 then return false end
 	local inLeftLogoBand = ax >= vpW * 0.02 and ax <= vpW * 0.20
 	local inRightTopOnionBand = ax >= vpW * 0.86 and ax <= vpW * 0.98
-	local isSmallRightSquare = bw >= 16 and bw <= 36 and bh >= 16 and bh <= 36 and math.abs(bw - bh) <= 8
-	local isTopRightOnionRow = ay >= vpH * 0.18 and ay <= vpH * 0.34
+	-- FIX V1.1.0: nút phải thật ~40-70px (ảnh chụp: ~35px/512px chiều rộng),
+	-- không phải 16-36px như cũ; Y cũng rộng hơn vì Steal Panel có thể lệch.
+	local isSmallRightSquare = bw >= 16 and bw <= 72 and bh >= 16 and bh <= 72 and math.abs(bw - bh) <= 12
+	local isTopRightOnionRow = ay >= vpH * 0.12 and ay <= vpH * 0.40
 	if (not inLeftLogoBand and not (inRightTopOnionBand and isSmallRightSquare and isTopRightOnionRow))
 		or ay < 0 or ay > vpH * 0.95 then return false end
 	if isInsideLargeWindowFrame(btn) then return false end
@@ -2172,7 +2192,17 @@ local function isGlobalLeftOnionImageButton(btn)
 	if matchesOriginalOnionImage(btn) then return true end
 	-- Fallback only for the small purple onion icon at the top of the right column.
 	-- Egg and paw buttons sit lower and are deliberately excluded by the Y band.
-	return inRightTopOnionBand and isSmallRightSquare and isTopRightOnionRow and hasPurpleVisualInside(btn)
+	-- FIX V1.1.0: màu tím nằm ở khung Frame CHA (nền vuông tím), không nằm
+	-- bên trong icon (icon trắng/trong suốt) nên phải soi cả khung cha.
+	local function hasPurpleInChain(o)
+		local cur = o
+		for _ = 1, 3 do
+			if cur and cur:IsA("GuiObject") and hasPurpleVisualInside(cur) then return true end
+			cur = cur and cur.Parent or nil
+		end
+		return false
+	end
+	return inRightTopOnionBand and isSmallRightSquare and isTopRightOnionRow and hasPurpleInChain(btn)
 end
 
 local function applyBananaCatImageOverride(btn)
@@ -2309,6 +2339,174 @@ end)
 for _, delaySec in ipairs({ 1.00, 3.50 }) do
 	task.delay(delaySec, function()
 		if isAlive() then pcall(scanGlobalLeftOnionButtonsOnce) end
+	end)
+end
+
+-- ============================================================================
+-- 7D. NÚT CỦ HÀNH TÍM BÊN PHẢI - CỘT PHẢI NGOÀI STEAL PANEL (FIX V1.1.0)
+--     Nút này KHÔNG đi qua decoratePurpleOnionButton() (hàm đó chặn cứng lề
+--     trái) và KHÔNG bắt buộc trùng asset củ hành gốc: asset của nó có thể
+--     khác asset logo trái/header, hoặc icon đã bị cắt bằng ImageRect.
+--     Nhận diện bằng: vị trí cột phải + hàng trên + khung vuông + màu tím
+--     (ở nút, con cháu, hoặc khung Frame cha) + không có chữ. Nút Trứng (đỏ)
+--     và nút Chân thú (cam) nằm thấp hơn và không tím nên tự loại.
+--     Chỉ thay ẢNH icon bên trong sang Banana Cat, GIỮ NGUYÊN khung vuông
+--     tím bên ngoài - đúng yêu cầu "chỉ đổi logo, giữ khung vuông".
+-- ============================================================================
+local function hasPurpleVisualInChain(obj)
+	if not obj then return false end
+	local cur = obj
+	for _ = 1, 3 do
+		if cur and cur:IsA("GuiObject") then
+			local ok, res = pcall(hasPurpleVisualInside, cur)
+			if ok and res then return true end
+		end
+		cur = cur and cur.Parent or nil
+	end
+	return false
+end
+
+local function isRightTopPurpleOnionCandidate(obj)
+	if not obj or not obj.Parent or not obj:IsA("GuiObject") then return false end
+	if obj:IsA("ImageLabel") and obj.Name == "BananaCatInnerSprite" then return false end
+	if obj:FindFirstChild("BananaCatCircleAvatar") then return false end
+	if isInsideLargeWindowFrame(obj) then return false end
+	if State.FiggyMainWindow and (obj == State.FiggyMainWindow or obj:IsDescendantOf(State.FiggyMainWindow)) then return false end
+
+	local bw, bh = getEffectiveBoxSize(obj)
+	if bw < 20 or bw > 80 or bh < 20 or bh > 80 or math.abs(bw - bh) > 14 then return false end
+
+	local vpW, vpH = getViewportWidth(), getViewportHeight()
+	local ax, ay = obj.AbsolutePosition.X, obj.AbsolutePosition.Y
+	if ax == 0 and ay == 0 then return false end
+	-- Cột phải: X 84%-99%, hàng trên: Y 12%-40% chiều cao màn hình.
+	if ax < vpW * 0.84 or ax > vpW * 0.99 then return false end
+	if ay < vpH * 0.12 or ay > vpH * 0.40 then return false end
+
+	for _, d in ipairs(obj:GetDescendants()) do
+		if d:IsA("TextLabel") and d.Visible and d.TextTransparency < 0.95 then
+			local t = (d.Text or ""):match("^%s*(.-)%s*$") or ""
+			if #t > 0 then return false end
+		end
+	end
+
+	return hasPurpleVisualInChain(obj)
+end
+
+local function findRightOnionImageElement(container)
+	if not container then return nil end
+	if container:IsA("ImageButton") or container:IsA("ImageLabel") then
+		return container
+	end
+	-- Ưu tiên icon lớn nhất / rõ nhất bên trong khung vuông tím.
+	local best, bestArea = nil, 0
+	for _, d in ipairs(container:GetDescendants()) do
+		if (d:IsA("ImageLabel") or d:IsA("ImageButton")) and d.Name ~= "BananaCatInnerSprite" then
+			local img = d.Image or ""
+			if img ~= "" then
+				local w, h = getEffectiveBoxSize(d)
+				if w >= 12 and h >= 12 then
+					local area = w * h
+					if area > bestArea then best, bestArea = d, area end
+				end
+			end
+		end
+	end
+	return best
+end
+
+local function applyRightOnionBanana(container)
+	if not container or not container.Parent then return false end
+	local imgEl = findRightOnionImageElement(container)
+	if not imgEl then return false end
+	if imgEl:GetAttribute("__RightOnionBanana") == SID then return true end
+	-- Đã là Banana Cat rồi thì chỉ ghim lại state, không vẽ lại.
+	local curImg = imgEl.Image or ""
+	if curImg == BANANA_CAT_LOGO or (State.BananaCatOverrideAsset and curImg == State.BananaCatOverrideAsset) then
+		imgEl:SetAttribute("__RightOnionBanana", SID)
+		State.RightOnionButton = container
+		State.RightOnionImage = imgEl
+		return true
+	end
+
+	State.RightOnionButton = container
+	State.RightOnionImage = imgEl
+	-- Dùng đúng hàm override toàn cục: tự tải getcustomasset nếu có, khóa
+	-- Image để menu vẽ lại cũng trả về Banana Cat, thêm viền vàng + âm thanh.
+	pcall(applyBananaCatImageOverride, imgEl)
+	imgEl:SetAttribute("__RightOnionBanana", SID)
+	-- Khung vuông tím bên ngoài giữ nguyên: không bo tròn, không tạo coin disc.
+	return true
+end
+
+local function scanRightOnionButtonOnce()
+	-- Fast path: nút phải đã đổi xong và vẫn còn trên màn hình thì không quét lại.
+	if State.RightOnionImage and State.RightOnionImage.Parent then
+		local curImg = State.RightOnionImage.Image or ""
+		if curImg == BANANA_CAT_LOGO or (State.BananaCatOverrideAsset and curImg == State.BananaCatOverrideAsset) then
+			return true
+		end
+	end
+	local found = false
+	for _, root in ipairs(getUiRoots()) do
+		local okD, desc = pcall(function() return root:GetDescendants() end)
+		if okD and type(desc) == "table" then
+			for _, d in ipairs(desc) do
+				if isRightTopPurpleOnionCandidate(d) then
+					if applyRightOnionBanana(d) then found = true end
+				elseif d:IsA("ImageLabel") and d.Parent and isRightTopPurpleOnionCandidate(d.Parent) then
+					if applyRightOnionBanana(d.Parent) then found = true end
+				end
+			end
+		end
+		if found then break end
+	end
+	return found
+end
+State.ScanRightOnionButtonOnce = scanRightOnionButtonOnce
+
+local function scheduleRightOnionScan()
+	if State.RightOnionScanPending then return end
+	State.RightOnionScanPending = true
+	task.defer(function()
+		State.RightOnionScanPending = false
+		if isAlive() then pcall(scanRightOnionButtonOnce) end
+	end)
+end
+
+local function hookRightOnionScan()
+	for _, root in ipairs(getUiRoots()) do
+		if root and root:GetAttribute("__RightOnionHooked") ~= SID then
+			root:SetAttribute("__RightOnionHooked", SID)
+			-- Event-driven, không loop: Steal Panel / nút phải dựng muộn
+			-- (mở panel sau nhiều phút) vẫn bắt được ngay khi xuất hiện.
+			pcall(function()
+				trackConn(root.DescendantAdded:Connect(function(desc)
+					if not isAlive() or not desc or not desc.Parent then return end
+					if desc:IsA("GuiObject") then
+						scheduleRightOnionScan()
+					end
+				end))
+			end)
+		end
+	end
+end
+
+task.defer(function()
+	if isAlive() then
+		pcall(hookRightOnionScan)
+		pcall(scanRightOnionButtonOnce)
+		pcall(scanGlobalLeftOnionButtonsOnce)
+	end
+end)
+
+-- Các mốc muộn: bắt nút phải khi Steal Panel được mở / dựng lại sau khi load.
+for _, delaySec in ipairs({ 1.00, 3.50, 8.00, 15.00 }) do
+	task.delay(delaySec, function()
+		if isAlive() then
+			pcall(scanRightOnionButtonOnce)
+			pcall(scanGlobalLeftOnionButtonsOnce)
+		end
 	end)
 end
 
@@ -2765,6 +2963,12 @@ local function processGuiElement(obj)
 	if not obj or not obj.Parent then return end
 	if State.IslandGui and obj:IsDescendantOf(State.IslandGui) then return end
 
+	-- FIX V1.1.0: nút củ hành tím bên phải - không qua decoratePurpleOnionButton
+	-- (hàm đó chỉ cho lề trái), đi thẳng vào handler riêng ở mục 7D.
+	if obj:IsA("GuiObject") and isRightTopPurpleOnionCandidate(obj) then
+		pcall(applyRightOnionBanana, obj)
+	end
+
 	-- Kiểm tra và gắn logo Banana Cat vào đúng nút củ hành tím ở lề trái.
 	if obj:IsA("Frame") or obj:IsA("ImageButton") or obj:IsA("TextButton") or obj:IsA("CanvasGroup") then
 		local rootGui = obj:FindFirstAncestorOfClass("ScreenGui")
@@ -2820,6 +3024,7 @@ local function refreshAllTranslatedMenus()
 		end
 	end
 	pcall(scanPurpleOnionButtonsOnce)
+	if State.ScanRightOnionButtonOnce then pcall(State.ScanRightOnionButtonOnce) end
 	State.LastSyncedRawText = nil
 	pcall(syncStatusFromLiveWidgets)
 end
@@ -2956,6 +3161,7 @@ task.spawn(function()
 	-- Thực thi dứt khoát 1 lần sau khi giao diện khởi tạo xong (Zero-Lag, không dùng while loop)
 	pcall(cleanupPreviousOverlaysAndDeduplicate)
 	pcall(scanPurpleOnionButtonsOnce)
+	pcall(scanRightOnionButtonOnce)
 	pcall(refreshAllTranslatedMenus)
 	pcall(trySelectGoldThemeOnce)
 
@@ -2965,6 +3171,7 @@ task.spawn(function()
 			if not isAlive() then return end
 			pcall(cleanupPreviousOverlaysAndDeduplicate)
 			pcall(scanPurpleOnionButtonsOnce)
+			pcall(scanRightOnionButtonOnce)
 			pcall(refreshAllTranslatedMenus)
 			pcall(trySelectGoldThemeOnce)
 		end)
