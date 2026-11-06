@@ -1,23 +1,24 @@
 -- ============================================================================
--- BANANA HUB V1.0.8 (LIQUID GLASS EDITION) | HOÀN THIỆN TRIỆT ĐỂ THEO YÊU CẦU:
+-- BANANA HUB V1.0.9 (LIQUID GLASS EDITION) | HOÀN THIỆN CHUẨN XÁC THEO YÊU CẦU:
 -- Script gốc: loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/91ad82d753e1318189c4e249d56e7dcf.lua"))()
--- 1. [KHẮC PHỤC TRIỆT ĐỂ LỖI BỊ LỘ ẢNH MỜ MỜ CỦA SCRIPT GỐC LÚC MỚI CHẠY]:
---    + Sửa lỗi bộ lọc nhận diện nhầm chữ "Executor / Delta" trong tab Home của Figgy Hub v1.06,
---      giúp bắt dính và thay thế toàn bộ 3 logo củ hành tím + dịch tiếng Việt ngay ở 0.0 giây đầu tiên.
---    + Xoá sạch ảnh mờ gốc (`Image = ""`, khóa cứng `ImageTransparency = 1`, `BackgroundTransparency = 1`,
---      tắt `UIStroke` gốc và ép `UICorner = UDim.new(1, 0)`) để khung vuông mờ mờ của nút gốc
---      không bao giờ lộ ra phía sau đồng xu tròn Banana Cat.
--- 2. [TỐI ƯU HIỆU NĂNG - 0% GIẬT LAG]:
---    + Bắt sự kiện tức thời lúc khởi tạo và tự động ngắt toàn bộ kết nối quét DOM sau khi gắn xong.
---    + Xoá hoàn toàn trạng thái máy chạy bộ (Treadmill) -> Luôn giữ tĩnh "Đang rảnh" (0 lệnh vẽ lại UI).
--- 3. [DYNAMIC ISLAND HIỆU ỨNG LIQUID GLASS CHUYÊN NGHIỆP]:
---    + Kính lỏng đa lớp (Translucent Obsidian-Crystal Glass) kết hợp dải khúc xạ 3D, viền trong
---      Inner Glass Rim và thanh bắt sáng đỉnh kính Bevel Specular Glint Bar.
--- 4. [XOÁ NÚT TẮT/BẬT ÂM THANH (MẶC ĐỊNH MỞ) & ĐỒNG BỘ CHỮ KHÔNG BỊ CHÓI MẮT]:
---    + Xoá bỏ hoàn toàn nút tắt/bật âm thanh trong Dynamic Island; âm thanh mặc định luôn BẬT.
---    + Khắc phục triệt để lỗi `UIStroke` trên `TextButton` ăn vào chữ gây nhòe/chói mắt bằng cách
---      ép `ApplyStrokeMode = Enum.ApplyStrokeMode.Border` và `TextStrokeTransparency = 1` cho mọi nút,
---      đồng bộ phông chữ màu Kem Sâm-banh (Champagne Cream) sắc nét, dịu mắt.
+-- 1. [KHẮC PHỤC TRIỆT ĐỂ LỖI LỘ ẢNH MỜ GỐC LÚC MỚI CHẠY & KHÔNG GHIM NHẦM]:
+--    + Đo kích thước thực tế qua cả `AbsoluteSize` lẫn `Size.Offset` để bắt dính nút ngay từ
+--      khung hình 0.0s (kể cả khi Figgy Hub đang chạy hiệu ứng phóng to lúc mới mở).
+--    + Tuyệt đối không gắn nhầm vào các nút/icon bên trong cửa sổ menu chính hay Delta X.
+--    + Xoá sạch ảnh mờ gốc (`Image = ""`, khóa `ImageTransparency = 1`, `BackgroundTransparency = 1`,
+--      tắt `UIStroke` gốc và ẩn luôn cả các khung bóng mờ anh em cùng tọa độ).
+-- 2. [ĐÚNG KIỂU DÁNG TỪNG LOGO THEO YÊU CẦU]:
+--    + Logo Dynamic Island, Logo mở menu chính bên trái và Logo góc trái tiêu đề: HÌNH TRÒN.
+--    + Nút bên tay phải màn hình (phía trên nút Trứng đỏ & Chân thú cam): HÌNH VUÔNG BO GÓC ĐẸP
+--      (`CornerRadius = UDim.new(0.22, 0)`) viền vàng Gold sang trọng, đồng bộ hoàn hảo với cột phải.
+-- 3. [TỐI ƯU HIỆU NĂNG - 0% GIẬT LAG]:
+--    + Bỏ qua hoàn toàn trạng thái máy chạy bộ (Treadmill) -> Luôn giữ tĩnh "Đang rảnh" (0 lệnh vẽ lại).
+--    + Tự động ngắt toàn bộ sự kiện quét DOM sau khi khởi tạo xong.
+-- 4. [DYNAMIC ISLAND LIQUID GLASS - XOÁ NÚT ÂM THANH & XOÁ NÚT LÀM MỚI - CHỮ DỊU MẮT]:
+--    + Nâng cấp hiệu ứng kính lỏng Liquid Glass 3D đa tầng chuyên nghiệp.
+--    + Xoá bỏ hoàn toàn cả nút tắt/bật âm thanh (âm thanh mặc định luôn MỞ) lẫn nút Làm mới & Đồng bộ.
+--    + Khóa `ApplyStrokeMode = Enum.ApplyStrokeMode.Border` và `TextStrokeTransparency = 1` cùng tông
+--      màu Kem Sâm-banh dịu nhẹ để chữ sắc nét, tuyệt đối không bị nhòe hay chói mắt.
 -- ============================================================================
 
 local Players = game:GetService("Players")
@@ -66,7 +67,8 @@ State.CurrentStatusImageColor = Color3.fromRGB(255, 255, 255)
 State.CurrentStatusRectOffset = Vector2.new(0, 0)
 State.CurrentStatusRectSize = Vector2.new(0, 0)
 State.CurrentStatusEmoji = ""
-State.SoundEnabled = true -- Mặc định luôn BẬT âm thanh theo đúng yêu cầu
+State.SoundEnabled = true -- Mặc định luôn BẬT âm thanh
+State.FiggyMainWindow = nil
 State.IsExpanded = false
 State.NoteOpen = false
 State.StaticLabels = {}
@@ -80,27 +82,27 @@ State.LastPillTargetWidth = nil
 -- ============================================================================
 -- 1. BẢNG MÀU LIQUID GLASS & CHAMPAGNE CREAM DỊU MẮT (0% CHÓI MẮT)
 -- ============================================================================
-local SOFT_CHAMPAGNE_GOLD = Color3.fromRGB(236, 220, 182) -- Vàng sâm-banh dịu nhẹ
-local SOFT_WARM_CREAM     = Color3.fromRGB(234, 228, 216) -- Kem ấm sắc nét, không chói
-local SOFT_MUTED_TAUPE    = Color3.fromRGB(164, 158, 148) -- Xám kem hài hòa
-local SOFT_MINT_PASTEL    = Color3.fromRGB(156, 214, 178) -- Xanh bạc hà dịu
+local SOFT_CHAMPAGNE_GOLD = Color3.fromRGB(234, 218, 180) -- Vàng sâm-banh dịu nhẹ
+local SOFT_WARM_CREAM     = Color3.fromRGB(232, 226, 214) -- Kem ấm sắc nét, không chói mắt
+local SOFT_MUTED_TAUPE    = Color3.fromRGB(162, 156, 146) -- Xám kem hài hòa
+local SOFT_MINT_PASTEL    = Color3.fromRGB(154, 212, 176) -- Xanh bạc hà dịu
 
 local GOLD_PRIMARY_TEXT   = SOFT_CHAMPAGNE_GOLD
-local GOLD_BRIGHT_TITLE   = Color3.fromRGB(242, 226, 186)
+local GOLD_BRIGHT_TITLE   = Color3.fromRGB(240, 224, 184)
 local GOLD_ACCENT_FILL    = Color3.fromRGB(190, 154, 68)
 local GOLD_BORDER_STROKE  = Color3.fromRGB(214, 178, 86)
 local GOLD_SOFT_CREAM     = SOFT_WARM_CREAM
 local GOLD_MUTED_SUBTEXT  = SOFT_MUTED_TAUPE
 
 -- Bảng màu Kính Lỏng (Liquid Glass)
-local LIQUID_GLASS_BASE     = Color3.fromRGB(16, 16, 22)
-local LIQUID_GLASS_CARD     = Color3.fromRGB(24, 24, 32)
-local LIQUID_GLASS_TRACK    = Color3.fromRGB(18, 18, 24)
-local BTN_ACTIVE_BG         = Color3.fromRGB(40, 36, 28)
-local BTN_ACTIVE_STROKE     = Color3.fromRGB(186, 156, 88)
+local LIQUID_GLASS_BASE     = Color3.fromRGB(15, 16, 22)
+local LIQUID_GLASS_CARD     = Color3.fromRGB(23, 24, 32)
+local LIQUID_GLASS_TRACK    = Color3.fromRGB(18, 19, 26)
+local BTN_ACTIVE_BG         = Color3.fromRGB(38, 34, 28)
+local BTN_ACTIVE_STROKE     = Color3.fromRGB(182, 152, 86)
 local BTN_ACTIVE_TEXT       = SOFT_WARM_CREAM
-local BTN_INACTIVE_BG       = Color3.fromRGB(26, 26, 34)
-local BTN_INACTIVE_STROKE   = Color3.fromRGB(86, 80, 72)
+local BTN_INACTIVE_BG       = Color3.fromRGB(25, 26, 34)
+local BTN_INACTIVE_STROKE   = Color3.fromRGB(84, 78, 70)
 
 -- Hằng số TweenInfo dùng chung (0 cấp phát bộ nhớ thừa)
 local TWEEN_FAST_OUT  = TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
@@ -156,6 +158,44 @@ local function getViewportWidth()
 		return cam.ViewportSize.X
 	end
 	return 1000
+end
+
+-- Lấy kích thước chuẩn kể cả ở 0.0s khi AbsoluteSize đang bằng 0 hoặc đang chạy hiệu ứng phóng to
+local function getEffectiveBoxSize(guiObj)
+	if not guiObj then return 0, 0 end
+	local aw, ah = guiObj.AbsoluteSize.X, guiObj.AbsoluteSize.Y
+	if aw >= 16 and ah >= 16 then
+		return aw, ah
+	end
+	local okS, sz = pcall(function() return guiObj.Size end)
+	if okS and sz and sz.X and sz.Y then
+		local ox, oy = sz.X.Offset or 0, sz.Y.Offset or 0
+		if ox >= 16 and oy >= 16 then
+			return ox, oy
+		end
+	end
+	return aw, ah
+end
+
+-- Kiểm tra xem một phần tử có nằm bên trong cửa sổ menu lớn (>= 220x150) hay không
+local function isInsideLargeWindowFrame(obj)
+	if State.FiggyMainWindow and (obj == State.FiggyMainWindow or obj:IsDescendantOf(State.FiggyMainWindow)) then
+		return true
+	end
+	local p = obj and obj.Parent
+	while p and not p:IsA("ScreenGui") do
+		if p:IsA("GuiObject") then
+			local pw, ph = getEffectiveBoxSize(p)
+			if pw >= 220 and ph >= 150 then
+				local bgT = p.BackgroundTransparency or 0
+				if bgT < 0.98 then
+					return true
+				end
+			end
+		end
+		p = p.Parent
+	end
+	return false
 end
 
 local function isFiggyWindowGui(gui)
@@ -235,7 +275,7 @@ local function isDeltaOrExecutorGui(gui)
 	return false
 end
 
--- Chỉ dọn dẹp nếu trước đó gắn nhầm vào Executor GUI, tuyệt đối KHÔNG bật lại ảnh mờ gốc trên Figgy Hub!
+-- Dọn dẹp nếu trước đó gắn nhầm vào Executor GUI, tuyệt đối KHÔNG bật lại ảnh mờ gốc trên Figgy Hub
 local function cleanupPreviousOverlaysAndDeduplicate()
 	local figgyGuis = {}
 	for _, root in ipairs(getUiRoots()) do
@@ -353,7 +393,7 @@ local function playUiSound(kind)
 end
 
 -- ============================================================================
--- 3. ĐỒNG XU VÀNG KÉO RỘNG & XOÁ SẠCH 100% ẢNH MỜ MỜ CỦA NÚT GỐC
+-- 3. THIẾT KẾ LOGO BANANA CAT: HÌNH TRÒN (LOGO CHÍNH & DYNAMIC) / HÌNH VUÔNG GÓC ĐẸP (BÊN PHẢI)
 -- ============================================================================
 local BANANA_CAT_ASSET_ID = "87447945720038"
 local BANANA_CAT_LOGO     = "rbxthumb://type=Asset&id=" .. BANANA_CAT_ASSET_ID .. "&w=420&h=420"
@@ -361,6 +401,9 @@ local DOWN_ARROW_ICON     = "rbxassetid://6031091004"
 
 local STRETCH_CAT_OFFSET  = Vector2.new(85, 0)
 local STRETCH_CAT_SIZE    = Vector2.new(250, 420)
+
+local CIRCLE_CORNER_UDIM  = UDim.new(1, 0)
+local SQUARE_CORNER_UDIM  = UDim.new(0.22, 0) -- Bo góc vuông đẹp chuẩn cột nút phải
 
 local function isFiggyPurpleColor(col)
 	if not col then return false end
@@ -429,7 +472,14 @@ local function applyGoldGradientToTitle(titleLbl)
 	grad.Parent = titleLbl
 end
 
-local function buildFullCatGoldCoin(parentContainer, strokeThickness, zBase)
+-- Hàm tạo huy hiệu Banana Cat Vàng Gold:
+-- + isRoundedSquare == false/nil: Hình tròn (cho Dynamic Island, nút mở menu chính & logo tiêu đề)
+-- + isRoundedSquare == true: Hình vuông bo góc đẹp (cho nút bên tay phải phía trên Trứng & Chân thú)
+local function buildFullCatGoldCoin(parentContainer, strokeThickness, zBase, isRoundedSquare)
+	local targetCornerRadius = isRoundedSquare and SQUARE_CORNER_UDIM or CIRCLE_CORNER_UDIM
+	local innerScale = isRoundedSquare and 0.88 or 0.86
+	local innerCornerRadius = isRoundedSquare and UDim.new(0.18, 0) or UDim.new(0.35, 0)
+
 	local coinDisc = parentContainer:FindFirstChild("BananaCatCircleAvatar")
 	if not coinDisc then
 		coinDisc = Instance.new("Frame")
@@ -446,10 +496,13 @@ local function buildFullCatGoldCoin(parentContainer, strokeThickness, zBase)
 		coinDisc.Parent = parentContainer
 
 		local corner = Instance.new("UICorner")
-		corner.CornerRadius = UDim.new(1, 0)
+		corner.CornerRadius = targetCornerRadius
 		corner.Parent = coinDisc
 
 		applyCoinSurfaceGoldGradient(coinDisc)
+	else
+		local corner = coinDisc:FindFirstChildOfClass("UICorner") or Instance.new("UICorner", coinDisc)
+		corner.CornerRadius = targetCornerRadius
 	end
 
 	local stroke = coinDisc:FindFirstChild("LuxuryGoldCircleStroke") or Instance.new("UIStroke")
@@ -470,7 +523,7 @@ local function buildFullCatGoldCoin(parentContainer, strokeThickness, zBase)
 		catSprite.Name = "BananaCatInnerSprite"
 		catSprite.AnchorPoint = Vector2.new(0.5, 0.5)
 		catSprite.Position = UDim2.fromScale(0.5, 0.5)
-		catSprite.Size = UDim2.fromScale(0.86, 0.86)
+		catSprite.Size = UDim2.fromScale(innerScale, innerScale)
 		catSprite.BackgroundTransparency = 1
 		catSprite.BorderSizePixel = 0
 		catSprite.Image = BANANA_CAT_LOGO
@@ -483,7 +536,7 @@ local function buildFullCatGoldCoin(parentContainer, strokeThickness, zBase)
 		catSprite.Parent = coinDisc
 
 		local spCorner = Instance.new("UICorner")
-		spCorner.CornerRadius = UDim.new(0.35, 0)
+		spCorner.CornerRadius = innerCornerRadius
 		spCorner.Parent = catSprite
 
 		applyCoinSurfaceGoldGradient(catSprite)
@@ -492,7 +545,9 @@ local function buildFullCatGoldCoin(parentContainer, strokeThickness, zBase)
 		catSprite.ImageRectOffset = STRETCH_CAT_OFFSET
 		catSprite.ImageRectSize = STRETCH_CAT_SIZE
 		catSprite.ScaleType = Enum.ScaleType.Stretch
-		catSprite.Size = UDim2.fromScale(0.86, 0.86)
+		catSprite.Size = UDim2.fromScale(innerScale, innerScale)
+		local spCorner = catSprite:FindFirstChildOfClass("UICorner") or Instance.new("UICorner", catSprite)
+		spCorner.CornerRadius = innerCornerRadius
 	end
 
 	return coinDisc, stroke
@@ -524,7 +579,7 @@ local function getOutermostSquareButton(obj)
 		local par = cur and cur.Parent
 		if par and (par:IsA("Frame") or par:IsA("ImageButton") or par:IsA("TextButton") or par:IsA("CanvasGroup")) then
 			if not par:FindFirstChildOfClass("UIListLayout") and not par:FindFirstChildOfClass("UIGridLayout") then
-				local pw, ph = par.AbsoluteSize.X, par.AbsoluteSize.Y
+				local pw, ph = getEffectiveBoxSize(par)
 				if pw >= 16 and pw <= 92 and ph >= 16 and ph <= 92 and math.abs(pw - ph) <= 14 then
 					cur = par
 				else
@@ -545,17 +600,18 @@ local function isBananaCoinPart(inst, coinDisc)
 	return (inst == coinDisc or inst:IsDescendantOf(coinDisc))
 end
 
--- Xoá sạch và khóa cứng mọi hình ảnh mờ mờ / khung vuông mờ mờ của nút gốc!
-local function silenceOriginalButtonVisual(inst, coinDisc)
+-- Xoá sạch và khóa cứng mọi hình ảnh mờ mờ / khung nền của nút gốc
+local function silenceOriginalButtonVisual(inst, coinDisc, targetCornerUdim)
 	if not inst or isBananaCoinPart(inst, coinDisc) then return end
+	local desiredCorner = targetCornerUdim or CIRCLE_CORNER_UDIM
 
 	if inst:IsA("UICorner") then
-		pcall(function() inst.CornerRadius = UDim.new(1, 0) end)
-		if inst:GetAttribute("__LockCircleCorner") ~= SID then
-			inst:SetAttribute("__LockCircleCorner", SID)
+		pcall(function() inst.CornerRadius = desiredCorner end)
+		if inst:GetAttribute("__LockShapeCorner") ~= SID then
+			inst:SetAttribute("__LockShapeCorner", SID)
 			trackConn(inst:GetPropertyChangedSignal("CornerRadius"):Connect(function()
-				if isAlive() and inst.CornerRadius ~= UDim.new(1, 0) then
-					pcall(function() inst.CornerRadius = UDim.new(1, 0) end)
+				if isAlive() and inst.CornerRadius ~= desiredCorner then
+					pcall(function() inst.CornerRadius = desiredCorner end)
 				end
 			end))
 		end
@@ -612,34 +668,62 @@ local function silenceOriginalButtonVisual(inst, coinDisc)
 	end
 end
 
-local function decoratePurpleOnionButton(rawTarget, strokeThickness)
+local function decoratePurpleOnionButton(rawTarget, strokeThickness, forceRoundedSquare)
 	local container = getOutermostSquareButton(rawTarget)
 	if not container or not container:IsA("GuiObject") then return end
-	local cw, ch = container.AbsoluteSize.X, container.AbsoluteSize.Y
-	if cw > 92 or ch > 92 or cw < 14 or ch < 14 then return end
+	local cw, ch = getEffectiveBoxSize(container)
+	if cw > 96 or ch > 96 or cw < 14 or ch < 14 then return end
+
+	-- Tự động xác định kiểu dáng:
+	-- + Nếu nằm bên tay phải màn hình (X >= 75% chiều rộng màn hình) -> Hình vuông có góc bo đẹp!
+	-- + Còn lại (Logo mở menu chính bên trái & Logo trên tiêu đề) -> Hình tròn!
+	local isRightSideSquare = forceRoundedSquare
+	if isRightSideSquare == nil then
+		local vpW = getViewportWidth()
+		isRightSideSquare = (container.AbsolutePosition.X >= vpW * 0.75)
+	end
+	local targetCornerUdim = isRightSideSquare and SQUARE_CORNER_UDIM or CIRCLE_CORNER_UDIM
 
 	local thick = strokeThickness or 2.0
-	local coinDisc, stroke = buildFullCatGoldCoin(container, thick, (container.ZIndex or 5) + 8)
+	local coinDisc, stroke = buildFullCatGoldCoin(container, thick, (container.ZIndex or 5) + 8, isRightSideSquare)
 
-	-- Đảm bảo chính container cũng bo tròn 100% để 4 góc vuông mờ không bao giờ thò ra
 	local cCorner = container:FindFirstChildOfClass("UICorner")
 	if not cCorner then
 		cCorner = Instance.new("UICorner")
-		cCorner.CornerRadius = UDim.new(1, 0)
+		cCorner.CornerRadius = targetCornerUdim
 		cCorner.Parent = container
 	end
 
-	silenceOriginalButtonVisual(container, coinDisc)
+	silenceOriginalButtonVisual(container, coinDisc, targetCornerUdim)
 	for _, desc in ipairs(container:GetDescendants()) do
-		silenceOriginalButtonVisual(desc, coinDisc)
+		silenceOriginalButtonVisual(desc, coinDisc, targetCornerUdim)
 	end
 
-	-- Nếu Figgy Hub sinh thêm hiệu ứng bóng mờ / ảnh mờ bên trong nút về sau thì ẩn ngay lập tức
+	-- Nếu nút có một khung bóng mờ / nền mờ anh em (sibling) nằm chồng cùng tọa độ thì ẩn sạch luôn
+	local par = container.Parent
+	if par and (par:IsA("ScreenGui") or (par:IsA("GuiObject") and not par:FindFirstChildOfClass("UIListLayout") and not par:FindFirstChildOfClass("UIGridLayout"))) then
+		for _, sib in ipairs(par:GetChildren()) do
+			if sib ~= container and sib:IsA("GuiObject") and sib.Name ~= "BananaCatCircleAvatar" then
+				local sw, sh = getEffectiveBoxSize(sib)
+				if sw >= 16 and sw <= 96 and sh >= 16 and sh <= 96 then
+					local dx = math.abs(sib.AbsolutePosition.X - container.AbsolutePosition.X)
+					local dy = math.abs(sib.AbsolutePosition.Y - container.AbsolutePosition.Y)
+					if dx <= 12 and dy <= 12 then
+						silenceOriginalButtonVisual(sib, coinDisc, targetCornerUdim)
+						for _, sDesc in ipairs(sib:GetDescendants()) do
+							silenceOriginalButtonVisual(sDesc, coinDisc, targetCornerUdim)
+						end
+					end
+				end
+			end
+		end
+	end
+
 	if container:GetAttribute("__SilenceNewChildren") ~= SID then
 		container:SetAttribute("__SilenceNewChildren", SID)
 		trackConn(container.DescendantAdded:Connect(function(newChild)
 			if isAlive() and not isBananaCoinPart(newChild, coinDisc) then
-				silenceOriginalButtonVisual(newChild, coinDisc)
+				silenceOriginalButtonVisual(newChild, coinDisc, targetCornerUdim)
 			end
 		end))
 	end
@@ -680,7 +764,7 @@ local EXACT_VI = {
 	["steal an egg"] = "Cướp Trứng",
 	["Lemon"] = "Vàng Hoàng Gia (Gold)",
 
-	-- Trạng thái (Treadmill được quy thẳng về Đang rảnh theo đúng yêu cầu)
+	-- Trạng thái (Treadmill được quy thẳng về Đang rảnh)
 	["Treadmill"] = "Đang rảnh",
 	["treadmill"] = "Đang rảnh",
 	["TREADMILL"] = "Đang rảnh",
@@ -921,7 +1005,7 @@ local function formatIslandStatusText(rawStatus)
 end
 
 -- ============================================================================
--- 5. THIẾT KẾ LIQUID GLASS DYNAMIC ISLAND CHUYÊN NGHIỆP (CHỮ SẮC NÉT, 0% CHÓI MẮT)
+-- 5. THIẾT KẾ LIQUID GLASS DYNAMIC ISLAND (XOÁ NÚT ÂM THANH & XOÁ LÀM MỚI, CHỮ DỊU MẮT)
 -- ============================================================================
 local PINNED_PILL_POS   = UDim2.new(0.5, 0, 0, 6)
 local PINNED_DRAWER_POS = UDim2.new(0.5, 0, 0, 48)
@@ -940,20 +1024,20 @@ local LIQUID_RIM_TRANS_SEQ = NumberSequence.new({
 })
 
 local LIQUID_BG_COLOR_SEQ = ColorSequence.new({
-	ColorSequenceKeypoint.new(0.00, Color3.fromRGB(46, 44, 56)), -- Ánh sương mặt kính trên
-	ColorSequenceKeypoint.new(0.42, Color3.fromRGB(22, 22, 30)),
+	ColorSequenceKeypoint.new(0.00, Color3.fromRGB(48, 46, 58)), -- Ánh sương mặt kính trên
+	ColorSequenceKeypoint.new(0.42, Color3.fromRGB(22, 23, 31)),
 	ColorSequenceKeypoint.new(1.00, Color3.fromRGB(12, 12, 18)), -- Nền kính sâu
 })
 
 local GLINT_TRANS_SEQ = NumberSequence.new({
 	NumberSequenceKeypoint.new(0.00, 1.00),
-	NumberSequenceKeypoint.new(0.22, 0.68),
-	NumberSequenceKeypoint.new(0.50, 0.52),
-	NumberSequenceKeypoint.new(0.78, 0.68),
+	NumberSequenceKeypoint.new(0.22, 0.66),
+	NumberSequenceKeypoint.new(0.50, 0.50),
+	NumberSequenceKeypoint.new(0.78, 0.66),
 	NumberSequenceKeypoint.new(1.00, 1.00),
 })
 
--- Hàm gắn UIStroke chuẩn cho cả Frame lẫn TextButton (BẮT BUỘC ApplyStrokeMode.Border để không ăn vào chữ gây chói mắt!)
+-- Gắn UIStroke chuẩn cho cả Frame lẫn TextButton (BẮT BUỘC ApplyStrokeMode.Border để không ăn vào chữ gây chói mắt!)
 local function createCleanBorderStroke(parent, color, thickness, transparency)
 	local stroke = Instance.new("UIStroke")
 	stroke.Color = color or BTN_INACTIVE_STROKE
@@ -981,13 +1065,13 @@ local function applyLiquidGlassRim(stroke, thickness)
 end
 
 local function applyLiquidGlass(frame, cornerRadius, bgAlpha, strokeThickness)
-	local alpha = bgAlpha or 0.16
+	local alpha = bgAlpha or 0.15
 	frame.BackgroundColor3 = LIQUID_GLASS_BASE
 	frame.BackgroundTransparency = alpha
 	frame.BorderSizePixel = 0
 
 	local corner = frame:FindFirstChildOfClass("UICorner") or Instance.new("UICorner")
-	corner.CornerRadius = cornerRadius or UDim.new(1, 0)
+	corner.CornerRadius = cornerRadius or CIRCLE_CORNER_UDIM
 	corner.Parent = frame
 
 	local bgGrad = frame:FindFirstChild("LiquidGlassBgGrad") or Instance.new("UIGradient")
@@ -1021,7 +1105,7 @@ local function applyLiquidGlass(frame, cornerRadius, bgAlpha, strokeThickness)
 		innerRim.Parent = frame
 
 		local irCorner = Instance.new("UICorner")
-		irCorner.CornerRadius = cornerRadius or UDim.new(1, 0)
+		irCorner.CornerRadius = cornerRadius or CIRCLE_CORNER_UDIM
 		irCorner.Parent = innerRim
 
 		createCleanBorderStroke(innerRim, Color3.fromRGB(255, 248, 225), 1, 0.84)
@@ -1099,7 +1183,7 @@ local function createIndependentFiggyDynamicIsland()
 		end
 	end))
 
-	applyLiquidGlass(pillFrame, UDim.new(1, 0), 0.16, 1.25)
+	applyLiquidGlass(pillFrame, CIRCLE_CORNER_UDIM, 0.15, 1.25)
 
 	local logoOrbHolder = Instance.new("Frame")
 	logoOrbHolder.Name = "BananaCatLogoOrb"
@@ -1111,7 +1195,8 @@ local function createIndependentFiggyDynamicIsland()
 	logoOrbHolder.ZIndex = 22
 	logoOrbHolder.Parent = pillFrame
 
-	local pillCoinDisc, pillOrbStroke = buildFullCatGoldCoin(logoOrbHolder, 1.8, 23)
+	-- Logo Dynamic Island: HÌNH TRÒN (isRoundedSquare = false)
+	local pillCoinDisc, pillOrbStroke = buildFullCatGoldCoin(logoOrbHolder, 1.8, 23, false)
 
 	local statusBadgeContainer = Instance.new("Frame")
 	statusBadgeContainer.Name = "TransplantedStatusBadge"
@@ -1119,11 +1204,11 @@ local function createIndependentFiggyDynamicIsland()
 	statusBadgeContainer.Position = UDim2.new(0, 40, 0.5, 0)
 	statusBadgeContainer.Size = UDim2.new(1, -66, 0, 26)
 	statusBadgeContainer.BackgroundColor3 = LIQUID_GLASS_CARD
-	statusBadgeContainer.BackgroundTransparency = 0.32
+	statusBadgeContainer.BackgroundTransparency = 0.30
 	statusBadgeContainer.BorderSizePixel = 0
 	statusBadgeContainer.ZIndex = 22
 	statusBadgeContainer.Parent = pillFrame
-	Instance.new("UICorner", statusBadgeContainer).CornerRadius = UDim.new(1, 0)
+	Instance.new("UICorner", statusBadgeContainer).CornerRadius = CIRCLE_CORNER_UDIM
 	createCleanBorderStroke(statusBadgeContainer, Color3.fromRGB(142, 118, 64), 1, 0.48)
 
 	local statusIconImg = Instance.new("ImageLabel")
@@ -1175,9 +1260,10 @@ local function createIndependentFiggyDynamicIsland()
 	pillClickBtn.ZIndex = 25
 	pillClickBtn.Parent = pillFrame
 
+	-- Đã xoá cả nút Tắt/Bật Âm Thanh lẫn nút Làm Mới & Đồng Bộ -> Bảng mở rộng gọn đẹp, tinh tế
 	local EXP_W = 316
-	local COLLAPSED_EXP_H = 172
-	local OPEN_NOTE_EXP_H = 260
+	local COLLAPSED_EXP_H = 142
+	local OPEN_NOTE_EXP_H = 228
 
 	local expandPanel = Instance.new("Frame")
 	expandPanel.Name = "LanguageDrawer"
@@ -1205,7 +1291,7 @@ local function createIndependentFiggyDynamicIsland()
 	expLogoHolder.BorderSizePixel = 0
 	expLogoHolder.ZIndex = 32
 	expLogoHolder.Parent = expandPanel
-	buildFullCatGoldCoin(expLogoHolder, 1.6, 33)
+	buildFullCatGoldCoin(expLogoHolder, 1.6, 33, false)
 
 	local expTitle = Instance.new("TextLabel")
 	expTitle.Position = UDim2.new(0, 48, 0, 9)
@@ -1216,7 +1302,7 @@ local function createIndependentFiggyDynamicIsland()
 	expTitle.TextColor3 = GOLD_BRIGHT_TITLE
 	expTitle.TextStrokeTransparency = 1
 	expTitle.TextXAlignment = Enum.TextXAlignment.Left
-	expTitle.Text = "BANANA HUB • LIQUID GLASS"
+	expTitle.Text = "BANANA HUB • GOLD PREMIUM"
 	expTitle.ZIndex = 33
 	expTitle.Parent = expandPanel
 	applyGoldGradientToTitle(expTitle)
@@ -1230,7 +1316,7 @@ local function createIndependentFiggyDynamicIsland()
 	expSubBadge.TextColor3 = SOFT_MUTED_TAUPE
 	expSubBadge.TextStrokeTransparency = 1
 	expSubBadge.TextXAlignment = Enum.TextXAlignment.Left
-	expSubBadge.Text = "● ÂM THANH MỞ SẴN • CHỐNG LAG 100%"
+	expSubBadge.Text = "● LIQUID GLASS • TỰ ĐỘNG ĐỒNG BỘ"
 	expSubBadge.ZIndex = 33
 	expSubBadge.Parent = expandPanel
 
@@ -1239,7 +1325,7 @@ local function createIndependentFiggyDynamicIsland()
 	collapseBtn.Position = UDim2.new(1, -78, 0, 11)
 	collapseBtn.Size = UDim2.new(0, 66, 0, 22)
 	collapseBtn.BackgroundColor3 = LIQUID_GLASS_CARD
-	collapseBtn.BackgroundTransparency = 0.28
+	collapseBtn.BackgroundTransparency = 0.26
 	collapseBtn.BorderSizePixel = 0
 	collapseBtn.Text = "Thu gọn ▲"
 	collapseBtn.Font = Enum.Font.GothamMedium
@@ -1249,7 +1335,7 @@ local function createIndependentFiggyDynamicIsland()
 	collapseBtn.AutoButtonColor = false
 	collapseBtn.ZIndex = 34
 	collapseBtn.Parent = expandPanel
-	Instance.new("UICorner", collapseBtn).CornerRadius = UDim.new(1, 0)
+	Instance.new("UICorner", collapseBtn).CornerRadius = CIRCLE_CORNER_UDIM
 	createCleanBorderStroke(collapseBtn, Color3.fromRGB(130, 112, 68), 1, 0.45)
 
 	local liveStatusCard = Instance.new("Frame")
@@ -1257,7 +1343,7 @@ local function createIndependentFiggyDynamicIsland()
 	liveStatusCard.Position = UDim2.new(0, 12, 0, 44)
 	liveStatusCard.Size = UDim2.new(1, -24, 0, 28)
 	liveStatusCard.BackgroundColor3 = LIQUID_GLASS_CARD
-	liveStatusCard.BackgroundTransparency = 0.30
+	liveStatusCard.BackgroundTransparency = 0.28
 	liveStatusCard.BorderSizePixel = 0
 	liveStatusCard.ZIndex = 32
 	liveStatusCard.Parent = expandPanel
@@ -1284,7 +1370,7 @@ local function createIndependentFiggyDynamicIsland()
 	langTrack.Position = UDim2.new(0, 12, 0, 78)
 	langTrack.Size = UDim2.new(1, -24, 0, 30)
 	langTrack.BackgroundColor3 = LIQUID_GLASS_TRACK
-	langTrack.BackgroundTransparency = 0.35
+	langTrack.BackgroundTransparency = 0.32
 	langTrack.BorderSizePixel = 0
 	langTrack.ZIndex = 32
 	langTrack.Parent = expandPanel
@@ -1297,7 +1383,7 @@ local function createIndependentFiggyDynamicIsland()
 	btnVI.Size = UDim2.new(0.5, -5, 1, -6)
 	btnVI.BorderSizePixel = 0
 	btnVI.BackgroundColor3 = (State.Language == "VI") and BTN_ACTIVE_BG or BTN_INACTIVE_BG
-	btnVI.BackgroundTransparency = (State.Language == "VI") and 0.15 or 0.35
+	btnVI.BackgroundTransparency = (State.Language == "VI") and 0.16 or 0.36
 	btnVI.Font = Enum.Font.GothamBold
 	btnVI.Text = "🇻🇳 Tiếng Việt"
 	btnVI.TextSize = 10.5
@@ -1320,7 +1406,7 @@ local function createIndependentFiggyDynamicIsland()
 	btnEN.Size = UDim2.new(0.5, -5, 1, -6)
 	btnEN.BorderSizePixel = 0
 	btnEN.BackgroundColor3 = (State.Language == "EN") and BTN_ACTIVE_BG or BTN_INACTIVE_BG
-	btnEN.BackgroundTransparency = (State.Language == "EN") and 0.15 or 0.35
+	btnEN.BackgroundTransparency = (State.Language == "EN") and 0.16 or 0.36
 	btnEN.Font = Enum.Font.GothamBold
 	btnEN.Text = "🇺🇸 English"
 	btnEN.TextSize = 10.5
@@ -1337,40 +1423,12 @@ local function createIndependentFiggyDynamicIsland()
 		(State.Language == "EN") and 0.28 or 0.60
 	)
 
-	-- Hàng nút chức năng: ĐÃ XOÁ NÚT TẮT/BẬT ÂM THANH (MẶC ĐỊNH MỞ),
-	-- nút "Làm mới & Đồng bộ" trải rộng toàn hàng với nền Liquid Glass & chữ sắc nét không chói mắt!
-	local actionRow = Instance.new("Frame")
-	actionRow.Name = "ActionRow"
-	actionRow.Position = UDim2.new(0, 12, 0, 114)
-	actionRow.Size = UDim2.new(1, -24, 0, 26)
-	actionRow.BackgroundTransparency = 1
-	actionRow.ZIndex = 32
-	actionRow.Parent = expandPanel
-
-	local rescanBtn = Instance.new("TextButton")
-	rescanBtn.Name = "RescanTranslateBtn"
-	rescanBtn.Position = UDim2.new(0, 0, 0, 0)
-	rescanBtn.Size = UDim2.new(1, 0, 1, 0)
-	rescanBtn.BackgroundColor3 = LIQUID_GLASS_CARD
-	rescanBtn.BackgroundTransparency = 0.22
-	rescanBtn.BorderSizePixel = 0
-	rescanBtn.Font = Enum.Font.GothamMedium
-	rescanBtn.TextSize = 10
-	rescanBtn.TextColor3 = SOFT_WARM_CREAM
-	rescanBtn.TextStrokeTransparency = 1
-	rescanBtn.Text = "⚡ Làm mới & Đồng bộ"
-	rescanBtn.AutoButtonColor = false
-	rescanBtn.ZIndex = 34
-	rescanBtn.Parent = actionRow
-	Instance.new("UICorner", rescanBtn).CornerRadius = UDim.new(0, 7)
-	createCleanBorderStroke(rescanBtn, Color3.fromRGB(168, 142, 82), 1, 0.35)
-
 	local noteToggleBtn = Instance.new("TextButton")
 	noteToggleBtn.Name = "SettingNoteToggleBtn"
-	noteToggleBtn.Position = UDim2.new(0, 12, 0, 144)
+	noteToggleBtn.Position = UDim2.new(0, 12, 0, 114)
 	noteToggleBtn.Size = UDim2.new(1, -24, 0, 22)
 	noteToggleBtn.BackgroundColor3 = LIQUID_GLASS_TRACK
-	noteToggleBtn.BackgroundTransparency = 0.35
+	noteToggleBtn.BackgroundTransparency = 0.32
 	noteToggleBtn.BorderSizePixel = 0
 	noteToggleBtn.Text = "Thông tin Banana Hub Gold Premium (Bấm xem) ▼"
 	noteToggleBtn.Font = Enum.Font.GothamMedium
@@ -1385,10 +1443,10 @@ local function createIndependentFiggyDynamicIsland()
 
 	local noteDrawer = Instance.new("Frame")
 	noteDrawer.Name = "SettingNoteDrawer"
-	noteDrawer.Position = UDim2.new(0, 12, 0, 170)
-	noteDrawer.Size = UDim2.new(1, -24, 0, 80)
+	noteDrawer.Position = UDim2.new(0, 12, 0, 140)
+	noteDrawer.Size = UDim2.new(1, -24, 0, 78)
 	noteDrawer.BackgroundColor3 = LIQUID_GLASS_CARD
-	noteDrawer.BackgroundTransparency = 0.30
+	noteDrawer.BackgroundTransparency = 0.28
 	noteDrawer.BorderSizePixel = 0
 	noteDrawer.Visible = false
 	noteDrawer.ClipsDescendants = true
@@ -1418,7 +1476,7 @@ local function createIndependentFiggyDynamicIsland()
 	ndLine1.TextColor3 = SOFT_WARM_CREAM
 	ndLine1.TextStrokeTransparency = 1
 	ndLine1.TextXAlignment = Enum.TextXAlignment.Left
-	ndLine1.Text = "+ Xoá sạch ảnh mờ gốc lúc mới chạy & chống lộ viền vuông"
+	ndLine1.Text = "+ Logo chính & Dynamic hình tròn, nút bên phải vuông bo góc đẹp"
 	ndLine1.ZIndex = 35
 
 	local ndLine2 = Instance.new("TextLabel", noteDrawer)
@@ -1430,7 +1488,7 @@ local function createIndependentFiggyDynamicIsland()
 	ndLine2.TextColor3 = SOFT_MUTED_TAUPE
 	ndLine2.TextStrokeTransparency = 1
 	ndLine2.TextXAlignment = Enum.TextXAlignment.Left
-	ndLine2.Text = "+ Liquid Glass đa lớp, âm thanh mặc định mở, chữ dịu mắt"
+	ndLine2.Text = "+ Xoá ảnh mờ gốc từ 0.0s, âm thanh mở sẵn, chữ sắc nét dịu mắt"
 	ndLine2.ZIndex = 35
 
 	local ndLine3 = Instance.new("TextLabel", noteDrawer)
@@ -1474,23 +1532,22 @@ local function createIndependentFiggyDynamicIsland()
 		end
 
 		if forceUpdate then
-			expSubBadge.Text = (State.Language == "EN") and "● SOUND ON BY DEFAULT • 0% LAG" or "● ÂM THANH MỞ SẴN • CHỐNG LAG 100%"
+			expSubBadge.Text = (State.Language == "EN") and "● LIQUID GLASS • AUTO SYNC" or "● LIQUID GLASS • TỰ ĐỘNG ĐỒNG BỘ"
 			collapseBtn.Text = (State.Language == "EN") and "Collapse ▲" or "Thu gọn ▲"
-			rescanBtn.Text = (State.Language == "EN") and "⚡ Refresh & Sync" or "⚡ Làm mới & Đồng bộ"
 			if State.NoteOpen then
-				noteToggleBtn.Text = (State.Language == "EN") and "Banana Hub Liquid Glass Info (Collapse) ▲" or "Thông tin Banana Hub Gold Premium (Thu gọn) ▲"
+				noteToggleBtn.Text = (State.Language == "EN") and "Banana Hub Gold Premium Info (Collapse) ▲" or "Thông tin Banana Hub Gold Premium (Thu gọn) ▲"
 			else
-				noteToggleBtn.Text = (State.Language == "EN") and "Banana Hub Liquid Glass Info (Click) ▼" or "Thông tin Banana Hub Gold Premium (Bấm xem) ▼"
+				noteToggleBtn.Text = (State.Language == "EN") and "Banana Hub Gold Premium Info (Click) ▼" or "Thông tin Banana Hub Gold Premium (Bấm xem) ▼"
 			end
 
 			btnVI.BackgroundColor3 = (State.Language == "VI") and BTN_ACTIVE_BG or BTN_INACTIVE_BG
-			btnVI.BackgroundTransparency = (State.Language == "VI") and 0.15 or 0.35
+			btnVI.BackgroundTransparency = (State.Language == "VI") and 0.16 or 0.36
 			btnVI.TextColor3 = (State.Language == "VI") and SOFT_WARM_CREAM or SOFT_MUTED_TAUPE
 			btnVIStroke.Color = (State.Language == "VI") and BTN_ACTIVE_STROKE or BTN_INACTIVE_STROKE
 			btnVIStroke.Transparency = (State.Language == "VI") and 0.28 or 0.60
 
 			btnEN.BackgroundColor3 = (State.Language == "EN") and BTN_ACTIVE_BG or BTN_INACTIVE_BG
-			btnEN.BackgroundTransparency = (State.Language == "EN") and 0.15 or 0.35
+			btnEN.BackgroundTransparency = (State.Language == "EN") and 0.16 or 0.36
 			btnEN.TextColor3 = (State.Language == "EN") and SOFT_WARM_CREAM or SOFT_MUTED_TAUPE
 			btnENStroke.Color = (State.Language == "EN") and BTN_ACTIVE_STROKE or BTN_INACTIVE_STROKE
 			btnENStroke.Transparency = (State.Language == "EN") and 0.28 or 0.60
@@ -1519,12 +1576,12 @@ local function createIndependentFiggyDynamicIsland()
 		State.NoteOpen = not State.NoteOpen
 		if State.NoteOpen then
 			noteDrawer.Visible = true
-			noteToggleBtn.Text = (State.Language == "EN") and "Banana Hub Liquid Glass Info (Collapse) ▲" or "Thông tin Banana Hub Gold Premium (Thu gọn) ▲"
+			noteToggleBtn.Text = (State.Language == "EN") and "Banana Hub Gold Premium Info (Collapse) ▲" or "Thông tin Banana Hub Gold Premium (Thu gọn) ▲"
 			TweenService:Create(expandPanel, TWEEN_PANEL_OUT, {
 				Size = UDim2.new(0, EXP_W, 0, OPEN_NOTE_EXP_H)
 			}):Play()
 		else
-			noteToggleBtn.Text = (State.Language == "EN") and "Banana Hub Liquid Glass Info (Click) ▼" or "Thông tin Banana Hub Gold Premium (Bấm xem) ▼"
+			noteToggleBtn.Text = (State.Language == "EN") and "Banana Hub Gold Premium Info (Click) ▼" or "Thông tin Banana Hub Gold Premium (Bấm xem) ▼"
 			local tw = TweenService:Create(expandPanel, TWEEN_FAST_OUT, {
 				Size = UDim2.new(0, EXP_W, 0, COLLAPSED_EXP_H)
 			})
@@ -1535,14 +1592,6 @@ local function createIndependentFiggyDynamicIsland()
 				end)
 			end
 		end
-	end))
-
-	trackConn(rescanBtn.Activated:Connect(function()
-		playUiSound("action")
-		if State.RefreshAllMenus then
-			task.spawn(State.RefreshAllMenus)
-		end
-		updatePillVisuals(true)
 	end))
 
 	local lastToggleClock = -10
@@ -1676,9 +1725,10 @@ local function syncStatusFromLiveWidgets()
 end
 
 -- ============================================================================
--- 7. NHẬN DIỆN NÚT CỦ HÀNH TÍM TỨC THỜI (0% LỘ ẢNH MỜ GỐC LÚC MỚI CHẠY)
+-- 7. NHẬN DIỆN NÚT CỦ HÀNH TÍM CHÍNH XÁC (0% GHIM NHẦM, 0% LỘ ẢNH MỜ)
 -- ============================================================================
 local function hasPurpleVisualInside(btn)
+	if btn:GetAttribute("__WasFiggyPurple") == true then return true end
 	if btn.BackgroundTransparency < 0.95 and isFiggyPurpleColor(btn.BackgroundColor3) then
 		return true
 	end
@@ -1686,6 +1736,7 @@ local function hasPurpleVisualInside(btn)
 		return true
 	end
 	for _, d in ipairs(btn:GetDescendants()) do
+		if d:GetAttribute("__WasFiggyPurple") == true then return true end
 		if d:IsA("Frame") or d:IsA("ImageLabel") or d:IsA("ImageButton") then
 			if d.BackgroundTransparency < 0.95 and isFiggyPurpleColor(d.BackgroundColor3) then
 				return true
@@ -1711,7 +1762,13 @@ local function isPurpleOnionSquareButton(btn, isInsideVerifiedFiggyGui)
 		return false
 	end
 
-	local bw, bh = btn.AbsoluteSize.X, btn.AbsoluteSize.Y
+	-- TUYỆT ĐỐI KHÔNG gắn nhầm vào các nút/icon/avatar bên trong cửa sổ menu lớn!
+	-- (Logo tiêu đề góc trái của cửa sổ đã được gắn riêng qua `bindHeaderAndLogosFromTitle`)
+	if isInsideLargeWindowFrame(btn) then
+		return false
+	end
+
+	local bw, bh = getEffectiveBoxSize(btn)
 	if bw < 28 or bw > 82 or bh < 28 or bh > 82 or math.abs(bw - bh) > 10 then
 		return false
 	end
@@ -1725,20 +1782,23 @@ local function isPurpleOnionSquareButton(btn, isInsideVerifiedFiggyGui)
 	local par = btn.Parent
 	local isTopLevel = par:IsA("ScreenGui") or (par:IsA("Frame") and par.Parent and par.Parent:IsA("ScreenGui") and par.BackgroundTransparency >= 0.99)
 
-	if isInsideVerifiedFiggyGui and isTopLevel then
+	local vpW = getViewportWidth()
+	local isRightColumn = (btn.AbsolutePosition.X >= vpW * 0.75)
+
+	if isInsideVerifiedFiggyGui and isTopLevel and not isRightColumn then
 		local hasImg = (btn:IsA("ImageButton") or btn:FindFirstChildWhichIsA("ImageLabel", true) ~= nil or btn:FindFirstChildWhichIsA("ImageButton", true) ~= nil)
 		if hasImg then
 			return true
 		end
 	end
 
-	-- Nếu nút nổi ở cấp cao nhất có màu tím đặc trưng của Figgy Hub (dù ở bên trái hay bên phải màn hình)
-	if isTopLevel and hasPurpleVisualInside(btn) then
+	-- Nút mở menu chính (bên trái) có màu tím đặc trưng của Figgy Hub
+	if isTopLevel and not isRightColumn and hasPurpleVisualInside(btn) then
 		return true
 	end
 
-	local vpW = getViewportWidth()
-	if btn.AbsolutePosition.X >= vpW * 0.75 then
+	-- Nút bên tay phải màn hình (phía trên Trứng đỏ & Chân thú cam)
+	if isRightColumn then
 		if hasPurpleVisualInside(btn) then
 			return true
 		end
@@ -1751,7 +1811,7 @@ local function isPurpleOnionSquareButton(btn, isInsideVerifiedFiggyGui)
 				for _, other in ipairs(rootGui:GetDescendants()) do
 					if other ~= btn and not other:IsDescendantOf(btn) and not btn:IsDescendantOf(other) then
 						if other:IsA("ImageButton") or other:IsA("TextButton") or other:IsA("Frame") then
-							local ow, oh = other.AbsoluteSize.X, other.AbsoluteSize.Y
+							local ow, oh = getEffectiveBoxSize(other)
 							if math.abs(ow - bw) <= 8 and math.abs(oh - bh) <= 8 and math.abs(other.AbsolutePosition.X - btn.AbsolutePosition.X) <= 10 then
 								local dy = other.AbsolutePosition.Y - btn.AbsolutePosition.Y
 								if dy > 24 and dy < 200 then
@@ -1774,6 +1834,7 @@ local function isPurpleOnionSquareButton(btn, isInsideVerifiedFiggyGui)
 end
 
 local function scanPurpleOnionButtonsOnce()
+	local vpW = getViewportWidth()
 	for _, root in ipairs(getUiRoots()) do
 		local okCh, children = pcall(function() return root:GetChildren() end)
 		if okCh and type(children) == "table" then
@@ -1785,7 +1846,8 @@ local function scanPurpleOnionButtonsOnce()
 					if okD and type(desc) == "table" then
 						for _, d in ipairs(desc) do
 							if isPurpleOnionSquareButton(d, isVerifiedFiggy) then
-								decoratePurpleOnionButton(d, 2.0)
+								local isRightSq = (d.AbsolutePosition.X >= vpW * 0.75)
+								decoratePurpleOnionButton(d, 2.0, isRightSq)
 							end
 						end
 					end
@@ -1800,12 +1862,29 @@ end
 -- ============================================================================
 local function bindHeaderAndLogosFromTitle(titleLbl)
 	if not titleLbl or not titleLbl.Parent then return end
-	if titleLbl.AbsoluteSize.Y > 0 and titleLbl.AbsoluteSize.Y < 13 then return end
+	local _, th = getEffectiveBoxSize(titleLbl)
+	if th > 0 and th < 13 then return end
+
+	-- Lưu lại khung cửa sổ chính để ngăn gắn nhầm logo vào các nút bên trong cửa sổ
+	local curWin = titleLbl
+	for _ = 1, 5 do
+		if curWin and curWin.Parent and curWin.Parent:IsA("GuiObject") then
+			curWin = curWin.Parent
+			local sw, sh = getEffectiveBoxSize(curWin)
+			if sw >= 220 and sh >= 150 then
+				State.FiggyMainWindow = curWin
+				break
+			end
+		else
+			break
+		end
+	end
 
 	local headerContainer = titleLbl.Parent
 	for _ = 1, 3 do
 		if headerContainer and headerContainer.Parent and headerContainer.Parent:IsA("GuiObject") then
-			if headerContainer.Parent.AbsoluteSize.Y > 0 and headerContainer.Parent.AbsoluteSize.Y <= 78 then
+			local _, hh = getEffectiveBoxSize(headerContainer.Parent)
+			if hh > 0 and hh <= 78 then
 				headerContainer = headerContainer.Parent
 			else
 				break
@@ -1815,15 +1894,18 @@ local function bindHeaderAndLogosFromTitle(titleLbl)
 
 	if not headerContainer then return end
 
+	-- Logo góc trái trên thanh tiêu đề cửa sổ: HÌNH TRÒN (forceRoundedSquare = false)
 	for _, d in ipairs(headerContainer:GetDescendants()) do
 		if (d:IsA("ImageLabel") or d:IsA("ImageButton")) and d.Name ~= "BananaCatInnerSprite" and d.Parent ~= State.LiveFiggyBadgeFrame then
-			local box = (d.Parent and d.Parent:IsA("GuiObject") and d.Parent.AbsoluteSize.X <= 46 and d.Parent.AbsoluteSize.Y <= 46) and d.Parent or d
-			local bw, bh = box.AbsoluteSize.X, box.AbsoluteSize.Y
+			local pBox = d.Parent
+			local pw, ph = getEffectiveBoxSize(pBox)
+			local box = (pBox and pBox:IsA("GuiObject") and pw >= 16 and pw <= 46 and ph >= 16 and ph <= 46) and pBox or d
+			local bw, bh = getEffectiveBoxSize(box)
 			local isSmallSquare = (bw >= 16 and bw <= 46 and bh >= 16 and bh <= 46 and math.abs(bw - bh) <= 8)
-			local isLeftOfTitle = (box.AbsolutePosition.X <= titleLbl.AbsolutePosition.X + 10)
-			local isSameRow = (math.abs(box.AbsolutePosition.Y - titleLbl.AbsolutePosition.Y) <= 24)
+			local isLeftOfTitle = (box.AbsolutePosition.X <= titleLbl.AbsolutePosition.X + 12)
+			local isSameRow = (math.abs(box.AbsolutePosition.Y - titleLbl.AbsolutePosition.Y) <= 26)
 			if isSmallSquare and isLeftOfTitle and isSameRow then
-				decoratePurpleOnionButton(box, 1.6)
+				decoratePurpleOnionButton(box, 1.6, false)
 				break
 			end
 		end
@@ -1885,18 +1967,22 @@ local function styleElementGoldOnce(obj)
 		if obj:IsA("TextLabel") or obj:IsA("TextButton") then
 			local curCol = obj.TextColor3
 			if isFiggyPurpleColor(curCol) then
+				obj:SetAttribute("__WasFiggyPurple", true)
 				obj.TextColor3 = SOFT_CHAMPAGNE_GOLD
 			end
 		elseif obj:IsA("Frame") or obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
 			local curBg = obj.BackgroundColor3
 			if isFiggyPurpleColor(curBg) then
+				obj:SetAttribute("__WasFiggyPurple", true)
 				obj.BackgroundColor3 = Color3.fromRGB(44, 38, 28)
 			end
 			if (obj:IsA("ImageLabel") or obj:IsA("ImageButton")) and isFiggyPurpleColor(obj.ImageColor3) then
+				obj:SetAttribute("__WasFiggyPurple", true)
 				obj.ImageColor3 = SOFT_CHAMPAGNE_GOLD
 			end
 		elseif obj:IsA("UIStroke") then
 			if isFiggyPurpleColor(obj.Color) then
+				obj:SetAttribute("__WasFiggyPurple", true)
 				obj.Color = Color3.fromRGB(150, 120, 65)
 			end
 		end
@@ -1904,6 +1990,7 @@ local function styleElementGoldOnce(obj)
 		local grad = obj:FindFirstChildOfClass("UIGradient")
 		if grad and grad.Name ~= "LuxuryGoldGradient" and grad.Name ~= "LiquidGlassStrokeGrad" and grad.Name ~= "LiquidGlassBgGrad" and grad.Name ~= "CoinSurfaceGoldGrad" and grad.Name ~= "BananaGoldTitleGrad" then
 			if hasPurpleGradient(obj) then
+				obj:SetAttribute("__WasFiggyPurple", true)
 				applyMetallicGoldGradient(grad)
 			end
 		end
@@ -1973,21 +2060,24 @@ local function processGuiElement(obj)
 	if not obj or not obj.Parent then return end
 	if State.IslandGui and obj:IsDescendantOf(State.IslandGui) then return end
 
-	pcall(styleElementGoldOnce, obj)
-
-	if obj:IsA("Frame") or obj:IsA("ImageButton") or obj:IsA("TextButton") then
+	-- Kiểm tra và gắn logo Banana Cat TRƯỚC khi styleElementGoldOnce đổi màu tím sang vàng!
+	if obj:IsA("Frame") or obj:IsA("ImageButton") or obj:IsA("TextButton") or obj:IsA("CanvasGroup") then
 		local rootGui = obj:FindFirstAncestorOfClass("ScreenGui")
 		local isVerified = rootGui and (rootGui:GetAttribute("__VerifiedFiggyWindowGui") == true) or false
 		if isPurpleOnionSquareButton(obj, isVerified) then
-			pcall(decoratePurpleOnionButton, obj, 2.0)
+			local isRightSq = (obj.AbsolutePosition.X >= getViewportWidth() * 0.75)
+			pcall(decoratePurpleOnionButton, obj, 2.0, isRightSq)
 		end
-	elseif obj:IsA("ImageLabel") and obj.Parent and (obj.Parent:IsA("Frame") or obj.Parent:IsA("ImageButton")) then
+	elseif obj:IsA("ImageLabel") and obj.Parent and (obj.Parent:IsA("Frame") or obj.Parent:IsA("ImageButton") or obj.Parent:IsA("CanvasGroup")) then
 		local rootGui = obj:FindFirstAncestorOfClass("ScreenGui")
 		local isVerified = rootGui and (rootGui:GetAttribute("__VerifiedFiggyWindowGui") == true) or false
 		if isPurpleOnionSquareButton(obj.Parent, isVerified) then
-			pcall(decoratePurpleOnionButton, obj.Parent, 2.0)
+			local isRightSq = (obj.Parent.AbsolutePosition.X >= getViewportWidth() * 0.75)
+			pcall(decoratePurpleOnionButton, obj.Parent, 2.0, isRightSq)
 		end
 	end
+
+	pcall(styleElementGoldOnce, obj)
 
 	if obj:IsA("TextButton") or obj:IsA("ImageButton") then
 		pcall(hookMenuButtonSound, obj)
@@ -2043,7 +2133,7 @@ local function hookTargetScreenGui(gui)
 	State.ActiveFiggyGui = gui
 	gui:SetAttribute("__FiggyGuiHooked", SID)
 
-	-- Bắt tức thời từng phần tử ngay khi tạo trong 3.5 giây đầu, sau đó NGẮT HẲN để khi chơi 0% lag!
+	-- Bắt tức thời từng phần tử ngay khi tạo trong 4.0 giây đầu, sau đó NGẮT HẲN để khi chơi 0% lag!
 	local tempDescConn
 	tempDescConn = gui.DescendantAdded:Connect(function(desc)
 		if not isAlive() then return end
@@ -2054,7 +2144,7 @@ local function hookTargetScreenGui(gui)
 		end)
 	end)
 	trackConn(tempDescConn)
-	task.delay(3.5, function()
+	task.delay(4.0, function()
 		if tempDescConn then
 			pcall(function() tempDescConn:Disconnect() end)
 		end
@@ -2082,7 +2172,7 @@ local function hookTargetScreenGui(gui)
 	end)
 end
 
--- Bắt nóng ScreenGui mới tạo ngay ở 0.0 giây (kể cả khi ScreenGui vừa gắn vào CoreGui và đang tạo các con bên trong)
+-- Bắt nóng ScreenGui mới tạo ngay ở 0.0 giây (kể cả khi đang chạy hiệu ứng mở menu)
 local function watchCandidateGuiAtStartup(gui)
 	if not gui or not gui:IsA("ScreenGui") then return end
 	local gName = gui.Name or ""
@@ -2156,7 +2246,12 @@ task.spawn(function()
 		pcall(function()
 			loadstring(game:HttpGet(FIGGY_LOADER_URL))()
 		end)
-		task.wait(0.15)
+	end
+
+	-- Quét bù theo 3 mốc ngắn lúc mới khởi tạo xong hiệu ứng mở để đảm bảo 100% không cần nút làm mới thủ công
+	for _, waitSec in ipairs({ 0.15, 0.50, 1.20 }) do
+		task.wait(waitSec)
+		if not isAlive() then break end
 		pcall(scanPurpleOnionButtonsOnce)
 	end
 end)
