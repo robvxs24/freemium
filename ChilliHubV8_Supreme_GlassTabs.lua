@@ -1927,6 +1927,7 @@ local function isPurpleOnionSquareButton(btn, isInsideVerifiedFiggyGui)
 	if not State.OnionAsset or State.OnionAsset == "" then return false end
 
 	local function matchesOriginalOnionImage(obj)
+		if not State.OnionAsset or State.OnionAsset == "" then return false end
 		if obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
 			local asset = obj:GetAttribute("__OrigImageAsset") or obj:GetAttribute("__OrigOnionImage") or obj.Image
 			if asset == State.OnionAsset then return true end
@@ -2134,15 +2135,17 @@ local function isGlobalLeftOnionImageButton(btn)
 	if btn.Name == "BananaCatInnerSprite" or btn.Name == "BananaCatBadgeImage" or btn.Name == "GoldBadgeInnerDisc" then return false end
 	if btn:FindFirstChild("BananaCatCircleAvatar") then return false end
 	if btn.Parent and btn.Parent:FindFirstChild("BananaCatCircleAvatar") then return false end
-	if not State.OnionAsset or State.OnionAsset == "" then return false end
 
 	local vpW, vpH = getViewportWidth(), getViewportHeight()
 	local ax, ay = btn.AbsolutePosition.X, btn.AbsolutePosition.Y
 	local bw, bh = getEffectiveBoxSize(btn)
 	if bw < 14 or bh < 14 or bw > 110 or bh > 110 or math.abs(bw - bh) > 18 then return false end
 	local inLeftLogoBand = ax >= vpW * 0.02 and ax <= vpW * 0.20
-	local inRightOnionBand = ax >= vpW * 0.78 and ax <= vpW * 0.98
-	if (not inLeftLogoBand and not inRightOnionBand) or ay < 0 or ay > vpH * 0.95 then return false end
+	local inRightTopOnionBand = ax >= vpW * 0.86 and ax <= vpW * 0.98
+	local isSmallRightSquare = bw >= 16 and bw <= 36 and bh >= 16 and bh <= 36 and math.abs(bw - bh) <= 8
+	local isTopRightOnionRow = ay >= vpH * 0.18 and ay <= vpH * 0.34
+	if (not inLeftLogoBand and not (inRightTopOnionBand and isSmallRightSquare and isTopRightOnionRow))
+		or ay < 0 or ay > vpH * 0.95 then return false end
 	if isInsideLargeWindowFrame(btn) then return false end
 
 	for _, d in ipairs(btn:GetDescendants()) do
@@ -2153,6 +2156,7 @@ local function isGlobalLeftOnionImageButton(btn)
 	end
 
 	local function matchesOriginalOnionImage(obj)
+		if not State.OnionAsset or State.OnionAsset == "" then return false end
 		if obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
 			local asset = obj:GetAttribute("__OrigOnionImage") or obj:GetAttribute("__OrigImageAsset") or obj.Image
 			if asset == State.OnionAsset then return true end
@@ -2165,7 +2169,10 @@ local function isGlobalLeftOnionImageButton(btn)
 		end
 		return false
 	end
-	return matchesOriginalOnionImage(btn)
+	if matchesOriginalOnionImage(btn) then return true end
+	-- Fallback only for the small purple onion icon at the top of the right column.
+	-- Egg and paw buttons sit lower and are deliberately excluded by the Y band.
+	return inRightTopOnionBand and isSmallRightSquare and isTopRightOnionRow and hasPurpleVisualInside(btn)
 end
 
 local function applyBananaCatImageOverride(btn)
