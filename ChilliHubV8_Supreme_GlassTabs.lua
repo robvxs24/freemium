@@ -2103,6 +2103,265 @@ local function scanPurpleOnionButtonsOnce()
 end
 
 -- ============================================================================
+-- 7C. QUÉT DIỆN RỘNG TOÀN CẦU (CoreGui + PlayerGui): ĐÈ ẢNH BANANA CAT
+--     LÊN MỌI NÚT CỦ HÀNH TÍM Ở LỀ TRÁI, BỎ QUA GUI DELTA EXECUTOR.
+--     Phần này chỉ thêm mới, không sửa bất kỳ đoạn mã cũ nào.
+-- ============================================================================
+local BANANA_CAT_CUSTOM_FILE = "figgy_banana_cat.png"
+
+-- Tải đúng ảnh Banana Cat (asset gốc của Dynamic Island) về máy để getcustomasset dùng.
+local function downloadBananaCatThumbPng()
+	if type(game.HttpGet) ~= "function" then return nil end
+	local okJson, json = pcall(function()
+		return game:HttpGet("https://thumbnails.roblox.com/v1/assets?assetIds=" .. BANANA_CAT_ASSET_ID .. "&size=420x420&format=Png")
+	end)
+	if not okJson or type(json) ~= "string" or #json < 32 then return nil end
+	local url = json:match('"imageUrl"%s*:%s*"([^"]+)"')
+	if not url or url == "" then return nil end
+	url = url:gsub("\\/", "/")
+	local okPng, png = pcall(function() return game:HttpGet(url) end)
+	if not okPng or type(png) ~= "string" or #png < 64 then return nil end
+	return png
+end
+
+local function resolveBananaCatOverrideAsset()
+	if State.BananaCatOverrideAsset then return State.BananaCatOverrideAsset end
+	-- Chống tải trùng khi nhiều mốc quét chạy song song lúc khởi động.
+	if State.BananaCatAssetResolving then return BANANA_CAT_LOGO end
+	State.BananaCatAssetResolving = true
+	local resolved = nil
+	pcall(function()
+		if type(getcustomasset) ~= "function" then return end
+		local file = BANANA_CAT_CUSTOM_FILE
+		local hasFile = (type(isfile) == "function") and (isfile(file) == true)
+		if not hasFile and type(writefile) == "function" then
+			local png = downloadBananaCatThumbPng()
+			if png then
+				writefile(file, png)
+				hasFile = (type(isfile) ~= "function") or (isfile(file) == true)
+			end
+		end
+		if hasFile then
+			local okA, a = pcall(getcustomasset, file)
+			if okA and type(a) == "string" and a ~= "" then resolved = a end
+		end
+	end)
+	State.BananaCatAssetResolving = false
+	if not resolved then resolved = BANANA_CAT_LOGO end
+	State.BananaCatOverrideAsset = resolved
+	return resolved
+end
+
+-- GUI của Delta / executor và các GUI hệ thống Roblox: tuyệt đối không đụng vào.
+local function isExecutorOrIgnoredScreenGui(gui)
+	if not gui or not gui:IsA("ScreenGui") then return true end
+	local gName = gui.Name or ""
+	if IGNORED_SCREEN_GUIS[gName] or gName:find("^Old_") then return true end
+	local low = string.lower(gName)
+	for _, kw in ipairs(EXECUTOR_KEYWORDS) do
+		if string.find(low, kw, 1, true) then return true end
+	end
+	if gui:GetAttribute("__IsExecutorGui") == true then return true end
+	if gui:GetAttribute("__VerifiedFiggyWindowGui") == true then return false end
+	if isDeltaOrExecutorGui(gui) then return true end
+	return false
+end
+
+-- Kiểm tra phần tử có handler click thật sự (dùng getconnections nếu executor hỗ trợ).
+local function guiHasClickConnection(obj)
+	if not obj or type(getconnections) ~= "function" then return false end
+	local ok, has = pcall(function()
+		local signals = {}
+		if obj.InputBegan then table.insert(signals, obj.InputBegan) end
+		if obj.Activated then table.insert(signals, obj.Activated) end
+		if obj.MouseButton1Click then table.insert(signals, obj.MouseButton1Click) end
+		for _, sig in ipairs(signals) do
+			local conns = getconnections(sig)
+			if conns and #conns > 0 then return true end
+		end
+		return false
+	end)
+	return ok and has == true
+end
+
+-- Ứng viên: ImageButton (hoặc ImageLabel click được), nằm nửa trái màn hình,
+-- không có chữ, không nằm trong cửa sổ menu lớn.
+local function isGlobalLeftOnionImageButton(btn)
+	if not btn or not btn.Parent then return false end
+	local isImageButton = btn:IsA("ImageButton")
+	local isImageLabel = btn:IsA("ImageLabel")
+	if not (isImageButton or isImageLabel) then return false end
+	if btn.Name == "BananaCatInnerSprite" or btn.Name == "BananaCatBadgeImage" or btn.Name == "GoldBadgeInnerDisc" then return false end
+	if btn:FindFirstChild("BananaCatCircleAvatar") then return false end
+	if btn.Parent and btn.Parent:FindFirstChild("BananaCatCircleAvatar") then return false end
+
+	local vpW, vpH = getViewportWidth(), getViewportHeight()
+	local ax, ay = btn.AbsolutePosition.X, btn.AbsolutePosition.Y
+	local bw, bh = getEffectiveBoxSize(btn)
+	if bw < 14 or bh < 14 or bw > 110 or bh > 110 then return false end
+	if math.abs(bw - bh) > 18 then return false end
+
+	-- Nửa trái màn hình: mốc 100px hoặc 22% chiều rộng (màn hình lớn vẫn bắt đúng).
+	local leftLimit = math.max(100, vpW * 0.22)
+	if ax < 0 or ax > leftLimit then return false end
+	if ay < 0 or ay > vpH * 0.95 then return false end
+	if isInsideLargeWindowFrame(btn) then return false end
+
+	-- Không đè lên nút có chữ (Tìm Kiếm / Shop / Slow Mode...).
+	for _, d in ipairs(btn:GetDescendants()) do
+		if d:IsA("TextLabel") and d.Visible and d.TextTransparency < 0.95 then
+			local t = (d.Text or ""):match("^%s*(.-)%s*$") or ""
+			if #t > 0 then return false end
+		end
+	end
+
+	if isImageButton then return true end
+	-- ImageLabel: chỉ nhận khi thực sự click được.
+	if btn.Active == true then return true end
+	if btn:FindFirstAncestorWhichIsA("GuiButton") ~= nil then return true end
+	if guiHasClickConnection(btn) then return true end
+	if btn.Parent and guiHasClickConnection(btn.Parent) then return true end
+	return false
+end
+
+local function applyBananaCatImageOverride(btn)
+	if not btn or not btn.Parent then return end
+	if btn:GetAttribute("__BananaCatImageOverride") == SID then return end
+	local asset = resolveBananaCatOverrideAsset()
+
+	local ok = pcall(function()
+		btn:SetAttribute("__BananaCatImageOverride", SID)
+		if not btn:GetAttribute("__OrigOnionImage") then
+			btn:SetAttribute("__OrigOnionImage", btn.Image or "")
+		end
+		btn.Image = asset
+		btn.ImageColor3 = Color3.fromRGB(255, 255, 255)
+		btn.ImageTransparency = 0
+		btn.ScaleType = Enum.ScaleType.Stretch
+		btn.ImageRectOffset = STRETCH_CAT_OFFSET
+		btn.ImageRectSize = STRETCH_CAT_SIZE
+		btn.BackgroundTransparency = 1
+		btn.BorderSizePixel = 0
+	end)
+	if not ok then return end
+
+	-- Viền vàng kim loại mảnh, tĩnh (không loop, không jitter).
+	pcall(function()
+		local ring = btn:FindFirstChild("GlobalOnionGoldStroke")
+		if not ring then
+			ring = Instance.new("UIStroke")
+			ring.Name = "GlobalOnionGoldStroke"
+			ring.Thickness = 2
+			ring.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+			ring.Color = Color3.fromRGB(238, 210, 118)
+			ring.Transparency = 0.05
+			ring.Parent = btn
+			applyMetallicGoldGradient(ring)
+		end
+	end)
+
+	-- Âm thanh logo một lần mỗi cú chạm (chống bắn đúp).
+	if btn:GetAttribute("__GlobalOnionSoundHooked") ~= SID then
+		btn:SetAttribute("__GlobalOnionSoundHooked", SID)
+		local lastPing = 0
+		local function pingLogo()
+			local now = os.clock()
+			if now - lastPing < 0.18 then return end
+			lastPing = now
+			playUiSound("logo")
+		end
+		pcall(function()
+			if btn.Activated then
+				trackConn(btn.Activated:Connect(function()
+					if isAlive() then pingLogo() end
+				end))
+			end
+			if btn.MouseButton1Click then
+				trackConn(btn.MouseButton1Click:Connect(function()
+					if isAlive() then pingLogo() end
+				end))
+			end
+		end)
+	end
+	-- Chặn hook âm thanh chung gắn thêm tiếng tap.
+	btn:SetAttribute("__BananaGoldPulseHooked", SID)
+
+	-- Khoá ảnh: nếu menu tự vẽ lại ảnh củ hành thì trả về Banana Cat ngay.
+	if btn:GetAttribute("__BananaCatImageLocked") ~= SID then
+		btn:SetAttribute("__BananaCatImageLocked", SID)
+		pcall(function()
+			trackConn(btn:GetPropertyChangedSignal("Image"):Connect(function()
+				if not isAlive() then return end
+				if btn:GetAttribute("__BananaCatImageOverride") ~= SID then return end
+				local want = State.BananaCatOverrideAsset
+				if want and btn.Image ~= want then
+					pcall(function()
+						btn.Image = want
+						btn.ImageColor3 = Color3.fromRGB(255, 255, 255)
+						btn.ImageTransparency = 0
+					end)
+				end
+			end))
+		end)
+	end
+end
+
+local function scanGlobalLeftOnionButtonsOnce()
+	local executorCache = {}
+	local roots, seenRoots = {}, {}
+	local function addRoot(r)
+		if r and not seenRoots[r] then
+			seenRoots[r] = true
+			table.insert(roots, r)
+		end
+	end
+	pcall(function() addRoot(game:GetService("CoreGui")) end)
+	if LocalPlayer then
+		local pg = LocalPlayer:FindFirstChildOfClass("PlayerGui")
+		if pg then addRoot(pg) end
+	end
+	if gethui then pcall(function() addRoot(gethui()) end) end
+
+	for _, root in ipairs(roots) do
+		local okD, desc = pcall(function() return root:GetDescendants() end)
+		if okD and type(desc) == "table" then
+			for _, d in ipairs(desc) do
+				if isGlobalLeftOnionImageButton(d) then
+					local gui = d:FindFirstAncestorOfClass("ScreenGui")
+					if gui then
+						local ignored = executorCache[gui]
+						if ignored == nil then
+							ignored = isExecutorOrIgnoredScreenGui(gui)
+							executorCache[gui] = ignored
+						end
+						if not ignored then
+							local target = d
+							local p = d.Parent
+							while p and p:IsA("GuiObject") do
+								if p:IsA("ImageButton") then target = p; break end
+								p = p.Parent
+							end
+							applyBananaCatImageOverride(target)
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+task.defer(function()
+	if isAlive() then pcall(scanGlobalLeftOnionButtonsOnce) end
+end)
+
+-- Các mốc một lần (không phải vòng lặp) để bắt ScreenGui độc lập dựng muộn.
+for _, delaySec in ipairs({ 0.15, 0.45, 1.00, 2.00, 3.50, 6.00, 9.00 }) do
+	task.delay(delaySec, function()
+		if isAlive() then pcall(scanGlobalLeftOnionButtonsOnce) end
+	end)
+end
+
+-- ============================================================================
 -- 8. TIÊU ĐỀ HEADER, BIND LOGO VÀ VIỆT HÓA TỨC THỜI (0% LAG)
 -- ============================================================================
 local function bindHeaderAndLogosFromTitle(titleLbl)
