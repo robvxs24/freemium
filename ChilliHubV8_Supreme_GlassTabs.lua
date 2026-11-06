@@ -129,9 +129,10 @@ local IGNORED_SCREEN_GUIS = {
 }
 
 local EXECUTOR_KEYWORDS = {
-	"delta", "codex", "arceus", "fluxus", "hydrogen", "vega", "trigon",
-	"evon", "krnl", "synapse", "scripthub", "script hub", "autoexecute",
-	"rconsole", "executor", "keysystem", "key system",
+	"delta", "deltax", "deltaicon", "deltalogo", "executor", "rgui", "mobilegui",
+	"codex", "arceus", "fluxus", "hydrogen", "vega", "trigon", "evon", "krnl",
+	"synapse", "scripthub", "script hub", "autoexecute", "rconsole", "executor",
+	"keysystem", "key system", "exec", "executoricon", "executorlogo",
 }
 
 local function getUiRoots()
@@ -260,12 +261,22 @@ local function isDeltaOrExecutorGui(gui)
 	end
 
 	local okD, desc = pcall(function() return gui:GetDescendants() end)
-	if not okD or type(desc) ~= "table" or #desc < 4 then return false end
+	if not okD or type(desc) ~= "table" then return false end
 
+	local vpW = getViewportWidth()
 	for _, d in ipairs(desc) do
 		if d:IsA("TextBox") then
 			local bt = d.Text or ""
 			if #bt > 120 or string.find(bt, "loadstring", 1, true) then
+				gui:SetAttribute("__IsExecutorGui", true)
+				return true
+			end
+		elseif (d:IsA("ImageButton") or d:IsA("TextButton")) and not isInsideLargeWindowFrame(d) then
+			local dx = d.AbsolutePosition.X
+			local dy = d.AbsolutePosition.Y
+			local dw, dh = getEffectiveBoxSize(d)
+			-- Delta X floating icon typically sits in the central area (20% .. 70% of screen width)
+			if dx > vpW * 0.18 and dx < vpW * 0.75 and dy >= 30 and dy <= 320 and dw >= 24 and dw <= 72 and dh >= 24 and dh <= 72 then
 				gui:SetAttribute("__IsExecutorGui", true)
 				return true
 			end
@@ -275,9 +286,10 @@ local function isDeltaOrExecutorGui(gui)
 	return false
 end
 
--- Dọn dẹp nếu trước đó gắn nhầm vào Executor GUI, tuyệt đối KHÔNG bật lại ảnh mờ gốc trên Figgy Hub
+-- Dọn dẹp nếu trước đó gắn nhầm vào Executor GUI hoặc gắn nhầm vào Delta X, tuyệt đối KHÔNG bật lại ảnh mờ gốc trên Figgy Hub
 local function cleanupPreviousOverlaysAndDeduplicate()
 	local figgyGuis = {}
+	local vpW = getViewportWidth()
 	for _, root in ipairs(getUiRoots()) do
 		local okCh, children = pcall(function() return root:GetChildren() end)
 		if okCh and type(children) == "table" then
@@ -289,16 +301,28 @@ local function cleanupPreviousOverlaysAndDeduplicate()
 
 					pcall(function()
 						for _, d in ipairs(gui:GetDescendants()) do
-							if isExec and (d.Name == "BananaCatFixedOverlay" or d.Name == "BananaCatCircleAvatar" or d.Name == "GoldBadgeInnerDisc" or d.Name == "BananaCatBadgeImage" or d.Name == "BananaCatInnerSprite") then
+							local isOverlay = (d.Name == "BananaCatFixedOverlay" or d.Name == "BananaCatCircleAvatar" or d.Name == "GoldBadgeInnerDisc" or d.Name == "BananaCatBadgeImage" or d.Name == "BananaCatInnerSprite")
+							if isOverlay then
 								local par = d.Parent
-								d:Destroy()
-								if par then
-									if par:IsA("ImageLabel") or par:IsA("ImageButton") then
-										par.ImageTransparency = 0
+								local isWrongCentralAttachment = false
+								if par and par:IsA("GuiObject") and not isInsideLargeWindowFrame(par) then
+									local pX = par.AbsolutePosition.X
+									if pX > vpW * 0.18 and pX < vpW * 0.78 then
+										isWrongCentralAttachment = true
 									end
-									for _, sib in ipairs(par:GetDescendants()) do
-										if sib:IsA("ImageLabel") or sib:IsA("ImageButton") then
-											sib.ImageTransparency = 0
+								end
+
+								if isExec or isWrongCentralAttachment then
+									d:Destroy()
+									if par then
+										if par:IsA("ImageLabel") or par:IsA("ImageButton") then
+											par.ImageTransparency = 0
+											par.BackgroundTransparency = 0
+										end
+										for _, sib in ipairs(par:GetDescendants()) do
+											if sib:IsA("ImageLabel") or sib:IsA("ImageButton") then
+												sib.ImageTransparency = 0
+											end
 										end
 									end
 								end
@@ -671,16 +695,25 @@ end
 local function decoratePurpleOnionButton(rawTarget, strokeThickness, forceRoundedSquare)
 	local container = getOutermostSquareButton(rawTarget)
 	if not container or not container:IsA("GuiObject") then return end
+
+	-- TUYỆT ĐỐI KHÔNG gắn vào Delta X hoặc vùng giữa màn hình!
+	local vpW = getViewportWidth()
+	local cx = container.AbsolutePosition.X
+	if not isInsideLargeWindowFrame(container) then
+		if cx > vpW * 0.18 and cx < vpW * 0.78 then
+			return
+		end
+	end
+
 	local cw, ch = getEffectiveBoxSize(container)
 	if cw > 96 or ch > 96 or cw < 14 or ch < 14 then return end
 
 	-- Tự động xác định kiểu dáng:
-	-- + Nếu nằm bên tay phải màn hình (X >= 75% chiều rộng màn hình) -> Hình vuông có góc bo đẹp!
+	-- + Nếu nằm bên tay phải màn hình (X >= 78% chiều rộng màn hình) -> Hình vuông có góc bo đẹp!
 	-- + Còn lại (Logo mở menu chính bên trái & Logo trên tiêu đề) -> Hình tròn!
 	local isRightSideSquare = forceRoundedSquare
 	if isRightSideSquare == nil then
-		local vpW = getViewportWidth()
-		isRightSideSquare = (container.AbsolutePosition.X >= vpW * 0.75)
+		isRightSideSquare = (container.AbsolutePosition.X >= vpW * 0.78)
 	end
 	local targetCornerUdim = isRightSideSquare and SQUARE_CORNER_UDIM or CIRCLE_CORNER_UDIM
 
@@ -1763,13 +1796,13 @@ local function isPurpleOnionSquareButton(btn, isInsideVerifiedFiggyGui)
 	end
 
 	-- TUYỆT ĐỐI KHÔNG gắn nhầm vào các nút/icon/avatar bên trong cửa sổ menu lớn!
-	-- (Logo tiêu đề góc trái của cửa sổ đã được gắn riêng qua `bindHeaderAndLogosFromTitle`)
+	-- (Logo tiêu đề góc trái của cửa sổ đã được gắn riêng qua bindHeaderAndLogosFromTitle)
 	if isInsideLargeWindowFrame(btn) then
 		return false
 	end
 
 	local bw, bh = getEffectiveBoxSize(btn)
-	if bw < 28 or bw > 82 or bh < 28 or bh > 82 or math.abs(bw - bh) > 10 then
+	if bw < 22 or bw > 82 or bh < 22 or bh > 82 or math.abs(bw - bh) > 14 then
 		return false
 	end
 
@@ -1779,54 +1812,48 @@ local function isPurpleOnionSquareButton(btn, isInsideVerifiedFiggyGui)
 		end
 	end
 
-	local par = btn.Parent
-	local isTopLevel = par:IsA("ScreenGui") or (par:IsA("Frame") and par.Parent and par.Parent:IsA("ScreenGui") and par.BackgroundTransparency >= 0.99)
-
 	local vpW = getViewportWidth()
-	local isRightColumn = (btn.AbsolutePosition.X >= vpW * 0.75)
+	local absX = btn.AbsolutePosition.X
+	local absY = btn.AbsolutePosition.Y
 
-	if isInsideVerifiedFiggyGui and isTopLevel and not isRightColumn then
-		local hasImg = (btn:IsA("ImageButton") or btn:FindFirstChildWhichIsA("ImageLabel", true) ~= nil or btn:FindFirstChildWhichIsA("ImageButton", true) ~= nil)
-		if hasImg then
+	-- TUYỆT ĐỐI CẤM gắn vào Delta X hoặc vùng giữa màn hình!
+	-- Figgy Hub chỉ có nút ở mép trái (X <= 18% màn hình) hoặc mép phải (X >= 78% màn hình)
+	if absX > vpW * 0.18 and absX < vpW * 0.78 then
+		return false
+	end
+
+	local par = btn.Parent
+	local isTopLevel = par:IsA("ScreenGui") or (par:IsA("Frame") and par.Parent and par.Parent:IsA("ScreenGui") and par.BackgroundTransparency >= 0.99) or (par.Parent and par.Parent.Parent and par.Parent.Parent:IsA("ScreenGui") and par.Parent.BackgroundTransparency >= 0.99)
+
+	local isLeftColumn = (absX <= vpW * 0.18)
+	local isRightColumn = (absX >= vpW * 0.78)
+
+	-- 1. NÚT BÊN TAY TRÁI (Logo mở menu chính / Index button) -> Hình tròn
+	if isLeftColumn then
+		if isInsideVerifiedFiggyGui and isTopLevel then
+			local hasImg = (btn:IsA("ImageButton") or btn:FindFirstChildWhichIsA("ImageLabel", true) ~= nil or btn:FindFirstChildWhichIsA("ImageButton", true) ~= nil)
+			if hasImg then
+				return true
+			end
+		end
+
+		if (isTopLevel or isInsideVerifiedFiggyGui) and hasPurpleVisualInside(btn) then
 			return true
 		end
 	end
 
-	-- Nút mở menu chính (bên trái) có màu tím đặc trưng của Figgy Hub
-	if isTopLevel and not isRightColumn and hasPurpleVisualInside(btn) then
-		return true
-	end
-
-	-- Nút bên tay phải màn hình (phía trên Trứng đỏ & Chân thú cam)
+	-- 2. NÚT BÊN TAY PHẢI (Củ hành tím Figgy Hub ở trên Trứng đỏ & Chân cam) -> HÌNH VUÔNG CÓ GÓC BO ĐẸP
 	if isRightColumn then
+		local hasImg = (btn:IsA("ImageButton") or btn:FindFirstChildWhichIsA("ImageLabel", true) ~= nil or btn:FindFirstChildWhichIsA("ImageButton", true) ~= nil)
 		if hasPurpleVisualInside(btn) then
 			return true
 		end
 
-		if btn.AbsolutePosition.X >= vpW * 0.82 and btn.AbsolutePosition.Y >= 60 and btn.AbsolutePosition.Y <= 220 then
-			local rootGui = btn:FindFirstAncestorOfClass("ScreenGui")
-			if rootGui then
-				local alignedBelowCount = 0
-				local alignedAboveCount = 0
-				for _, other in ipairs(rootGui:GetDescendants()) do
-					if other ~= btn and not other:IsDescendantOf(btn) and not btn:IsDescendantOf(other) then
-						if other:IsA("ImageButton") or other:IsA("TextButton") or other:IsA("Frame") then
-							local ow, oh = getEffectiveBoxSize(other)
-							if math.abs(ow - bw) <= 8 and math.abs(oh - bh) <= 8 and math.abs(other.AbsolutePosition.X - btn.AbsolutePosition.X) <= 10 then
-								local dy = other.AbsolutePosition.Y - btn.AbsolutePosition.Y
-								if dy > 24 and dy < 200 then
-									alignedBelowCount = alignedBelowCount + 1
-								elseif dy < -24 and dy > -200 then
-									alignedAboveCount = alignedAboveCount + 1
-								end
-							end
-						end
-					end
-				end
-				if alignedAboveCount == 0 and alignedBelowCount >= 2 then
-					return true
-				end
-			end
+		-- Nút củ hành tím ở góc trên bên phải (Y từ 40 đến 170):
+		-- Luau không đọc được màu tím trong file ảnh texture rbxassetid, nhưng nút củ hành này là nút trên cùng (Y <= 170),
+		-- có hình ảnh icon, không có chữ số (trứng đỏ có chữ "8").
+		if absY >= 40 and absY <= 170 and (hasImg or isInsideVerifiedFiggyGui) then
+			return true
 		end
 	end
 
@@ -1846,8 +1873,11 @@ local function scanPurpleOnionButtonsOnce()
 					if okD and type(desc) == "table" then
 						for _, d in ipairs(desc) do
 							if isPurpleOnionSquareButton(d, isVerifiedFiggy) then
-								local isRightSq = (d.AbsolutePosition.X >= vpW * 0.75)
+								local isRightSq = (d.AbsolutePosition.X >= vpW * 0.78)
 								decoratePurpleOnionButton(d, 2.0, isRightSq)
+							elseif d:IsA("ImageLabel") and d.Parent and isPurpleOnionSquareButton(d.Parent, isVerifiedFiggy) then
+								local isRightSq = (d.Parent.AbsolutePosition.X >= vpW * 0.78)
+								decoratePurpleOnionButton(d.Parent, 2.0, isRightSq)
 							end
 						end
 					end
@@ -2065,14 +2095,14 @@ local function processGuiElement(obj)
 		local rootGui = obj:FindFirstAncestorOfClass("ScreenGui")
 		local isVerified = rootGui and (rootGui:GetAttribute("__VerifiedFiggyWindowGui") == true) or false
 		if isPurpleOnionSquareButton(obj, isVerified) then
-			local isRightSq = (obj.AbsolutePosition.X >= getViewportWidth() * 0.75)
+			local isRightSq = (obj.AbsolutePosition.X >= getViewportWidth() * 0.78)
 			pcall(decoratePurpleOnionButton, obj, 2.0, isRightSq)
 		end
 	elseif obj:IsA("ImageLabel") and obj.Parent and (obj.Parent:IsA("Frame") or obj.Parent:IsA("ImageButton") or obj.Parent:IsA("CanvasGroup")) then
 		local rootGui = obj:FindFirstAncestorOfClass("ScreenGui")
 		local isVerified = rootGui and (rootGui:GetAttribute("__VerifiedFiggyWindowGui") == true) or false
 		if isPurpleOnionSquareButton(obj.Parent, isVerified) then
-			local isRightSq = (obj.Parent.AbsolutePosition.X >= getViewportWidth() * 0.75)
+			local isRightSq = (obj.Parent.AbsolutePosition.X >= getViewportWidth() * 0.78)
 			pcall(decoratePurpleOnionButton, obj.Parent, 2.0, isRightSq)
 		end
 	end
