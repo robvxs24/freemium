@@ -1,19 +1,25 @@
 -- ============================================================================
--- BANANA HUB V1.0.6+ (LUXURY GOLD COIN EDITION) | XOÁ TRẠNG THÁI MÁY CHẠY - HIỆN ĐANG RẢNH
+-- BANANA HUB V1.0.7 (LIQUID GLASS EDITION) | HOÀN THIỆN THEO ĐÚNG YÊU CẦU NGƯỜI DÙNG:
 -- Script gốc: loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/91ad82d753e1318189c4e249d56e7dcf.lua"))()
--- Khắc phục triệt để theo đúng yêu cầu:
--- 1. [XOÁ LUÔN TRẠNG THÁI MÁY CHẠY BỘ (TREADMILL) - LUÔN HIỆN "ĐANG RẢNH"]:
---    + Loại bỏ hoàn toàn trạng thái "Treadmill" / "Máy chạy bộ" và icon tia sét (⚡) khi bước
---      lên máy chạy. Khi lên máy chạy bộ, Dynamic Island bỏ qua mọi tín hiệu cập nhật từ máy chạy
---      và giữ nguyên trạng thái tĩnh "Đang rảnh" (0 lệnh cập nhật UI, 0 Tween, 0% CPU!).
--- 2. [NGẮT TOÀN BỘ SỰ KIỆN QUÉT NGẦM SAU KHI KHỞI TẠO (ZERO RUNTIME OVERHEAD)]:
---    + Tắt hoàn toàn `Visible = false` cho thanh trạng thái gốc trên Header để engine C++ của
---      Roblox không tính toán lại bố cục (Layout) khi chạy trên máy chạy.
---    + Tự động ngắt kết nối `DescendantAdded` ngay sau khi dịch xong menu lúc mới mở -> Trong lúc
---      bạn chơi và chạy trên máy chạy bộ, không có bất kỳ sự kiện quét UI nào chạy ngầm!
--- 3. [LOGO KÉO RỘNG HIỂN THỊ TRỌN VẸN 100% CON MÈO]:
---    + Khung đồng xu vàng 2 lớp với ảnh mèo kéo giãn ngang (Offset 85,0 - Size 250,420) lùi vào
---      86% lòng đồng xu giúp thấy hết toàn bộ con mèo từ chóp chuối tới 2 bàn chân.
+-- 1. [KHẮC PHỤC LỖI BỊ LỘ MENU LÚC MỚI CHẠY SCRIPT (HÌNH 1)]:
+--    + Khắc phục triệt để lỗi phân loại khiến Figgy Hub không được nhận diện.
+--    + Tự động ẩn cửa sổ Menu chính lúc mới chạy script (Visible = false) để không bị lộ
+--      menu che khuất game như ảnh 1.
+--    + Menu chỉ mở ra khi người dùng chủ động bấm vào nút đồng xu Banana Cat hoặc bấm
+--      nút "Mở / Đóng Menu" bên trong Dynamic Island.
+-- 2. [CẢI THIỆN DYNAMIC ISLAND VỚI HIỆU ỨNG LIQUID GLASS CHUYÊN NGHIỆP]:
+--    + Nền kính acrylic tối mờ phản chiếu 3 chiều (translucent liquid glass).
+--    + Viền Liquid Glass Rim Gradient với ánh sáng vàng catch-light đỉnh kính và bóng sâu đáy.
+--    + Thanh phản xạ ánh sáng Bevel Glint Bar uốn cong theo mặt kính như iOS Dynamic Island.
+-- 3. [XOÁ NÚT BẬT/TẮT ÂM THANH - MẶC ĐỊNH LUÔN BẬT]:
+--    + Đã loại bỏ hoàn toàn nút tắt bật âm thanh khỏi giao diện Dynamic Island.
+--    + Âm thanh tương tác (click, mở menu, làm mới) mặc định luôn được BẬT sẵn.
+-- 4. [LÀM MỚI & ĐỒNG BỘ CHỮ KHÔNG BỊ CHÓI MẮT]:
+--    + Chuyển toàn bộ màu chữ từ vàng gắt/cam sang tông Champagne Gold dịu ấm & Kem ấm (Soft Cream).
+--    + Hai nút "Mở / Đóng Menu" và "Làm mới & Đồng bộ" được thiết kế kính mờ đồng điệu, êm mắt.
+-- 5. [DUY TRÌ XOÁ TRẠNG THÁI MÁY CHẠY BỘ & HIỆN ĐỦ 100% HÌNH MÈO CHUỐI]:
+--    + Đứng trên máy chạy bộ luôn giữ "Đang rảnh" (0% lag).
+--    + Khung đồng xu vàng 2 lớp thu lề 86% thấy rõ cả người lẫn chân mèo chuối.
 -- ============================================================================
 
 local Players = game:GetService("Players")
@@ -62,7 +68,9 @@ State.CurrentStatusImageColor = Color3.fromRGB(255, 255, 255)
 State.CurrentStatusRectOffset = Vector2.new(0, 0)
 State.CurrentStatusRectSize = Vector2.new(0, 0)
 State.CurrentStatusEmoji = ""
-State.SoundEnabled = (State.SoundEnabled ~= false)
+State.SoundEnabled = true
+State.UserOpenedMenu = false
+State.FiggyMainWindow = nil
 State.IsExpanded = false
 State.NoteOpen = false
 State.StaticLabels = {}
@@ -73,8 +81,30 @@ State.LastDisplayedPillText = nil
 State.LastPillTargetWidth = nil
 
 -- ============================================================================
--- 1. KHÔI PHỤC NHÃN ĐỘNG TỪ BẢN CŨ & CHẶN 100% DELTA X
+-- 1. BẢNG MÀU LIQUID GLASS & CHAMPAGNE GOLD ÊM MẮT (0% CHÓI MẮT)
 -- ============================================================================
+local SOFT_CHAMPAGNE_GOLD = Color3.fromRGB(240, 224, 182) -- Vàng sâm-banh dịu nhẹ
+local SOFT_WARM_CREAM     = Color3.fromRGB(232, 224, 210) -- Kem ấm dễ chịu cho mắt
+local SOFT_MUTED_TAUPE    = Color3.fromRGB(162, 154, 140) -- Xám be mềm
+local SOFT_MINT_PASTEL    = Color3.fromRGB(155, 215, 175) -- Xanh bạc hà nhẹ
+
+local GOLD_PRIMARY_TEXT   = SOFT_CHAMPAGNE_GOLD
+local GOLD_BRIGHT_TITLE   = Color3.fromRGB(244, 226, 185)
+local GOLD_ACCENT_FILL    = Color3.fromRGB(192, 156, 68)
+local GOLD_BORDER_STROKE  = Color3.fromRGB(216, 180, 85)
+local GOLD_SOFT_CREAM     = SOFT_WARM_CREAM
+local GOLD_MUTED_SUBTEXT  = SOFT_MUTED_TAUPE
+
+-- Kính lỏng Acrylic Liquid Glass
+local LIQUID_GLASS_BG_DARK  = Color3.fromRGB(15, 14, 18)
+local ISLAND_BG_DARK        = LIQUID_GLASS_BG_DARK
+local ISLAND_CARD_BG        = Color3.fromRGB(22, 20, 24)
+local BTN_ACTIVE_BG         = Color3.fromRGB(44, 38, 28)
+local BTN_ACTIVE_STROKE     = Color3.fromRGB(180, 145, 75)
+local BTN_ACTIVE_TEXT       = SOFT_CHAMPAGNE_GOLD
+local BTN_INACTIVE_BG       = Color3.fromRGB(26, 24, 28)
+local BTN_INACTIVE_STROKE   = Color3.fromRGB(80, 72, 60)
+
 local FIGGY_LOADER_URL = "https://api.luarmor.net/files/v4/loaders/91ad82d753e1318189c4e249d56e7dcf.lua"
 
 local IGNORED_SCREEN_GUIS = {
@@ -125,62 +155,11 @@ local function getViewportWidth()
 	return 1000
 end
 
-local function isDeltaOrExecutorGui(gui)
-	if not gui then return false end
-	local cached = gui:GetAttribute("__IsExecutorGui")
-	if cached ~= nil then return cached == true end
-
-	local gName = string.lower(gui.Name or "")
-	for _, kw in ipairs(EXECUTOR_KEYWORDS) do
-		if string.find(gName, kw, 1, true) then
-			gui:SetAttribute("__IsExecutorGui", true)
-			return true
-		end
-	end
-
-	local hasFiggyHeader = false
-	local hasVersionOrQuickBar = false
-	local hasExecutorMarker = false
-
-	local okD, desc = pcall(function() return gui:GetDescendants() end)
-	if okD and type(desc) == "table" then
-		for _, d in ipairs(desc) do
-			local dName = string.lower(d.Name or "")
-			if string.find(dName, "delta", 1, true) or string.find(dName, "executor", 1, true) then
-				hasExecutorMarker = true
-			end
-			if d:IsA("TextLabel") or d:IsA("TextButton") then
-				local t = d.Text or ""
-				if t == "Figgy Hub" or t == "Banana Hub" or t == "FrostyFig" then
-					hasFiggyHeader = true
-				elseif t:find("^v%d+%.%d+") or t:find("^QUICK BAR %d+$") or t:find("^THANH NHANH %d+$") then
-					hasVersionOrQuickBar = true
-				else
-					local lt = string.lower(t)
-					if lt == "delta" or lt == "delta x" or lt == "scripthub" or lt == "executor" then
-						hasExecutorMarker = true
-					end
-				end
-			elseif d:IsA("TextBox") then
-				local bt = d.Text or ""
-				if #bt > 120 or string.find(bt, "loadstring", 1, true) then
-					hasExecutorMarker = true
-				end
-			end
-		end
-	end
-
-	local isExec = (hasExecutorMarker and not (hasFiggyHeader and hasVersionOrQuickBar))
-	gui:SetAttribute("__IsExecutorGui", isExec)
-	return isExec
-end
-
 local function isFiggyWindowGui(gui)
 	if not gui then return false end
 	if gui:IsA("BillboardGui") or gui:IsA("SurfaceGui") then return false end
 	local gName = gui.Name or ""
 	if IGNORED_SCREEN_GUIS[gName] or gName:find("^Old_") then return false end
-	if isDeltaOrExecutorGui(gui) then return false end
 	if gui:GetAttribute("__VerifiedFiggyWindowGui") == true then return true end
 
 	local okD, desc = pcall(function() return gui:GetDescendants() end)
@@ -190,17 +169,60 @@ local function isFiggyWindowGui(gui)
 		if d:IsA("TextLabel") or d:IsA("TextButton") then
 			local t = d.Text or ""
 			if t == "Figgy Hub" or t == "Banana Hub" or t == "FrostyFig"
+				or t == "Steal an Egg" or t == "Cướp Trứng" or t == "Steal An Egg"
 				or t == "WHAT'S NEW" or t == "CÓ GÌ MỚI"
 				or t == "AUTO STEAL" or t == "TỰ ĐỘNG CƯỚP TRỨNG"
 				or t == "UFO SIGHTINGS" or t == "PHÁT HIỆN UFO"
+				or t == "Open automation" or t == "Mở tự động hóa"
 				or t:find("^QUICK BAR %d+$") or t:find("^THANH NHANH %d+$")
 			then
 				gui:SetAttribute("__VerifiedFiggyWindowGui", true)
+				gui:SetAttribute("__IsExecutorGui", false)
 				return true
 			end
 		end
 	end
 	return false
+end
+
+local function isDeltaOrExecutorGui(gui)
+	if not gui then return false end
+	if gui:GetAttribute("__VerifiedFiggyWindowGui") == true then return false end
+	local cached = gui:GetAttribute("__IsExecutorGui")
+	if cached ~= nil then return cached == true end
+
+	if isFiggyWindowGui(gui) then
+		gui:SetAttribute("__IsExecutorGui", false)
+		return false
+	end
+
+	local gName = string.lower(gui.Name or "")
+	for _, kw in ipairs(EXECUTOR_KEYWORDS) do
+		if string.find(gName, kw, 1, true) then
+			gui:SetAttribute("__IsExecutorGui", true)
+			return true
+		end
+	end
+
+	local okD, desc = pcall(function() return gui:GetDescendants() end)
+	if not okD or type(desc) ~= "table" or #desc < 6 then return false end
+
+	local hasExecutorMarker = false
+	for _, d in ipairs(desc) do
+		local dName = string.lower(d.Name or "")
+		if string.find(dName, "delta", 1, true) or string.find(dName, "executor", 1, true) then
+			hasExecutorMarker = true
+		end
+		if d:IsA("TextBox") then
+			local bt = d.Text or ""
+			if #bt > 120 or string.find(bt, "loadstring", 1, true) then
+				hasExecutorMarker = true
+			end
+		end
+	end
+
+	gui:SetAttribute("__IsExecutorGui", hasExecutorMarker)
+	return hasExecutorMarker
 end
 
 local function cleanupPreviousOverlaysAndDeduplicate()
@@ -284,7 +306,7 @@ if not existingFiggyGui then
 end
 
 -- ============================================================================
--- 2. HỆ THỐNG ÂM THANH TƯƠNG TÁC (ZERO LATENCY)
+-- 2. HỆ THỐNG ÂM THANH TƯƠNG TÁC (MẶC ĐỊNH LUÔN BẬT)
 -- ============================================================================
 local SOUND_CONFIG = {
 	open   = { id = "rbxassetid://6895079853", vol = 0.56, spd = 1.06 },
@@ -341,25 +363,8 @@ local BANANA_CAT_ASSET_ID = "87447945720038"
 local BANANA_CAT_LOGO     = "rbxthumb://type=Asset&id=" .. BANANA_CAT_ASSET_ID .. "&w=420&h=420"
 local DOWN_ARROW_ICON     = "rbxassetid://6031091004"
 
--- Cắt bỏ lề trắng thừa 2 bên (x = 85..335 -> rộng 250) nhưng giữ 100% chiều dọc từ chóp chuối
--- tới 2 bàn chân (y = 0..420 -> cao 420), rồi kéo giãn ngang (Stretch) trong khung 86%
 local STRETCH_CAT_OFFSET  = Vector2.new(85, 0)
 local STRETCH_CAT_SIZE    = Vector2.new(250, 420)
-
-local GOLD_PRIMARY_TEXT   = Color3.fromRGB(240, 210, 124)
-local GOLD_BRIGHT_TITLE   = Color3.fromRGB(248, 218, 108)
-local GOLD_ACCENT_FILL    = Color3.fromRGB(198, 154, 52)
-local GOLD_BORDER_STROKE  = Color3.fromRGB(224, 178, 68)
-local GOLD_SOFT_CREAM     = Color3.fromRGB(226, 218, 202)
-local GOLD_MUTED_SUBTEXT  = Color3.fromRGB(156, 148, 130)
-
-local ISLAND_BG_DARK      = Color3.fromRGB(16, 16, 20)
-local ISLAND_CARD_BG      = Color3.fromRGB(24, 23, 20)
-local BTN_ACTIVE_BG       = Color3.fromRGB(52, 42, 22)
-local BTN_ACTIVE_STROKE   = Color3.fromRGB(196, 156, 62)
-local BTN_ACTIVE_TEXT     = Color3.fromRGB(240, 208, 120)
-local BTN_INACTIVE_BG     = Color3.fromRGB(24, 24, 28)
-local BTN_INACTIVE_STROKE = Color3.fromRGB(52, 48, 42)
 
 local function isFiggyPurpleColor(col)
 	if not col then return false end
@@ -414,9 +419,9 @@ local function applyGoldGradientToTitle(titleLbl)
 	grad.Name = "BananaGoldTitleGrad"
 	grad.Rotation = 90
 	grad.Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 232, 150)),
-		ColorSequenceKeypoint.new(0.55, Color3.fromRGB(235, 190, 75)),
-		ColorSequenceKeypoint.new(1.00, Color3.fromRGB(198, 148, 42)),
+		ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 238, 175)),
+		ColorSequenceKeypoint.new(0.55, Color3.fromRGB(235, 195, 88)),
+		ColorSequenceKeypoint.new(1.00, Color3.fromRGB(195, 150, 48)),
 	})
 	grad.Parent = titleLbl
 end
@@ -585,17 +590,20 @@ local function decoratePurpleOnionButton(rawTarget, strokeThickness)
 
 	if container:GetAttribute("__BananaGoldPulseHooked") ~= SID then
 		container:SetAttribute("__BananaGoldPulseHooked", SID)
+		local function onFloatingActivated()
+			if not isAlive() then return end
+			State.UserOpenedMenu = true
+			playCircularLogoPulse(coinDisc, stroke, thick)
+			if State.FiggyMainWindow and State.FiggyMainWindow.Parent then
+				State.FiggyMainWindow.Visible = not State.FiggyMainWindow.Visible
+			end
+		end
 		if container:IsA("TextButton") or container:IsA("ImageButton") then
-			trackConn(container.Activated:Connect(function()
-				if isAlive() then
-					playCircularLogoPulse(coinDisc, stroke, thick)
-				end
-			end))
+			trackConn(container.Activated:Connect(onFloatingActivated))
 		else
 			trackConn(container.InputBegan:Connect(function(inp)
-				if not isAlive() then return end
 				if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
-					playCircularLogoPulse(coinDisc, stroke, thick)
+					onFloatingActivated()
 				end
 			end))
 		end
@@ -617,7 +625,7 @@ local EXACT_VI = {
 	["steal an egg"] = "Cướp Trứng",
 	["Lemon"] = "Vàng Hoàng Gia (Gold)",
 
-	-- Trạng thái (Treadmill được quy thẳng về Đang rảnh theo đúng yêu cầu!)
+	-- Trạng thái
 	["Treadmill"] = "Đang rảnh",
 	["treadmill"] = "Đang rảnh",
 	["TREADMILL"] = "Đang rảnh",
@@ -648,402 +656,139 @@ local EXACT_VI = {
 	["Management"] = "Quản Lý",
 	["Farm"] = "Tự Cày",
 	["Events"] = "Sự Kiện",
-	["Event"] = "Sự Kiện",
-	["System"] = "Hệ Thống",
-	["Player"] = "Nhân Vật",
+	["Player"] = "Người Chơi",
 	["Visuals"] = "Hiển Thị",
 	["Visual"] = "Hiển Thị",
-	["ESP"] = "Định Vị (ESP)",
 	["Settings"] = "Cài Đặt",
 	["Setting"] = "Cài Đặt",
-	["Config"] = "Cấu Hình",
-	["Configs"] = "Cấu Hình",
-	["Server"] = "Máy Chủ",
 
-	-- Tab Trang Chủ (Home)
-	["STOLEN"] = "ĐÃ CƯỚP",
-	["Stolen"] = "Đã cướp",
-	["IN PEN"] = "TRONG CHUỒNG",
-	["In Pen"] = "Trong chuồng",
-	["In pen"] = "Trong chuồng",
-	["INCOME /S"] = "THU NHẬP /GIÂY",
-	["INCOME/S"] = "THU NHẬP /GIÂY",
-	["Income /s"] = "Thu nhập /giây",
-	["Income/s"] = "Thu nhập /giây",
-	["LAST EGG"] = "TRỨNG GẦN NHẤT",
-	["Last Egg"] = "Trứng gần nhất",
-	["Last egg"] = "Trứng gần nhất",
-	["BEST STEAL"] = "CƯỚP GIÁ TRỊ NHẤT",
-	["Best Steal"] = "Cướp giá trị nhất",
-	["Best steal"] = "Cướp giá trị nhất",
-	["Pet bag"] = "Túi thú cưng",
-	["Pet Bag"] = "Túi Thú Cưng",
-	["PET BAG"] = "TÚI THÚ CƯNG",
+	-- Thẻ Trang chủ & Tiện ích
+	["CURRENT GAME"] = "TRÒ CHƠI HIỆN TẠI",
+	["Executor"] = "Trình Thực Thi",
+	["Open automation"] = "Mở tự động hóa",
+	["This session"] = "Phiên chơi này",
+	["SESSION TIME"] = "THỜI GIAN PHIÊN",
+	["NIGHT IN"] = "ĐÊM TRONG",
+	["DAY IN"] = "NGÀY TRONG",
+	["Inventory"] = "Túi đồ",
 	["Egg bag"] = "Túi trứng",
-	["Egg Bag"] = "Túi Trứng",
-	["EGG BAG"] = "TÚI TRỨNG",
-	["Rejoin"] = "Vào lại server",
-	["REJOIN"] = "VÀO LẠI SERVER",
+	["Pet bag"] = "Túi thú cưng",
+	["STOLEN"] = "ĐÃ CƯỚP",
+	["IN PEN"] = "TRONG CHUỒNG",
+	["INCOME /S"] = "THU NHẬP /GIÂY",
+	["LAST EGG"] = "TRỨNG VỪA RỒI",
+	["BEST STEAL"] = "CƯỚP KHỦNG NHẤT",
+	["Rejoin"] = "Vào lại game",
 	["Find server"] = "Tìm máy chủ",
-	["Find Server"] = "Tìm máy chủ",
-	["FIND SERVER"] = "TÌM MÁY CHỦ",
-	["Server Hop"] = "Đổi máy chủ",
-	["Server hop"] = "Đổi máy chủ",
 	["Copy Job ID"] = "Sao chép Job ID",
-	["Copy job ID"] = "Sao chép Job ID",
-	["COPY JOB ID"] = "SAO CHÉP JOB ID",
-	["Unload"] = "Tắt Script",
-	["UNLOAD"] = "TẮT SCRIPT",
+	["Unload"] = "Tắt script",
 	["WHAT'S NEW"] = "CÓ GÌ MỚI",
-	["What's New"] = "Có gì mới",
-	["What's new"] = "Có gì mới",
-	["NEW"] = "MỚI",
-	["New"] = "Mới",
-	["Figgy SAE - Update v1.05"] = "Banana Hub - Bản cập nhật v1.05",
-	["Figgy SAE - Update v1.06"] = "Banana Hub - Bản cập nhật v1.06",
-	["Figgy SAE - Update v1.04"] = "Banana Hub - Bản cập nhật v1.04",
-
-	-- Nội dung What's New
-	["v1.05: New Pet Finder above Shop with live logs, Min Value, Min Rarity, Auto Join, Force Join and a settings page with Sort By, age limits, new log alerts and an option to hide the server full popup. Pets and buttons have a springy hover, and the fig logo uses it too and plays its animation when you hover or click it. Fixed UFO eggs not being delivered, and debris is now collected inside the Rare UFO instead of on its roof."] = "v1.05: Thêm tính năng Tìm Thú Cưng (Pet Finder) phía trên Cửa Hàng với nhật ký trực tiếp, Giá trị tối thiểu, Độ hiếm tối thiểu, Tự động vào, Ép vào server và trang cài đặt Sắp xếp, giới hạn thời gian, âm báo mới cùng tùy chọn ẩn thông báo đầy máy chủ. Thú cưng, nút bấm và logo Banana Hub có hiệu ứng chuyển động đàn hồi mượt mà khi chạm. Đã sửa lỗi không giao trứng UFO và tự thu thập mảnh vỡ bên trong UFO Hiếm.",
-	["v1.04: Language setting in Settings > Interface: the hub in 18 languages, using Roblox's own translations first. The fig logo plays its animation on click or tap, and dragging it moves the window. Fixed a hidden error that could make the menu stutter after some actions."] = "v1.04: Hỗ trợ đa ngôn ngữ trong Cài Đặt > Giao Diện và tích hợp trình dịch tự động Banana Hub. Logo phát hoạt ảnh khi chạm và hỗ trợ kéo để di chuyển cửa sổ. Đã khắc phục lỗi ẩn gây khựng menu sau một số thao tác.",
-
-	-- Tính năng Finder (Pet Finder)
-	["Finder"] = "Tìm Thú",
-	["FINDER"] = "TÌM THÚ",
-	["Pet Finder"] = "Tìm Thú Cưng",
-	["PET FINDER"] = "TÌM THÚ CƯNG",
-	["Slow Mode"] = "Chế độ mượt",
-	["Live Logs"] = "Nhật ký trực tiếp",
-	["Live logs"] = "Nhật ký trực tiếp",
-	["LIVE LOGS"] = "NHẬT KÝ TRỰC TIẾP",
-	["Min Value"] = "Giá trị tối thiểu",
-	["Min value"] = "Giá trị tối thiểu",
-	["MIN VALUE"] = "GIÁ TRỊ TỐI THIỂU",
-	["Min Rarity"] = "Độ hiếm tối thiểu",
-	["Min rarity"] = "Độ hiếm tối thiểu",
-	["MIN RARITY"] = "ĐỘ HIẾM TỐI THIỂU",
-	["Auto Join"] = "Tự động vào",
-	["Auto join"] = "Tự động vào",
-	["AUTO JOIN"] = "TỰ ĐỘNG VÀO",
-	["Force Join"] = "Ép vào server",
-	["Force join"] = "Ép vào server",
-	["FORCE JOIN"] = "ÉP VÀO SERVER",
-	["Sort By"] = "Sắp xếp theo",
-	["Sort by"] = "Sắp xếp theo",
-	["SORT BY"] = "SẮP XẾP THEO",
-	["Age Limits"] = "Giới hạn thời gian",
-	["Age limits"] = "Giới hạn thời gian",
-	["Age limit"] = "Giới hạn thời gian",
-	["New Log Alerts"] = "Âm báo nhật ký mới",
-	["New log alerts"] = "Âm báo nhật ký mới",
-	["Hide Server Full Popup"] = "Ẩn thông báo đầy máy chủ",
-	["Hide server full popup"] = "Ẩn thông báo đầy máy chủ",
-	["Join"] = "Vào ngay",
-	["JOIN"] = "VÀO NGAY",
-	["Clear"] = "Xóa",
-	["CLEAR"] = "XÓA",
-	["Pause"] = "Tạm dừng",
-	["Resume"] = "Tiếp tục",
-
-	-- Tab Trứng
-	["Automation"] = "Tự Động",
-	["AUTOMATION"] = "TỰ ĐỘNG",
-	["Predictor"] = "Dự Đoán",
-	["PREDICTOR"] = "DỰ ĐOÁN",
-	["Auto Steal"] = "Tự động cướp trứng",
 	["AUTO STEAL"] = "TỰ ĐỘNG CƯỚP TRỨNG",
-	["Auto steal"] = "Tự động cướp trứng",
-	["this session"] = "trong phiên này",
-	["This session"] = "Trong phiên này",
-	["this PHIÊN CHƠI"] = "trong phiên này",
-	["This PHIÊN CHƠI"] = "Trong phiên này",
-	["PHIÊN CHƠI"] = "phiên này",
-	["STATUS"] = "TRẠNG THÁI",
-	["Status"] = "Trạng thái",
-	["Auto steal: Off"] = "Tự động cướp: Tắt",
-	["Auto steal: On"] = "Tự động cướp: Bật",
-	["Auto Steal: Off"] = "Tự động cướp: Tắt",
-	["Auto Steal: On"] = "Tự động cướp: Bật",
-	["Tự động cướp: Tắt"] = "Tự động cướp: Tắt",
-	["Tự động cướp: Bật"] = "Tự động cướp: Bật",
-	["SPEED"] = "TỐC ĐỘ",
-	["Speed"] = "Tốc độ",
-	["Move To Egg"] = "Di chuyển tới trứng",
-	["Move to Egg"] = "Di chuyển tới trứng",
-	["Move to egg"] = "Di chuyển tới trứng",
-	["Go to egg"] = "Di chuyển tới trứng",
-	["Go to Egg"] = "Di chuyển tới trứng",
-	["Go To Egg"] = "Di chuyển tới trứng",
-	["Di Chuyển To trứng"] = "Di chuyển tới trứng",
-	["Di chuyển To trứng"] = "Di chuyển tới trứng",
-	["Di chuyển tới trứng"] = "Di chuyển tới trứng",
-	["dịch chuyển"] = "Dịch chuyển",
-	["Dịch chuyển"] = "Dịch chuyển",
-	["Teleport"] = "Dịch chuyển",
-	["Fast Tween"] = "Bay Nhanh (Fast Tween)",
-	["Fast tween"] = "Bay Nhanh (Fast Tween)",
-	["Walk"] = "Đi bộ",
-	["Delivery method"] = "Phương thức giao trứng",
-	["Delivery Method"] = "Phương thức giao trứng",
-	["Phương thức giao trứng"] = "Phương thức giao trứng",
-	["Teleport zones"] = "Khu vực dịch chuyển",
-	["Teleport Zones"] = "Khu vực dịch chuyển",
-	["Khu vực dịch chuyển"] = "Khu vực dịch chuyển",
-	["Titan Temple"] = "Đền Titan",
-	["Enchanted Forest"] = "Rừng Phù Phép",
-	["Light Dark"] = "Sáng Tối",
-	["Cherry Blossom"] = "Hoa Anh Đào",
-	["Prehistoric"] = "Tiền Sử",
-	["Volcano"] = "Núi Lửa",
-	["Snow"] = "Tuyết",
-	["Desert"] = "Sa Mạc",
-	["Steal missing index eggs"] = "Cướp trứng thiếu trong Mục lục",
-	["Steal Missing Index Eggs"] = "Cướp trứng thiếu trong Mục lục",
-	["Cướp trứng thiếu trong Mục lục"] = "Cướp trứng thiếu trong Mục lục",
-
-	-- Bộ Lọc
-	["FILTER"] = "BỘ LỌC",
-	["Filter"] = "Bộ lọc",
-	["BỘ LỌC"] = "BỘ LỌC",
-	["Area"] = "Khu vực",
-	["Zones"] = "Khu vực",
-	["Zone"] = "Khu vực",
-	["Khu vực"] = "Khu vực",
-	["Steal first"] = "Ưu tiên cướp trước",
-	["Steal First"] = "Ưu tiên cướp trước",
-	["Steal Priority"] = "Ưu tiên cướp trước",
-	["Ưu tiên cướp trước"] = "Ưu tiên cướp trước",
-	["Highest Earnings"] = "Thu nhập cao nhất",
-	["Lowest Earnings"] = "Thu nhập thấp nhất",
-	["Best value"] = "Giá trị cao nhất",
-	["Lowest value"] = "Giá trị thấp nhất",
-	["Best rarity"] = "Độ hiếm cao nhất",
-	["Best mutation"] = "Đột biến tốt nhất",
-	["Mutation"] = "Đột biến",
-	["Mutations"] = "Đột biến",
-	["Đột biến"] = "Đột biến",
-	["No selection"] = "Chưa chọn",
-	["Chưa chọn"] = "Chưa chọn",
-	["Rarity"] = "Độ hiếm",
-	["Rarities"] = "Độ hiếm",
-	["Độ hiếm"] = "Độ hiếm",
-	["Only these eggs"] = "Chỉ những trứng này",
-	["Only These Eggs"] = "Chỉ những trứng này",
-	["Chỉ những trứng này"] = "Chỉ những trứng này",
-	["Min $/s"] = "Tối thiểu $/giây",
-	["Tối thiểu $/giây"] = "Tối thiểu $/giây",
-	["Min KG"] = "Cân nặng tối thiểu (KG)",
-	["Max KG"] = "Cân nặng tối đa (KG)",
-	["Sell Cheapest Egg"] = "Bán trứng rẻ nhất khi đầy túi",
-	["Sell cheapest egg"] = "Bán trứng rẻ nhất khi đầy túi",
-	["bán Cheapest trứng"] = "Bán trứng rẻ nhất khi đầy túi",
-	["Bán Cheapest trứng"] = "Bán trứng rẻ nhất khi đầy túi",
-	["Sell cheapest egg when bag is full"] = "Bán trứng rẻ nhất khi đầy túi",
-	["Makes room when the egg bag is full"] = "Tự bán dọn chỗ khi túi trứng đầy",
-	["Makes room when the trứng túi is full"] = "Tự bán dọn chỗ khi túi trứng đầy",
-	["Makes room when the bag is full"] = "Tự bán dọn chỗ khi túi đầy",
-	["None"] = "Không có",
-	["Không có"] = "Không có",
-	["Off"] = "Tắt",
-	["Tắt"] = "Tắt",
-	["On"] = "Bật",
-	["Bật"] = "Bật",
-
-	-- Tab Quản Lý
-	["Inventory"] = "Túi Đồ",
-	["INVENTORY"] = "TÚI ĐỒ",
-	["Place & Hatch"] = "Đặt & Ấp Trứng",
-	["PLACE & HATCH"] = "ĐẶT & ẤP TRỨNG",
-	["Upgrades"] = "Nâng Cấp",
-	["UPGRADES"] = "NÂNG CẤP",
-	["Crafting"] = "Chế Tạo",
-	["CRAFTING"] = "CHẾ TẠO",
-	["EQUIP BEST"] = "TRANG BỊ MẠNH NHẤT",
-	["Equip Best"] = "Trang Bị Mạnh Nhất",
-	["Equip best"] = "Trang bị mạnh nhất",
-	["PETS"] = "THÚ CƯNG",
-	["Pets"] = "Thú Cưng",
-	["EQUIPPED"] = "ĐANG TRANG BỊ",
-	["Equipped"] = "Đang Trang Bị",
-	["Auto Equip Best Pets"] = "Tự động trang bị thú cưng mạnh nhất",
-	["Auto equip best pets"] = "Tự động trang bị thú cưng mạnh nhất",
-	["Tự động Equip Best thú cưng"] = "Tự động trang bị thú cưng mạnh nhất",
-	["Equip best pets"] = "Trang bị thú cưng mạnh nhất",
-	["Open Pet Bag"] = "Mở Túi Thú Cưng",
-	["Open Egg Bag"] = "Mở Túi Trứng",
-	["Open"] = "Mở",
-	["OPEN"] = "MỞ",
-	["Open >"] = "Mở >",
-	["Close"] = "Đóng",
-	["CLOSE"] = "ĐÓNG",
-	["AUTO FAVORITE"] = "TỰ ĐỘNG KHÓA YÊU THÍCH",
-	["Auto Favorite"] = "Tự động khóa yêu thích",
-	["Auto favorite"] = "Tự động khóa yêu thích",
-	["FAVORITED"] = "ĐÃ YÊU THÍCH",
-	["Favorited"] = "Đã Yêu Thích",
-	["UNFAVORITED"] = "CHƯA YÊU THÍCH",
-	["Unfavorited"] = "Chưa Yêu Thích",
-	["Categories"] = "Danh mục",
-	["SELL EGGS"] = "BÁN TRỨNG",
-	["Sell Eggs"] = "Bán Trứng",
-	["Sell eggs"] = "Bán trứng",
-	["SPACE LEFT"] = "CHỖ TRỐNG",
-	["Space Left"] = "Chỗ Trống",
-	["Space left"] = "Chỗ trống",
-	["Egg Names"] = "Tên trứng",
-	["Pet Names"] = "Tên thú cưng",
-	["Egg Rarities"] = "Độ hiếm trứng",
-	["Pet Rarities"] = "Độ hiếm thú cưng",
-	["Sell Rule"] = "Quy tắc bán",
-	["Match All"] = "Khớp tất cả",
-	["Match Any"] = "Khớp bất kỳ",
-	["Maximum Rarity"] = "Độ hiếm tối đa",
-	["Minimum Rarity"] = "Độ hiếm tối thiểu",
-	["Keep Mutated Eggs"] = "Giữ lại trứng đột biến",
-	["Keep mutated eggs"] = "Giữ lại trứng đột biến",
-	["Never Sell Species"] = "Không bán các loài này",
-	["Never Sell Eggs"] = "Không bán các trứng này",
-
-	-- Tab Nhân Vật, Hiển Thị, Cài Đặt
-	["WalkSpeed"] = "Tốc độ chạy",
-	["Walk Speed"] = "Tốc độ chạy",
-	["Walk speed"] = "Tốc độ chạy",
-	["JumpPower"] = "Lực nhảy",
-	["Jump Power"] = "Lực nhảy",
-	["Jump power"] = "Lực nhảy",
-	["Jump Height"] = "Độ cao nhảy",
-	["Infinite Jump"] = "Nhảy vô hạn",
-	["Infinite jump"] = "Nhảy vô hạn",
-	["NoClip"] = "Đi xuyên tường (Noclip)",
-	["Noclip"] = "Đi xuyên tường (Noclip)",
-	["Fly"] = "Bay (Fly)",
-	["Anti AFK"] = "Chống văng (Anti-AFK)",
-	["Anti-AFK"] = "Chống văng (Anti-AFK)",
-	["Interface"] = "Giao Diện",
-	["INTERFACE"] = "GIAO DIỆN",
-	["Theme"] = "Chủ đề màu",
-	["THEME"] = "CHỦ ĐỀ MÀU",
-	["Language"] = "Ngôn ngữ",
-	["LANGUAGE"] = "NGÔN NGỮ",
-	["Keybinds"] = "Phím tắt",
-	["KEYBINDS"] = "PHÍM TẮT",
-	["Quick Bar"] = "Thanh Nhanh",
-	["QUICK BAR"] = "THANH NHANH",
-	["Notifications"] = "Thông Báo",
-	["NOTIFICATIONS"] = "THÔNG BÁO",
-	["Save Config"] = "Lưu cấu hình",
-	["Load Config"] = "Tải cấu hình",
-	["Delete Config"] = "Xóa cấu hình",
-
-	-- UFO & Sự Kiện
-	["UFO"] = "UFO (Đĩa Bay)",
 	["UFO SIGHTINGS"] = "PHÁT HIỆN UFO",
-	["Auto UFO"] = "Tự động săn UFO",
-	["Collect UFO Debris"] = "Thu thập mảnh vỡ UFO",
-	["Farm Rare UFO"] = "Cày UFO hiếm",
-	["Auto Trade Debris"] = "Tự động đổi mảnh vỡ",
-	["Teleport If Far From Egg"] = "Dịch chuyển nếu ở xa trứng",
-	["UFO STATUS"] = "TRẠNG THÁI UFO",
-	["EGGS"] = "TRỨNG",
-	["DEBRIS"] = "MẢNH VỠ",
-	["SEASONAL"] = "SỰ KIỆN THEO MÙA",
-	["BUTTERFLY EVENT"] = "SỰ KIỆN BƯỚM",
-	["ESSENCE"] = "TINH CHẤT",
-	["CAUGHT"] = "ĐÃ BẮT",
-	["NET"] = "VỢT BẮT",
-	["THE HOLLOW"] = "VỰC HOLLOW",
-	["WINS"] = "SỐ TRẬN THẮNG",
-	["STEAL"] = "CƯỚP NGAY",
-	["Guard: OFF"] = "Bảo vệ: TẮT",
-	["Guard: ON"] = "Bảo vệ: BẬT",
+	["Auto Steal"] = "Tự Động Cướp",
+	["Speed"] = "Tốc Độ",
+	["Jump"] = "Nhảy Cao",
+	["Fly"] = "Bay",
+	["Noclip"] = "Đi Xuyên Tường",
+	["Infinite Jump"] = "Nhảy Vô Hạn",
+	["ESP"] = "Định Vị (ESP)",
+	["Enabled"] = "Đã Bật",
+	["Disabled"] = "Đã Tắt",
+	["Enable"] = "Bật",
+	["Disable"] = "Tắt",
+	["On"] = "Bật",
+	["Off"] = "Tắt",
+	["Open"] = "Mở",
+	["Close"] = "Đóng",
 }
 
 local LOWER_VI = {}
-local VI_TO_EN = {}
-for enKey, viVal in pairs(EXACT_VI) do
-	local lk = string.lower(enKey)
-	if not LOWER_VI[lk] or enKey:upper() ~= enKey then
-		LOWER_VI[lk] = viVal
-	end
-	if enKey ~= "Figgy Hub" and enKey ~= "figgy hub" and enKey ~= "FIGGY HUB" and enKey ~= "Figgy" and lk ~= "treadmill" then
-		if not VI_TO_EN[viVal] then
-			VI_TO_EN[viVal] = enKey
-		end
-		local lv = string.lower(viVal)
-		if not VI_TO_EN[lv] then
-			VI_TO_EN[lv] = enKey
-		end
-	end
+for k, v in pairs(EXACT_VI) do
+	LOWER_VI[string.lower(k)] = v
 end
 
-local STATIC_GRAMMAR_VI = {
-	{ pat = "^Figgy%s+SAE%s*%-%s*[Uu]pdate%s+(.+)$", rep = "Banana Hub - Bản cập nhật %1" },
-	{ pat = "^(%d+)%s+hours?%s+ago$", rep = "%1 giờ trước" },
-	{ pat = "^(%d+)%s+minutes?%s+ago$", rep = "%1 phút trước" },
-	{ pat = "^(%d+)%s+days?%s+ago$", rep = "%1 ngày trước" },
-	{ pat = "^[Tt]his%s+session$", rep = "trong phiên này" },
-	{ pat = "^[Tt]his%s+PHIÊN%s+CHƠI$", rep = "trong phiên này" },
-	{ pat = "^[Mm]ove%s+[Tt]o%s+[Ee]gg$", rep = "Di chuyển tới trứng" },
-	{ pat = "^[Gg]o%s+[Tt]o%s+[Ee]gg$", rep = "Di chuyển tới trứng" },
-	{ pat = "^[Ss]ell%s+[Cc]heapest%s+[Ee]gg$", rep = "Bán trứng rẻ nhất khi đầy túi" },
-	{ pat = "^[Mm]akes%s+room%s+when%s+the%s+.-%s+is%s+full$", rep = "Tự bán dọn chỗ khi túi trứng đầy" },
-	{ pat = "^[Ss]hortcut%s+(%d+)$", rep = "Phím Tắt %1" },
-	{ pat = "^QUICK BAR (%d+)$", rep = "THANH NHANH %1" },
-	{ pat = "^[Gg]uard:%s*[Oo][Ff][Ff]$", rep = "Bảo vệ: TẮT" },
-	{ pat = "^[Gg]uard:%s*[Oo][Nn]$", rep = "Bảo vệ: BẬT" },
-	{ pat = "^[Mm]in%s+%$/s(.*)$", rep = "Tối thiểu $/giây%1" },
-	{ pat = "^[Mm]ax%s+%$/s(.*)$", rep = "Tối đa $/giây%1" },
-	{ pat = "^[Mm]in%s+KG(.*)$", rep = "Cân nặng tối thiểu (KG)%1" },
-	{ pat = "^[Mm]ax%s+KG(.*)$", rep = "Cân nặng tối đa (KG)%1" },
-	{ pat = "^[Oo]pen%s+(.+)%s+[Bb]ag$", rep = "Mở Túi %1" },
-	{ pat = "^[Kk]eep%s+[Mm]utated%s+(.+)$", rep = "Giữ lại %1 đột biến" },
-	{ pat = "^[Nn]ever%s+[Ss]ell%s+(.+)$", rep = "Không bán %1" },
-	{ pat = "^[Mm]aximum%s+(.+)$", rep = "Tối đa %1" },
-	{ pat = "^[Mm]inimum%s+(.+)$", rep = "Tối thiểu %1" },
-	{ pat = "^[Cc]ollect%s+UFO%s+(.+)$", rep = "Thu thập %1 UFO" },
-	{ pat = "^[Ff]arm%s+[Rr]are%s+(.+)$", rep = "Cày %1 hiếm" },
-	{ pat = "^[Tt]eleport%s+[Ii]f%s+[Ff]ar%s+[Ff]rom%s+(.+)$", rep = "Dịch chuyển nếu ở xa %1" },
-	{ pat = "^[Aa]uto%s+[Ee]quip%s+[Bb]est%s+(.+)$", rep = "Tự động trang bị %1 mạnh nhất" },
-	{ pat = "^[Aa]uto%s+[Ss]teal:%s*[Oo][Ff][Ff]$", rep = "Tự động cướp: Tắt" },
-	{ pat = "^[Aa]uto%s+[Ss]teal:%s*[Oo][Nn]$", rep = "Tự động cướp: Bật" },
+local VI_TO_EN = {
+	["Banana Hub"] = "Figgy Hub",
+	["Cướp Trứng"] = "Steal an Egg",
+	["Trang Chủ"] = "Home",
+	["Trứng"] = "Eggs",
+	["Quản Lý"] = "Manage",
+	["Sự Kiện"] = "Events",
+	["Người Chơi"] = "Player",
+	["Hiển Thị"] = "Visuals",
+	["Cài Đặt"] = "Settings",
+	["Đang rảnh"] = "Idle",
+	["• Đang rảnh"] = "• Idle",
+	["Đang chạy"] = "Working",
+	["Đang bật"] = "Active",
+	["Đang tắt"] = "Inactive",
+	["Đang cày"] = "Farming",
+	["Đang cướp trứng"] = "Stealing",
+	["Tìm kiếm..."] = "Search...",
+	["Tìm tùy chọn..."] = "Find option",
+	["Mở tự động hóa"] = "Open automation",
+	["Phiên chơi này"] = "This session",
+	["THỜI GIAN PHIÊN"] = "SESSION TIME",
+	["ĐÊM TRONG"] = "NIGHT IN",
+	["Túi đồ"] = "Inventory",
+	["Túi trứng"] = "Egg bag",
+	["Túi thú cưng"] = "Pet bag",
+	["ĐÃ CƯỚP"] = "STOLEN",
+	["TRONG CHUỒNG"] = "IN PEN",
+	["THU NHẬP /GIÂY"] = "INCOME /S",
+	["TRỨNG VỪA RỒI"] = "LAST EGG",
+	["CƯỚP KHỦNG NHẤT"] = "BEST STEAL",
+	["Vào lại game"] = "Rejoin",
+	["Tìm máy chủ"] = "Find server",
+	["Sao chép Job ID"] = "Copy Job ID",
+	["Tắt script"] = "Unload",
+	["CÓ GÌ MỚI"] = "WHAT'S NEW",
 }
 
--- Kiểm tra xem một trạng thái có phải là Máy Chạy Bộ (Treadmill) hoặc Đang Rảnh (Idle) không
-local function isTreadmillOrIdleStatus(s)
-	if not s or s == "" then return true end
-	local low = string.lower(s)
-	if low == "idle" or low == "đang rảnh" or low == "treadmill" or low == "máy chạy bộ" or low == "running" then
+local STATIC_GRAMMAR_VI = {
+	{ pat = "^QUICK BAR (%d+)$", rep = "THANH NHANH %1" },
+	{ pat = "^THANH NHANH (%d+)$", rep = "THANH NHANH %1" },
+}
+
+local function isTreadmillOrIdleStatus(txt)
+	if not txt or txt == "" then return true end
+	local clean = tostring(txt):gsub("^•%s*", ""):gsub("^●%s*", ""):match("^%s*(.-)%s*$") or ""
+	local low = string.lower(clean)
+	if low == "idle" or low == "đang rảnh" or low == "running" then
 		return true
 	end
-	if string.find(low, "treadmill", 1, true) or string.find(low, "máy chạy", 1, true) or string.find(low, "idle", 1, true) or string.find(low, "đang rảnh", 1, true) then
+	if low == "treadmill" or low == "máy chạy bộ" or low == "may chay bo" then
+		return true
+	end
+	if low:find("treadmill", 1, true) or low:find("máy chạy", 1, true) then
 		return true
 	end
 	return false
 end
 
-local function isDynamicHeartbeatLabelText(s)
-	if not s or s == "" then return true end
-	if not string.find(s, "%a%a") then return true end
-	if isTreadmillOrIdleStatus(s) then return true end
-	local low = string.lower(s)
-	if string.find(low, "st/s", 1, true)
-		or string.find(low, "bước/giây", 1, true)
-		or string.find(low, "carrying ", 1, true)
-		or string.find(low, "đang mang ", 1, true)
-		or string.find(low, "holding ", 1, true)
-		or string.find(low, "^session%s+%d")
-		or string.find(low, "^phiên:%s+%d")
-		or string.find(low, "^%d+%s+free$")
-		or string.find(low, "^in%s+%d+m")
-		or string.find(low, "^next%s+ufo")
-	then
+local function isDynamicHeartbeatLabelText(txt)
+	if not txt or txt == "" then return false end
+	local t = tostring(txt)
+	if t:find("^%d+m%s+%d+s$") or t:find("^%d+s$") or t:find("^%d+m$") or t:find("^%d+h%s+%d+m$") then
+		return true
+	end
+	if t:find("^%$[%d%.,]+[KkMmBbTtQq]?/s$") or t:find("^%$[%d%.,]+[KkMmBbTtQq]?$") then
+		return true
+	end
+	if t:find("^%d+/%d+$") or t:find("^%d+%%$") then
+		return true
+	end
+	if t:find("bước/giây", 1, true) or t:find("st/s", 1, true) then
+		return true
+	end
+	if t:find("Carrying ", 1, true) or t:find("Đang mang ", 1, true) then
 		return true
 	end
 	return false
 end
 
 local function translateStaticLabelText(rawText, targetLang)
-	if type(rawText) ~= "string" or rawText == "" then return rawText end
+	if not rawText or rawText == "" then return rawText end
 	local lead, trimmed, trail = rawText:match("^(%s*)(.-)(%s*)$")
 	if not trimmed or trimmed == "" then return rawText end
 
@@ -1059,12 +804,6 @@ local function translateStaticLabelText(rawText, targetLang)
 		local exact = EXACT_VI[trimmed] or LOWER_VI[string.lower(trimmed)]
 		if exact then
 			return lead .. exact .. trail
-		end
-
-		if trimmed:find("^v1%.05:%s+New Pet Finder") then
-			return lead .. EXACT_VI["v1.05: New Pet Finder above Shop with live logs, Min Value, Min Rarity, Auto Join, Force Join and a settings page with Sort By, age limits, new log alerts and an option to hide the server full popup. Pets and buttons have a springy hover, and the fig logo uses it too and plays its animation when you hover or click it. Fixed UFO eggs not being delivered, and debris is now collected inside the Rare UFO instead of on its roof."] .. trail
-		elseif trimmed:find("^v1%.04:%s+Language setting") then
-			return lead .. EXACT_VI["v1.04: Language setting in Settings > Interface: the hub in 18 languages, using Roblox's own translations first. The fig logo plays its animation on click or tap, and dragging it moves the window. Fixed a hidden error that could make the menu stutter after some actions."] .. trail
 		end
 
 		for i = 1, #STATIC_GRAMMAR_VI do
@@ -1084,8 +823,6 @@ local function translateStaticLabelText(rawText, targetLang)
 	end
 end
 
--- Hàm định dạng trạng thái trên Dynamic Island:
--- Mọi trạng thái "Treadmill" / "Máy chạy bộ" đều bị XOÁ BỎ và hiển thị là "Đang rảnh"!
 local function formatIslandStatusText(rawStatus)
 	local clean = tostring(rawStatus or "Idle"):gsub("^•%s*", ""):gsub("^●%s*", ""):match("^%s*(.-)%s*$") or "Idle"
 	if isTreadmillOrIdleStatus(clean) then
@@ -1117,32 +854,91 @@ local function formatIslandStatusText(rawStatus)
 end
 
 -- ============================================================================
--- 5. THIẾT KẾ BANANA HUB DYNAMIC ISLAND (HIỂN THỊ TRỌN VẸN 100% CON MÈO)
+-- 5. THIẾT KẾ LIQUID GLASS DYNAMIC ISLAND CHUYÊN NGHIỆP
 -- ============================================================================
 local PINNED_PILL_POS   = UDim2.new(0.5, 0, 0, 6)
 local PINNED_DRAWER_POS = UDim2.new(0.5, 0, 0, 48)
 
-local function applyGoldMatteGlass(frame, cornerRadius, bgAlpha, strokeColor, strokeThickness)
-	frame.BackgroundColor3 = ISLAND_BG_DARK
-	frame.BackgroundTransparency = bgAlpha or 0.14
+local function applyLiquidGlassRim(stroke, thickness)
+	stroke.Thickness = thickness or 1.25
+	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	pcall(function() stroke.StrokeSizingMode = Enum.StrokeSizingMode.FixedSize end)
+	local grad = stroke:FindFirstChild("LiquidGlassStrokeGrad") or Instance.new("UIGradient")
+	grad.Name = "LiquidGlassStrokeGrad"
+	grad.Rotation = 90
+	grad.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 238, 185)), -- Ánh phản xạ kính đỉnh (Specular Catch-light)
+		ColorSequenceKeypoint.new(0.35, Color3.fromRGB(215, 180, 105)),
+		ColorSequenceKeypoint.new(0.70, Color3.fromRGB(150, 120, 65)),
+		ColorSequenceKeypoint.new(1.00, Color3.fromRGB(80, 65, 36)),    -- Bóng sâu đáy kính
+	})
+	grad.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0.00, 0.12),
+		NumberSequenceKeypoint.new(0.50, 0.25),
+		NumberSequenceKeypoint.new(1.00, 0.50),
+	})
+	grad.Parent = stroke
+	return stroke
+end
+
+local function applyLiquidGlass(frame, cornerRadius, bgAlpha, strokeThickness)
+	frame.BackgroundColor3 = LIQUID_GLASS_BG_DARK
+	frame.BackgroundTransparency = bgAlpha or 0.20
 	frame.BorderSizePixel = 0
 
 	local corner = frame:FindFirstChildOfClass("UICorner") or Instance.new("UICorner")
 	corner.CornerRadius = cornerRadius or UDim.new(1, 0)
 	corner.Parent = frame
 
-	local stroke = frame:FindFirstChild("GoldMatteRimStroke") or Instance.new("UIStroke")
-	stroke.Name = "GoldMatteRimStroke"
-	stroke.Color = strokeColor or GOLD_BORDER_STROKE
-	stroke.Thickness = strokeThickness or 1.3
-	stroke.Transparency = 0.22
-	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	pcall(function() stroke.StrokeSizingMode = Enum.StrokeSizingMode.FixedSize end)
-	stroke.Parent = frame
+	local bgGrad = frame:FindFirstChild("LiquidGlassBgGrad") or Instance.new("UIGradient")
+	bgGrad.Name = "LiquidGlassBgGrad"
+	bgGrad.Rotation = 90
+	bgGrad.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0.00, Color3.fromRGB(42, 38, 46)), -- Phản chiếu bề mặt kính cong
+		ColorSequenceKeypoint.new(0.40, Color3.fromRGB(22, 20, 26)),
+		ColorSequenceKeypoint.new(1.00, Color3.fromRGB(12, 10, 14)), -- Nền sâu mờ
+	})
+	bgGrad.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0.00, math.max(0, (bgAlpha or 0.20) - 0.08)),
+		NumberSequenceKeypoint.new(0.50, bgAlpha or 0.20),
+		NumberSequenceKeypoint.new(1.00, math.min(1, (bgAlpha or 0.20) + 0.08)),
+	})
+	bgGrad.Parent = frame
 
-	applyMetallicGoldGradient(stroke)
+	local stroke = frame:FindFirstChild("LiquidGlassRimStroke") or Instance.new("UIStroke")
+	stroke.Name = "LiquidGlassRimStroke"
+	stroke.Parent = frame
+	applyLiquidGlassRim(stroke, strokeThickness or 1.25)
+
+	-- Thanh Bevel Glint Bar phản quang ánh sáng góc bo đỉnh như Apple Dynamic Island
+	local glintBar = frame:FindFirstChild("LiquidGlassGlintBar")
+	if not glintBar then
+		glintBar = Instance.new("Frame")
+		glintBar.Name = "LiquidGlassGlintBar"
+		glintBar.AnchorPoint = Vector2.new(0.5, 0)
+		glintBar.Position = UDim2.new(0.5, 0, 0, 1.5)
+		glintBar.Size = UDim2.new(1, -26, 0, 1.2)
+		glintBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		glintBar.BorderSizePixel = 0
+		glintBar.ZIndex = (frame.ZIndex or 20) + 1
+		glintBar.Parent = frame
+
+		local glintGrad = Instance.new("UIGradient")
+		glintGrad.Name = "GlintHorizontalGrad"
+		glintGrad.Rotation = 0
+		glintGrad.Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0.00, 1.00),
+			NumberSequenceKeypoint.new(0.25, 0.72),
+			NumberSequenceKeypoint.new(0.50, 0.58),
+			NumberSequenceKeypoint.new(0.75, 0.72),
+			NumberSequenceKeypoint.new(1.00, 1.00),
+		})
+		glintGrad.Parent = glintBar
+	end
+
 	return stroke
 end
+local applyGoldMatteGlass = applyLiquidGlass
 
 local function createIndependentFiggyDynamicIsland()
 	for _, root in ipairs(getUiRoots()) do
@@ -1192,7 +988,7 @@ local function createIndependentFiggyDynamicIsland()
 		end
 	end))
 
-	applyGoldMatteGlass(pillFrame, UDim.new(1, 0), 0.12, GOLD_BORDER_STROKE, 1.3)
+	applyLiquidGlass(pillFrame, UDim.new(1, 0), 0.22, 1.25)
 
 	local logoOrbHolder = Instance.new("Frame")
 	logoOrbHolder.Name = "BananaCatLogoOrb"
@@ -1211,17 +1007,17 @@ local function createIndependentFiggyDynamicIsland()
 	statusBadgeContainer.AnchorPoint = Vector2.new(0, 0.5)
 	statusBadgeContainer.Position = UDim2.new(0, 40, 0.5, 0)
 	statusBadgeContainer.Size = UDim2.new(1, -66, 0, 26)
-	statusBadgeContainer.BackgroundColor3 = Color3.fromRGB(24, 22, 18)
-	statusBadgeContainer.BackgroundTransparency = 0.25
+	statusBadgeContainer.BackgroundColor3 = Color3.fromRGB(22, 20, 24)
+	statusBadgeContainer.BackgroundTransparency = 0.38
 	statusBadgeContainer.BorderSizePixel = 0
 	statusBadgeContainer.ZIndex = 22
 	statusBadgeContainer.Parent = pillFrame
 	Instance.new("UICorner", statusBadgeContainer).CornerRadius = UDim.new(1, 0)
 
 	local badgeInnerStroke = Instance.new("UIStroke")
-	badgeInnerStroke.Color = Color3.fromRGB(115, 92, 42)
+	badgeInnerStroke.Color = Color3.fromRGB(135, 110, 55)
 	badgeInnerStroke.Thickness = 1
-	badgeInnerStroke.Transparency = 0.45
+	badgeInnerStroke.Transparency = 0.48
 	pcall(function() badgeInnerStroke.StrokeSizingMode = Enum.StrokeSizingMode.FixedSize end)
 	badgeInnerStroke.Parent = statusBadgeContainer
 
@@ -1244,7 +1040,7 @@ local function createIndependentFiggyDynamicIsland()
 	centerStatusLabel.Size = UDim2.new(1, -18, 1, 0)
 	centerStatusLabel.BackgroundTransparency = 1
 	centerStatusLabel.Font = Enum.Font.GothamBold
-	centerStatusLabel.TextColor3 = GOLD_PRIMARY_TEXT
+	centerStatusLabel.TextColor3 = SOFT_CHAMPAGNE_GOLD
 	centerStatusLabel.TextSize = 11.5
 	centerStatusLabel.TextXAlignment = Enum.TextXAlignment.Left
 	centerStatusLabel.Text = "Đang rảnh"
@@ -1259,7 +1055,7 @@ local function createIndependentFiggyDynamicIsland()
 	rightArrow.Size = UDim2.new(0, 12, 0, 12)
 	rightArrow.BackgroundTransparency = 1
 	rightArrow.Image = DOWN_ARROW_ICON
-	rightArrow.ImageColor3 = GOLD_MUTED_SUBTEXT
+	rightArrow.ImageColor3 = SOFT_MUTED_TAUPE
 	rightArrow.ScaleType = Enum.ScaleType.Fit
 	rightArrow.ZIndex = 23
 	rightArrow.Parent = pillFrame
@@ -1294,7 +1090,7 @@ local function createIndependentFiggyDynamicIsland()
 		end
 	end))
 
-	applyGoldMatteGlass(expandPanel, UDim.new(0, 18), 0.10, GOLD_BORDER_STROKE, 1.3)
+	applyLiquidGlass(expandPanel, UDim.new(0, 18), 0.18, 1.25)
 
 	local expLogoHolder = Instance.new("Frame")
 	expLogoHolder.Position = UDim2.new(0, 12, 0, 10)
@@ -1324,7 +1120,7 @@ local function createIndependentFiggyDynamicIsland()
 	expSubBadge.BackgroundTransparency = 1
 	expSubBadge.Font = Enum.Font.GothamMedium
 	expSubBadge.TextSize = 8.5
-	expSubBadge.TextColor3 = GOLD_MUTED_SUBTEXT
+	expSubBadge.TextColor3 = SOFT_MUTED_TAUPE
 	expSubBadge.TextXAlignment = Enum.TextXAlignment.Left
 	expSubBadge.Text = "● ĐÃ XOÁ TRẠNG THÁI MÁY CHẠY • 0% LAG"
 	expSubBadge.ZIndex = 33
@@ -1334,33 +1130,36 @@ local function createIndependentFiggyDynamicIsland()
 	collapseBtn.Name = "CollapseIslandBtn"
 	collapseBtn.Position = UDim2.new(1, -78, 0, 11)
 	collapseBtn.Size = UDim2.new(0, 66, 0, 22)
-	collapseBtn.BackgroundColor3 = BTN_INACTIVE_BG
+	collapseBtn.BackgroundColor3 = Color3.fromRGB(28, 25, 30)
+	collapseBtn.BackgroundTransparency = 0.35
 	collapseBtn.BorderSizePixel = 0
 	collapseBtn.Text = "Thu gọn ▲"
 	collapseBtn.Font = Enum.Font.GothamMedium
 	collapseBtn.TextSize = 9.5
-	collapseBtn.TextColor3 = GOLD_SOFT_CREAM
+	collapseBtn.TextColor3 = SOFT_WARM_CREAM
 	collapseBtn.AutoButtonColor = false
 	collapseBtn.ZIndex = 34
 	collapseBtn.Parent = expandPanel
 	Instance.new("UICorner", collapseBtn).CornerRadius = UDim.new(1, 0)
 	local cbStroke = Instance.new("UIStroke", collapseBtn)
-	cbStroke.Color = BTN_INACTIVE_STROKE
+	cbStroke.Color = Color3.fromRGB(120, 100, 55)
 	cbStroke.Thickness = 1
+	cbStroke.Transparency = 0.50
 
 	local liveStatusCard = Instance.new("Frame")
 	liveStatusCard.Name = "LiveStatusCard"
 	liveStatusCard.Position = UDim2.new(0, 12, 0, 44)
 	liveStatusCard.Size = UDim2.new(1, -24, 0, 28)
-	liveStatusCard.BackgroundColor3 = ISLAND_CARD_BG
+	liveStatusCard.BackgroundColor3 = Color3.fromRGB(22, 20, 24)
+	liveStatusCard.BackgroundTransparency = 0.38
 	liveStatusCard.BorderSizePixel = 0
 	liveStatusCard.ZIndex = 32
 	liveStatusCard.Parent = expandPanel
 	Instance.new("UICorner", liveStatusCard).CornerRadius = UDim.new(0, 8)
 	local lscStroke = Instance.new("UIStroke", liveStatusCard)
-	lscStroke.Color = Color3.fromRGB(92, 74, 34)
+	lscStroke.Color = Color3.fromRGB(125, 100, 50)
 	lscStroke.Thickness = 1
-	lscStroke.Transparency = 0.35
+	lscStroke.Transparency = 0.50
 
 	local cardStatusLbl = Instance.new("TextLabel")
 	cardStatusLbl.Name = "CardStatusText"
@@ -1369,7 +1168,7 @@ local function createIndependentFiggyDynamicIsland()
 	cardStatusLbl.BackgroundTransparency = 1
 	cardStatusLbl.Font = Enum.Font.GothamBold
 	cardStatusLbl.TextSize = 11
-	cardStatusLbl.TextColor3 = GOLD_PRIMARY_TEXT
+	cardStatusLbl.TextColor3 = SOFT_CHAMPAGNE_GOLD
 	cardStatusLbl.TextXAlignment = Enum.TextXAlignment.Left
 	cardStatusLbl.TextTruncate = Enum.TextTruncate.AtEnd
 	cardStatusLbl.Text = "Đang rảnh"
@@ -1380,14 +1179,16 @@ local function createIndependentFiggyDynamicIsland()
 	langTrack.Name = "LanguageGlassTrack"
 	langTrack.Position = UDim2.new(0, 12, 0, 78)
 	langTrack.Size = UDim2.new(1, -24, 0, 30)
-	langTrack.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
+	langTrack.BackgroundColor3 = Color3.fromRGB(18, 16, 20)
+	langTrack.BackgroundTransparency = 0.45
 	langTrack.BorderSizePixel = 0
 	langTrack.ZIndex = 32
 	langTrack.Parent = expandPanel
 	Instance.new("UICorner", langTrack).CornerRadius = UDim.new(0, 8)
 	local ltStroke = Instance.new("UIStroke", langTrack)
-	ltStroke.Color = BTN_INACTIVE_STROKE
+	ltStroke.Color = Color3.fromRGB(110, 90, 50)
 	ltStroke.Thickness = 1
+	ltStroke.Transparency = 0.55
 
 	local btnVI = Instance.new("TextButton")
 	btnVI.Name = "BtnVietnamese"
@@ -1398,7 +1199,7 @@ local function createIndependentFiggyDynamicIsland()
 	btnVI.Font = Enum.Font.GothamBold
 	btnVI.Text = "🇻🇳 Tiếng Việt"
 	btnVI.TextSize = 10.5
-	btnVI.TextColor3 = (State.Language == "VI") and BTN_ACTIVE_TEXT or GOLD_MUTED_SUBTEXT
+	btnVI.TextColor3 = (State.Language == "VI") and SOFT_CHAMPAGNE_GOLD or SOFT_MUTED_TAUPE
 	btnVI.AutoButtonColor = false
 	btnVI.ZIndex = 34
 	btnVI.Parent = langTrack
@@ -1406,7 +1207,7 @@ local function createIndependentFiggyDynamicIsland()
 	local btnVIStroke = Instance.new("UIStroke", btnVI)
 	btnVIStroke.Color = (State.Language == "VI") and BTN_ACTIVE_STROKE or BTN_INACTIVE_STROKE
 	btnVIStroke.Thickness = 1
-	btnVIStroke.Transparency = (State.Language == "VI") and 0.15 or 0.55
+	btnVIStroke.Transparency = (State.Language == "VI") and 0.25 or 0.60
 
 	local btnEN = Instance.new("TextButton")
 	btnEN.Name = "BtnEnglish"
@@ -1417,7 +1218,7 @@ local function createIndependentFiggyDynamicIsland()
 	btnEN.Font = Enum.Font.GothamBold
 	btnEN.Text = "🇺🇸 English"
 	btnEN.TextSize = 10.5
-	btnEN.TextColor3 = (State.Language == "EN") and BTN_ACTIVE_TEXT or GOLD_MUTED_SUBTEXT
+	btnEN.TextColor3 = (State.Language == "EN") and SOFT_CHAMPAGNE_GOLD or SOFT_MUTED_TAUPE
 	btnEN.AutoButtonColor = false
 	btnEN.ZIndex = 34
 	btnEN.Parent = langTrack
@@ -1425,76 +1226,84 @@ local function createIndependentFiggyDynamicIsland()
 	local btnENStroke = Instance.new("UIStroke", btnEN)
 	btnENStroke.Color = (State.Language == "EN") and BTN_ACTIVE_STROKE or BTN_INACTIVE_STROKE
 	btnENStroke.Thickness = 1
-	btnENStroke.Transparency = (State.Language == "EN") and 0.15 or 0.55
+	btnENStroke.Transparency = (State.Language == "EN") and 0.25 or 0.60
 
 	local actionRow = Instance.new("Frame")
 	actionRow.Name = "ActionRow"
 	actionRow.Position = UDim2.new(0, 12, 0, 114)
-	actionRow.Size = UDim2.new(1, -24, 0, 26)
+	actionRow.Size = UDim2.new(1, -24, 0, 28)
 	actionRow.BackgroundTransparency = 1
 	actionRow.ZIndex = 32
 	actionRow.Parent = expandPanel
 
-	local soundToggleBtn = Instance.new("TextButton")
-	soundToggleBtn.Name = "SoundToggleBtn"
-	soundToggleBtn.Position = UDim2.new(0, 0, 0, 0)
-	soundToggleBtn.Size = UDim2.new(0.5, -4, 1, 0)
-	soundToggleBtn.BackgroundColor3 = BTN_INACTIVE_BG
-	soundToggleBtn.BorderSizePixel = 0
-	soundToggleBtn.Font = Enum.Font.GothamMedium
-	soundToggleBtn.TextSize = 9.5
-	soundToggleBtn.TextColor3 = GOLD_SOFT_CREAM
-	soundToggleBtn.Text = State.SoundEnabled and "🔊 Âm thanh: BẬT" or "🔇 Âm thanh: TẮT"
-	soundToggleBtn.AutoButtonColor = false
-	soundToggleBtn.ZIndex = 34
-	soundToggleBtn.Parent = actionRow
-	Instance.new("UICorner", soundToggleBtn).CornerRadius = UDim.new(0, 6)
-	local sbStroke = Instance.new("UIStroke", soundToggleBtn)
-	sbStroke.Color = BTN_INACTIVE_STROKE
-	sbStroke.Thickness = 1
+	-- 1. NÚT MỞ / ĐÓNG MENU CHÍNH (Thay thế hoàn toàn nút bật/tắt âm thanh)
+	local menuToggleBtn = Instance.new("TextButton")
+	menuToggleBtn.Name = "HubMenuToggleBtn"
+	menuToggleBtn.Position = UDim2.new(0, 0, 0, 0)
+	menuToggleBtn.Size = UDim2.new(0.5, -4, 1, 0)
+	menuToggleBtn.BackgroundColor3 = Color3.fromRGB(28, 25, 30)
+	menuToggleBtn.BackgroundTransparency = 0.30
+	menuToggleBtn.BorderSizePixel = 0
+	menuToggleBtn.Font = Enum.Font.GothamMedium
+	menuToggleBtn.TextSize = 10
+	menuToggleBtn.TextColor3 = SOFT_WARM_CREAM
+	menuToggleBtn.Text = "📖 Mở / Đóng Menu"
+	menuToggleBtn.AutoButtonColor = false
+	menuToggleBtn.ZIndex = 34
+	menuToggleBtn.Parent = actionRow
+	Instance.new("UICorner", menuToggleBtn).CornerRadius = UDim.new(0, 6)
+	local mtStroke = Instance.new("UIStroke", menuToggleBtn)
+	mtStroke.Color = Color3.fromRGB(145, 120, 65)
+	mtStroke.Thickness = 1
+	mtStroke.Transparency = 0.45
 
+	-- 2. NÚT LÀM MỚI & ĐỒNG BỘ (Đồng bộ font chữ, màu êm mắt, không chói)
 	local rescanBtn = Instance.new("TextButton")
 	rescanBtn.Name = "RescanTranslateBtn"
 	rescanBtn.Position = UDim2.new(0.5, 4, 0, 0)
 	rescanBtn.Size = UDim2.new(0.5, -4, 1, 0)
-	rescanBtn.BackgroundColor3 = BTN_ACTIVE_BG
+	rescanBtn.BackgroundColor3 = Color3.fromRGB(28, 25, 30)
+	rescanBtn.BackgroundTransparency = 0.30
 	rescanBtn.BorderSizePixel = 0
 	rescanBtn.Font = Enum.Font.GothamMedium
-	rescanBtn.TextSize = 9.5
-	rescanBtn.TextColor3 = GOLD_PRIMARY_TEXT
+	rescanBtn.TextSize = 10
+	rescanBtn.TextColor3 = SOFT_WARM_CREAM
 	rescanBtn.Text = "⚡ Làm mới & Đồng bộ"
 	rescanBtn.AutoButtonColor = false
 	rescanBtn.ZIndex = 34
 	rescanBtn.Parent = actionRow
 	Instance.new("UICorner", rescanBtn).CornerRadius = UDim.new(0, 6)
 	local rbStroke = Instance.new("UIStroke", rescanBtn)
-	rbStroke.Color = BTN_ACTIVE_STROKE
+	rbStroke.Color = Color3.fromRGB(145, 120, 65)
 	rbStroke.Thickness = 1
-	rbStroke.Transparency = 0.30
+	rbStroke.Transparency = 0.45
 
 	local noteToggleBtn = Instance.new("TextButton")
 	noteToggleBtn.Name = "SettingNoteToggleBtn"
-	noteToggleBtn.Position = UDim2.new(0, 12, 0, 144)
+	noteToggleBtn.Position = UDim2.new(0, 12, 0, 146)
 	noteToggleBtn.Size = UDim2.new(1, -24, 0, 22)
-	noteToggleBtn.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
+	noteToggleBtn.BackgroundColor3 = Color3.fromRGB(22, 20, 24)
+	noteToggleBtn.BackgroundTransparency = 0.40
 	noteToggleBtn.BorderSizePixel = 0
 	noteToggleBtn.Text = "Thông tin Banana Hub Gold Premium (Bấm xem) ▼"
 	noteToggleBtn.Font = Enum.Font.GothamMedium
 	noteToggleBtn.TextSize = 9
-	noteToggleBtn.TextColor3 = GOLD_MUTED_SUBTEXT
+	noteToggleBtn.TextColor3 = SOFT_MUTED_TAUPE
 	noteToggleBtn.AutoButtonColor = false
 	noteToggleBtn.ZIndex = 33
 	noteToggleBtn.Parent = expandPanel
 	Instance.new("UICorner", noteToggleBtn).CornerRadius = UDim.new(0, 6)
 	local ntbStroke = Instance.new("UIStroke", noteToggleBtn)
-	ntbStroke.Color = BTN_INACTIVE_STROKE
+	ntbStroke.Color = Color3.fromRGB(110, 90, 50)
 	ntbStroke.Thickness = 1
+	ntbStroke.Transparency = 0.55
 
 	local noteDrawer = Instance.new("Frame")
 	noteDrawer.Name = "SettingNoteDrawer"
-	noteDrawer.Position = UDim2.new(0, 12, 0, 170)
+	noteDrawer.Position = UDim2.new(0, 12, 0, 172)
 	noteDrawer.Size = UDim2.new(1, -24, 0, 80)
-	noteDrawer.BackgroundColor3 = ISLAND_CARD_BG
+	noteDrawer.BackgroundColor3 = Color3.fromRGB(22, 20, 24)
+	noteDrawer.BackgroundTransparency = 0.38
 	noteDrawer.BorderSizePixel = 0
 	noteDrawer.Visible = false
 	noteDrawer.ClipsDescendants = true
@@ -1502,9 +1311,9 @@ local function createIndependentFiggyDynamicIsland()
 	noteDrawer.Parent = expandPanel
 	Instance.new("UICorner", noteDrawer).CornerRadius = UDim.new(0, 8)
 	local ndStroke = Instance.new("UIStroke", noteDrawer)
-	ndStroke.Color = Color3.fromRGB(92, 74, 34)
+	ndStroke.Color = Color3.fromRGB(120, 95, 48)
 	ndStroke.Thickness = 1
-	ndStroke.Transparency = 0.40
+	ndStroke.Transparency = 0.50
 
 	local ndHeader = Instance.new("TextLabel", noteDrawer)
 	ndHeader.Position = UDim2.new(0, 8, 0, 4)
@@ -1512,9 +1321,9 @@ local function createIndependentFiggyDynamicIsland()
 	ndHeader.BackgroundTransparency = 1
 	ndHeader.Font = Enum.Font.GothamBold
 	ndHeader.TextSize = 9
-	ndHeader.TextColor3 = GOLD_PRIMARY_TEXT
+	ndHeader.TextColor3 = SOFT_CHAMPAGNE_GOLD
 	ndHeader.TextXAlignment = Enum.TextXAlignment.Left
-	ndHeader.Text = "🍌 BANANA HUB • LUXURY GOLD COIN"
+	ndHeader.Text = "🍌 BANANA HUB • LIQUID GLASS PREMIUM"
 	ndHeader.ZIndex = 35
 
 	local ndLine1 = Instance.new("TextLabel", noteDrawer)
@@ -1523,7 +1332,7 @@ local function createIndependentFiggyDynamicIsland()
 	ndLine1.BackgroundTransparency = 1
 	ndLine1.Font = Enum.Font.GothamMedium
 	ndLine1.TextSize = 8.5
-	ndLine1.TextColor3 = GOLD_SOFT_CREAM
+	ndLine1.TextColor3 = SOFT_WARM_CREAM
 	ndLine1.TextXAlignment = Enum.TextXAlignment.Left
 	ndLine1.Text = "+ Đã xoá trạng thái Máy chạy bộ -> Luôn hiện Đang rảnh"
 	ndLine1.ZIndex = 35
@@ -1534,9 +1343,9 @@ local function createIndependentFiggyDynamicIsland()
 	ndLine2.BackgroundTransparency = 1
 	ndLine2.Font = Enum.Font.GothamMedium
 	ndLine2.TextSize = 8.5
-	ndLine2.TextColor3 = GOLD_MUTED_SUBTEXT
+	ndLine2.TextColor3 = SOFT_MUTED_TAUPE
 	ndLine2.TextXAlignment = Enum.TextXAlignment.Left
-	ndLine2.Text = "+ Kéo rộng ngang & thu lề 86% hiển thị trọn vẹn con mèo"
+	ndLine2.Text = "+ Hiệu ứng Liquid Glass mờ acrylic & viền phản xạ ánh sáng"
 	ndLine2.ZIndex = 35
 
 	local ndLine3 = Instance.new("TextLabel", noteDrawer)
@@ -1545,9 +1354,9 @@ local function createIndependentFiggyDynamicIsland()
 	ndLine3.BackgroundTransparency = 1
 	ndLine3.Font = Enum.Font.GothamMedium
 	ndLine3.TextSize = 8.5
-	ndLine3.TextColor3 = Color3.fromRGB(145, 210, 165)
+	ndLine3.TextColor3 = SOFT_MINT_PASTEL
 	ndLine3.TextXAlignment = Enum.TextXAlignment.Left
-	ndLine3.Text = "+ Ngắt toàn bộ sự kiện quét ngầm sau khi mở menu (0% lag)"
+	ndLine3.Text = "+ Ẩn menu lúc mới chạy, âm thanh mặc định BẬT, chữ êm mắt"
 	ndLine3.ZIndex = 35
 
 	local function updatePillVisuals(forceUpdate)
@@ -1581,20 +1390,19 @@ local function createIndependentFiggyDynamicIsland()
 		if forceUpdate then
 			expSubBadge.Text = (State.Language == "EN") and "● NO TREADMILL STATUS • 0% LAG" or "● ĐÃ XOÁ TRẠNG THÁI MÁY CHẠY • 0% LAG"
 			collapseBtn.Text = (State.Language == "EN") and "Collapse ▲" or "Thu gọn ▲"
-			soundToggleBtn.Text = State.SoundEnabled
-				and ((State.Language == "EN") and "🔊 Sound: ON" or "🔊 Âm thanh: BẬT")
-				or ((State.Language == "EN") and "🔇 Sound: OFF" or "🔇 Âm thanh: TẮT")
+			menuToggleBtn.Text = (State.Language == "EN") and "📖 Toggle Menu" or "📖 Mở / Đóng Menu"
 			rescanBtn.Text = (State.Language == "EN") and "⚡ Refresh & Sync" or "⚡ Làm mới & Đồng bộ"
+			noteToggleBtn.Text = (State.Language == "EN") and "Banana Hub Gold Premium Info (Click) ▼" or "Thông tin Banana Hub Gold Premium (Bấm xem) ▼"
 
 			btnVI.BackgroundColor3 = (State.Language == "VI") and BTN_ACTIVE_BG or BTN_INACTIVE_BG
-			btnVI.TextColor3 = (State.Language == "VI") and BTN_ACTIVE_TEXT or GOLD_MUTED_SUBTEXT
+			btnVI.TextColor3 = (State.Language == "VI") and SOFT_CHAMPAGNE_GOLD or SOFT_MUTED_TAUPE
 			btnVIStroke.Color = (State.Language == "VI") and BTN_ACTIVE_STROKE or BTN_INACTIVE_STROKE
-			btnVIStroke.Transparency = (State.Language == "VI") and 0.15 or 0.55
+			btnVIStroke.Transparency = (State.Language == "VI") and 0.25 or 0.60
 
 			btnEN.BackgroundColor3 = (State.Language == "EN") and BTN_ACTIVE_BG or BTN_INACTIVE_BG
-			btnEN.TextColor3 = (State.Language == "EN") and BTN_ACTIVE_TEXT or GOLD_MUTED_SUBTEXT
+			btnEN.TextColor3 = (State.Language == "EN") and SOFT_CHAMPAGNE_GOLD or SOFT_MUTED_TAUPE
 			btnENStroke.Color = (State.Language == "EN") and BTN_ACTIVE_STROKE or BTN_INACTIVE_STROKE
-			btnENStroke.Transparency = (State.Language == "EN") and 0.15 or 0.55
+			btnENStroke.Transparency = (State.Language == "EN") and 0.25 or 0.60
 		end
 
 		local textLen = utf8.len(displayTxt) or #displayTxt
@@ -1620,12 +1428,12 @@ local function createIndependentFiggyDynamicIsland()
 		State.NoteOpen = not State.NoteOpen
 		if State.NoteOpen then
 			noteDrawer.Visible = true
-			noteToggleBtn.Text = "Thông tin Banana Hub Gold Premium (Thu gọn) ▲"
+			noteToggleBtn.Text = (State.Language == "EN") and "Banana Hub Gold Premium Info (Collapse) ▲" or "Thông tin Banana Hub Gold Premium (Thu gọn) ▲"
 			TweenService:Create(expandPanel, TweenInfo.new(0.20, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 				Size = UDim2.new(0, EXP_W, 0, OPEN_NOTE_EXP_H)
 			}):Play()
 		else
-			noteToggleBtn.Text = "Thông tin Banana Hub Gold Premium (Bấm xem) ▼"
+			noteToggleBtn.Text = (State.Language == "EN") and "Banana Hub Gold Premium Info (Click) ▼" or "Thông tin Banana Hub Gold Premium (Bấm xem) ▼"
 			local tw = TweenService:Create(expandPanel, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 				Size = UDim2.new(0, EXP_W, 0, COLLAPSED_EXP_H)
 			})
@@ -1638,12 +1446,20 @@ local function createIndependentFiggyDynamicIsland()
 		end
 	end))
 
-	trackConn(soundToggleBtn.Activated:Connect(function()
-		State.SoundEnabled = not State.SoundEnabled
-		if State.SoundEnabled then
-			playUiSound("action")
+	trackConn(menuToggleBtn.Activated:Connect(function()
+		playUiSound("action")
+		State.UserOpenedMenu = true
+		if State.FiggyMainWindow and State.FiggyMainWindow.Parent then
+			State.FiggyMainWindow.Visible = not State.FiggyMainWindow.Visible
+		elseif State.ActiveFiggyGui and State.ActiveFiggyGui.Parent then
+			for _, d in ipairs(State.ActiveFiggyGui:GetChildren()) do
+				if d:IsA("GuiObject") and d.AbsoluteSize.X >= 250 and d.AbsoluteSize.Y >= 160 then
+					State.FiggyMainWindow = d
+					d.Visible = not d.Visible
+					break
+				end
+			end
 		end
-		updatePillVisuals(true)
 	end))
 
 	trackConn(rescanBtn.Activated:Connect(function()
@@ -1651,6 +1467,7 @@ local function createIndependentFiggyDynamicIsland()
 		if State.RefreshAllMenus then
 			task.spawn(State.RefreshAllMenus)
 		end
+		updatePillVisuals(true)
 	end))
 
 	local lastToggleClock = -10
@@ -1729,8 +1546,6 @@ local function isIgnoredHeaderLabel(txt)
 	return false
 end
 
--- Tắt hoàn toàn Visible = false trên thanh trạng thái gốc của Header để Roblox C++ không tính toán lại
--- layout mỗi frame khi Figgy Hub chạy hiệu ứng Treadmill!
 local function hideOriginalStatusBadgeCompletely(badgeFrame)
 	if not badgeFrame or not badgeFrame:IsA("GuiObject") then return end
 	if badgeFrame:GetAttribute("__HiddenByBanana") == SID then return end
@@ -1752,11 +1567,8 @@ local function syncStatusFromLiveWidgets()
 
 	local rawText = (txtObj and txtObj.Parent and txtObj.Text) or "Idle"
 
-	-- NẾU LÀ TRẠNG THÁI MÁY CHẠY BỘ (TREADMILL) HOẶC IDLE:
-	-- Quy thẳng về "Idle" ("Đang rảnh") và xoá bỏ icon tia sét của máy chạy!
 	if isTreadmillOrIdleStatus(rawText) then
 		if State.LastSyncedRawText == "Idle" then
-			-- Đã ở trạng thái Đang rảnh rồi -> Thoát ngay lập tức ở dòng 1 (0% CPU, không làm bất cứ gì!)
 			return
 		end
 		State.LastSyncedRawText = "Idle"
@@ -1789,7 +1601,7 @@ local function syncStatusFromLiveWidgets()
 end
 
 -- ============================================================================
--- 7. NHẬN DIỆN NÚT CỦ HÀNH TÍM (CHỈ QUÉT 1 LẦN LÚC KHỞI ĐỘNG)
+-- 7. NHẬN DIỆN NÚT CỦ HÀNH TÍM (CHỈ GẮN ĐÚNG NÚT CỦ HÀNH TÍM FIGGY HUB)
 -- ============================================================================
 local function isPurpleOnionSquareButton(btn, isInsideVerifiedFiggyGui)
 	if not btn or not btn.Parent then return false end
@@ -1897,9 +1709,30 @@ local function scanPurpleOnionButtonsOnce()
 	end
 end
 
+-- ============================================================================
+-- 8. TIÊU ĐỀ HEADER, BIND LOGO VÀ ẨN MENU LÚC KHỞI ĐỘNG (KHÔNG BỊ LỘ RA NHƯ ẢNH 1)
+-- ============================================================================
 local function bindHeaderAndLogosFromTitle(titleLbl)
 	if not titleLbl or not titleLbl.Parent then return end
 	if titleLbl.AbsoluteSize.Y > 0 and titleLbl.AbsoluteSize.Y < 13 then return end
+
+	-- 1. Tìm Main Window Frame từ titleLbl để có thể ẩn đi lúc mới chạy script (không bị lộ ra như ảnh 1)
+	local curWin = titleLbl
+	for _ = 1, 5 do
+		if curWin and curWin.Parent and curWin.Parent:IsA("GuiObject") then
+			curWin = curWin.Parent
+			local sz = curWin.AbsoluteSize
+			if sz.X >= 260 and sz.Y >= 160 then
+				State.FiggyMainWindow = curWin
+				if not State.UserOpenedMenu then
+					pcall(function() curWin.Visible = false end)
+				end
+				break
+			end
+		else
+			break
+		end
+	end
 
 	local headerContainer = titleLbl.Parent
 	for _ = 1, 3 do
@@ -1980,34 +1813,35 @@ local function styleElementGoldOnce(obj)
 		return
 	end
 
-	if obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
-		if isFiggyPurpleColor(obj.ImageColor3) then
-			pcall(function() obj.ImageColor3 = GOLD_PRIMARY_TEXT end)
+	pcall(function()
+		if obj:IsA("TextLabel") or obj:IsA("TextButton") then
+			local curCol = obj.TextColor3
+			if isFiggyPurpleColor(curCol) then
+				obj.TextColor3 = SOFT_CHAMPAGNE_GOLD
+			end
+		elseif obj:IsA("Frame") or obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
+			local curBg = obj.BackgroundColor3
+			if isFiggyPurpleColor(curBg) then
+				obj.BackgroundColor3 = Color3.fromRGB(44, 38, 28)
+			end
+			if (obj:IsA("ImageLabel") or obj:IsA("ImageButton")) and isFiggyPurpleColor(obj.ImageColor3) then
+				obj.ImageColor3 = SOFT_CHAMPAGNE_GOLD
+			end
+		elseif obj:IsA("UIStroke") then
+			if isFiggyPurpleColor(obj.Color) then
+				obj.Color = Color3.fromRGB(150, 120, 65)
+			end
 		end
-	end
 
-	if obj:IsA("GuiObject") then
-		if obj.BackgroundTransparency < 0.98 and isFiggyPurpleColor(obj.BackgroundColor3) then
-			pcall(function() obj.BackgroundColor3 = GOLD_ACCENT_FILL end)
+		local grad = obj:FindFirstChildOfClass("UIGradient")
+		if grad and grad.Name ~= "LuxuryGoldGradient" and grad.Name ~= "LiquidGlassStrokeGrad" and grad.Name ~= "LiquidGlassBgGrad" and grad.Name ~= "CoinSurfaceGoldGrad" and grad.Name ~= "BananaGoldTitleGrad" then
+			if hasPurpleGradient(obj) then
+				applyMetallicGoldGradient(grad)
+			end
 		end
-	end
-
-	if obj:IsA("UIStroke") then
-		if isFiggyPurpleColor(obj.Color) then
-			pcall(function() obj.Color = GOLD_BORDER_STROKE end)
-		end
-	end
-
-	if obj:IsA("TextLabel") or obj:IsA("TextButton") then
-		if isFiggyPurpleColor(obj.TextColor3) then
-			pcall(function() obj.TextColor3 = GOLD_PRIMARY_TEXT end)
-		end
-	end
+	end)
 end
 
--- ============================================================================
--- 8. DỊCH MENU TĨNH 1 LẦN & TỰ NGẮT SỰ KIỆN QUÉT NGẦM (0% LAG KHI CHƠI)
--- ============================================================================
 local function hookMenuButtonSound(inst)
 	if not inst or not inst.Parent then return end
 	if State.IslandGui and inst:IsDescendantOf(State.IslandGui) then return end
@@ -2127,7 +1961,7 @@ local function hookTargetScreenGui(gui)
 	State.ActiveFiggyGui = gui
 	gui:SetAttribute("__FiggyGuiHooked", SID)
 
-	-- Chỉ mở DescendantAdded trong 2.5 giây đầu khi menu đang tạo, sau đó NGẮT HẲN để khi chơi 0% lag!
+	-- Mở DescendantAdded trong 3.5 giây đầu khi menu đang tạo, sau đó NGẮT HẲN để khi chơi 0% lag!
 	local tempDescConn
 	tempDescConn = gui.DescendantAdded:Connect(function(desc)
 		if not isAlive() then return end
@@ -2140,31 +1974,29 @@ local function hookTargetScreenGui(gui)
 		end
 	end)
 	trackConn(tempDescConn)
-	task.delay(2.5, function()
+	task.delay(3.5, function()
 		if tempDescConn then
 			pcall(function() tempDescConn:Disconnect() end)
 		end
 	end)
 
 	task.spawn(function()
-		local okDesc, descendants = pcall(function() return gui:GetDescendants() end)
-		if okDesc and type(descendants) == "table" then
-			for _, d in ipairs(descendants) do
-				if d:IsA("TextLabel") and (d.Text == "Figgy Hub" or d.Text == "Banana Hub" or d.Text == "FrostyFig") then
-					pcall(bindHeaderAndLogosFromTitle, d)
-					break
+		for checkRound = 1, 10 do
+			if not isAlive() or not gui.Parent then break end
+			local okDesc, descendants = pcall(function() return gui:GetDescendants() end)
+			if okDesc and type(descendants) == "table" then
+				for _, d in ipairs(descendants) do
+					if d:IsA("TextLabel") and (d.Text == "Figgy Hub" or d.Text == "Banana Hub" or d.Text == "FrostyFig") then
+						pcall(bindHeaderAndLogosFromTitle, d)
+					end
+					if d:IsA("TextLabel") or d:IsA("TextButton") or d:IsA("TextBox") or d:IsA("ImageButton") then
+						pcall(processGuiElement, d)
+					end
 				end
 			end
-
-			for i, d in ipairs(descendants) do
-				if not isAlive() then break end
-				pcall(processGuiElement, d)
-				if i % 300 == 0 then
-					task.wait()
-				end
-			end
+			pcall(scanPurpleOnionButtonsOnce)
+			task.wait(0.35)
 		end
-		pcall(scanPurpleOnionButtonsOnce)
 	end)
 end
 
@@ -2191,7 +2023,7 @@ task.spawn(function()
 		local rootAddConn
 		rootAddConn = root.ChildAdded:Connect(function(newGui)
 			if not isAlive() then return end
-			task.delay(0.3, function()
+			task.delay(0.2, function()
 				if isAlive() and newGui and newGui.Parent then
 					pcall(hookTargetScreenGui, newGui)
 					pcall(scanPurpleOnionButtonsOnce)
