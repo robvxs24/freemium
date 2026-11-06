@@ -1,5 +1,5 @@
 -- ============================================================================
--- BANANA HUB V1.0.9 (LIQUID GLASS EDITION) | BẢN V5: LOGO CỦ HÀNH TÍM + THEME VÀNG CHUẨN
+-- BANANA HUB V1.0.9 (LIQUID GLASS EDITION) | BANANA LOGOS + GOLD THEME + HOME
 -- Script gốc: loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/91ad82d753e1318189c4e249d56e7dcf.lua"))()
 -- 1. [KHẮC PHỤC TRIỆT ĐỂ LỖI LỘ ẢNH MỜ GỐC LÚC MỚI CHẠY & KHÔNG GHIM NHẦM]:
 --    + Đo kích thước thực tế qua cả `AbsoluteSize` lẫn `Size.Offset` để bắt dính nút ngay từ
@@ -9,7 +9,7 @@
 --      tắt `UIStroke` gốc và ẩn luôn cả các khung bóng mờ anh em cùng tọa độ).
 -- 2. [ĐÚNG KIỂU DÁNG TỪNG LOGO THEO YÊU CẦU]:
 --    + Logo Dynamic Island, Logo mở menu chính bên trái (nút củ hành tím) và Logo góc trái tiêu đề: HÌNH TRÒN.
---    + TUYỆT ĐỐI KHÔNG trang trí các nút game bên tay phải màn hình (Trứng đỏ / Chân thú cam).
+--    + Chỉ đổi nút củ hành vuông bên phải khi asset ảnh gốc trùng khớp; giữ nguyên các nút game khác.
 --    + Tự động chọn đúng thẻ theme Vàng Hoàng Gia (Lemon), không đổi màu tím sang vàng toàn menu.
 -- 3. [TỐI ƯU HIỆU NĂNG - 0% GIẬT LAG]:
 --    + Bỏ qua hoàn toàn trạng thái máy chạy bộ (Treadmill) -> Luôn giữ tĩnh "Đang rảnh" (0 lệnh vẽ lại).
@@ -83,6 +83,7 @@ State.HeaderBadgeFrame = nil -- Logo nhỏ cạnh tiêu đề trong cửa sổ m
 State.OnionAsset = nil -- Asset ảnh củ hành gốc để nhận diện chính xác
 State.GoldThemeApplied = false -- Đã chọn theme Vàng Hoàng Gia (Lemon)
 State.GoldThemeAttempts = 0 -- Số lần thử chọn theme (có giới hạn, không lặp vô hạn)
+State.HomeTabReturned = false -- Mỗi lần chạy chỉ quay về Home một lần
 
 -- ============================================================================
 -- 1. BẢNG MÀU LIQUID GLASS & CHAMPAGNE CREAM DỊU MẮT (0% CHÓI MẮT)
@@ -750,8 +751,8 @@ local function decoratePurpleOnionButton(rawTarget, strokeThickness, forceRounde
 	local cx = container.AbsolutePosition.X
 	local cy = container.AbsolutePosition.Y
 
-	-- Ngoài cửa sổ menu: CHỈ chấp nhận nút củ hành tím ở lề trái.
-	-- Tuyệt đối không chạm vào bất kỳ nút game nào bên tay phải màn hình.
+	-- Ngoài cửa sổ menu: chỉ trang trí logo chính ở vùng lề trái.
+	-- Nút củ hành vuông bên phải được thay ảnh riêng, không bo góc.
 	if not insideWindow then
 		if State.FiggyMainWindow and (container == State.FiggyMainWindow or container:IsDescendantOf(State.FiggyMainWindow)) then
 			return
@@ -787,7 +788,7 @@ local function decoratePurpleOnionButton(rawTarget, strokeThickness, forceRounde
 		end
 	end
 
-	-- Mọi logo đều là HÌNH TRÒN. Không còn nhánh hình vuông bên phải.
+	-- Logo chính/header tròn; nút củ hành nhỏ bên phải chỉ thay ảnh và giữ khung vuông.
 	local targetCornerUdim = CIRCLE_CORNER_UDIM
 
 	local thick = strokeThickness or 2.0
@@ -1870,7 +1871,7 @@ local function syncStatusFromLiveWidgets()
 end
 
 -- ============================================================================
--- 7. NHẬN DIỆN NÚT CỦ HÀNH TÍM CHÍNH XÁC (0% GHIM NHẦM, 0% LỘ ẢNH MỜ)
+-- 7. NHẬN DIỆN LOGO CỦ HÀNH THEO ASSET GỐC (FAIL-CLOSED)
 -- ============================================================================
 local function hasPurpleVisualInside(btn)
 	if btn:GetAttribute("__WasFiggyPurple") == true then return true end
@@ -1902,104 +1903,43 @@ end
 local function isPurpleOnionSquareButton(btn, isInsideVerifiedFiggyGui)
 	if not btn or not btn.Parent then return false end
 	if not (btn:IsA("Frame") or btn:IsA("ImageButton") or btn:IsA("TextButton") or btn:IsA("CanvasGroup")) then return false end
-
-	if btn:FindFirstChild("BananaCatCircleAvatar") or (btn.Parent and btn.Parent:FindFirstChild("BananaCatCircleAvatar")) then
-		return false
-	end
-
-	if isInsideLargeWindowFrame(btn) then
-		return false
-	end
-	if State.FiggyMainWindow and (btn == State.FiggyMainWindow or btn:IsDescendantOf(State.FiggyMainWindow)) then
-		return false
-	end
+	if btn:FindFirstChild("BananaCatCircleAvatar") or (btn.Parent and btn.Parent:FindFirstChild("BananaCatCircleAvatar")) then return false end
+	if isInsideLargeWindowFrame(btn) then return false end
+	if State.FiggyMainWindow and (btn == State.FiggyMainWindow or btn:IsDescendantOf(State.FiggyMainWindow)) then return false end
 
 	local bw, bh = getEffectiveBoxSize(btn)
-	if bw < 22 or bw > 86 or bh < 22 or bh > 86 or math.abs(bw - bh) > 16 then
-		return false
-	end
-
-	-- Loại bỏ mọi nút có chữ hiển thị thực sự (Shop, Tìm Kiếm, Trứng có số...)
+	if bw < 22 or bw > 86 or bh < 22 or bh > 86 or math.abs(bw - bh) > 16 then return false end
 	for _, d in ipairs(btn:GetDescendants()) do
 		if d:IsA("TextLabel") and d.Visible and d.TextTransparency < 0.95 then
 			local t = (d.Text or ""):match("^%s*(.-)%s*$") or ""
-			if #t > 0 then
-				return false
-			end
-		end
-	end
-
-	-- Container thực sự sẽ được gắn cũng phải không có chữ (chặn icon con của nút Shop/Finder).
-	local outerBox = getOutermostSquareButton(btn) or btn
-	if outerBox ~= btn then
-		for _, d in ipairs(outerBox:GetDescendants()) do
-			if d:IsA("TextLabel") and d.Visible and d.TextTransparency < 0.95 then
-				local t = (d.Text or ""):match("^%s*(.-)%s*$") or ""
-				if #t > 0 then
-					return false
-				end
-			end
+			if #t > 0 then return false end
 		end
 	end
 
 	local vpW, vpH = getViewportWidth(), getViewportHeight()
 	local absX, absY = btn.AbsolutePosition.X, btn.AbsolutePosition.Y
-
-	-- Nút chưa đặt tọa độ
 	if absX == 0 and absY == 0 then return false end
+	local inLeftLogoBand = absX >= vpW * 0.02 and absX <= vpW * 0.20
+	local inRightOnionBand = absX >= vpW * 0.78 and absX <= vpW * 0.98
+	if (not inLeftLogoBand and not inRightOnionBand) or absY < 70 or absY > vpH * 0.82 then return false end
 
-	-- CHỈ vùng lề trái: nơi duy nhất có nút củ hành tím mở menu.
-	-- Cấm tuyệt đối vùng giữa (Delta X / avatar) và toàn bộ cột phải (nút game).
-	if absX < vpW * 0.02 or absX > vpW * 0.20 then return false end
-	if absY < 70 or absY > vpH * 0.82 then return false end
+	-- Không khóa theo nút trái đã ghim: nút phải vẫn được nhận nếu ảnh gốc trùng tuyệt đối.
+	if not State.OnionAsset or State.OnionAsset == "" then return false end
 
-	-- Nếu đã ghim được nút củ hành thật thì chỉ đúng nút đó được nhận.
-	if State.OnionButton and btn ~= State.OnionButton
-		and not State.OnionButton:IsDescendantOf(btn)
-		and not btn:IsDescendantOf(State.OnionButton) then
+	local function matchesOriginalOnionImage(obj)
+		if obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
+			local asset = obj:GetAttribute("__OrigImageAsset") or obj:GetAttribute("__OrigOnionImage") or obj.Image
+			if asset == State.OnionAsset then return true end
+		end
+		for _, d in ipairs(obj:GetDescendants()) do
+			if d:IsA("ImageLabel") or d:IsA("ImageButton") then
+				local asset = d:GetAttribute("__OrigImageAsset") or d:GetAttribute("__OrigOnionImage") or d.Image
+				if asset == State.OnionAsset then return true end
+			end
+		end
 		return false
 	end
-
-	-- Tín hiệu 1: trùng asset ảnh củ hành gốc lấy từ logo tiêu đề.
-	if State.OnionAsset and State.OnionAsset ~= "" then
-		if btn:IsA("ImageLabel") or btn:IsA("ImageButton") then
-			local a = btn:GetAttribute("__OrigImageAsset") or btn.Image
-			if a == State.OnionAsset then return true end
-		end
-		for _, d in ipairs(btn:GetDescendants()) do
-			if d:IsA("ImageLabel") or d:IsA("ImageButton") then
-				local a = d:GetAttribute("__OrigImageAsset") or d.Image
-				if a == State.OnionAsset then return true end
-			end
-		end
-	end
-
-	-- Tín hiệu 2: màu tím đặc trưng của Figgy.
-	if hasPurpleVisualInside(btn) then return true end
-
-	-- Tín hiệu 3: tên gợi ý.
-	local lowName = string.lower(btn.Name or "")
-	if lowName:find("onion", 1, true) or lowName:find("menu", 1, true) or lowName:find("logo", 1, true)
-		or lowName:find("fig", 1, true) or lowName:find("hub", 1, true) or lowName:find("open", 1, true) then
-		return true
-	end
-
-	-- Tín hiệu 4: nút ảnh đơn (không chữ) nằm đúng dải lề trái.
-	local hasImage = false
-	if btn:IsA("ImageButton") or btn:IsA("ImageLabel") then
-		if (btn.Image or "") ~= "" then hasImage = true end
-	end
-	if not hasImage then
-		for _, d in ipairs(btn:GetDescendants()) do
-			if (d:IsA("ImageLabel") or d:IsA("ImageButton")) and (d.Image or "") ~= "" then
-				hasImage = true
-				break
-			end
-		end
-	end
-	if hasImage then return true end
-
-	return false
+	return matchesOriginalOnionImage(btn)
 end
 
 -- Khôi phục nguyên trạng nút bị gắn nhầm (đặc biệt các nút game bên phải).
@@ -2029,7 +1969,7 @@ local function restoreWronglyDecoratedButton(par)
 	end
 end
 
--- Chỉ giữ logo trên đúng nút củ hành tím; gỡ sạch mọi lớp phủ sai (cột phải, nút game...).
+-- Dọn lớp phủ sai, không đụng các nút game không khớp asset logo củ hành.
 local function removeWrongOnionOverlays(gui)
 	local okD, desc = pcall(function() return gui:GetDescendants() end)
 	if not okD or type(desc) ~= "table" then return end
@@ -2194,20 +2134,17 @@ local function isGlobalLeftOnionImageButton(btn)
 	if btn.Name == "BananaCatInnerSprite" or btn.Name == "BananaCatBadgeImage" or btn.Name == "GoldBadgeInnerDisc" then return false end
 	if btn:FindFirstChild("BananaCatCircleAvatar") then return false end
 	if btn.Parent and btn.Parent:FindFirstChild("BananaCatCircleAvatar") then return false end
+	if not State.OnionAsset or State.OnionAsset == "" then return false end
 
 	local vpW, vpH = getViewportWidth(), getViewportHeight()
 	local ax, ay = btn.AbsolutePosition.X, btn.AbsolutePosition.Y
 	local bw, bh = getEffectiveBoxSize(btn)
-	if bw < 14 or bh < 14 or bw > 110 or bh > 110 then return false end
-	if math.abs(bw - bh) > 18 then return false end
-
-	-- Nửa trái màn hình: mốc 100px hoặc 22% chiều rộng (màn hình lớn vẫn bắt đúng).
-	local leftLimit = math.max(100, vpW * 0.22)
-	if ax < 0 or ax > leftLimit then return false end
-	if ay < 0 or ay > vpH * 0.95 then return false end
+	if bw < 14 or bh < 14 or bw > 110 or bh > 110 or math.abs(bw - bh) > 18 then return false end
+	local inLeftLogoBand = ax >= vpW * 0.02 and ax <= vpW * 0.20
+	local inRightOnionBand = ax >= vpW * 0.78 and ax <= vpW * 0.98
+	if (not inLeftLogoBand and not inRightOnionBand) or ay < 0 or ay > vpH * 0.95 then return false end
 	if isInsideLargeWindowFrame(btn) then return false end
 
-	-- Không đè lên nút có chữ (Tìm Kiếm / Shop / Slow Mode...).
 	for _, d in ipairs(btn:GetDescendants()) do
 		if d:IsA("TextLabel") and d.Visible and d.TextTransparency < 0.95 then
 			local t = (d.Text or ""):match("^%s*(.-)%s*$") or ""
@@ -2215,13 +2152,20 @@ local function isGlobalLeftOnionImageButton(btn)
 		end
 	end
 
-	if isImageButton then return true end
-	-- ImageLabel: chỉ nhận khi thực sự click được.
-	if btn.Active == true then return true end
-	if btn:FindFirstAncestorWhichIsA("GuiButton") ~= nil then return true end
-	if guiHasClickConnection(btn) then return true end
-	if btn.Parent and guiHasClickConnection(btn.Parent) then return true end
-	return false
+	local function matchesOriginalOnionImage(obj)
+		if obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
+			local asset = obj:GetAttribute("__OrigOnionImage") or obj:GetAttribute("__OrigImageAsset") or obj.Image
+			if asset == State.OnionAsset then return true end
+		end
+		for _, d in ipairs(obj:GetDescendants()) do
+			if d:IsA("ImageLabel") or d:IsA("ImageButton") then
+				local asset = d:GetAttribute("__OrigOnionImage") or d:GetAttribute("__OrigImageAsset") or d.Image
+				if asset == State.OnionAsset then return true end
+			end
+		end
+		return false
+	end
+	return matchesOriginalOnionImage(btn)
 end
 
 local function applyBananaCatImageOverride(btn)
@@ -2355,7 +2299,7 @@ task.defer(function()
 end)
 
 -- Các mốc một lần (không phải vòng lặp) để bắt ScreenGui độc lập dựng muộn.
-for _, delaySec in ipairs({ 0.15, 0.45, 1.00, 2.00, 3.50, 6.00, 9.00 }) do
+for _, delaySec in ipairs({ 1.00, 3.50 }) do
 	task.delay(delaySec, function()
 		if isAlive() then pcall(scanGlobalLeftOnionButtonsOnce) end
 	end)
@@ -2700,6 +2644,27 @@ local function fireThemeClick(btn)
 	return fired
 end
 
+local function returnToHomeTab(root)
+	if State.HomeTabReturned then return true end
+	if not root or not root.Parent then return false end
+	local okD, desc = pcall(function() return root:GetDescendants() end)
+	if not okD or type(desc) ~= "table" then return false end
+	for _, d in ipairs(desc) do
+		if d:IsA("TextLabel") or d:IsA("TextButton") then
+			local raw = d:GetAttribute("__FiggyOrigText") or d.Text or ""
+			local label = string.lower((raw:match("^%s*(.-)%s*$") or ""))
+			if label == "home" or label == "dashboard" or label == "trang chủ" then
+				local button = findThemeClickTarget(d)
+				if button and fireThemeClick(button) then
+					State.HomeTabReturned = true
+					return true
+				end
+			end
+		end
+	end
+	return false
+end
+
 local function trySelectGoldThemeOnce()
 	if State.GoldThemeApplied then return true end
 
@@ -2743,6 +2708,9 @@ local function trySelectGoldThemeOnce()
 
 			if alreadySelected then
 				State.GoldThemeApplied = true
+				task.defer(function()
+					if isAlive() then pcall(returnToHomeTab, root) end
+				end)
 				return true
 			end
 
@@ -2768,7 +2736,11 @@ local function trySelectGoldThemeOnce()
 									end
 								end
 							end
-							if not verified then
+							if verified then
+								task.defer(function()
+									if isAlive() then pcall(returnToHomeTab, root) end
+								end)
+							else
 								State.GoldThemeApplied = false
 								pcall(trySelectGoldThemeOnce)
 							end
@@ -2981,7 +2953,7 @@ task.spawn(function()
 	pcall(trySelectGoldThemeOnce)
 
 	-- Vài mốc một lần (không phải vòng lặp) để bắt kịp lúc menu dựng xong theme grid.
-	for _, delaySec in ipairs({ 0.25, 0.80, 1.80, 3.20, 5.00 }) do
+	for _, delaySec in ipairs({ 0.80, 3.20 }) do
 		task.delay(delaySec, function()
 			if not isAlive() then return end
 			pcall(cleanupPreviousOverlaysAndDeduplicate)
