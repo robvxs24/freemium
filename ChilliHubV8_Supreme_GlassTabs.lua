@@ -1868,29 +1868,21 @@ local function isPurpleOnionSquareButton(btn, isInsideVerifiedFiggyGui)
 	local isLeftColumn = (absX >= 40 and absX <= vpW * 0.18)
 	local isRightColumn = (absX >= vpW * 0.78)
 
-	-- 1. NÚT BÊN TAY TRÁI (Logo mở menu chính / Index button) -> Hình tròn
+	-- 1. NÚT BÊN TAY TRÁI (Logo mở menu chính / Toggle củ hành lề trái dưới nút Shop) -> Hình tròn
 	if isLeftColumn then
-		if isInsideVerifiedFiggyGui and isTopLevel then
-			local hasImg = (btn:IsA("ImageButton") or btn:FindFirstChildWhichIsA("ImageLabel", true) ~= nil or btn:FindFirstChildWhichIsA("ImageButton", true) ~= nil)
-			if hasImg then
-				return true
-			end
+		local hasImg = (btn:IsA("ImageButton") or btn:FindFirstChildWhichIsA("ImageLabel", true) ~= nil or btn:FindFirstChildWhichIsA("ImageButton", true) ~= nil)
+		if (absY >= 160 and absY <= 320) and (hasImg or hasPurpleVisualInside(btn)) then
+			return true
 		end
-
-		if (isTopLevel or isInsideVerifiedFiggyGui) and hasPurpleVisualInside(btn) then
+		if (isTopLevel or isInsideVerifiedFiggyGui) and (hasImg or hasPurpleVisualInside(btn)) then
 			return true
 		end
 	end
 
-	-- 2. NÚT BÊN TAY PHẢI (Củ hành tím Figgy Hub ở trên Trứng đỏ & Chân cam) -> HÌNH VUÔNG CÓ GÓC BO ĐẸP
-	if isRightColumn then
+	-- 2. NÚT BÊN TAY PHẢI (Củ hành tím Figgy Hub ở trên Trứng đỏ) -> HÌNH VUÔNG CÓ GÓC BO ĐẸP (Y <= 170, LOẠI BỎ NÚT CHÂN THÚ DƯỚI CÙNG)
+	if isRightColumn and absY >= 40 and absY <= 170 then
 		local hasImg = (btn:IsA("ImageButton") or btn:FindFirstChildWhichIsA("ImageLabel", true) ~= nil or btn:FindFirstChildWhichIsA("ImageButton", true) ~= nil)
-		if hasPurpleVisualInside(btn) then
-			return true
-		end
-
-		-- Nút củ hành tím ở góc trên bên phải (Y từ 40 đến 170):
-		if absY >= 40 and absY <= 170 and (hasImg or isInsideVerifiedFiggyGui) then
+		if hasPurpleVisualInside(btn) or hasImg or isInsideVerifiedFiggyGui then
 			return true
 		end
 	end
@@ -2303,12 +2295,54 @@ task.spawn(function()
 
 	pcall(scanPurpleOnionButtonsOnce)
 
+	-- Tự động ép theme Vàng Hoàng Gia (Gold / Lemon)
+	local function autoSelectGoldTheme()
+		for _, root in ipairs(getUiRoots()) do
+			pcall(function()
+				for _, d in ipairs(root:GetDescendants()) do
+					local txt = (d:IsA("TextLabel") or d:IsA("TextButton")) and string.lower(d.Text or "") or ""
+					local nm = string.lower(d.Name or "")
+					if txt:find("vàng hoàng gia", 1, true) or txt:find("lemon", 1, true) or txt:find("gold", 1, true)
+						or nm:find("vàng hoàng gia", 1, true) or nm:find("lemon", 1, true) or nm == "gold" then
+						local tBtn = d
+						if not d:IsA("GuiButton") then
+							local cur = d
+							for _ = 1, 4 do
+								if cur.Parent and cur.Parent:IsA("GuiObject") then
+									cur = cur.Parent
+									if cur:IsA("GuiButton") then tBtn = cur break end
+								else break end
+							end
+						end
+						if tBtn then
+							pcall(function()
+								if firesignal then
+									if tBtn.Activated then firesignal(tBtn.Activated) end
+									if tBtn.MouseButton1Click then firesignal(tBtn.MouseButton1Click) end
+								end
+							end)
+							pcall(function()
+								if getconnections then
+									for _, c in ipairs(getconnections(tBtn.MouseButton1Click or tBtn.Activated)) do
+										if c.Function then pcall(c.Function) elseif c.Fire then pcall(c.Fire, c) end
+									end
+								end
+							end)
+							return
+						end
+					end
+				end
+			end)
+		end
+	end
+
 	-- Tải Figgy Hub SAU KHI toàn bộ bộ chặn 0.0s đã sẵn sàng -> Không bao giờ lộ ảnh mờ gốc!
 	if not existingFiggyGui then
 		pcall(function()
 			loadstring(game:HttpGet(FIGGY_LOADER_URL))()
 		end)
 	end
+	pcall(autoSelectGoldTheme)
 
 	-- Quét bù theo 3 mốc ngắn lúc mới khởi tạo xong hiệu ứng mở
 	for _, waitSec in ipairs({ 0.15, 0.50, 1.20 }) do
