@@ -77,7 +77,7 @@ if not LocalPlayer then
 end
 
 -- Ngắt sạch mọi kết nối từ các lần chạy trước
-local env = (getgenv and getgenv()) or _G
+env = (getgenv and getgenv()) or _G
 env.__FiggyIslandState = env.__FiggyIslandState or {}
 local State = env.__FiggyIslandState
 State.SessionId = (State.SessionId or 0) + 1
@@ -2897,13 +2897,10 @@ local function scanAndApplyExactTwoOnions()
 	local roots = getUiRoots()
 	local vpW, vpH = getViewportWidth(), getViewportHeight()
 
-	-- Nút lề trái (hình tròn): X trong [2%..20%] màn, Y trong [10%..75%] màn
 	local LEFT_X_MIN  = vpW * 0.02
 	local LEFT_X_MAX  = vpW * 0.20
 	local LEFT_Y_MIN  = vpH * 0.10
 	local LEFT_Y_MAX  = vpH * 0.75
-
-	-- Nút lề phải (hình vuông bo góc): X trong [78%..98%] màn, Y trong [5%..35%] màn
 	local RIGHT_X_MIN = vpW * 0.78
 	local RIGHT_X_MAX = vpW * 0.98
 	local RIGHT_Y_MIN = vpH * 0.05
@@ -2911,50 +2908,42 @@ local function scanAndApplyExactTwoOnions()
 
 	local foundLeft  = State.OnionButton      and State.OnionButton.Parent      and State.OnionButton:FindFirstChild("BananaCatExactOverlay")
 	local foundRight = State.OnionButtonRight and State.OnionButtonRight.Parent and State.OnionButtonRight:FindFirstChild("BananaCatExactOverlay")
-	if foundLeft and foundRight then return end  -- cả 2 đều ổn, không cần quét
+	if foundLeft and foundRight then return end
 
 	for _, root in ipairs(roots) do
 		local okD, descList = pcall(function() return root:GetDescendants() end)
 		if okD and type(descList) == "table" then
 			for _, obj in ipairs(descList) do
-				if not obj or not obj.Parent then goto continue end
-				if State.IslandGui and obj:IsDescendantOf(State.IslandGui) then goto continue end
-				if isInsideLargeWindowFrame(obj) then goto continue end
-				if obj:FindFirstChild("BananaCatExactOverlay") then goto continue end
+				local ok = obj and obj.Parent
+					and not (State.IslandGui and obj:IsDescendantOf(State.IslandGui))
+					and not isInsideLargeWindowFrame(obj)
+					and not obj:FindFirstChild("BananaCatExactOverlay")
+				if ok then
+					local sx, sy = getEffectiveBoxSize(obj)
+					if sx >= 24 and sx <= 90 and sy >= 24 and sy <= 90 and math.abs(sx - sy) <= 20
+						and not hasVisibleText(obj)
+						and hasOnionPurpleVisual(obj) then
 
-				local sx, sy = getEffectiveBoxSize(obj)
-				-- Kích thước hợp lệ: hình vuông 24..90px
-				if not (sx >= 24 and sx <= 90 and sy >= 24 and sy <= 90 and math.abs(sx - sy) <= 20) then goto continue end
+						local px, py = obj.AbsolutePosition.X, obj.AbsolutePosition.Y
 
-				-- Không được có chữ hiển thị (tránh nút Shop, Trứng đỏ 8, v.v.)
-				if hasVisibleText(obj) then goto continue end
-
-				-- Phải mang màu tím hoặc asset củ hành (tránh các icon game khác cùng vị trí)
-				if not hasOnionPurpleVisual(obj) then goto continue end
-
-				local px, py = obj.AbsolutePosition.X, obj.AbsolutePosition.Y
-
-				-- NÚT TRÁI (hình tròn)
-				if not foundLeft and px >= LEFT_X_MIN and px <= LEFT_X_MAX and py >= LEFT_Y_MIN and py <= LEFT_Y_MAX then
-					local btn = getCanonicalOnionBtn(obj)
-					if btn and not btn:FindFirstChild("BananaCatExactOverlay") then
-						State.OnionButton = btn
-						applyBananaCatExactOverlay(btn, false)  -- hình tròn
-						foundLeft = true
-					end
-
-				-- NÚT PHẢI (hình vuông bo góc)
-				elseif not foundRight and px >= RIGHT_X_MIN and px <= RIGHT_X_MAX and py >= RIGHT_Y_MIN and py <= RIGHT_Y_MAX then
-					local btn = getCanonicalOnionBtn(obj)
-					if btn and not btn:FindFirstChild("BananaCatExactOverlay") then
-						State.OnionButtonRight = btn
-						applyBananaCatExactOverlay(btn, true)   -- hình vuông bo góc
-						foundRight = true
+						if not foundLeft and px >= LEFT_X_MIN and px <= LEFT_X_MAX and py >= LEFT_Y_MIN and py <= LEFT_Y_MAX then
+							local btn = getCanonicalOnionBtn(obj)
+							if btn and not btn:FindFirstChild("BananaCatExactOverlay") then
+								State.OnionButton = btn
+								applyBananaCatExactOverlay(btn, false)
+								foundLeft = true
+							end
+						elseif not foundRight and px >= RIGHT_X_MIN and px <= RIGHT_X_MAX and py >= RIGHT_Y_MIN and py <= RIGHT_Y_MAX then
+							local btn = getCanonicalOnionBtn(obj)
+							if btn and not btn:FindFirstChild("BananaCatExactOverlay") then
+								State.OnionButtonRight = btn
+								applyBananaCatExactOverlay(btn, true)
+								foundRight = true
+							end
+						end
 					end
 				end
-
 				if foundLeft and foundRight then break end
-				::continue::
 			end
 		end
 		if foundLeft and foundRight then break end
