@@ -2690,15 +2690,12 @@ local function scanPurpleOnionButtonsOnce()
 end
 
 -- ============================================================================
--- 7C. BẮN TỈA CHÍNH XÁC (DescendantAdded Sniper & Anti-Revert Lock):
---     1. Giăng lưới 2 kho chứa UI: CoreGui và PlayerGui (đệ quy và móc DescendantAdded).
---     2. Khóa mục tiêu: ImageButton / ImageLabel hình vuông (AbsoluteSize 35..65px),
---        nằm sát lề (AbsolutePosition.X < 150 HOẶC AbsolutePosition.X > ViewportSize.X - 150),
---        bỏ qua UI của Delta.
---     3. Ép ảnh Banana Cat & Khóa vĩnh viễn (Anti-Revert qua GetPropertyChangedSignal("Image")).
+-- 7C. THAY LOGO BANANA CAT VÀNG CHÍNH XÁC VÀO 2 LOGO CỦ HÀNH TÍM (LỀ TRÁI & PHẢI)
+--     + KHÔNG gắn lung tung, KHÔNG gắn sai vị trí
+--     + Lề trái: Củ hành tím mở menu (dưới nút Shop) -> Thay thành Banana Cat hình tròn
+--     + Lề phải: Củ hành tím trên cùng (trên nút Trứng đỏ 8) -> Thay thành Banana Cat hình vuông bo góc
+--     + Tự động khóa cứng Anti-Revert (GetPropertyChangedSignal) vĩnh viễn
 -- ============================================================================
-local BANANA_CAT_IMAGE_TARGET = BANANA_CAT_LOGO
-
 local function getCustomOrThumbBananaCat()
 	if State.BananaCatCustomAsset then return State.BananaCatCustomAsset end
 	local asset = BANANA_CAT_LOGO
@@ -2715,20 +2712,6 @@ local function getCustomOrThumbBananaCat()
 	end)
 	State.BananaCatCustomAsset = asset
 	return asset
-end
-
-local function isDeltaOrIgnoredGui(gui)
-	if not gui then return true end
-	local gName = gui.Name or ""
-	if IGNORED_SCREEN_GUIS[gName] or gName:find("^Old_") then return true end
-	local low = string.lower(gName)
-	for _, kw in ipairs(EXECUTOR_KEYWORDS) do
-		if string.find(low, kw, 1, true) then return true end
-	end
-	if gui:GetAttribute("__IsExecutorGui") == true then return true end
-	if gui:GetAttribute("__VerifiedFiggyWindowGui") == true then return false end
-	if isDeltaOrExecutorGui(gui) then return true end
-	return false
 end
 
 local function applyBananaSniperLock(imgObj, isRightSide)
@@ -2751,7 +2734,7 @@ local function applyBananaSniperLock(imgObj, isRightSide)
 		imgObj.BackgroundTransparency = 1
 		imgObj.BorderSizePixel = 0
 
-		-- Đồng bộ bo góc: lề trái là hình tròn, lề phải là hình vuông bo góc đẹp
+		-- Đồng bộ bo góc: lề trái là hình tròn (CIRCLE_CORNER_UDIM), lề phải là hình vuông bo góc đẹp (SQUARE_CORNER_UDIM)
 		local targetCorner = isRightSide and SQUARE_CORNER_UDIM or CIRCLE_CORNER_UDIM
 		local cCorner = imgObj:FindFirstChildOfClass("UICorner") or Instance.new("UICorner")
 		cCorner.CornerRadius = targetCorner
@@ -2804,12 +2787,8 @@ local function checkAndSnipeTarget(obj)
 	if obj.Name == "BananaCatInnerSprite" or obj.Name == "BananaCatBadgeImage" or obj.Name == "GoldBadgeInnerDisc" then return end
 	if obj:GetAttribute("__BananaSniperLocked") == SID then return end
 
-	-- Bỏ qua phần tử nằm trong Dynamic Island hoặc Menu chính lớn
+	-- Bỏ qua phần tử nằm trong Dynamic Island
 	if State.IslandGui and obj:IsDescendantOf(State.IslandGui) then return end
-	if isInsideLargeWindowFrame(obj) then return end
-
-	local rootGui = obj:FindFirstAncestorOfClass("ScreenGui")
-	if rootGui and isDeltaOrIgnoredGui(rootGui) then return end
 
 	local szX, szY = getEffectiveBoxSize(obj)
 	if szX == 0 and szY == 0 then
@@ -2819,11 +2798,12 @@ local function checkAndSnipeTarget(obj)
 		end
 	end
 
-	-- Điều kiện kích thước: Dạng hình vuông (35 đến 65 pixel, chấp nhận sai số UI mobile)
-	local isSquareShape = (szX >= 30 and szX <= 75 and szY >= 30 and szY <= 75 and math.abs(szX - szY) <= 15)
-	if not isSquareShape then return end
+	-- Bỏ qua nếu kích thước quá nhỏ (<20px) hoặc quá lớn (>95px)
+	if (szX > 0 and (szX < 20 or szX > 95)) or (szY > 0 and (szY < 20 or szY > 95)) then
+		return
+	end
 
-	-- Bỏ qua nếu có chữ hiển thị (như Shop, Tìm Kiếm, hoặc Trứng có nhãn số 8)
+	-- Bỏ qua nếu nút có chữ hiển thị như Shop, Tìm Kiếm, hoặc huy hiệu Trứng số 8
 	for _, d in ipairs(obj:GetDescendants()) do
 		if d:IsA("TextLabel") and d.Visible and d.TextTransparency < 0.95 then
 			local t = (d.Text or ""):match("^%s*(.-)%s*$") or ""
@@ -2843,37 +2823,33 @@ local function checkAndSnipeTarget(obj)
 	local pos = obj.AbsolutePosition
 	local posX, posY = pos.X, pos.Y
 
-	-- Điều kiện tọa độ: Nằm sát lề (AbsolutePosition.X < 150 HOẶC AbsolutePosition.X > ViewportSize.X - 150)
-	local isLeftEdge = (posX < 150)
-	local isRightEdge = (posX > (vpW - 150))
+	-- Phân loại chính xác 2 vị trí củ hành tím theo tọa độ:
+	-- VỊ TRÍ 1: Lề trái màn hình (X: 30..195, Y: 150..340, dưới nút Shop)
+	local isLeftOnionTarget = (posX >= 30 and posX <= 195 and posY >= 140 and posY <= 340)
 
-	-- Nếu tọa độ đang = 0 (vừa sinh ra chưa render frame đầu), kiểm tra Size & Scale vị trí
+	-- VỊ TRÍ 2: Lề phải màn hình (X >= vpW - 140, Y: 60..185, trên icon trứng đỏ số 8)
+	local isRightOnionTarget = (posX >= (vpW - 140) and posY >= 60 and posY <= 185)
+
+	-- Nếu tọa độ = (0, 0) khi vừa sinh ra, kiểm tra Scale vị trí của Position
 	if posX == 0 and posY == 0 then
 		local p = obj.Position
-		if p and p.X then
-			if p.X.Scale < 0.20 or (p.X.Scale == 0 and p.X.Offset < 150) then
-				isLeftEdge = true
-			elseif p.X.Scale > 0.80 then
-				isRightEdge = true
+		if p and p.X and p.Y then
+			if (p.X.Scale < 0.20 or (p.X.Scale == 0 and p.X.Offset < 180)) and (p.Y.Scale >= 0.25 and p.Y.Scale <= 0.75) then
+				isLeftOnionTarget = true
+			elseif p.X.Scale > 0.80 and p.Y.Scale <= 0.45 then
+				isRightOnionTarget = true
 			end
 		end
 	end
 
-	if not (isLeftEdge or isRightEdge) then return end
-
-	-- Phân loại mục tiêu:
-	-- + Lề trái: Củ hành tím dưới nút Shop
-	-- + Lề phải: Củ hành tím trên cùng (trên icon trứng, Y < 185)
-	if isLeftEdge then
+	if isLeftOnionTarget then
 		applyBananaSniperLock(obj, false)
-	elseif isRightEdge then
-		-- Loại trừ nút chân thú cam dưới cùng (Y > 185)
-		if posY > 0 and posY > 185 then return end
+	elseif isRightOnionTarget then
 		applyBananaSniperLock(obj, true)
 	end
 end
 
--- 1. Giăng lưới 2 kho chứa UI: CoreGui và PlayerGui (quét đệ quy và móc DescendantAdded)
+-- 1. Giăng lưới toàn bộ các kho chứa UI: CoreGui, PlayerGui và gethui
 local hookedContainers = {}
 local function hookUiContainer(container)
 	if not container or hookedContainers[container] then return end
@@ -2906,7 +2882,7 @@ local function hookUiContainer(container)
 	end)
 end
 
--- Khởi động giăng lưới lập tức vào cả CoreGui và PlayerGui
+-- Khởi động giăng lưới lập tức vào cả CoreGui, PlayerGui và gethui
 pcall(function() hookUiContainer(game:GetService("CoreGui")) end)
 pcall(function()
 	if LocalPlayer then
