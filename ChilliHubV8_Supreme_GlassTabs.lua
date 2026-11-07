@@ -19,6 +19,13 @@
 --    + Xoá bỏ hoàn toàn cả nút tắt/bật âm thanh (âm thanh mặc định luôn MỞ) lẫn nút Làm mới & Đồng bộ.
 --    + Khóa `ApplyStrokeMode = Enum.ApplyStrokeMode.Border` và `TextStrokeTransparency = 1` cùng tông
 --      màu Kem Sâm-banh dịu nhẹ để chữ sắc nét, tuyệt đối không bị nhòe hay chói mắt.
+-- [FIX-ĐƠ V2] Nguyên nhân chính gây đứng máy khi mở script:
+--   (1) hookUiContainerForExactOnions nghe DescendantAdded trên TOÀN BỘ CoreGui/PlayerGui và mỗi
+--       khi có 1 GuiObject mới ở vùng nút là quét lại TOÀN BỘ UI (kể cả RobloxGui) -> hub tạo vài trăm
+--       phần tử = vài trăm lần quét đồng bộ = FPS về 0.
+--   (2) task.defer KHÔNG nhường frame (chạy lại ngay trong cùng frame) nên chia lô bằng defer vô nghĩa.
+--       Đã đổi sang task.wait()/task.delay trong luồng riêng để thật sự trải việc qua nhiều frame.
+--   (3) Các hàm quét giờ: bỏ qua RobloxGui..., lọc kích thước trước, có khoá chống chạy chồng, tự nhường frame.
 -- ============================================================================
 
 local Players = game:GetService("Players")
@@ -152,6 +159,50 @@ local function getUiRoots()
 		add(LocalPlayer:FindFirstChildOfClass("PlayerGui"))
 	end
 	return roots
+end
+
+
+-- ============================================================================
+-- [FIX-ĐƠ V2] TIỆN ÍCH QUÉT AN TOÀN: bỏ GUI hệ thống, nhường frame, lọc nhanh
+-- ============================================================================
+local SCAN_YIELD_EVERY = 120
+local function makeYielder()
+	local n = 0
+	return function()
+		n = n + 1
+		if n >= SCAN_YIELD_EVERY then
+			n = 0
+			task.wait()
+		end
+	end
+end
+
+-- Danh sách phần tử cần quét, bỏ qua RobloxGui/Chat/TopBar... (hàng nghìn phần tử không liên quan)
+local function getScanList(root)
+	local list = {}
+	local okCh, children = pcall(function() return root:GetChildren() end)
+	if not okCh or type(children) ~= "table" then return list end
+	for _, ch in ipairs(children) do
+		local n = ch.Name or ""
+		if not IGNORED_SCREEN_GUIS[n] and not n:find("^Old_")
+			and not ch:IsA("BillboardGui") and not ch:IsA("SurfaceGui") then
+			list[#list + 1] = ch
+			local okD, d = pcall(function() return ch:GetDescendants() end)
+			if okD and type(d) == "table" then
+				for i = 1, #d do list[#list + 1] = d[i] end
+			end
+		end
+	end
+	return list
+end
+
+-- Lọc nhanh theo kích thước nút vuông nhỏ (22..92) trước khi gọi các hàm đắt tiền
+local function passesSquarePrefilter(obj)
+	local a = obj.AbsoluteSize
+	if a.X > 0 or a.Y > 0 then
+		return a.X >= 22 and a.X <= 92 and a.Y >= 22 and a.Y <= 92
+	end
+	return true
 end
 
 local function getViewportWidth()
@@ -2635,7 +2686,8 @@ local function removeWrongOnionOverlays(gui)
 	end
 end
 
-local function scanPurpleOnionButtonsOnce()
+local function scanPurpleOnionButtonsOnceImpl()
+	local yieldTick = makeYielder()
 	local vpW, vpH = getViewportWidth(), getViewportHeight()
 	-- Nếu lớp phủ đã có sẵn từ lần chạy trước, ghim lại đúng nút củ hành theo vị trí.
 	if not State.OnionButton then
@@ -2646,6 +2698,7 @@ local function scanPurpleOnionButtonsOnce()
 					local okD, desc = pcall(function() return gui:GetDescendants() end)
 					if okD and type(desc) == "table" then
 						for _, d in ipairs(desc) do
+							yieldTick()
 							if d.Name == "BananaCatCircleAvatar" and d.Parent and d.Parent:IsA("GuiObject") then
 								local par = d.Parent
 								local ax, ay = par.AbsolutePosition.X, par.AbsolutePosition.Y
@@ -2675,6 +2728,7 @@ local function scanPurpleOnionButtonsOnce()
 					local okD, desc = pcall(function() return gui:GetDescendants() end)
 					if okD and type(desc) == "table" then
 						for _, d in ipairs(desc) do
+							yieldTick()
 							if isPurpleOnionSquareButton(d, isVerifiedFiggy) then
 								local isRight = (d.AbsolutePosition.X >= vpW * 0.75)
 								decoratePurpleOnionButton(d, 2.0, isRight)
@@ -2691,17 +2745,28 @@ local function scanPurpleOnionButtonsOnce()
 	end
 end
 
+local scanPurpleRunning = false
+local function scanPurpleOnionButtonsOnce()
+	if scanPurpleRunning then return end
+	scanPurpleRunning = true
+	pcall(scanPurpleOnionButtonsOnceImpl)
+	scanPurpleRunning = false
+end
+
 -- ============================================================================
 -- 7B2. QUÉT & ĐÈ RIÊNG NÚT CỦ HÀNH LỀ PHẢI (hàm còn thiếu — bổ sung tại đây)
 -- ============================================================================
-local function scanRightOnionButtonOnce()
+local function scanRightOnionButtonOnceImpl()
 	local roots = getUiRoots()
 	local vpW, vpH = getViewportWidth(), getViewportHeight()
+	local yieldTick = makeYielder()
 	for _, root in ipairs(roots) do
-		local okD, descList = pcall(function() return root:GetDescendants() end)
-		if okD and type(descList) == "table" then
+		local descList = getScanList(root)
+		do
 			for _, obj in ipairs(descList) do
+				yieldTick()
 				if obj:IsA("GuiObject")
+					and passesSquarePrefilter(obj)
 					and not (State.IslandGui and obj:IsDescendantOf(State.IslandGui))
 					and not isInsideLargeWindowFrame(obj) then
 					local pos = obj.AbsolutePosition
@@ -2856,15 +2921,17 @@ local function applyBananaCatExactOverlay(targetBtn, isRightSide)
 	end))
 end
 
-local function scanAndApplyExactTwoOnions()
+local function scanAndApplyExactTwoOnionsImpl()
 	local roots = getUiRoots()
 	local vpW, vpH = getViewportWidth(), getViewportHeight()
+	local yieldTick = makeYielder()
 
 	for _, root in ipairs(roots) do
-		local okD, descList = pcall(function() return root:GetDescendants() end)
-		if okD and type(descList) == "table" then
+		local descList = getScanList(root)
+		do
 			for _, obj in ipairs(descList) do
-				if obj:IsA("GuiObject") and not (State.IslandGui and obj:IsDescendantOf(State.IslandGui)) and not isInsideLargeWindowFrame(obj) then
+				yieldTick()
+				if obj:IsA("GuiObject") and passesSquarePrefilter(obj) and not (State.IslandGui and obj:IsDescendantOf(State.IslandGui)) and not isInsideLargeWindowFrame(obj) then
 					local pos = obj.AbsolutePosition
 					local sz = obj.AbsoluteSize
 					local px, py = pos.X, pos.Y
@@ -2910,22 +2977,50 @@ local function scanAndApplyExactTwoOnions()
 	end
 end
 
--- Giăng lưới DescendantAdded trực tiếp
+local scanExactRunning = false
+local function scanAndApplyExactTwoOnions()
+	if scanExactRunning then return end
+	scanExactRunning = true
+	pcall(scanAndApplyExactTwoOnionsImpl)
+	scanExactRunning = false
+end
+
+local scanRightRunning = false
+local function scanRightOnionButtonOnce()
+	if scanRightRunning then return end
+	scanRightRunning = true
+	pcall(scanRightOnionButtonOnceImpl)
+	scanRightRunning = false
+end
+
+-- [FIX-ĐƠ V2] Gộp (debounce) mọi yêu cầu quét lại thành 1 lần, tối đa 1 lần / 0.8s (3s sau 20s đầu)
+local START_CLOCK = os.clock()
+local rescanPending = false
+local function requestOnionRescan()
+	if rescanPending or not isAlive() then return end
+	rescanPending = true
+	local wait_s = (os.clock() - START_CLOCK < 20) and 0.8 or 3
+	task.delay(wait_s, function()
+		rescanPending = false
+		if not isAlive() then return end
+		pcall(scanAndApplyExactTwoOnions)
+		pcall(scanRightOnionButtonOnce)
+	end)
+end
+
+-- Giăng lưới DescendantAdded trực tiếp (chỉ đánh dấu cần quét, KHÔNG quét ngay)
 local function hookUiContainerForExactOnions(container)
 	if not container then return end
 	local conn = container.DescendantAdded:Connect(function(desc)
 		if not isAlive() then return end
 		if desc:IsA("GuiObject") then
-			task.defer(function()
-				if not isAlive() or not desc or not desc.Parent then return end
-				local pos = desc.AbsolutePosition
-				local vpW = getViewportWidth()
-				local px, py = pos.X, pos.Y
-				if (px >= 20 and px <= 210 and py >= 100 and py <= 420) or (px >= (vpW * 0.75) and py >= 40 and py <= 220) then
-					pcall(scanAndApplyExactTwoOnions)
-					pcall(scanRightOnionButtonOnce)
-				end
-			end)
+			local okP, pos = pcall(function() return desc.AbsolutePosition end)
+			if not okP then return end
+			local vpW = getViewportWidth()
+			local px, py = pos.X, pos.Y
+			if (px >= 20 and px <= 210 and py >= 100 and py <= 420) or (px >= (vpW * 0.75) and py >= 40 and py <= 220) then
+				requestOnionRescan()
+			end
 		end
 	end)
 	trackConn(conn)
@@ -2945,7 +3040,7 @@ task.spawn(function()
 		end
 		if pg then pcall(hookUiContainerForExactOnions, pg) end
 	end
-	task.defer(function()
+	task.delay(0.3, function()
 		if isAlive() then pcall(scanAndApplyExactTwoOnions) end
 	end)
 end)
@@ -3522,7 +3617,7 @@ local function hookTargetScreenGui(gui)
 				pendingQueue[i] = nil
 			end
 			queueScheduled = true
-			task.defer(flushPendingQueue)
+			task.delay(0.03, flushPendingQueue)
 		end
 	end
 
@@ -3540,7 +3635,7 @@ local function hookTargetScreenGui(gui)
 				table.insert(pendingQueue, desc)
 				if not queueScheduled then
 					queueScheduled = true
-					task.defer(flushPendingQueue)
+					task.delay(0.03, flushPendingQueue)
 				end
 			end
 		end)
@@ -3566,13 +3661,19 @@ local function hookTargetScreenGui(gui)
 			if menuActive then
 				startMenuListener()
 				-- Dịch nhanh các phần tử trong tab vừa mở (chỉ 1 lần duy nhất qua FastCache)
-				task.defer(function()
+				task.spawn(function()
 					if not isAlive() or not menuActive then return end
 					local okD, desc = pcall(function() return winObj:GetDescendants() end)
 					if okD and type(desc) == "table" then
+						local cnt = 0
 						for _, d in ipairs(desc) do
 							if d:IsA("TextLabel") or d:IsA("TextButton") or d:IsA("TextBox") then
 								pcall(processGuiElement, d)
+								cnt = cnt + 1
+								if cnt % 60 == 0 then
+									task.wait()
+									if not isAlive() or not menuActive then return end
+								end
 							end
 						end
 					end
@@ -3598,23 +3699,15 @@ local function hookTargetScreenGui(gui)
 				pcall(bindMenuVisibilityListener, State.FiggyMainWindow)
 			end
 
-			-- [FIX-ĐƠ] Xử lý theo lô 80 phần tử/frame bằng task.defer thay vì task.wait()
-			-- task.wait() chặn luồng hiện tại; task.defer trả CPU ngay cho game, tiếp tục frame sau
-			local CHUNK = 80
+			-- [FIX-ĐƠ V2] task.defer KHÔNG nhường frame -> dùng task.wait() trong luồng riêng (không chặn game)
+			local CHUNK = 50
 			local total = #descendants
-			local function processChunk(startIdx)
+			for i = 1, total do
 				if not isAlive() then return end
-				local endIdx = math.min(startIdx + CHUNK - 1, total)
-				for i = startIdx, endIdx do
-					pcall(processGuiElement, descendants[i])
-				end
-				if endIdx < total then
-					task.defer(processChunk, endIdx + 1)
-				else
-					pcall(scanPurpleOnionButtonsOnce)
-				end
+				pcall(processGuiElement, descendants[i])
+				if i % CHUNK == 0 then task.wait() end
 			end
-			task.defer(processChunk, 1)
+			pcall(scanPurpleOnionButtonsOnce)
 		end
 	end)
 end
@@ -3634,16 +3727,46 @@ local function watchCandidateGuiAtStartup(gui)
 	end
 
 	local earlyConn
-	earlyConn = gui.DescendantAdded:Connect(function(desc)
-		if not isAlive() then return end
-		task.defer(function()
-			if not isAlive() or not desc or not desc.Parent then return end
-			pcall(processGuiElement, desc)
-			if gui:GetAttribute("__FiggyGuiHooked") ~= SID and isFiggyWindowGui(gui) then
+	local q, qHead, qTail, qScheduled = {}, 1, 0, false
+	local lastCheck = 0
+	local function flushEarlyQueue()
+		qScheduled = false
+		if not isAlive() then q, qHead, qTail = {}, 1, 0 return end
+		local processed = 0
+		while qHead <= qTail and processed < 40 do
+			local d = q[qHead]
+			q[qHead] = nil
+			qHead = qHead + 1
+			processed = processed + 1
+			if d and d.Parent then pcall(processGuiElement, d) end
+		end
+		-- Kiểm tra "có phải cửa sổ Figgy chưa" tối đa 2 lần/giây (GetDescendants khá đắt)
+		local now = os.clock()
+		if gui:GetAttribute("__FiggyGuiHooked") ~= SID and now - lastCheck > 0.5 then
+			lastCheck = now
+			-- GUI còn đang được dựng dở nên lần kiểm tra trước có thể sai -> cho phép kiểm tra lại
+			pcall(function() gui:SetAttribute("__NotFiggyGui", nil) end)
+			if isFiggyWindowGui(gui) then
 				if earlyConn then pcall(function() earlyConn:Disconnect() end) end
 				pcall(hookTargetScreenGui, gui)
+				return
 			end
-		end)
+		end
+		if qHead <= qTail then
+			qScheduled = true
+			task.delay(0.03, flushEarlyQueue)
+		else
+			q, qHead, qTail = {}, 1, 0
+		end
+	end
+	earlyConn = gui.DescendantAdded:Connect(function(desc)
+		if not isAlive() then return end
+		qTail = qTail + 1
+		q[qTail] = desc
+		if not qScheduled then
+			qScheduled = true
+			task.delay(0.03, flushEarlyQueue)
+		end
 	end)
 	trackConn(earlyConn)
 	task.delay(8.0, function()
@@ -3675,8 +3798,9 @@ task.spawn(function()
 	for _, root in ipairs(getUiRoots()) do
 		local okCh, children = pcall(function() return root:GetChildren() end)
 		if okCh and type(children) == "table" then
-			for _, gui in ipairs(children) do
+			for gi, gui in ipairs(children) do
 				pcall(watchCandidateGuiAtStartup, gui)
+				if gi % 3 == 0 then task.wait() end -- [FIX-ĐƠ V2] mỗi GUI có thể phải GetDescendants
 			end
 		end
 
@@ -3703,28 +3827,25 @@ task.spawn(function()
 	end
 
 	-- Thực thi phân tầng theo nhịp mượt mà (tránh dồn 5 lệnh quét DOM cùng 1 khung hình gây đơ game)
-	task.delay(0.15, function()
+	-- [FIX-ĐƠ V2] Mỗi mốc 1 luồng riêng, các hàm quét tự nhường frame + có khoá chống chạy chồng
+	task.delay(0.6, function()
 		if not isAlive() then return end
 		pcall(scanAndApplyExactTwoOnions)
-		pcall(scanPurpleOnionButtonsOnce)
-		pcall(scanRightOnionButtonOnce)
 		pcall(trySelectGoldThemeOnce)
 	end)
 
-	task.delay(0.85, function()
+	task.delay(2.0, function()
 		if not isAlive() then return end
-		pcall(scanAndApplyExactTwoOnions)
+		pcall(scanPurpleOnionButtonsOnce)
+		pcall(scanRightOnionButtonOnce)
+		task.wait()
+		pcall(refreshAllTranslatedMenus)
+		pcall(trySelectGoldThemeOnce)
+	end)
+
+	task.delay(4.5, function()
+		if not isAlive() then return end
 		pcall(cleanupPreviousOverlaysAndDeduplicate)
-		pcall(scanPurpleOnionButtonsOnce)
-		pcall(scanRightOnionButtonOnce)
-		pcall(refreshAllTranslatedMenus)
-		pcall(trySelectGoldThemeOnce)
-	end)
-
-	task.delay(2.50, function()
-		if not isAlive() then return end
-		pcall(scanRightOnionButtonOnce)
-		pcall(refreshAllTranslatedMenus)
 		pcall(trySelectGoldThemeOnce)
 	end)
 end)
