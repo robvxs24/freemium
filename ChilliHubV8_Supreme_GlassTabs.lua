@@ -1,5 +1,17 @@
 -- ============================================================================
--- BANANA HUB V1.0.13 (LIQUID GLASS EDITION) | FIX ĐƠ: cleanup async + cache isFiggyWindowGui + chunk defer thay task.wait + early-exit isDeltaOrExecutorGui
+-- BANANA HUB V1.0.11 (ALL-IN-ONE SUPREME EDITION) | 1 FILE HOÀN CHỈNH DUY NHẤT
+-- Script tự chứa 100% (Standalone), chạy trực tiếp trên Delta X, Codex, Arceus X, Fluxus
+-- [TÍNH NĂNG ĐẶC BIỆT]:
+--   1. BẮN TỈA CHÍNH XÁC 100% 2 NÚT CỦ HÀNH TÍM Ở 2 LỀ (DescendantAdded + Target Lock)
+--      + Nút lề trái (mở menu): Hình tròn viền vàng mạ kim sang trọng
+--      + Nút lề phải (HUD công cụ): Hình vuông bo góc viền vàng đồng bộ
+--      + Khóa cứng vĩnh viễn (Anti-Revert qua GetPropertyChangedSignal("Image"))
+--   2. VIỆT HÓA TOÀN DIỆN 1.223 CỤM TỪ (Tra cứu siêu tốc O(1) qua bảng băm)
+--   3. DYNAMIC ISLAND LIQUID GLASS 3D (Đang rảnh tĩnh, âm thanh mở mặc định)
+--   4. TỰ ĐỘNG CHỌN THEME VÀNG HOÀNG GIA (Lemon) & TRỞ VỀ TRANG CHỦ
+-- ============================================================================
+-- ============================================================================
+-- BANANA HUB V1.0.10 (LIQUID GLASS EDITION) | BANANA LOGOS + GOLD THEME + HOME
 -- Script gốc: loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/91ad82d753e1318189c4e249d56e7dcf.lua"))()
 -- 1. [KHẮC PHỤC TRIỆT ĐỂ LỖI LỘ ẢNH MỜ GỐC LÚC MỚI CHẠY & KHÔNG GHIM NHẦM]:
 --    + Đo kích thước thực tế qua cả `AbsoluteSize` lẫn `Size.Offset` để bắt dính nút ngay từ
@@ -19,13 +31,6 @@
 --    + Xoá bỏ hoàn toàn cả nút tắt/bật âm thanh (âm thanh mặc định luôn MỞ) lẫn nút Làm mới & Đồng bộ.
 --    + Khóa `ApplyStrokeMode = Enum.ApplyStrokeMode.Border` và `TextStrokeTransparency = 1` cùng tông
 --      màu Kem Sâm-banh dịu nhẹ để chữ sắc nét, tuyệt đối không bị nhòe hay chói mắt.
--- [FIX-ĐƠ V2] Nguyên nhân chính gây đứng máy khi mở script:
---   (1) hookUiContainerForExactOnions nghe DescendantAdded trên TOÀN BỘ CoreGui/PlayerGui và mỗi
---       khi có 1 GuiObject mới ở vùng nút là quét lại TOÀN BỘ UI (kể cả RobloxGui) -> hub tạo vài trăm
---       phần tử = vài trăm lần quét đồng bộ = FPS về 0.
---   (2) task.defer KHÔNG nhường frame (chạy lại ngay trong cùng frame) nên chia lô bằng defer vô nghĩa.
---       Đã đổi sang task.wait()/task.delay trong luồng riêng để thật sự trải việc qua nhiều frame.
---   (3) Các hàm quét giờ: bỏ qua RobloxGui..., lọc kích thước trước, có khoá chống chạy chồng, tự nhường frame.
 -- ============================================================================
 
 local Players = game:GetService("Players")
@@ -34,8 +39,13 @@ local TweenService = game:GetService("TweenService")
 local SoundService = game:GetService("SoundService")
 local Workspace = game:GetService("Workspace")
 
--- [FIX-ĐƠ] Bỏ :Wait() blocking - trên mobile LocalPlayer luôn có sẵn khi chạy script
 local LocalPlayer = Players.LocalPlayer
+if not LocalPlayer then
+	pcall(function()
+		LocalPlayer = Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
+	end)
+	LocalPlayer = Players.LocalPlayer
+end
 
 -- Ngắt sạch mọi kết nối từ các lần chạy trước
 local env = (getgenv and getgenv()) or _G
@@ -81,7 +91,6 @@ State.LastDisplayedPillText = nil
 State.LastDisplayedPillImg = nil
 State.LastPillTargetWidth = nil
 State.OnionButton = nil -- Nút củ hành tím mở menu thật sự (lề trái)
-State.RightOnionButton = nil -- Nút củ hành tím duy nhất ở lề phải (không gắn nhầm icon vật phẩm khác)
 State.HeaderBadgeFrame = nil -- Logo nhỏ cạnh tiêu đề trong cửa sổ menu
 State.OnionAsset = nil -- Asset ảnh củ hành gốc để nhận diện chính xác
 State.GoldThemeApplied = false -- Đã chọn theme Vàng Hoàng Gia (Lemon)
@@ -162,50 +171,6 @@ local function getUiRoots()
 	return roots
 end
 
-
--- ============================================================================
--- [FIX-ĐƠ V2] TIỆN ÍCH QUÉT AN TOÀN: bỏ GUI hệ thống, nhường frame, lọc nhanh
--- ============================================================================
-local SCAN_YIELD_EVERY = 120
-local function makeYielder()
-	local n = 0
-	return function()
-		n = n + 1
-		if n >= SCAN_YIELD_EVERY then
-			n = 0
-			task.wait()
-		end
-	end
-end
-
--- Danh sách phần tử cần quét, bỏ qua RobloxGui/Chat/TopBar... (hàng nghìn phần tử không liên quan)
-local function getScanList(root)
-	local list = {}
-	local okCh, children = pcall(function() return root:GetChildren() end)
-	if not okCh or type(children) ~= "table" then return list end
-	for _, ch in ipairs(children) do
-		local n = ch.Name or ""
-		if not IGNORED_SCREEN_GUIS[n] and not n:find("^Old_")
-			and not ch:IsA("BillboardGui") and not ch:IsA("SurfaceGui") then
-			list[#list + 1] = ch
-			local okD, d = pcall(function() return ch:GetDescendants() end)
-			if okD and type(d) == "table" then
-				for i = 1, #d do list[#list + 1] = d[i] end
-			end
-		end
-	end
-	return list
-end
-
--- Lọc nhanh theo kích thước nút vuông nhỏ (22..92) trước khi gọi các hàm đắt tiền
-local function passesSquarePrefilter(obj)
-	local a = obj.AbsoluteSize
-	if a.X > 0 or a.Y > 0 then
-		return a.X >= 22 and a.X <= 92 and a.Y >= 22 and a.Y <= 92
-	end
-	return true
-end
-
 local function getViewportWidth()
 	local cam = Workspace and Workspace.CurrentCamera
 	if cam and cam.ViewportSize and cam.ViewportSize.X > 0 then
@@ -273,9 +238,6 @@ local function isFiggyWindowGui(gui)
 	local gName = gui.Name or ""
 	if IGNORED_SCREEN_GUIS[gName] or gName:find("^Old_") then return false end
 	if gui:GetAttribute("__VerifiedFiggyWindowGui") == true then return true end
-	-- [FIX-ĐƠ] Nếu đã kiểm tra và xác định không phải Figgy → trả về false ngay, không quét lại
-	if gui:GetAttribute("__IsExecutorGui") == true then return false end
-	if gui:GetAttribute("__NotFiggyGui") == true then return false end
 
 	local okD, desc = pcall(function() return gui:GetDescendants() end)
 	if not okD or type(desc) ~= "table" then return false end
@@ -311,16 +273,12 @@ local function isFiggyWindowGui(gui)
 		gui:SetAttribute("__IsExecutorGui", false)
 		return true
 	end
-	-- [FIX-ĐƠ] Đánh dấu không phải Figgy để bỏ qua ngay ở lần sau, không quét GetDescendants lại
-	gui:SetAttribute("__NotFiggyGui", true)
 	return false
 end
 
 local function isDeltaOrExecutorGui(gui)
 	if not gui then return false end
 	if gui:GetAttribute("__VerifiedFiggyWindowGui") == true then return false end
-	-- [FIX-ĐƠ] Nếu đã xác nhận là executor trước đó → trả về ngay
-	if gui:GetAttribute("__IsExecutorGui") == true then return true end
 
 	local gName = string.lower(gui.Name or "")
 	for _, kw in ipairs(EXECUTOR_KEYWORDS) do
@@ -385,7 +343,9 @@ local function cleanupPreviousOverlaysAndDeduplicate()
 									local pX = par.AbsolutePosition.X
 									local pY = par.AbsolutePosition.Y
 									local isProtectedOnion = (State.OnionButton ~= nil and par == State.OnionButton)
+										or (State.OnionButtonRight ~= nil and par == State.OnionButtonRight)
 										or (State.HeaderBadgeFrame ~= nil and par == State.HeaderBadgeFrame)
+										or (isTargetOnionButton and isTargetOnionButton(par))
 									if not isProtectedOnion then
 										local inOnionBand = (pX >= vpW * 0.02 and pX <= vpW * 0.20 and pY >= 70 and pY <= vpH * 0.82)
 										if State.OnionButton ~= nil then
@@ -796,7 +756,6 @@ local function silenceOriginalButtonVisual(inst, coinDisc, targetCornerUdim)
 	end
 end
 
-local restoreWronglyDecoratedButton -- [FIX-GẮN-NHẦM] khai báo trước để decoratePurpleOnionButton gọi được
 local function decoratePurpleOnionButton(rawTarget, strokeThickness, forceRoundedSquare, isHeaderBadge)
 	local container = getOutermostSquareButton(rawTarget)
 	if not container or not container:IsA("GuiObject") then return end
@@ -825,19 +784,7 @@ local function decoratePurpleOnionButton(rawTarget, strokeThickness, forceRounde
 	if insideWindow then
 		State.HeaderBadgeFrame = container
 	else
-		-- [FIX-GẮN-NHẦM] Chỉ khoá đúng 1 nút mỗi bên: 1 logo chính (trái) + 1 củ hành tím (phải).
-		-- Nếu có ứng viên khác đang nằm TRÊN (Y nhỏ hơn) nút đã khoá, đổi khoá sang nút đó và khôi phục
-		-- lại nút cũ, để các icon game nằm dưới (Finder/Shop/Index, icon rương…) không giữ nhầm chỗ.
-		local isRightSide_ = container.AbsolutePosition.X >= vpW * 0.75
-		local lockKey = isRightSide_ and "RightOnionButton" or "OnionButton"
-		local locked = State[lockKey]
-		if locked and locked ~= container and locked.Parent and container.AbsolutePosition.Y >= locked.AbsolutePosition.Y then
-			return
-		end
-		if locked and locked ~= container and locked.Parent then
-			pcall(restoreWronglyDecoratedButton, locked)
-		end
-		State[lockKey] = container
+		State.OnionButton = container
 		if not State.OnionAsset then
 			for _, chd in ipairs(container:GetDescendants()) do
 				if chd:IsA("ImageLabel") or chd:IsA("ImageButton") then
@@ -2574,518 +2521,223 @@ local function syncStatusFromLiveWidgets()
 end
 
 -- ============================================================================
--- 7. NHẬN DIỆN LOGO CỦ HÀNH THEO ASSET GỐC (FAIL-CLOSED)
+-- 7. BẮN TỈA & KHÓA CỨNG BANANA CAT VÀO ĐÚNG 2 NÚT CỦ HÀNH (0% WHILE, ANTI-REVERT)
 -- ============================================================================
-local function hasPurpleVisualInside(btn)
-	if btn:GetAttribute("__WasFiggyPurple") == true then return true end
-	if btn.BackgroundTransparency < 0.95 and isFiggyPurpleColor(btn.BackgroundColor3) then
-		return true
-	end
-	if hasPurpleGradient(btn) then
-		return true
-	end
-	for _, d in ipairs(btn:GetDescendants()) do
-		if d:GetAttribute("__WasFiggyPurple") == true then return true end
-		if d:IsA("Frame") or d:IsA("ImageLabel") or d:IsA("ImageButton") then
-			if d.BackgroundTransparency < 0.95 and isFiggyPurpleColor(d.BackgroundColor3) then
-				return true
-			end
-			if hasPurpleGradient(d) then
-				return true
-			end
-			if (d:IsA("ImageLabel") or d:IsA("ImageButton")) and d.ImageTransparency < 0.95 and isFiggyPurpleColor(d.ImageColor3) then
-				return true
-			end
-		elseif d:IsA("UIStroke") and isFiggyPurpleColor(d.Color) then
-			return true
-		end
-	end
-	return false
-end
+local BANANA_CAT_IMAGE = "rbxthumb://type=Asset&id=87447945720038&w=420&h=420"
 
-local function isPurpleOnionSquareButton(btn, isInsideVerifiedFiggyGui)
-	if not btn or not btn.Parent then return false end
-	if not (btn:IsA("Frame") or btn:IsA("ImageButton") or btn:IsA("TextButton") or btn:IsA("CanvasGroup")) then return false end
-	if btn:FindFirstChild("BananaCatCircleAvatar") or (btn.Parent and btn.Parent:FindFirstChild("BananaCatCircleAvatar")) then return false end
-	if isInsideLargeWindowFrame(btn) then return false end
-	if State.FiggyMainWindow and (btn == State.FiggyMainWindow or btn:IsDescendantOf(State.FiggyMainWindow)) then return false end
+-- Nhận diện chuẩn xác 2 nút củ hành ở lề trái và lề phải, loại trừ tuyệt đối nút game khác
+local function isTargetOnionButton(obj)
+	if not obj or not obj:IsA("GuiObject") then return false end
+	if not obj.Parent then return false end
 
-	local bw, bh = getEffectiveBoxSize(btn)
-	if bw < 22 or bw > 86 or bh < 22 or bh > 86 or math.abs(bw - bh) > 16 then return false end
-	for _, d in ipairs(btn:GetDescendants()) do
-		if d:IsA("TextLabel") and d.Visible and d.TextTransparency < 0.95 then
-			local t = (d.Text or ""):match("^%s*(.-)%s*$") or ""
-			if #t > 0 then return false end
-		end
-	end
-
-	local vpW, vpH = getViewportWidth(), getViewportHeight()
-	local absX, absY = btn.AbsolutePosition.X, btn.AbsolutePosition.Y
-	if absX == 0 and absY == 0 then return false end
-	local inLeftLogoBand = absX >= vpW * 0.02 and absX <= vpW * 0.20
-	local inRightOnionBand = absX >= vpW * 0.78 and absX <= vpW * 0.98
-	if (not inLeftLogoBand and not inRightOnionBand) or absY < 70 or absY > vpH * 0.82 then return false end
-
-	-- Nhận diện nút củ hành tím:
-	-- [FIX-GẮN-NHẦM] Màu tím của icon thật ra được vẽ sẵn trong ảnh (pixel), không qua BackgroundColor3/
-	-- ImageColor3/UIGradient, nên không thể lọc bằng màu. Thay vào đó: trong vùng trái/phải, chỉ nhận
-	-- đúng ứng viên NẰM TRÊN CÙNG (Y nhỏ nhất) và khoá cứng lại (xử lý khoá ở decoratePurpleOnionButton /
-	-- applyBananaCatExactOverlay) để Finder/Shop/Index hay icon rương nằm dưới không bị gắn nhầm theo.
-	if inLeftLogoBand and (absY >= 100 and absY <= 420) then
-		return true
-	end
-	if inRightOnionBand and (absY >= 40 and absY <= 220) then
-		return true
-	end
-	if State.OnionAsset and State.OnionAsset ~= "" then
-		local function matchesOriginalOnionImage(obj)
-			if obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
-				local asset = obj:GetAttribute("__OrigImageAsset") or obj:GetAttribute("__OrigOnionImage") or obj.Image
-				if asset == State.OnionAsset then return true end
-			end
-			for _, d in ipairs(obj:GetDescendants()) do
-				if d:IsA("ImageLabel") or d:IsA("ImageButton") then
-					local asset = d:GetAttribute("__OrigImageAsset") or d:GetAttribute("__OrigOnionImage") or d.Image
-					if asset == State.OnionAsset then return true end
-				end
-			end
+	-- Bỏ qua giao diện của Executor (Delta, Codex, Arceus...) và Roblox CoreGui hệ thống
+	local rootGui = obj:FindFirstAncestorOfClass("ScreenGui")
+	if rootGui then
+		local gName = string.lower(rootGui.Name or "")
+		if gName:find("delta") or gName:find("executor") or gName:find("robloxgui") or gName:find("topbarapp") then
 			return false
 		end
-		if matchesOriginalOnionImage(btn) then return true end
 	end
-	return false
-end
 
--- Khôi phục nguyên trạng nút bị gắn nhầm (đặc biệt các nút game bên phải).
-function restoreWronglyDecoratedButton(par)
-	if not par or not par.Parent then return end
-	par:SetAttribute("__RestoredOrig", true)
-	if par:IsA("ImageLabel") or par:IsA("ImageButton") then
-		par.ImageTransparency = 0
-		par.BackgroundTransparency = 0
-		local origImg = par:GetAttribute("__OrigImageAsset")
-		if origImg and origImg ~= "" then par.Image = origImg end
-	elseif par:IsA("Frame") or par:IsA("TextButton") or par:IsA("CanvasGroup") then
-		par.BackgroundTransparency = 0
-	end
-	local forcedCorner = par:FindFirstChild("BananaCatForcedCorner")
-	if forcedCorner then forcedCorner:Destroy() end
-	for _, sib in ipairs(par:GetDescendants()) do
-		sib:SetAttribute("__RestoredOrig", true)
-		if sib:IsA("ImageLabel") or sib:IsA("ImageButton") then
-			sib.ImageTransparency = 0
-			local origImg = sib:GetAttribute("__OrigImageAsset")
-			if origImg and origImg ~= "" then sib.Image = origImg end
-		elseif sib:IsA("UIStroke") and sib.Name ~= "LuxuryGoldCircleStroke" then
-			sib.Transparency = 0
-			sib.Enabled = true
-		end
-	end
-end
+	-- Bỏ qua nếu là các đối tượng bên trong Dynamic Island hoặc cửa sổ menu chính lớn
+	if State.IslandGui and obj:IsDescendantOf(State.IslandGui) then return false end
+	if isInsideLargeWindowFrame and isInsideLargeWindowFrame(obj) then return false end
+	if State.FiggyMainWindow and (obj == State.FiggyMainWindow or obj:IsDescendantOf(State.FiggyMainWindow)) then return false end
 
--- Dọn lớp phủ sai, không đụng các nút game không khớp asset logo củ hành.
-local function removeWrongOnionOverlays(gui)
-	local okD, desc = pcall(function() return gui:GetDescendants() end)
-	if not okD or type(desc) ~= "table" then return end
-	for _, d in ipairs(desc) do
-		if d.Name == "BananaCatFixedOverlay" or d.Name == "BananaCatCircleAvatar" or d.Name == "GoldBadgeInnerDisc" or d.Name == "BananaCatBadgeImage" then
-			local par = d.Parent
-			if par and par:IsA("GuiObject") and not isInsideLargeWindowFrame(par) then
-				local isProtected = (State.OnionButton ~= nil and par == State.OnionButton)
-					or (State.HeaderBadgeFrame ~= nil and par == State.HeaderBadgeFrame)
-				if not isProtected then
-					d:Destroy()
-					restoreWronglyDecoratedButton(par)
-				end
-			end
-		end
-	end
-end
+	-- 1. Kích thước hình vuông của nút HUD (khoảng 30px đến 85px)
+	local sizeX, sizeY = getEffectiveBoxSize(obj)
+	if sizeX < 28 or sizeX > 88 or sizeY < 28 or sizeY > 88 then return false end
+	if math.abs(sizeX - sizeY) > 18 then return false end
 
-local function scanPurpleOnionButtonsOnceImpl()
-	local yieldTick = makeYielder()
+	-- 2. Vị trí nằm sát 2 dải lề biên màn hình (X < 160 hoặc X > vpW - 160)
 	local vpW, vpH = getViewportWidth(), getViewportHeight()
-	-- Nếu lớp phủ đã có sẵn từ lần chạy trước, ghim lại đúng nút củ hành theo vị trí.
-	if not State.OnionButton then
-		for _, root in ipairs(getUiRoots()) do
-			local okCh, children = pcall(function() return root:GetChildren() end)
-			if okCh and type(children) == "table" then
-				for _, gui in ipairs(children) do
-					local okD, desc = pcall(function() return gui:GetDescendants() end)
-					if okD and type(desc) == "table" then
-						for _, d in ipairs(desc) do
-							yieldTick()
-							if d.Name == "BananaCatCircleAvatar" and d.Parent and d.Parent:IsA("GuiObject") then
-								local par = d.Parent
-								local ax, ay = par.AbsolutePosition.X, par.AbsolutePosition.Y
-								if ax >= vpW * 0.02 and ax <= vpW * 0.20 and ay >= 70 and ay <= vpH * 0.82 and not isInsideLargeWindowFrame(par) then
-									State.OnionButton = par
-									break
-								end
-							end
-						end
-					end
-					if State.OnionButton then break end
-				end
-			end
-			if State.OnionButton then break end
+	local posX = obj.AbsolutePosition.X
+	local posY = obj.AbsolutePosition.Y
+	if posX == 0 and posY == 0 then return false end
+
+	local isLeftEdge  = (posX >= 0 and posX <= 165)
+	local isRightEdge = (posX >= vpW - 165 and posX <= vpW)
+	if not (isLeftEdge or isRightEdge) then return false end
+
+	-- 3. Loại trừ tuyệt đối các nút hệ thống game có chữ (Finder, Shop, Index, Slow Mode, số 8...)
+	for _, child in ipairs(obj:GetDescendants()) do
+		if (child:IsA("TextLabel") or child:IsA("TextButton")) and child.Visible and child.TextTransparency < 0.9 then
+			local txt = (child.Text or ""):match("^%s*(.-)%s*$")
+			if txt and #txt > 0 then return false end
 		end
 	end
-	for _, root in ipairs(getUiRoots()) do
-		local okCh, children = pcall(function() return root:GetChildren() end)
-		if okCh and type(children) == "table" then
-			for _, gui in ipairs(children) do
-				local gName = gui.Name or ""
-				if gName ~= "BananaDynamicIsland" and gName ~= "FiggyDynamicIsland"
-					and not IGNORED_SCREEN_GUIS[gName] and not gName:find("^Old_")
-					and not gui:IsA("BillboardGui") and not gui:IsA("SurfaceGui")
-					and not isDeltaOrExecutorGui(gui) then
-					local isVerifiedFiggy = isFiggyWindowGui(gui)
-					local okD, desc = pcall(function() return gui:GetDescendants() end)
-					if okD and type(desc) == "table" then
-						for _, d in ipairs(desc) do
-							yieldTick()
-							if isPurpleOnionSquareButton(d, isVerifiedFiggy) then
-								local isRight = (d.AbsolutePosition.X >= vpW * 0.75)
-								decoratePurpleOnionButton(d, 2.0, isRight)
-							elseif d:IsA("ImageLabel") and d.Parent and isPurpleOnionSquareButton(d.Parent, isVerifiedFiggy) then
-								local isRight = (d.Parent.AbsolutePosition.X >= vpW * 0.75)
-								decoratePurpleOnionButton(d.Parent, 2.0, isRight)
-							end
-						end
-						removeWrongOnionOverlays(gui)
-					end
-				end
-			end
+
+	-- 4. Loại trừ nút Chân thú màu cam ở lề phải:
+	if isRightEdge and (obj:IsA("Frame") or obj:IsA("ImageButton") or obj:IsA("CanvasGroup")) then
+		local bg = obj.BackgroundColor3
+		if bg and bg.R * 255 > 190 and bg.G * 255 > 100 and bg.B * 255 < 80 then
+			return false
 		end
 	end
+
+	-- 5. Nút hợp lệ là nút chứa ảnh (ImageButton/ImageLabel) hoặc chính nó là Frame/ImageButton
+	if obj:IsA("ImageButton") or obj:IsA("ImageLabel") then
+		return true
+	end
+	return (obj:FindFirstChildOfClass("ImageLabel") ~= nil or obj:FindFirstChildOfClass("ImageButton") ~= nil)
 end
 
-local scanPurpleRunning = false
-local function scanPurpleOnionButtonsOnce()
-	if scanPurpleRunning then return end
-	scanPurpleRunning = true
-	pcall(scanPurpleOnionButtonsOnceImpl)
-	scanPurpleRunning = false
+-- Tìm đối tượng chứa ảnh chính hoặc lấy chính obj
+local function getCanonicalTargetImage(btn)
+	if not btn then return nil end
+	if btn:IsA("ImageButton") or btn:IsA("ImageLabel") then return btn end
+	local img = btn:FindFirstChildOfClass("ImageLabel") or btn:FindFirstChildOfClass("ImageButton")
+	return img or btn
 end
 
--- ============================================================================
--- 7B2. QUÉT & ĐÈ RIÊNG NÚT CỦ HÀNH LỀ PHẢI (hàm còn thiếu — bổ sung tại đây)
--- ============================================================================
-local function scanRightOnionButtonOnceImpl()
-	local roots = getUiRoots()
-	local vpW, vpH = getViewportWidth(), getViewportHeight()
-	local yieldTick = makeYielder()
-	for _, root in ipairs(roots) do
-		local descList = getScanList(root)
-		do
-			for _, obj in ipairs(descList) do
-				yieldTick()
-				if obj:IsA("GuiObject")
-					and passesSquarePrefilter(obj)
-					and not (State.IslandGui and obj:IsDescendantOf(State.IslandGui))
-					and not isInsideLargeWindowFrame(obj) then
-					local pos = obj.AbsolutePosition
-					local sz  = obj.AbsoluteSize
-					local px, py = pos.X, pos.Y
-					local sx, sy = sz.X, sz.Y
-					if sx == 0 and sy == 0 then
-						local s = obj.Size
-						if s and s.X and s.Y then
-							sx, sy = s.X.Offset or 0, s.Y.Offset or 0
-						end
-					end
-					-- Nút lề phải: X >= 78% màn hình, Y trong 40..220 (rộng hơn để bắt chắc)
-					if sx >= 22 and sx <= 92 and sy >= 22 and sy <= 92
-						and math.abs(sx - sy) <= 20
-						and px >= (vpW * 0.76) and py >= 40 and py <= 220 then
-						local hasText = false
-						for _, sub in ipairs(obj:GetDescendants()) do
-							if sub:IsA("TextLabel") and sub.Visible and sub.TextTransparency < 0.95 then
-								local t = (sub.Text or ""):match("^%s*(.-)%s*$") or ""
-								if #t > 0 then hasText = true break end
-							end
-						end
-						if not hasText then
-							local btn = (obj:IsA("ImageButton") or obj:IsA("ImageLabel")
-								or obj:IsA("Frame") or obj:IsA("CanvasGroup")) and obj or obj.Parent
-							if btn and btn:IsA("GuiObject") and not btn:FindFirstChild("BananaCatExactOverlay") then
-								pcall(applyBananaCatExactOverlay, btn, true)
-							end
-						end
-					end
+-- Ép ảnh Banana Cat và khóa cứng vĩnh viễn (Anti-Revert)
+local function applyAndLockBananaCat(btn)
+	if not btn or not btn.Parent then return end
+	local vpW = getViewportWidth()
+	local isRight = (btn.AbsolutePosition.X >= vpW * 0.70)
+
+	-- Ghi nhận trạng thái vào State
+	if isRight then
+		State.OnionButtonRight = btn
+	else
+		State.OnionButton = btn
+	end
+
+	-- Thay ảnh gốc và khóa GetPropertyChangedSignal("Image")
+	local function lockImg(imgObj)
+		if not imgObj or not (imgObj:IsA("ImageLabel") or imgObj:IsA("ImageButton")) then return end
+		if imgObj.Name == "BananaCatOverlay" or imgObj.Name == "BananaCatBadgeImage" then return end
+		pcall(function()
+			imgObj.Image = BANANA_CAT_IMAGE
+			imgObj.ImageColor3 = Color3.fromRGB(255, 255, 255)
+			imgObj.ImageTransparency = 0
+		end)
+		if not imgObj:GetAttribute("__BananaCatImageLocked") then
+			imgObj:SetAttribute("__BananaCatImageLocked", true)
+			trackConn(imgObj:GetPropertyChangedSignal("Image"):Connect(function()
+				if imgObj.Image ~= BANANA_CAT_IMAGE then
+					pcall(function()
+						imgObj.Image = BANANA_CAT_IMAGE
+						imgObj.ImageColor3 = Color3.fromRGB(255, 255, 255)
+					end)
 				end
-			end
+			end))
 		end
 	end
-end
 
--- ============================================================================
--- 7C. ĐÈ LOGO BANANA CAT VÀNG CHÍNH XÁC VÀO ĐÚNG 2 NÚT CỦ HÀNH TÍM (LỀ TRÁI & PHẢI)
---     1. Nút lề trái (dưới Shop): Nút hình tròn viền vàng mạ kim
---     2. Nút lề phải (trên icon trứng đỏ 8): Nút hình vuông bo góc đẹp viền vàng mạ kim
---     3. Tự động che sạch ảnh củ hành cũ và khóa cứng vĩnh viễn (Anti-Revert)
--- ============================================================================
-local function getCustomOrThumbBananaCat()
-	if State.BananaCatCustomAsset then return State.BananaCatCustomAsset end
-	local asset = BANANA_CAT_LOGO
-	pcall(function()
-		if type(isfile) == "function" and type(getcustomasset) == "function" then
-			if isfile("figgy_banana_cat.png") then
-				local okA, a = pcall(getcustomasset, "figgy_banana_cat.png")
-				if okA and type(a) == "string" and a ~= "" then asset = a end
-			elseif isfile("BananaCat.png") then
-				local okA, a = pcall(getcustomasset, "BananaCat.png")
-				if okA and type(a) == "string" and a ~= "" then asset = a end
-			end
+	if btn:IsA("ImageButton") or btn:IsA("ImageLabel") then
+		lockImg(btn)
+	end
+	for _, child in ipairs(btn:GetDescendants()) do
+		if child:IsA("ImageButton") or child:IsA("ImageLabel") then
+			lockImg(child)
 		end
-	end)
-	State.BananaCatCustomAsset = asset
-	return asset
-end
+	end
 
-local function applyBananaCatExactOverlay(targetBtn, isRightSide)
-	if not targetBtn or not targetBtn.Parent then return end
-	if targetBtn:FindFirstChild("BananaCatExactOverlay") then return end
-
-	local asset = getCustomOrThumbBananaCat()
-	local targetCorner = isRightSide and SQUARE_CORNER_UDIM or CIRCLE_CORNER_UDIM
-
-	-- 1. Làm trong suốt hình ảnh và màu nền gốc của nút củ hành
-	pcall(function()
-		if targetBtn:IsA("ImageButton") or targetBtn:IsA("ImageLabel") then
-			targetBtn.ImageTransparency = 1
+	-- Đè lớp phủ Banana Cat Overlay chắc chắn lên trên cùng (ZIndex 9999)
+	local overlay = btn:FindFirstChild("BananaCatOverlay")
+	if not overlay then
+		overlay = Instance.new("ImageLabel")
+		overlay.Name = "BananaCatOverlay"
+		overlay.Size = UDim2.new(1, 0, 1, 0)
+		overlay.Position = UDim2.new(0, 0, 0, 0)
+		overlay.BackgroundTransparency = 1
+		overlay.Image = BANANA_CAT_IMAGE
+		overlay.ZIndex = 9999
+		
+		local corner = Instance.new("UICorner")
+		corner.Name = "BananaCorner"
+		if isRight then
+			corner.CornerRadius = UDim.new(0.24, 0) -- Hình vuông bo góc đẹp viền vàng cho nút phải
+		else
+			corner.CornerRadius = UDim.new(0.50, 0) -- Hình tròn viền vàng cho nút mở menu trái
 		end
-		targetBtn.BackgroundTransparency = 1
-		for _, ch in ipairs(targetBtn:GetDescendants()) do
-			if ch:IsA("ImageLabel") or ch:IsA("ImageButton") then
-				ch.ImageTransparency = 1
-			end
-			if ch:IsA("UIStroke") and ch.Name ~= "BananaCatGoldStroke" then
-				ch.Transparency = 1
-			end
+		corner.Parent = overlay
+		
+		local stroke = Instance.new("UIStroke")
+		stroke.Name = "BananaStroke"
+		stroke.Color = Color3.fromRGB(240, 215, 120) -- Vàng mạ kim
+		stroke.Thickness = 1.8
+		stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		stroke.Parent = overlay
+
+		overlay.Parent = btn
+	else
+		overlay.Image = BANANA_CAT_IMAGE
+		local corner = overlay:FindFirstChild("BananaCorner")
+		if corner then
+			corner.CornerRadius = isRight and UDim.new(0.24, 0) or UDim.new(0.50, 0)
 		end
-	end)
+	end
 
-	-- 2. Tạo Frame chứa đè kín 100% lên nút
-	local overlayFrame = Instance.new("Frame")
-	overlayFrame.Name = "BananaCatExactOverlay"
-	overlayFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-	overlayFrame.Position = UDim2.fromScale(0.5, 0.5)
-	overlayFrame.Size = UDim2.fromScale(1, 1)
-	overlayFrame.BackgroundColor3 = Color3.fromRGB(24, 20, 28)
-	overlayFrame.BackgroundTransparency = 0
-	overlayFrame.BorderSizePixel = 0
-	overlayFrame.ClipsDescendants = true
-	overlayFrame.ZIndex = (targetBtn.ZIndex or 5) + 12
-	overlayFrame.Parent = targetBtn
-
-	local frameCorner = Instance.new("UICorner")
-	frameCorner.CornerRadius = targetCorner
-	frameCorner.Parent = overlayFrame
-
-	-- Ánh kim vàng nền đĩa
-	applyCoinSurfaceGoldGradient(overlayFrame)
-
-	-- 3. Tạo Sprite Banana Cat căng tràn sắc nét
-	local catSprite = Instance.new("ImageLabel")
-	catSprite.Name = "BananaCatSprite"
-	catSprite.AnchorPoint = Vector2.new(0.5, 0.5)
-	catSprite.Position = UDim2.fromScale(0.5, 0.5)
-	catSprite.Size = UDim2.fromScale(0.88, 0.88)
-	catSprite.BackgroundTransparency = 1
-	catSprite.BorderSizePixel = 0
-	catSprite.Image = asset
-	catSprite.ImageColor3 = Color3.fromRGB(255, 255, 255)
-	catSprite.ImageRectOffset = STRETCH_CAT_OFFSET
-	catSprite.ImageRectSize = STRETCH_CAT_SIZE
-	catSprite.ScaleType = Enum.ScaleType.Stretch
-	catSprite.ZIndex = overlayFrame.ZIndex + 1
-	catSprite.Parent = overlayFrame
-
-	local spriteCorner = Instance.new("UICorner")
-	spriteCorner.CornerRadius = isRightSide and UDim.new(0.18, 0) or UDim.new(0.35, 0)
-	spriteCorner.Parent = catSprite
-
-	applyCoinSurfaceGoldGradient(catSprite)
-
-	-- 4. Viền vàng mạ kim loại sắc nét
-	local goldStroke = Instance.new("UIStroke")
-	goldStroke.Name = "BananaCatGoldStroke"
-	goldStroke.Thickness = 2.0
-	goldStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	goldStroke.Color = Color3.fromRGB(238, 210, 118)
-	goldStroke.Transparency = 0.05
-	pcall(function() goldStroke.StrokeSizingMode = Enum.StrokeSizingMode.FixedSize end)
-	goldStroke.Parent = overlayFrame
-	applyMetallicGoldGradient(goldStroke)
-
-	-- 5. Khóa vĩnh viễn (Anti-Revert): giữ ảnh củ hành cũ luôn ẩn và ảnh mèo luôn nổi
-	if targetBtn:IsA("ImageButton") or targetBtn:IsA("ImageLabel") then
-		trackConn(targetBtn:GetPropertyChangedSignal("ImageTransparency"):Connect(function()
-			if isAlive() and targetBtn.ImageTransparency < 0.99 then
-				pcall(function() targetBtn.ImageTransparency = 1 end)
+	-- Khóa chống xóa: Nếu Hub gốc cố tình xóa overlay thì tự động vẽ lại trong 1 frame
+	if not btn:GetAttribute("__BananaAntiDelete") then
+		btn:SetAttribute("__BananaAntiDelete", true)
+		trackConn(btn.ChildRemoved:Connect(function(removed)
+			if not isAlive() then return end
+			if removed.Name == "BananaCatOverlay" then
+				task.defer(function()
+					if isAlive() and btn and btn.Parent then
+						applyAndLockBananaCat(btn)
+					end
+				end)
 			end
 		end))
 	end
-	trackConn(catSprite:GetPropertyChangedSignal("Image"):Connect(function()
-		if not isAlive() then return end
-		local want = getCustomOrThumbBananaCat()
-		if catSprite.Image ~= want then
-			pcall(function() catSprite.Image = want end)
-		end
-	end))
 end
 
-local function scanAndApplyExactTwoOnionsImpl()
-	local roots = getUiRoots()
-	local vpW, vpH = getViewportWidth(), getViewportHeight()
-	local yieldTick = makeYielder()
-
-	for _, root in ipairs(roots) do
-		local descList = getScanList(root)
-		do
+-- Quét toàn bộ UI hiện có
+local function scanExactTwoOnionsNow()
+	for _, root in ipairs(getUiRoots()) do
+		local okD, descList = pcall(function() return root:GetDescendants() end)
+		if okD and type(descList) == "table" then
 			for _, obj in ipairs(descList) do
-				yieldTick()
-				if obj:IsA("GuiObject") and passesSquarePrefilter(obj) and not (State.IslandGui and obj:IsDescendantOf(State.IslandGui)) and not isInsideLargeWindowFrame(obj) then
-					local pos = obj.AbsolutePosition
-					local sz = obj.AbsoluteSize
-					local px, py = pos.X, pos.Y
-					local sx, sy = sz.X, sz.Y
-
-					if sx == 0 and sy == 0 then
-						local s = obj.Size
-						if s and s.X and s.Y then
-							sx, sy = s.X.Offset or 0, s.Y.Offset or 0
-						end
-					end
-
-					-- Bỏ qua nếu kích thước không phải dạng nút vuông nhỏ (24..90px)
-					if sx >= 24 and sx <= 90 and sy >= 24 and sy <= 90 and math.abs(sx - sy) <= 18 then
-						-- Bỏ qua nếu có chữ hiển thị như "Shop", "Tìm Kiếm", hoặc số "8"
-						local hasText = false
-						for _, sub in ipairs(obj:GetDescendants()) do
-							if sub:IsA("TextLabel") and sub.Visible and sub.TextTransparency < 0.95 then
-								local t = (sub.Text or ""):match("^%s*(.-)%s*$") or ""
-								if #t > 0 then hasText = true break end
-							end
-						end
-
-						if not hasText then
-							-- Kiểm tra nút lề trái: X trong khoảng 20..210, Y trong khoảng 100..420 (mở rộng để bắt chắc hơn)
-							if px >= 20 and px <= 210 and py >= 100 and py <= 420 then
-								local btn = (obj:IsA("ImageButton") or obj:IsA("ImageLabel") or obj:IsA("Frame") or obj:IsA("CanvasGroup")) and obj or obj.Parent
-								-- [FIX-GẮN-NHẦM] Bắt buộc có màu/gradient tím Figgy gốc + chỉ khoá đúng 1 nút logo chính bên trái.
-								-- Thiếu điều kiện này thì icon Finder/Shop/Index của game (cùng khu vực, không phải màu tím) cũng bị gắn nhầm.
-								if btn and btn:IsA("GuiObject")
-									and (State.OnionButton == nil or not State.OnionButton.Parent
-										or btn.AbsolutePosition.Y < State.OnionButton.AbsolutePosition.Y
-										or btn == State.OnionButton) then
-									if State.OnionButton and State.OnionButton ~= btn and State.OnionButton.Parent then
-										local oldOverlay = State.OnionButton:FindFirstChild("BananaCatExactOverlay")
-										if oldOverlay then oldOverlay:Destroy() end
-										restoreWronglyDecoratedButton(State.OnionButton)
-									end
-									State.OnionButton = btn
-									if not btn:FindFirstChild("BananaCatExactOverlay") then
-										applyBananaCatExactOverlay(btn, false)
-									end
-								end
-							-- Kiểm tra nút lề phải: X >= vpW*0.75, Y trong khoảng 40..220 (mở rộng để bắt chắc hơn)
-							elseif px >= (vpW * 0.75) and py >= 40 and py <= 220 then
-								local btn = (obj:IsA("ImageButton") or obj:IsA("ImageLabel") or obj:IsA("Frame") or obj:IsA("CanvasGroup")) and obj or obj.Parent
-								-- [FIX-GẮN-NHẦM] Tương tự bên phải: cần đúng màu tím gốc + chỉ khoá đúng 1 nút,
-								-- để không đè lên các icon vật phẩm/rương của game nằm cùng góc màn hình.
-								if btn and btn:IsA("GuiObject")
-									and (State.RightOnionButton == nil or not State.RightOnionButton.Parent
-										or btn.AbsolutePosition.Y < State.RightOnionButton.AbsolutePosition.Y
-										or btn == State.RightOnionButton) then
-									if State.RightOnionButton and State.RightOnionButton ~= btn and State.RightOnionButton.Parent then
-										local oldOverlay = State.RightOnionButton:FindFirstChild("BananaCatExactOverlay")
-										if oldOverlay then oldOverlay:Destroy() end
-										restoreWronglyDecoratedButton(State.RightOnionButton)
-									end
-									State.RightOnionButton = btn
-									if not btn:FindFirstChild("BananaCatExactOverlay") then
-										applyBananaCatExactOverlay(btn, true)
-									end
-								end
-							end
-						end
-					end
+				if isTargetOnionButton(obj) then
+					applyAndLockBananaCat(obj)
 				end
 			end
 		end
 	end
 end
 
-local scanExactRunning = false
-local function scanAndApplyExactTwoOnions()
-	if scanExactRunning then return end
-	scanExactRunning = true
-	pcall(scanAndApplyExactTwoOnionsImpl)
-	scanExactRunning = false
-end
-
-local scanRightRunning = false
-local function scanRightOnionButtonOnce()
-	if scanRightRunning then return end
-	scanRightRunning = true
-	pcall(scanRightOnionButtonOnceImpl)
-	scanRightRunning = false
-end
-
--- [FIX-ĐƠ V2] Gộp (debounce) mọi yêu cầu quét lại thành 1 lần, tối đa 1 lần / 0.8s (3s sau 20s đầu)
-local START_CLOCK = os.clock()
-local rescanPending = false
-local function requestOnionRescan()
-	if rescanPending or not isAlive() then return end
-	rescanPending = true
-	local wait_s = (os.clock() - START_CLOCK < 20) and 0.8 or 3
-	task.delay(wait_s, function()
-		rescanPending = false
-		if not isAlive() then return end
-		pcall(scanAndApplyExactTwoOnions)
-		pcall(scanRightOnionButtonOnce)
-	end)
-end
-
--- Giăng lưới DescendantAdded trực tiếp (chỉ đánh dấu cần quét, KHÔNG quét ngay)
+-- Giăng lưới sự kiện DescendantAdded trên cả CoreGui và PlayerGui (0% Lag)
 local function hookUiContainerForExactOnions(container)
 	if not container then return end
 	local conn = container.DescendantAdded:Connect(function(desc)
 		if not isAlive() then return end
 		if desc:IsA("GuiObject") then
-			local okP, pos = pcall(function() return desc.AbsolutePosition end)
-			if not okP then return end
-			local vpW = getViewportWidth()
-			local px, py = pos.X, pos.Y
-			if (px >= 20 and px <= 210 and py >= 100 and py <= 420) or (px >= (vpW * 0.75) and py >= 40 and py <= 220) then
-				requestOnionRescan()
-			end
+			task.defer(function()
+				if not isAlive() or not desc or not desc.Parent then return end
+				if isTargetOnionButton(desc) then
+					applyAndLockBananaCat(desc)
+				elseif desc.Parent and isTargetOnionButton(desc.Parent) then
+					applyAndLockBananaCat(desc.Parent)
+				end
+			end)
 		end
 	end)
 	trackConn(conn)
 end
 
--- [FIX-ĐƠ] Chuyển toàn bộ hookUiContainer vào task.spawn để không block main thread
--- WaitForChild("PlayerGui", 5) trước đây có thể gây đơ 5 giây trên mobile!
-task.spawn(function()
-	pcall(function() hookUiContainerForExactOnions(game:GetService("CoreGui")) end)
-	if gethui then pcall(function() hookUiContainerForExactOnions(gethui()) end) end
+pcall(function() hookUiContainerForExactOnions(game:GetService("CoreGui")) end)
+pcall(function()
 	if LocalPlayer then
-		-- Dùng FindFirstChildOfClass trước, chỉ WaitForChild nếu chưa có (timeout 3s thay vì 5s)
-		local pg = LocalPlayer:FindFirstChildOfClass("PlayerGui")
-		if not pg then
-			local ok2, pg2 = pcall(function() return LocalPlayer:WaitForChild("PlayerGui", 3) end)
-			if ok2 then pg = pg2 end
-		end
-		if pg then pcall(hookUiContainerForExactOnions, pg) end
+		local pg = LocalPlayer:FindFirstChildOfClass("PlayerGui") or LocalPlayer:WaitForChild("PlayerGui", 5)
+		if pg then hookUiContainerForExactOnions(pg) end
 	end
-	task.delay(0.3, function()
-		if isAlive() then pcall(scanAndApplyExactTwoOnions) end
-	end)
 end)
+if gethui then pcall(function() hookUiContainerForExactOnions(gethui()) end) end
+
+-- Tương thích ngược các lệnh gọi cũ
+local function scanPurpleOnionButtonsOnce()
+	pcall(scanExactTwoOnionsNow)
+end
+local function scanAndApplyExactTwoOnions()
+	pcall(scanExactTwoOnionsNow)
+end
+local function scanRightOnionButtonOnce()
+	pcall(scanExactTwoOnionsNow)
+end
 
 -- ============================================================================
 -- 8. TIÊU ĐỀ HEADER, BIND LOGO VÀ VIỆT HÓA TỨC THỜI (0% LAG)
@@ -3642,24 +3294,16 @@ local function hookTargetScreenGui(gui)
 		queueScheduled = false
 		if not isAlive() then return end
 		local count = #pendingQueue
-		-- [FIX-ĐƠ] Xử lý tối đa 60 phần tử mỗi frame thay vì 140, tránh đơ 1 frame quá lâu
-		local limit = math.min(count, 60)
-		for i = 1, limit do
+		for i = 1, count do
 			local item = pendingQueue[i]
 			pendingQueue[i] = nil
 			if item and item.Parent then
 				pcall(processGuiElement, item)
 			end
-		end
-		-- Nếu còn phần tử chưa xử lý thì defer sang frame tiếp theo
-		if count > limit then
-			-- Dồn phần còn lại về đầu mảng
-			for i = limit + 1, count do
-				pendingQueue[i - limit] = pendingQueue[i]
-				pendingQueue[i] = nil
+			if i % 140 == 0 then
+				task.wait()
+				if not isAlive() then return end
 			end
-			queueScheduled = true
-			task.delay(0.03, flushPendingQueue)
 		end
 	end
 
@@ -3677,7 +3321,7 @@ local function hookTargetScreenGui(gui)
 				table.insert(pendingQueue, desc)
 				if not queueScheduled then
 					queueScheduled = true
-					task.delay(0.03, flushPendingQueue)
+					task.defer(flushPendingQueue)
 				end
 			end
 		end)
@@ -3703,19 +3347,13 @@ local function hookTargetScreenGui(gui)
 			if menuActive then
 				startMenuListener()
 				-- Dịch nhanh các phần tử trong tab vừa mở (chỉ 1 lần duy nhất qua FastCache)
-				task.spawn(function()
+				task.defer(function()
 					if not isAlive() or not menuActive then return end
 					local okD, desc = pcall(function() return winObj:GetDescendants() end)
 					if okD and type(desc) == "table" then
-						local cnt = 0
 						for _, d in ipairs(desc) do
 							if d:IsA("TextLabel") or d:IsA("TextButton") or d:IsA("TextBox") then
 								pcall(processGuiElement, d)
-								cnt = cnt + 1
-								if cnt % 60 == 0 then
-									task.wait()
-									if not isAlive() or not menuActive then return end
-								end
 							end
 						end
 					end
@@ -3730,7 +3368,6 @@ local function hookTargetScreenGui(gui)
 	task.spawn(function()
 		local okDesc, descendants = pcall(function() return gui:GetDescendants() end)
 		if okDesc and type(descendants) == "table" then
-			-- Tìm title trước (nhẹ)
 			for _, d in ipairs(descendants) do
 				if d:IsA("TextLabel") and (d.Text == "Figgy Hub" or d.Text == "Banana Hub" or d.Text == "FrostyFig") then
 					pcall(bindHeaderAndLogosFromTitle, d)
@@ -3741,16 +3378,15 @@ local function hookTargetScreenGui(gui)
 				pcall(bindMenuVisibilityListener, State.FiggyMainWindow)
 			end
 
-			-- [FIX-ĐƠ V2] task.defer KHÔNG nhường frame -> dùng task.wait() trong luồng riêng (không chặn game)
-			local CHUNK = 50
-			local total = #descendants
-			for i = 1, total do
-				if not isAlive() then return end
-				pcall(processGuiElement, descendants[i])
-				if i % CHUNK == 0 then task.wait() end
+			for i, d in ipairs(descendants) do
+				if not isAlive() then break end
+				pcall(processGuiElement, d)
+				if i % 120 == 0 then
+					task.wait()
+				end
 			end
-			pcall(scanPurpleOnionButtonsOnce)
 		end
+		pcall(scanPurpleOnionButtonsOnce)
 	end)
 end
 
@@ -3769,46 +3405,16 @@ local function watchCandidateGuiAtStartup(gui)
 	end
 
 	local earlyConn
-	local q, qHead, qTail, qScheduled = {}, 1, 0, false
-	local lastCheck = 0
-	local function flushEarlyQueue()
-		qScheduled = false
-		if not isAlive() then q, qHead, qTail = {}, 1, 0 return end
-		local processed = 0
-		while qHead <= qTail and processed < 40 do
-			local d = q[qHead]
-			q[qHead] = nil
-			qHead = qHead + 1
-			processed = processed + 1
-			if d and d.Parent then pcall(processGuiElement, d) end
-		end
-		-- Kiểm tra "có phải cửa sổ Figgy chưa" tối đa 2 lần/giây (GetDescendants khá đắt)
-		local now = os.clock()
-		if gui:GetAttribute("__FiggyGuiHooked") ~= SID and now - lastCheck > 0.5 then
-			lastCheck = now
-			-- GUI còn đang được dựng dở nên lần kiểm tra trước có thể sai -> cho phép kiểm tra lại
-			pcall(function() gui:SetAttribute("__NotFiggyGui", nil) end)
-			if isFiggyWindowGui(gui) then
-				if earlyConn then pcall(function() earlyConn:Disconnect() end) end
-				pcall(hookTargetScreenGui, gui)
-				return
-			end
-		end
-		if qHead <= qTail then
-			qScheduled = true
-			task.delay(0.03, flushEarlyQueue)
-		else
-			q, qHead, qTail = {}, 1, 0
-		end
-	end
 	earlyConn = gui.DescendantAdded:Connect(function(desc)
 		if not isAlive() then return end
-		qTail = qTail + 1
-		q[qTail] = desc
-		if not qScheduled then
-			qScheduled = true
-			task.delay(0.03, flushEarlyQueue)
-		end
+		task.defer(function()
+			if not isAlive() or not desc or not desc.Parent then return end
+			pcall(processGuiElement, desc)
+			if gui:GetAttribute("__FiggyGuiHooked") ~= SID and isFiggyWindowGui(gui) then
+				if earlyConn then pcall(function() earlyConn:Disconnect() end) end
+				pcall(hookTargetScreenGui, gui)
+			end
+		end)
 	end)
 	trackConn(earlyConn)
 	task.delay(8.0, function()
@@ -3821,18 +3427,11 @@ end
 -- ============================================================================
 -- 9. KHỞI CHẠY DYNAMIC ISLAND TRƯỚC & CHẶN 0.0 GIÂY LÚC TẢI SCRIPT GỐC
 -- ============================================================================
--- [FIX-ĐƠ] Chuyển createIndependentFiggyDynamicIsland + cleanup vào task.spawn
--- Trên mobile yếu, tạo hàng chục Instance đồng bộ = đơ ngay lúc load
-local existingFiggyGui = nil
+createIndependentFiggyDynamicIsland()
+
+local existingFiggyGui = cleanupPreviousOverlaysAndDeduplicate()
 
 task.spawn(function()
-	-- Tạo Dynamic Island trong luồng riêng
-	pcall(createIndependentFiggyDynamicIsland)
-
-	-- Dọn dẹp trong luồng riêng, không đơ main thread
-	local ok, result = pcall(cleanupPreviousOverlaysAndDeduplicate)
-	if ok and result then existingFiggyGui = result end
-
 	if existingFiggyGui and existingFiggyGui.Parent then
 		pcall(hookTargetScreenGui, existingFiggyGui)
 	end
@@ -3840,9 +3439,8 @@ task.spawn(function()
 	for _, root in ipairs(getUiRoots()) do
 		local okCh, children = pcall(function() return root:GetChildren() end)
 		if okCh and type(children) == "table" then
-			for gi, gui in ipairs(children) do
+			for _, gui in ipairs(children) do
 				pcall(watchCandidateGuiAtStartup, gui)
-				if gi % 3 == 0 then task.wait() end -- [FIX-ĐƠ V2] mỗi GUI có thể phải GetDescendants
 			end
 		end
 
@@ -3869,25 +3467,28 @@ task.spawn(function()
 	end
 
 	-- Thực thi phân tầng theo nhịp mượt mà (tránh dồn 5 lệnh quét DOM cùng 1 khung hình gây đơ game)
-	-- [FIX-ĐƠ V2] Mỗi mốc 1 luồng riêng, các hàm quét tự nhường frame + có khoá chống chạy chồng
-	task.delay(0.6, function()
+	task.delay(0.15, function()
 		if not isAlive() then return end
 		pcall(scanAndApplyExactTwoOnions)
+		pcall(scanPurpleOnionButtonsOnce)
+		pcall(scanRightOnionButtonOnce)
 		pcall(trySelectGoldThemeOnce)
 	end)
 
-	task.delay(2.0, function()
+	task.delay(0.85, function()
 		if not isAlive() then return end
+		pcall(scanAndApplyExactTwoOnions)
+		pcall(cleanupPreviousOverlaysAndDeduplicate)
 		pcall(scanPurpleOnionButtonsOnce)
 		pcall(scanRightOnionButtonOnce)
-		task.wait()
 		pcall(refreshAllTranslatedMenus)
 		pcall(trySelectGoldThemeOnce)
 	end)
 
-	task.delay(4.5, function()
+	task.delay(2.50, function()
 		if not isAlive() then return end
-		pcall(cleanupPreviousOverlaysAndDeduplicate)
+		pcall(scanRightOnionButtonOnce)
+		pcall(refreshAllTranslatedMenus)
 		pcall(trySelectGoldThemeOnce)
 	end)
 end)
