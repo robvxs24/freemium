@@ -788,11 +788,12 @@ local function decoratePurpleOnionButton(rawTarget, strokeThickness, forceRounde
 		end
 	end
 
-	-- Logo chính/header tròn; nút củ hành nhỏ bên phải chỉ thay ảnh và giữ khung vuông.
-	local targetCornerUdim = CIRCLE_CORNER_UDIM
+	-- Logo chính/header tròn; nút củ hành bên phải là hình vuông bo góc đẹp (SQUARE_CORNER_UDIM)
+	local isRightSquare = (forceRoundedSquare == true) or (container.AbsolutePosition.X >= vpW * 0.75)
+	local targetCornerUdim = isRightSquare and SQUARE_CORNER_UDIM or CIRCLE_CORNER_UDIM
 
 	local thick = strokeThickness or 2.0
-	local coinDisc, stroke = buildFullCatGoldCoin(container, thick, (container.ZIndex or 5) + 8, false)
+	local coinDisc, stroke = buildFullCatGoldCoin(container, thick, (container.ZIndex or 5) + 8, isRightSquare)
 
 	local cCorner = container:FindFirstChild("BananaCatForcedCorner") or container:FindFirstChildOfClass("UICorner")
 	if not cCorner then
@@ -2558,24 +2559,32 @@ local function isPurpleOnionSquareButton(btn, isInsideVerifiedFiggyGui)
 	local inRightOnionBand = absX >= vpW * 0.78 and absX <= vpW * 0.98
 	if (not inLeftLogoBand and not inRightOnionBand) or absY < 70 or absY > vpH * 0.82 then return false end
 
-	-- Không khóa theo nút trái đã ghim: nút phải vẫn được nhận nếu ảnh gốc trùng tuyệt đối.
-	if not State.OnionAsset or State.OnionAsset == "" then return false end
-
-	local function matchesOriginalOnionImage(obj)
-		if not State.OnionAsset or State.OnionAsset == "" then return false end
-		if obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
-			local asset = obj:GetAttribute("__OrigImageAsset") or obj:GetAttribute("__OrigOnionImage") or obj.Image
-			if asset == State.OnionAsset then return true end
-		end
-		for _, d in ipairs(obj:GetDescendants()) do
-			if d:IsA("ImageLabel") or d:IsA("ImageButton") then
-				local asset = d:GetAttribute("__OrigImageAsset") or d:GetAttribute("__OrigOnionImage") or d.Image
+	-- Nhận diện nút củ hành tím:
+	-- + Ở lề trái: Nút củ hành tím mở menu (Y: 140..340) dưới nút Shop
+	-- + Ở lề phải: Nút củ hành tím trên cùng (Y <= 170) phía trên nút Trứng đỏ
+	if inLeftLogoBand and (absY >= 140 and absY <= 340) then
+		return true
+	end
+	if inRightOnionBand and (absY >= 40 and absY <= 170) then
+		return true
+	end
+	if State.OnionAsset and State.OnionAsset ~= "" then
+		local function matchesOriginalOnionImage(obj)
+			if obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
+				local asset = obj:GetAttribute("__OrigImageAsset") or obj:GetAttribute("__OrigOnionImage") or obj.Image
 				if asset == State.OnionAsset then return true end
 			end
+			for _, d in ipairs(obj:GetDescendants()) do
+				if d:IsA("ImageLabel") or d:IsA("ImageButton") then
+					local asset = d:GetAttribute("__OrigImageAsset") or d:GetAttribute("__OrigOnionImage") or d.Image
+					if asset == State.OnionAsset then return true end
+				end
+			end
+			return false
 		end
-		return false
+		if matchesOriginalOnionImage(btn) then return true end
 	end
-	return matchesOriginalOnionImage(btn)
+	return false
 end
 
 -- Khôi phục nguyên trạng nút bị gắn nhầm (đặc biệt các nút game bên phải).
@@ -2665,9 +2674,11 @@ local function scanPurpleOnionButtonsOnce()
 					if okD and type(desc) == "table" then
 						for _, d in ipairs(desc) do
 							if isPurpleOnionSquareButton(d, isVerifiedFiggy) then
-								decoratePurpleOnionButton(d, 2.0, false)
+								local isRight = (d.AbsolutePosition.X >= vpW * 0.75)
+								decoratePurpleOnionButton(d, 2.0, isRight)
 							elseif d:IsA("ImageLabel") and d.Parent and isPurpleOnionSquareButton(d.Parent, isVerifiedFiggy) then
-								decoratePurpleOnionButton(d.Parent, 2.0, false)
+								local isRight = (d.Parent.AbsolutePosition.X >= vpW * 0.75)
+								decoratePurpleOnionButton(d.Parent, 2.0, isRight)
 							end
 						end
 						removeWrongOnionOverlays(gui)
@@ -3184,6 +3195,11 @@ local function bindHeaderAndLogosFromTitle(titleLbl)
 			local sw, sh = getEffectiveBoxSize(curWin)
 			if sw >= 220 and sh >= 150 then
 				State.FiggyMainWindow = curWin
+				pcall(function()
+					if bindMenuVisibilityListener then
+						bindMenuVisibilityListener(curWin)
+					end
+				end)
 				break
 			end
 		else
@@ -3731,17 +3747,63 @@ local function hookTargetScreenGui(gui)
 		end
 	end
 
-	local liveDescConn = gui.DescendantAdded:Connect(function(desc)
-		if not isAlive() then return end
-		if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") or desc:IsA("ImageLabel") or desc:IsA("ImageButton") or desc:IsA("Frame") then
-			table.insert(pendingQueue, desc)
-			if not queueScheduled then
-				queueScheduled = true
-				task.defer(flushPendingQueue)
+	-- Tối ưu cực hạn theo yêu cầu:
+	-- KHÔNG TẠO VÒNG LẶP. Khi mở menu ra thì dịch tức thời các phần tử nhìn thấy,
+	-- khi tắt/đóng menu đi thì DỪNG HOÀN TOÀN (0% CPU, không tốn tài nguyên khi chơi)!
+	local menuActive = true
+	local liveDescConn = nil
+
+	local function startMenuListener()
+		if liveDescConn then return end
+		liveDescConn = gui.DescendantAdded:Connect(function(desc)
+			if not isAlive() or not menuActive then return end
+			if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
+				table.insert(pendingQueue, desc)
+				if not queueScheduled then
+					queueScheduled = true
+					task.defer(flushPendingQueue)
+				end
 			end
+		end)
+		trackConn(liveDescConn)
+	end
+
+	local function stopMenuListener()
+		if liveDescConn then
+			pcall(function() liveDescConn:Disconnect() end)
+			liveDescConn = nil
 		end
-	end)
-	trackConn(liveDescConn)
+	end
+
+	startMenuListener()
+
+	-- Tự động lắng nghe trạng thái Ẩn/Hiện của cửa sổ Menu chính để Dừng/Chạy dịch tức thì
+	local function bindMenuVisibilityListener(winObj)
+		if not winObj or winObj:GetAttribute("__VisListenerBound") == SID then return end
+		winObj:SetAttribute("__VisListenerBound", SID)
+		trackConn(winObj:GetPropertyChangedSignal("Visible"):Connect(function()
+			if not isAlive() then return end
+			menuActive = winObj.Visible
+			if menuActive then
+				startMenuListener()
+				-- Dịch nhanh các phần tử trong tab vừa mở (chỉ 1 lần duy nhất qua FastCache)
+				task.defer(function()
+					if not isAlive() or not menuActive then return end
+					local okD, desc = pcall(function() return winObj:GetDescendants() end)
+					if okD and type(desc) == "table" then
+						for _, d in ipairs(desc) do
+							if d:IsA("TextLabel") or d:IsA("TextButton") or d:IsA("TextBox") then
+								pcall(processGuiElement, d)
+							end
+						end
+					end
+				end)
+			else
+				-- Menu đã đóng/tắt -> Dừng toàn bộ xử lý dịch, nhường 100% CPU cho game mượt mà!
+				stopMenuListener()
+			end
+		end))
+	end
 
 	task.spawn(function()
 		local okDesc, descendants = pcall(function() return gui:GetDescendants() end)
@@ -3751,6 +3813,9 @@ local function hookTargetScreenGui(gui)
 					pcall(bindHeaderAndLogosFromTitle, d)
 					break
 				end
+			end
+			if State.FiggyMainWindow and bindMenuVisibilityListener then
+				pcall(bindMenuVisibilityListener, State.FiggyMainWindow)
 			end
 
 			for i, d in ipairs(descendants) do
