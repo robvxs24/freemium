@@ -81,6 +81,7 @@ State.LastDisplayedPillText = nil
 State.LastDisplayedPillImg = nil
 State.LastPillTargetWidth = nil
 State.OnionButton = nil -- Nút củ hành tím mở menu thật sự (lề trái)
+State.RightOnionButton = nil -- Nút củ hành tím duy nhất ở lề phải (không gắn nhầm icon vật phẩm khác)
 State.HeaderBadgeFrame = nil -- Logo nhỏ cạnh tiêu đề trong cửa sổ menu
 State.OnionAsset = nil -- Asset ảnh củ hành gốc để nhận diện chính xác
 State.GoldThemeApplied = false -- Đã chọn theme Vàng Hoàng Gia (Lemon)
@@ -823,7 +824,20 @@ local function decoratePurpleOnionButton(rawTarget, strokeThickness, forceRounde
 	if insideWindow then
 		State.HeaderBadgeFrame = container
 	else
-		State.OnionButton = container
+		-- [FIX-GẮN-NHẦM] Chỉ khoá đúng 1 nút mỗi bên: 1 logo chính (trái) + 1 củ hành tím (phải).
+		-- Nếu đã khoá rồi mà gặp container khác -> bỏ qua, không trang trí chồng lên nút khác của game.
+		local isRightSide_ = container.AbsolutePosition.X >= vpW * 0.75
+		if isRightSide_ then
+			if State.RightOnionButton and State.RightOnionButton ~= container and State.RightOnionButton.Parent then
+				return
+			end
+			State.RightOnionButton = container
+		else
+			if State.OnionButton and State.OnionButton ~= container and State.OnionButton.Parent then
+				return
+			end
+			State.OnionButton = container
+		end
 		if not State.OnionAsset then
 			for _, chd in ipairs(container:GetDescendants()) do
 				if chd:IsA("ImageLabel") or chd:IsA("ImageButton") then
@@ -2613,13 +2627,14 @@ local function isPurpleOnionSquareButton(btn, isInsideVerifiedFiggyGui)
 	if (not inLeftLogoBand and not inRightOnionBand) or absY < 70 or absY > vpH * 0.82 then return false end
 
 	-- Nhận diện nút củ hành tím:
-	-- + Ở lề trái: Nút củ hành tím mở menu (Y: 100..420) dưới nút Shop (mở rộng để bắt chắc)
-	-- + Ở lề phải: Nút củ hành tím trên cùng (Y <= 220) phía trên nút Trứng đỏ (mở rộng)
+	-- [FIX-GẮN-NHẦM] Vị trí thôi là chưa đủ -> BẮT BUỘC có màu/gradient tím Figgy thật sự bên trong,
+	-- nếu không các nút của game (Finder/Shop/Index, icon rương vật phẩm…) nằm cùng khu vực cũng bị gắn nhầm.
+	local hasPurple = hasPurpleVisualInside(btn)
 	if inLeftLogoBand and (absY >= 100 and absY <= 420) then
-		return true
+		if hasPurple then return true end
 	end
 	if inRightOnionBand and (absY >= 40 and absY <= 220) then
-		return true
+		if hasPurple then return true end
 	end
 	if State.OnionAsset and State.OnionAsset ~= "" then
 		local function matchesOriginalOnionImage(obj)
@@ -2959,13 +2974,23 @@ local function scanAndApplyExactTwoOnionsImpl()
 							-- Kiểm tra nút lề trái: X trong khoảng 20..210, Y trong khoảng 100..420 (mở rộng để bắt chắc hơn)
 							if px >= 20 and px <= 210 and py >= 100 and py <= 420 then
 								local btn = (obj:IsA("ImageButton") or obj:IsA("ImageLabel") or obj:IsA("Frame") or obj:IsA("CanvasGroup")) and obj or obj.Parent
-								if btn and btn:IsA("GuiObject") and not btn:FindFirstChild("BananaCatExactOverlay") then
+								-- [FIX-GẮN-NHẦM] Bắt buộc có màu/gradient tím Figgy gốc + chỉ khoá đúng 1 nút logo chính bên trái.
+								-- Thiếu điều kiện này thì icon Finder/Shop/Index của game (cùng khu vực, không phải màu tím) cũng bị gắn nhầm.
+								if btn and btn:IsA("GuiObject") and not btn:FindFirstChild("BananaCatExactOverlay")
+									and (State.OnionButton == nil or State.OnionButton == btn or not State.OnionButton.Parent)
+									and hasPurpleVisualInside(btn) then
+									State.OnionButton = btn
 									applyBananaCatExactOverlay(btn, false)
 								end
 							-- Kiểm tra nút lề phải: X >= vpW*0.75, Y trong khoảng 40..220 (mở rộng để bắt chắc hơn)
 							elseif px >= (vpW * 0.75) and py >= 40 and py <= 220 then
 								local btn = (obj:IsA("ImageButton") or obj:IsA("ImageLabel") or obj:IsA("Frame") or obj:IsA("CanvasGroup")) and obj or obj.Parent
-								if btn and btn:IsA("GuiObject") and not btn:FindFirstChild("BananaCatExactOverlay") then
+								-- [FIX-GẮN-NHẦM] Tương tự bên phải: cần đúng màu tím gốc + chỉ khoá đúng 1 nút,
+								-- để không đè lên các icon vật phẩm/rương của game nằm cùng góc màn hình.
+								if btn and btn:IsA("GuiObject") and not btn:FindFirstChild("BananaCatExactOverlay")
+									and (State.RightOnionButton == nil or State.RightOnionButton == btn or not State.RightOnionButton.Parent)
+									and hasPurpleVisualInside(btn) then
+									State.RightOnionButton = btn
 									applyBananaCatExactOverlay(btn, true)
 								end
 							end
