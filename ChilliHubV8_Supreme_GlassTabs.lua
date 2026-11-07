@@ -796,6 +796,7 @@ local function silenceOriginalButtonVisual(inst, coinDisc, targetCornerUdim)
 	end
 end
 
+local restoreWronglyDecoratedButton -- [FIX-GẮN-NHẦM] khai báo trước để decoratePurpleOnionButton gọi được
 local function decoratePurpleOnionButton(rawTarget, strokeThickness, forceRoundedSquare, isHeaderBadge)
 	local container = getOutermostSquareButton(rawTarget)
 	if not container or not container:IsA("GuiObject") then return end
@@ -825,19 +826,18 @@ local function decoratePurpleOnionButton(rawTarget, strokeThickness, forceRounde
 		State.HeaderBadgeFrame = container
 	else
 		-- [FIX-GẮN-NHẦM] Chỉ khoá đúng 1 nút mỗi bên: 1 logo chính (trái) + 1 củ hành tím (phải).
-		-- Nếu đã khoá rồi mà gặp container khác -> bỏ qua, không trang trí chồng lên nút khác của game.
+		-- Nếu có ứng viên khác đang nằm TRÊN (Y nhỏ hơn) nút đã khoá, đổi khoá sang nút đó và khôi phục
+		-- lại nút cũ, để các icon game nằm dưới (Finder/Shop/Index, icon rương…) không giữ nhầm chỗ.
 		local isRightSide_ = container.AbsolutePosition.X >= vpW * 0.75
-		if isRightSide_ then
-			if State.RightOnionButton and State.RightOnionButton ~= container and State.RightOnionButton.Parent then
-				return
-			end
-			State.RightOnionButton = container
-		else
-			if State.OnionButton and State.OnionButton ~= container and State.OnionButton.Parent then
-				return
-			end
-			State.OnionButton = container
+		local lockKey = isRightSide_ and "RightOnionButton" or "OnionButton"
+		local locked = State[lockKey]
+		if locked and locked ~= container and locked.Parent and container.AbsolutePosition.Y >= locked.AbsolutePosition.Y then
+			return
 		end
+		if locked and locked ~= container and locked.Parent then
+			pcall(restoreWronglyDecoratedButton, locked)
+		end
+		State[lockKey] = container
 		if not State.OnionAsset then
 			for _, chd in ipairs(container:GetDescendants()) do
 				if chd:IsA("ImageLabel") or chd:IsA("ImageButton") then
@@ -2627,14 +2627,15 @@ local function isPurpleOnionSquareButton(btn, isInsideVerifiedFiggyGui)
 	if (not inLeftLogoBand and not inRightOnionBand) or absY < 70 or absY > vpH * 0.82 then return false end
 
 	-- Nhận diện nút củ hành tím:
-	-- [FIX-GẮN-NHẦM] Vị trí thôi là chưa đủ -> BẮT BUỘC có màu/gradient tím Figgy thật sự bên trong,
-	-- nếu không các nút của game (Finder/Shop/Index, icon rương vật phẩm…) nằm cùng khu vực cũng bị gắn nhầm.
-	local hasPurple = hasPurpleVisualInside(btn)
+	-- [FIX-GẮN-NHẦM] Màu tím của icon thật ra được vẽ sẵn trong ảnh (pixel), không qua BackgroundColor3/
+	-- ImageColor3/UIGradient, nên không thể lọc bằng màu. Thay vào đó: trong vùng trái/phải, chỉ nhận
+	-- đúng ứng viên NẰM TRÊN CÙNG (Y nhỏ nhất) và khoá cứng lại (xử lý khoá ở decoratePurpleOnionButton /
+	-- applyBananaCatExactOverlay) để Finder/Shop/Index hay icon rương nằm dưới không bị gắn nhầm theo.
 	if inLeftLogoBand and (absY >= 100 and absY <= 420) then
-		if hasPurple then return true end
+		return true
 	end
 	if inRightOnionBand and (absY >= 40 and absY <= 220) then
-		if hasPurple then return true end
+		return true
 	end
 	if State.OnionAsset and State.OnionAsset ~= "" then
 		local function matchesOriginalOnionImage(obj)
@@ -2656,7 +2657,7 @@ local function isPurpleOnionSquareButton(btn, isInsideVerifiedFiggyGui)
 end
 
 -- Khôi phục nguyên trạng nút bị gắn nhầm (đặc biệt các nút game bên phải).
-local function restoreWronglyDecoratedButton(par)
+function restoreWronglyDecoratedButton(par)
 	if not par or not par.Parent then return end
 	par:SetAttribute("__RestoredOrig", true)
 	if par:IsA("ImageLabel") or par:IsA("ImageButton") then
@@ -2976,22 +2977,38 @@ local function scanAndApplyExactTwoOnionsImpl()
 								local btn = (obj:IsA("ImageButton") or obj:IsA("ImageLabel") or obj:IsA("Frame") or obj:IsA("CanvasGroup")) and obj or obj.Parent
 								-- [FIX-GẮN-NHẦM] Bắt buộc có màu/gradient tím Figgy gốc + chỉ khoá đúng 1 nút logo chính bên trái.
 								-- Thiếu điều kiện này thì icon Finder/Shop/Index của game (cùng khu vực, không phải màu tím) cũng bị gắn nhầm.
-								if btn and btn:IsA("GuiObject") and not btn:FindFirstChild("BananaCatExactOverlay")
-									and (State.OnionButton == nil or State.OnionButton == btn or not State.OnionButton.Parent)
-									and hasPurpleVisualInside(btn) then
+								if btn and btn:IsA("GuiObject")
+									and (State.OnionButton == nil or not State.OnionButton.Parent
+										or btn.AbsolutePosition.Y < State.OnionButton.AbsolutePosition.Y
+										or btn == State.OnionButton) then
+									if State.OnionButton and State.OnionButton ~= btn and State.OnionButton.Parent then
+										local oldOverlay = State.OnionButton:FindFirstChild("BananaCatExactOverlay")
+										if oldOverlay then oldOverlay:Destroy() end
+										restoreWronglyDecoratedButton(State.OnionButton)
+									end
 									State.OnionButton = btn
-									applyBananaCatExactOverlay(btn, false)
+									if not btn:FindFirstChild("BananaCatExactOverlay") then
+										applyBananaCatExactOverlay(btn, false)
+									end
 								end
 							-- Kiểm tra nút lề phải: X >= vpW*0.75, Y trong khoảng 40..220 (mở rộng để bắt chắc hơn)
 							elseif px >= (vpW * 0.75) and py >= 40 and py <= 220 then
 								local btn = (obj:IsA("ImageButton") or obj:IsA("ImageLabel") or obj:IsA("Frame") or obj:IsA("CanvasGroup")) and obj or obj.Parent
 								-- [FIX-GẮN-NHẦM] Tương tự bên phải: cần đúng màu tím gốc + chỉ khoá đúng 1 nút,
 								-- để không đè lên các icon vật phẩm/rương của game nằm cùng góc màn hình.
-								if btn and btn:IsA("GuiObject") and not btn:FindFirstChild("BananaCatExactOverlay")
-									and (State.RightOnionButton == nil or State.RightOnionButton == btn or not State.RightOnionButton.Parent)
-									and hasPurpleVisualInside(btn) then
+								if btn and btn:IsA("GuiObject")
+									and (State.RightOnionButton == nil or not State.RightOnionButton.Parent
+										or btn.AbsolutePosition.Y < State.RightOnionButton.AbsolutePosition.Y
+										or btn == State.RightOnionButton) then
+									if State.RightOnionButton and State.RightOnionButton ~= btn and State.RightOnionButton.Parent then
+										local oldOverlay = State.RightOnionButton:FindFirstChild("BananaCatExactOverlay")
+										if oldOverlay then oldOverlay:Destroy() end
+										restoreWronglyDecoratedButton(State.RightOnionButton)
+									end
 									State.RightOnionButton = btn
-									applyBananaCatExactOverlay(btn, true)
+									if not btn:FindFirstChild("BananaCatExactOverlay") then
+										applyBananaCatExactOverlay(btn, true)
+									end
 								end
 							end
 						end
