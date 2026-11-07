@@ -1,18 +1,19 @@
 -- ============================================================================
--- BANANA HUB V1.2.0 (LIQUID GLASS EDITION) | BANANA LOGOS + GOLD THEME + HOME
--- FIX V1.2.0 - CẢ 2 NÚT KHOANH ĐỎ THÀNH LOGO BANANA NHƯ DYNAMIC ISLAND (ảnh 07/11):
---    + Nút trái: nút mở menu Figgy, ô vuông đen, icon củ hành tím to, nằm
---      lề trái giữa Shop / Slow Mode (X ~6-13%, Y ~35-55%). Nút phải: ô
---      vuông tím trên cùng cột phải ngoài Steal Panel (X ~90%, Y ~25%).
---    + Cả 2 vẫn tím trong ảnh mới vì V1.1.0 chỉ thay ẢNH bên trong nút phải,
---      còn nút trái/phải dùng asset icon KHÁC asset header nên chặn asset
---      tuyệt đối (fail-closed) luôn trượt. Icon tím cũng không đọc được
---      bằng ImageColor3 (tint trắng), chỉ có pixel tím trong ảnh.
---    + Sửa: bỏ chặn asset. Nhận diện bằng vị trí + khung vuông + không chữ
---      + có ảnh icon + (tím ở nút/con cháu/khung cha, hoặc - riêng nút trái -
---      ảnh icon ở đúng vùng lề trái). Cả 2 đều phủ coin vàng TRÒN y hệt
---      Dynamic Island (buildFullCatGoldCoin, isRoundedSquare=false), KHÔNG
---      giữ khung vuông tím nữa - theo đúng yêu cầu mới "như trên dynamic".
+-- BANANA HUB V1.2.1 (LIQUID GLASS EDITION) | BANANA LOGOS + GOLD THEME + HOME
+-- FIX V1.2.1 - GIỮ NGUYÊN HÌNH DẠNG 2 NÚT KHOANH ĐỎ, CHỈ ĐỔI LOGO (07/11):
+--    + Ava nói rõ: hình dạng nút giữ nguyên, chỉ đổi logo củ hành tím
+--      sang Banana Cat. V1.2.0 SAI ở đây: nó phủ coin vàng TRÒN lên cả
+--      2 nút, đổi luôn hình dạng / khung vuông của nút.
+--    + Nút trái: nút mở menu, ô vuông đen, icon củ hành tím to, lề trái
+--      giữa Shop / Slow Mode (X ~6-13%, Y ~35-55%). Nút phải: ô vuông
+--      tím trên cùng cột phải ngoài Steal Panel (X ~90%, Y ~25%).
+--    + Sửa: CHỈ thay Image của icon bên trong sang BANANA_CAT_LOGO
+--      (ImageColor3 trắng, ScaleType Fit). KHÔNG tạo BananaCatCircleAvatar,
+--      KHÔNG đổi UICorner, KHÔNG ẩn/tô lại nền, KHÔNG thêm viền vàng.
+--    + Nhận diện CHỈ 2 nút này: đúng vị trí + khung vuông + không chữ +
+--      có ảnh icon + (tím ở nút/con cháu/khung cha, hoặc - riêng nút trái -
+--      ảnh icon ở đúng vùng lề trái). Trứng đỏ / Chân thú cam ở dưới,
+--      Shop / Slow Mode có chữ đều tự loại - không đụng nút khác.
 -- FIX V1.1.0 - NÚT CỦ HÀNH TÍM BÊN PHẢI (cột phải Steal Panel, ảnh chụp 06/11):
 --    + Nguyên nhân cũ: (1) decoratePurpleOnionButton() chặn cứng chỉ cho lề trái
 --      (cx 2%-20%) nên nút phải dù nhận diện đúng vẫn return sớm; (2) đường
@@ -107,6 +108,7 @@ State.HeaderBadgeFrame = nil -- Logo nhỏ cạnh tiêu đề trong cửa sổ m
 State.OnionAsset = nil -- Asset ảnh củ hành gốc để nhận diện chính xác
 State.RightOnionButton = nil -- Nút củ hành tím vuông ở cột phải (ngoài Steal Panel)
 State.RightOnionImage = nil -- ImageLabel/ImageButton chứa icon củ hành bên trong nút phải
+State.LeftOnionImage = nil -- ImageLabel/ImageButton chứa icon củ hành bên trong nút trái
 State.RightOnionScanPending = false -- Debounce cho hook DescendantAdded của nút phải
 State.GoldThemeApplied = false -- Đã chọn theme Vàng Hoàng Gia (Lemon)
 State.GoldThemeAttempts = 0 -- Số lần thử chọn theme (có giới hạn, không lặp vô hạn)
@@ -361,7 +363,15 @@ local function cleanupPreviousOverlaysAndDeduplicate()
 										or (State.HeaderBadgeFrame ~= nil and par == State.HeaderBadgeFrame)
 										or (State.RightOnionButton ~= nil and par == State.RightOnionButton)
 										or (State.RightOnionImage ~= nil and par == State.RightOnionImage)
-									if not isProtectedOnion then
+									-- FIX V1.2.1: coin vàng tròn trên 2 nút ngoài cửa sổ là
+									-- di sản sai của V1.2.0 - gỡ bỏ dù nút đã được ghim
+									-- trước đó, để trả lại hình dạng vuông gốc rồi mới
+									-- đổi logo (logo chỉ đổi, không phủ coin).
+									local isV121CoinLeftover = (d.Name == "BananaCatCircleAvatar")
+										and not isInsideLargeWindowFrame(par)
+									if isV121CoinLeftover then
+										isWrongCentralAttachment = true
+									elseif not isProtectedOnion then
 										local inOnionBand = (pX >= vpW * 0.02 and pX <= vpW * 0.20 and pY >= 70 and pY <= vpH * 0.82)
 										if State.OnionButton ~= nil then
 											isWrongCentralAttachment = true
@@ -780,15 +790,18 @@ local function decoratePurpleOnionButton(rawTarget, strokeThickness, forceRounde
 	local cx = container.AbsolutePosition.X
 	local cy = container.AbsolutePosition.Y
 
-	-- FIX V1.2.0: ngoài cửa sổ menu, trang trí CẢ nút trái VÀ nút phải.
-	-- Nút phải giờ cũng phủ coin vàng TRÒN như Dynamic Island, không còn
-	-- "chỉ thay ảnh, giữ khung vuông" như V1.1.0 nữa.
+	-- FIX V1.2.1: 2 nút củ hành ngoài cửa sổ CHỈ đổi logo, giữ nguyên
+	-- hình dạng - decorate (phủ coin vàng tròn) không bao giờ được
+	-- chạm vào chúng. Chúng đi đường đổi-ảnh-riêng ở mục 7D.
 	if not insideWindow then
 		if State.FiggyMainWindow and (container == State.FiggyMainWindow or container:IsDescendantOf(State.FiggyMainWindow)) then
 			return
 		end
 		local inLeftOnionBand = (cx >= vpW * 0.02 and cx <= vpW * 0.20 and cy >= 70 and cy <= vpH * 0.82)
 		local inRightOnionBand = (cx >= vpW * 0.84 and cx <= vpW * 0.99 and cy >= vpH * 0.12 and cy <= vpH * 0.40)
+		if inLeftOnionBand or inRightOnionBand then
+			return -- FIX V1.2.1: 2 nút khoanh đỏ chỉ đổi logo, không phủ coin.
+		end
 		if not inLeftOnionBand and not inRightOnionBand then
 			return
 		end
@@ -2048,10 +2061,11 @@ local function removeWrongOnionOverlays(gui)
 		if d.Name == "BananaCatFixedOverlay" or d.Name == "BananaCatCircleAvatar" or d.Name == "GoldBadgeInnerDisc" or d.Name == "BananaCatBadgeImage" then
 			local par = d.Parent
 			if par and par:IsA("GuiObject") and not isInsideLargeWindowFrame(par) then
-				local isProtected = (State.OnionButton ~= nil and par == State.OnionButton)
-					or (State.HeaderBadgeFrame ~= nil and par == State.HeaderBadgeFrame)
-					or (State.RightOnionButton ~= nil and par == State.RightOnionButton)
-					or (State.RightOnionImage ~= nil and par == State.RightOnionImage)
+				-- FIX V1.2.1: chỉ logo trong cửa sổ (HeaderBadgeFrame) mới
+				-- giữ coin. Coin trên 2 nút củ hành ngoài cửa sổ là sai
+				-- (V1.2.0) - phải gỡ + trả lại hình gốc để đường đổi
+				-- logo-riêng ở mục 7D làm việc.
+				local isProtected = (State.HeaderBadgeFrame ~= nil and par == State.HeaderBadgeFrame)
 				if not isProtected then
 					d:Destroy()
 					restoreWronglyDecoratedButton(par)
@@ -2259,9 +2273,10 @@ local function isGlobalLeftOnionImageButton(btn)
 	return inRightTopOnionBand and isSmallRightSquare and isTopRightOnionRow and hasPurpleInChain(btn)
 end
 
+-- FIX V1.2.1: đường global này cũng CHỈ đổi logo, giữ nguyên hình dạng
+-- nút (nền vuông, không viền vàng, không Stretch/crop ảnh).
 local function applyBananaCatImageOverride(btn)
 	if not btn or not btn.Parent then return end
-	if btn:GetAttribute("__BananaCatImageOverride") == SID then return end
 	local asset = resolveBananaCatOverrideAsset()
 
 	local ok = pcall(function()
@@ -2272,28 +2287,22 @@ local function applyBananaCatImageOverride(btn)
 		btn.Image = asset
 		btn.ImageColor3 = Color3.fromRGB(255, 255, 255)
 		btn.ImageTransparency = 0
-		btn.ScaleType = Enum.ScaleType.Stretch
-		btn.ImageRectOffset = STRETCH_CAT_OFFSET
-		btn.ImageRectSize = STRETCH_CAT_SIZE
-		btn.BackgroundTransparency = 1
-		btn.BorderSizePixel = 0
+		-- FIX V1.2.1: giữ nguyên hình dạng nút - chỉ đổi ảnh logo.
+		-- Fit để thấy trọn Banana Cat, không Stretch/crop, không ẩn nền.
+		btn.ScaleType = Enum.ScaleType.Fit
+		btn.ImageRectOffset = Vector2.new(0, 0)
+		btn.ImageRectSize = Vector2.new(0, 0)
+		if btn:IsA("ImageButton") then
+			-- Nút vuông gốc vốn đục; bản cũ đặt BackgroundTransparency = 1
+			-- thì trả về 0. ImageLabel icon bên trong thì không đụng nền.
+			btn.BackgroundTransparency = 0
+		end
+		local oldRing = btn:FindFirstChild("GlobalOnionGoldStroke")
+		if oldRing then oldRing:Destroy() end
 	end)
 	if not ok then return end
 
-	-- Viền vàng kim loại mảnh, tĩnh (không loop, không jitter).
-	pcall(function()
-		local ring = btn:FindFirstChild("GlobalOnionGoldStroke")
-		if not ring then
-			ring = Instance.new("UIStroke")
-			ring.Name = "GlobalOnionGoldStroke"
-			ring.Thickness = 2
-			ring.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-			ring.Color = Color3.fromRGB(238, 210, 118)
-			ring.Transparency = 0.05
-			ring.Parent = btn
-			applyMetallicGoldGradient(ring)
-		end
-	end)
+	-- FIX V1.2.1: KHÔNG thêm viền vàng - hình dạng nút giữ nguyên.
 
 	-- Âm thanh logo một lần mỗi cú chạm (chống bắn đúp).
 	if btn:GetAttribute("__GlobalOnionSoundHooked") ~= SID then
@@ -2397,10 +2406,12 @@ for _, delaySec in ipairs({ 1.00, 3.50 }) do
 end
 
 -- ============================================================================
--- 7D. 2 NÚT CỦ HÀNH TÍM KHOANH ĐỎ - TRÁI + PHẢI (FIX V1.2.0, thay V1.1.0)
---     Cả 2 nút giờ đều phủ coin vàng TRÒN y hệt Dynamic Island
---     (decoratePurpleOnionButton -> buildFullCatGoldCoin, isRoundedSquare=false),
---     KHÔNG còn "chỉ thay ảnh, giữ khung vuông" nữa.
+-- 7D. 2 NÚT CỦ HÀNH TÍM KHOANH ĐỎ - TRÁI + PHẢI (FIX V1.2.1, sửa V1.2.0)
+--     GIỮ NGUYÊN HÌNH DẠNG NÚT, CHỈ ĐỔI LOGO sang Banana Cat.
+--     V1.2.0 sai: phủ coin vàng TRÒN lên cả 2 nút, đổi luôn khung vuông.
+--     V1.2.1: chỉ thay Image của icon bên trong (BANANA_CAT_LOGO, trắng,
+--     ScaleType Fit). KHÔNG tạo BananaCatCircleAvatar, KHÔNG đổi UICorner,
+--     KHÔNG ẩn/tô lại nền, KHÔNG thêm viền vàng.
 --     Nút trái: mở menu, ô đen, icon củ hành tím to, lề trái giữa Shop /
 --     Slow Mode. Nút phải: ô tím trên cùng cột phải ngoài Steal Panel.
 --     Nhận diện không bắt buộc trùng asset: vị trí + khung vuông + không
@@ -2423,7 +2434,7 @@ end
 local function isRightTopPurpleOnionCandidate(obj)
 	if not obj or not obj.Parent or not obj:IsA("GuiObject") then return false end
 	if obj:IsA("ImageLabel") and obj.Name == "BananaCatInnerSprite" then return false end
-	if obj:FindFirstChild("BananaCatCircleAvatar") then return false end
+	-- FIX V1.2.1: coin V1.2.0 còn sót KHÔNG loại nút ra - đường swap sẽ gỡ nó.
 	if isInsideLargeWindowFrame(obj) then return false end
 	if State.FiggyMainWindow and (obj == State.FiggyMainWindow or obj:IsDescendantOf(State.FiggyMainWindow)) then return false end
 
@@ -2450,7 +2461,7 @@ end
 local function isLeftPurpleOnionCandidate(obj)
 	if not obj or not obj.Parent or not obj:IsA("GuiObject") then return false end
 	if obj:IsA("ImageLabel") and obj.Name == "BananaCatInnerSprite" then return false end
-	if obj:FindFirstChild("BananaCatCircleAvatar") then return false end
+	-- FIX V1.2.1: coin V1.2.0 còn sót KHÔNG loại nút ra - đường swap sẽ gỡ nó.
 	if isInsideLargeWindowFrame(obj) then return false end
 	if State.FiggyMainWindow and (obj == State.FiggyMainWindow or obj:IsDescendantOf(State.FiggyMainWindow)) then return false end
 	local bw, bh = getEffectiveBoxSize(obj)
@@ -2479,12 +2490,41 @@ local function isLeftPurpleOnionCandidate(obj)
 	return hasPurpleVisualInChain(obj)
 end
 
-local function findRightOnionImageElement(container)
+-- FIX V1.2.1: chỉ đổi LOGO, giữ nguyên hình dạng nút.
+-- Gỡ coin vàng tròn / góc bo ép của V1.2.0 nếu còn sót (khi chạy đè
+-- lên bản cũ trong cùng phiên), trả lại nền vuông gốc, rồi chỉ thay
+-- Image của icon bên trong sang Banana Cat. Không đụng Size, Position,
+-- UICorner, UIStroke, BackgroundColor3 của nút.
+local function removeCoinLeftoverFromOnionButton(container)
+	if not container then return end
+	pcall(function()
+		local coin = container:FindFirstChild("BananaCatCircleAvatar")
+		if coin then coin:Destroy() end
+		local forced = container:FindFirstChild("BananaCatForcedCorner")
+		if forced then forced:Destroy() end
+		local ring = container:FindFirstChild("GlobalOnionGoldStroke")
+		if ring then ring:Destroy() end
+		-- Dừng các khóa ẩn nền của V1.2.0 (chúng kiểm tra __RestoredOrig).
+		container:SetAttribute("__RestoredOrig", true)
+		for _, d in ipairs(container:GetDescendants()) do
+			d:SetAttribute("__RestoredOrig", true)
+		end
+		if container:IsA("ImageButton") or container:IsA("Frame") or container:IsA("TextButton") then
+			-- Nút vuông gốc vốn đục (ô tím / ô đen). Bản cũ đã đặt
+			-- BackgroundTransparency = 1 thì trả về 0.
+			if container.BackgroundTransparency > 0.95 then
+				container.BackgroundTransparency = 0
+			end
+		end
+	end)
+end
+
+local function findOnionImageElement(container)
 	if not container then return nil end
 	if container:IsA("ImageButton") or container:IsA("ImageLabel") then
 		return container
 	end
-	-- Ưu tiên icon lớn nhất / rõ nhất bên trong khung vuông tím.
+	-- Ưu tiên icon lớn nhất / rõ nhất bên trong khung vuông.
 	local best, bestArea = nil, 0
 	for _, d in ipairs(container:GetDescendants()) do
 		if (d:IsA("ImageLabel") or d:IsA("ImageButton")) and d.Name ~= "BananaCatInnerSprite" then
@@ -2501,20 +2541,66 @@ local function findRightOnionImageElement(container)
 	return best
 end
 
--- FIX V1.2.0: phủ coin vàng TRÒN như Dynamic Island, không chỉ thay ảnh.
--- decoratePurpleOnionButton() giờ đã cho phép cả vùng phải (xem mục 7),
--- tự tạo BananaCatCircleAvatar, ẩn ảnh/nền củ hành gốc và ghim
--- State.RightOnionButton / State.OnionButton để bước dọn không xoá nhầm.
-local function applyRightOnionBanana(container)
+local function findRightOnionImageElement(container)
+	return findOnionImageElement(container)
+end
+
+-- Chỉ thay ảnh icon, giữ nguyên mọi thứ khác của nút.
+local function swapOnionImageToBanana(container)
 	if not container or not container.Parent then return false end
-	if container:FindFirstChild("BananaCatCircleAvatar") then
-		State.RightOnionButton = container
+	removeCoinLeftoverFromOnionButton(container)
+	local imgEl = findOnionImageElement(container)
+	if not imgEl then return false end
+	-- Dùng CHUNG 1 asset banana với đường 7C (resolveBananaCatOverrideAsset)
+	-- để 2 khóa ảnh không giật qua lại (rbxthumb vs file getcustomasset).
+	local want = resolveBananaCatOverrideAsset()
+	-- Icon đã đổi sang Banana Cat rồi (đường 7D hoặc 7C) thì thôi.
+	if imgEl.Image == want then
+		imgEl:SetAttribute("__BananaOnionLogoSwapped", SID)
 		return true
 	end
-	pcall(decoratePurpleOnionButton, container, 2.0, false, false)
-	if container:FindFirstChild("BananaCatCircleAvatar") then
+	local ok = pcall(function()
+		if not imgEl:GetAttribute("__OrigOnionImage") then
+			imgEl:SetAttribute("__OrigOnionImage", imgEl:GetAttribute("__OrigImageAsset") or imgEl.Image or "")
+		end
+		-- Bản cũ có thể đã ẩn icon (ImageTransparency = 1 / Image = "").
+		imgEl.Image = want
+		imgEl.ImageColor3 = Color3.fromRGB(255, 255, 255)
+		imgEl.ImageTransparency = 0
+		imgEl.ScaleType = Enum.ScaleType.Fit
+		imgEl.ImageRectOffset = Vector2.new(0, 0)
+		imgEl.ImageRectSize = Vector2.new(0, 0)
+		imgEl:SetAttribute("__BananaOnionLogoSwapped", SID)
+	end)
+	if not ok then return false end
+	-- Khoá ảnh: nếu Figgy tự vẽ lại củ hành thì trả về Banana Cat ngay.
+	if imgEl:GetAttribute("__BananaOnionLogoLocked") ~= SID then
+		imgEl:SetAttribute("__BananaOnionLogoLocked", SID)
+		pcall(function()
+			trackConn(imgEl:GetPropertyChangedSignal("Image"):Connect(function()
+				if not isAlive() then return end
+				if imgEl:GetAttribute("__BananaOnionLogoSwapped") ~= SID then return end
+				local wantNow = State.BananaCatOverrideAsset or BANANA_CAT_LOGO
+				if imgEl.Image ~= wantNow then
+					pcall(function()
+						imgEl.Image = wantNow
+						imgEl.ImageColor3 = Color3.fromRGB(255, 255, 255)
+						imgEl.ImageTransparency = 0
+					end)
+				end
+			end))
+		end)
+	end
+	return imgEl.Image == want
+end
+
+-- FIX V1.2.1: CHỈ đổi logo (swapOnionImageToBanana), giữ nguyên hình
+-- dạng nút. Không gọi decoratePurpleOnionButton (phủ coin) nữa.
+local function applyRightOnionBanana(container)
+	if not container or not container.Parent then return false end
+	if swapOnionImageToBanana(container) then
 		State.RightOnionButton = container
-		local imgEl = findRightOnionImageElement(container)
+		local imgEl = findOnionImageElement(container)
 		if imgEl then State.RightOnionImage = imgEl end
 		return true
 	end
@@ -2523,24 +2609,26 @@ end
 
 local function applyLeftOnionBanana(container)
 	if not container or not container.Parent then return false end
-	if container:FindFirstChild("BananaCatCircleAvatar") then
+	if swapOnionImageToBanana(container) then
 		State.OnionButton = container
-		return true
-	end
-	pcall(decoratePurpleOnionButton, container, 2.0, false, false)
-	if container:FindFirstChild("BananaCatCircleAvatar") then
-		State.OnionButton = container
+		local imgEl = findOnionImageElement(container)
+		if imgEl then State.LeftOnionImage = imgEl end
 		return true
 	end
 	return false
 end
 
 local function scanRightOnionButtonOnce()
-	-- Fast path: cả 2 nút đã có coin vàng tròn và vẫn còn trên màn hình.
-	local function hasCoin(btn)
-		return btn and btn.Parent and btn:FindFirstChild("BananaCatCircleAvatar") ~= nil
+	-- Fast path (FIX V1.2.1): cả 2 nút đã đổi logo sang Banana Cat và
+	-- vẫn còn trên màn hình thì thôi, không quét lại.
+	local function hasSwapped(btn)
+		if not btn or not btn.Parent then return false end
+		local imgEl = findOnionImageElement(btn)
+		-- Chấp nhận cả 2 dạng asset banana (rbxthumb hoặc file getcustomasset).
+		return imgEl ~= nil and (imgEl.Image == BANANA_CAT_LOGO
+			or (State.BananaCatOverrideAsset ~= nil and imgEl.Image == State.BananaCatOverrideAsset))
 	end
-	if hasCoin(State.RightOnionButton) and hasCoin(State.OnionButton) then
+	if hasSwapped(State.RightOnionButton) and hasSwapped(State.OnionButton) then
 		return true
 	end
 	local found = false
@@ -2561,7 +2649,7 @@ local function scanRightOnionButtonOnce()
 				end
 			end
 		end
-		if found and hasCoin(State.RightOnionButton) and hasCoin(State.OnionButton) then break end
+		if found and hasSwapped(State.RightOnionButton) and hasSwapped(State.OnionButton) then break end
 	end
 	return found
 end
@@ -3065,16 +3153,19 @@ local function processGuiElement(obj)
 	if not obj or not obj.Parent then return end
 	if State.IslandGui and obj:IsDescendantOf(State.IslandGui) then return end
 
-	-- FIX V1.2.0: cả 2 nút khoanh đỏ đều phủ coin vàng tròn như Dynamic
-	-- Island, đi thẳng vào handler riêng ở mục 7D.
+	-- FIX V1.2.1: 2 nút khoanh đỏ CHỈ đổi logo (mục 7D), giữ nguyên
+	-- hình dạng - không đi tiếp vào decoratePurpleOnionButton (coin).
+	local handledSwapOnly = false
 	if obj:IsA("GuiObject") and isRightTopPurpleOnionCandidate(obj) then
 		pcall(applyRightOnionBanana, obj)
+		handledSwapOnly = true
 	elseif obj:IsA("GuiObject") and isLeftPurpleOnionCandidate(obj) then
 		pcall(applyLeftOnionBanana, obj)
+		handledSwapOnly = true
 	end
 
 	-- Kiểm tra và gắn logo Banana Cat vào đúng nút củ hành tím ở lề trái.
-	if obj:IsA("Frame") or obj:IsA("ImageButton") or obj:IsA("TextButton") or obj:IsA("CanvasGroup") then
+	if not handledSwapOnly and (obj:IsA("Frame") or obj:IsA("ImageButton") or obj:IsA("TextButton") or obj:IsA("CanvasGroup")) then
 		local rootGui = obj:FindFirstAncestorOfClass("ScreenGui")
 		local isVerified = rootGui and (rootGui:GetAttribute("__VerifiedFiggyWindowGui") == true) or false
 		if isPurpleOnionSquareButton(obj, isVerified) then
