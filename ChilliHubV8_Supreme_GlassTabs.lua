@@ -856,9 +856,201 @@ local function decoratePurpleOnionButton(rawTarget, strokeThickness, forceRounde
 end
 
 -- ============================================================================
--- 4. BỘ TỪ ĐIỂN & ĐỘNG CƠ VIỆT HÓA TĨNH (XOÁ BỎ TRẠNG THÁI TREADMILL)
+-- 4. BỘ TỪ ĐIỂN & ĐỘNG CƠ VIỆT HÓA TOÀN DIỆN (SIÊU TỐC O(1) CACHE - 0% LAG)
 -- ============================================================================
-local EXACT_VI = {
+local FastCache = {}
+local EXACT_VI
+local LOWER_VI
+local VI_TO_EN = {}
+
+EXACT_VI={
+["Home"]="Trang Chủ",["Dashboard"]="Trang Chủ",["Steal"]="Săn Trứng",["Farm"]="Tự Cày",["Event"]="Sự Kiện",["Events"]="Sự Kiện",["Player"]="Nhân Vật",["System"]="Cài Đặt",["Settings"]="Cài Đặt",["Halloween & Shooting Star"]="Halloween & Sao Băng",["Halloween & sao băng"]="Halloween & Sao Băng",["HALLOWEEN & SHOOTING STAR"]="HALLOWEEN & SAO BĂNG",["HALLOWEEN & SAO BĂNG"]="HALLOWEEN & SAO BĂNG",["The Hollow"]="Vực Hollow",["Hollow"]="Vực Hollow",
+["Steal missing Halloween index"]="Cướp trứng Halloween thiếu trong Chỉ mục",["Steal missing Halloween index eggs"]="Cướp trứng Halloween thiếu trong Chỉ mục",["cướp missing Halloween index"]="Cướp trứng Halloween thiếu trong Chỉ mục",["Place eggs in pen and hatch missing in Egg Index"]="Đặt trứng vào chuồng và ấp trứng thiếu trong Chỉ mục",["Place and hatch eggs missing from your Egg Index"]="Đặt trứng vào chuồng và ấp trứng thiếu trong Chỉ mục",
+["Đặt trứng vào chuồng và hatch thiếu trong Chỉ mục trứng"]="Đặt trứng vào chuồng và ấp trứng thiếu trong Chỉ mục",["PUMPKIN BOSS"]="BOSS BÍ NGÔ",["Pumpkin Boss"]="Boss Bí Ngô",["Auto Pumpkin Boss"]="Tự đánh Boss Bí Ngô",["Auto dodge attacks"]="Tự động né đòn đánh",["Dodge attacks"]="Tự động né đòn đánh",["Auto claim mastery"]="Tự động nhận thưởng Thông Thạo",["Tự động nhận mastery"]="Tự động nhận thưởng Thông Thạo",["Claim mastery"]="Nhận thưởng Thông Thạo",
+["Mastery"]="Thông Thạo",["MASTERY"]="THÔNG THẠO",["Stub pickup speed"]="Tốc độ nhặt Cuống Bí Ngô",["Pickup speed"]="Tốc độ nhặt vật phẩm",["Tốc độ cuống pickup"]="Tốc độ nhặt Cuống Bí Ngô",["Auto manor key"]="Tự lấy chìa khóa dinh thự",["Manor key"]="Chìa khóa dinh thự",["MANOR KEY"]="CHÌA KHÓA DINH THỰ",["KILLS"]="SỐ LẦN HẠ",["Kills"]="Số lần hạ",["BOSS"]="TRÙM (BOSS)",["ALIVE"]="CÒN SỐNG",["Alive"]="Còn sống",["DEAD"]="ĐÃ HẠ",["Dead"]="Đã hạ",["SPAWNED"]="ĐÃ XUẤT HIỆN",
+["Spawned"]="Đã xuất hiện",["NOT SPAWNED"]="CHƯA XUẤT HIỆN",["Not spawned"]="Chưa xuất hiện",["Cooldown"]="Đang hồi",["COOLDOWN"]="ĐANG HỒI",["Active"]="Đang bật",["ACTIVE"]="ĐANG BẬT",["Inactive"]="Đang tắt",["INACTIVE"]="ĐANG TẮT",["Sign In"]="Miễn phí",["Sign in"]="Miễn phí",["SIGN IN"]="MIỄN PHÍ",["Sign trong"]="Miễn phí",["Sign Up"]="Đăng ký",["Sign up"]="Đăng ký",["No plan"]="Miễn phí",["No Plan"]="Miễn phí",["FORCE JOIN"]="TỰ VÀO SAU",["Force Join"]="Tự vào sau",
+["MIN VALUE"]="GIÁ TỐI THIỂU",["RARITY"]="ĐỘ HIẾM",["ACCOUNT"]="TÀI KHOẢN",["Account"]="Tài khoản",["Chilli Finder"]="Chilli Finder Free",["Chill Finder Free"]="Chilli Finder Free",["Chilli Finder Free"]="Chilli Finder Free",["Top 5 recent eggs | Book at chillihub.pro"]="Top 5 trứng mới nhất | Chilli Finder Free",["Sign in with your chillihub.pro account to join"]="Top 5 trứng mới nhất | Chilli Finder Free",
+["Sign in with your chillihub.pro account"]="Top 5 trứng mới nhất | Chilli Finder Free",["No active booking. Book hours at chillihub.pro"]="Top 5 trứng mới nhất | Chilli Finder Free",["Finder"]="Tìm Trứng",["FINDER"]="TÌM TRỨNG",["finder"]="tìm trứng",["Scanning..."]="Đang quét...",["Scanning"]="Đang quét...",["Searching..."]="Đang tìm...",["Searching"]="Đang tìm...",["Checking..."]="Đang kiểm tra...",["Checking"]="Đang kiểm tra...",["Found!"]="Đã thấy!",["Found"]="Đã thấy",
+["Egg Found!"]="Có trứng mới!",["Egg Found"]="Có trứng mới",["Waiting..."]="Đang chờ...",["Waiting"]="Đang chờ...",["No Eggs"]="Hết trứng",["No eggs"]="Hết trứng",["None"]="Không có",["Auto On"]="Tự động: BẬT",["Auto Off"]="Tự động: TẮT",["AUTO ON"]="TỰ ĐỘNG: BẬT",["AUTO OFF"]="TỰ ĐỘNG: TẮT",["Cooldown"]="Đang hồi...",["Ready"]="Sẵn sàng",["Chilli Finder"]="Chill Finder Free",["Top 5 recent eggs | Book at chillihub.pro"]="Top 5 recent eggs | Chill Finder Free",
+["Sign in with your chillihub.pro account to join"]="Top 5 recent eggs | Chill Finder Free",["Sign in with your chillihub.pro account"]="Top 5 recent eggs | Chill Finder Free",["No active booking. Book hours at chillihub.pro"]="Top 5 recent eggs | Chill Finder Free",["Venyx"]="Banana Hub",["VENYX"]="Chilli Hub V8 Supreme",["Media"]="Mạng Xã Hội",["Chat"]="Trò Chuyện",["Features"]="Tính Năng",["Egg"]="Trứng (Egg)",["Pet"]="Thú Cưng (Pet)",["Activities"]="Hoạt Động",
+["Barn"]="Chuồng Trại",["Others"]="Khác",["Keyless"]="Không cần Key",["Anime"]="Chế độ Anime",["Search..."]="Tìm kiếm...",["Steal Egg"]="Cướp Trứng",["Filtering"]="Bộ Lọc",["Strict Filter"]="Lọc Nghiêm Ngặt",["Only target eggs that match every filter you set."]="Chỉ cướp trứng khớp với mọi bộ lọc bạn đã cài.",["Steal Priority"]="Ưu Tiên Cướp",["Select Area"]="Chọn Khu Vực",["Select Rarity"]="Chọn Độ Hiếm",
+["Select Pet"]="Chọn Thú Cưng",["Select Mutation"]="Chọn Đột Biến",["Min Value"]="Giá Trị Tối Thiểu",["Target eggs earning at least this much per second, mutations included (e.g. 500k, 1.5m). 0 or empty to disable."]="Chỉ cướp trứng kiếm được ít nhất mức này mỗi giây (VD: 500k, 1.5m). Nhập 0 để tắt.",["Indexing"]="Chỉ Mục (Index)",["Auto Claim Index"]="Tự Nhận Thưởng Chỉ Mục",["Redeems unlocked index rewards."]="Tự động nhận phần thưởng từ danh mục đã mở khóa.",
+["Auto Indexing"]="Tự Động Thu Thập Chỉ Mục",["Auto Steal only targets eggs you haven't indexed or owned yet. Other filters are ignored."]="Chỉ cướp các trứng bạn chưa có trong chỉ mục. Các bộ lọc khác sẽ bị bỏ qua.",["Steal Settings"]="Cài Đặt Cướp",["Steal Mode"]="Chế Độ Cướp",["Normal flies to the egg, Instant Steal works in every area."]="Bình thường sẽ bay tới trứng. Cướp Tức Thì hoạt động ở mọi khu vực.",["Normal"]="Bình Thường",["Delivery Mode"]="Chế Độ Giao Trứng",
+["Recommended Delivery Mode: Speed Match or Steady"]="Khuyên dùng: Tốc độ khớp hoặc Ổn định",["Speed Match"]="Tốc độ khớp",["Steady"]="Ổn định",["Steal From Player"]="Cướp Từ Người Chơi",["Steals eggs from other players."]="Cướp trứng từ tay người chơi khác.",["Server Hop (No Target)"]="Đổi Server (Khi Hết Mục Tiêu)",["Hops server when no target is found."]="Tự động đổi máy chủ khi không tìm thấy trứng mục tiêu.",["Drop for Friend"]="Nhặt Hộ Bạn Bè",
+["Drops the egg at the drop point and leaves it for a friend to pick up, then looks for another egg."]="Mang trứng đến điểm hẹn, thả xuống cho bạn bè nhặt và đi tìm trứng khác.",["Flies to field eggs, grabs them and brings them home."]="Bay tới bãi, nhặt trứng và mang về nhà.",["Steal Other Script"]="Cướp Của Script Khác",["Grabs eggs other players drop near safezone."]="Nhặt trứng mà các người chơi dùng script khác làm rớt gần vùng an toàn.",
+["Steal Status"]="Trạng Thái Cướp",["Shows the Auto Steal status panel."]="Hiển thị bảng trạng thái tự động cướp.",["Open Steal Panel"]="Mở Bảng Cướp Trứng",["Find and steal World and Halloween eggs by hand."]="Tìm và cướp trứng Thế Giới / Halloween bằng tay.",["Open Steal History"]="Mở Lịch Sử Cướp",["Open the last 10 steal results in a separate window."]="Mở 10 kết quả cướp gần nhất ở cửa sổ riêng.",
+["Egg Utilities"]="Tiện Ích Trứng",["Open Egg Predictor"]="Mở Dự Đoán Trứng",["Open standalone egg cycle predictor window."]="Mở cửa sổ dự đoán chu kỳ trứng riêng biệt.",["Egg Inventory Value"]="Giá Trị Trứng Trong Túi",["Show generation rate (/s) and sell price on backpack egg slots."]="Hiển thị tốc độ sinh tiền (/s) và giá bán trên từng ô trứng trong ba lô.",["Place Egg"]="Đặt Trứng Vào Chuồng",["Hatch Egg"]="Ấp Trứng",["Stop At Rarity"]="Dừng Lại Ở Độ Hiếm",
+["Eggs of this rarity or higher won't be placed."]="Trứng đạt độ hiếm này hoặc cao hơn sẽ không bị mang đi đặt.",["Eggs of this rarity or higher won't be hatched."]="Trứng đạt độ hiếm này hoặc cao hơn sẽ không bị mang đi ấp.",["Whitelist"]="Danh Sách Trắng (Ưu Tiên)",["Blacklist"]="Danh Sách Đen (Bỏ Qua)",["Whitelist Rarity"]="Ưu Tiên Độ Hiếm",["Whitelist Pet"]="Ưu Tiên Thú Cưng",["Whitelist Mutation"]="Ưu Tiên Đột Biến",
+["Blacklist Rarity"]="Bỏ Qua Độ Hiếm",["Blacklist Pet"]="Bỏ Qua Thú Cưng",["Blacklist Mutation"]="Bỏ Qua Đột Biến",["Auto Place Egg"]="Tự Động Đặt Trứng",["Places matching eggs from your bag into the pen. Whitelist picks which eggs, blacklist always blocks."]="Đặt trứng phù hợp từ túi vào chuồng. Ưu tiên các mục trong Whitelist, luôn chặn mục trong Blacklist.",["Auto Place Indexing"]="Tự Động Đặt Lấy Chỉ Mục",
+["Auto Place Egg only places eggs you haven't indexed yet. Whitelist and blacklist are ignored."]="Chỉ tự động đặt các trứng bạn chưa có trong danh mục. Bỏ qua Whitelist và Blacklist.",["Automatically hatch ready eggs matching the selected filters."]="Tự động ấp các trứng đã sẵn sàng và khớp với bộ lọc.",["Auto Hatch Indexing"]="Tự Động Ấp Lấy Chỉ Mục",
+["Auto Hatch only hatches eggs you haven't indexed yet. Whitelist is ignored, blacklist still applies."]="Chỉ ấp các trứng bạn chưa có trong danh mục. Bỏ qua Whitelist, vẫn áp dụng Blacklist.",["Sell Egg"]="Bán Trứng",["Keep Above"]="Giữ Lại Trên Mức",["Never sell eggs earning at least this much per second (e.g. 100m). 0 or empty to disable."]="Không bao giờ bán trứng kiếm được trên mức này mỗi giây (VD: 100m). Nhập 0 để tắt.",
+["Sells eggs that pass your filters. Placed eggs are never sold."]="Bán trứng lọt qua bộ lọc. Trứng đã đặt trong chuồng sẽ không bao giờ bị bán.",["Sell On Inventory Full"]="Chỉ Bán Khi Đầy Túi",["Only sell when your egg backpack is full."]="Chỉ kích hoạt bán khi ba lô chứa trứng đã đầy.",["Player Stats"]="Thống Kê Người Chơi",["Money"]="Tiền",["Gems"]="Đá Quý",["Equipped"]="Đang Trang Bị",["Gain"]="Tăng Tốc Độ",["Inventory"]="Túi Đồ",["Map"]="Bản Đồ",["World"]="Thế Giới",
+["Discord webhook URL for sending notifications."]="Đường dẫn Webhook Discord để gửi thông báo.",["Ping @everyone"]="Tag @everyone",["Mention @everyone in Discord when a new egg is claimed."]="Gắn thẻ @everyone trên Discord khi nhận được trứng mới.",["Egg Webhook"]="Webhook Trứng",["Select Egg Rarity"]="Chọn Độ Hiếm Của Trứng",
+["Enable New Egg Claimed"]="Bật Thông Báo Trứng Mới",["Send webhook notification when stealing/claiming a new egg."]="Gửi thông báo Webhook khi cướp/nhận được trứng mới.",["Player Webhook"]="Webhook Người Chơi",["Stats Interval (Min)"]="Khoảng Thời Gian Báo Thống Kê (Phút)",["Enable Player Stats"]="Bật Thông Báo Thống Kê",["Periodically send player stats to Discord."]="Định kỳ gửi thông số người chơi qua Discord.",
+["Test Webhook"]="Thử Nghiệm Webhook",["Send Stats Now"]="Gửi Thống Kê Ngay Lúc Này",["Immediately send stats to Discord."]="Gửi ngay thông số người chơi vào Discord.",["Test Egg Webhook"]="Gửi Thử Webhook Trứng",["Simulate claiming an egg."]="Mô phỏng thao tác nhận trứng để kiểm tra.",["Admin Abuse Boost (BETA)"]="Nhận Buff Quyền Admin (BETA)",["Halloween Dimension"]="Không Gian Halloween",["Ghost Dog Quest"]="Nhiệm Vụ Chó Ma",["Abandoned Manor"]="Dinh Thự Bỏ Hoang",
+["Pumpkin King"]="Vua Bí Ngô",["The Hollow"]="Vực Hollow",["just now"]="vừa xong",["Just now"]="Vừa xong",["Inventory values"]="Giá trị túi đồ",["Inventory Values"]="Giá trị túi đồ",["Find option"]="Tìm tùy chọn",["🔍 Find option"]="🔍 Tìm tùy chọn",["Tip: you can also hold any feature to pin it or set a key."]="Mẹo: Nhấn giữ tính năng bất kỳ để ghim lên Thanh Nhanh hoặc gán phím tắt.",
+["Tip: you can also hold any feature to pin it or set key."]="Mẹo: Nhấn giữ tính năng bất kỳ để ghim lên Thanh Nhanh hoặc gán phím tắt.",["Tip: you can also hold any feature to pin it hoặc set key."]="Mẹo: Nhấn giữ tính năng bất kỳ để ghim lên Thanh Nhanh hoặc gán phím tắt.",["v1.4.2: Fixed some bugs"]="v1.4.2: Đã sửa một số lỗi vặt",["v1.4.2: fixed some bugs"]="v1.4.2: Đã sửa một số lỗi vặt",["v1.4.2: đã sửa some bugs"]="v1.4.2: Đã sửa một số lỗi vặt",
+["v1.4.1: Movement speed up to 110%, improved Fast Tween"]="v1.4.1: Tăng tốc độ di chuyển lên tới 110%, cải thiện Bay Nhanh (Fast Tween)",["v1.4.1: Di Chuyển tốc độ up tới 110%, improved Fast Bay (Tween)"]="v1.4.1: Tăng tốc độ di chuyển lên tới 110%, cải thiện Bay Nhanh (Fast Tween)",
+["v1.4.0: Auto Pumpkin Boss (dodges attacks, fires cannons, collects Pumpkin Stubs), auto manor key, and Go to Egg Leap (replaces old Go to Egg)"]="v1.4.0: Tự đánh Boss Bí Ngô (né đòn, bắn đại bác, nhặt Cuống Bí Ngô), tự lấy chìa khóa dinh thự và Nhảy Tới Trứng (thay thế Đi Tới Trứng cũ)",
+["v1.4.0: tự động bí ngô Boss (dodges attacks, fires cannons, collects bí ngô Stubs), tự động manor key, và Di Chuyển tới trứng Leap (replaces old Di Chuyển tới trứng)"]="v1.4.0: Tự đánh Boss Bí Ngô (né đòn, bắn đại bác, nhặt Cuống Bí Ngô), tự lấy chìa khóa dinh thự và Nhảy Tới Trứng (thay thế Đi Tới Trứng cũ)",["v1.3.0: Anti guard fires again, and finishes about twice as fast"]="v1.3.0: Chống vệ sĩ hoạt động trở lại và hoàn tất nhanh gấp đôi",
+["v1.3.0: Anti vệ sĩ fires again, và finishes about twice as fast"]="v1.3.0: Chống vệ sĩ hoạt động trở lại và hoàn tất nhanh gấp đôi",["Go to Egg Leap"]="Nhảy Tới Trứng",["Go to egg leap"]="Nhảy tới trứng",["Manor key"]="Chìa khóa dinh thự",["Auto manor key"]="Tự lấy chìa khóa dinh thự",["Auto Pumpkin Boss"]="Tự đánh Boss Bí Ngô",["Pumpkin Boss"]="Boss Bí Ngô",["Pumpkin Stubs"]="Cuống Bí Ngô",
+["Going into the Halloween Dimension"]="Đang vào Không gian Halloween",["Going into Halloween Dimension"]="Đang vào Không gian Halloween",["Leaving Halloween Dimension"]="Đang rời Không gian Halloween",["Entering Halloween Dimension"]="Đang vào Không gian Halloween",
+["v1.2.9: New optimizer modes: Balanced, Strong (way much higher FPS, ultra-low GPU), no lag spike when you turn it on"]="v1.2.9: Chế độ tối ưu mới: Cân bằng, Mạnh (tăng FPS cực cao, siêu nhẹ GPU), không bị khựng lag khi bật",["v1.2.8: Inventory values, see how much every pet and every egg in your backpack is worth"]="v1.2.8: Giá trị túi đồ, xem giá trị của từng pet và từng quả trứng trong ba lô",["v1.2.7: Auto race The Hollow"]="v1.2.7: Tự động đua sự kiện The Hollow",
+["v1.2.7: Auto race Hollow"]="v1.2.7: Tự động đua sự kiện Hollow",["Auto race Hollow"]="Tự động đua sự kiện Hollow",["Balanced"]="Cân bằng",["Strong"]="Mạnh",["v1.2.6: Mutate eggs you choose with multiple mutations, much shorter delay between tasks and instant take back when someone grabs your egg"]="v1.2.6: Đột biến trứng tự chọn với nhiều đột biến, giảm độ trễ giữa các tác vụ và giật lại tức thì khi bị cướp",["v1.2.5: Teleport to egg"]="v1.2.5: Dịch chuyển tới trứng",
+["Riding the Phantom Express"]="Đang đi Tàu Bóng Ma",["Fighting Small monster"]="Đang đánh quái vật nhỏ",["Fighting Medium monster"]="Đang đánh quái vật vừa",["Fighting Large monster"]="Đang đánh quái vật lớn",["UI scale"]="Kích cỡ Menu",["Show / hide UI"]="Phím ẩn / hiện Menu",["Opacity"]="Độ trong suốt",["Tone"]="Tông màu",["Dim the game"]="Làm tối nền game",
+["QUICK BARS"]="THANH PHÍM TẮT NHANH",["Quick bars"]="Thanh phím tắt nhanh",["Show quick bars"]="Hiện thanh phím tắt nhanh",["Keybinds"]="Phím tắt",["Bar size"]="Kích cỡ thanh nhanh",["PINS AND KEYBINDS"]="GHIM & PHÍM TẮT",["Find option"]="Tìm tùy chọn",["All"]="Tất cả",["Pinned"]="Đã ghim",["Clear all quick bars"]="Xóa hết thanh nhanh",["Clear all keybinds"]="Xóa hết phím tắt",
+["DEFAULTS"]="MẶC ĐỊNH",["Reset to defaults"]="Khôi phục mặc định",["Reset"]="Đặt lại",["Turn off all toggles"]="Tắt toàn bộ công tắc",["Turn off"]="Tắt hết",["Steal An Egg"]="Cướp Trứng",["CANDY CORN"]="KẸO NGÔ",["Candy Corn"]="Kẹo Ngô",["Calculate mutations"]="Tính thử đột biến",["Cards show the value with these mutations added"]="Thẻ trứng sẽ hiển thị giá trị sau khi cộng thêm các đột biến này",
+["Delivery speed"]="Tốc độ mang trứng về",["Change if steal fails"]="Hãy chỉnh giảm xuống nếu cướp trứng bị lỗi",["Auto farm monsters"]="Tự động cày quái vật",["Auto kill monsters"]="Tự động đánh quái vật",["Bat"]="Gậy Dơi (Bat)",["Instant steal"]="Cướp tức thì",["Admin treadmill"]="Máy tập Admin",["CURSED ISLAND WARS"]="ĐẠI CHIẾN ĐẢO NGUYỀN RỦA",["Cursed Island Wars"]="Đại Chiến Đảo Nguyền Rủa",["Waiting for Cursed Island Wars"]="Đang chờ Đại Chiến Đảo Nguyền Rủa",
+["Auto play Cursed Island Wars"]="Tự động chơi Đại Chiến Đảo Nguyền Rủa",["Island Wars target"]="Mục tiêu Đảo Nguyền Rủa",["Enemies and base"]="Kẻ địch và Căn cứ",["Walls and crystal"]="Tường chắn và Pha lê",["Catching a pumpkin"]="Đang nhặt bí ngô",["Carrying a pumpkin to the altar"]="Đang mang bí ngô tới bệ thờ",["Delivering a pumpkin to the altar"]="Đang giao bí ngô tới bệ thờ",["FIX"]="SỬA LỖI",["Most tokens"]="Nhiều kẹo/xu nhất",
+["Admin abuse works like Chilli: admin treadmill, Capture the egg, minigame eggs and Instant steal"]="Lạm dụng Admin hoạt động chuẩn: Máy tập Admin, Cướp trứng sự kiện, trứng Minigame và Cướp tức thì",["Fixed lag back with the Tween delivery method"]="Đã sửa lỗi giật lùi (lag back) khi mang trứng về bằng chế độ Bay (Tween)",["Welcome to Venyx 1.0.4! Join our Discord for updates and support"]="Chào mừng tới Chilli Hub V8! Tham gia Discord để cập nhật và nhận hỗ trợ",
+["v1.1.0: Halloween tasks follow Task order, Walk speed for monsters, pumpkins and ghosts, Use weapons picks every weapon, Lab and Race shop removed"]="v1.1.0: Nhiệm vụ Halloween tuân theo Thứ tự tác vụ, thêm Tốc độ chạy khi săn quái, bí ngô và ma, Sử dụng vũ khí tự chọn mọi loại vũ khí, đã gỡ bỏ Phòng Lab và Shop Đua Xe",
+["Halloween: Dimension eggs, monsters, Ghost Dog quest, fishing, Phantom Express and Cursed Island Wars"]="Sự kiện Halloween: Trứng Không gian Halloween, đánh quái, nhiệm vụ Chó Ma, câu cá, Tàu Ma Phantom Express và Đại Chiến Đảo Nguyền Rủa",["Idle"]="Đang rảnh",["Waiting"]="Đang chờ",["Nothing"]="Không có gì",["None"]="Không có",["Off"]="Tắt",["OFF"]="TẮT",["On"]="Bật",["ON"]="BẬT",
+["No egg matches your targets"]="Không có trứng nào khớp mục tiêu",["No eggs match your targets"]="Không có trứng nào khớp mục tiêu",["No egg matches filter"]="Không có trứng khớp bộ lọc",["No eggs match filter"]="Không có trứng khớp bộ lọc",["No target egg found"]="Không tìm thấy trứng mục tiêu",["No matching eggs"]="Không có trứng nào khớp",["No valid targets"]="Không có mục tiêu hợp lệ",
+["Bag is full"]="Túi đã đầy",["Egg bag is full"]="Túi trứng đã đầy",["Pet bag is full"]="Túi pet đã đầy",["Pen is full"]="Chuồng ấp đã đầy",["Field is closed"]="Sân trứng đang đóng",["Waiting for field to open"]="Đang chờ sân trứng mở",["Waiting for eggs to spawn"]="Đang chờ trứng xuất hiện",["Waiting in safe zone"]="Đợi ở vùng an toàn",["Returning to safe zone"]="Đang về vùng an toàn",["Returning home"]="Đang quay về nhà",
+["Delivering egg"]="Đang giao trứng về chuồng",["Dropping egg"]="Đang thả trứng",["Selling eggs"]="Đang bán trứng",["Selling pets"]="Đang bán pet",["Hatching eggs"]="Đang ấp trứng",["Placing eggs"]="Đang đặt trứng",["Mutating eggs"]="Đang đột biến trứng",["Fusing pets"]="Đang dung hợp pet",["Hopping server"]="Đang đổi máy chủ",["Rejoining"]="Đang vào lại phòng",["Avoiding guard"]="Đang né vệ sĩ",
+["Using treadmill"]="Đang chạy máy tập",["Upgrading treadmill"]="Đang nâng cấp máy tập",["Upgrading base"]="Đang nâng cấp căn cứ",["Claiming rewards"]="Đang nhận thưởng",["Claiming offline cash"]="Đang nhận tiền ngoại tuyến",["Joining race"]="Đang vào đường đua",["Racing"]="Đang đua xe",["Welcome Home"]="Trang Chủ",["Welcome back"]="Chào mừng trở lại",["Venyx Discord"]="Chilli Hub Discord",
+["Updates, keys, support"]="Cập nhật, nhận key, hỗ trợ",["Copy Invite"]="Chép Link Mời",["Copy invite"]="Chép Link Mời",["Copy link"]="Chép Link Mời",["Discord"]="Banana Hub",["MONEY /S"]="TIỀN /GIÂY",["CASH / S"]="TIỀN / GIÂY",["OPEN"]="MỞ",["Open"]="Mở",["Close"]="Đóng",["Welcome to Venyx 1.0.0! Join our Discord for updates and support"]="Chào mừng tới Chilli Hub V8! Tham gia Discord để cập nhật và nhận hỗ trợ",
+["Beta version"]="Phiên bản Beta",["This is a test build. Features may change and bugs can happen."]="Đây là bản thử nghiệm. Tính năng có thể thay đổi và phát sinh lỗi.",["Rejoin"]="Vào lại",["Server hop"]="Đổi server",["Copy Job ID"]="Chép Job ID",["Unload hub"]="Tắt Hub",["Unload"]="Tắt Hub",["Save config"]="Lưu cấu hình",["Hide UI"]="Ẩn Menu",
+["SESSION"]="PHIÊN CHƠI",["STOLEN"]="ĐÃ CƯỚP",["LAST EGG"]="TRỨNG CUỐI",["PLACED"]="ĐÃ ĐẶT",["HATCHED"]="ĐÃ ẤP",["NIGHT IN"]="ĐÊM SAU",["NEXT NIGHT"]="ĐÊM SAU",["SESSION TIME"]="THỜI GIAN",["TIME"]="THỜI GIAN",["BEST STEAL"]="CƯỚP TỐT NHẤT",["EGG BAG"]="TÚI TRỨNG",["PET BAG"]="TÚI PET",["WHAT'S NEW"]="CÓ GÌ MỚI",["NEW"]="MỚI",["Search"]="Tìm kiếm",["Filter"]="Lọc tìm",["Auto Steal"]="Tự Động Cướp",["AUTO STEAL"]="TỰ ĐỘNG CƯỚP",
+["Auto steal"]="Tự động cướp",["Egg Predictor"]="Dự Đoán Trứng",["Go to egg"]="Di chuyển tới trứng",["Teleport to egg"]="Dịch chuyển tới trứng",["Walk to egg"]="Đi bộ tới trứng",["Tween to egg"]="Bay mượt tới trứng",["Teleport zones"]="Khu vực dịch chuyển",["Tween"]="Bay (Tween)",["Walk"]="Đi bộ",["Delivery method"]="Cách mang về",["Instant steps"]="Tức thì từng bước",["Instant"]="Tức thì",["Teleport"]="Dịch chuyển",
+["Fast tween speed"]="Tốc độ bay nhanh",["Tween speed"]="Tốc độ bay",["Steal missing index eggs"]="Cướp trứng thiếu trong Chỉ mục",["Steal back from players"]="Cướp lại từ người chơi",["Steal from other players"]="Cướp từ người chơi khác",["Anti guard"]="Chống vệ sĩ",["Drop eggs at safe zone"]="Thả trứng ở vùng an toàn",["FILTER"]="BỘ LỌC",
+["Zones"]="Khu vực",["Steal first"]="Ưu tiên cướp",["Best value"]="Giá trị cao nhất",["Lowest value"]="Giá trị thấp nhất",["Best rarity"]="Độ hiếm cao nhất",["Best mutation"]="Đột biến tốt nhất",["Biggest"]="Kích thước to nhất",["Closest"]="Khoảng cách gần nhất",["Nearest"]="Gần nhất",["Mutations"]="Đột biến",["Rarities"]="Độ hiếm",["Only these eggs"]="Chỉ những trứng này",["Min value /s"]="Giá trị tối thiểu /s",["Max value /s"]="Giá trị tối đa /s",
+["Sell cheapest egg when bag is full"]="Bán trứng rẻ nhất khi đầy túi",["Keep lab eggs"]="Giữ lại trứng Lab",["AUTO HOP SERVER"]="TỰ ĐỔI MÁY CHỦ",["Auto hop server"]="Tự đổi máy chủ",["Auto hop"]="Tự động đổi server",["Hop now"]="Đổi server ngay",["First hop after"]="Đổi lần đầu sau",["Hop when"]="Đổi khi",["After stealing a match"]="Sau khi cướp đủ trứng lọc",["No matching egg"]="Không có trứng phù hợp",["Rare from"]="Độ hiếm từ",
+["Hop delay"]="Độ trễ đổi server",["Only sell eggs below /s"]="Chỉ bán trứng dưới mức /s",["EGG SHOWCASE"]="TRƯNG BÀY TRỨNG",["Sort eggs"]="Sắp xếp trứng",["Preview card"]="Thẻ xem trước",["Pick one"]="Chọn một mục",["Pick any"]="Chọn bất kỳ",["Value"]="Giá trị",["Rarity"]="Độ hiếm",["Time left"]="Thời gian còn lại",["Default"]="Mặc định",["Clear"]="Xóa chọn",["Select all"]="Chọn tất cả",
+["SIZE"]="KÍCH CỠ",["WEIGHT"]="CÂN NẶNG",["READY"]="SẴN SÀNG",["IN BAG"]="TRONG TÚI",["GROWING"]="ĐANG LỚN",["Hatch now"]="Ấp ngay",["Hold egg"]="Cầm trứng",["Fly to egg"]="Bay tới trứng",["Steal egg"]="Cướp trứng",["Enchanted Forest"]="Rừng Phù Phép",["Light Dark"]="Sáng Tối",["Titan Temple"]="Đền Titan",["Cherry Blossom"]="Hoa Anh Đào",["Prehistoric"]="Tiền Sử",["Abyss Ocean"]="Đáy Đại Dương",["Volcano"]="Núi Lửa",["Snow"]="Tuyết",["Jungle"]="Rừng Rậm",
+["Desert"]="Sa Mạc",["Lake"]="Hồ Nước",["Forest"]="Khu Rừng",["Silver"]="Bạc",["Rainbow"]="Cầu Vồng",["Golden"]="Vàng",["Fractured"]="Rạn Nứt",["Scrambled"]="Hỗn Loạn",["Enchanted"]="Phù Phép",["Nitro"]="Nitro",["SCRAMBLED"]="HỖN LOẠN",["NITRO"]="NITRO",["FRACTURED"]="RẠN NỨT",["ENCHANTED"]="PHÙ PHÉP",["Pen"]="Chuồng Ấp",["PEN"]="CHUỒNG ẤP",["Treadmill"]="Máy Tập",["TREADMILL"]="MÁY TẬP CHẠY",["Mutate"]="Đột Biến",
+["Sell"]="Bán",["SELL"]="BÁN TỰ ĐỘNG",["Fuse"]="Dung Hợp",["FUSE"]="DUNG HỢP",["Priority"]="Ưu Tiên",["PRIORITY"]="THỨ TỰ ƯU TIÊN",["AUTO PLACE"]="TỰ ĐỘNG ĐẶT TRỨNG",["Auto place"]="Tự động đặt trứng",["Place when"]="Đặt khi",["Always"]="Luôn luôn",["Place first"]="Ưu tiên đặt",["KEEP EGGS"]="GIỮ LẠI TRỨNG",["Eggs to keep"]="Trứng cần giữ",
+["AUTO HATCH"]="TỰ ĐỘNG ẤP TRỨNG",["Auto hatch"]="Tự động ấp trứng",["Equip best pets"]="Trang bị pet mạnh nhất",["READY NOW"]="SẴN SÀNG ẤP",["Auto treadmill"]="Tự chạy máy tập",["Auto upgrade treadmill"]="Tự nâng cấp máy tập",["PROGRESS"]="TIẾN TRÌNH",["Auto upgrade base"]="Tự nâng cấp căn cứ",["Auto buy trails"]="Tự mua vệt sáng",["Auto claim offline cash"]="Tự nhận tiền ngoại tuyến",["Auto claim index rewards"]="Tự nhận thưởng Chỉ mục",
+["AUTO MUTATE"]="TỰ ĐỘNG ĐỘT BIẾN",["Auto mutate"]="Tự động đột biến",["MUTATE FILTER"]="BỘ LỌC ĐỘT BIẾN",["Use items"]="Dùng vật phẩm",["Mutate first"]="Ưu tiên đột biến",["Skip eggs with"]="Bỏ qua trứng đã có",["Auto buy Nitro"]="Tự mua Nitro",["PETS"]="THÚ CƯNG (PETS)",["EGGS"]="TRỨNG (EGGS)",["Auto sell pets"]="Tự động bán pet",["Auto sell eggs"]="Tự động bán trứng",["Sell all eggs now"]="Bán hết trứng ngay",["Sell all pets now"]="Bán hết Pet ngay",
+["Sell rarities"]="Độ hiếm bán",["Never sell"]="Không bao giờ bán",["Only mutations"]="Chỉ bán đột biến",["Only below /s"]="Chỉ dưới mức /s",["Keep mutated"]="Giữ lại đồ đột biến",["LAB EGGS"]="TRỨNG PHÒNG LAB",["FAVORITE"]="YÊU THÍCH (KHÓA)",["Auto favorite"]="Tự động khóa bảo vệ",["Favorite matching now"]="Khóa đồ khớp lọc ngay",["Unfavorite pets not matching"]="Bỏ thích Pet không khớp",["Always favorite"]="Luôn khóa Yêu thích",
+["Auto sell lab eggs"]="Tự động bán trứng Lab",["Match"]="Điều kiện khớp",["All picked rules"]="Khớp tất cả quy tắc",["Any picked rule"]="Khớp bất kỳ quy tắc",["Favorite equipped"]="Khóa pet đang trang bị",["FUSE MACHINE"]="MÁY DUNG HỢP",["No 3 matching pets"]="Chưa đủ 3 pet cùng loại",["Auto fuse"]="Tự động dung hợp",["Fuse first"]="Ưu tiên dung hợp",["Lowest rarity"]="Độ hiếm thấp nhất",
+["Highest rarity"]="Độ hiếm cao nhất",["Use pets"]="Sử dụng pet",["Lowest value first"]="Giá trị thấp nhất trước",["Highest value first"]="Giá trị cao nhất trước",["Skip mutated"]="Bỏ qua pet đột biến",["Eject odd pets"]="Đẩy pet lẻ ra ngoài",["FUSE FILTER"]="BỘ LỌC DUNG HỢP",["Only these pets"]="Chỉ những pet này",["Never fuse"]="Không bao giờ dung hợp",["FUSE PREDICTOR"]="DỰ ĐOÁN DUNG HỢP",["SLOTS"]="Ô CHỨA",["STATUS"]="TRẠNG THÁI",["LIKELY SIZE"]="KÍCH CỠ DỰ KIẾN",
+["CHANCE"]="TỶ LỆ",["VALUE"]="GIÁ TRỊ",["BEST CASE"]="TỐT NHẤT CÓ THỂ",["TASK ORDER"]="THỨ TỰ TÁC VỤ",["Task order"]="Thứ tự tác vụ",["Reset order"]="Đặt lại thứ tự",["DOING"]="ĐANG LÀM",["WAITING"]="ĐANG CHỜ",["Steal filter eggs"]="Cướp trứng theo bộ lọc",["Shooting Star"]="Bắt Sao Băng",["Racing Event"]="Sự Kiện Đua Xe",["Butterfly"]="Bắt Bướm",
+["Steal wisp eggs"]="Cướp trứng Wisp",["Wisp"]="Nhặt Wisp",["Steal missing index"]="Cướp trứng thiếu trong Chỉ mục",["Steal lab eggs"]="Cướp trứng phòng Lab",["Place"]="Đặt trứng vào chuồng",["Butterfly machine"]="Máy đổi Bướm",["Race"]="Đua Xe",["RACE"]="ĐUA XE",["Star"]="Sao Băng",["STAR"]="SAO BĂNG",["BUTTERFLY"]="BẮT BƯỚM",["Lab"]="Phòng Lab",["LAB"]="PHÒNG LAB",["AA"]="Admin (AA)",["Halloween"]="Halloween",["HALLOWEEN"]="HALLOWEEN",
+["HALLOWEEN DIMENSION"]="KHÔNG GIAN HALLOWEEN",["Auto steal Halloween eggs"]="Tự động cướp trứng Halloween",["Instant steal Halloween eggs"]="Cướp tức thì trứng Halloween",["Steal speed"]="Tốc độ cướp",["Halloween eggs"]="Trứng Halloween",["Halloween rarities"]="Độ hiếm Halloween",["Auto Pumpkin Moon"]="Tự làm sự kiện Trăng Bí Ngô",
+["Auto buy Halloween Dimension Egg"]="Tự mua trứng Không gian Halloween",["Walk speed"]="Tốc độ chạy bộ",["GHOST DOG AND FISHING"]="CHÓ MA VÀ CÂU CÁ",["QUEST"]="NHIỆM VỤ",["Done"]="Đã xong",["FISH CAUGHT"]="CÁ ĐÃ CÂU",["Auto Ghost Dog quest"]="Tự làm nhiệm vụ Chó Ma",["Auto fishing"]="Tự động câu cá",["Cast luck"]="Tỷ lệ câu may mắn",["Perfect"]="Hoàn hảo (Perfect)",["MONSTERS"]="QUÁI VẬT",["Monsters"]="Tên quái vật",["Monster order"]="Thứ tự đánh quái",
+["Rarest first"]="Hiếm nhất trước",["PHANTOM EXPRESS"]="TÀU MA PHANTOM EXPRESS",["TRAIN"]="CHUYẾN TÀU",["Not here"]="Chưa đến",["SOULS"]="LINH HỒN",["Auto Phantom Express"]="Tự động cướp Tàu Ma",["Auto vacuum Ghouler boss"]="Tự hút linh hồn Boss Ghouler",["Ghost target"]="Mục tiêu ma",["Auto trade souls"]="Tự động đổi linh hồn",["RACING EVENT"]="SỰ KIỆN ĐUA XE",["NEXT RACE"]="ĐUA TIẾP THEO",["WINS"]="THẮNG",["TROPHIES"]="CÚP",
+["Auto race"]="Tự động đua xe",["Race speed"]="Tốc độ đua",["Use power-ups"]="Tự dùng vật phẩm tăng tốc",["REWARDS"]="PHẦN THƯỞNG",["Auto claim rewards"]="Tự nhận phần thưởng",["Auto equip racer"]="Tự trang bị xe đua",["Racer"]="Xe đua",["Best owned"]="Tốt nhất đang có",["Auto buy shop"]="Tự mua vật phẩm Shop",["Shop items"]="Vật phẩm Shop",["SHOOTING STAR"]="SAO BĂNG RƠI",["LANDS IN"]="RƠI SAU",["CATCH"]="BẮT SAO BĂNG",
+["CAUGHT"]="ĐÃ BẮT",["EXPIRES IN"]="BIẾN MẤT SAU",["SLIPPED"]="TUỘT MẤT",["TRIES"]="SỐ LẦN THỬ",["DISTANCE"]="KHOẢNG CÁCH",["Auto catch shooting star"]="Tự động bắt sao băng",["BUTTERFLY BLOOM"]="MÙA BƯỚM NỞ",["Auto butterfly bloom"]="Tự động bắt bướm",["EMERALD"]="LỤC BẢO",["SAPPHIRE"]="LAM NGỌC",["AMETHYST"]="THẠCH ANH TÍM",["RADIANT"]="RỰC RỠ",["ESSENCE"]="TINH CHẤT",["Catch mode"]="Chế độ bắt",["Stand"]="Đứng yên",
+["Chase"]="Đuổi theo",["BUTTERFLY MACHINE"]="MÁY ĐỔI BƯỚM",["Auto trade up"]="Tự nâng cấp bậc bướm",["Trade"]="Giao dịch đổi",["Smart trade for essence"]="Đổi bướm lấy tinh chất thông minh",["Auto craft essence"]="Tự chế tạo tinh chất",["WISP COMPANION"]="ĐỒNG HÀNH WISP",["Catch priority"]="Ưu tiên bắt",["Rarest"]="Hiếm nhất",["Catch"]="Loại bướm bắt",["Catch speed"]="Tốc độ bắt",["Auto wisp quest"]="Tự làm nhiệm vụ Wisp",
+["Auto banjo cricket"]="Tự bắt dế Banjo",["STAGE"]="GIAI ĐOẠN",["LAB ODDS"]="TỶ LỆ PHÒNG LAB",["BANNER"]="BĂNG RÔN",["ENDS IN"]="KẾT THÚC SAU",["BANNER CHANCE"]="TỶ LỆ BĂNG RÔN",["NEXT"]="TIẾP THEO",["Experimental Pets"]="Pet Thí Nghiệm",["Biohazard Pets"]="Pet Sinh Học",["Lab banners"]="Băng rôn phòng Lab",["Auto trade in"]="Tự động đổi trứng Lab",["Auto reroll recipe"]="Tự đổi lại công thức",
+["Place lab reward eggs"]="Đặt trứng thưởng từ Lab",["ADMIN ABUSE"]="LẠM DỤNG ADMIN (ABUSE)",["No admin boost right now"]="Hiện không có buff Admin nào",["Instant steal (Admin Treadmill)"]="Cướp tức thì (Máy tập Admin)",["Use admin treadmill"]="Tự dùng máy tập Admin",["CAPTURE THE EGG"]="CƯỚP TRỨNG SỰ KIỆN",["Auto capture event egg"]="Tự bắt trứng sự kiện",["Take it from the holder"]="Giật trứng từ người đang cầm",["Hold height"]="Độ cao giữ trứng",
+["Keep away"]="Khoảng cách né tránh",["MINIGAME EGGS"]="TRỨNG MINIGAME",["Auto steal minigame egg"]="Tự cướp trứng Minigame",["ESP"]="Định Vị (ESP)",["Move"]="Di Chuyển",["MOVE"]="DI CHUYỂN",["Combat"]="Chiến Đấu",["COMBAT"]="CHIẾN ĐẤU",["FIELD EGGS"]="TRỨNG NGOÀI SÂN",["Egg ESP"]="ESP Trứng",["Show"]="Hiển thị",["Name"]="Tên",["Fixed size"]="Cố định kích cỡ",["OTHERS"]="MỤC KHÁC",["Pen egg ESP"]="ESP trứng trong chuồng",
+["Other pens ESP"]="ESP chuồng người khác",["Guard ESP"]="ESP Vệ sĩ",["Hide sleeping guards"]="Ẩn vệ sĩ đang ngủ",["Player ESP"]="ESP Người chơi",["ESP size"]="Kích cỡ ESP",["MOVEMENT"]="TỐC ĐỘ & DI CHUYỂN",["Speed boost"]="Tăng tốc chạy",["Boost speed"]="Tốc độ tăng thêm",["Infinite jump"]="Nhảy vô hạn",["God mode"]="Bất tử (God mode)",["PROTECTION"]="BẢO VỆ NHÂN VẬT",["Anti ragdoll"]="Chống ngã (Anti Ragdoll)",["Ignore traps"]="Bỏ qua bẫy",
+["Instant prompts"]="Tương tác nhấn giữ tức thì",["Anti AFK"]="Chống treo máy (Anti AFK)",["Invisible"]="Tàng hình",["AUTO HIT"]="TỰ ĐỘNG ĐÁNH",["Auto hit"]="Tự động đánh",["Hit who"]="Mục tiêu đánh",["Nearest player"]="Người chơi gần nhất",["Chosen player"]="Người chơi chỉ định",["Egg carrier"]="Người đang ôm trứng",["Chase speed"]="Tốc độ đuổi theo",["HIT AURA"]="VÒNG ĐÁNH TỰ ĐỘNG",["Hit aura"]="Vòng đánh tự động (Hit Aura)",["Skip friends"]="Bỏ qua bạn bè",
+["WEAPONS"]="VŨ KHÍ",["Use weapons"]="Sử dụng vũ khí",["Hold each"]="Thời gian cầm mỗi món",["Server"]="Máy Chủ",["SERVER"]="MÁY CHỦ",["Webhook"]="Webhook",["WEBHOOK"]="WEBHOOK",["Optimizer"]="Tối Ưu Hóa",["OPTIMIZER"]="TỐI ƯU HÓA",["Interface"]="Giao Diện",["INTERFACE"]="GIAO DIỆN",["GAME HUD"]="TRÊN MÀN HÌNH GAME",["Steal panel button on game HUD"]="Hiện nút Bảng Cướp trên màn hình",
+["Config"]="Cấu Hình",["CONFIG"]="CẤU HÌNH",["CONFIGS"]="QUẢN LÝ CẤU HÌNH",["Configs"]="Danh sách cấu hình",["ACTIVE"]="ĐANG DÙNG",["SAVED CONFIGS"]="ĐÃ LƯU",["Set as active config"]="Đặt làm cấu hình chính",["Set active"]="Kích hoạt",["Save changes"]="Lưu thay đổi",["Save"]="Lưu",["Overwrite"]="Lưu đè",["PROFILES"]="HỒ SƠ CẤU HÌNH",["New config name"]="Tên cấu hình mới",["Config name"]="Tên cấu hình",["Auto if empty"]="Tự đặt nếu trống",
+["Create config"]="Tạo cấu hình mới",["Create"]="Tạo mới",["Pick to delete"]="Chọn mục cần xóa",["Delete picked"]="Xóa mục đã chọn",["Delete"]="Xóa",["Restore deleted"]="Khôi phục mục đã xóa",["Export config"]="Xuất mã cấu hình",["Export to clipboard"]="Chép mã cấu hình",["Import text"]="Dán mã cấu hình",["Paste config text"]="Dán mã JSON vào đây",["Paste config JSON here"]="Dán mã JSON vào đây",["Import config"]="Nhập cấu hình",["Import"]="Nhập",
+["Config imported"]="Đã nhập cấu hình",["Config loaded"]="Đã nạp cấu hình",["Later"]="Để sau",["Apply now"]="Áp dụng ngay",["Hop to"]="Chuyển tới server",["Least players"]="Ít người chơi nhất",["Most players"]="Đông người chơi nhất",["Random"]="Ngẫu nhiên",["Hop server"]="Đổi máy chủ",["Hop"]="Đổi ngay",["Rejoin this server"]="Vào lại máy chủ này",["Copy"]="Sao chép",["JOIN AND STAY"]="VÀO PHÒNG & DUY TRÌ",["Job ID"]="Mã phòng (Job ID)",
+["Paste a Job ID"]="Dán mã Job ID vào đây",["Join that server"]="Vào máy chủ đó",["Join"]="Vào ngay",["Rejoin on kick"]="Tự vào lại khi bị văng/kick",["Auto load script"]="Tự chạy lại script khi chuyển server",["DISCORD WEBHOOK"]="WEBHOOK DISCORD",["Webhook URL"]="Đường dẫn Webhook",["Ping role ID"]="ID Vai trò (Role ID)",["Ping user ID"]="ID Người dùng (User ID)",
+["Ping everyone"]="Tag @everyone",["WHAT TO POST"]="NỘI DUNG GỬI BÁO CÁO",["Post stolen eggs"]="Báo cáo trứng cướp được",["Post fused eggs"]="Báo cáo trứng dung hợp",["POSTED"]="ĐÃ GỬI",["Send a test post"]="Gửi tin nhắn thử nghiệm",["Test"]="Thử nghiệm",["Post when bag is full"]="Gửi thông báo khi đầy túi",["GRAPHICS"]="ĐỒ HỌA",["Low graphics"]="Đồ họa thấp (Tăng FPS)",
+["Disable 3D Render"]="Tắt kết xuất 3D (Treo máy)",["Background color"]="Màu nền màn hình",["Black"]="Màu Đen",["White"]="Màu Trắng",["Hide game UI"]="Ẩn giao diện gốc của Game",["FRAME RATE"]="TỐC ĐỘ KHUNG HÌNH (FPS)",["FPS cap"]="Giới hạn FPS",["FPS position"]="Vị trí thanh FPS",["Show FPS and ping"]="Hiện chỉ số FPS và Ping",["BASES"]="CĂN CỨ (BASES)",["Hide other players' pets and eggs"]="Ẩn pet và trứng của người chơi khác",
+["Hide my pets and eggs"]="Ẩn pet và trứng của bản thân",["Theme"]="Chủ đề màu",["Toggle key"]="Phím đóng/mở Menu",["Quick bar"]="Thanh phím tắt nhanh",["QUICK BAR"]="THANH PHÍM TẮT NHANH",["Auto save"]="Tự động lưu cấu hình",["Auto load"]="Tự động nạp cấu hình",["Auto load on join"]="Tự động nạp khi vào game",["Load config"]="Nạp cấu hình",["Load"]="Nạp cấu hình",
+["Reset config"]="Đặt lại mặc định",["Delete config"]="Xóa cấu hình",["Common"]="Phổ Thông",["Uncommon"]="Thường",["Rare"]="Hiếm",["Epic"]="Sử Thi",["Legendary"]="Huyền Thoại",["Mythic"]="Thần Thoại",["Cosmic"]="Vũ Trụ",["Secret"]="Bí Ẩn",["Divine"]="Thánh Thần",["Eternal"]="Vĩnh Cửu",["COMMON"]="PHỔ THÔNG",["UNCOMMON"]="THƯỜNG",["RARE"]="HIẾM",["EPIC"]="SỬ THI",["LEGENDARY"]="HUYỀN THOẠI",["MYTHIC"]="THẦN THOẠI",
+["COSMIC"]="VŨ TRỤ",["SECRET"]="BÍ ẨN",["DIVINE"]="THÁNH THẦN",["ETERNAL"]="VĨNH CỬU",
+["Radiant"]="Rực Rỡ",["Amethyst"]="Thạch Anh Tím",["Sapphire"]="Lam Ngọc",["Emerald"]="Ngọc Lục Bảo"
+}
+local LOWER_VI={}
+for k,v in pairs(EXACT_VI)do
+local lk=k:lower()
+if not LOWER_VI[lk] or k:upper()~=k then
+LOWER_VI[lk]=v
+end
+end
+local GRAMMAR_VI={
+{pat="^[Gg]oing%s+into%s+(.+)$",rep="Đang vào %1"},{pat="^[Ll]eaving%s+(.+)$",rep="Đang rời %1"},{pat="^[Ee]ntering%s+(.+)$",rep="Đang vào %1"},{pat="^[Vv]acuuming%s+ghosts%s*(.*)$",rep="Đang hút bóng ma %1"},{pat="^[Rr]iding%s+(.+)$",rep="Đang đi %1"},{pat="^[Ff]ighting%s+[Ss]mall%s+monster$",rep="Đang đánh quái vật nhỏ"},{pat="^[Ff]ighting%s+[Mm]edium%s+monster$",rep="Đang đánh quái vật vừa"},{pat="^[Ff]ighting%s+[Ll]arge%s+monster$",rep="Đang đánh quái vật lớn"},
+{pat="^[Aa]uto play (.+)$",rep="Tự động chơi %1"},{pat="^[Aa]uto farm (.+)$",rep="Tự động cày %1"},{pat="^[Aa]uto kill (.+)$",rep="Tự động tiêu diệt %1"},{pat="^[Aa]uto catch (.+)$",rep="Tự động bắt %1"},{pat="^[Aa]uto collect (.+)$",rep="Tự động thu thập %1"},{pat="^[Aa]uto buy (.+)$",rep="Tự động mua %1"},{pat="^[Aa]uto sell (.+)$",rep="Tự động bán %1"},{pat="^[Aa]uto claim (.+)$",rep="Tự động nhận %1"},
+{pat="^[Aa]uto upgrade (.+)$",rep="Tự động nâng cấp %1"},{pat="^[Aa]uto craft (.+)$",rep="Tự động chế tạo %1"},{pat="^[Aa]uto trade (.+)$",rep="Tự động trao đổi %1"},{pat="^[Aa]uto equip (.+)$",rep="Tự động trang bị %1"},{pat="^[Aa]uto steal (.+)$",rep="Tự động cướp %1"},{pat="^[Ii]nstant steal (.+)$",rep="Cướp tức thì %1"},{pat="^[Aa]uto (.+) quest$",rep="Tự làm nhiệm vụ %1"},{pat="^[Aa]uto (.+)$",rep="Tự động %1"},
+{pat="^[Cc]alculate (.+)$",rep="Tính thử %1"},{pat="^[Cc]hange if (.+) fails$",rep="Chỉnh lại nếu %1 bị lỗi"},{pat="^(.+) speed$",rep="Tốc độ %1"},{pat="^(.+) target$",rep="Mục tiêu %1"},{pat="^(.+) order$",rep="Thứ tự %1"},{pat="^(.+) priority$",rep="Ưu tiên %1"},{pat="^(.+) mode$",rep="Chế độ %1"},{pat="^(.+) filter$",rep="Bộ lọc %1"},{pat="^[Hh]alloween: carrying (.+) to safety$",rep="Halloween: đang mang %1 đến nơi an toàn"},
+{pat="^[Hh]alloween: (.+)$",rep="Halloween: %1"},{pat="^[Nn]o eggs? match%w* your (.+)$",rep="Không có trứng nào khớp %1"},{pat="^[Nn]o eggs? match%w* (.+)$",rep="Không có trứng nào khớp %1"},{pat="^[Nn]o pets? match%w* (.+)$",rep="Không có pet nào khớp %1"},{pat="^[Nn]o (.+) found(.*)$",rep="Không tìm thấy %1%2"},{pat="^[Cc]arrying (.+) to safe zone(.*)$",rep="Đang mang %1 về vùng an toàn%2"},{pat="^[Cc]arrying (.+) to base(.*)$",rep="Đang mang %1 về căn cứ%2"},
+{pat="^[Cc]arrying (.+) to pen(.*)$",rep="Đang mang %1 về chuồng%2"},{pat="^[Cc]arrying (.+) to (.+)$",rep="Đang mang %1 tới %2"},{pat="^[Cc]arrying (.+) home(.*)$",rep="Đang mang %1 về nhà%2"},{pat="^[Cc]arrying (.+)$",rep="Đang mang %1"},{pat="^[Dd]elivering (.+) to (.+)$",rep="Đang giao %1 tới %2"},{pat="^[Dd]elivering (.+) home(.*)$",rep="Đang giao %1 về nhà%2"},{pat="^[Dd]elivering (.+)$",rep="Đang giao %1"},{pat="^[Bb]ringing (.+) to (.+)$",rep="Đang đem %1 tới %2"},
+{pat="^[Tt]aking (.+) from (.+)$",rep="Đang giật %1 từ %2"},{pat="^[Ss]tealing (.+) from (.+)$",rep="Đang cướp %1 từ %2"},{pat="^[Ss]tealing (.+)$",rep="Đang cướp %1"},{pat="^[Gg]rabbing (.+)$",rep="Đang nhặt %1"},{pat="^[Pp]icking up (.+)$",rep="Đang nhặt %1"},{pat="^[Cc]ollecting (.+)$",rep="Đang thu thập %1"},{pat="^[Dd]ropping (.+) at (.+)$",rep="Đang thả %1 tại %2"},
+{pat="^[Tt]weening to (.+)$",rep="Đang bay tới %1"},{pat="^[Tt]eleporting to (.+)$",rep="Đang dịch chuyển tới %1"},{pat="^[Gg]oing to (.+)$",rep="Đang đi tới %1"},{pat="^[Mm]oving to (.+)$",rep="Đang di chuyển tới %1"},{pat="^[Ww]alking to (.+)$",rep="Đang chạy tới %1"},{pat="^[Rr]unning to (.+)$",rep="Đang chạy tới %1"},{pat="^[Ff]lying to (.+)$",rep="Đang bay tới %1"},{pat="^[Rr]eturning to (.+)$",rep="Đang quay về %1"},
+{pat="^[Pp]lacing (.+)$",rep="Đang đặt %1"},{pat="^[Hh]atching (.+)$",rep="Đang ấp %1"},{pat="^[Mm]utating (.+)$",rep="Đang đột biến %1"},{pat="^[Ss]elling (.+)$",rep="Đang bán %1"},{pat="^[Ff]using (.+)$",rep="Đang dung hợp %1"},{pat="^[Uu]pgrading (.+)$",rep="Đang nâng cấp %1"},{pat="^[Bb]uying (.+)$",rep="Đang mua %1"},{pat="^[Cc]laiming (.+)$",rep="Đang nhận %1"},{pat="^[Ee]quipping (.+)$",rep="Đang trang bị %1"},{pat="^[Cc]atching (.+)$",rep="Đang bắt %1"},
+{pat="^[Cc]hasing (.+)$",rep="Đang đuổi theo %1"},{pat="^[Aa]ttacking (.+)$",rep="Đang tấn công %1"},{pat="^[Hh]itting (.+)$",rep="Đang đánh %1"},{pat="^[Kk]illing (.+)$",rep="Đang tiêu diệt %1"},{pat="^[Tt]rading in (.+)$",rep="Đang đổi %1"},{pat="^[Cc]rafting (.+)$",rep="Đang chế tạo %1"},{pat="^[Aa]voiding (.+)$",rep="Đang né %1"},{pat="^[Ww]aiting for (.+)$",rep="Đang chờ %1"},
+{pat="^[Ww]aiting in (.+)$",rep="Đang đợi ở %1"},{pat="^[Ww]aiting %((.+)%)$",rep="Đang chờ (%1)"},{pat="^[Ss]earching for (.+)$",rep="Đang tìm %1"},{pat="^[Ff]arming (.+)$",rep="Đang cày %1"},{pat="^[Uu]sing (.+)$",rep="Đang dùng %1"},{pat="^[Jj]oining (.+)$",rep="Đang tham gia %1"},
+{pat="^[Hh]opping (.+)$",rep="Đang đổi %1"}
+}
+local PHRASES_VI={
+{"steal missing halloween index","Cướp trứng Halloween thiếu trong Chỉ mục"},{"missing halloween index","Halloween thiếu trong Chỉ mục"},{"hatch missing in egg index","ấp trứng thiếu trong Chỉ mục"},{"in egg index","trong Chỉ mục trứng"},{"egg index","Chỉ mục trứng"},{"auto claim mastery","Tự động nhận thưởng Thông Thạo"},{"claim mastery","nhận thưởng Thông Thạo"},{"stub pickup speed","Tốc độ nhặt Cuống Bí Ngô"},{"pickup speed","Tốc độ nhặt vật phẩm"},
+{"cuống pickup","nhặt Cuống Bí Ngô"},{"cursed island wars","Đại Chiến Đảo Nguyền Rủa"},{"island wars","Đảo Nguyền Rủa"},{"phantom express","Tàu Ma Phantom Express"},{"pumpkin moon","Trăng Bí Ngô"},{"halloween dimension","Không gian Halloween"},{"ghost dog","Chó Ma"},{"enemies and base","Kẻ địch và Căn cứ"},{"walls and crystal","Tường chắn và Pha lê"},{"candy corn","Kẹo Ngô"},
+{"admin treadmill","máy tập Admin"},{"instant steal","cướp tức thì"},{"capture the egg","Cướp trứng sự kiện"},{"no egg matches your targets","Không có trứng nào khớp mục tiêu"},{"no eggs match filter","Không có trứng khớp bộ lọc"},{"waiting for field to open","Đang chờ sân trứng mở"},{"waiting for eggs to spawn","Đang chờ trứng xuất hiện"},{"waiting in safe zone","Đợi ở vùng an toàn"},{"returning to safe zone","Đang về vùng an toàn"},
+{"to the altar","tới bệ thờ"},{"to altar","tới bệ thờ"},{"the altar","bệ thờ"},{"a pumpkin","bí ngô"},{"egg bag is full","Túi trứng đã đầy"},{"pet bag is full","Túi pet đã đầy"},{"bag is full","Túi đã đầy"},{"pen is full","Chuồng đã đầy"},{"field is closed","Sân trứng đang đóng"},{"safe zone","vùng an toàn"},{"other players","người chơi khác"},{"missing index","thiếu trong Chỉ mục"},{"shooting star","sao băng"},
+{"butterfly bloom","mùa bướm nở"},{"racing event","sự kiện đua xe"},{"offline cash","tiền ngoại tuyến"},{"index rewards","thưởng Chỉ mục"},{"lab eggs","trứng Lab"},{"event egg","trứng sự kiện"},{"minigame eggs","trứng Minigame"},{"minigame egg","trứng Minigame"},{"wisp eggs","trứng Wisp"},{"to safe zone","về vùng an toàn"},{"to safety","đến nơi an toàn"},{"to base","về căn cứ"},{"to pen","vào chuồng"},{"was added to your configs","đã được thêm vào danh sách cấu hình"},
+{"fixed some bugs","đã sửa một số lỗi vặt"},{"some bugs","một số lỗi vặt"},{"movement speed up to","tốc độ di chuyển lên tới"},{"di chuyển tốc độ up tới","tốc độ di chuyển lên tới"},{"improved fast bay (tween)","cải thiện Bay Nhanh (Fast Tween)"},{"improved fast tween","cải thiện Bay Nhanh (Fast Tween)"},{"fast tween","Bay Nhanh (Fast Tween)"},{"auto pumpkin boss","tự đánh Boss Bí Ngô"},{"tự động bí ngô boss","tự đánh Boss Bí Ngô"},
+{"dodges attacks","né đòn tấn công"},{"fires cannons","bắn đại bác"},{"collects pumpkin stubs","nhặt Cuống Bí Ngô"},{"collects bí ngô stubs","nhặt Cuống Bí Ngô"},{"pumpkin stubs","Cuống Bí Ngô"},{"auto manor key","tự lấy chìa khóa dinh thự"},{"tự động manor key","tự lấy chìa khóa dinh thự"},{"manor key","chìa khóa dinh thự"},{"go to egg leap","Nhảy Tới Trứng"},{"di chuyển tới trứng leap","Nhảy Tới Trứng"},
+{"replaces old go to egg","thay thế Đi Tới Trứng cũ"},{"replaces old di chuyển tới trứng","thay thế Đi Tới Trứng cũ"},{"replaces old","thay thế bản cũ"},{"anti guard fires again","Chống vệ sĩ hoạt động trở lại"},{"anti vệ sĩ fires again","Chống vệ sĩ hoạt động trở lại"},{"fires again","hoạt động trở lại"},{"finishes about twice as fast","hoàn tất nhanh gấp đôi"},{"twice as fast","nhanh gấp đôi"},
+{"you can also hold any feature to pin it","bạn có thể nhấn giữ tính năng bất kỳ để ghim"},{"set a key","gán phím tắt"},{"set key","gán phím tắt"},
+{"inventory values","Giá trị túi đồ"},{"find option","Tìm tùy chọn"},{"just now","vừa xong"}
+}
+local VI_TO_EN={
+["trang chủ"]="Home",["săn trứng"]="Steal",["tự cày"]="Farm",["sự kiện"]="Events",["nhân vật"]="Player",["cài đặt"]="Settings",["tự động cướp"]="Auto steal",["tự động"]="Auto",["dịch chuyển tới trứng"]="Go to egg",["di chuyển tới trứng"]="Go to egg",["cách mang về"]="Delivery method",["khu vực dịch chuyển"]="Teleport zones",["cướp trứng thiếu trong chỉ mục"]="Steal missing index eggs",["cướp từ người chơi khác"]="Steal from other players",["chống vệ sĩ"]="Anti guard",
+["thả trứng ở vùng an toàn"]="Drop eggs at safe zone",["chỉ những trứng này"]="Only these eggs",["giá tối thiểu /s"]="Min value /s",["giá tối thiểu"]="Min value",["bán trứng rẻ nhất khi đầy túi"]="Sell cheapest egg when bag is full",["chỉ dưới mức /s"]="Only below /s",["không có"]="None",["không"]="None",["giá trị cao nhất"]="Best value",["thánh thần"]="Divine",["vĩnh cửu"]="Eternal",["bí ẩn"]="Secret",["vũ trụ"]="Cosmic",["thần thoại"]="Mythic",
+["huyền thoại"]="Legendary",["sử thi"]="Epic",["hiếm"]="Rare",["thường"]="Common",["tắt"]="Off",["bật"]="On",["tất cả"]="All",["tìm trứng"]="Finder",["đang rảnh"]="Idle",["vào ngay"]="Join",["tự vào sau"]="Force join",["độ hiếm"]="Rarity",["tài khoản"]="Account",["miễn phí"]="Free",["ẩn"]="Hide",["hiện"]="Show",["tự động: tắt"]="AUTO OFF",["tự động: bật"]="AUTO ON",
+["đang tìm..."]="Searching...",["đang quét..."]="Scanning...",["đã thấy!"]="Found!"
+}
+for k,v in pairs(EXACT_VI)do
+if type(v)=="string" and type(k)=="string" then
+local lk=v:lower()
+if not VI_TO_EN[lk] then VI_TO_EN[lk]=k end
+end
+end
+local WORDS_VI={
+hatch="ấp",hatches="ấp",hatched="đã ấp",
+mastery="Thông Thạo",pickup="nhặt",missing="còn thiếu",
+index="Chỉ mục",indexed="đã mở Chỉ mục",
+kills="số lần hạ",kill="hạ",alive="còn sống",dead="đã hạ",
+spawned="đã xuất hiện",hollow="Vực Hollow",abyss="Vực Thẳm",
+wisp="Wisp",banjo="Banjo",cricket="dế",
+leaving="Đang rời",entering="Đang vào",vacuuming="Đang hút",riding="Đang đi",choose="chọn",multiple="nhiều",shorter="ngắn hơn",delay="độ trễ",between="giữa",tasks="tác vụ",grabs="cướp",
+idle="Đang rảnh",carrying="Đang mang",delivering="Đang giao",stealing="Đang cướp",grabbing="Đang nhặt",
+picking="Đang nhặt",collecting="Đang thu thập",holding="Đang giữ",capturing="Đang bắt giữ",dropping="Đang thả",
+tweening="Đang bay",teleporting="Đang dịch chuyển",going="Đang đi",moving="Đang di chuyển",walking="Đang đi bộ",
+running="Đang chạy",flying="Đang bay",returning="Đang quay về",placing="Đang đặt",hatching="Đang ấp",
+mutating="Đang đột biến",selling="Đang bán",fusing="Đang dung hợp",upgrading="Đang nâng cấp",buying="Đang mua",
+claiming="Đang nhận",equipping="Đang trang bị",catching="Đang nhặt",chasing="Đang đuổi theo",attacking="Đang tấn công",
+hitting="Đang đánh",killing="Đang tiêu diệt",trading="Đang đổi",crafting="Đang chế tạo",avoiding="Đang né",
+waiting="Đang chờ",searching="Đang tìm",scanning="Đang quét",farming="Đang cày",using="Đang dùng",
+joining="Đang vào",hopping="Đang đổi",rejoining="Đang vào lại",finding="Đang tìm",racing="Đang đua",
+ready="Sẵn sàng",nothing="Không có gì",none="Không có",no="Không có",pumpkin="bí ngô",pumpkins="bí ngô",
+altar="bệ thờ",monster="quái vật",monsters="quái vật",ghost="ma",ghosts="ma",soul="linh hồn",souls="linh hồn",
+train="chuyến tàu",boss="Boss",cursed="nguyền rủa",island="đảo",wars="đại chiến",enemies="kẻ địch",
+walls="tường chắn",crystal="pha lê",candy="kẹo",corn="ngô",fishing="câu cá",fish="cá",quest="nhiệm vụ",
+dimension="không gian",delivery="mang về",calculate="tính thử",mutation="đột biến",mutations="đột biến",
+weapon="vũ khí",weapons="vũ khí",removed="đã gỡ bỏ",added="đã thêm",fixed="đã sửa",egg="trứng",eggs="trứng",
+pet="pet",pets="pet",matches="khớp",match="khớp",matching="khớp",your="của bạn",target="mục tiêu",
+targets="mục tiêu",filter="bộ lọc",home="về nhà",base="căn cứ",pen="chuồng",pens="chuồng",field="sân trứng",
+zone="khu vực",zones="khu vực",bag="túi",full="đầy",empty="trống",closed="đóng",open="mở",guard="vệ sĩ",
+guards="vệ sĩ",player="người chơi",players="người chơi",server="máy chủ",treadmill="máy tập",race="đua xe",
+star="sao băng",butterfly="bướm",portal="cổng",rewards="thưởng",reward="thưởng",cash="tiền",found="tìm thấy",
+speed="tốc độ",instant="tức thì",steal="cướp",auto="tự động",to="tới",from="từ",["in"]="trong",at="tại",
+["for"]="cho",with="với",["and"]="và",["or"]="hoặc",
+some="một số",bug="lỗi",bugs="lỗi",improved="cải thiện",fast="nhanh",up="lên",
+dodges="né",dodge="né",attacks="đòn đánh",attack="tấn công",fires="bắn",fire="bắn",
+cannons="đại bác",cannon="đại bác",collects="nhặt",collect="nhặt",stubs="cuống",stub="cuống",
+manor="dinh thự",key="chìa khóa",keys="chìa khóa",leap="nhảy vọt",replaces="thay thế",replace="thay thế",
+old="cũ",new="mới",anti="chống",again="lại",finishes="hoàn tất",finish="hoàn tất",
+about="khoảng",twice="gấp đôi",as="như",tip="Mẹo",also="cũng",can="có thể",
+hold="nhấn giữ",any="bất kỳ",feature="tính năng",features="tính năng",pin="ghim",
+it="nó",set="gán",option="tùy chọn",options="tùy chọn",find="tìm",
+inventory="túi đồ",values="giá trị",value="giá trị",now="ngay",just="vừa"
+}
+local DYN_VI={
+{pat="^(v[%d%.]+):%s*[Ff]ixed some bugs%.?$",rep="%1: Đã sửa một số lỗi vặt"},{pat="^(v[%d%.]+):%s*đã sửa some bugs%.?$",rep="%1: Đã sửa một số lỗi vặt"},{pat="^(v[%d%.]+):%s*[Mm]ovement speed up to (%d+%%),%s*improved [Ff]ast [Tt]ween.*$",rep="%1: Tăng tốc độ di chuyển lên tới %2, cải thiện Bay Nhanh (Fast Tween)"},
+{pat="^(v[%d%.]+):%s*[Aa]uto [Pp]umpkin [Bb]oss.*$",rep="%1: Tự đánh Boss Bí Ngô (né đòn, bắn đại bác, nhặt Cuống Bí Ngô), tự lấy chìa khóa dinh thự và Nhảy Tới Trứng"},{pat="^(v[%d%.]+):%s*[Aa]nti guard fires again.*$",rep="%1: Chống vệ sĩ hoạt động trở lại và hoàn tất nhanh gấp đôi"},{pat="^QUICK BAR (%d+)$",rep="THANH NHANH %1"},{pat="^[Ee]%.g%. (.+)$",rep="VD: %1"},{pat="^(.+) Egg$",rep="Trứng %1"},{pat="^(%d+) seconds? ago$",rep="%1 giây trước"},
+{pat="^(%d+) hours? ago$",rep="%1 giờ trước"},{pat="^(%d+) days? ago$",rep="%1 ngày trước"},{pat="^(%d+) minutes? ago$",rep="%1 phút trước"},{pat="Venyx(.-)just now",rep="Chilli Hub%1vừa xong"},{pat="Venyx(.-)(%d+) seconds? ago",rep="Chilli Hub%1%2 giây trước"},{pat="^(.+) was added to your configs%. Apply it now%??$",rep="Đã thêm '%1' vào danh sách cấu hình. Áp dụng ngay?"},{pat="^(.+) was added to your configs$",rep="Đã thêm '%1' vào danh sách cấu hình"},
+{pat="Welcome to Venyx ([%d%.]+)! Join our Discord for updates and support",rep="Chào mừng tới Chilli Hub V8 (%1)! Tham gia Discord để cập nhật và nhận hỗ trợ"},{pat="Venyx(.-)(%d+) hours? ago",rep="Chilli Hub%1%2 giờ trước"},{pat="Venyx(.-)(%d+) minutes? ago",rep="Chilli Hub%1%2 phút trước"},{pat="Venyx(.-)(%d+) days? ago",rep="Chilli Hub%1%2 ngày trước"},{pat="^ALL (%d+)$",rep="TẤT CẢ %1"},{pat="^READY (%d+)$",rep="SẴN SÀNG %1"},
+{pat="^GROWING (%d+)$",rep="ĐANG LỚN %1"},{pat="^IN BAG (%d+)$",rep="TRONG TÚI %1"},{pat="Pen (%d+/%d+).-(%d+) egg%(s%) ready to place",rep="Chuồng %1 · %2 trứng sẵn sàng đặt"},{pat="(%d+) egg%(s%) can be mutated",rep="%1 trứng có thể đột biến"},{pat="(%d+) pet%(s%) match",rep="%1 pet khớp bộ lọc"},{pat="(%d+) egg%(s%) match",rep="%1 trứng khớp bộ lọc"},{pat="(%d+) lab egg%(s%) match",rep="%1 trứng Lab khớp bộ lọc"},{pat="^(%d+) pets$",rep="%1 thú cưng"},
+{pat="(%d+ / %d+) players · (.+)",rep="%1 người chơi · %2"},{pat="Experimental Pets · needs (.-) · pity (%d+/%d+) · rerolls (%d+) · (.+)",rep="Pet Thí Nghiệm · cần %1 · bảo hiểm %2 · lượt đổi %3 · %4"},{pat="Biohazard Pets · needs (.-) · pity (%d+/%d+) · rerolls (%d+) · (.+)",rep="Pet Sinh Học · cần %1 · bảo hiểm %2 · lượt đổi %3 · %4"},{pat="Unstable DNA · needs (.-) · pity (%d+/%d+) · rerolls (%d+) · (.+)",rep="DNA Bất Ổn · cần %1 · bảo hiểm %2 · lượt đổi %3 · %4"},
+{pat="^Mythic · 1 in ([%d%.]+)$",rep="Thần Thoại · 1 trên %1"},{pat="^Cosmic · 1 in ([%d%.]+)$",rep="Vũ Trụ · 1 trên %1"},{pat="^Secret · 1 in ([%d%.]+)$",rep="Bí Ẩn · 1 trên %1"},{pat="^Divine · 1 in ([%d%.]+)$",rep="Thánh Thần · 1 trên %1"},{pat="^Eternal · 1 in ([%d%.]+)$",rep="Vĩnh Cửu · 1 trên %1"},{pat="^First hop after (%d+)s$",rep="Đổi lần đầu sau %1 giây"},{pat="^Hold each ([%d%.]+)s$",rep="Cầm mỗi món %1 giây"},{pat="^(%d+) selected$",rep="Đã chọn %1 mục"},
+{pat="^(%d+)%s*/%s*(%d+) selected$",rep="Đã chọn %1/%2"}
+}
+
+
+-- ============================================================================
+-- BỔ SUNG TỪ ĐIỂN VIỆT HÓA 100% TOÀN BỘ GIAO DIỆN FIGGY HUB / BANANA HUB (8037-8045)
+-- ============================================================================
+local EXTRA_EXACT_VI = {
 	-- Thương hiệu & Header
 	["Figgy Hub"] = "Banana Hub",
 	["figgy hub"] = "Banana Hub",
@@ -872,10 +1064,10 @@ local EXACT_VI = {
 	["steal an egg"] = "Cướp Trứng",
 	["Lemon"] = "Vàng Hoàng Gia (Gold)",
 	["• Lemon"] = "• Vàng Hoàng Gia (Gold)",
-	["Midnight Fig"] = "Midnight Fig",
-	["• Midnight Fig"] = "• Midnight Fig",
+	["Midnight Fig"] = "Quả Vả Đêm (Midnight Fig)",
+	["• Midnight Fig"] = "• Quả Vả Đêm (Midnight Fig)",
 
-	-- Nút HUD & Nút chức năng ngoài màn hình (7994.jpg)
+	-- Nút HUD ngoài màn hình
 	["Finder"] = "Tìm Kiếm",
 	["finder"] = "Tìm kiếm",
 	["FINDER"] = "TÌM KIẾM",
@@ -891,74 +1083,46 @@ local EXACT_VI = {
 	["Fast Mode"] = "Chế Độ Nhanh",
 	["fast mode"] = "Chế độ nhanh",
 	["FAST MODE"] = "CHẾ ĐỘ NHANH",
-	["Trade"] = "Giao Dịch",
-	["trade"] = "Giao dịch",
-	["TRADE"] = "GIAO DỊCH",
-	["Teleport"] = "Dịch Chuyển",
-	["teleport"] = "Dịch chuyển",
-	["TELEPORT"] = "DỊCH CHUYỂN",
-	["Stats"] = "Chỉ Số",
-	["stats"] = "Chỉ số",
-	["STATS"] = "CHỈ SỐ",
-	["Pets"] = "Thú Cưng",
-	["pets"] = "Thú cưng",
-	["PETS"] = "THÚ CƯNG",
-	["Auto Farm"] = "Tự Động Cày",
-	["auto farm"] = "Tự động cày",
-	["AUTO FARM"] = "TỰ ĐỘNG CÀY",
-	["Anti AFK"] = "Chống AFK",
-	["anti afk"] = "Chống AFK",
-	["ANTI AFK"] = "CHỐNG AFK",
 
-	-- Trạng thái (Treadmill được quy thẳng về Đang rảnh)
-	["Treadmill"] = "Đang rảnh",
-	["treadmill"] = "Đang rảnh",
-	["TREADMILL"] = "Đang rảnh",
-	["Idle"] = "Đang rảnh",
-	["• Idle"] = "• Đang rảnh",
-	["Running"] = "Đang rảnh",
-	["• Running"] = "• Đang rảnh",
-	["Working"] = "Đang chạy",
-	["Active"] = "Đang bật",
-	["ACTIVE"] = "ĐANG BẬT",
-	["Inactive"] = "Đang tắt",
-	["INACTIVE"] = "ĐANG TẮT",
-	["Farming"] = "Đang cày",
-	["Stealing"] = "Đang cướp trứng",
-	["Searching"] = "Đang tìm kiếm",
-	["Search"] = "Tìm kiếm...",
-	["Search..."] = "Tìm kiếm...",
-	["Find option"] = "Tìm tùy chọn...",
-	["🔍 Find option"] = "🔍 Tìm tùy chọn...",
+	-- Dynamic Island & Trạng thái trực tiếp (8037, 8038, 8039, 8044)
+	["Delivering UFO eggs"] = "Đang giao trứng UFO",
+	["delivering ufo eggs"] = "Đang giao trứng UFO",
+	["Collecting UFO rewards"] = "Đang nhận thưởng UFO",
+	["collecting ufo rewards"] = "Đang nhận thưởng UFO",
+	["Trading Space Rocks"] = "Đang đổi Đá Vũ Trụ",
+	["trading space rocks"] = "Đang đổi Đá Vũ Trụ",
+	["Collecting Space Rocks"] = "Đang nhặt Đá Vũ Trụ",
+	["Delivering Space Rocks"] = "Đang giao Đá Vũ Trụ",
+	["Waiting for UFO"] = "Đang chờ UFO",
+	["Entering UFO"] = "Đang vào UFO",
+	["Leaving UFO"] = "Đang rời UFO",
+	["Stealing UFO eggs"] = "Đang cướp trứng UFO",
+	["Auto Steal off"] = "Tự động cướp: Tắt",
+	["Auto Steal on"] = "Tự động cướp: Bật",
+	["Auto steal off"] = "Tự động cướp: Tắt",
+	["Auto steal on"] = "Tự động cướp: Bật",
 
-	-- Tab Sidebar
+	-- Tab Trang Chủ (8037.jpg)
 	["Home"] = "Trang Chủ",
 	["Dashboard"] = "Trang Chủ",
 	["Eggs"] = "Trứng",
 	["Egg"] = "Trứng",
-	["Steal"] = "Cướp Trứng",
 	["Manage"] = "Quản Lý",
 	["Management"] = "Quản Lý",
-	["Farm"] = "Tự Cày",
 	["Events"] = "Sự Kiện",
+	["Event"] = "Sự Kiện",
 	["System"] = "Hệ Thống",
 	["Player"] = "Người Chơi",
 	["Visuals"] = "Hiển Thị",
 	["Visual"] = "Hiển Thị",
 	["Settings"] = "Cài Đặt",
 	["Setting"] = "Cài Đặt",
-
-	-- Thẻ Trang chủ & Tiện ích
-	["CURRENT GAME"] = "TRÒ CHƠI HIỆN TẠI",
-	["Executor"] = "Trình Thực Thi",
-	["Open automation"] = "Mở tự động hóa",
-	["This session"] = "Phiên chơi này",
-	["SESSION TIME"] = "THỜI GIAN PHIÊN",
-	["NIGHT IN"] = "ĐÊM TRONG",
-	["DAY IN"] = "NGÀY TRONG",
 	["Inventory"] = "Túi đồ",
 	["Egg bag"] = "Túi trứng",
 	["Pet bag"] = "Túi thú cưng",
+	["Pet"] = "Thú cưng",
+	["Pets"] = "Thú cưng",
+	["THÚ CƯNG"] = "THÚ CƯNG",
 	["STOLEN"] = "ĐÃ CƯỚP",
 	["IN PEN"] = "TRONG CHUỒNG",
 	["INCOME /S"] = "THU NHẬP /GIÂY",
@@ -969,77 +1133,535 @@ local EXACT_VI = {
 	["Copy Job ID"] = "Sao chép Job ID",
 	["Unload"] = "Tắt script",
 	["WHAT'S NEW"] = "CÓ GÌ MỚI",
+	["NEW"] = "MỚI",
+	["FIX"] = "SỬA LỖI",
+	["Figgy SAE - Update v1.06"] = "Banana Hub - Bản cập nhật v1.06",
+	["v1.06: Fixed and improved script loading."] = "v1.06: Đã sửa lỗi và tối ưu tốc độ tải script.",
+	["v1.05: New Pet Finder above Shop with live logs, Min Value, Min Rarity, Auto Join, Force Join and a settings page with Sort By, age limits, new log alerts and an option to hide the server full popup. Pets and buttons have a springy hover, and the fig logo uses it too and plays its animation when you hover or click it. Fixed UFO eggs not being delivered, and debris is now collected inside the Rare UFO instead of on its roof."] = "v1.05: Thêm Tìm Thú Cưng phía trên Cửa Hàng với nhật ký trực tiếp, Giá Tối Thiểu, Độ Hiếm Tối Thiểu, Tự Vào, Ép Vào và trang cài đặt Sắp Xếp, giới hạn tuổi server, chuông báo mới và tùy chọn ẩn thông báo đầy phòng. Đã sửa lỗi không giao trứng UFO và tự nhặt mảnh vỡ bên trong UFO Hiếm.",
+
+	-- Tab Trứng: Automation & Predictor (8038.jpg, 8039.jpg)
+	["Automation"] = "Tự Động Hóa",
+	["AUTOMATION"] = "TỰ ĐỘNG HÓA",
+	["Predictor"] = "Dự Đoán",
+	["PREDICTOR"] = "DỰ ĐOÁN",
+	["EGG PREDICTOR"] = "DỰ ĐOÁN TRỨNG",
+	["TỰ ĐỘNG CƯỚP TRỨNG"] = "TỰ ĐỘNG CƯỚP TRỨNG",
 	["AUTO STEAL"] = "TỰ ĐỘNG CƯỚP TRỨNG",
-	["UFO SIGHTINGS"] = "PHÁT HIỆN UFO",
-	["Auto Steal"] = "Tự Động Cướp",
+	["STATUS"] = "TRẠNG THÁI",
 	["Speed"] = "Tốc Độ",
-	["Jump"] = "Nhảy Cao",
-	["Fly"] = "Bay",
-	["Noclip"] = "Đi Xuyên Tường",
-	["Infinite Jump"] = "Nhảy Vô Hạn",
-	["ESP"] = "Định Vị (ESP)",
-	["Enabled"] = "Đã Bật",
-	["Disabled"] = "Đã Tắt",
-	["Enable"] = "Bật",
-	["Disable"] = "Tắt",
-	["On"] = "Bật",
-	["Off"] = "Tắt",
-	["Open"] = "Mở",
-	["Close"] = "Đóng",
+	["Auto Steal"] = "Tự Động Cướp",
+	["Move To Egg"] = "Di Chuyển Tới Trứng",
+	["Move to Egg"] = "Di Chuyển Tới Trứng",
+	["Delivery Method"] = "Phương Thức Giao Trứng",
+	["Fast Tween"] = "Bay Nhanh (Fast Tween)",
+	["Teleport Zones"] = "Khu Vực Dịch Chuyển",
+	["Titan Temple"] = "Đền Titan",
+	["Steal Missing Index Eggs"] = "Cướp Trứng Thiếu Trong Mục Lục",
+	["Steal From Other Players"] = "Cướp Từ Người Chơi Khác",
+	["Anti Guard"] = "Chống Vệ Sĩ (Anti Guard)",
+	["Drop Eggs At Safe Zone"] = "Thả Trứng Tại Vùng An Toàn",
+	["FILTER"] = "BỘ LỌC",
+	["Zones"] = "Khu Vực",
+	["None"] = "Không có",
+	["Steal First"] = "Ưu Tiên Cướp",
+	["Highest Earnings"] = "Thu Nhập Cao Nhất",
+	["Lowest Earnings"] = "Thu Nhập Thấp Nhất",
+	["Highest Rarity"] = "Độ Hiếm Cao Nhất",
+	["Lowest Rarity"] = "Độ Hiếm Thấp Nhất",
+	["Highest Value"] = "Giá Trị Cao Nhất",
+	["Lowest Value"] = "Giá Trị Thấp Nhất",
+	["Mutations"] = "Đột Biến",
+	["No selection"] = "Chưa chọn",
+	["No Selection"] = "Chưa chọn",
+	["Rarities"] = "Độ Hiếm",
+	["Only These Eggs"] = "Chỉ Những Trứng Này",
+	["Min $/s"] = "Thu Nhập Tối Thiểu ($/s)",
+	["Min KG"] = "Cân Nặng Tối Thiểu (KG)",
+	["Sell Cheapest Egg"] = "Bán Trứng Rẻ Nhất",
+	["Makes room when the egg bag is full"] = "Tự bán bớt để dọn chỗ khi túi trứng bị đầy",
+	["Only Below /s"] = "Chỉ Bán Dưới Mức (/s)",
+	["Sell Below $/s"] = "Bán Dưới Mức ($/s)",
+	["Any"] = "Bất kỳ",
+	["AUTO HOP SERVER"] = "TỰ ĐỘNG ĐỔI MÁY CHỦ",
+	["Calculate Mutations"] = "Tính Thử Đột Biến",
+	["Mutation calculation is a preview; your eggs are unchanged."] = "Tính toán đột biến chỉ là bản xem trước; trứng của bạn không bị thay đổi.",
+	["Search pet, rarity, mutation..."] = "Tìm thú cưng, độ hiếm, đột biến...",
+	["Sort: Rarity"] = "Xếp: Độ Hiếm",
+	["Sort: Value"] = "Xếp: Giá Trị",
+	["Sort: Weight"] = "Xếp: Cân Nặng",
+	["Card: On"] = "Thẻ: Bật",
+	["Card: Off"] = "Thẻ: Tắt",
+
+	-- Tab Quản Lý: Túi đồ, Place & Hatch, Upgrades, Crafting (8040, 8041, 8042, 8043, 8044, 8045)
+	["Place & Hatch"] = "Đặt & Ấp Trứng",
+	["PLACE & HATCH"] = "ĐẶT & ẤP TRỨNG",
+	["Upgrades"] = "Nâng Cấp",
+	["UPGRADES"] = "NÂNG CẤP",
+	["Crafting"] = "Chế Tạo",
+	["CRAFTING"] = "CHẾ TẠO",
+	["EQUIP BEST"] = "TRANG BỊ TỐT NHẤT",
+	["EQUIPPED"] = "ĐANG TRANG BỊ",
+	["Auto Equip Best Pet"] = "Tự Trang Bị Thú Cưng Mạnh Nhất",
+	["Open Pet Bag"] = "Mở Túi Thú Cưng",
+	["AUTO FAVORITE"] = "TỰ ĐỘNG YÊU THÍCH (KHÓA)",
+	["FAVORITED"] = "ĐÃ KHÓA",
+	["UNFAVORITED"] = "CHƯA KHÓA",
+	["Categories"] = "Danh Mục",
+	["Auto Favorite Pets"] = "Tự Động Khóa Thú Cưng",
+	["Auto Favorite Equipped"] = "Tự Động Khóa Thú Đang Trang Bị",
+	["Unfavorite All"] = "Bỏ Khóa Tất Cả",
+	["Run"] = "Chạy",
+	["Favorite Rule"] = "Quy Tắc Khóa",
+	["Match All"] = "Khớp Tất Cả",
+	["Match Any"] = "Khớp Bất Kỳ",
+	["Minimum Rarity"] = "Độ Hiếm Tối Thiểu",
+	["Maximum Rarity"] = "Độ Hiếm Tối Đa",
+	["Always Favorite Species"] = "Luôn Khóa Loài Này",
+	["Auto Unfavorite Equipped"] = "Tự Bỏ Khóa Thú Đang Trang Bị",
+	["Favorite Matching Now"] = "Khóa Mục Khớp Bộ Lọc Ngay",
+	["Favorite"] = "Khóa Ngay",
+	["Favorite Equipped Now"] = "Khóa Thú Đang Trang Bị Ngay",
+	["Unfavorite Equipped Now"] = "Bỏ Khóa Thú Đang Trang Bị Ngay",
+	["Unfavorite Pets Not Matching"] = "Bỏ Khóa Thú Không Khớp Lọc",
+	["SELL EGGS"] = "BÁN TRỨNG",
+	["SPACE LEFT"] = "CHỖ TRỐNG",
+	["Egg Names"] = "Tên Trứng",
+	["Egg Rarities"] = "Độ Hiếm Trứng",
+	["Auto Sell Eggs"] = "Tự Động Bán Trứng",
+	["Sell Rule"] = "Quy Tắc Bán",
+	["Keep Mutated Eggs"] = "Giữ Lại Trứng Đột Biến",
+	["Never Sell Species"] = "Không Bao Giờ Bán Loài Này",
+	["Sell Matching Eggs Now"] = "Bán Trứng Khớp Lọc Ngay",
+	["Sell"] = "Bán",
+	["SELL PETS"] = "BÁN THÚ CƯNG",
+	["Auto Sell Pets"] = "Tự Động Bán Thú Cưng",
+	["Keep Mutated Pets"] = "Giữ Lại Thú Đột Biến",
+	["Sell Matching Pets Now"] = "Bán Thú Khớp Lọc Ngay",
+	["AUTO PLACE"] = "TỰ ĐỘNG ĐẶT TRỨNG",
+	["IN BAG"] = "TRONG TÚI",
+	["PLACED"] = "ĐÃ ĐẶT",
+	["AUTO HATCH"] = "TỰ ĐỘNG ẤP TRỨNG",
+	["READY NOW"] = "SẴN SÀNG ẤP",
+	["HATCHED"] = "ĐÃ ẤP",
+	["Priority"] = "Ưu Tiên",
+	["Auto Place Selected"] = "Tự Đặt Trứng Đã Chọn",
+	["Place And Hatch Missing Index Eggs"] = "Đặt & Ấp Trứng Thiếu Trong Mục Lục",
+	["Auto Place All"] = "Tự Động Đặt Tất Cả",
+	["Place When"] = "Đặt Khi",
+	["Always"] = "Luôn luôn",
+	["Auto Hatch Selected"] = "Tự Ấp Trứng Đã Chọn",
+	["Auto Hatch All"] = "Tự Động Ấp Tất Cả",
+	["KEEP EGGS"] = "GIỮ LẠI TRỨNG",
+	["Kept eggs are never placed, hatched or sold, in your bag or your pen."] = "Trứng được giữ sẽ không bao giờ bị đặt, ấp hay bán dù ở trong túi hay trong chuồng.",
+	["Eggs To Keep"] = "Trứng Cần Giữ Lại",
+	["Your eggs, best first"] = "Trứng của bạn, ưu tiên tốt nhất trước",
+	["Keep Matching Eggs"] = "Giữ Lại Trứng Khớp Bộ Lọc",
+	["Also keeps eggs that pass the two filters below"] = "Đồng thời giữ lại các trứng thỏa mãn hai bộ lọc bên dưới",
+	["Rarities To Keep"] = "Độ Hiếm Cần Giữ Lại",
+	["TASK ORDER"] = "THỨ TỰ ƯU TIÊN TÁC VỤ",
+	["Top goes first. A task never stops halfway: the next one waits until it finishes. A carried egg is always delivered first."] = "Mục ở trên chạy trước. Tác vụ không dừng giữa chừng: mục tiếp theo sẽ đợi đến khi hoàn tất. Trứng đang bế luôn được ưu tiên giao trước.",
+	["DOING NOW"] = "ĐANG THỰC HIỆN",
+	["NEXT 1"] = "TIẾP THEO 1",
+	["NEXT 2"] = "TIẾP THEO 2",
+	["NEXT 3"] = "TIẾP THEO 3",
+	["Steal Eggs"] = "Cướp Trứng",
+	["Shooting Stars"] = "Săn Sao Băng",
+	["The Hollow"] = "Vực Hollow",
+	["Butterflies"] = "Bắt Bướm",
+	["Hit Players"] = "Đánh Người Chơi",
+	["UFO Sightings"] = "Phát Hiện UFO",
+	["Trade Debris"] = "Đổi Mảnh Vỡ UFO",
+	["Place Eggs"] = "Đặt Trứng",
+	["Mutate Eggs"] = "Đột Biến Trứng",
+	["Reset Order"] = "Đặt Lại Thứ Tự",
+	["Reset"] = "Đặt lại",
+	["UPGRADES & REWARDS"] = "NÂNG CẤP & PHẦN THƯỞNG",
+	["BASE LEVEL"] = "CẤP CĂN CỨ",
+	["TREADMILL LEVEL"] = "CẤP MÁY TẬP",
+	["MONEY"] = "TIỀN HIỆN CÓ",
+	["OFFLINE CASH"] = "TIỀN NGOẠI TUYẾN",
+	["Auto Base Upgrade"] = "Tự Động Nâng Cấp Căn Cứ",
+	["Auto Treadmill Upgrade"] = "Tự Động Nâng Cấp Máy Tập",
+	["Auto Claim Offline Cash"] = "Tự Nhận Tiền Ngoại Tuyến",
+	["TRAILS"] = "VỆT SÁNG (TRAILS)",
+	["Auto Buy Best Trail"] = "Tự Mua Vệt Sáng Tốt Nhất",
+	["Auto Buy Trail"] = "Tự Động Mua Vệt Sáng",
+	["Trail Wanted"] = "Vệt Sáng Muốn Mua",
+	["Grey Trail"] = "Vệt Sáng Xám (Grey Trail)",
+
+	-- Tab Cài Đặt (8006, 8009)
+	["General"] = "Cài Đặt Chung",
+	["GENERAL"] = "CÀI ĐẶT CHUNG",
+	["Profiles"] = "Hồ Sơ",
+	["PROFILES"] = "HỒ SƠ CẤU HÌNH",
+	["Webhook"] = "Báo Cáo Webhook",
+	["WEBHOOK"] = "BÁO CÁO WEBHOOK",
+	["Quick Bars"] = "Thanh Nhanh",
+	["QUICK BARS"] = "THANH PHÍM TẮT NHANH",
+	["JOIN & STAY"] = "VÀO PHÒNG & DUY TRÌ",
+	["Auto Execute"] = "Tự Chạy Lại Script",
+	["Auto Reconnect"] = "Tự Kết Nối Lại Khi Văng",
+	["INTERFACE"] = "GIAO DIỆN",
+	["UI Scale"] = "Kích Cỡ Menu",
+	["Show / Hide UI"] = "Phím Ẩn / Hiện Menu",
+	["Transparent Background"] = "Nền Trong Suốt",
+	["Tone"] = "Tông Màu Sáng/Tối",
+	["Dim The Game"] = "Làm Tối Cảnh Game",
+	["SERVER"] = "MÁY CHỦ (SERVER)",
+	["PLAYERS"] = "NGƯỜI CHƠI",
+	["PING"] = "ĐỘ TRỄ (PING)",
+	["SERVER AGE"] = "TUỔI SERVER",
+	["1 Player Server"] = "Vào Server 1 Người",
+	["Join"] = "Vào",
+	["Job ID"] = "Mã Phòng (Job ID)",
+	["Paste a server Job ID..."] = "Dán mã Job ID máy chủ vào đây...",
+	["Join Job ID"] = "Vào Theo Job ID",
+	["Copy Current Job ID"] = "Sao Chép Job ID Hiện Tại",
+	["Copy"] = "Chép",
+	["Rejoin Server"] = "Vào Lại Máy Chủ Này",
+	["Vào lại game"] = "Vào Lại Game",
+	["Hop To"] = "Chuyển Tới Server",
+	["Least Players"] = "Ít Người Nhất",
+	["Most Players"] = "Đông Người Nhất",
+	["Server Hop"] = "Đổi Máy Chủ Khác",
+	["Hop"] = "Đổi",
+	["Language"] = "Ngôn Ngữ Gốc",
+	["Off (English)"] = "Tắt (Tiếng Việt Banana)",
+	["FPS & Ping"] = "Hiện FPS & Ping",
+	["Reset Interface"] = "Đặt Lại Giao Diện",
+	["Reset All Settings"] = "Đặt Lại Toàn Bộ Cài Đặt",
+	["STEAL PANEL"] = "BẢNG CƯỚP NHANH",
+	["Steal Panel"] = "Hiện Bảng Cướp Nhanh",
+	["Open Steal Panel"] = "Mở Bảng Cướp Nhanh",
+	["THEME"] = "CHỦ ĐỀ GIAO DIỆN",
+
+	-- ============================================================================
+	-- BỔ SUNG TỪ ĐIỂN ĐỢT 3 CHO TAB CÀI ĐẶT (PROFILES, WEBHOOK, QUICK BARS, THEMES - 8058-8065)
+	-- ============================================================================
+	-- 8058, 8059: Cài Đặt Chung & Danh Sách Theme
+	["Steal Notifications"] = "Thông Báo Cướp Trứng",
+	["Banana Gold"] = "Chuối Vàng (Banana Gold)",
+	["Blackberry"] = "Dâu Đen (Blackberry)",
+	["Blueberry"] = "Việt Quất (Blueberry)",
+	["Ocean Fig"] = "Đại Dương (Ocean Fig)",
+	["Matcha"] = "Trà Xanh (Matcha)",
+	["Vàng Hoàng Gia(Gold)"] = "Vàng Hoàng Gia (Gold)",
+	["Peach"] = "Quả Đào (Peach)",
+	["Dragonfruit"] = "Thanh Long (Dragonfruit)",
+	["Mono"] = "Đơn Sắc (Mono)",
+	["Obsidian"] = "Hắc Diện Thạch (Obsidian)",
+	["Aurora"] = "Cực Quang (Aurora)",
+
+	-- 8060, 8061: Hồ Sơ Cấu Hình (Profiles)
+	["Profile Name"] = "Tên Hồ Sơ",
+	["My profile"] = "Hồ sơ của tôi",
+	["Saved Profiles"] = "Hồ Sơ Đã Lưu",
+	["Create Profile"] = "Tạo Hồ Sơ Mới",
+	["Save Profile"] = "Lưu Hồ Sơ",
+	["Load Profile"] = "Nạp Hồ Sơ",
+	["Night"] = "Đêm",
+	["Set Startup Profile"] = "Đặt Hồ Sơ Mặc Định Khi Khởi Động",
+	["Set"] = "Đặt",
+	["Refresh Profiles"] = "Làm Mới Danh Sách",
+	["Refresh"] = "Làm Mới",
+	["Delete Profile"] = "Xóa Hồ Sơ",
+	["Export Config"] = "Xuất Mã Cấu Hình",
+	["Import Config Text"] = "Dán Mã Cấu Hình",
+	["Paste exported config..."] = "Dán mã cấu hình đã sao chép vào đây...",
+	["Import Name"] = "Tên Cấu Hình Mới",
+	["Name for the new config"] = "Nhập tên cho cấu hình mới",
+	["Import Config"] = "Nhập Cấu Hình",
+	["Auto Load"] = "Tự Nạp Khi Vào Game",
+	["Auto Save"] = "Tự Động Lưu",
+	["Reset to Defaults"] = "Khôi Phục Mặc Định",
+
+	-- 8062, 8063: Webhook Discord & Trạng Thái Báo Cáo
+	["Turn Off All Toggles"] = "Tắt Toàn Bộ Công Tắc",
+	["Enable Webhook"] = "Bật Webhook Discord",
+	["Discord User ID (ping)"] = "ID Người Dùng Discord (Ping)",
+	["Mention @everyone"] = "Tag @everyone",
+	["Log Disconnect / Reconnect"] = "Ghi Nhật Ký Mất / Kết Nối Lại",
+	["Send Test Post"] = "Gửi Thử Tin Nhắn",
+	["Send"] = "Gửi",
+	["WEBHOOK FILTER"] = "BỘ LỌC WEBHOOK",
+	["QUEUED"] = "ĐANG CHỜ GỬI",
+	["LAST POST"] = "LẦN GỬI CUỐI",
+	["Status:"] = "Trạng thái:",
+	["No filter set — every egg posts."] = "Không đặt bộ lọc — mọi trứng đều gửi báo cáo.",
+	["Last post failed: nil"] = "Lần gửi cuối: Thành công",
+	["Post Stolen Eggs"] = "Gửi Báo Cáo Trứng Cướp",
+	["Post Fused Eggs"] = "Gửi Báo Cáo Trứng Dung Hợp",
+	["Post When Bag Is Full"] = "Gửi Thông Báo Khi Túi Đầy",
+
+	-- 8064, 8065: Thanh Phím Tắt Nhanh (Quick Bars & Ghim)
+	["Floating bars with your pinned controls"] = "Thanh nổi trên màn hình chứa các nút bạn đã ghim",
+	["Keybinds"] = "Phím Tắt",
+	["Keys you give to switches and buttons"] = "Gán phím tắt nhanh cho các công tắc và nút bấm",
+	["Visible bars"] = "Số Thanh Hiển Thị",
+	["Quick Bar 1"] = "Thanh Nhanh 1",
+	["Quick Bar 2"] = "Thanh Nhanh 2",
+	["Quick Bar 3"] = "Thanh Nhanh 3",
+	["Bar size"] = "Kích Cỡ Thanh Nhanh",
+	["Reset positions"] = "Đặt Lại Vị Trí Thanh",
+	["Reset pins and keys"] = "Xóa Hết Ghim & Phím Tắt",
+	["PINS AND KEYBINDS"] = "GHIM TÍNH NĂNG & PHÍM TẮT",
+	["Tip: you can also hold any feature, or right-click it on PC, to pin it or set a key."] = "Mẹo: Bạn có thể nhấn giữ tính năng bất kỳ (hoặc chuột phải trên PC) để ghim hoặc gán phím tắt.",
+	["Find an option"] = "Tìm tùy chọn...",
+	["EGGS / AUTO STEAL"] = "TRỨNG / TỰ ĐỘNG CƯỚP",
+	["+ PIN"] = "+ GHIM",
+	["+ KEY"] = "+ PHÍM",
+	["EGGS / FILTER"] = "TRỨNG / BỘ LỌC",
+	["slider"] = "Thanh trượt",
+	["Pins & keybinds"] = "Ghim & Phím tắt",
+
+	-- ============================================================================
+	-- BỔ SUNG TỪ ĐIỂN ĐỢT 2 CHO CÁC TAB NÂNG CAO (8046 - 8057)
+	-- ============================================================================
+	-- 8046.jpg: Quản Lý -> Nâng Cấp & Chế Tạo
+	["Auto Equip Best Trail"] = "Tự Trang Bị Vệt Sáng Tốt Nhất",
+	["Cash Reserve"] = "Số Tiền Dự Trữ",
+	["Auto Claim Index Rewards"] = "Tự Nhận Thưởng Mục Lục",
+	["Auto Claim Group Reward"] = "Tự Nhận Thưởng Nhóm",
+	["Auto Claim Offline Earnings"] = "Tự Nhận Tiền Ngoại Tuyến",
+	["Auto Watch Ads"] = "Tự Xem Quảng Cáo",
+	["Auto Treadmill Training"] = "Tự Luyện Tập Máy Chạy",
+	["Auto Treadmill Upgrade"] = "Tự Nâng Cấp Máy Chạy",
+	["SPEED POWER"] = "SỨC MẠNH TỐC ĐỘ",
+	["GAINED"] = "ĐÃ NHẬN",
+	["FUSE"] = "DUNG HỢP",
+	["MUTATE A CHOSEN EGG"] = "ĐỘT BIẾN TRỨNG ĐÃ CHỌN",
+	["Mutations To Add"] = "Đột Biến Cần Thêm",
+	["Pick an egg in your pen to mutate it"] = "Chọn một quả trứng trong chuồng để đột biến",
+	["Species to Fuse"] = "Loài Cần Dung Hợp",
+
+	-- 8047.jpg: Quản Lý -> Chế Tạo (Chi tiết)
+	["Eject Incomplete Slots"] = "Đẩy Ô Chưa Đủ Ra",
+	["Auto Fuse Pets"] = "Tự Động Dung Hợp Thú Cưng",
+	["Fuse Rarities"] = "Độ Hiếm Dung Hợp",
+	["Fuse Mutations"] = "Đột Biến Dung Hợp",
+	["Fuse First"] = "Ưu Tiên Dung Hợp",
+	["Never Fuse Mutated"] = "Không Bao Giờ Dung Hợp Thú Đột Biến",
+	["Never Fuse Equipped"] = "Không Bao Giờ Dung Hợp Thú Đang Dùng",
+	["Auto Complete Reveal"] = "Tự Động Mở Nhanh Kết Quả",
+	["MUTATION"] = "ĐỘT BIẾN",
+	["Mutation Items"] = "Vật Phẩm Đột Biến",
+
+	-- 8048.jpg: Quản Lý -> Chế Tạo (Dự đoán)
+	["Fuse Now"] = "Dung Hợp Ngay",
+	["Target Priority"] = "Ưu Tiên Mục Tiêu",
+	["Auto Mutate Egg"] = "Tự Động Đột Biến Trứng",
+	["Skip Eggs With"] = "Bỏ Qua Trứng Đã Có",
+	["FUSE PREDICTOR"] = "DỰ ĐOÁN DUNG HỢP",
+	["EMPTY"] = "TRỐNG",
+	["Load 3 pets of one species to see the odds"] = "Đặt 3 thú cưng cùng một loài để xem tỷ lệ",
+	["EMPTY SLOT 1"] = "Ô TRỐNG 1",
+	["EMPTY SLOT 2"] = "Ô TRỐNG 2",
+	["EMPTY SLOT 3"] = "Ô TRỐNG 3",
+
+	-- 8049.jpg: Sự Kiện -> UFO & Mùa
+	["UFO"] = "Sự Kiện UFO",
+	["Seasonal"] = "Sự Kiện Mùa",
+	["AA"] = "Quyền Admin (AA)",
+	["Auto UFO"] = "Tự Động Chơi UFO",
+	["Collect UFO Debris"] = "Tự Nhặt Mảnh Vỡ UFO",
+	["Farm Rare UFO"] = "Săn UFO Hiếm",
+	["Auto Trade Debris"] = "Tự Động Đổi Mảnh Vỡ",
+	["Teleport If Far From Egg"] = "Dịch Chuyển Nếu Xa Trứng",
+	["UFO STATUS"] = "TRẠNG THÁI UFO",
+	["DEBRIS"] = "MẢNH VỠ",
+	["BUTTERFLY EVENT"] = "SỰ KIỆN BẮT BƯỚM",
+	["THE HOLLOW"] = "VỰC HOLLOW",
+	["ESSENCE"] = "TINH CHẤT",
+	["CAUGHT"] = "ĐÃ BẮT",
+	["NET"] = "VỢT BẮT",
+	["WINS"] = "SỐ TRẬN THẮNG",
+
+	-- 8050.jpg: Sự Kiện -> Mùa (Bướm, Đua xe, Nhiệm vụ Wisp)
+	["Auto Claim Butterfly Net"] = "Tự Nhận Vợt Bắt Bướm",
+	["Auto Catch Butterflies"] = "Tự Động Bắt Bướm",
+	["Catch Mode"] = "Chế Độ Bắt",
+	["Catch Priority"] = "Ưu Tiên Bắt",
+	["Strict Rarity"] = "Đúng Độ Hiếm",
+	["Auto Essence"] = "Tự Động Đổi Tinh Chất",
+	["Catch Speed"] = "Tốc Độ Bắt",
+	["Catch"] = "Loại Cần Bắt",
+	["Auto Race The Hollow"] = "Tự Đua Xe Vực Hollow",
+	["Race Speed"] = "Tốc Độ Đua",
+	["Use Power-Ups"] = "Dùng Vật Phẩm Tăng Tốc",
+	["WISP QUEST"] = "NHIỆM VỤ ĐỒNG HÀNH WISP",
+	["STAGE"] = "GIAI ĐOẠN",
+	["QUEST"] = "NHIỆM VỤ",
+	["Accepted"] = "Đã Nhận",
+	["Wisp: Done (Enchanted Tree unlocked)"] = "Nhiệm vụ Wisp: Hoàn Thành (Đã mở Cây Phù Phép)",
+	["Done (Enchanted Tree unlocked)"] = "Hoàn Thành (Đã mở Cây Phù Phép)",
+	["Enchanted Tree unlocked"] = "Đã mở Cây Phù Phép",
+	["Auto Wisp Quests"] = "Tự Làm Nhiệm Vụ Wisp",
+	["Auto Fuse For Quest"] = "Tự Dung Hợp Theo Nhiệm Vụ",
+	["Automate Eggs For Fuse"] = "Tự Động Chuẩn Bị Trứng",
+	["SHOOTING STARS"] = "SỰ KIỆN SAO BĂNG",
+	["State: Off"] = "Trạng thái: Tắt",
+	["State: On"] = "Trạng thái: Bật",
+
+	-- 8051.jpg: Sự Kiện -> Mùa (Đổi tinh chất bướm)
+	["Auto Catch Shooting Stars"] = "Tự Động Bắt Sao Băng",
+	["Open Wisp Window"] = "Mở Cửa Sổ Wisp",
+	["AUTO TRADE ESSENCE"] = "TỰ ĐỘNG ĐỔI TINH CHẤT",
+	["GREEN"] = "LỤC (GREEN)",
+	["BLUE"] = "LAM (BLUE)",
+	["PURPLE"] = "TÍM (PURPLE)",
+	["GOLDEN"] = "VÀNG (GOLDEN)",
+	["Auto Trade Up"] = "Tự Nâng Cấp Bậc Bướm",
+	["Trade Up Tiers"] = "Bậc Cần Nâng",
+	["Smart Trade For Essence"] = "Đổi Tinh Chất Thông Minh",
+
+	-- 8052.jpg: Sự Kiện -> Quyền Admin (AA)
+	["ADMIN ABUSE"] = "LẠM DỤNG ADMIN (AA)",
+	["No admin boost right now"] = "Hiện không có hiệu ứng tăng cường Admin nào",
+	["Instant Steal (AA)"] = "Cướp Tức Thì (Admin)",
+	["Use Admin Treadmill"] = "Tự Dùng Máy Chạy Admin",
+	["MINIGAME EGGS"] = "TRỨNG TỪ TRÒ CHƠI NHỎ",
+	["Waiting for Red Light Green Light or T-Rex Run"] = "Đang chờ Đèn Xanh Đèn Đỏ hoặc Cuộc Đua T-Rex",
+	["Auto Steal Minigame Egg"] = "Tự Cướp Trứng Minigame",
+	["CAPTURE THE EGG"] = "CƯỚP TRỨNG SỰ KIỆN",
+	["Auto Capture Event Egg"] = "Tự Động Bắt Trứng Sự Kiện",
+	["Take It From The Holder"] = "Cướp Trực Tiếp Từ Người Cầm",
+	["Capture Egg"] = "Bắt Trứng",
+	["Keep Away"] = "Khoảng Cách Giữ An Toàn",
+	["CURSED ISLAND WARS"] = "ĐẠI CHIẾN ĐẢO NGUYỀN RỦA",
+	["Auto Play Cursed Island Wars"] = "Tự Chơi Đại Chiến Đảo Nguyền Rủa",
+	["Island Wars Target"] = "Mục Tiêu Đảo Nguyền Rủa",
+	["Enemies and base"] = "Kẻ địch và Căn cứ",
+
+	-- 8053.jpg: Người Chơi -> Di Chuyển & Bảo Vệ
+	["Người Chơi"] = "Nhân Vật",
+	["Move"] = "Di Chuyển",
+	["Combat"] = "Chiến Đấu",
+	["MOVEMENT"] = "TỐC ĐỘ & DI CHUYỂN",
+	["Speed Boost"] = "Tăng Tốc Độ Chạy",
+	["Boost Speed"] = "Tốc Độ Tăng Thêm",
+	["Nhảy Vô Hạn"] = "Nhảy Vô Hạn",
+	["FREECAM"] = "GÓC NHÌN TỰ DO (FREECAM)",
+	["Freecam"] = "Bật Góc Nhìn Tự Do",
+	["Freecam Speed"] = "Tốc Độ Di Chuyển Cam",
+	["PROTECTION"] = "BẢO VỆ NHÂN VẬT",
+	["Anti Ragdoll"] = "Chống Ngã (Anti Ragdoll)",
+	["Ignore Traps"] = "Bỏ Qua Mọi Bẫy",
+	["Instant Prompts"] = "Nhấn Giữ Tương Tác Tức Thì",
+	["Chống AFK"] = "Chống Văng Game (Anti AFK)",
+	["Invisible"] = "Tàng Hình",
+	["God Mode"] = "Bất Tử (God Mode)",
+
+	-- 8054.jpg: Người Chơi -> Chiến Đấu
+	["COMBAT"] = "CHIẾN ĐẤU",
+	["HIT AURA"] = "VÒNG ĐÁNH XUNG QUANH",
+	["Hit Aura"] = "Vòng Đánh Tự Động (Hit Aura)",
+	["Skip Friends"] = "Bỏ Qua Bạn Bè",
+	["AUTO HIT"] = "TỰ ĐỘNG TẤN CÔNG",
+	["Auto Hit"] = "Tự Động Tấn Công",
+	["Hit Who"] = "Đối Tượng Tấn Công",
+	["Nearest player"] = "Người chơi gần nhất",
+	["Chosen Player"] = "Người chơi chỉ định",
+	["Chase Speed"] = "Tốc Độ Đuổi Theo",
+	["WEAPONS"] = "VŨ KHÍ",
+	["Use Weapons"] = "Sử Dụng Vũ Khí",
+	["Hold Each"] = "Thời Gian Cầm Mỗi Món (Giây)",
+
+	-- 8057.jpg: Hiển Thị -> Cài Đặt Hiển Thị & Tối Ưu
+	["Hiển Thị"] = "Hiển Thị",
+	["Định Vị (ESP)"] = "Định Vị (ESP)",
+	["Display"] = "Hiển Thị & FPS",
+	["Hide Pets"] = "Ẩn Thú Cưng",
+	["FPS Boost"] = "Tăng Tốc Khung Hình (FPS Boost)",
+	["Disable 3D Render"] = "Tắt Đồ Họa 3D (Treo Máy Siêu Nhẹ)",
+	["Background"] = "Màu Nền Khi Tắt 3D",
+	["Black"] = "Đen",
+	["White"] = "Trắng",
+	["FPS Cap"] = "Giới Hạn FPS",
+	["Hide Other Players' Pets And Eggs"] = "Ẩn Thú Cưng & Trứng Của Người Khác",
+	["Hide My Pets And Eggs"] = "Ẩn Thú Cưng & Trứng Của Bản Thân",
+	["Hide Game UI"] = "Ẩn Toàn Bộ Giao Diện Game",
+	["Low Graphics"] = "Đồ Họa Cực Thấp (Low Graphics)",
+	["Optimizer Mode"] = "Chế Độ Tối Ưu Hóa",
+	["Balanced"] = "Cân Bằng",
+	["Strong"] = "Tối Đa (Strong)",
 }
 
-local LOWER_VI = {}
-for k, v in pairs(EXACT_VI) do
+
+for k, v in pairs(EXTRA_EXACT_VI) do
+	EXACT_VI[k] = v
 	LOWER_VI[string.lower(k)] = v
 end
 
-local VI_TO_EN = {
-	["Banana Hub"] = "Figgy Hub",
-	["Cướp Trứng"] = "Steal an Egg",
-	["Trang Chủ"] = "Home",
-	["Trứng"] = "Eggs",
-	["Quản Lý"] = "Manage",
-	["Sự Kiện"] = "Events",
-	["Hệ Thống"] = "System",
-	["Người Chơi"] = "Player",
-	["Hiển Thị"] = "Visuals",
-	["Cài Đặt"] = "Settings",
-	["Đang rảnh"] = "Idle",
-	["• Đang rảnh"] = "• Idle",
-	["Đang chạy"] = "Working",
-	["Đang bật"] = "Active",
-	["Đang tắt"] = "Inactive",
-	["Đang cày"] = "Farming",
-	["Đang cướp trứng"] = "Stealing",
-	["Tìm kiếm..."] = "Search...",
-	["Tìm tùy chọn..."] = "Find option",
-	["TRÒ CHƠI HIỆN TẠI"] = "CURRENT GAME",
-	["Trình Thực Thi"] = "Executor",
-	["Mở tự động hóa"] = "Open automation",
-	["Phiên chơi này"] = "This session",
-	["THỜI GIAN PHIÊN"] = "SESSION TIME",
-	["ĐÊM TRONG"] = "NIGHT IN",
-	["NGÀY TRONG"] = "DAY IN",
-	["Túi đồ"] = "Inventory",
-	["Túi trứng"] = "Egg bag",
-	["Túi thú cưng"] = "Pet bag",
-	["ĐÃ CƯỚP"] = "STOLEN",
-	["TRONG CHUỒNG"] = "IN PEN",
-	["THU NHẬP /GIÂY"] = "INCOME /S",
-	["TRỨNG VỪA RỒI"] = "LAST EGG",
-	["CƯỚP KHỦNG NHẤT"] = "BEST STEAL",
-	["Vào lại game"] = "Rejoin",
-	["Tìm máy chủ"] = "Find server",
-	["Sao chép Job ID"] = "Copy Job ID",
-	["Tắt script"] = "Unload",
-	["CÓ GÌ MỚI"] = "WHAT'S NEW",
-}
+for k, v in pairs(EXACT_VI) do
+	if type(k) == "string" and type(v) == "string" and not VI_TO_EN[v] then
+		VI_TO_EN[v] = k
+		VI_TO_EN[string.lower(v)] = k
+	end
+end
 
-local STATIC_GRAMMAR_VI = {
-	{ pat = "^QUICK BAR (%d+)$", rep = "THANH NHANH %1" },
-	{ pat = "^THANH NHANH (%d+)$", rep = "THANH NHANH %1" },
+local EXTRA_DYN_VI = {
+	{ pat = "^Posted:%s*(%d+)$", rep = "Đã gửi: %1" },
+	{ pat = "^Queued:%s*(%d+)$", rep = "Đang chờ: %1" },
+	{ pat = "^Pinned%s+(%d+)$", rep = "Đã ghim: %1" },
+	{ pat = "^Keys%s+(%d+)$", rep = "Phím tắt: %1" },
+	{ pat = "^Đêm%s+([%d:]+)$", rep = "Đêm: %1" },
+	{ pat = "^Last post failed:%s*(.+)$", rep = "Gửi thất bại: %1" },
+
+	{ pat = "^UFO live,%s*([%d:]+)%s+left,%s*eggs%s+(%d+/%d+)$", rep = "UFO đang có, còn %1, trứng %2" },
+	{ pat = "^Butterfly Bloom in:%s*([%d:]+)$", rep = "Mùa bướm sau: %1" },
+	{ pat = "^Emerald%s+(%d+)%s+Sapphire%s+(%d+)%s+Amethyst%s+(%d+)%s+Radiant%s+(%d+)$", rep = "Lục Bảo %1 · Lam Ngọc %2 · Thạch Anh %3 · Rực Rỡ %4" },
+	{ pat = "^Essence:%s*(%d+)$", rep = "Tinh chất: %1" },
+	{ pat = "^Speed:%s*([%d%.]+[KkMmBbTtQq]?)%s*/%s*([%d%.]+[KkMmBbTtQq]?)$", rep = "Tốc độ: %1 / %2" },
+	{ pat = "^Wisp:%s*(.-)%s*%%%s*%((.-)%%%s*%)$", rep = "Wisp: %1 (%2)" },
+	{ pat = "^Wisp:%s*(.+)$", rep = "Nhiệm vụ Wisp: %1" },
+
 	{ pat = "^Session%s+([%d:]+)$", rep = "Phiên %1" },
+	{ pat = "^(%d+)%s+free$", rep = "Còn trống %1" },
+	{ pat = "^([%d%.]+[KkMmBbTtQq]?)%s+st/s%s+now$", rep = "%1 bước/giây" },
+	{ pat = "^Matches:%s*(%d+)%s*·%s*To mark:%s*(%d+)%s*·%s*Favorited:%s*(%d+)$", rep = "Khớp: %1 · Cần khóa: %2 · Đã khóa: %3" },
+	{ pat = "^Sell matches:%s*(%d+)%s*eggs?$", rep = "Khớp bán: %1 trứng" },
+	{ pat = "^Sell matches:%s*(%d+)%s*pets?$", rep = "Khớp bán: %1 thú cưng" },
+	{ pat = "^(%d+)%s+selected$", rep = "Đã chọn %1" },
+	{ pat = "^ALL%s+(%d+)$", rep = "TẤT CẢ %1" },
+	{ pat = "^READY%s+(%d+)$", rep = "SẴN SÀNG %1" },
+	{ pat = "^GROWING%s+(%d+)$", rep = "ĐANG LỚN %1" },
+	{ pat = "^IN BAG%s+(%d+)$", rep = "TRONG TÚI %1" },
+	{ pat = "^(%d+)%s+days?%s+ago$", rep = "%1 ngày trước" },
+	{ pat = "^(%d+)%s+hours?%s+ago$", rep = "%1 giờ trước" },
+	{ pat = "^(%d+)%s+minutes?%s+ago$", rep = "%1 phút trước" },
+	{ pat = "^(%d+)%s+seconds?%s+ago$", rep = "%1 giây trước" },
+	{ pat = "^(%d+m%s+%d+s)$", rep = "%1" },
 }
+for _, item in ipairs(EXTRA_DYN_VI) do
+	table.insert(DYN_VI, 1, item)
+end
+
+local function stripArt(s)
+	return ((" " .. s .. " "):gsub("%s+[Aa]%s+", " "):gsub("%s+[Aa]n%s+", " "):gsub("%s+[Tt]he%s+", " "):match("^%s*(.-)%s*$") or s)
+end
+
+local function applyPhrases(s)
+	local out = s
+	for i = 1, #PHRASES_VI do
+		local p = PHRASES_VI[i]
+		local guard = 0
+		while guard < 4 do
+			local a, b = out:lower():find(p[1], 1, true)
+			if not a then break end
+			out = out:sub(1, a - 1) .. p[2] .. out:sub(b + 1)
+			guard = guard + 1
+		end
+	end
+	return out
+end
+
+local function applyWords(s)
+	return (stripArt(s):gsub("([\128-\255%a']+)", function(w)
+		if w:find("[\128-\255]") then return w end
+		local l = w:lower()
+		return WORDS_VI[l] or LOWER_VI[l] or w
+	end))
+end
 
 local function isTreadmillOrIdleStatus(txt)
 	if not txt or txt == "" then return true end
@@ -1048,10 +1670,10 @@ local function isTreadmillOrIdleStatus(txt)
 	if low == "idle" or low == "đang rảnh" or low == "running" then
 		return true
 	end
-	if low == "treadmill" or low == "máy chạy bộ" or low == "may chay bo" then
+	if low == "treadmill" or low == "máy chạy bộ" or low == "may chay bo" or low == "máy tập" then
 		return true
 	end
-	if low:find("treadmill", 1, true) or low:find("máy chạy", 1, true) then
+	if low:find("treadmill", 1, true) or low:find("máy chạy", 1, true) or low:find("máy tập", 1, true) then
 		return true
 	end
 	return false
@@ -1066,13 +1688,7 @@ local function isDynamicHeartbeatLabelText(txt)
 	if t:find("^%$[%d%.,]+[KkMmBbTtQq]?/s$") or t:find("^%$[%d%.,]+[KkMmBbTtQq]?$") then
 		return true
 	end
-	if t:find("^%d+/%d+$") or t:find("^%d+%%$") then
-		return true
-	end
-	if t:find("bước/giây", 1, true) or t:find("st/s", 1, true) then
-		return true
-	end
-	if t:find("Carrying ", 1, true) or t:find("Đang mang ", 1, true) then
+	if t:find("^%d+%s*/%s*%d+$") or t:find("^%d+%%$") or t:find("^%d+%s*ms$") then
 		return true
 	end
 	return false
@@ -1080,38 +1696,82 @@ end
 
 local function translateStaticLabelText(rawText, targetLang)
 	if not rawText or rawText == "" then return rawText end
+	local ck = (targetLang or "VI") .. "|" .. rawText
+	if FastCache[ck] then return FastCache[ck] end
+
 	local lead, trimmed, trail = rawText:match("^(%s*)(.-)(%s*)$")
-	if not trimmed or trimmed == "" then return rawText end
+	if not trimmed or trimmed == "" then
+		FastCache[ck] = rawText
+		return rawText
+	end
 
 	if isDynamicHeartbeatLabelText(trimmed) then
+		FastCache[ck] = rawText
 		return rawText
 	end
 
 	if trimmed == "Figgy Hub" or trimmed == "figgy hub" or trimmed == "Banana Hub" or trimmed == "Figgy" then
-		return lead .. "Banana Hub" .. trail
+		local res = lead .. "Banana Hub" .. trail
+		FastCache[ck] = res
+		return res
 	end
 
-	if targetLang == "VI" then
-		local exact = EXACT_VI[trimmed] or LOWER_VI[string.lower(trimmed)]
-		if exact then
-			return lead .. exact .. trail
-		end
-
-		for i = 1, #STATIC_GRAMMAR_VI do
-			local g = STATIC_GRAMMAR_VI[i]
-			if string.find(trimmed, g.pat) then
-				return lead .. string.gsub(trimmed, g.pat, g.rep) .. trail
-			end
-		end
-
-		return rawText
-	else
+	if targetLang == "EN" then
 		local rev = VI_TO_EN[trimmed] or VI_TO_EN[string.lower(trimmed)]
-		if rev then
-			return lead .. rev .. trail
-		end
+		local res = rev and (lead .. rev .. trail) or rawText
+		FastCache[ck] = res
+		return res
+	end
+
+	local norm = trimmed:gsub("%s+", " ")
+	if norm:match("^[%$%+%-%d%.%,%/%%sxhm:]+$") or (norm:match("^v%d+%.%d+") and #norm < 10) then
+		FastCache[ck] = rawText
 		return rawText
 	end
+
+	local exact = EXACT_VI[norm] or LOWER_VI[string.lower(norm)]
+	if exact then
+		local res = lead .. exact .. trail
+		FastCache[ck] = res
+		return res
+	end
+
+	local pfx, wp = norm:match("^([^%w%s]+%s*)(.+)$")
+	if pfx and wp and (EXACT_VI[wp] or LOWER_VI[wp:lower()]) then
+		local res = lead .. pfx .. (EXACT_VI[wp] or LOWER_VI[wp:lower()]) .. trail
+		FastCache[ck] = res
+		return res
+	end
+
+	for i = 1, #DYN_VI do
+		if norm:find(DYN_VI[i].pat) then
+			local res = lead .. norm:gsub(DYN_VI[i].pat, DYN_VI[i].rep) .. trail
+			FastCache[ck] = res
+			return res
+		end
+	end
+
+	local res, hit = norm, false
+	local caps = (norm:upper() == norm and norm:find("%a") ~= nil)
+	for i = 1, #GRAMMAR_VI do
+		if res:find(GRAMMAR_VI[i].pat) then
+			res = res:gsub(GRAMMAR_VI[i].pat, GRAMMAR_VI[i].rep)
+			hit = true
+			break
+		end
+	end
+
+	local phr = applyPhrases(res)
+	if hit or phr ~= res or res:find("%s") then
+		local fin = applyWords(phr):gsub("Figgy Hub", "Banana Hub"):gsub("Venyx", "Banana Hub"):gsub("%s+", " "):match("^%s*(.-)%s*$") or res
+		if caps and fin ~= norm then fin = fin:upper() end
+		local finalOut = lead .. fin .. trail
+		FastCache[ck] = finalOut
+		return finalOut
+	end
+
+	FastCache[ck] = rawText
+	return rawText
 end
 
 local function formatIslandStatusText(rawStatus)
@@ -1119,35 +1779,10 @@ local function formatIslandStatusText(rawStatus)
 	if isTreadmillOrIdleStatus(clean) then
 		return (State.Language == "EN") and "Idle" or "Đang rảnh"
 	end
-
-	local low = string.lower(clean)
 	if State.Language == "EN" then
 		return clean
-	else
-		if low:find("carrying ", 1, true) then
-			return (clean:gsub("[Cc]arrying%s+", "Đang mang "))
-		end
-		if low:find("holding ", 1, true) then
-			return (clean:gsub("[Hh]olding%s+", "Đang giữ "))
-		end
-		if low:find("stealing", 1, true) then
-			return (clean:gsub("[Ss]tealing", "Đang cướp"))
-		end
-		if low:find("farming", 1, true) then
-			return (clean:gsub("[Ff]arming", "Đang cày"))
-		end
-		if low:find("waiting", 1, true) then
-			return (clean:gsub("[Ww]aiting", "Đang chờ"))
-		end
-		if low:find("night ", 1, true) then
-			return (clean:gsub("[Nn]ight%s+", "Đêm "))
-		end
-		if low:find("day ", 1, true) then
-			return (clean:gsub("[Dd]ay%s+", "Ngày "))
-		end
-		local exact = EXACT_VI[clean] or LOWER_VI[low]
-		return exact or clean
 	end
+	return translateStaticLabelText(clean, "VI")
 end
 
 -- ============================================================================
@@ -2066,8 +2701,23 @@ local function downloadBananaCatThumbPng()
 end
 
 local function resolveBananaCatOverrideAsset()
-	if State.BananaCatOverrideAsset then return State.BananaCatOverrideAsset end
-	-- Chống tải trùng khi nhiều mốc quét chạy song song lúc khởi động.
+	-- Dùng trực tiếp rbxthumb:// siêu tốc (0ms, không gọi HTTP chặn luồng chính gây đơ game!)
+	if not State.BananaCatOverrideAsset then
+		State.BananaCatOverrideAsset = BANANA_CAT_LOGO
+		pcall(function()
+			if type(isfile) == "function" and type(getcustomasset) == "function" then
+				if isfile(BANANA_CAT_CUSTOM_FILE) then
+					local okA, a = pcall(getcustomasset, BANANA_CAT_CUSTOM_FILE)
+					if okA and type(a) == "string" and a ~= "" then
+						State.BananaCatOverrideAsset = a
+					end
+				end
+			end
+		end)
+	end
+	return State.BananaCatOverrideAsset
+end
+local function _unused_old_resolveBananaCatOverrideAsset()
 	if State.BananaCatAssetResolving then return BANANA_CAT_LOGO end
 	State.BananaCatAssetResolving = true
 	local resolved = nil
@@ -2368,6 +3018,7 @@ local function applyRightOnionSquare(container)
 	if not container or not container.Parent then return end
 	if container:GetAttribute("__RightOnionDone") == SID then return end
 	container:SetAttribute("__RightOnionDone", SID)
+	State.RightOnionDone = container
 
 	local thick = 2.0
 	-- Hình vuông bo góc (isRoundedSquare = true)
@@ -2426,6 +3077,9 @@ local function isBlockedGuiByName(gui)
 end
 
 local function scanRightOnionButtonOnce()
+	if State.RightOnionDone and State.RightOnionDone.Parent and State.RightOnionDone:FindFirstChild("BananaCatCircleAvatar") then
+		return
+	end
 	local vpW, vpH = getViewportWidth(), getViewportHeight()
 	local roots, seenRoots = {}, {}
 	local function addRoot(r)
@@ -2500,12 +3154,16 @@ task.defer(function()
 	end
 end)
 
--- Các mốc một lần (không phải vòng lặp) để bắt ScreenGui độc lập dựng muộn.
-for _, delaySec in ipairs({ 1.00, 2.20, 3.50, 6.00, 9.00, 14.00 }) do
+-- Chỉ quét nhẹ ở 2 mốc ngắn (0.8s và 2.5s) và dừng ngay khi đã gắn xong cả 2 nút (chống đơ game 100%)
+for _, delaySec in ipairs({ 0.80, 2.50 }) do
 	task.delay(delaySec, function()
 		if isAlive() then
-			pcall(scanGlobalLeftOnionButtonsOnce)
-			pcall(scanRightOnionButtonOnce)
+			if not State.OnionButton then
+				pcall(scanGlobalLeftOnionButtonsOnce)
+			end
+			if not State.RightOnionDone then
+				pcall(scanRightOnionButtonOnce)
+			end
 		end
 	end)
 end
@@ -2783,6 +3441,19 @@ local function translateMenuElementOnce(obj)
 	if obj:GetAttribute("__StaticTracked") ~= SID then
 		obj:SetAttribute("__StaticTracked", SID)
 		table.insert(State.StaticLabels, obj)
+		local updatingText = false
+		trackConn(obj:GetPropertyChangedSignal("Text"):Connect(function()
+			if updatingText or not isAlive() then return end
+			local newT = obj.Text or ""
+			if newT == "" or isDynamicHeartbeatLabelText(newT) then return end
+			local tr = translateStaticLabelText(newT, State.Language)
+			if tr and tr ~= newT then
+				updatingText = true
+				obj:SetAttribute("__FiggyOrigText", newT)
+				pcall(function() obj.Text = tr end)
+				updatingText = false
+			end
+		end))
 	end
 end
 
@@ -3039,14 +3710,36 @@ local function hookTargetScreenGui(gui)
 	State.ActiveFiggyGui = gui
 	gui:SetAttribute("__FiggyGuiHooked", SID)
 
-	-- Bắt liên tục từng phần tử để đảm bảo khi chuyển Tab hoặc mở Menu luôn 100% tiếng Việt!
+	-- Hàng đợi xử lý theo lô (Batch Queue) siêu mượt: khi chuyển Tab có hàng trăm phần tử mới,
+	-- gom lại xử lý nhẹ nhàng, không tạo hàng trăm luồng task.defer gây khựng/đơ game!
+	local pendingQueue = {}
+	local queueScheduled = false
+	local function flushPendingQueue()
+		queueScheduled = false
+		if not isAlive() then return end
+		local count = #pendingQueue
+		for i = 1, count do
+			local item = pendingQueue[i]
+			pendingQueue[i] = nil
+			if item and item.Parent then
+				pcall(processGuiElement, item)
+			end
+			if i % 140 == 0 then
+				task.wait()
+				if not isAlive() then return end
+			end
+		end
+	end
+
 	local liveDescConn = gui.DescendantAdded:Connect(function(desc)
 		if not isAlive() then return end
-		task.defer(function()
-			if isAlive() and desc and desc.Parent then
-				pcall(processGuiElement, desc)
+		if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") or desc:IsA("ImageLabel") or desc:IsA("ImageButton") or desc:IsA("Frame") then
+			table.insert(pendingQueue, desc)
+			if not queueScheduled then
+				queueScheduled = true
+				task.defer(flushPendingQueue)
 			end
-		end)
+		end
 	end)
 	trackConn(liveDescConn)
 
@@ -3063,7 +3756,7 @@ local function hookTargetScreenGui(gui)
 			for i, d in ipairs(descendants) do
 				if not isAlive() then break end
 				pcall(processGuiElement, d)
-				if i % 350 == 0 then
+				if i % 120 == 0 then
 					task.wait()
 				end
 			end
@@ -3148,25 +3841,27 @@ task.spawn(function()
 		end)
 	end
 
-	-- Chọn theme Vàng Hoàng Gia (Lemon) đúng thẻ, một lần, không đổi màu toàn menu.
-	pcall(trySelectGoldThemeOnce)
+	-- Thực thi phân tầng theo nhịp mượt mà (tránh dồn 5 lệnh quét DOM cùng 1 khung hình gây đơ game)
+	task.delay(0.15, function()
+		if not isAlive() then return end
+		pcall(scanPurpleOnionButtonsOnce)
+		pcall(scanRightOnionButtonOnce)
+		pcall(trySelectGoldThemeOnce)
+	end)
 
-	-- Thực thi dứt khoát 1 lần sau khi giao diện khởi tạo xong (Zero-Lag, không dùng while loop)
-	pcall(cleanupPreviousOverlaysAndDeduplicate)
-	pcall(scanPurpleOnionButtonsOnce)
-	pcall(scanRightOnionButtonOnce)
-	pcall(refreshAllTranslatedMenus)
-	pcall(trySelectGoldThemeOnce)
+	task.delay(0.85, function()
+		if not isAlive() then return end
+		pcall(cleanupPreviousOverlaysAndDeduplicate)
+		pcall(scanPurpleOnionButtonsOnce)
+		pcall(scanRightOnionButtonOnce)
+		pcall(refreshAllTranslatedMenus)
+		pcall(trySelectGoldThemeOnce)
+	end)
 
-	-- Vài mốc một lần (không phải vòng lặp) để bắt kịp lúc menu dựng xong theme grid.
-	for _, delaySec in ipairs({ 0.80, 3.20 }) do
-		task.delay(delaySec, function()
-			if not isAlive() then return end
-			pcall(cleanupPreviousOverlaysAndDeduplicate)
-			pcall(scanPurpleOnionButtonsOnce)
-			pcall(scanRightOnionButtonOnce)
-			pcall(refreshAllTranslatedMenus)
-			pcall(trySelectGoldThemeOnce)
-		end)
-	end
+	task.delay(2.50, function()
+		if not isAlive() then return end
+		pcall(scanRightOnionButtonOnce)
+		pcall(refreshAllTranslatedMenus)
+		pcall(trySelectGoldThemeOnce)
+	end)
 end)
