@@ -1,5 +1,5 @@
 -- ============================================================================
--- BANANA HUB V1.0.12 (LIQUID GLASS EDITION) | FIX ĐƠ: cleanup async + cache isFiggyWindowGui + chunk defer thay task.wait + early-exit isDeltaOrExecutorGui
+-- BANANA HUB V1.0.13 (LIQUID GLASS EDITION) | FIX ĐƠ: cleanup async + cache isFiggyWindowGui + chunk defer thay task.wait + early-exit isDeltaOrExecutorGui
 -- Script gốc: loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/91ad82d753e1318189c4e249d56e7dcf.lua"))()
 -- 1. [KHẮC PHỤC TRIỆT ĐỂ LỖI LỘ ẢNH MỜ GỐC LÚC MỚI CHẠY & KHÔNG GHIM NHẦM]:
 --    + Đo kích thước thực tế qua cả `AbsoluteSize` lẫn `Size.Offset` để bắt dính nút ngay từ
@@ -27,13 +27,8 @@ local TweenService = game:GetService("TweenService")
 local SoundService = game:GetService("SoundService")
 local Workspace = game:GetService("Workspace")
 
+-- [FIX-ĐƠ] Bỏ :Wait() blocking - trên mobile LocalPlayer luôn có sẵn khi chạy script
 local LocalPlayer = Players.LocalPlayer
-if not LocalPlayer then
-	pcall(function()
-		LocalPlayer = Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
-	end)
-	LocalPlayer = Players.LocalPlayer
-end
 
 -- Ngắt sạch mọi kết nối từ các lần chạy trước
 local env = (getgenv and getgenv()) or _G
@@ -2936,20 +2931,23 @@ local function hookUiContainerForExactOnions(container)
 	trackConn(conn)
 end
 
-pcall(function() hookUiContainerForExactOnions(game:GetService("CoreGui")) end)
-pcall(function()
+-- [FIX-ĐƠ] Chuyển toàn bộ hookUiContainer vào task.spawn để không block main thread
+-- WaitForChild("PlayerGui", 5) trước đây có thể gây đơ 5 giây trên mobile!
+task.spawn(function()
+	pcall(function() hookUiContainerForExactOnions(game:GetService("CoreGui")) end)
+	if gethui then pcall(function() hookUiContainerForExactOnions(gethui()) end) end
 	if LocalPlayer then
-		local pg = LocalPlayer:FindFirstChildOfClass("PlayerGui") or LocalPlayer:WaitForChild("PlayerGui", 5)
-		if pg then hookUiContainerForExactOnions(pg) end
+		-- Dùng FindFirstChildOfClass trước, chỉ WaitForChild nếu chưa có (timeout 3s thay vì 5s)
+		local pg = LocalPlayer:FindFirstChildOfClass("PlayerGui")
+		if not pg then
+			local ok2, pg2 = pcall(function() return LocalPlayer:WaitForChild("PlayerGui", 3) end)
+			if ok2 then pg = pg2 end
+		end
+		if pg then pcall(hookUiContainerForExactOnions, pg) end
 	end
-end)
-if gethui then pcall(function() hookUiContainerForExactOnions(gethui()) end) end
-
--- Chạy ngay lập tức khi load script
-task.defer(function()
-	if isAlive() then
-		pcall(scanAndApplyExactTwoOnions)
-	end
+	task.defer(function()
+		if isAlive() then pcall(scanAndApplyExactTwoOnions) end
+	end)
 end)
 
 -- ============================================================================
@@ -3658,13 +3656,15 @@ end
 -- ============================================================================
 -- 9. KHỞI CHẠY DYNAMIC ISLAND TRƯỚC & CHẶN 0.0 GIÂY LÚC TẢI SCRIPT GỐC
 -- ============================================================================
-createIndependentFiggyDynamicIsland()
-
--- [FIX-ĐƠ] Chuyển cleanupPreviousOverlaysAndDeduplicate vào task.spawn để không block main thread khi load
+-- [FIX-ĐƠ] Chuyển createIndependentFiggyDynamicIsland + cleanup vào task.spawn
+-- Trên mobile yếu, tạo hàng chục Instance đồng bộ = đơ ngay lúc load
 local existingFiggyGui = nil
 
 task.spawn(function()
-	-- Chạy dọn dẹp trong luồng riêng, không đơ main thread
+	-- Tạo Dynamic Island trong luồng riêng
+	pcall(createIndependentFiggyDynamicIsland)
+
+	-- Dọn dẹp trong luồng riêng, không đơ main thread
 	local ok, result = pcall(cleanupPreviousOverlaysAndDeduplicate)
 	if ok and result then existingFiggyGui = result end
 
