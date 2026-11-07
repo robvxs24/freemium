@@ -1526,10 +1526,8 @@ local function applyPhrases(s)
 end
 
 local function applyWords(s)
-	return (stripArt(s):gsub("([
-8-­%a']+)", function(w)
-		if w:find("[
-8-­]") then return w end
+	return (stripArt(s):gsub("([\128-\255%a']+)", function(w)
+		if w:find("[\128-\255]") then return w end
 		local l = w:lower()
 		return WORDS_VI[l] or LOWER_VI[l] or w
 	end))
@@ -2563,7 +2561,7 @@ local BANANA_CAT_CUSTOM_FILE = "figgy_banana_cat.png"
 local function downloadBananaCatThumbPng()
 	if type(game.HttpGet) ~= "function" then return nil end
 	local okJson, json = pcall(function()
-		return game:HttpGet("https://www.google.com/search?q=https://thumbnails.roblox.com/v1/assets%3FassetIds%3D" .. BANANA_CAT_ASSET_ID .. "&size=420x420&format=Png")
+		return game:HttpGet("https://thumbnails.roblox.com/v1/assets?assetIds=" .. BANANA_CAT_ASSET_ID .. "&size=420x420&format=Png")
 	end)
 	if not okJson or type(json) ~= "string" or #json < 32 then return nil end
 	local url = json:match('"imageUrl"%s*:%s*"([^"]+)"')
