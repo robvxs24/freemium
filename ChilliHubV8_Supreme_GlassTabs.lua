@@ -1,5 +1,5 @@
 -- ============================================================================
--- BANANA HUB V1.0.11 (LIQUID GLASS EDITION) | BANANA LOGOS + GOLD THEME + HOME | FIX: scanRightOnionButtonOnce + mở rộng vùng quét 2 nút củ hành
+-- BANANA HUB V1.0.12 (LIQUID GLASS EDITION) | FIX ĐƠ: cleanup async + cache isFiggyWindowGui + chunk defer thay task.wait + early-exit isDeltaOrExecutorGui
 -- Script gốc: loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/91ad82d753e1318189c4e249d56e7dcf.lua"))()
 -- 1. [KHẮC PHỤC TRIỆT ĐỂ LỖI LỘ ẢNH MỜ GỐC LÚC MỚI CHẠY & KHÔNG GHIM NHẦM]:
 --    + Đo kích thước thực tế qua cả `AbsoluteSize` lẫn `Size.Offset` để bắt dính nút ngay từ
@@ -226,6 +226,9 @@ local function isFiggyWindowGui(gui)
 	local gName = gui.Name or ""
 	if IGNORED_SCREEN_GUIS[gName] or gName:find("^Old_") then return false end
 	if gui:GetAttribute("__VerifiedFiggyWindowGui") == true then return true end
+	-- [FIX-ĐƠ] Nếu đã kiểm tra và xác định không phải Figgy → trả về false ngay, không quét lại
+	if gui:GetAttribute("__IsExecutorGui") == true then return false end
+	if gui:GetAttribute("__NotFiggyGui") == true then return false end
 
 	local okD, desc = pcall(function() return gui:GetDescendants() end)
 	if not okD or type(desc) ~= "table" then return false end
@@ -261,12 +264,16 @@ local function isFiggyWindowGui(gui)
 		gui:SetAttribute("__IsExecutorGui", false)
 		return true
 	end
+	-- [FIX-ĐƠ] Đánh dấu không phải Figgy để bỏ qua ngay ở lần sau, không quét GetDescendants lại
+	gui:SetAttribute("__NotFiggyGui", true)
 	return false
 end
 
 local function isDeltaOrExecutorGui(gui)
 	if not gui then return false end
 	if gui:GetAttribute("__VerifiedFiggyWindowGui") == true then return false end
+	-- [FIX-ĐƠ] Nếu đã xác nhận là executor trước đó → trả về ngay
+	if gui:GetAttribute("__IsExecutorGui") == true then return true end
 
 	local gName = string.lower(gui.Name or "")
 	for _, kw in ipairs(EXECUTOR_KEYWORDS) do
@@ -3500,16 +3507,24 @@ local function hookTargetScreenGui(gui)
 		queueScheduled = false
 		if not isAlive() then return end
 		local count = #pendingQueue
-		for i = 1, count do
+		-- [FIX-ĐƠ] Xử lý tối đa 60 phần tử mỗi frame thay vì 140, tránh đơ 1 frame quá lâu
+		local limit = math.min(count, 60)
+		for i = 1, limit do
 			local item = pendingQueue[i]
 			pendingQueue[i] = nil
 			if item and item.Parent then
 				pcall(processGuiElement, item)
 			end
-			if i % 140 == 0 then
-				task.wait()
-				if not isAlive() then return end
+		end
+		-- Nếu còn phần tử chưa xử lý thì defer sang frame tiếp theo
+		if count > limit then
+			-- Dồn phần còn lại về đầu mảng
+			for i = limit + 1, count do
+				pendingQueue[i - limit] = pendingQueue[i]
+				pendingQueue[i] = nil
 			end
+			queueScheduled = true
+			task.defer(flushPendingQueue)
 		end
 	end
 
@@ -3574,6 +3589,7 @@ local function hookTargetScreenGui(gui)
 	task.spawn(function()
 		local okDesc, descendants = pcall(function() return gui:GetDescendants() end)
 		if okDesc and type(descendants) == "table" then
+			-- Tìm title trước (nhẹ)
 			for _, d in ipairs(descendants) do
 				if d:IsA("TextLabel") and (d.Text == "Figgy Hub" or d.Text == "Banana Hub" or d.Text == "FrostyFig") then
 					pcall(bindHeaderAndLogosFromTitle, d)
@@ -3584,15 +3600,24 @@ local function hookTargetScreenGui(gui)
 				pcall(bindMenuVisibilityListener, State.FiggyMainWindow)
 			end
 
-			for i, d in ipairs(descendants) do
-				if not isAlive() then break end
-				pcall(processGuiElement, d)
-				if i % 120 == 0 then
-					task.wait()
+			-- [FIX-ĐƠ] Xử lý theo lô 80 phần tử/frame bằng task.defer thay vì task.wait()
+			-- task.wait() chặn luồng hiện tại; task.defer trả CPU ngay cho game, tiếp tục frame sau
+			local CHUNK = 80
+			local total = #descendants
+			local function processChunk(startIdx)
+				if not isAlive() then return end
+				local endIdx = math.min(startIdx + CHUNK - 1, total)
+				for i = startIdx, endIdx do
+					pcall(processGuiElement, descendants[i])
+				end
+				if endIdx < total then
+					task.defer(processChunk, endIdx + 1)
+				else
+					pcall(scanPurpleOnionButtonsOnce)
 				end
 			end
+			task.defer(processChunk, 1)
 		end
-		pcall(scanPurpleOnionButtonsOnce)
 	end)
 end
 
@@ -3635,9 +3660,14 @@ end
 -- ============================================================================
 createIndependentFiggyDynamicIsland()
 
-local existingFiggyGui = cleanupPreviousOverlaysAndDeduplicate()
+-- [FIX-ĐƠ] Chuyển cleanupPreviousOverlaysAndDeduplicate vào task.spawn để không block main thread khi load
+local existingFiggyGui = nil
 
 task.spawn(function()
+	-- Chạy dọn dẹp trong luồng riêng, không đơ main thread
+	local ok, result = pcall(cleanupPreviousOverlaysAndDeduplicate)
+	if ok and result then existingFiggyGui = result end
+
 	if existingFiggyGui and existingFiggyGui.Parent then
 		pcall(hookTargetScreenGui, existingFiggyGui)
 	end
